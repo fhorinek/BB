@@ -90,7 +90,8 @@ struct fanet_addr_t
 #define NB_ONLINE_TRACKING		0b00010000
 #define NB_FRIEND				0b00100000
 #define NB_IS_FLYING			0b01000000
-#define NB_VALID				0b10000000
+
+#define NB_HAVE_POS				0b10000000
 
 #define NB_NAME_LEN				16
 #define NB_TOO_FAR				0xFFFF

@@ -16,10 +16,9 @@
 #include <cstdio>
 #include <cstring>
 
+#include "fatfs.h"
 
 extern "C" void task_Debug(void *argument);
-extern "C" void debug_tx_irq_done();
-
 
 void debug_send(uint8_t type, const char *format, ...)
 {
@@ -30,7 +29,7 @@ void debug_send(uint8_t type, const char *format, ...)
 
 	va_list arp;
 	char msg_buff[256];
-	int16_t length;
+	uint16_t length;
 
 	va_start(arp, format);
 	length = vsnprintf(msg_buff, sizeof(msg_buff), format, arp);
@@ -45,8 +44,8 @@ void debug_send(uint8_t type, const char *format, ...)
 		debug_send(DBG_ERROR, "Next message is too long!");
 	}
 
-	msg.messaage = (char *) malloc(length + 1);
-	strcpy(msg.messaage, msg_buff);
+	msg.message = (char *) malloc(length + 1);
+	strcpy(msg.message, msg_buff);
 
 	if (xPortIsInsideInterrupt())
 	{
@@ -58,15 +57,12 @@ void debug_send(uint8_t type, const char *format, ...)
 	}
 }
 
-void debug_tx_irq_done()
-{
-	vTaskNotifyGiveFromISR((TaskHandle_t)DebugHandle, NULL);
-}
 
 void task_Debug(void *argument)
 {
 	//DMA TX buffer
 	static char message[256 + 20];
+	FIL debug_file;
 
 	INFO("Started");
 
@@ -77,14 +73,20 @@ void task_Debug(void *argument)
 
 		char id[] = "DIWE";
 
-		sprintf(message, "[%c][%s] %s\n", id[msg.type], msg.sender, msg.messaage);
-		free(msg.messaage);
+		sprintf(message, "[%c][%s] %s\n", id[msg.type], msg.sender, msg.message);
+		free(msg.message);
 
-		//HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen(message), 100);
-		if (HAL_UART_Transmit_DMA(&huart1, (uint8_t *)message, strlen(message)) != HAL_OK)
+		uint8_t res;
+		do {
+			res = HAL_UART_Transmit(&debug_uart, (uint8_t *)message, strlen(message), 100);
+		} while (res != HAL_OK);
+
+		res = f_open(&debug_file, "debug.log", FA_WRITE | FA_OPEN_APPEND);
+		if (res == FR_OK)
 		{
-			Error_Handler();
+			UINT len;
+			f_write(&debug_file, message, strlen(message), &len);
+			f_close(&debug_file);
 		}
-		ulTaskNotifyTake(false, 10);
 	}
 }

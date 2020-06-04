@@ -53,6 +53,11 @@ void entry_set_str(cfg_entry_t * e, char * value)
 				}
 			}
 		}
+	case(ENTRY_TEXT):
+		config_set_text(e, value);
+		DBG(">text %s = '%s'", e->name_id, e->value.str);
+		return;
+
 	default:
 		WARN("Not parsed %s = %s!", e->name_id, value);
 	break;

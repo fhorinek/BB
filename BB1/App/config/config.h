@@ -34,6 +34,10 @@
 #define DISTANCE_METERS	0
 #define DISTANCE_MILES	1
 
+#define GNSS_MODULE_SIM	0
+#define GNSS_MODULE_L96	1
+#define GNSS_MODULE_UBL	2
+
 struct config_t
 {
 	struct cfg_pilot_t
@@ -46,6 +50,7 @@ struct config_t
 		struct cfg_gnss_t
 		{
 			cfg_entry_t enabled;
+			cfg_entry_t module;
 			cfg_entry_t use_gps;
 			cfg_entry_t use_glonass;
 			cfg_entry_t use_galileo;

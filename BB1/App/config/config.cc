@@ -50,6 +50,14 @@ extern "C" {
 		SELECT_END
 	};
 
+	cfg_entry_param_select_t gnss_module_list[] =
+	{
+		{GNSS_MODULE_SIM, "sim"},
+		{GNSS_MODULE_L96, "l96"},
+		{GNSS_MODULE_UBL, "ubl"},
+		SELECT_END
+	};
+
 	config_t config =
 	{
 		//pilot
@@ -63,6 +71,8 @@ extern "C" {
 			{
 				//enabled
 				entry_bool("gnss_en", true),
+				//module
+				entry_select("gnss_module", GNSS_MODULE_SIM, gnss_module_list),
 				//use_gps
 				entry_bool("gnss_gps", true),
 				//use_glonass
@@ -184,7 +194,7 @@ void config_load()
 			char * pos = strchr(buff, '=');
 			if (pos == NULL)
 			{
-				WARN("line %u: invalid format %s'", buff);
+				WARN("line %u: invalid format '%s'", line, buff);
 				continue;
 			}
 

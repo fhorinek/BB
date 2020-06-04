@@ -13,6 +13,7 @@
 #include "settings.h"
 #include "fanet.h"
 #include "pages.h"
+#include "gnss.h"
 
 #include "../lib/lvgl/src/lv_misc/lv_gc.h"
 
@@ -89,7 +90,7 @@ void gui_init()
 
 	//first screen
 	gui_task_next = NULL;
-	gui_task_actual = &gui_fanet;
+	gui_task_actual = &gui_gnss;
 	gui_page = gui_task_actual->init(gui_tileview);
 
 	gui_page_old = NULL;

@@ -18,9 +18,9 @@
 
 //DMA buffer
 #define GNSS_BUFFER_SIZE	512
-uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
+ uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
 
-void gnss_init()
+void sim33ela_init()
 {
 	fc.gnss.valid = false;
 	HAL_UART_Receive_DMA(&gps_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
@@ -31,12 +31,12 @@ void gnss_init()
 	GpioWrite(GPS_RESET, HIGH);
 }
 
-void gnss_deinit()
+void sim33ela_deinit()
 {
 	GpioWrite(GPS_SW_EN, LOW);
 }
 
-void gnss_set_baudrate(uint32_t baud)
+static void gnss_set_baudrate(uint32_t baud)
 {
 	gps_uart.Init.BaudRate = baud;
 	if (HAL_UART_Init(&gps_uart) != HAL_OK)
@@ -45,7 +45,7 @@ void gnss_set_baudrate(uint32_t baud)
 	}
 }
 
-void nmea_send(const char * msg)
+static void nmea_send(const char * msg)
 {
 	uint8_t chsum = 0;
 
@@ -59,7 +59,7 @@ void nmea_send(const char * msg)
 	HAL_UART_Transmit(&gps_uart, (uint8_t *)nmea, strlen(nmea), 100);
 }
 
-void nmea_start_configuration()
+static void nmea_start_configuration()
 {
 	INFO("Starting configuration");
 	//GGA + RMC 10Hz
@@ -69,7 +69,7 @@ void nmea_start_configuration()
 	nmea_send("PMTK314,0,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0");
 }
 
-void nmea_parse_pmtk(char * buffer)
+static void nmea_parse_pmtk(char * buffer)
 {
 //	DBG("PMTK:%s", buffer);
 	//Startup
@@ -95,7 +95,7 @@ void nmea_parse_pmtk(char * buffer)
 	}
 }
 
-void nmea_parse_rmc(char * buffer)
+static void nmea_parse_rmc(char * buffer)
 {
 //	DBG("RMC:%s", buffer);
 
@@ -217,7 +217,7 @@ void nmea_parse_rmc(char * buffer)
 	fc.gnss.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
 }
 
-void nmea_parse_gga(char * buffer)
+static void nmea_parse_gga(char * buffer)
 {
 //	DBG("GGA:%s", buffer);
 
@@ -252,7 +252,7 @@ void nmea_parse_gga(char * buffer)
 	fc.gnss.geoid_separation = atoi_f(ptr);
 }
 
-void nmea_parse_gsa(uint8_t slot, char * buffer)
+static void nmea_parse_gsa(uint8_t slot, char * buffer)
 {
 //	DBG("GSA[%u]: %s", slot, buffer);
 
@@ -289,7 +289,7 @@ void nmea_parse_gsa(uint8_t slot, char * buffer)
 	fc.gnss.sat_info[slot].vdop = atoi_f(ptr);
 }
 
-void nmea_parse_gsv(uint8_t slot, char * buffer)
+static void nmea_parse_gsv(uint8_t slot, char * buffer)
 {
 //	DBG("GSV[%u]: %s", slot, buffer);
 
@@ -327,7 +327,7 @@ void nmea_parse_gsv(uint8_t slot, char * buffer)
 	}
 }
 
-void nmea_parse(uint8_t c)
+static void nmea_parse(uint8_t c)
 {
 	#define FANET_IDLE		0
 	#define FANET_DATA		1
@@ -395,7 +395,7 @@ void nmea_parse(uint8_t c)
 
 			if (parser_rx_checksum == parser_checksum)
 			{
-
+				DBG("%s", parser_buffer);
 
 				if (start_with(parser_buffer, "GNRMC"))
 				{
@@ -449,7 +449,7 @@ void nmea_parse(uint8_t c)
 	}
 }
 
-void gnss_step()
+void sim33ela_step()
 {
 	static uint16_t read_index = 0;
 	static uint32_t last_data = 0;
