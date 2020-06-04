@@ -222,7 +222,7 @@ void __malloc_unlock(struct _reent *r)   {
 void __env_lock()    {       vTaskSuspendAll(); };
 void __env_unlock()  { (void)xTaskResumeAll();  };
 
-#if 1 // Provide malloc debug and accounting wrappers
+#if 0 // Provide malloc debug and accounting wrappers
   /// /brief  Wrap malloc/malloc_r to help debug who requests memory and why.
   /// To use these, add linker options: -Xlinker --wrap=malloc -Xlinker --wrap=_malloc_r
   // Note: These functions are normally unused and stripped by linker.

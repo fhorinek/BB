@@ -10,8 +10,8 @@
 
 #include "../common.h"
 
-void gnss_init();
-void gnss_deinit();
-void gnss_step();
+void sim33ela_init();
+void sim33ela_deinit();
+void sim33ela_step();
 
 #endif /* DRIVERS_GNSS_SIM33ELA_H_ */

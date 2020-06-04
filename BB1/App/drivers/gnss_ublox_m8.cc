@@ -1,10 +1,10 @@
 /*
- * gnss_sim33ela.cc
+ * gnss_ublox_m8.cc
  *
  *  Created on: 4. 5. 2020
  *      Author: horinek
  */
-#include "gnss_sim33ela.h"
+#include "gnss_ublox_m8.h"
 
 #include "../debug.h"
 #include "../fc/fc.h"
@@ -18,10 +18,11 @@
 
 //DMA buffer
 #define GNSS_BUFFER_SIZE	512
- uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
+extern uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
 
-void sim33ela_init()
+void ublox_m8_init()
 {
+	DBG("Ublox M8");
 	fc.gnss.valid = false;
 	HAL_UART_Receive_DMA(&gps_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
@@ -31,7 +32,7 @@ void sim33ela_init()
 	GpioWrite(GPS_RESET, HIGH);
 }
 
-void sim33ela_deinit()
+void ublox_m8_deinit()
 {
 	GpioWrite(GPS_SW_EN, LOW);
 }
@@ -62,37 +63,26 @@ static void nmea_send(const char * msg)
 static void nmea_start_configuration()
 {
 	INFO("Starting configuration");
-	//GGA + RMC 10Hz
-	//GGA + GSA 2Hz
-	nmea_send("PMTK314,0,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0");
-	//moule might be confused after baudrate change, send command twice
-	nmea_send("PMTK314,0,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0");
+	//disable VTG
+	nmea_send("PUBX,40,VTG,0,0,0,0,0,0");
+	//disable GLL
+	nmea_send("PUBX,40,GLL,0,0,0,0,0,0");
 }
 
-static void nmea_parse_pmtk(char * buffer)
+static void nmea_parse_txt(char * buffer)
 {
-//	DBG("PMTK:%s", buffer);
+	DBG("TXT:%s", buffer);
 	//Startup
-	if (start_with(buffer, "010,001"))
-	{
-		//set baudrate
-		nmea_send("PMTK251,921600");
-	}
-	else if (start_with(buffer, "001,314,3"))
-	{
-		//enable GPS + GLONAS + GALILEO
-		nmea_send("PMTK353,1,1,1");
 
-	}
-	else if (start_with(buffer, "001,353,3"))
+	if (start_with(buffer, ",01,01,02,ANTSTATUS=OK"))
 	{
-		//set 10Hz
-		nmea_send("PMTK220,100");
+
+		//disable VTG
+		nmea_send("PUBX,40,VTG,0,0,0,0,0,0");
+		//disable GLL
+		nmea_send("PUBX,40,GLL,0,0,0,0,0,0");
 	}
-	else if (start_with(buffer, "001,220,3"))
-	{
-		INFO("GNSS configured properly!");
-	}
+//	nmea_send("PUBX,41,1,007,003,9600,0");
 }
 
 static void nmea_parse_rmc(char * buffer)
@@ -132,9 +122,9 @@ static void nmea_parse_rmc(char * buffer)
 
 	//Latitude, e.g. 4843.4437
 	loc_deg = atoi_n(ptr, 2);        // 48
-	loc_min = atoi_n(ptr + 2, 6);    // 434437000
+	loc_min = atoi_n(ptr + 2, 7);    // 434437000
 
-	int32_t latitude = (loc_min * 100ul) / 6;
+	int32_t latitude = (loc_min * 10ul) / 6;
 	latitude = loc_deg * GNSS_MUL + latitude;
 
 	// DEBUG("lat: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
@@ -143,7 +133,7 @@ static void nmea_parse_rmc(char * buffer)
 	ptr = find_comma(ptr);
 	tlen = ptr - old_ptr - 1;
 
-	if (tlen != 9)
+	if (tlen != 10)
 	{
 		ERR("RMC bad latitude len: %u", tlen);
 		return;
@@ -157,9 +147,9 @@ static void nmea_parse_rmc(char * buffer)
 
 	//Longitude, 00909.2085
 	loc_deg = atoi_n(ptr, 3);          // 009
-	loc_min = atoi_n(ptr + 3, 6);      // 092085000
+	loc_min = atoi_n(ptr + 3, 7);      // 092085000
 
-	int32_t longitude = (loc_min * 100ul) / 6;
+	int32_t longitude = (loc_min * 10ul) / 6;
 	longitude = loc_deg * GNSS_MUL + longitude;
 
 	// DEBUG("lon: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
@@ -169,7 +159,7 @@ static void nmea_parse_rmc(char * buffer)
 	tlen = ptr - old_ptr - 1;
 
 
-	if (tlen != 10)
+	if (tlen != 11)
 	{
 		ERR("RMC bad longitude len: %u", tlen);
 		return;
@@ -407,17 +397,8 @@ static void nmea_parse(uint8_t c)
 				}
 				else if (start_with(parser_buffer + 2, "GSA"))
 				{
-					uint8_t slot;
-					if (start_with(parser_buffer, "GP")) slot = GNSS_GPS;
-					else if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
-					else if (start_with(parser_buffer, "GA")) slot = GNSS_GALILEO;
-					else
-					{
-						ERR("Unknown system %s", parser_buffer);
-						return;
-					}
 
-					nmea_parse_gsa(slot, parser_buffer + 5);
+					nmea_parse_gsa(GNSS_GPS, parser_buffer + 5);
 				}
 				else if (start_with(parser_buffer + 2, "GSV"))
 				{
@@ -433,9 +414,9 @@ static void nmea_parse(uint8_t c)
 
 					nmea_parse_gsv(slot, parser_buffer + 5);
 				}
-				else if (start_with(parser_buffer, "PMTK"))
+				else if (start_with(parser_buffer, "GNTXT"))
 				{
-					nmea_parse_pmtk(parser_buffer + 4);
+					nmea_parse_txt(parser_buffer + 5);
 				}
 				else
 					WARN("Not parsed \"%s\"", parser_buffer);
@@ -449,7 +430,7 @@ static void nmea_parse(uint8_t c)
 	}
 }
 
-void sim33ela_step()
+void ublox_m8_step()
 {
 	static uint16_t read_index = 0;
 	static uint32_t last_data = 0;

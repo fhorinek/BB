@@ -38,7 +38,7 @@ typedef struct
 {
 	char * sender;
 	uint8_t type;
-	char * messaage;
+	char * message;
 } debug_msg_t;
 
 #ifdef __cplusplus

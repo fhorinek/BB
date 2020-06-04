@@ -1,10 +1,10 @@
 /*
- * gnss_sim33ela.cc
+ * gnss_l96.cc
  *
  *  Created on: 4. 5. 2020
  *      Author: horinek
  */
-#include "gnss_sim33ela.h"
+#include "gnss_l96.h"
 
 #include "../debug.h"
 #include "../fc/fc.h"
@@ -18,10 +18,11 @@
 
 //DMA buffer
 #define GNSS_BUFFER_SIZE	512
- uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
+extern uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
 
-void sim33ela_init()
+void l96_init()
 {
+	DBG("module init l96");
 	fc.gnss.valid = false;
 	HAL_UART_Receive_DMA(&gps_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
@@ -31,7 +32,7 @@ void sim33ela_init()
 	GpioWrite(GPS_RESET, HIGH);
 }
 
-void sim33ela_deinit()
+void l96_deinit()
 {
 	GpioWrite(GPS_SW_EN, LOW);
 }
@@ -55,7 +56,7 @@ static void nmea_send(const char * msg)
 	char nmea[128];
 	sprintf(nmea, "$%s*%02X\r\n", msg, chsum);
 
-//	DBG(">>> %s", nmea);
+	DBG(">>> %s", nmea);
 	HAL_UART_Transmit(&gps_uart, (uint8_t *)nmea, strlen(nmea), 100);
 }
 
@@ -397,17 +398,17 @@ static void nmea_parse(uint8_t c)
 			{
 				DBG("%s", parser_buffer);
 
-				if (start_with(parser_buffer, "GNRMC"))
+				if (start_with(parser_buffer + 2, "RMC"))
 				{
 					nmea_parse_rmc(parser_buffer + 5);
 				}
-				else if (start_with(parser_buffer, "GNGGA"))
+				else if (start_with(parser_buffer, "GPGGA"))
 				{
 					nmea_parse_gga(parser_buffer + 5);
 				}
 				else if (start_with(parser_buffer + 2, "GSA"))
 				{
-					uint8_t slot;
+					uint8_t slot = GNSS_GPS;
 					if (start_with(parser_buffer, "GP")) slot = GNSS_GPS;
 					else if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
 					else if (start_with(parser_buffer, "GA")) slot = GNSS_GALILEO;
@@ -449,7 +450,7 @@ static void nmea_parse(uint8_t c)
 	}
 }
 
-void sim33ela_step()
+void l96_step()
 {
 	static uint16_t read_index = 0;
 	static uint32_t last_data = 0;

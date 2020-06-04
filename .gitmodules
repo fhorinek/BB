@@ -1,0 +1,3 @@
+[submodule "BB1/App/lib/lvgl"]
+	path = BB1/App/lib/lvgl
+	url = https://github.com/fhorinek/lvgl.git
