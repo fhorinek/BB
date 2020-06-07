@@ -24,12 +24,14 @@ void ublox_m8_init()
 {
 	DBG("Ublox M8");
 	fc.gnss.valid = false;
+	fc.gnss.first_fix = true;
 	HAL_UART_Receive_DMA(&gps_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
 	GpioWrite(GPS_RESET, LOW);
 	GpioWrite(GPS_SW_EN, HIGH);
 	osDelay(10);
 	GpioWrite(GPS_RESET, HIGH);
+	fc.gnss.fix_time = HAL_GetTick();
 }
 
 void ublox_m8_deinit()
@@ -104,7 +106,7 @@ static void nmea_parse_rmc(char * buffer)
 	ptr = find_comma(ptr);
 	tlen = ptr - old_ptr - 1;
 
-	if (tlen != 10)
+	if (tlen != 9)
 	{
 		ERR("RMC bad timestamp len: %u", tlen);
 		return;
@@ -263,6 +265,12 @@ static void nmea_parse_gsa(uint8_t slot, char * buffer)
 		best_fix = max(best_fix, fc.gnss.sat_info[GNSS_GALILEO].fix);
 	fc.gnss.fix = best_fix;
 	fc.gnss.valid = (best_fix > 1);
+
+	if (fc.gnss.fix == 3 && fc.gnss.first_fix)
+	{
+		fc.gnss.fix_time = HAL_GetTick() - fc.gnss.fix_time;
+		fc.gnss.first_fix = false;
+	}
 
 	ptr = find_comma(ptr);
 

@@ -47,16 +47,22 @@ void gnss_loop()
 	char lat[16];
 	char lon[16];
 
+	uint32_t ttf = fc.gnss.fix_time;
+	if (fc.gnss.first_fix)
+		ttf = HAL_GetTick() - fc.gnss.fix_time;
+
+	sprintf(fix, "TTF: %0.1fs ", ttf / 1000.0);
+
 	if (fc.gnss.valid)
 	{
-		sprintf(fix, "%uD fix", fc.gnss.fix);
+		sprintf(fix + strlen(fix), "%uD fix",  fc.gnss.fix);
 
 		format_gnss_datum(lat, lon, fc.gnss.latitude, fc.gnss.longtitude);
 	}
 	else
 	{
 		if (config_get_bool(&config.devices.gnss.enabled))
-			strcpy(fix, "Waiting for fix");
+			strcpy(fix + strlen(fix), "Waiting for fix");
 		else
 			strcpy(fix, "Disabled");
 

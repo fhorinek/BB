@@ -24,12 +24,14 @@ void l96_init()
 {
 	DBG("module init l96");
 	fc.gnss.valid = false;
+	fc.gnss.first_fix = true;
 	HAL_UART_Receive_DMA(&gps_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
 	GpioWrite(GPS_RESET, LOW);
 	GpioWrite(GPS_SW_EN, HIGH);
 	osDelay(10);
 	GpioWrite(GPS_RESET, HIGH);
+	fc.gnss.fix_time = HAL_GetTick();
 }
 
 void l96_deinit()
@@ -39,6 +41,7 @@ void l96_deinit()
 
 static void gnss_set_baudrate(uint32_t baud)
 {
+	DBG("Setting baudrate to %lu", baud);
 	gps_uart.Init.BaudRate = baud;
 	if (HAL_UART_Init(&gps_uart) != HAL_OK)
 	{
@@ -88,7 +91,7 @@ static void nmea_parse_pmtk(char * buffer)
 	else if (start_with(buffer, "001,353,3"))
 	{
 		//set 10Hz
-		nmea_send("PMTK220,100");
+//		nmea_send("PMTK220,100");
 	}
 	else if (start_with(buffer, "001,220,3"))
 	{
@@ -275,6 +278,12 @@ static void nmea_parse_gsa(uint8_t slot, char * buffer)
 	fc.gnss.fix = best_fix;
 	fc.gnss.valid = (best_fix > 1);
 
+	if (fc.gnss.fix == 3 && fc.gnss.first_fix)
+	{
+		fc.gnss.fix_time = HAL_GetTick() - fc.gnss.fix_time;
+		fc.gnss.first_fix = false;
+	}
+
 	ptr = find_comma(ptr);
 
 	// Skip all 12 satellites
@@ -409,28 +418,16 @@ static void nmea_parse(uint8_t c)
 				else if (start_with(parser_buffer + 2, "GSA"))
 				{
 					uint8_t slot = GNSS_GPS;
-					if (start_with(parser_buffer, "GP")) slot = GNSS_GPS;
-					else if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
+					if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
 					else if (start_with(parser_buffer, "GA")) slot = GNSS_GALILEO;
-					else
-					{
-						ERR("Unknown system %s", parser_buffer);
-						return;
-					}
 
 					nmea_parse_gsa(slot, parser_buffer + 5);
 				}
 				else if (start_with(parser_buffer + 2, "GSV"))
 				{
-					uint8_t slot;
-					if (start_with(parser_buffer, "GP")) slot = GNSS_GPS;
-					else if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
+					uint8_t slot = GNSS_GPS;
+					if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
 					else if (start_with(parser_buffer, "GA")) slot = GNSS_GALILEO;
-					else
-					{
-						ERR("Unknown system %s", parser_buffer);
-						return;
-					}
 
 					nmea_parse_gsv(slot, parser_buffer + 5);
 				}

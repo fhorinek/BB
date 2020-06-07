@@ -57,6 +57,16 @@ void debug_send(uint8_t type, const char *format, ...)
 	}
 }
 
+void debug_uart_done()
+{
+	BaseType_t xHigherPriorityTaskWoken;
+	vTaskNotifyGiveFromISR((TaskHandle_t)DebugHandle, &xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+
+uint8_t t_dbg_step = 0xFF;
+uint8_t t_dbg_last_res = 0;
 
 void task_Debug(void *argument)
 {
@@ -66,9 +76,12 @@ void task_Debug(void *argument)
 
 	INFO("Started");
 
+	t_dbg_step = 0;
+
 	for(;;)
 	{
 		debug_msg_t msg;
+		t_dbg_step = 1;
 		xQueueReceive((QueueHandle_t)queue_DebugHandle, &msg, WAIT_INF);
 
 		char id[] = "DIWE";
@@ -76,17 +89,32 @@ void task_Debug(void *argument)
 		sprintf(message, "[%c][%s] %s\n", id[msg.type], msg.sender, msg.message);
 		free(msg.message);
 
+		t_dbg_step = 2;
 		uint8_t res;
 		do {
-			res = HAL_UART_Transmit(&debug_uart, (uint8_t *)message, strlen(message), 100);
+			res = HAL_UART_Transmit_DMA(&debug_uart, (uint8_t *)message, strlen(message));
+			t_dbg_last_res = res;
 		} while (res != HAL_OK);
 
+		t_dbg_step = 3;
+
 		res = f_open(&debug_file, "debug.log", FA_WRITE | FA_OPEN_APPEND);
+		t_dbg_step = 4;
 		if (res == FR_OK)
 		{
 			UINT len;
 			f_write(&debug_file, message, strlen(message), &len);
+			t_dbg_step = 5;
+
 			f_close(&debug_file);
 		}
+
+		t_dbg_step = 6;
+		if (t_dbg_step == 0);
+
+//		osDelay(1000);
+
+		ulTaskNotifyTake(true, 10);
+
 	}
 }
