@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 void debug_send(uint8_t type, const char *format, ...);
+void debug_uart_done();
 
 typedef struct
 {

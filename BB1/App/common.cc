@@ -21,6 +21,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	}
 }
 
+//extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == &debug_uart)
+		debug_uart_done();
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+//	while(1);
+}
+
 uint8_t hex_to_num(uint8_t c)
 {
 	if (c >= 'A')

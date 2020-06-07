@@ -56,6 +56,8 @@ struct gnss_t
 {
 	bool valid;
 	uint8_t fix;
+	uint8_t first_fix;
+	uint32_t fix_time;
 
 	int32_t latitude;   //*10^7
 	int32_t longtitude; //*10^7
