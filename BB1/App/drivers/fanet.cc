@@ -364,7 +364,7 @@ void fanet_step()
 		fanet_transmit_pos();
 	}
 
-	if (next_transmit_name <= HAL_GetTick() && fc.fanet.valid && fc.gnss.valid && config_get_bool(&config.devices.fanet.broadcast_name))
+	if (next_transmit_name <= HAL_GetTick() && fc.fanet.valid && config_get_bool(&config.devices.fanet.broadcast_name))
 	{
 		next_transmit_name = HAL_GetTick() + FANET_TX_NAME_PERIOD;
 

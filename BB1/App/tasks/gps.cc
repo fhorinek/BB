@@ -22,9 +22,9 @@ extern "C" void task_GPS(void *argument);
 
 void task_GPS(void *argument)
 {
-	INFO("Started");
+	vTaskSuspend(NULL);
 
-	//vTaskSuspend(NULL);
+	INFO("Started");
 
 	switch (config_get_select(&config.devices.gnss.module))
 	{

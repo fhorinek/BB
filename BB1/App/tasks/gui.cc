@@ -72,6 +72,8 @@ bool gui_input_cb(lv_indev_drv_t * drv, lv_indev_data_t * data)
 
 void task_GUI(void *argument)
 {
+	vTaskSuspend(NULL);
+
 	INFO("Started");
 
 	lv_init();

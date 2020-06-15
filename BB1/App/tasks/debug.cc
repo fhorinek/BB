@@ -70,6 +70,8 @@ uint8_t t_dbg_last_res = 0;
 
 void task_Debug(void *argument)
 {
+	vTaskSuspend(NULL);
+
 	//DMA TX buffer
 	static char message[256 + 20];
 	FIL debug_file;

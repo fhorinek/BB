@@ -43,7 +43,7 @@ lv_obj_t * gnss_init(lv_obj_t * par)
 
 void gnss_loop()
 {
-	char fix[16];
+	char fix[32];
 	char lat[16];
 	char lon[16];
 

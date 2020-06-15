@@ -405,7 +405,7 @@ static void nmea_parse(uint8_t c)
 
 			if (parser_rx_checksum == parser_checksum)
 			{
-				DBG("%s", parser_buffer);
+//				DBG("%s", parser_buffer);
 
 				if (start_with(parser_buffer + 2, "RMC"))
 				{
