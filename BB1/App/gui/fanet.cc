@@ -28,9 +28,14 @@ void fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	}
 }
 
+uint8_t gui_fanet_last_cnt = 0;
+uint8_t gui_fanet_last_magic = 0;
 
 lv_obj_t * fanet_init(lv_obj_t * par)
 {
+	uint8_t gui_fanet_last_cnt = 0;
+	uint8_t gui_fanet_last_magic = 0;
+
 	lv_obj_t * list = gui_list_create(par, "FANET Settings", fanet_cb);
 
 	gui_list_switch_add_entry(list, "Enable FANET", config_get_bool(&config.devices.fanet.enabled));
@@ -40,35 +45,33 @@ lv_obj_t * fanet_init(lv_obj_t * par)
 
 void fanet_loop()
 {
-	static uint8_t last_cnt = 0;
-	static uint8_t last_magic = 0;
-
-	if (last_magic != fc.fanet.neighbors_magic)
+	if (gui_fanet_last_magic != fc.fanet.neighbors_magic)
 	{
-		last_magic = fc.fanet.neighbors_magic;
-		while (last_cnt < fc.fanet.neighbors_size)
+		gui_fanet_last_magic = fc.fanet.neighbors_magic;
+		while (gui_fanet_last_cnt < fc.fanet.neighbors_size)
 		{
 			gui_list_info_add_entry(gui_list, "", "");
-			last_cnt++;
+			gui_fanet_last_cnt++;
 		}
 
-		while (last_cnt > fc.fanet.neighbors_size)
+		while (gui_fanet_last_cnt > fc.fanet.neighbors_size)
 		{
 	//		gui_list_del_entry()
-			last_cnt--;
+			gui_fanet_last_cnt--;
 		}
 
-		for (uint8_t i = 0; i < last_cnt; i++)
+		for (uint8_t i = 0; i < gui_fanet_last_cnt; i++)
 		{
 			neighbor_t * nb = &fc.fanet.neighbor[i];
 			char name[32];
-			char dist[8];
+			char dist[16];
 
 			sprintf(name, "%02X:%04X", nb->addr.manufacturer_id, nb->addr.user_id);
 			if (nb->name[0] != 0)
 				sprintf(name + strlen(name), ": %s", nb->name);
 
 			format_distance(dist, nb->dist);
+			sprintf(dist + strlen(dist), " @%us", (HAL_GetTick() / 1000) - nb->timestamp);
 
 			gui_list_info_set_value(i + 1, dist);
 			gui_list_info_set_name(i + 1, name);

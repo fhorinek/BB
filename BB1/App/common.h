@@ -118,6 +118,9 @@ void GpioSetDirection(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint16_t direction
 //RTOS Tasks
 extern osThreadId_t GUIHandle;
 extern osThreadId_t DebugHandle;
+extern osThreadId_t GPSHandle;
+extern osThreadId_t TestHandle;
+extern osThreadId_t UsbHandle;
 
 //RTOS Queue
 extern osMessageQueueId_t queue_DebugHandle;

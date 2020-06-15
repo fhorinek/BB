@@ -95,6 +95,7 @@ void neighbors_update_name(fanet_addr_t addr, char * name)
 
 	memcpy(&nb->name, name, NB_NAME_LEN);
 	nb->name[NB_NAME_LEN - 1] = 0;
+	nb->timestamp = HAL_GetTick() / 1000;
 
 	//notify GUI
 	neighbors_update_magic();

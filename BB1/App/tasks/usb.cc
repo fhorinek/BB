@@ -18,10 +18,8 @@ extern "C" void task_USB(void *argument);
 void task_USB(void *argument)
 {
 	vTaskSuspend(NULL);
-	return;
 
 	INFO("Started\n");
-
 
 	MX_USB_DEVICE_Init();
 

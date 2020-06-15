@@ -18,9 +18,9 @@ FIL f;
 
 void task_Test(void *argument)
 {
-	uint8_t res;
 	vTaskSuspend(NULL);
-	return;
+
+	uint8_t res;
 
 	INFO("Started");
 
