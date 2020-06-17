@@ -192,9 +192,6 @@ int8_t STORAGE_Init_FS(uint8_t lun)
 int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
   /* USER CODE BEGIN 3 */
-  *block_num  = STORAGE_BLK_NBR;
-  *block_size = STORAGE_BLK_SIZ;
-
   HAL_SD_CardInfoTypeDef SDCardInfo;
 
   HAL_SD_GetCardInfo(&hsd1, &SDCardInfo);

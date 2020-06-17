@@ -29,6 +29,7 @@ void tft_color_fill(uint16_t color);
 void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
 void tft_irq_display_te();
+void tft_wait_for_buffer();
 
 
 #endif /* TFT_HX8352_H_ */
