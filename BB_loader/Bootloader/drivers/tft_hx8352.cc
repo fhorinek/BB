@@ -12,7 +12,7 @@
  *
  */
 
-#include "tft_hx8352.h"
+#include "../drivers/tft_hx8352.h"
 
 #include "../debug.h"
 
@@ -64,9 +64,14 @@ void tft_irq_dma_done(DMA_HandleTypeDef *DmaHandle)
 	tft_dma_done = true;
 }
 
-void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+void tft_wait_for_buffer()
 {
 	while(!tft_dma_done);
+}
+
+void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+{
+	tft_wait_for_buffer();
 
 	tft_win_x1 = x1;
 	tft_win_y1 = y1;
