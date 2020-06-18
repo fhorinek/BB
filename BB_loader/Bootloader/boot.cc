@@ -24,7 +24,7 @@ void draw_status(uint8_t status)
 	{
 		tft_init();
 		tft_init_display();
-		tft_color_fill(0);
+		tft_color_fill(0xFFFF);
 //		tft_test_pattern();
 		tft_refresh_buffer(0, 0, 239, 399);
 
