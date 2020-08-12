@@ -38,7 +38,7 @@
 #define GNSS_MODULE_L96	1
 #define GNSS_MODULE_UBL	2
 
-struct config_t
+typedef struct
 {
 	struct cfg_pilot_t
 	{
@@ -86,7 +86,9 @@ struct config_t
 	{
 		cfg_entry_t use_serial;
 	} debug;
-};
+} config_t;
+
+extern config_t config;
 
 void config_load();
 void config_store();
@@ -101,6 +103,7 @@ uint8_t config_get_select(cfg_entry_t * entry);
 void config_set_text(cfg_entry_t * entry, char * value);
 char * config_get_text(cfg_entry_t * entry);
 
-extern "C" config_t config;
+int16_t config_get_int(cfg_entry_t * entry);
+void config_set_int(cfg_entry_t * entry, int16_t value);
 
 #endif /* CONFIG_CONFIG_H_ */

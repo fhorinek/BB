@@ -98,16 +98,16 @@ const osThreadAttr_t Test_attributes = {
   .cb_size = sizeof(TestControlBlock),
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for GPS */
-osThreadId_t GPSHandle;
-uint32_t GPSBuffer[ 1024 ];
-osStaticThreadDef_t GPSControlBlock;
-const osThreadAttr_t GPS_attributes = {
-  .name = "GPS",
-  .stack_mem = &GPSBuffer[0],
-  .stack_size = sizeof(GPSBuffer),
-  .cb_mem = &GPSControlBlock,
-  .cb_size = sizeof(GPSControlBlock),
+/* Definitions for GNSS */
+osThreadId_t GNSSHandle;
+uint32_t GNSSBuffer[ 1024 ];
+osStaticThreadDef_t GNSSControlBlock;
+const osThreadAttr_t GNSS_attributes = {
+  .name = "GNSS",
+  .stack_mem = &GNSSBuffer[0],
+  .stack_size = sizeof(GNSSBuffer),
+  .cb_mem = &GNSSControlBlock,
+  .cb_size = sizeof(GNSSControlBlock),
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for queue_Debug */
@@ -131,7 +131,7 @@ void task_System(void *argument);
 extern void task_GUI(void *argument);
 extern void task_Debug(void *argument);
 extern void task_Test(void *argument);
-extern void task_GPS(void *argument);
+extern void task_GNSS(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -200,8 +200,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of Test */
   TestHandle = osThreadNew(task_Test, NULL, &Test_attributes);
 
-  /* creation of GPS */
-  GPSHandle = osThreadNew(task_GPS, NULL, &GPS_attributes);
+  /* creation of GNSS */
+  GNSSHandle = osThreadNew(task_GNSS, NULL, &GNSS_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

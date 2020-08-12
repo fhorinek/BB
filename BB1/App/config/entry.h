@@ -18,7 +18,7 @@
 #define ENTRY_END		0xFF
 
 
-union multi_value
+typedef union
 {
 	bool		b;
 
@@ -35,15 +35,15 @@ union multi_value
 	void*		ptr;
 	char*		str;
 	const char*	cstr;
-};
+}  multi_value;
 
-struct cfg_entry_param_select_t
+typedef struct
 {
 	uint8_t value;
 	const char * name_id;
-};
+} cfg_entry_param_select_t;
 
-union entry_param_t
+typedef union
 {
 	uint32_t 	raw;
 
@@ -52,7 +52,7 @@ union entry_param_t
 	int16_t		s16[2];
 	uint8_t		u16[2];
 	void * ptr;
-};
+} entry_param_t;
 
 
 
@@ -106,14 +106,15 @@ union entry_param_t
 		{.s16 = {lenght, flags}} \
 	}
 
-struct cfg_entry_t
+typedef struct
 {
 	const char * name_id;
 	multi_value value;
 
 	uint8_t type;
 	entry_param_t params;
-};
+} cfg_entry_t;
+
 
 #define SELECT_END	{0xFF, ""}
 

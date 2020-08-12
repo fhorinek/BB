@@ -7,91 +7,109 @@
 
 #include "common.h"
 
+#include "drivers/sd.h"
+#include "lib/stm32-bootloader/bootloader.h"
+
+#include "gfx.h"
+#include "msc.h"
+#include "flash.h"
+
+#include "../../Core/Inc/crc.h"
+#include "../../Core/Inc/dma.h"
+#include "../../Core/Inc/sdmmc.h"
+#include "../../Core/Inc/fmc.h"
+
 extern "C" void app_main();
 
-#include "drivers/tft_hx8352.h"
-
-#include "img/usb.c"
-
-#define BOOT_STATUS_USB	0
-
-
-void draw_status(uint8_t status)
+void app_deinit()
 {
-	static bool disp_init = false;
+	//deinit
+	INFO("Bootloader deinit");
+	HAL_Delay(2);
 
-	if (!disp_init)
-	{
-		tft_init();
-		tft_init_display();
-		tft_color_fill(0xFFFF);
-//		tft_test_pattern();
-		tft_refresh_buffer(0, 0, 239, 399);
+	//MX_GPIO_Init();
 
-		disp_init = true;
-	}
+	//MX_DMA_Init();
+	HAL_DMA_DeInit(&hdma_memtomem_dma2_stream0);
 
-	switch (status)
-	{
-		case(BOOT_STATUS_USB):
-			{
+	//MX_FMC_Init();
+	HAL_SRAM_DeInit(&hsram1);
 
-			uint16_t x1 = (TFT_WIDTH - img_usb.width) / 2;
-			uint16_t y1 = (TFT_HEIGHT - img_usb.height) / 2;
-			uint16_t x2 = x1 + img_usb.width - 1;
-			uint16_t y2 = y1 + img_usb.height - 1;
+	//MX_TIM2_Init();
+	HAL_TIM_PWM_DeInit(&htim2);
+	HAL_TIM_Base_DeInit(&htim2);
 
-			tft_wait_for_buffer();
-			memcpy(tft_buffer, img_usb.pixel_data, sizeof(img_usb.pixel_data));
-			tft_refresh_buffer(x1, y1, x2, y2);
-			}
-		break;
+	//MX_USART1_UART_Init();
+	HAL_UART_DeInit(&huart1);
 
-	}
-}
+	//MX_SDMMC1_SD_Init();
+	HAL_SD_DeInit(&hsd1);
+	sd_unmount();
+	sd_deinit();
 
+	//MX_CRC_Init();
+	HAL_CRC_DeInit(&hcrc);
 
-#include "usb_device.h"
-
-#include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_msc.h"
-
-void app_msc()
-{
-
-	extern USBD_HandleTypeDef hUsbDeviceFS;
-	USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceFS.pClassData;
-
-	//usb init TODO: if cable is connected
-	//time out when no cable is connected?
-
-
-	INFO("USB mode on");
-	MX_USB_DEVICE_Init();
-
-	draw_status(BOOT_STATUS_USB);
-
-	while (1)
-	{
-
-		if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
-			break;
-	}
-
-	INFO("USB mode off");
-	USBD_DeInit(&hUsbDeviceFS);
-
+    HAL_RCC_DeInit();
+	HAL_DeInit();
 }
 
 void app_main()
 {
-	INFO("Bootloader start");
+	bool updated;
+	bool usb_connected;
 
-	//SD Card init
-	GpioSetDirection(CDMMC1_SW_EN, OUTPUT);
-	GpioWrite(CDMMC1_SW_EN, HIGH);
+	INFO("Bootloader init");
 
+	while(1)
+	{
 
-	app_msc();
+		if (!sd_detect())
+		{
+			gfx_draw_status(GFX_STATUS_ERROR, "No SD card");
+			HAL_Delay(MSG_DELAY);
+
+			while(!sd_detect());
+		}
+
+		sd_init();
+
+		usb_connected = msc_loop();
+
+		if (sd_mount())
+		{
+			updated = flash_loop();
+		}
+		else
+		{
+			gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+			HAL_Delay(MSG_DELAY);
+		}
+
+		if (flash_verify())
+		{
+			if (updated)
+			{
+				gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
+				HAL_Delay(MSG_DELAY);
+			}
+
+			app_deinit();
+
+			Bootloader_JumpToApplication();
+		}
+		else
+		{
+			gfx_draw_status(GFX_STATUS_ERROR, "Firmware not valid");
+			HAL_Delay(MSG_DELAY);
+
+			if (!usb_connected)
+			{
+				app_deinit();
+				//TODO: poweroff
+
+				while(1);
+			}
+		}
+	}
 }

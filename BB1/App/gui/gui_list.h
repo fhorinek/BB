@@ -10,7 +10,6 @@
 
 #include "gui.h"
 
-
 typedef void (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint8_t);
 
 void gui_list_init();
@@ -18,17 +17,21 @@ void gui_list_init();
 lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_list_task_cb_t cb);
 
 lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool value);
-bool gui_list_switch_get_value(uint8_t index);
-
+bool gui_list_switch_get_value(lv_obj_t * entry);
 
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, const char * value);
-void gui_list_info_set_value(uint8_t index, const char * value);
-void gui_list_info_set_name(uint8_t index, const char * value);
+void gui_list_info_set_value(lv_obj_t * entry, const char * value);
+void gui_list_info_set_name(lv_obj_t * entry, const char * value);
+
+lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value);
+int16_t gui_list_slider_get_value(lv_obj_t * entry);
+
+
+lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height);
 
 lv_obj_t * gui_list_add_text_entry(lv_obj_t * list, const char * text);
-lv_obj_t * gui_list_add_slider_entry(lv_obj_t * list, const char * text);
 lv_obj_t * gui_list_add_dropdown_entry(lv_obj_t * list, const char * text);
-lv_obj_t * gui_list_add_checkbox_entry(lv_obj_t * list, const char * text);
+lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text);
 lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text);
 
 lv_obj_t * gui_list_get_entry(uint8_t index);

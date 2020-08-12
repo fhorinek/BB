@@ -191,10 +191,10 @@ void tft_test_pattern()
 
 static void tft_init_table(const uint8_t *table, uint16_t size)
 {
-    for (uint16_t i = 0; i < size; i += 2)
+    for (uint8_t i = 0; i < size; i += 2)
 	{
-        uint16_t cmd = table[i];
-        uint16_t data = table[i + 1];
+        uint8_t cmd = table[i];
+        uint8_t data = table[i + 1];
         if (cmd == TFTLCD_DELAY)
         	HAL_Delay(data);
         else
@@ -231,8 +231,7 @@ void tft_init_display()
 {
 	tft_reset();
 
-
-	static const uint8_t HX8352B_regValues[] = {
+	static const uint8_t HX8352B_init[] = {
 		// Register setting for EQ setting
 		0xe5, 0x10,      //
 		0xe7, 0x10,      //
@@ -260,71 +259,28 @@ void tft_init_display()
 		0x1F, 0xD4,      //GASEN=1, VCOMG=1, PON=1, XDK=1
 		TFTLCD_DELAY, 5,
 
-		// Gamma Setting
-//		0x40, 0x2B,
-//		0x41, 0x29,
-//		0x42, 0x3E,
-//		0x43, 0x3D,
-//		0x44, 0x3F,
-//		0x45, 0x24,
-//		0x46, 0x74,
-//		0x47, 0x08,
-//		0x48, 0x06,
-//		0x49, 0x07,
-//		0x4A, 0x0D,
-//		0x4B, 0x17,
-//
-//		0x50, 0x02,
-//		0x51, 0x01,
-//		0x52, 0x16,
-//		0x53, 0x14,
-//		0x54, 0x3F,
-//		0x55, 0x0B,
-//		0x56, 0x5B,
-//		0x57, 0x08,
-//		0x58, 0x12,
-//		0x59, 0x18,
-//		0x5A, 0x19,
-//		0x5B, 0x17,
-
-//		0x5D, 0xFF,      //
-
-//		0x16, 0x08,      //MemoryAccess BGR=1
 		0x28, 0x20,      //GON=1
 		TFTLCD_DELAY, 40,
 		0x28, 0x38,      //GON=1, DTE=1, D=2
 		TFTLCD_DELAY, 40,
-		0x28, 0x3C,      //GON=1, DTE=1, D=3
-
-//		0x02, 0x00,     //SC
-//		0x03, 0x00,     //SC
-//		0x04, 0x00,     //EC
-//		0x05, 0xEF,     //EC
-//		0x06, 0x00,     //SP
-//		0x07, 0x00,     //SP
-//		0x08, 0x01,     //EP
-//		0x08, 0x8F,     //EP
-//
-//		0x80, 0x00,     //CAC
-//		0x81, 0x00,     //CAC
-//		0x82, 0x00,     //RAC
-//		0x83, 0x00,     //RAC
-
 
 		0x17, 0x05,		//COLMODE
 		0x60, 0x08,		//TE
 		//0x2b, 220,		//Blanking time (transfer time) Tearing control
-		//0x29, 0x40, 	//clk div control
-
 	};
 
-	tft_init_table(HX8352B_regValues, sizeof(HX8352B_regValues));
+	static const uint8_t HX8352B_disp_on[] = {
+		0x28, 0x3C,      //GON=1, DTE=1, D=3
+	};
+
+	tft_init_table(HX8352B_init, sizeof(HX8352B_init));
 
 	tft_set_rotation(0);             //PORTRAIT
-	tft_set_window(0, 0, 239, 399);
-	tft_set_cursor(0, 0);
+	tft_color_fill(0xFFFF);
+	tft_refresh_buffer(0, 0, 239, 399);
+	tft_wait_for_buffer();
 
-//	debug("2b = %02X\n", tft_read_register(0x2b));
+	tft_init_table(HX8352B_disp_on, sizeof(HX8352B_disp_on));
 }
 
 void tft_set_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
