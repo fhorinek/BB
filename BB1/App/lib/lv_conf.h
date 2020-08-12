@@ -122,6 +122,8 @@ typedef int16_t lv_coord_t;
  * Time between `LV_EVENT_LONG_PRESSED_REPEAT */
 #define LV_INDEV_DEF_LONG_PRESS_REP_TIME  100
 
+#define LV_USE_PERF_MONITOR     1
+
 /*==================
  * Feature usage
  *==================*/
@@ -148,6 +150,8 @@ typedef void * lv_group_user_data_t;
 #define LV_USE_GPU              1
 #define LV_USE_GPU_STM32_DMA2D  1
 #define STM32F7
+
+#define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32f767xx.h"
 
 /* 1: Enable file system (might be required for images */
 #define LV_USE_FILESYSTEM       1
@@ -226,7 +230,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  *===============*/
 
 /*1: Enable the log module*/
-#define LV_USE_LOG      0
+#define LV_USE_LOG      1
 #if LV_USE_LOG
 /* How important log should be added:
  * LV_LOG_LEVEL_TRACE       A lot of logs to give detailed information
@@ -305,65 +309,22 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * No flags. Set LV_THEME_DEFAULT_FLAG 0 */
  #define LV_USE_THEME_MONO        0
 
+#define LV_FONT_MONTSERRAT_12    1
+#define LV_FONT_MONTSERRAT_14    0
+#define LV_FONT_MONTSERRAT_16    1
+
+
+
 #define LV_THEME_DEFAULT_INCLUDE            <stdint.h>      /*Include a header for the init. function*/
 #define LV_THEME_DEFAULT_INIT               lv_theme_material_init
 #define LV_THEME_DEFAULT_COLOR_PRIMARY      LV_COLOR_BLUE
 #define LV_THEME_DEFAULT_COLOR_SECONDARY    LV_COLOR_RED
 #define LV_THEME_DEFAULT_FLAG               LV_THEME_MATERIAL_FLAG_LIGHT
-#define LV_THEME_DEFAULT_FONT_SMALL         &lv_font_montserrat_16
+#define LV_THEME_DEFAULT_FONT_SMALL         &lv_font_montserrat_12
 #define LV_THEME_DEFAULT_FONT_NORMAL        &lv_font_montserrat_16
 #define LV_THEME_DEFAULT_FONT_SUBTITLE      &lv_font_montserrat_16
 #define LV_THEME_DEFAULT_FONT_TITLE         &lv_font_montserrat_16
 
-/*==================
- *    FONT USAGE
- *===================*/
-
-/* The built-in fonts contains the ASCII range and some Symbols with  4 bit-per-pixel.
- * The symbols are available via `LV_SYMBOL_...` defines
- * More info about fonts: https://docs.littlevgl.com/#Fonts
- * To create a new font go to: https://littlevgl.com/ttf-font-to-c-array
- */
-
-/* Robot fonts with bpp = 4
- * https://fonts.google.com/specimen/Roboto  */
-#define LV_FONT_ROBOTO_12    0
-#define LV_FONT_ROBOTO_16    1
-#define LV_FONT_ROBOTO_22    1
-#define LV_FONT_ROBOTO_28    0
-
-/* Demonstrate special features */
-#define LV_FONT_ROBOTO_12_SUBPX 1
-#define LV_FONT_ROBOTO_28_COMPRESSED 1  /*bpp = 3*/
-
-/*Pixel perfect monospace font
- * http://pelulamu.net/unscii/ */
-#define LV_FONT_UNSCII_8     0
-
-/* Optionally declare your custom fonts here.
- * You can use these fonts as default font too
- * and they will be available globally. E.g.
- * #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(my_font_1) \
- *                                LV_FONT_DECLARE(my_font_2)
- */
-#define LV_FONT_CUSTOM_DECLARE
-
-/*Always set a default font from the built-in fonts*/
-#define LV_FONT_DEFAULT        &lv_font_roboto_22
-
-/* Enable it if you have fonts with a lot of characters.
- * The limit depends on the font size, font face and bpp
- * but with > 10,000 characters if you see issues probably you need to enable it.*/
-#define LV_FONT_FMT_TXT_LARGE   0
-
-/* Set the pixel order of the display.
- * Important only if "subpx fonts" are used.
- * With "normal" font it doesn't matter.
- */
-#define LV_FONT_SUBPX_BGR    0
-
-/*Declare the type of the user data of fonts (can be e.g. `void *`, `int`, `struct`)*/
-typedef void * lv_font_user_data_t;
 
 /*=================
  *  Text settings

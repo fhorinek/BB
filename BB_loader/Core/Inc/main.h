@@ -33,7 +33,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "../../Bootloader/common.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -110,8 +110,8 @@ void Error_Handler(void);
 #define DISPLAY_RESET_GPIO_Port GPIOC
 #define ESP_SW_EN_Pin GPIO_PIN_9
 #define ESP_SW_EN_GPIO_Port GPIOA
-#define CDMMC1_SW_EN_Pin GPIO_PIN_3
-#define CDMMC1_SW_EN_GPIO_Port GPIOD
+#define SDMMC1_SW_EN_Pin GPIO_PIN_3
+#define SDMMC1_SW_EN_GPIO_Port GPIOD
 #define SDMMC1_CDET_Pin GPIO_PIN_6
 #define SDMMC1_CDET_GPIO_Port GPIOD
 #define DC_DC_BOOST_EN_Pin GPIO_PIN_7
@@ -156,7 +156,7 @@ void Error_Handler(void);
 #define	ESP_TX				ESP_TX_GPIO_Port, ESP_TX_Pin
 #define	ESP_SW_EN			ESP_SW_EN_GPIO_Port, ESP_SW_EN_Pin
 #define	ESP_TXA15			ESP_TXA15_GPIO_Port, ESP_TXA15_Pin
-#define	CDMMC1_SW_EN		CDMMC1_SW_EN_GPIO_Port, CDMMC1_SW_EN_Pin
+#define	SDMMC1_SW_EN		SDMMC1_SW_EN_GPIO_Port, SDMMC1_SW_EN_Pin
 #define	SDMMC1_CDET			SDMMC1_CDET_GPIO_Port, SDMMC1_CDET_Pin
 #define	DC_DC_BOOST_EN		DC_DC_BOOST_EN_GPIO_Port, DC_DC_BOOST_EN_Pin
 #define	RGB_LED_RED			RGB_RED_GPIO_Port, RGB_RED_Pin

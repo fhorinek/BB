@@ -17,6 +17,8 @@
 
 #include "math.h"
 
+#include "debug.h"
+
 #define	PA0		GPIOA,	GPIO_PIN_0
 #define	PA1		GPIOA,	GPIO_PIN_1
 #define	PA2		GPIOA,	GPIO_PIN_2
@@ -107,7 +109,10 @@
 #define INPUT	GPIO_MODE_INPUT
 #define OUTPUT	GPIO_MODE_OUTPUT_PP
 
+#define bool 	uint8_t
+
 #ifdef __cplusplus
+
 
 #define GpioWrite(pin, level)	HAL_GPIO_WritePin(pin, level)
 #define GpioRead(pin) 			HAL_GPIO_ReadPin(pin)
@@ -160,8 +165,11 @@ inline double to_degrees(double radians)
     return radians * (180.0 / M_PI);
 }
 
+#define UPDATE_FILE 	"BOOMBOX.FW"
+#define SKIP_CRC_FILE 	"SKIP_CRC"
+#define MSG_DELAY		2000
+
 #endif
 
-#include "debug.h"
 
 #endif /* INC_COMMON_H_ */

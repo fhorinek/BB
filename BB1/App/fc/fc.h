@@ -22,28 +22,9 @@
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
 #define FC_KM_TO_MILE		(0.621371)
 
-struct gnss_sat_t
-{
-	uint8_t sat_id;
-	int8_t elevation; // +/- 90
-	uint8_t azimuth; //0-359 /2
-	uint8_t snr;
-};
+;
 
 #define GNSS_NUMBER_OF_SATS		12
-
-struct gnss_system_t
-{
-	uint8_t fix;
-
-	float pdop; //Position Dilution of Precision
-	float hdop; //Horizontal Dilution of Precision
-	float vdop; //Vertical Dilution of Precision
-
-	uint8_t sat_total;
-	uint8_t sat_used;
-	gnss_sat_t sats[GNSS_NUMBER_OF_SATS];
-};
 
 #define GNSS_GPS				0
 #define GNSS_GLONAS				1
@@ -52,32 +33,13 @@ struct gnss_system_t
 #define GNSS_NUMBER_OF_SYSTEMS	3
 #define GNSS_MUL				10000000l
 
-struct gnss_t
-{
-	bool valid;
-	uint8_t fix;
-	uint8_t first_fix;
-	uint32_t fix_time;
 
-	int32_t latitude;   //*10^7
-	int32_t longtitude; //*10^7
 
-	float ground_speed;
-	uint16_t heading;
-
-	uint32_t utc_time;
-
-	float altitude;
-	float geoid_separation;
-
-	gnss_system_t sat_info[GNSS_NUMBER_OF_SYSTEMS];
-};
-
-struct fanet_addr_t
+typedef struct
 {
 	uint8_t manufacturer_id;
 	uint16_t user_id;
-};
+} fanet_addr_t;
 
 #define NB_NUMBER_IN_MEMORY		50
 
@@ -98,7 +60,7 @@ struct fanet_addr_t
 #define NB_NAME_LEN				16
 #define NB_TOO_FAR				0xFFFF
 
-struct neighbor_t
+typedef struct
 {
 	fanet_addr_t addr;
 	char name[NB_NAME_LEN];
@@ -112,26 +74,63 @@ struct neighbor_t
 
 	uint16_t timestamp;
 	uint16_t dist; //in m
-};
+} neighbor_t;
 
 
-struct fanet_t
+typedef struct
 {
-	bool valid;
+	struct
+	{
+		bool valid;
+		uint8_t fix;
+		uint8_t first_fix;
+		uint32_t fix_time;
 
-	char version[20];
-	fanet_addr_t addr;
+		int32_t latitude;   //*10^7
+		int32_t longtitude; //*10^7
 
-	neighbor_t neighbor[NB_NUMBER_IN_MEMORY];
-	uint8_t neighbors_size;
-	uint8_t neighbors_magic;
-};
+		float ground_speed;
+		uint16_t heading;
 
-struct fc_t
-{
-	gnss_t gnss;
-	fanet_t fanet;
-};
+		uint32_t utc_time;
+
+		float altitude;
+		float geoid_separation;
+
+		struct
+		{
+			uint8_t fix;
+
+			float pdop; //Position Dilution of Precision
+			float hdop; //Horizontal Dilution of Precision
+			float vdop; //Vertical Dilution of Precision
+
+			uint8_t sat_total;
+			uint8_t sat_used;
+
+			struct
+			{
+				uint8_t sat_id;
+				int8_t elevation; // +/- 90
+				uint8_t azimuth; //0-359 /2
+				uint8_t snr;
+			} sats[GNSS_NUMBER_OF_SATS];
+
+		} sat_info[GNSS_NUMBER_OF_SYSTEMS];
+	} gnss;
+
+	struct
+	{
+		bool valid;
+
+		char version[20];
+		fanet_addr_t addr;
+
+		neighbor_t neighbor[NB_NUMBER_IN_MEMORY];
+		uint8_t neighbors_size;
+		uint8_t neighbors_magic;
+	} fanet;
+} fc_t;
 
 extern fc_t fc;
 
