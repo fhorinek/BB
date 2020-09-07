@@ -15,6 +15,7 @@
 
 #include "../lib/miniz/miniz.h"
 
+#include "../gui/widgets/pages.h"
 
 void task_System(void *argument)
 {
@@ -25,8 +26,10 @@ void task_System(void *argument)
 	vTaskResume((TaskHandle_t)DebugHandle);
 
 	config_entry_init();
+
 	config_load();
-	//config_store();
+	pages_defragment();
+	config_show();
 
 //	GpioSetDirection(ESP_BOOT_OPTION, INPUT);
 //	GpioSetDirection(ESP_EN_RESET, OUTPUT);

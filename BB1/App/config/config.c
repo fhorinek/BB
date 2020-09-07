@@ -54,9 +54,7 @@ char * config_get_text(cfg_entry_t * entry)
 
 void config_set_text(cfg_entry_t * entry, char * value)
 {
-	uint16_t len = min(strlen(value), entry->params.u16[0] - 1);
-	memcpy(entry->value.str, value, len);
-	entry->value.str[len] = 0;
+	strncpy(entry->value.str, value, entry->params.u16[0]);
 }
 
 int16_t config_get_int(cfg_entry_t * entry)
@@ -153,7 +151,6 @@ void config_store()
 
 		entry_get_str(buff, entry);
 		UINT bw;
-		//DBG("W %s", buff);
 		f_write(&f, buff, strlen(buff), &bw);
 
 	}
@@ -161,3 +158,20 @@ void config_store()
 	f_close(&f);
 }
 
+void config_show()
+{
+	uint16_t len = sizeof(config_t) / sizeof(cfg_entry_t);
+
+	INFO("Configuration");
+
+	for (uint16_t i = 0; i < len; i++)
+	{
+		char buff[256];
+
+		cfg_entry_t * entry = (cfg_entry_t *)(&config) + i;
+
+		entry_get_str(buff, entry);
+		buff[strlen(buff) - 1] = 0;
+		INFO("%s", buff);
+	}
+}

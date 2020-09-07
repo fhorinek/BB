@@ -25,7 +25,7 @@ void ublox_m8_init()
 	DBG("Ublox M8");
 	fc.gnss.valid = false;
 	fc.gnss.first_fix = true;
-	HAL_UART_Receive_DMA(&gps_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
+	HAL_UART_Receive_DMA(&gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
 	GpioWrite(GPS_RESET, LOW);
 	GpioWrite(GPS_SW_EN, HIGH);
@@ -41,8 +41,8 @@ void ublox_m8_deinit()
 
 static void gnss_set_baudrate(uint32_t baud)
 {
-	gps_uart.Init.BaudRate = baud;
-	if (HAL_UART_Init(&gps_uart) != HAL_OK)
+	gnss_uart.Init.BaudRate = baud;
+	if (HAL_UART_Init(&gnss_uart) != HAL_OK)
 	{
 	  Error_Handler();
 	}
@@ -59,7 +59,7 @@ static void nmea_send(const char * msg)
 	sprintf(nmea, "$%s*%02X\r\n", msg, chsum);
 
 //	DBG(">>> %s", nmea);
-	HAL_UART_Transmit(&gps_uart, (uint8_t *)nmea, strlen(nmea), 100);
+	HAL_UART_Transmit(&gnss_uart, (uint8_t *)nmea, strlen(nmea), 100);
 }
 
 static void nmea_start_configuration()
@@ -443,7 +443,7 @@ void ublox_m8_step()
 	static uint16_t read_index = 0;
 	static uint32_t last_data = 0;
 
-	uint16_t write_index = GNSS_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(gps_uart.hdmarx);
+	uint16_t write_index = GNSS_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(gnss_uart.hdmarx);
 	uint16_t waiting;
 
 	//Get number of bytes waiting in buffer

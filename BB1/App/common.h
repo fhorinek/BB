@@ -101,7 +101,7 @@ extern TIM_HandleTypeDef htim2;
 extern UART_HandleTypeDef huart1;
 
 //GPS Uart
-#define gps_uart		huart4
+#define gnss_uart		huart4
 extern UART_HandleTypeDef huart4;
 
 //FANET Uart

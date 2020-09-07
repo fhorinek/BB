@@ -5,16 +5,15 @@
  *      Author: horinek
  */
 
-#include "widget_dummy.h"
-
 #include "widget.h"
 
 widget_t widget_dummy =
 {
 		"Dummy widget",
 		"dummy",
-		widget_init,
-		widget_stop,
+		widget_title,
 		NULL,
 		NULL,
+		NULL,
+		0
 };

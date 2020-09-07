@@ -3,6 +3,6 @@
 
 #include "../gui.h"
 
-extern gui_task_t gui_display;
+DECLARE_TASK(display);
 
 #endif /* GUI_DISPLAY_H_ */

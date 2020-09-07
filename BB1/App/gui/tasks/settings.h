@@ -10,6 +10,6 @@
 
 #include "../gui.h"
 
-extern gui_task_t gui_settings;
+DECLARE_TASK(settings);
 
 #endif /* GUI_SETTINGS_H_ */

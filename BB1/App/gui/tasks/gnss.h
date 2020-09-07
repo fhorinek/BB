@@ -3,6 +3,6 @@
 
 #include "../gui.h"
 
-extern gui_task_t gui_gnss;
+DECLARE_TASK(gnss);
 
 #endif /* GUI_GNSS_H_ */

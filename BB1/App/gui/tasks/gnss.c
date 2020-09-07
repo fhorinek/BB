@@ -8,19 +8,19 @@
 #include "../../fc/fc.h"
 #include "../../etc/format.h"
 
-typedef struct
-{
+#define TASK_NAME	gnss
+
+REGISTER_TASK_IL(gnss,
 	lv_obj_t * gnss_sw;
 	lv_obj_t * label_status;
 	lv_obj_t * label_lat;
 	lv_obj_t * label_lon;
-
-} local_vars_t;
+);
 
 void gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_settings, GUI_SW_LEFT_RIGHT);
+		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
@@ -28,7 +28,7 @@ void gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 		{
 			case 0:
 			{
-				bool val = gui_list_switch_get_value(local.gnss_sw);
+				bool val = gui_list_switch_get_value(local->gnss_sw);
 				config_set_bool(&config.devices.gnss.enabled, val);
 			}
 			break;
@@ -39,7 +39,7 @@ void gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	if (event == LV_EVENT_CLICKED)
 	{
 		if (index == 1)
-			gui_switch_task(&gui_gnss_status, GUI_SW_RIGHT_LEFT);
+			gui_switch_task(&gui_gnss_status, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
 }
@@ -49,11 +49,11 @@ lv_obj_t * gnss_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "GNSS Settings", gnss_cb);
 
-	local.gnss_sw = gui_list_switch_add_entry(list, "Enable GNSS", config_get_bool(&config.devices.gnss.enabled));
+	local->gnss_sw = gui_list_switch_add_entry(list, "Enable GNSS", config_get_bool(&config.devices.gnss.enabled));
 
-	local.label_status = gui_list_info_add_entry(list, "Status", "");
-	local.label_lat = gui_list_info_add_entry(list, "Latitude", "");
-	local.label_lon = gui_list_info_add_entry(list, "Longitude", "");
+	local->label_status = gui_list_info_add_entry(list, "Status", "");
+	local->label_lat = gui_list_info_add_entry(list, "Latitude", "");
+	local->label_lon = gui_list_info_add_entry(list, "Longitude", "");
 
 	return list;
 }
@@ -87,19 +87,7 @@ void gnss_loop()
 		strcpy(lon, "N/A");
 	}
 
-	gui_list_info_set_value(local.label_status, fix);
-	gui_list_info_set_value(local.label_lat, lat);
-	gui_list_info_set_value(local.label_lon, lon);
+	gui_list_info_set_value(local->label_status, fix);
+	gui_list_info_set_value(local->label_lat, lat);
+	gui_list_info_set_value(local->label_lon, lon);
 }
-
-bool gnss_stop()
-{
-	return true;
-}
-
-gui_task_t gui_gnss =
-{
-	gnss_init,
-	gnss_loop,
-	gnss_stop
-};

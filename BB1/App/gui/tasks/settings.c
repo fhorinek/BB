@@ -15,19 +15,21 @@
 
 #include "../gui_list.h"
 
+REGISTER_TASK_I(settings);
+
 void setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_pages, GUI_SW_LEFT_RIGHT);
+		gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 
 	if (event == LV_EVENT_CLICKED)
 	{
 		if (index == 0)
-			gui_switch_task(&gui_gnss, GUI_SW_RIGHT_LEFT);
+			gui_switch_task(&gui_gnss, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 		if (index == 1)
-			gui_switch_task(&gui_fanet, GUI_SW_RIGHT_LEFT);
+			gui_switch_task(&gui_fanet, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 		if (index == 2)
-			gui_switch_task(&gui_display, GUI_SW_RIGHT_LEFT);
+			gui_switch_task(&gui_display, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
 }
@@ -39,26 +41,9 @@ lv_obj_t * settings_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, "Device settings", setting_cb);
 
-	gui_list_add_text_entry(list, "GNSS");
-	gui_list_add_text_entry(list, "FANET");
-	gui_list_add_text_entry(list, "Display");
+	gui_list_text_add_entry(list, "GNSS");
+	gui_list_text_add_entry(list, "FANET");
+	gui_list_text_add_entry(list, "Display");
 
 	return list;
 }
-
-void settings_loop()
-{
-
-}
-
-bool settings_stop()
-{
-	return true;
-}
-
-gui_task_t gui_settings =
-{
-	settings_init,
-	settings_loop,
-	settings_stop
-};

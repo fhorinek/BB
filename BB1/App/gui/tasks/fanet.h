@@ -3,6 +3,6 @@
 
 #include "../gui.h"
 
-extern gui_task_t gui_fanet;
+DECLARE_TASK(fanet);
 
 #endif /* GUI_FANET_H_ */

@@ -38,16 +38,25 @@
 #define GNSS_MODULE_L96	1
 #define GNSS_MODULE_UBL	2
 
+#define PAGE_NAME_LEN	8
+#define PAGE_MAX_COUNT	10
+
 typedef struct
 {
-	struct cfg_pilot_t
+	struct
 	{
 		cfg_entry_t name;
 	} pilot;
 
-	struct cfg_devices_t
+	struct
 	{
-		struct cfg_gnss_t
+		cfg_entry_t page[PAGE_MAX_COUNT];
+
+	} ui;
+
+	struct
+	{
+		struct
 		{
 			cfg_entry_t enabled;
 			cfg_entry_t module;
@@ -56,7 +65,7 @@ typedef struct
 			cfg_entry_t use_galileo;
 		} gnss;
 
-		struct cfg_fanet_t
+		struct
 		{
 			cfg_entry_t enabled;
 			cfg_entry_t broadcast_name;
@@ -64,15 +73,15 @@ typedef struct
 		} fanet;
 	} devices;
 
-	struct cfg_settings_t
+	struct
 	{
-		struct cfg_display_t
+		struct
 		{
 			cfg_entry_t backlight;
 			cfg_entry_t backlight_timeout;
 		} display;
 
-		struct cfg_units_t
+		struct
 		{
 			cfg_entry_t altitude;
 			cfg_entry_t speed;
@@ -82,7 +91,7 @@ typedef struct
 		} units;
 	} settings;
 
-	struct cfg_debug_t
+	struct
 	{
 		cfg_entry_t use_serial;
 	} debug;
@@ -93,6 +102,7 @@ extern config_t config;
 void config_load();
 void config_store();
 void config_default();
+void config_show();
 
 void config_set_bool(cfg_entry_t * entry, bool val);
 bool config_get_bool(cfg_entry_t * entry);

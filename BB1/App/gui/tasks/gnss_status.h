@@ -3,6 +3,6 @@
 
 #include "../gui.h"
 
-extern gui_task_t gui_gnss_status;
+DECLARE_TASK(gnss_status);
 
 #endif /* GUI_GNSS_STATUS_H_ */

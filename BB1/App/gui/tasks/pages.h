@@ -10,6 +10,8 @@
 
 #include "../gui.h"
 
-extern gui_task_t gui_pages;
+DECLARE_TASK(pages);
+
+void pages_splash_show();
 
 #endif /* GUI_PAGES_H_ */

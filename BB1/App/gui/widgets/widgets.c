@@ -8,7 +8,7 @@
 #include "widgets.h"
 #include "fatfs.h"
 
-bool widgets_load_from_file(lv_obj_t * base, page_layout_t * page, char * name)
+bool widgets_load_from_file(page_layout_t * page, char * name)
 {
 	FIL f;
 	char path[64];
@@ -33,6 +33,7 @@ bool widgets_load_from_file(lv_obj_t * base, page_layout_t * page, char * name)
 		for (uint8_t i = 0; i < page->number_of_widgets; i++)
 		{
 			widget_slot_t * w = malloc(sizeof(widget_slot_t));
+			ASSERT(w != NULL);
 			char key[16];
 
 			//Get widget type
@@ -69,7 +70,19 @@ bool widgets_load_from_file(lv_obj_t * base, page_layout_t * page, char * name)
 			int16_t height = atoi(find_in_file(&f, key, "0", buff, sizeof(buff)));
 
 			//widget specific init
-			w->widget->init(base, w, x, y, width, height);
+			if (w->widget->vars_size > 0)
+			{
+				w->vars = malloc(w->widget->vars_size);
+				ASSERT(w->vars != NULL);
+			}
+			else
+			{
+				w->vars = NULL;
+			}
+
+			w->widget->init(page->base, w, x, y, width, height);
+
+			page->widgets[i] = w;
 		}
 	}
 
@@ -83,9 +96,14 @@ void widgets_unload(page_layout_t * page)
 	for (uint8_t i = 0; i < page->number_of_widgets; i++)
 	{
 		//widget specific stop
-		page->widgets[i]->widget->stop(page->widgets[i]);
+		if (page->widgets[i]->widget->stop != NULL)
+			page->widgets[i]->widget->stop(page->widgets[i]);
 
-		//free widget memory
+		//free widget extra memory
+		if (page->widgets[i]->vars != NULL)
+			free(page->widgets[i]->vars);
+
+		//free widget slot memory
 		free(page->widgets[i]);
 	}
 
@@ -93,4 +111,16 @@ void widgets_unload(page_layout_t * page)
 	if (page->number_of_widgets > 0)
 		free(page->widgets);
 }
+
+bool widgets_editable(page_layout_t * page)
+{
+	for (uint8_t i = 0; i < page->number_of_widgets; i++)
+	{
+		if (page->widgets[i]->widget->irqh != NULL)
+			return true;
+	}
+
+	return false;
+}
+
 

@@ -128,9 +128,12 @@ void config_entry_init()
 		{
 
 			case(ENTRY_TEXT):
-				entry->value.str = (char *) malloc(entry->params.u16[0]);
-				config_set_text(entry, (char *)entry->value.cstr);
+			{
+				char * tmp = (char *) malloc(entry->params.u16[0]);
+				strncpy(tmp, (char *)entry->value.cstr, entry->params.u16[0]);
+				entry->value.str = tmp;
 				break;
+			}
 
 			case(ENTRY_SELECT):
 				config_set_select(entry, entry->value.u8[0]);
