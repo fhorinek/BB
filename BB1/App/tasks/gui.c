@@ -13,8 +13,6 @@
 #include "../gui/gui.h"
 #include "../config/config.h"
 
-static lv_disp_drv_t disp_drv;
-
 #define GUI_BUTTON_CNT	5
 uint8_t gui_button_index = 0;
 
@@ -26,7 +24,7 @@ uint8_t gui_button_index = 0;
 void gui_disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * color_p)
 {
 	tft_refresh_buffer(area->x1, area->y1, area->x2, area->y2);
-	lv_disp_flush_ready(&disp_drv);
+	lv_disp_flush_ready(&gui.disp_drv);
 }
 
 bool gui_get_button_state(uint8_t index)
@@ -104,26 +102,37 @@ void task_GUI(void *argument)
 	static lv_disp_buf_t disp_buf;
 
 	lv_disp_buf_init(&disp_buf, tft_buffer, NULL, TFT_BUFFER_SIZE);
-	lv_disp_drv_init(&disp_drv);
+	lv_disp_drv_init(&gui.disp_drv);
 
-	disp_drv.hor_res = TFT_WIDTH;
-	disp_drv.ver_res = TFT_HEIGHT;
-	disp_drv.flush_cb = gui_disp_flush;
-	disp_drv.buffer = &disp_buf;
+	gui.disp_drv.hor_res = TFT_WIDTH;
+	gui.disp_drv.ver_res = TFT_HEIGHT;
+	gui.disp_drv.flush_cb = gui_disp_flush;
+	gui.disp_drv.buffer = &disp_buf;
 
-	lv_disp_drv_register(&disp_drv);
+	lv_disp_drv_register(&gui.disp_drv);
 
 
-	//Keyboard input glue
-	gui_group = lv_group_create();
+	//Input group for navigation
+	gui.input.nav = lv_group_create();
 
-	lv_indev_drv_t indev_drv;
-	lv_indev_drv_init(&indev_drv);
-	indev_drv.type = LV_INDEV_TYPE_ENCODER;
-	indev_drv.read_cb = gui_input_cb;
+	lv_indev_drv_t indev_drv_enc;
+	lv_indev_drv_init(&indev_drv_enc);
+	indev_drv_enc.type = LV_INDEV_TYPE_ENCODER;
+	indev_drv_enc.read_cb = gui_input_cb;
 
-	lv_indev_t * key_indev = lv_indev_drv_register(&indev_drv);
-    lv_indev_set_group(key_indev, gui_group);
+	lv_indev_t * nav_indev = lv_indev_drv_register(&indev_drv_enc);
+    lv_indev_set_group(nav_indev, gui.input.nav);
+
+    //Input group for keys
+	gui.input.keypad = lv_group_create();
+
+	lv_indev_drv_t indev_drv_keypad;
+	lv_indev_drv_init(&indev_drv_keypad);
+	indev_drv_keypad.type = LV_INDEV_TYPE_KEYPAD;
+	indev_drv_keypad.read_cb = gui_input_cb;
+
+	lv_indev_t * key_indev = lv_indev_drv_register(&indev_drv_keypad);
+    lv_indev_set_group(key_indev, gui.input.keypad);
 
     gui_init();
 

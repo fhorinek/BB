@@ -300,7 +300,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * Flags:
  * LV_THEME_MATERIAL_FLAG_LIGHT: light theme
  * LV_THEME_MATERIAL_FLAG_DARK: dark theme*/
- #define LV_USE_THEME_MATERIAL    1
+ #define LV_USE_THEME_MATERIAL    0
 
 /* Mono-color theme for monochrome displays.
  * If LV_THEME_DEFAULT_COLOR_PRIMARY is LV_COLOR_BLACK the
@@ -310,16 +310,17 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  #define LV_USE_THEME_MONO        0
 
 #define LV_FONT_MONTSERRAT_12    1
-#define LV_FONT_MONTSERRAT_14    0
 #define LV_FONT_MONTSERRAT_16    1
-
+#define LV_FONT_MONTSERRAT_28    1
+#define LV_FONT_MONTSERRAT_34    1
+#define LV_FONT_MONTSERRAT_44	 1
 
 
 #define LV_THEME_DEFAULT_INCLUDE            <stdint.h>      /*Include a header for the init. function*/
-#define LV_THEME_DEFAULT_INIT               lv_theme_material_init
-#define LV_THEME_DEFAULT_COLOR_PRIMARY      LV_COLOR_BLUE
-#define LV_THEME_DEFAULT_COLOR_SECONDARY    LV_COLOR_RED
-#define LV_THEME_DEFAULT_FLAG               LV_THEME_MATERIAL_FLAG_LIGHT
+#define LV_THEME_DEFAULT_INIT               lv_theme_skybean_init
+#define LV_THEME_DEFAULT_COLOR_PRIMARY      LV_COLOR_WHITE
+#define LV_THEME_DEFAULT_COLOR_SECONDARY    LV_COLOR_GREEN
+#define LV_THEME_DEFAULT_FLAG               0
 #define LV_THEME_DEFAULT_FONT_SMALL         &lv_font_montserrat_12
 #define LV_THEME_DEFAULT_FONT_NORMAL        &lv_font_montserrat_16
 #define LV_THEME_DEFAULT_FONT_SUBTITLE      &lv_font_montserrat_16
@@ -478,6 +479,8 @@ typedef void * lv_obj_user_data_t;
 
 /*LED (dependencies: -)*/
 #define LV_USE_LED      1
+#define LV_LED_BRIGHT_MIN  80      /*Minimal brightness*/
+#define LV_LED_BRIGHT_MAX  255     /*Maximal brightness*/
 
 /*Line (dependencies: -*/
 #define LV_USE_LINE     1

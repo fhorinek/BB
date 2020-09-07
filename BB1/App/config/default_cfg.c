@@ -62,6 +62,23 @@ config_t config =
 		//name
 		entry_text("pilot_name", "Boombox", 64, 0),
 	},
+	//ui
+	{
+		//page
+		{
+			entry_text("page[0]", "default", PAGE_NAME_LEN, 0),
+			entry_text("page[1]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[2]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[3]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[4]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[5]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[6]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[7]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[8]", "", PAGE_NAME_LEN, 0),
+			entry_text("page[9]", "", PAGE_NAME_LEN, 0),
+		}
+	},
+
 	//devices
 	{
 		//gnss
