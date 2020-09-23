@@ -25,7 +25,7 @@ void task_USB(void *argument)
 		uint8_t Buf[] = "Pojeb sa!\n";
 		osDelay(1000);
 
-		CDC_Transmit_FS(Buf, sizeof(Buf) - 1);
+		CDC_Transmit_HS(Buf, sizeof(Buf) - 1);
 
 	}
 }

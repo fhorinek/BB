@@ -10,7 +10,7 @@
 
 #include "../common.h"
 
-//metric to imperial
+//unit conversions
 #define FC_METER_TO_FEET		(3.2808399)
 #define FC_MPS_TO_100FPM		(1.96850394)  	//100 feet per min (WTF?)
 
@@ -22,18 +22,25 @@
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
 #define FC_KM_TO_MILE		(0.621371)
 
-;
 
-#define GNSS_NUMBER_OF_SATS		12
+#define GNSS_NUMBER_OF_SATS		32
 
 #define GNSS_GPS				0
 #define GNSS_GLONAS				1
 #define GNSS_GALILEO			2
 
-#define GNSS_NUMBER_OF_SYSTEMS	3
 #define GNSS_MUL				10000000l
 
+#define GNSS_SAT_SYSTEM_MASK	0b00000111
+#define GNSS_SAT_GPS			0b00000000
+#define GNSS_SAT_SBAS			0b00000001
+#define GNSS_SAT_GALILEO		0b00000010
+#define GNSS_SAT_BEIDOU			0b00000011
+#define GNSS_SAT_IMES			0b00000100
+#define GNSS_SAT_QZSS			0b00000101
+#define GNSS_SAT_GLONASS		0b00000110
 
+#define GNSS_SAT_USED			0b00001000
 
 typedef struct
 {
@@ -82,29 +89,26 @@ typedef struct
 	struct
 	{
 		bool valid;
-		uint8_t fix;
-		uint8_t first_fix;
-		uint32_t fix_time;
+		uint8_t fix; //2 - 2D, 3 - 3D
+
+		uint32_t ttf; //[ms]
 
 		int32_t latitude;   //*10^7
 		int32_t longtitude; //*10^7
 
-		float ground_speed;
-		uint16_t heading;
+		float ground_speed; //[m/s]
+		uint16_t heading; //deg
 
 		uint32_t utc_time;
 
-		float altitude;
-		float geoid_separation;
+		float altitude_above_ellipsiod; //[m]
+		float altitude_above_msl; //[m]
+
+		uint16_t horizontal_accuracy; //[m]
+		uint16_t vertical_accuracy; //[m]
 
 		struct
 		{
-			uint8_t fix;
-
-			float pdop; //Position Dilution of Precision
-			float hdop; //Horizontal Dilution of Precision
-			float vdop; //Vertical Dilution of Precision
-
 			uint8_t sat_total;
 			uint8_t sat_used;
 
@@ -114,9 +118,9 @@ typedef struct
 				int8_t elevation; // +/- 90
 				uint8_t azimuth; //0-359 /2
 				uint8_t snr;
+				uint8_t flags;
 			} sats[GNSS_NUMBER_OF_SATS];
-
-		} sat_info[GNSS_NUMBER_OF_SYSTEMS];
+		} sat_info;
 	} gnss;
 
 	struct
@@ -130,6 +134,13 @@ typedef struct
 		uint8_t neighbors_size;
 		uint8_t neighbors_magic;
 	} fanet;
+
+	struct
+	{
+		bool valid;
+
+		float pressure;
+	} vario;
 } fc_t;
 
 extern fc_t fc;

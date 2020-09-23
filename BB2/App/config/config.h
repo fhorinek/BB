@@ -34,10 +34,6 @@
 #define DISTANCE_METERS	0
 #define DISTANCE_MILES	1
 
-#define GNSS_MODULE_SIM	0
-#define GNSS_MODULE_L96	1
-#define GNSS_MODULE_UBL	2
-
 #define PAGE_NAME_LEN	8
 #define PAGE_MAX_COUNT	10
 
@@ -58,8 +54,6 @@ typedef struct
 	{
 		struct
 		{
-			cfg_entry_t enabled;
-			cfg_entry_t module;
 			cfg_entry_t use_gps;
 			cfg_entry_t use_glonass;
 			cfg_entry_t use_galileo;

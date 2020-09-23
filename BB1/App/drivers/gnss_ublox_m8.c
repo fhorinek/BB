@@ -20,7 +20,7 @@
 #define GNSS_BUFFER_SIZE	512
 extern uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
 
-void ublox_m8_init()
+void ublox_init()
 {
 	DBG("Ublox M8");
 	fc.gnss.valid = false;
@@ -34,7 +34,7 @@ void ublox_m8_init()
 	fc.gnss.fix_time = HAL_GetTick();
 }
 
-void ublox_m8_deinit()
+void ublox_deinit()
 {
 	GpioWrite(GPS_SW_EN, LOW);
 }
@@ -438,7 +438,7 @@ static void nmea_parse(uint8_t c)
 	}
 }
 
-void ublox_m8_step()
+void ublox_step()
 {
 	static uint16_t read_index = 0;
 	static uint32_t last_data = 0;

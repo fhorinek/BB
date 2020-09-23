@@ -12,8 +12,6 @@
 #include "../fc/neighbors.h"
 #include "../config/config.h"
 
-//#include "../drivers/gnss_sim33ela.h"
-//#include "../drivers/gnss_l96.h"
 #include "../drivers/gnss_ublox_m8.h"
 
 void task_GNSS(void *argument)
@@ -22,36 +20,15 @@ void task_GNSS(void *argument)
 
 	INFO("Started");
 
-	switch (config_get_select(&config.devices.gnss.module))
-	{
-//		case(GNSS_MODULE_SIM):
-//			sim33ela_init();
-//		break;
-//		case(GNSS_MODULE_L96):
-//			l96_init();
-//		break;
-		case(GNSS_MODULE_UBL):
-			ublox_m8_init();
-		break;
-	}
+
+	ublox_init();
 
 	fanet_init();
 	neighbors_init();
 
 	for(;;)
 	{
-		switch (config_get_select(&config.devices.gnss.module))
-		{
-//			case(GNSS_MODULE_SIM):
-//				sim33ela_step();
-//			break;
-//			case(GNSS_MODULE_L96):
-//				l96_step();
-//			break;
-			case(GNSS_MODULE_UBL):
-				ublox_m8_step();
-			break;
-		}
+		ublox_step();
 
 		fanet_step();
 

@@ -67,6 +67,9 @@ void Error_Handler(void);
 #define led_timmer htim2
 #define led_bclk TIM_CHANNEL_1
 #define led_torch TIM_CHANNEL_4
+#define mems_i2c hi2c1
+#define sys_i2c hi2c2
+#define meas_timer htim3
 #define BT3_Pin GPIO_PIN_3
 #define BT3_GPIO_Port GPIOE
 #define REV_VCC_Pin GPIO_PIN_4

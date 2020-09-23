@@ -10,36 +10,117 @@
 
 void PSRAM_Init()
 {
-	OSPI_RegularCmdTypeDef sCommand;
+	__IO uint8_t * psram = (__IO uint8_t *)OCTOSPI1_BASE;
 
-	sCommand.OperationType = HAL_OSPI_OPTYPE_COMMON_CFG;
-	sCommand.FlashId = HAL_OSPI_FLASH_ID_1;
-	sCommand.Instruction = 0x35;
-	sCommand.InstructionMode = HAL_OSPI_INSTRUCTION_1_LINE;
-	sCommand.InstructionSize = HAL_OSPI_INSTRUCTION_8_BITS;
-	sCommand.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
-	sCommand.AddressMode = HAL_OSPI_ADDRESS_NONE;
-	sCommand.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
-	sCommand.DataMode = HAL_OSPI_DATA_NONE;
-	sCommand.DummyCycles = 0;
-	sCommand.DQSMode = HAL_OSPI_DQS_DISABLE;
-	sCommand.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
+	OSPI_RegularCmdTypeDef cmd;
 
-//
-//while(1)
-//{
-//}
-	uint8_t pData[1];
-	pData[0] = 0x35;
+	//switch to qspi mode
+	cmd.OperationType = HAL_OSPI_OPTYPE_COMMON_CFG;
+	cmd.FlashId = HAL_OSPI_FLASH_ID_1;
+	cmd.DummyCycles = 0;
+	cmd.DQSMode = HAL_OSPI_DQS_DISABLE;
+	cmd.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
+
+	cmd.InstructionMode = HAL_OSPI_INSTRUCTION_1_LINE;
+	cmd.InstructionSize = HAL_OSPI_INSTRUCTION_8_BITS;
+	cmd.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
+	cmd.Instruction = 0x35;
+
+	cmd.AddressMode = HAL_OSPI_ADDRESS_NONE;
+	cmd.DataMode = HAL_OSPI_DATA_NONE;
+	cmd.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
+
+	ASSERT(HAL_OSPI_Command(&hospi1, &cmd, 100) == HAL_OK);
+
+	//indirect write
+	char str[] = " *** Hello world *** ";
+
+	cmd.OperationType = HAL_OSPI_OPTYPE_COMMON_CFG;
+	cmd.FlashId = HAL_OSPI_FLASH_ID_1;
+	cmd.DummyCycles = 0;
+	cmd.DQSMode = HAL_OSPI_DQS_DISABLE;
+	cmd.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
+
+	cmd.InstructionMode = HAL_OSPI_INSTRUCTION_4_LINES;
+	cmd.InstructionSize = HAL_OSPI_INSTRUCTION_8_BITS;
+	cmd.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
+	cmd.Instruction = 0x38;
+
+	cmd.AddressMode = HAL_OSPI_ADDRESS_4_LINES;
+	cmd.AddressSize = HAL_OSPI_ADDRESS_24_BITS;
+	cmd.AddressDtrMode = HAL_OSPI_ADDRESS_DTR_DISABLE;
+	cmd.Address = 0;
+	cmd.NbData = sizeof(str);
+
+	cmd.DataMode = HAL_OSPI_DATA_4_LINES;
+	cmd.DataDtrMode = HAL_OSPI_DATA_DTR_DISABLE;
+
+	cmd.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
+
+	ASSERT(HAL_OSPI_Command(&hospi1, &cmd, 100) == HAL_OK);
+	ASSERT(HAL_OSPI_Transmit(&hospi1, str, 100) == HAL_OK);
+
+	//set read configuration
+	cmd.OperationType = HAL_OSPI_OPTYPE_READ_CFG;
+	cmd.FlashId = HAL_OSPI_FLASH_ID_1;
+	cmd.DummyCycles = 6;
+	cmd.DQSMode = HAL_OSPI_DQS_DISABLE;
+	cmd.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
+
+	cmd.InstructionMode = HAL_OSPI_INSTRUCTION_4_LINES;
+	cmd.InstructionSize = HAL_OSPI_INSTRUCTION_8_BITS;
+	cmd.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
+	cmd.Instruction = 0xEB;
+
+	cmd.AddressMode = HAL_OSPI_ADDRESS_4_LINES;
+	cmd.AddressSize = HAL_OSPI_ADDRESS_24_BITS;
+	cmd.AddressDtrMode = HAL_OSPI_ADDRESS_DTR_DISABLE;
+	cmd.Address = 0;
+	cmd.NbData = 1;
+
+	cmd.DataMode = HAL_OSPI_DATA_4_LINES;
+	cmd.DataDtrMode = HAL_OSPI_DATA_DTR_DISABLE;
+
+	cmd.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
+
+	ASSERT(HAL_OSPI_Command(&hospi1, &cmd, 100) == HAL_OK);
+
+	//Set write configuration
+	cmd.OperationType = HAL_OSPI_OPTYPE_WRITE_CFG;
+	cmd.FlashId = HAL_OSPI_FLASH_ID_1;
+	cmd.DummyCycles = 0;
+	cmd.DQSMode = HAL_OSPI_DQS_DISABLE;
+	cmd.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
+
+	cmd.InstructionMode = HAL_OSPI_INSTRUCTION_4_LINES;
+	cmd.InstructionSize = HAL_OSPI_INSTRUCTION_8_BITS;
+	cmd.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
+	cmd.Instruction = 0x38;
+
+	cmd.AddressMode = HAL_OSPI_ADDRESS_4_LINES;
+	cmd.AddressSize = HAL_OSPI_ADDRESS_24_BITS;
+	cmd.AddressDtrMode = HAL_OSPI_ADDRESS_DTR_DISABLE;
+	cmd.Address = 0;
+	cmd.NbData = 1;
+
+	cmd.DataMode = HAL_OSPI_DATA_4_LINES;
+	cmd.DataDtrMode = HAL_OSPI_DATA_DTR_DISABLE;
+
+	cmd.AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE;
+
+	ASSERT(HAL_OSPI_Command(&hospi1, &cmd, 100) == HAL_OK);
+
+	//map to memory
+	OSPI_MemoryMappedTypeDef cfg;
+	cfg.TimeOutActivation = HAL_OSPI_TIMEOUT_COUNTER_DISABLE;
+	cfg.TimeOutPeriod = 10;
+
+	ASSERT(HAL_OSPI_MemoryMapped(&hospi1, &cfg) == HAL_OK);
 
 
-	while(1)
-	{
+	DBG("PSRAM test '%s'", psram); //prints  *** Hello world *** 
 
-		HAL_OSPI_Command(&hospi1, &sCommand, 100);
-		HAL_OSPI_Transmit(&hospi1, pData, 100);
-		osDelay(1);
+	*psram = 0xFF; //HARD FAULT!!!!
 
-	}
-
+	while(1);
 }

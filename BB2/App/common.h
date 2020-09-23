@@ -22,8 +22,11 @@
 #include "usart.h"
 #include "tim.h"
 #include "octospi.h"
+#include "i2c.h"
 
-#include "cmsis_os.h"
+#include "FreeRTOS.h"
+#include "cmsis_os2.h"
+
 #include "fatfs.h"
 
 #include "common_gpio.h"
@@ -76,15 +79,21 @@ struct vector_float_t
 extern osThreadId_t GUIHandle;
 extern osThreadId_t DebugHandle;
 extern osThreadId_t GNSSHandle;
-extern osThreadId_t TestHandle;
-extern osThreadId_t UsbHandle;
+extern osThreadId_t USBHandle;
+extern osThreadId_t MEMSHandle;
+extern osThreadId_t SystemHandle;
 
 //RTOS Queue
 extern osMessageQueueId_t queue_DebugHandle;
 
+//RTOS semaphores
+extern osSemaphoreId_t fc_global_lockHandle;
+
 //RTOS defs
 #define WAIT_INF	portMAX_DELAY
-
+//do not use in ISR
+//#define FC_ATOMIC_ACCESS		for(osSemaphoreAcquire(fc_global_lockHandle, 0); osSemaphoreGetCount(fc_global_lockHandle) == 0; osSemaphoreRelease(fc_global_lockHandle))
+#define FC_ATOMIC_ACCESS
 //Paths
 #define PATH_CONFIG_DIR		"config"
 #define PATH_DEVICE_CFG		PATH_CONFIG_DIR "/device.cfg"
