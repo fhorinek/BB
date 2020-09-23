@@ -32,6 +32,7 @@
 /* Private typedef -----------------------------------------------------------*/
 typedef StaticTask_t osStaticThreadDef_t;
 typedef StaticQueue_t osStaticMessageQDef_t;
+typedef StaticSemaphore_t osStaticSemaphoreDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -86,6 +87,42 @@ const osThreadAttr_t GUI_attributes = {
   .cb_size = sizeof(GUIControlBlock),
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for USB */
+osThreadId_t USBHandle;
+uint32_t USBBuffer[ 512 ];
+osStaticThreadDef_t USBControlBlock;
+const osThreadAttr_t USB_attributes = {
+  .name = "USB",
+  .stack_mem = &USBBuffer[0],
+  .stack_size = sizeof(USBBuffer),
+  .cb_mem = &USBControlBlock,
+  .cb_size = sizeof(USBControlBlock),
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for MEMS */
+osThreadId_t MEMSHandle;
+uint32_t MemsBuffer[ 512 ];
+osStaticThreadDef_t MemsControlBlock;
+const osThreadAttr_t MEMS_attributes = {
+  .name = "MEMS",
+  .stack_mem = &MemsBuffer[0],
+  .stack_size = sizeof(MemsBuffer),
+  .cb_mem = &MemsControlBlock,
+  .cb_size = sizeof(MemsControlBlock),
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for GNSS */
+osThreadId_t GNSSHandle;
+uint32_t GNSSBuffer[ 512 ];
+osStaticThreadDef_t GNSSControlBlock;
+const osThreadAttr_t GNSS_attributes = {
+  .name = "GNSS",
+  .stack_mem = &GNSSBuffer[0],
+  .stack_size = sizeof(GNSSBuffer),
+  .cb_mem = &GNSSControlBlock,
+  .cb_size = sizeof(GNSSControlBlock),
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* Definitions for queue_Debug */
 osMessageQueueId_t queue_DebugHandle;
 uint8_t queue_DebugBuffer[ 16 * sizeof( debug_msg_t ) ];
@@ -97,6 +134,14 @@ const osMessageQueueAttr_t queue_Debug_attributes = {
   .mq_mem = &queue_DebugBuffer,
   .mq_size = sizeof(queue_DebugBuffer)
 };
+/* Definitions for fc_global_lock */
+osSemaphoreId_t fc_global_lockHandle;
+osStaticSemaphoreDef_t fc_global_lockControlBlock;
+const osSemaphoreAttr_t fc_global_lock_attributes = {
+  .name = "fc_global_lock",
+  .cb_mem = &fc_global_lockControlBlock,
+  .cb_size = sizeof(fc_global_lockControlBlock),
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -106,9 +151,26 @@ const osMessageQueueAttr_t queue_Debug_attributes = {
 void task_System(void *argument);
 extern void task_Debug(void *argument);
 extern void task_GUI(void *argument);
+extern void task_USB(void *argument);
+extern void task_MEMS(void *argument);
+extern void task_GNSS(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* Hook prototypes */
+void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName);
+
+/* USER CODE BEGIN 4 */
+__weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
+{
+   /* Run time stack overflow checking is performed if
+   configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
+   called if a stack overflow is detected. */
+	ERR("RTOS task %s Stack overflow!", pcTaskName);
+
+}
+/* USER CODE END 4 */
 
 /**
   * @brief  FreeRTOS initialization
@@ -123,6 +185,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* creation of fc_global_lock */
+  fc_global_lockHandle = osSemaphoreNew(1, 1, &fc_global_lock_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -149,6 +215,15 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of GUI */
   GUIHandle = osThreadNew(task_GUI, NULL, &GUI_attributes);
+
+  /* creation of USB */
+  USBHandle = osThreadNew(task_USB, NULL, &USB_attributes);
+
+  /* creation of MEMS */
+  MEMSHandle = osThreadNew(task_MEMS, NULL, &MEMS_attributes);
+
+  /* creation of GNSS */
+  GNSSHandle = osThreadNew(task_GNSS, NULL, &GNSS_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

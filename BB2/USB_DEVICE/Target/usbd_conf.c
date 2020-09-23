@@ -44,7 +44,14 @@ void Error_Handler(void);
 /* External functions --------------------------------------------------------*/
 
 /* USER CODE BEGIN 0 */
+#define USBD_STATIC_MEM_SIZE		540
+void * USBD_static_malloc(uint32_t size)
+{
+	static uint8_t mem[USBD_STATIC_MEM_SIZE];
+	ASSERT(USBD_STATIC_MEM_SIZE >= size);
 
+	return mem;
+}
 /* USER CODE END 0 */
 
 /* USER CODE BEGIN PFP */
@@ -338,7 +345,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_OTG_HS.Instance = USB_OTG_HS;
   hpcd_USB_OTG_HS.Init.dev_endpoints = 9;
   hpcd_USB_OTG_HS.Init.speed = PCD_SPEED_FULL;
-  hpcd_USB_OTG_HS.Init.dma_enable = DISABLE;
+  hpcd_USB_OTG_HS.Init.dma_enable = ENABLE;
   hpcd_USB_OTG_HS.Init.phy_itface = USB_OTG_EMBEDDED_PHY;
   hpcd_USB_OTG_HS.Init.Sof_enable = DISABLE;
   hpcd_USB_OTG_HS.Init.low_power_enable = DISABLE;

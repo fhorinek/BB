@@ -47,14 +47,6 @@ cfg_entry_param_select_t altitude_select[] =
 	SELECT_END
 };
 
-cfg_entry_param_select_t gnss_module_list[] =
-{
-	{GNSS_MODULE_SIM, "sim"},
-	{GNSS_MODULE_L96, "l96"},
-	{GNSS_MODULE_UBL, "ubl"},
-	SELECT_END
-};
-
 config_t config =
 {
 	//pilot
@@ -85,10 +77,6 @@ config_t config =
 	{
 		//gnss
 		{
-			//enabled
-			entry_bool("gnss_en", true),
-			//module
-			entry_select("gnss_module", GNSS_MODULE_UBL, gnss_module_list),
 			//use_gps
 			entry_bool("gnss_gps", true),
 			//use_glonass

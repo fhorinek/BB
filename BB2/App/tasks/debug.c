@@ -15,6 +15,20 @@
 
 #include "fatfs.h"
 
+void debug_dump(uint8_t * data, uint16_t len)
+{
+	char tmp[8 * 3 + 3];
+	for (uint16_t i = 0; i < len; i++)
+	{
+		sprintf(tmp + ((i % 8) * 3) + ((i % 8 > 3) ? 1 : 0), "%02X  ", data[i]);
+		if (i % 8 == 7 || i + 1 == len)
+		{
+			tmp[strlen(tmp) - 2] = 0;
+			DBG("[%s]", tmp);
+		}
+	}
+}
+
 void debug_send(uint8_t type, const char *format, ...)
 {
 	debug_msg_t msg;

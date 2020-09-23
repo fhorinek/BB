@@ -21,6 +21,7 @@
 #define INFO(...)	debug_send(DBG_INFO, __VA_ARGS__)
 #define WARN(...)	debug_send(DBG_WARN, __VA_ARGS__)
 #define ERR(...)	debug_send(DBG_ERROR, __VA_ARGS__)
+#define DUMP(data, len)	debug_dump(data, len)
 
 #define ASSERT(cond)	\
 	do {	\
@@ -33,6 +34,7 @@ extern "C" {
 #endif
 
 void debug_send(uint8_t type, const char *format, ...);
+void debug_dump(uint8_t * data, uint16_t len);
 void debug_uart_done();
 
 typedef struct

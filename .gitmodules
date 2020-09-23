@@ -1,3 +1,7 @@
 [submodule "BB1/App/lib/lvgl"]
 	path = BB1/App/lib/lvgl
 	url = https://github.com/fhorinek/lvgl.git
+
+[submodule "BB2/App/lib/lvgl"]
+	path = BB2/App/lib/lvgl
+	url = https://github.com/fhorinek/lvgl.git

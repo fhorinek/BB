@@ -31,7 +31,7 @@ void task_GNSS(void *argument)
 			l96_init();
 		break;
 		case(GNSS_MODULE_UBL):
-			ublox_m8_init();
+			ublox_init();
 		break;
 	}
 
@@ -49,7 +49,7 @@ void task_GNSS(void *argument)
 				l96_step();
 			break;
 			case(GNSS_MODULE_UBL):
-				ublox_m8_step();
+				ublox_step();
 			break;
 		}
 

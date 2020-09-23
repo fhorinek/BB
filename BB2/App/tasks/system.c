@@ -37,7 +37,7 @@ void task_System(void *argument)
 	pages_defragment();
 	config_show();
 
-	PSRAM_Init();
+	//PSRAM_Init();
 
 //	GpioSetDirection(ESP_BOOT_OPTION, INPUT);
 //	GpioSetDirection(ESP_EN_RESET, OUTPUT);
@@ -120,9 +120,12 @@ void task_System(void *argument)
 	DBG("time: %lu", HAL_GetTick() - time_start);
 */
 
+	fc_init();
 
 	vTaskResume((TaskHandle_t)GUIHandle);
-//	vTaskResume((TaskHandle_t)GNSSHandle);
+//	vTaskResume((TaskHandle_t)USBHandle);
+//	vTaskResume((TaskHandle_t)MEMSHandle);
+	vTaskResume((TaskHandle_t)GNSSHandle);
 
 
 	for(;;)

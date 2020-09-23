@@ -17,25 +17,33 @@
 //#define	GPS_RESET
 
 //DMA buffer
-#define GNSS_BUFFER_SIZE	512
-extern uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
+#define GNSS_BUFFER_SIZE	2048
+static uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
+static uint8_t ublox_last_command;
+static uint32_t ublox_last_command_time;
 
-void ublox_m8_init()
+#define UBLOX_CMD_TIMEOUT 1500
+
+void ublox_init()
 {
-	DBG("Ublox M8");
-	fc.gnss.valid = false;
-	fc.gnss.first_fix = true;
+	DBG("Ublox init");
+	FC_ATOMIC_ACCESS
+	{
+		fc.gnss.valid = false;
+	}
+
 	HAL_UART_Receive_DMA(&gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
 	GpioWrite(GNSS_RST, LOW);
-	osDelay(10);
+	osDelay(100);
 	GpioWrite(GNSS_RST, HIGH);
-	fc.gnss.fix_time = HAL_GetTick();
+
+	ublox_last_command_time = false;
 }
 
-void ublox_m8_deinit()
+void ublox_deinit()
 {
-	//GpioWrite(GPS_SW_EN, LOW);
+
 }
 
 static void gnss_set_baudrate(uint32_t baud)
@@ -47,403 +55,565 @@ static void gnss_set_baudrate(uint32_t baud)
 	}
 }
 
-static void nmea_send(const char * msg)
+static void ublox_send(uint8_t class, uint8_t id, uint8_t len, uint8_t * payload)
 {
-	uint8_t chsum = 0;
+	uint8_t * buff = (uint8_t *)malloc(len + 8);
+	byte2 blen;
 
-	for (uint8_t i = 0; i < strlen(msg); i++)
-		chsum ^= msg[i];
+	//sync word
+	buff[0] = 0xB5;
+	buff[1] = 0x62;
 
-	char nmea[128];
-	sprintf(nmea, "$%s*%02X\r\n", msg, chsum);
+	//class
+	buff[2] = class;
 
-//	DBG(">>> %s", nmea);
-	HAL_UART_Transmit(&gnss_uart, (uint8_t *)nmea, strlen(nmea), 100);
+	//id
+	buff[3] = id;
+
+	//length
+	blen.uint16 = len;
+	buff[4] = blen.uint8[0];
+	buff[5] = blen.uint8[1];
+
+	//payload
+	memcpy(buff + 6, payload, len);
+
+	//checksum
+	uint8_t ck_a = 0;
+	uint8_t ck_b = 0;
+	for (uint8_t i = 2; i < len + 6; i++)
+	{
+		ck_a += buff[i];
+		ck_b += ck_a;
+	}
+	buff[len + 6] = ck_a;
+	buff[len + 7] = ck_b;
+
+	DBG("UBX >>> %02X, %02X len %u", class, id, len);
+	DUMP(payload, len);
+	DBG("");
+
+	HAL_UART_Transmit(&gnss_uart, buff, len + 8, 100);
+
+	free(buff);
 }
 
-static void nmea_start_configuration()
+static void ublox_command(uint8_t command)
 {
-	INFO("Starting configuration");
-	//disable VTG
-	nmea_send("PUBX,40,VTG,0,0,0,0,0,0");
-	//disable GLL
-	nmea_send("PUBX,40,GLL,0,0,0,0,0,0");
-}
+	ublox_last_command = command;
+	ublox_last_command_time = HAL_GetTick();
 
-static void nmea_parse_txt(char * buffer)
-{
-	DBG("TXT:%s", buffer);
-	//Startup
+	DBG("sending command %u", command);
 
-	if (start_with(buffer, ",01,01,02,ANTSTATUS=OK"))
+	switch (command)
 	{
+		case(0):
+		{
+			struct {
+				uint8_t portID;
+				uint8_t reserved1;
+				uint16_t txReady;
+				uint32_t mode;
+				uint32_t baudRate;
+				uint16_t inProtoMask;
+				uint16_t outProtoMask;
+				uint16_t flags;
+				uint16_t reserved2;
+			} ubx_cfg_prt;
 
-		//disable VTG
-		nmea_send("PUBX,40,VTG,0,0,0,0,0,0");
-		//disable GLL
-		nmea_send("PUBX,40,GLL,0,0,0,0,0,0");
-	}
-//	nmea_send("PUBX,41,1,007,003,9600,0");
-}
+			ubx_cfg_prt.portID = 1;
+			ubx_cfg_prt.reserved1 = 0;
+			ubx_cfg_prt.txReady = 0;
+			ubx_cfg_prt.mode = (0b00100011000000); //1 stop, No parity, 8Bit;
+			ubx_cfg_prt.baudRate = 115200;
+			ubx_cfg_prt.inProtoMask = 0x0001;
+			ubx_cfg_prt.outProtoMask = 0x0001;
+			ubx_cfg_prt.flags = 0;
+			ubx_cfg_prt.reserved2 = 0;
 
-static void nmea_parse_rmc(char * buffer)
-{
-//	DBG("RMC:%s", buffer);
+			DBG("ubx_cfg_prt");
+			ublox_send(0x06, 0x00, sizeof(ubx_cfg_prt), (uint8_t *)&ubx_cfg_prt);
+			gnss_set_baudrate(115200);
+			break;
+		}
 
-	char * ptr = find_comma(buffer);
-	char * old_ptr;
-	uint8_t tlen;
+		case(1):
+		{
+			struct {
+				uint16_t measRate;
+				uint16_t navRate;
+				uint16_t timeRef;
+			} ubx_cfg_rate;
 
-	//UTC time
-	uint8_t hour = atoi_n(ptr + 0, 2);
-	uint8_t min = atoi_n(ptr + 2, 2);
-	uint8_t sec = atoi_n(ptr + 4, 2);
+			ubx_cfg_rate.measRate = 1000;
+			ubx_cfg_rate.navRate = 1;
+			ubx_cfg_rate.timeRef = 0;
 
-//	DEBUG("%02d:%02d:%02d\n", hour, min, sec);
+			DBG("ubx_cfg_rate");
+			ublox_send(0x06, 0x08, sizeof(ubx_cfg_rate), (uint8_t *)&ubx_cfg_rate);
+			break;
+		}
 
-	old_ptr = ptr;
-	ptr = find_comma(ptr);
-	tlen = ptr - old_ptr - 1;
+		case(2):
+		case(3):
+		case(4):
+		case(5):
+		case(6):
+		{
+			struct {
+				uint8_t msgClass;
+				uint8_t msgID;
+				uint8_t rate;
+			} ubx_cfg_msg;
 
-	if (tlen != 9)
-	{
-		ERR("RMC bad timestamp len: %u", tlen);
-		return;
-	}
+			//output sat info
+			ubx_cfg_msg.msgClass = 0x01;
+			ubx_cfg_msg.rate = 1;
 
-	if (*ptr == 'V')
-	{
-		return;
-	}
-
-	ptr = find_comma(ptr);
-
-	uint32_t loc_deg;
-	uint32_t loc_min;
-
-	//Latitude, e.g. 4843.4437
-	loc_deg = atoi_n(ptr, 2);        // 48
-	loc_min = atoi_n(ptr + 2, 7);    // 434437000
-
-	int32_t latitude = (loc_min * 10ul) / 6;
-	latitude = loc_deg * GNSS_MUL + latitude;
-
-	// DEBUG("lat: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
-
-	old_ptr = ptr;
-	ptr = find_comma(ptr);
-	tlen = ptr - old_ptr - 1;
-
-	if (tlen != 10)
-	{
-		ERR("RMC bad latitude len: %u", tlen);
-		return;
-	}
-
-	//Latitude sign
-	if ((*ptr) == 'S')
-		latitude *= -1;
-
-	ptr = find_comma(ptr);
-
-	//Longitude, 00909.2085
-	loc_deg = atoi_n(ptr, 3);          // 009
-	loc_min = atoi_n(ptr + 3, 7);      // 092085000
-
-	int32_t longitude = (loc_min * 10ul) / 6;
-	longitude = loc_deg * GNSS_MUL + longitude;
-
-	// DEBUG("lon: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
-
-	old_ptr = ptr;
-	ptr = find_comma(ptr);
-	tlen = ptr - old_ptr - 1;
-
-
-	if (tlen != 11)
-	{
-		ERR("RMC bad longitude len: %u", tlen);
-		return;
-	}
-
-	//Longitude sign
-	if ((*ptr) == 'W')
-		longitude *= -1;
-
-	ptr = find_comma(ptr);
-
-	float gspd = atoi_f(ptr) * FC_KNOTS_TO_MPS; //in knots to m/s
-
-	ptr = find_comma(ptr);
-
-	//Ground course
-	uint16_t hdg = (uint16_t)atoi_f(ptr);
-	if (hdg >= 360)
-	{
-		ERR("RMC heading value: %u", hdg);
-		return;
-	}
-
-	ptr = find_comma(ptr);
-
-	//UTC date
-	uint8_t day = atoi_n(ptr + 0, 2);
-	uint8_t month = atoi_n(ptr + 2, 2);
-	uint16_t year = atoi_n(ptr + 4, 2) + 2000;
-
-	old_ptr = ptr;
-	ptr = find_comma(ptr);
-	tlen = ptr - old_ptr - 1;
-
-	if (tlen != 6)
-	{
-		ERR("RMC bad date len: %u", tlen);
-		return;
-	}
-
-	fc.gnss.latitude = latitude;
-	fc.gnss.longtitude = longitude;
-	fc.gnss.ground_speed = gspd;
-	fc.gnss.heading = hdg;
-	fc.gnss.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
-}
-
-static void nmea_parse_gga(char * buffer)
-{
-//	DBG("GGA:%s", buffer);
-
-	char * ptr = find_comma(buffer);
-
-	//Skip time
-	ptr = find_comma(ptr);
-	//Skip latitude
-	ptr = find_comma(ptr);
-	ptr = find_comma(ptr);
-	//Skip longitude
-	ptr = find_comma(ptr);
-	ptr = find_comma(ptr);
-
-	//Skip fix status
-	ptr = find_comma(ptr);
-
-	//skip Number of sat
-	ptr = find_comma(ptr);
-
-	//skip HDOP
-	ptr = find_comma(ptr);
-
-	//altitude
-	fc.gnss.altitude = atoi_f(ptr);
-	ptr = find_comma(ptr);
-
-	//skip M
-	ptr = find_comma(ptr);
-
-	//Geoid
-	fc.gnss.geoid_separation = atoi_f(ptr);
-}
-
-static void nmea_parse_gsa(uint8_t slot, char * buffer)
-{
-//	DBG("GSA[%u]: %s", slot, buffer);
-
-	char * ptr = find_comma(buffer);
-
-	//Skip mode
-	ptr = find_comma(ptr);
-	//fix status
-	fc.gnss.sat_info[slot].fix = atoi_c(ptr);
-
-	//update global fix status and gnss validity
-	uint8_t best_fix = 0;
-	if (config_get_bool(&config.devices.gnss.use_gps))
-		best_fix = max(best_fix, fc.gnss.sat_info[GNSS_GPS].fix);
-	if (config_get_bool(&config.devices.gnss.use_glonass))
-		best_fix = max(best_fix, fc.gnss.sat_info[GNSS_GLONAS].fix);
-	if (config_get_bool(&config.devices.gnss.use_galileo))
-		best_fix = max(best_fix, fc.gnss.sat_info[GNSS_GALILEO].fix);
-	fc.gnss.fix = best_fix;
-	fc.gnss.valid = (best_fix > 1);
-
-	if (fc.gnss.fix == 3 && fc.gnss.first_fix)
-	{
-		fc.gnss.fix_time = HAL_GetTick() - fc.gnss.fix_time;
-		fc.gnss.first_fix = false;
-	}
-
-	ptr = find_comma(ptr);
-
-	// Skip all 12 satellites
-	for (uint8_t sat_no = 0; sat_no < 12; sat_no++ )
-	{
-		ptr = find_comma(ptr);
-	}
-
-	fc.gnss.sat_info[slot].pdop = atoi_f(ptr);
-	ptr = find_comma(ptr);
-	fc.gnss.sat_info[slot].hdop = atoi_f(ptr);
-	ptr = find_comma(ptr);
-	fc.gnss.sat_info[slot].vdop = atoi_f(ptr);
-}
-
-static void nmea_parse_gsv(uint8_t slot, char * buffer)
-{
-//	DBG("GSV[%u]: %s", slot, buffer);
-
-	char * ptr = find_comma(buffer);
-
-	//Number of messages
-	uint8_t msg_c = atoi_c(ptr);
-	ptr = find_comma(ptr);
-	//message number
-	uint8_t msg_i = atoi_c(ptr);
-	ptr = find_comma(ptr);
-	//sat in view
-	fc.gnss.sat_info[slot].sat_total = atoi_c(ptr);
-	ptr = find_comma(ptr);
-
-	for (uint8_t i = 0; i < 4 ; i++)
-	{
-		uint8_t sat_index = 4 * (msg_i - 1) + i;
-
-		//sat_id
-		fc.gnss.sat_info[slot].sats[sat_index].sat_id = atoi_c(ptr);
-		ptr = find_comma(ptr);
-
-		//skip elevation
-		fc.gnss.sat_info[slot].sats[sat_index].elevation = atoi_c(ptr);
-		ptr = find_comma(ptr);
-
-		//skip azimut
-		ptr = find_comma(ptr);
-		fc.gnss.sat_info[slot].sats[sat_index].azimuth = atoi_c(ptr);
-
-		//snr
-		fc.gnss.sat_info[slot].sats[sat_index].snr = atoi_c(ptr);
-		ptr = find_comma(ptr);
-	}
-}
-
-static void nmea_parse(uint8_t c)
-{
-	#define FANET_IDLE		0
-	#define FANET_DATA		1
-	#define FANET_END		2
-	#define NMEA_END		3
-
-	#define NMEA_MAX_LEN	85
-
-	static char parser_buffer[NMEA_MAX_LEN];
-	static uint8_t parser_buffer_index;
-	static uint8_t parser_checksum;
-	static uint8_t parser_rx_checksum;
-	static uint8_t parser_state = FANET_IDLE;
-
-	switch (parser_state)
-	{
-		case(FANET_IDLE):
-			if (c == '$')
+			switch (command)
 			{
-				parser_buffer_index = 0;
-				parser_checksum = 0;
-				parser_state = FANET_DATA;
-			}
-		break;
-
-		case(FANET_DATA):
-			if (c == '*')
-			{
-				parser_buffer[parser_buffer_index] = c;
-				parser_buffer_index++;
-
-				parser_state = FANET_END;
-			}
-			else
-			{
-				parser_checksum ^= c;
-				parser_buffer[parser_buffer_index] = c;
-				parser_buffer_index++;
+			case(2):
+				ubx_cfg_msg.msgID = 0x35; //sat info
+			break;
+			case(3):
+				ubx_cfg_msg.msgID = 0x03; //status
+			break;
+			case(4):
+				ubx_cfg_msg.msgID = 0x21; //timeutc
+			break;
+			case(5):
+				ubx_cfg_msg.msgID = 0x02; //POSLLH
+			break;
+			case(6):
+				ubx_cfg_msg.msgID = 0x12; //velned
+			break;
 			}
 
-			if (parser_buffer_index >= NMEA_MAX_LEN)
+			DBG("ubx_cfg_msg");
+			ublox_send(0x06, 0x01, sizeof(ubx_cfg_msg), (uint8_t *)&ubx_cfg_msg);
+			break;
+		}
+	}
+
+
+}
+
+uint8_t ublox_get_system_from_svid(uint8_t svid)
+{
+	if (svid >= 1 && svid <= 32)
+		return GNSS_SAT_GPS;
+
+	if (svid >= 120 && svid <= 158)
+		return GNSS_SAT_SBAS;
+
+	if ((svid >= 65 && svid <= 96) || (svid == 255))
+		return GNSS_SAT_GLONASS;
+
+	if (svid >= 211 && svid <= 246)
+		return GNSS_SAT_GALILEO;
+
+	if ((svid >= 159 && svid <= 163) || (svid >= 33 && svid <= 64))
+		return GNSS_SAT_BEIDOU;
+
+	if (svid >= 193 && svid <= 202)
+		return GNSS_SAT_QZSS;
+
+	if (svid >= 173 && svid <= 182)
+		return GNSS_SAT_IMES;
+
+	return 0;
+}
+
+void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
+{
+	DBG("Handle NAV");
+
+	if (msg_id == 0x02)
+	{
+		ASSERT(msg_len == 28);
+
+		typedef struct {
+			uint32_t iTOW;
+			int32_t lon;
+			int32_t lat;
+			int32_t height; //above elipsoid [mm]
+			int32_t hMSL;  //above mean sea level [mm]
+			uint32_t hAcc; //horizontal accuracy estimate [mm]
+			uint32_t vAcc; //vertical accuracy estimate [mm]
+		} ubx_nav_posllh_t;
+
+		ubx_nav_posllh_t * ubx_nav_posllh = (ubx_nav_posllh_t *)msg_payload;
+
+		FC_ATOMIC_ACCESS
+		{
+			fc.gnss.longtitude = ubx_nav_posllh->lon;
+			fc.gnss.latitude = ubx_nav_posllh->lat;
+			fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
+			fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
+			fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 1000;
+			fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 1000;
+		}
+
+		return;
+	}
+
+	if (msg_id == 0x12)
+	{
+		ASSERT(msg_len == 36);
+
+		typedef struct {
+			uint32_t iTOW;
+			int32_t velN;
+			int32_t velE;
+			int32_t velD;
+			uint32_t speed; //3D speed [cm/s]
+			uint32_t gSpeed; //ground speed [cm/s]
+			int32_t heading; //degrees //1*10^-5
+			uint32_t sAcc;
+			uint32_t cAcc;
+		} ubx_nav_velned_t;
+
+		ubx_nav_velned_t * ubx_nav_velned = (ubx_nav_velned_t *)msg_payload;
+
+		FC_ATOMIC_ACCESS
+		{
+			fc.gnss.ground_speed = ubx_nav_velned->gSpeed / 1000.0;
+			fc.gnss.heading = ubx_nav_velned->heading / 100000;
+		}
+
+		return;
+	}
+
+	if (msg_id == 0x03)
+	{
+		ASSERT(msg_len == 16);
+
+		typedef struct {
+			uint32_t iTOW;
+			uint8_t gpsFix;
+			uint8_t flags;
+			uint8_t fixStat;
+			uint8_t flags2;
+			uint32_t ttff;
+			uint32_t msss;
+		} ubx_nav_status_t;
+
+		ubx_nav_status_t * ubx_nav_status = (ubx_nav_status_t *)msg_payload;
+
+		FC_ATOMIC_ACCESS
+		{
+			fc.gnss.valid = ubx_nav_status->gpsFix == 0x03;
+			switch (ubx_nav_status->gpsFix)
 			{
-				ASSERT(0);
-				parser_buffer_index = 0;
-				parser_state = FANET_IDLE;
+				case(2):
+					fc.gnss.fix = 2;
+					fc.gnss.valid = false;
+				break;
+				case(3):
+					fc.gnss.fix = 3;
+					fc.gnss.valid = true;
+				break;
+				default:
+					fc.gnss.fix = 0;
+					fc.gnss.valid = false;
+				break;
 			}
-		break;
+			fc.gnss.ttf = ubx_nav_status->ttff;
+		}
 
-		case(FANET_END):
-			parser_rx_checksum = hex_to_num(c) << 4;
-			parser_buffer[parser_buffer_index] = c;
-			parser_buffer_index++;
+		return;
+	}
 
-			parser_state = NMEA_END;
-		break;
+	if (msg_id == 0x21)//UBX-NAV-TIMEUTC
+	{
+		ASSERT(msg_len == 20);
 
-		case(NMEA_END):
-			parser_rx_checksum += hex_to_num(c);
-			parser_buffer[parser_buffer_index] = c;
+		typedef struct {
+			uint32_t iTOW;
+			uint32_t tAcc;
+			int32_t nano;
+			uint16_t year;
+			uint8_t month;
+			uint8_t day;
+			uint8_t hour;
+			uint8_t min;
+			uint8_t sec;
+			uint8_t valid;
+		} ubx_nav_timeutc_t;
 
-			parser_buffer[parser_buffer_index - 2] = '\0';
+		ubx_nav_timeutc_t * ubx_nav_timeutc = (ubx_nav_timeutc_t *)msg_payload;
 
-			parser_buffer_index = 0;
-			parser_state = FANET_IDLE;
+		if (ubx_nav_timeutc->valid & 0b00000111)
+		{
+			DBG("DATE %u.%u.%u", ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
+			DBG("TIME %02u:%02u.%02u", ubx_nav_timeutc->hour, ubx_nav_timeutc->min, ubx_nav_timeutc->sec);
+		}
 
-			if (parser_rx_checksum == parser_checksum)
+		return;
+	}
+
+	if (msg_id == 0x35)
+	{
+		ASSERT((msg_len - 8) % 12 == 0);
+
+		typedef struct {
+			uint32_t iTOW;
+			uint8_t version;
+			uint8_t numSvs;
+			uint8_t reserved1[2];
+		} ubx_nav_sat_t;
+
+		ubx_nav_sat_t * ubx_nav_sat = (ubx_nav_sat_t *)msg_payload;
+
+		DBG("iTOW %lu", ubx_nav_sat->iTOW);
+		DBG("numSvs %u", ubx_nav_sat->numSvs);
+
+		ASSERT(ubx_nav_sat->version == 0x01);
+
+		typedef struct {
+			uint8_t gnssId;
+			uint8_t svId;
+			uint8_t cno;
+			int8_t elev;
+			int16_t azim;
+			int16_t prRes;
+			uint32_t flags;
+		} ubx_nav_sat_info_t;
+
+
+		FC_ATOMIC_ACCESS
+		{
+			uint8_t used = 0;
+			for (uint8_t i = 0; i < ubx_nav_sat->numSvs; i++)
 			{
-				DBG("%s", parser_buffer);
-
-				if (start_with(parser_buffer, "GNRMC"))
+				ubx_nav_sat_info_t * ubx_nav_sat_info = (ubx_nav_sat_info_t *)(msg_payload + 8 + 12 * i);
+				fc.gnss.sat_info.sats[i].sat_id = ubx_nav_sat_info->gnssId;
+				fc.gnss.sat_info.sats[i].flags = ublox_get_system_from_svid(ubx_nav_sat_info->svId);
+				fc.gnss.sat_info.sats[i].snr = ubx_nav_sat_info->cno;
+				fc.gnss.sat_info.sats[i].elevation = ubx_nav_sat_info->elev;
+				fc.gnss.sat_info.sats[i].azimuth = ubx_nav_sat_info->azim / 2;
+				if (ubx_nav_sat_info->flags & (1 << 3))
 				{
-					nmea_parse_rmc(parser_buffer + 5);
+					fc.gnss.sat_info.sats[i].flags |= GNSS_SAT_USED;
+					used++;
 				}
-				else if (start_with(parser_buffer, "GNGGA"))
-				{
-					nmea_parse_gga(parser_buffer + 5);
-				}
-				else if (start_with(parser_buffer + 2, "GSA"))
-				{
+			}
 
-					nmea_parse_gsa(GNSS_GPS, parser_buffer + 5);
-				}
-				else if (start_with(parser_buffer + 2, "GSV"))
+			for (uint8_t i = ubx_nav_sat->numSvs; i < GNSS_NUMBER_OF_SATS; i++)
+			{
+				fc.gnss.sat_info.sats[i].sat_id = 0;
+			}
+
+			fc.gnss.sat_info.sat_total = ubx_nav_sat->numSvs;
+			fc.gnss.sat_info.sat_used = used;
+		}
+
+		return;
+	}
+
+	ASSERT(0);
+}
+
+void ublox_handle_ack(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
+{
+	static uint8_t ubx_cfg_msg_cnt;
+
+	DBG("Handle ACK");
+	ASSERT(msg_len == 2);
+	ASSERT(msg_id == 0x01);
+
+	ublox_last_command_time = false;
+
+	if (msg_payload[0] == 0x06 && msg_payload[1] == 0x00) //ubx_cfg_prt
+	{
+		ublox_command(1);
+		return;
+	}
+
+	if (msg_payload[0] == 0x06 && msg_payload[1] == 0x08) //ubx_cfg_rate
+	{
+		ublox_command(2);
+		ubx_cfg_msg_cnt = 0;
+		return;
+	}
+
+	if (msg_payload[0] == 0x06 && msg_payload[1] == 0x01) //ubx_cfg_msg
+	{
+		if (ubx_cfg_msg_cnt < 4)
+			ublox_command(3 + ubx_cfg_msg_cnt);
+
+		ubx_cfg_msg_cnt++;
+		return;
+	}
+
+	ASSERT(0);
+}
+
+
+void ublox_parse(uint8_t b)
+{
+	static enum {
+		PM_INIT,
+		PM_IDLE,
+		PM_SYNC,
+		PM_CLASS,
+		PM_ID,
+		PM_LEN_LO,
+		PM_LEN_HI,
+		PM_PAYLOAD,
+		PM_CK_A,
+		PM_CK_B
+	} mode;
+
+	static uint16_t index = 0;
+
+	static uint8_t msg_class;
+	static uint8_t msg_id;
+	static uint16_t msg_len;
+	static uint8_t msg_payload[1024];
+	static uint8_t msg_ck_a;
+	static uint8_t msg_ck_b;
+
+	if (mode > PM_SYNC && mode < PM_CK_A)
+	{
+		msg_ck_a += b;
+		msg_ck_b += msg_ck_a;
+	}
+
+//	if (mode != PM_INIT)
+//		DBG("%c %02X %u %u", b, b, mode, index);
+
+	switch (mode)
+	{
+		case(PM_INIT):
+			{
+				char start_word[] = "$GNRMC";
+				if (b == start_word[index])
 				{
-					uint8_t slot;
-					if (start_with(parser_buffer, "GP")) slot = GNSS_GPS;
-					else if (start_with(parser_buffer, "GL")) slot = GNSS_GLONAS;
-					else if (start_with(parser_buffer, "GA")) slot = GNSS_GALILEO;
-					else
+					index++;
+					if (index == strlen(start_word))
 					{
-						ERR("Unknown system %s", parser_buffer);
-						return;
+						ublox_command(0);
+						mode = PM_IDLE;
 					}
-
-					nmea_parse_gsv(slot, parser_buffer + 5);
-				}
-				else if (start_with(parser_buffer, "GNTXT"))
-				{
-					nmea_parse_txt(parser_buffer + 5);
 				}
 				else
-					WARN("Not parsed \"%s\"", parser_buffer);
+				{
+					index = 0;
+				}
+
+				break;
+			}
+
+		case(PM_IDLE):
+			if (b == 0xB5)
+			{
+				mode = PM_SYNC;
+			}
+			break;
+
+		case(PM_SYNC):
+			if (b == 0x62)
+			{
+				mode = PM_CLASS;
+				msg_ck_a = 0;
+				msg_ck_b = 0;
 			}
 			else
 			{
-				DBG("NMEA:\"$%s\"", parser_buffer);
-				ERR("CHECKSUM ERROR! %02X %02X", parser_rx_checksum, parser_checksum);
+				mode = PM_IDLE;
 			}
-		break;
+			break;
+
+		case(PM_CLASS):
+			msg_class = b;
+			mode = PM_ID;
+			break;
+
+		case(PM_ID):
+			msg_id = b;
+			mode = PM_LEN_LO;
+			break;
+
+		case(PM_LEN_LO):
+			msg_len = b;
+			mode = PM_LEN_HI;
+			break;
+
+		case(PM_LEN_HI):
+			msg_len |= (b << 8);
+			index = 0;
+			if (msg_len > 0)
+				mode = PM_PAYLOAD;
+			else
+				mode = PM_CK_A;
+
+			if (msg_len > sizeof(msg_payload))
+			{
+				ERR("payload too long");
+				mode = PM_IDLE;
+			}
+
+			break;
+			
+		case(PM_PAYLOAD):
+			msg_payload[index] = b;
+			index++;
+			if (index == msg_len)
+				mode = PM_CK_A;
+			break;
+			
+		case(PM_CK_A):
+			if (msg_ck_a == b)
+			{
+				mode = PM_CK_B;
+			}
+			else
+			{
+				ERR("Checksum A failed");
+				mode = PM_IDLE;
+			}
+			break;
+			
+		case(PM_CK_B):
+			if (msg_ck_b == b)
+			{
+				//execute
+				DBG("UBX <<< %02X, %02X len %u", msg_class, msg_id, msg_len);
+				DUMP(msg_payload, msg_len);
+				DBG("");
+
+				switch (msg_class)
+				{
+					case(0x05): //UBX-ACK
+						ublox_handle_ack(msg_id, msg_payload, msg_len);
+					break;
+
+					case(0x01): //UBX-NAV
+						ublox_handle_nav(msg_id, msg_payload, msg_len);
+					break;
+
+					default:
+						WARN("Message not parsed");
+
+				}
+			}
+			else
+			{
+				ERR("Checksum B failed");
+			}
+			mode = PM_IDLE;
+
+			break;
 	}
 }
 
-void ublox_m8_step()
+void ublox_step()
 {
 	static uint16_t read_index = 0;
-	static uint32_t last_data = 0;
+	uint16_t waiting;
 
 	uint16_t write_index = GNSS_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(gnss_uart.hdmarx);
-	uint16_t waiting;
 
 	//Get number of bytes waiting in buffer
 	if (read_index > write_index)
@@ -455,23 +625,19 @@ void ublox_m8_step()
 		waiting = write_index - read_index;
 	}
 
-	//unable to read the data for 2s -> set higher baudrate
-	if (waiting == 0 && HAL_GetTick() - last_data > 2000)
+	if (ublox_last_command_time != false)
 	{
-		gnss_set_baudrate(921600);
-		nmea_start_configuration();
-		last_data = HAL_GetTick();
-	}
-
-	if (waiting)
-	{
-		last_data = HAL_GetTick();
+		if (HAL_GetTick() - ublox_last_command_time > UBLOX_CMD_TIMEOUT)
+		{
+			WARN("Command %u timeouted, retry", ublox_last_command);
+			ublox_command(ublox_last_command);
+		}
 	}
 
 	//parse the data
 	for (uint16_t i = 0; i < waiting; i++)
 	{
-		nmea_parse(gnss_rx_buffer[read_index]);
+		ublox_parse(gnss_rx_buffer[read_index]);
 		read_index = (read_index + 1) % GNSS_BUFFER_SIZE;
 	}
 }

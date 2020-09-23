@@ -292,7 +292,7 @@ void fanet_transmit_pos()
 
 	float lat = fc.gnss.latitude / (float)GNSS_MUL;
 	float lon = fc.gnss.longtitude / (float)GNSS_MUL;
-	float alt = fc.gnss.altitude;
+	float alt = fc.gnss.altitude_above_ellipsiod;
 
 	uint16_t year;
 	uint8_t month;
