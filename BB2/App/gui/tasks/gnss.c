@@ -24,7 +24,7 @@ void gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
 	if (event == LV_EVENT_CLICKED)
 	{
-		if (index == 1)
+		if (index == 0)
 			gui_switch_task(&gui_gnss_status, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 

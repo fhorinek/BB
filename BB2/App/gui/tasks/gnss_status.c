@@ -9,16 +9,21 @@
 
 #define GNSS_STATUS_MAP	150
 #define GNSS_STATUS_SAT	65
-#define GNSS_DOT_SIZE	16
+#define GNSS_DOT_SIZE	20
 
 REGISTER_TASK_IL(gnss_status,
 	lv_obj_t * map;
-	//lv_obj_t * sat[GNSS_NUMBER_OF_SYSTEMS];
 	lv_style_t style_sats;
 	lv_style_t style_bars;
 	lv_style_t style_dots;
-//	lv_style_t style_color[GNSS_NUMBER_OF_SYSTEMS];
+	lv_style_t style_color[4];
+	lv_style_t style_unused;
 );
+
+#define STYLE_GPS		0
+#define STYLE_GLONASS	1
+#define STYLE_GALILEO	2
+#define STYLE_BEIDOU	3
 
 void gnss_status_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
@@ -46,15 +51,20 @@ lv_obj_t * gnss_status_init(lv_obj_t * par)
 	lv_style_set_bg_opa(&local->style_dots, LV_STATE_DEFAULT, LV_OPA_COVER);
 	lv_style_set_text_color(&local->style_dots, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
-//	lv_style_init(&local->style_color[0]);
-//	lv_style_set_bg_color(&local->style_color[0], LV_STATE_DEFAULT, lv_color_hex(0x0000FF));
-//
-//	lv_style_init(&local->style_color[1]);
-//	lv_style_set_bg_color(&local->style_color[1], LV_STATE_DEFAULT, lv_color_hex(0xFF0000));
-//
-//	lv_style_init(&local->style_color[2]);
-//	lv_style_set_bg_color(&local->style_color[2], LV_STATE_DEFAULT, lv_color_hex(0x00FF00));
+	lv_style_init(&local->style_color[STYLE_GPS]);
+	lv_style_set_bg_color(&local->style_color[0], LV_STATE_DEFAULT, lv_color_hex(0x0000FF));
 
+	lv_style_init(&local->style_color[STYLE_GLONASS]);
+	lv_style_set_bg_color(&local->style_color[1], LV_STATE_DEFAULT, lv_color_hex(0xFF0000));
+
+	lv_style_init(&local->style_color[STYLE_GALILEO]);
+	lv_style_set_bg_color(&local->style_color[2], LV_STATE_DEFAULT, lv_color_hex(0x00FF00));
+
+	lv_style_init(&local->style_color[STYLE_BEIDOU]);
+	lv_style_set_bg_color(&local->style_color[2], LV_STATE_DEFAULT, lv_color_hex(0xFFFF00));
+
+	lv_style_init(&local->style_unused);
+	lv_style_set_bg_opa(&local->style_unused, LV_STATE_DEFAULT, LV_OPA_50);
 
 	lv_obj_t * list = gui_list_create(par, "GNSS Status", gnss_status_cb);
 
@@ -64,7 +74,7 @@ lv_obj_t * gnss_status_init(lv_obj_t * par)
 	lv_obj_set_style_local_radius(local->map, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, LV_RADIUS_CIRCLE);
 	lv_cont_set_layout(local->map, LV_LAYOUT_OFF);
 
-//	for (uint8_t i = 0; i < GNSS_NUMBER_OF_SYSTEMS; i++)
+//	for (uint8_t i = 0; i < GNSS_NUMBER_OF_SATS; i++)
 //	{
 //		local->sat[i] = gui_list_cont_add(list, GNSS_STATUS_SAT);
 //		lv_obj_add_style(local->sat[i], LV_CONT_PART_MAIN, &local->style_sats);
@@ -105,9 +115,97 @@ lv_obj_t * gnss_status_init(lv_obj_t * par)
 void gnss_status_loop()
 {
 	uint16_t map_w = lv_obj_get_width(local->map);
-	uint16_t map_h= lv_obj_get_height(local->map);
+	uint16_t map_h = lv_obj_get_height(local->map);
 
 	lv_obj_t * dot = lv_obj_get_child_back(local->map, NULL);
+
+	for (uint8_t i = 0; i < GNSS_NUMBER_OF_SATS; i++)
+	{
+		//data are avalible
+		if (i < fc.gnss.sat_info.sat_total)
+		{
+			lv_obj_t * next_dot;
+
+			//dot does not exists
+			if (dot == NULL)
+			{
+				dot = lv_label_create(local->map, NULL);
+				lv_label_set_long_mode(dot, LV_LABEL_LONG_CROP);
+				lv_obj_set_size(dot, GNSS_DOT_SIZE, 16);
+				lv_label_set_align(dot, LV_LABEL_ALIGN_CENTER);
+
+				//next dot will not exist
+				next_dot = NULL;
+			}
+			else
+			{
+				next_dot = lv_obj_get_child_back(local->map, dot);
+			}
+
+			uint8_t c = 0;
+			uint8_t s = STYLE_GPS;
+			switch (fc.gnss.sat_info.sats[i].flags & GNSS_SAT_SYSTEM_MASK)
+			{
+				//GPS is default SBAS, IMES, QZSS are augmentation for GPS
+				case(GNSS_SAT_SBAS):
+					c = 'S';
+				break;
+				case(GNSS_SAT_IMES):
+					c = 'I';
+				break;
+				case(GNSS_SAT_QZSS):
+					c = 'Q';
+				break;
+				case(GNSS_SAT_GALILEO):
+					s = STYLE_GALILEO;
+				break;
+				case(GNSS_SAT_BEIDOU):
+					s = STYLE_BEIDOU;
+				break;
+				case(GNSS_SAT_GLONASS):
+					s = STYLE_GLONASS;
+				break;
+
+			}
+
+			//set style
+			lv_obj_clean_style_list(dot, LV_LABEL_PART_MAIN);
+			lv_obj_add_style(dot, LV_LABEL_PART_MAIN, &local->style_dots);
+			lv_obj_add_style(dot, LV_LABEL_PART_MAIN, &local->style_color[s]);
+			if (!(fc.gnss.sat_info.sats[i].flags & GNSS_SAT_USED))
+				lv_obj_add_style(dot, LV_LABEL_PART_MAIN, &local->style_unused);
+
+
+			if (c == 0)
+				lv_label_set_text_fmt(dot, "%u", fc.gnss.sat_info.sats[i].sat_id);
+			else
+				lv_label_set_text_fmt(dot, "%c%u", c, fc.gnss.sat_info.sats[i].sat_id);
+
+
+			float rad = to_radians(fc.gnss.sat_info.sats[i].azimuth * 2);
+
+			//move dot
+			uint16_t x = map_w / 2 + sin(rad) * (fc.gnss.sat_info.sats[i].elevation * map_w / 180) - GNSS_DOT_SIZE / 2;
+			uint16_t y = map_h / 2 + cos(rad) * (fc.gnss.sat_info.sats[i].elevation * map_h / 180) - GNSS_DOT_SIZE / 2;
+			lv_obj_set_pos(dot, x, y);
+
+			dot = next_dot;
+		}
+		else
+		{
+			//dot exist
+			while (dot != NULL)
+			{
+				lv_obj_t * old_dot = dot;
+				dot = lv_obj_get_child_back(local->map, dot);
+				lv_obj_del(old_dot);
+			}
+			break;
+		}
+
+
+
+	}
 
 //	for (uint8_t i = 0; i < GNSS_NUMBER_OF_SYSTEMS; i++)
 //	{
