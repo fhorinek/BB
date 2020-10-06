@@ -6,7 +6,7 @@
  */
 
 #include "statusbar.h"
-
+#include "../drivers/rtc.h"
 
 void statusbar_show()
 {
@@ -58,9 +58,9 @@ void statusbar_create()
 	lv_cont_set_fit2(gui.statusbar.mbox, LV_FIT_NONE, LV_FIT_TIGHT);
 	lv_cont_set_layout(gui.statusbar.mbox, LV_LAYOUT_COLUMN_LEFT);
 
-	statusbar_add_msg(STATUSBAR_MSG_ERROR, "GNSS Error");
-	statusbar_add_msg(STATUSBAR_MSG_WARN, "Battery low");
-	statusbar_add_msg(STATUSBAR_MSG_INFO, "Bluetooth connected");
+//	statusbar_add_msg(STATUSBAR_MSG_ERROR, "GNSS Error");
+//	statusbar_add_msg(STATUSBAR_MSG_WARN, "Battery low");
+//	statusbar_add_msg(STATUSBAR_MSG_INFO, "Bluetooth connected");
 }
 
 void statusbar_msg_anim_hide_cb(lv_anim_t * a)
@@ -104,4 +104,14 @@ void statusbar_add_msg(uint8_t type, char * text)
     lv_anim_set_values(&a, 0, lv_obj_get_height(msg));
     lv_anim_set_ready_cb(&a, statusbar_msg_anim_show_cb);
 	lv_anim_start(&a);
+}
+void statusbar_step()
+
+{
+	uint8_t h;
+	uint8_t m;
+	uint8_t s;
+
+	rtc_get_time(&h, &m, &s);
+	lv_label_set_text_fmt(gui.statusbar.time, "%02u:%02u.%02u", h, m, s);
 }

@@ -7,7 +7,7 @@
 
 #include "config.h"
 #include "entry.h"
-
+#include "../etc/timezone.h"
 
 cfg_entry_param_select_t earth_model_select[] =
 {
@@ -44,6 +44,49 @@ cfg_entry_param_select_t altitude_select[] =
 {
 	{ALTITUDE_M, "m"},
 	{ALTITUDE_FT, "ft"},
+	SELECT_END
+};
+
+cfg_entry_param_select_t timezone_select[] =
+{
+	{UTC_n1200, "-1200"},
+	{UTC_n1100, "-1100"},
+	{UTC_n1000, "-1000"},
+	{UTC_n0930, "-0930"},
+	{UTC_n0900, "-0900"},
+	{UTC_n0800, "-0800"},
+	{UTC_n0700, "-0700"},
+	{UTC_n0600, "-0600"},
+	{UTC_n0500, "-0500"},
+	{UTC_n0400, "-0400"},
+	{UTC_n0330, "-0330"},
+	{UTC_n0300, "-0300"},
+	{UTC_n0200, "-0200"},
+	{UTC_n0100, "-0100"},
+	{UTC_p0000, "+0000"},
+	{UTC_p0100, "+0100"},
+	{UTC_p0200, "+0200"},
+	{UTC_p0300, "+0300"},
+	{UTC_p0330, "+0330"},
+	{UTC_p0400, "+0400"},
+	{UTC_p0430, "+0430"},
+	{UTC_p0500, "+0500"},
+	{UTC_p0530, "+0530"},
+	{UTC_p0545, "+0545"},
+	{UTC_p0600, "+0600"},
+	{UTC_p0630, "+0630"},
+	{UTC_p0700, "+0700"},
+	{UTC_p0800, "+0800"},
+	{UTC_p0845, "+0845"},
+	{UTC_p0900, "+0900"},
+	{UTC_p0930, "+0930"},
+	{UTC_p1000, "+1000"},
+	{UTC_p1030, "+1030"},
+	{UTC_p1100, "+1100"},
+	{UTC_p1200, "+1200"},
+	{UTC_p1245, "+1245"},
+	{UTC_p1300, "+1300"},
+	{UTC_p1400, "+1400"},
 	SELECT_END
 };
 
@@ -87,7 +130,7 @@ config_t config =
 		//fanet
 		{
 			//enabled
-			entry_bool("fa_en", false),
+			entry_bool("fa_en", true),
 			//broadcast_name
 			entry_bool("fa_bcst_name", true),
 			//online track
@@ -102,6 +145,15 @@ config_t config =
 				entry_int("disp_bckl", 80, 0, 100),
 				//backlight_timeout
 				entry_int("disp_bckl_time", 30, 10, 120),
+		},
+
+		//time
+		{
+			//zone
+			entry_select("time_zone", UTC_p0000, timezone_select),
+			//gnss_sync
+			entry_bool("time_gnss_sync", true),
+
 		},
 
 		//units

@@ -18,6 +18,8 @@ void statusbar_show();
 void statusbar_hide();
 void statusbar_create();
 
+void statusbar_step();
+
 void statusbar_add_msg(uint8_t type, char * text);
 
 #endif /* GUI_STATUSBAR_H_ */

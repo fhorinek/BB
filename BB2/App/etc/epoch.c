@@ -11,8 +11,6 @@ uint8_t monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 #define LEAP_YEAR(_year) ((_year%4)==0)
 
-#define TIME_MIN_DATE	(1577880000) //1.1.2020 12:00.00
-
 uint32_t datetime_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint8_t month, uint16_t year)
 {
 	uint16_t i;

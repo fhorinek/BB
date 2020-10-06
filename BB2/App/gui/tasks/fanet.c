@@ -28,6 +28,14 @@ static void fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			{
 				bool val = gui_list_switch_get_value(local->fanet_sw);
 				config_set_bool(&config.devices.fanet.enabled, val);
+				if (val)
+				{
+					fanet_enable();
+				}
+				else
+				{
+					fanet_disable();
+				}
 			}
 			break;
 		}
@@ -54,18 +62,24 @@ static void fanet_loop()
 	if (local->magic != fc.fanet.neighbors_magic)
 	{
 		local->magic = fc.fanet.neighbors_magic;
+
+		//add new entry
 		while (local->cnt < fc.fanet.neighbors_size)
 		{
 			gui_list_info_add_entry(gui.list.object, "", "");
 			local->cnt++;
 		}
 
-		while (local->cnt  > fc.fanet.neighbors_size)
+		//remove entry
+		for (uint8_t i = fc.fanet.neighbors_size; i < local->cnt; i++)
 		{
-	//		gui_list_del_entry()
+			lv_obj_t * entry = gui_list_get_entry(i);
+			lv_obj_del(entry);
+
 			local->cnt--;
 		}
 
+		//update entry
 		for (uint8_t i = 0; i < local->cnt; i++)
 		{
 			neighbor_t * nb = &fc.fanet.neighbor[i];

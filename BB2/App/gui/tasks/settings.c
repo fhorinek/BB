@@ -12,6 +12,7 @@
 #include "pages.h"
 #include "fanet.h"
 #include "display.h"
+#include "sensors.h"
 
 #include "../gui_list.h"
 
@@ -26,10 +27,15 @@ void setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	{
 		if (index == 0)
 			gui_switch_task(&gui_gnss, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+
 		if (index == 1)
 			gui_switch_task(&gui_fanet, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+
 		if (index == 2)
 			gui_switch_task(&gui_display, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+
+		if (index == 3)
+			gui_switch_task(&gui_sensors, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
 }
@@ -44,6 +50,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_text_add_entry(list, "GNSS");
 	gui_list_text_add_entry(list, "FANET");
 	gui_list_text_add_entry(list, "Display");
+	gui_list_text_add_entry(list, "Sensors");
 
 	return list;
 }

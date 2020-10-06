@@ -11,6 +11,8 @@
 #include "../common.h"
 
 void fanet_init();
+void fanet_enable();
+void fanet_disable();
 void fanet_step();
 
 #define FANET_AIRCRAFT_TYPE_OTHER				0

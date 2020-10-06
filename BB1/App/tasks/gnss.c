@@ -36,7 +36,7 @@ void task_GNSS(void *argument)
 	}
 
 	fanet_init();
-	neighbors_init();
+	neighbors_reset();
 
 	for(;;)
 	{

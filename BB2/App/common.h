@@ -23,6 +23,7 @@
 #include "tim.h"
 #include "octospi.h"
 #include "i2c.h"
+#include "rtc.h"
 
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"

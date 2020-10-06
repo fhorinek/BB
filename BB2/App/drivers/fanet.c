@@ -7,25 +7,41 @@
 
 //DMA buffer
 #define FANET_BUFFER_SIZE	512
-uint8_t fanet_rx_buffer[FANET_BUFFER_SIZE];
+static uint8_t fanet_rx_buffer[FANET_BUFFER_SIZE];
 
 #define FANET_BL_RESET	0
 #define FANET_BL_OFF	1
 
-uint8_t fanet_bootloader_state;
+static uint8_t fanet_bootloader_state;
 
 void fanet_init()
 {
 	fc.fanet.valid = false;
 
 	HAL_UART_Receive_DMA(&fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
+	neighbors_reset();
 
+	if (config_get_bool(&config.devices.fanet.enabled))
+	{
+		fanet_enable();
+	}
+}
+
+void fanet_enable()
+{
 	fanet_bootloader_state = FANET_BL_RESET;
 
 	GpioWrite(FN_RST, LOW);
 	GpioWrite(FN_EN, HIGH);
 	osDelay(10);
 	GpioWrite(FN_RST, HIGH);
+}
+
+void fanet_disable()
+{
+	neighbors_reset();
+	fc.fanet.valid = false;
+	GpioWrite(FN_EN, LOW);
 }
 
 void fanet_send(const char * msg)
