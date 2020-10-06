@@ -8,6 +8,8 @@
 #include "../common.h"
 
 #include "../drivers/ms5611.h"
+#include "../fc/fc.h"
+
 //Mems
 //1E - acc + mag
 //6B - gyro
@@ -53,11 +55,17 @@ void task_MEMS(void *argument)
 
 void mems_meas_phase1() 	//t = 0
 {
-
+	ms5611_ReadPressure();
+	ms5611_StartTemperature();
 }
 
 void mems_meas_phase2()		//t = 0.78ms
 {
+	ms5611_ReadTemperature();
+	ms5611_StartPressure();
+	ms5611_CompensateTemperature();
+
+	fc.vario.pressure = ms5611_CompensatePressure();
 }
 
 void mems_meas_phase3()		//t = 2ms

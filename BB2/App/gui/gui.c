@@ -13,6 +13,7 @@
 #include "keyboard.h"
 
 #include "tasks/pages.h"
+#include "tasks/gnss_status.h"
 
 #include "../lib/lvgl/src/lv_misc/lv_gc.h"
 
@@ -143,19 +144,28 @@ void gui_init()
 
 	//first task
 	gui.task.last = NULL;
-	gui.task.actual = &gui_pages;
+	gui.task.actual = &gui_gnss_status;
 
 	//load the screen
 	lv_obj_t * screen = gui_task_create(gui.task.actual);
-	pages_splash_show();
+	//pages_splash_show();
 	lv_scr_load(screen);
 }
 
 void gui_loop()
 {
-	//execute task
-	if (gui.task.actual->loop != NULL)
+	static uint32_t next_update = 0;
+
+	if (next_update < HAL_GetTick())
 	{
-		gui.task.actual->loop();
+		next_update = HAL_GetTick() + 200;
+
+		statusbar_step();
+
+		//execute task
+		if (gui.task.actual->loop != NULL)
+		{
+			gui.task.actual->loop();
+		}
 	}
 }

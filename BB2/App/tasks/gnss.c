@@ -6,13 +6,12 @@
  */
 
 #include "../common.h"
-#include "../debug.h"
 
 #include "../drivers/fanet.h"
-#include "../fc/neighbors.h"
+#include "../drivers/gnss_ublox_m8.h"
+
 #include "../config/config.h"
 
-#include "../drivers/gnss_ublox_m8.h"
 
 void task_GNSS(void *argument)
 {
@@ -24,7 +23,7 @@ void task_GNSS(void *argument)
 	ublox_init();
 
 	fanet_init();
-	neighbors_init();
+
 
 	for(;;)
 	{

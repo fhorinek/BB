@@ -90,6 +90,7 @@ typedef struct
 	{
 		bool valid;
 		uint8_t fix; //2 - 2D, 3 - 3D
+		bool time_synced;
 
 		uint32_t ttf; //[ms]
 
@@ -139,10 +140,12 @@ typedef struct
 	{
 		bool valid;
 
-		float pressure;
+		float pressure; //in Pa
 	} vario;
 } fc_t;
 
 extern fc_t fc;
+
+void fc_set_time_from_utc(uint32_t datetime);
 
 #endif /* FC_FC_H_ */

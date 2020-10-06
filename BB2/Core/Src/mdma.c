@@ -45,9 +45,9 @@ void MX_MDMA_Init(void)
   __HAL_RCC_MDMA_CLK_ENABLE();
   /* Local variables */
 
-  /* Configure MDMA channel MDMA_Channel0 */
-  /* Configure MDMA request hmdma_mdma_channel40_sdmmc1_end_data_0 on MDMA_Channel0 */
-  hmdma_mdma_channel40_sdmmc1_end_data_0.Instance = MDMA_Channel0;
+  /* Configure MDMA channel MDMA_Channel2 */
+  /* Configure MDMA request hmdma_mdma_channel40_sdmmc1_end_data_0 on MDMA_Channel2 */
+  hmdma_mdma_channel40_sdmmc1_end_data_0.Instance = MDMA_Channel2;
   hmdma_mdma_channel40_sdmmc1_end_data_0.Init.Request = MDMA_REQUEST_SDMMC1_END_DATA;
   hmdma_mdma_channel40_sdmmc1_end_data_0.Init.TransferTriggerMode = MDMA_BUFFER_TRANSFER;
   hmdma_mdma_channel40_sdmmc1_end_data_0.Init.Priority = MDMA_PRIORITY_LOW;

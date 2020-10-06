@@ -77,6 +77,12 @@ typedef struct
 
 		struct
 		{
+			cfg_entry_t zone;
+			cfg_entry_t sync_gnss;
+		} time;
+
+		struct
+		{
 			cfg_entry_t altitude;
 			cfg_entry_t speed;
 			cfg_entry_t distance;

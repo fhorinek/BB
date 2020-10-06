@@ -5,7 +5,7 @@
 #include "../config/config.h"
 #include "../etc/gnss_calc.h"
 
-void neighbors_init()
+void neighbors_reset()
 {
 	for (uint8_t i = 0; i < NB_NUMBER_IN_MEMORY; i++)
 	{

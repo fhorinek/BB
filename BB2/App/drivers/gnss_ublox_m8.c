@@ -21,6 +21,7 @@
 static uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
 static uint8_t ublox_last_command;
 static uint32_t ublox_last_command_time;
+static uint32_t ublox_start_time;
 
 #define UBLOX_CMD_TIMEOUT 1500
 
@@ -30,6 +31,7 @@ void ublox_init()
 	FC_ATOMIC_ACCESS
 	{
 		fc.gnss.valid = false;
+		fc.gnss.time_synced = false;
 	}
 
 	HAL_UART_Receive_DMA(&gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
@@ -38,6 +40,7 @@ void ublox_init()
 	osDelay(100);
 	GpioWrite(GNSS_RST, HIGH);
 
+	ublox_start_time = HAL_GetTick();
 	ublox_last_command_time = false;
 }
 
@@ -198,33 +201,7 @@ static void ublox_command(uint8_t command)
 
 }
 
-uint8_t ublox_get_system_from_svid(uint8_t svid)
-{
-	if (svid >= 1 && svid <= 32)
-		return GNSS_SAT_GPS;
-
-	if (svid >= 120 && svid <= 158)
-		return GNSS_SAT_SBAS;
-
-	if ((svid >= 65 && svid <= 96) || (svid == 255))
-		return GNSS_SAT_GLONASS;
-
-	if (svid >= 211 && svid <= 246)
-		return GNSS_SAT_GALILEO;
-
-	if ((svid >= 159 && svid <= 163) || (svid >= 33 && svid <= 64))
-		return GNSS_SAT_BEIDOU;
-
-	if (svid >= 193 && svid <= 202)
-		return GNSS_SAT_QZSS;
-
-	if (svid >= 173 && svid <= 182)
-		return GNSS_SAT_IMES;
-
-	return 0;
-}
-
-void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
+bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 {
 	DBG("Handle NAV");
 
@@ -250,11 +227,11 @@ void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			fc.gnss.latitude = ubx_nav_posllh->lat;
 			fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
 			fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
-			fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 1000;
-			fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 1000;
+			fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
+			fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
 		}
 
-		return;
+		return true;
 	}
 
 	if (msg_id == 0x12)
@@ -281,7 +258,7 @@ void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			fc.gnss.heading = ubx_nav_velned->heading / 100000;
 		}
 
-		return;
+		return true;
 	}
 
 	if (msg_id == 0x03)
@@ -308,20 +285,23 @@ void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 				case(2):
 					fc.gnss.fix = 2;
 					fc.gnss.valid = false;
+					fc.gnss.ttf = HAL_GetTick() - ublox_start_time;
 				break;
 				case(3):
 					fc.gnss.fix = 3;
 					fc.gnss.valid = true;
+					fc.gnss.ttf = ubx_nav_status->ttff;
 				break;
 				default:
 					fc.gnss.fix = 0;
 					fc.gnss.valid = false;
+					fc.gnss.ttf = HAL_GetTick() - ublox_start_time;
 				break;
 			}
-			fc.gnss.ttf = ubx_nav_status->ttff;
+
 		}
 
-		return;
+		return true;
 	}
 
 	if (msg_id == 0x21)//UBX-NAV-TIMEUTC
@@ -345,11 +325,21 @@ void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		if (ubx_nav_timeutc->valid & 0b00000111)
 		{
-			DBG("DATE %u.%u.%u", ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
-			DBG("TIME %02u:%02u.%02u", ubx_nav_timeutc->hour, ubx_nav_timeutc->min, ubx_nav_timeutc->sec);
+			if (config_get_bool(&config.settings.time.sync_gnss) && !fc.gnss.time_synced)
+			{
+				fc.gnss.time_synced = true;
+
+				DBG("DATE %u.%u.%u", ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
+				DBG("TIME %02u:%02u.%02u", ubx_nav_timeutc->hour, ubx_nav_timeutc->min, ubx_nav_timeutc->sec);
+
+				uint32_t utc_epoch = datetime_to_epoch(ubx_nav_timeutc->sec, ubx_nav_timeutc->min, ubx_nav_timeutc->hour,
+						ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
+
+				fc_set_time_from_utc(utc_epoch);
+			}
 		}
 
-		return;
+		return true;
 	}
 
 	if (msg_id == 0x35)
@@ -387,8 +377,8 @@ void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			for (uint8_t i = 0; i < ubx_nav_sat->numSvs; i++)
 			{
 				ubx_nav_sat_info_t * ubx_nav_sat_info = (ubx_nav_sat_info_t *)(msg_payload + 8 + 12 * i);
-				fc.gnss.sat_info.sats[i].sat_id = ubx_nav_sat_info->gnssId;
-				fc.gnss.sat_info.sats[i].flags = ublox_get_system_from_svid(ubx_nav_sat_info->svId);
+				fc.gnss.sat_info.sats[i].sat_id = ubx_nav_sat_info->svId;
+				fc.gnss.sat_info.sats[i].flags = GNSS_SAT_SYSTEM_MASK & ubx_nav_sat_info->gnssId;
 				fc.gnss.sat_info.sats[i].snr = ubx_nav_sat_info->cno;
 				fc.gnss.sat_info.sats[i].elevation = ubx_nav_sat_info->elev;
 				fc.gnss.sat_info.sats[i].azimuth = ubx_nav_sat_info->azim / 2;
@@ -408,13 +398,13 @@ void ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			fc.gnss.sat_info.sat_used = used;
 		}
 
-		return;
+		return true;
 	}
 
-	ASSERT(0);
+	return false;
 }
 
-void ublox_handle_ack(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
+bool ublox_handle_ack(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 {
 	static uint8_t ubx_cfg_msg_cnt;
 
@@ -427,14 +417,14 @@ void ublox_handle_ack(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 	if (msg_payload[0] == 0x06 && msg_payload[1] == 0x00) //ubx_cfg_prt
 	{
 		ublox_command(1);
-		return;
+		return true;
 	}
 
 	if (msg_payload[0] == 0x06 && msg_payload[1] == 0x08) //ubx_cfg_rate
 	{
 		ublox_command(2);
 		ubx_cfg_msg_cnt = 0;
-		return;
+		return true;
 	}
 
 	if (msg_payload[0] == 0x06 && msg_payload[1] == 0x01) //ubx_cfg_msg
@@ -443,10 +433,10 @@ void ublox_handle_ack(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			ublox_command(3 + ubx_cfg_msg_cnt);
 
 		ubx_cfg_msg_cnt++;
-		return;
+		return true;
 	}
 
-	ASSERT(0);
+	return false;
 }
 
 
@@ -479,9 +469,6 @@ void ublox_parse(uint8_t b)
 		msg_ck_a += b;
 		msg_ck_b += msg_ck_a;
 	}
-
-//	if (mode != PM_INIT)
-//		DBG("%c %02X %u %u", b, b, mode, index);
 
 	switch (mode)
 	{
@@ -579,23 +566,28 @@ void ublox_parse(uint8_t b)
 			if (msg_ck_b == b)
 			{
 				//execute
-				DBG("UBX <<< %02X, %02X len %u", msg_class, msg_id, msg_len);
-				DUMP(msg_payload, msg_len);
-				DBG("");
+				bool parsed;
 
 				switch (msg_class)
 				{
 					case(0x05): //UBX-ACK
-						ublox_handle_ack(msg_id, msg_payload, msg_len);
+						parsed = ublox_handle_ack(msg_id, msg_payload, msg_len);
 					break;
 
 					case(0x01): //UBX-NAV
-						ublox_handle_nav(msg_id, msg_payload, msg_len);
+						parsed = ublox_handle_nav(msg_id, msg_payload, msg_len);
 					break;
 
 					default:
-						WARN("Message not parsed");
+						parsed = false;
+				}
 
+				if (!parsed)
+				{
+					WARN("Message not parsed");
+					DBG("UBX <<< %02X, %02X len %u", msg_class, msg_id, msg_len);
+					DUMP(msg_payload, msg_len);
+					DBG("");
 				}
 			}
 			else

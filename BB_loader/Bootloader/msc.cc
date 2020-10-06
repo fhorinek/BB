@@ -33,7 +33,7 @@ bool msc_loop()
 
 	while (1)
 	{
-		break;
+		//break;
 		USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceFS.pClassData;
 
 		//eject!
