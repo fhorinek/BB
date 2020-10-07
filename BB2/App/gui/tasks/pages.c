@@ -320,6 +320,7 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
         		switch (key)
         		{
     			case(LV_KEY_RIGHT):
+    			case(LV_KEY_HOME):
     				gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_LEFT);
     			break;
     			case(LV_KEY_LEFT):

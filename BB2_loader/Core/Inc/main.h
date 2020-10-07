@@ -101,6 +101,8 @@ void Error_Handler(void);
 #define DISP_RST_GPIO_Port GPIOD
 #define ACC_INT_Pin GPIO_PIN_6
 #define ACC_INT_GPIO_Port GPIOC
+#define USB_DATA_DET_Pin GPIO_PIN_9
+#define USB_DATA_DET_GPIO_Port GPIOA
 #define FN_BOOT0_Pin GPIO_PIN_10
 #define FN_BOOT0_GPIO_Port GPIOA
 #define DISP_BCKL_Pin GPIO_PIN_15
@@ -139,6 +141,7 @@ void Error_Handler(void);
 #define	REV_1			GPIOE, GPIO_PIN_6
 #define	REV_VCC			GPIOE, GPIO_PIN_4
 #define	VCC_MAIN_EN		GPIOC, GPIO_PIN_4
+#define USB_DATA_DET	GPIOA, GPIO_PIN_9
 
 /* USER CODE END Private defines */
 
