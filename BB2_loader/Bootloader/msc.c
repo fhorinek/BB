@@ -18,16 +18,12 @@
 
 bool msc_loop()
 {
+	bool usb_connected = false;
 
-	//usb init TODO: if cable is connected
-	//time out when no cable is connected?
-
-	//gfx_draw_status(GFX_STATUS_CHARGE);
-
-	GpioSetDirection(PA9, INPUT, GPIO_NOPULL);
-
-	if (HAL_GPIO_ReadPin(PA9) == HIGH)
+	if (HAL_GPIO_ReadPin(USB_DATA_DET) == HIGH)
 	{
+		usb_connected = true;
+
 		INFO("USB mode on");
 		gfx_draw_status(GFX_STATUS_CHARGE, NULL);
 
@@ -37,30 +33,37 @@ bool msc_loop()
 
 		while (1)
 		{
+			//get class data
 			USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData;
 
-			//eject!
+			//are class data avalible (usb init ok)
 			if (hmsc > 0)
 			{
+				//update the screen
 				if (!usb_in_use)
 				{
 					gfx_draw_status(GFX_STATUS_USB, NULL);
 					usb_in_use = true;
 				}
 
+				//medium was ejected
 				if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
 				{
 					break;
 				}
 			}
 
-			if (HAL_GPIO_ReadPin(PA9) == LOW)
+			//cable is disconnected
+			if (HAL_GPIO_ReadPin(USB_DATA_DET) == LOW)
+			{
+				usb_connected = false;
 				break;
+			}
 		}
 
 		USBD_DeInit(&hUsbDeviceHS);
 		INFO("USB mode off");
 	}
 
-	return true;
+	return usb_connected;
 }

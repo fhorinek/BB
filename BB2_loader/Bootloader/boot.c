@@ -68,8 +68,9 @@ void app_main()
 
 	//main power on
 	GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
+	//reset
 	GpioWrite(VCC_MAIN_EN, LOW);
-	HAL_Delay(100);
+	HAL_Delay(10);
 	GpioWrite(VCC_MAIN_EN, HIGH);
 
 	//power up the negotiator
@@ -80,16 +81,6 @@ void app_main()
 
 	while(1)
 	{
-
-//		if (!sd_detect())
-//		{
-//			gfx_draw_status(GFX_STATUS_ERROR, "No SD card");
-//			HAL_Delay(MSG_DELAY);
-//
-//			while(!sd_detect());
-//		}
-
-
 		usb_connected = msc_loop();
 
 		if (sd_mount())

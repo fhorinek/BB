@@ -37,7 +37,7 @@ void task_System(void *argument)
 	pages_defragment();
 	config_show();
 
-	PSRAM_Init();
+	//PSRAM_Init();
 
 //	GpioSetDirection(ESP_BOOT_OPTION, INPUT);
 //	GpioSetDirection(ESP_EN_RESET, OUTPUT);
