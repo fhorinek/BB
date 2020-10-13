@@ -10,6 +10,9 @@
 
 #include "../common.h"
 
+#define PSRAM_ADDR		((__IO uint8_t *)OCTOSPI1_BASE)
+#define PSRAM_SIZE		(16 * 1024 * 1024)
+
 void PSRAM_Init();
 
 #endif /* DRIVERS_PSRAM_H_ */
