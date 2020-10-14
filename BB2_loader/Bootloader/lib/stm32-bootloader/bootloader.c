@@ -48,6 +48,8 @@ uint8_t Bootloader_Init(void)
  * @retval BL_ERR: upon failure
  */
 
+//bank1 sector 0-127 x 8K
+//bank2 sector 0-127 x 8K
 //source RM0455 rev 4 page 150
 
 #include "../../gfx.h"
@@ -58,26 +60,29 @@ uint8_t Bootloader_Erase(void)
 
     HAL_FLASH_Unlock();
 
-    for (uint8_t i = 0; i <= 0x7F; i ++)
+    #define SECTOR_STEP 16
+
+    for (uint8_t i = 0; i < 8; i ++)
     {
 //		pEraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
 		pEraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
-		pEraseInit.Sector = i;
-		pEraseInit.NbSectors = 1;
-		if (i < 16)
+		pEraseInit.Sector = i * SECTOR_STEP;
+		pEraseInit.NbSectors = SECTOR_STEP;
+
+		//skip bootloader
+		if (i == 0)
 			pEraseInit.Banks = FLASH_BANK_2;
 		else
 			pEraseInit.Banks = FLASH_BANK_1 | FLASH_BANK_2;
 
-		if (HAL_FLASHEx_Erase_IT(&pEraseInit) != HAL_OK)
+		uint32_t sector_error;
+		if (HAL_FLASHEx_Erase(&pEraseInit, &sector_error) != HAL_OK)
 			return BL_ERASE_ERROR;
 
-		gfx_draw_progress((i-3) / 7.0);
-    }
+		ASSERT(sector_error == 0xFFFFFFFF);
 
-	#define FLASH_TIMEOUT_VALUE              50000U /* 50 s */
-    ASSERT(FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE, FLASH_BANK_1) == HAL_OK)
-    ASSERT(FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE, FLASH_BANK_2) == HAL_OK)
+		gfx_draw_progress((i + 1) / 8.0);
+    }
 
     HAL_FLASH_Lock();
 
@@ -103,15 +108,15 @@ uint8_t Bootloader_FlashBegin(int32_t addr)
 }
 
 /**
- * @brief  Program 64bit data into flash: this function writes an 8byte (64bit)
+ * @brief  Program 128bit data into flash: this function writes an 16byte (128bit)
  *         data chunk into the flash and increments the data pointer.
  * @see    README for futher information
- * @param  data: 64bit data chunk to be written into flash
+ * @param  data: pointer to 128bit data chunk to be written into flash
  * @return Bootloader error code ::eBootloaderErrorCodes
  * @retval BL_OK: upon success
  * @retval BL_WRITE_ERROR: upon failure
  */
-uint8_t Bootloader_FlashNext(uint32_t data)
+uint8_t Bootloader_FlashNext(uint32_t * data)
 {
     if(flash_ptr >= (FLASH_BASE + FLASH_SIZE) || flash_ptr < APP_ADDRESS)
     {
@@ -122,14 +127,14 @@ uint8_t Bootloader_FlashNext(uint32_t data)
     if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, flash_ptr, data) == HAL_OK)
     {
         /* Check the written value */
-        if(*(uint32_t*)flash_ptr != data)
+        if(memcmp(flash_ptr, data, 16) != 0)
         {
             /* Flash content doesn't match source content */
             HAL_FLASH_Lock();
             return BL_WRITE_ERROR;
         }
         /* Increment Flash destination address */
-        flash_ptr += 4;
+        flash_ptr += 16;
     }
     else
     {

@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : mdma.h
-  * Description        : This file contains all the function prototypes for
-  *                      the mdma.c file
+  * File Name          : RTC.h
+  * Description        : This file provides code for the configuration
+  *                      of the RTC instances.
   ******************************************************************************
   * @attention
   *
@@ -17,9 +17,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __mdma_H
-#define __mdma_H
-
+#ifndef __rtc_H
+#define __rtc_H
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -27,20 +26,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* MDMA transfer handles -----------------------------------------------------*/
-extern MDMA_HandleTypeDef hmdma_mdma_channel40_sdmmc1_command_end_0;
-extern MDMA_LinkNodeTypeDef node_mdma_channel40_sdmmc1_dma_endbuffer_1;
-extern MDMA_LinkNodeTypeDef node_mdma_channel40_sdmmc1_end_data_2;
-
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+
+extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_MDMA_Init(void);
+void MX_RTC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -49,8 +45,11 @@ void MX_MDMA_Init(void);
 #ifdef __cplusplus
 }
 #endif
+#endif /*__ rtc_H */
 
-#endif /* __mdma_H */
+/**
+  * @}
+  */
 
 /**
   * @}

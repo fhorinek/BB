@@ -17,7 +17,7 @@
 void app_deinit()
 {
 	//deinit
-	INFO("Bootloader deinit");
+	INFO("Bootloader power off");
 	HAL_Delay(2);
 
 	//MX_GPIO_Init();
@@ -26,7 +26,7 @@ void app_deinit()
 	HAL_DMA_DeInit(&tft_dma);
 
 	//void MX_MDMA_Init();
-	HAL_MDMA_DeInit(&hmdma_mdma_channel40_sdmmc1_end_data_0);
+	HAL_MDMA_DeInit(&hmdma_mdma_channel40_sdmmc1_command_end_0);
 
 	//MX_FMC_Init();
 	HAL_SRAM_DeInit(&hsram1);
@@ -54,8 +54,13 @@ void app_deinit()
 	//main power off
 	GpioSetDirection(VCC_MAIN_EN, INPUT, GPIO_NOPULL);
 
-    HAL_RCC_DeInit();
-	HAL_DeInit();
+//    HAL_RCC_DeInit();
+//	HAL_DeInit();
+}
+
+void power_off()
+{
+    HAL_PWREx_EnterSTOP2Mode(PWR_MAINREGULATOR_ON, STOPEntry)
 }
 
 void app_main()

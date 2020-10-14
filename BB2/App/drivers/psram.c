@@ -120,7 +120,7 @@ void PSRAM_Init()
 
 	ASSERT(HAL_OSPI_MemoryMapped(&hospi1, &cfg) == HAL_OK);
 
-	PSRAM_test();
+//	PSRAM_test();
 }
 
 

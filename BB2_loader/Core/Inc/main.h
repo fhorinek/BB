@@ -72,6 +72,7 @@ void Error_Handler(void);
 #define meas_timer htim3
 #define BT3_Pin GPIO_PIN_3
 #define BT3_GPIO_Port GPIOE
+#define BT3_EXTI_IRQn EXTI3_IRQn
 #define REV_VCC_Pin GPIO_PIN_4
 #define REV_VCC_GPIO_Port GPIOE
 #define REV_0_Pin GPIO_PIN_5
@@ -84,6 +85,7 @@ void Error_Handler(void);
 #define CH_EN_OTG_GPIO_Port GPIOC
 #define PWR_INT_Pin GPIO_PIN_1
 #define PWR_INT_GPIO_Port GPIOC
+#define PWR_INT_EXTI_IRQn EXTI1_IRQn
 #define ESP_BOOT_OPT_Pin GPIO_PIN_2
 #define ESP_BOOT_OPT_GPIO_Port GPIOA
 #define LED_TORCH_Pin GPIO_PIN_3
@@ -103,6 +105,7 @@ void Error_Handler(void);
 #define ACC_INT_GPIO_Port GPIOC
 #define USB_DATA_DET_Pin GPIO_PIN_9
 #define USB_DATA_DET_GPIO_Port GPIOA
+#define USB_DATA_DET_EXTI_IRQn EXTI9_5_IRQn
 #define FN_BOOT0_Pin GPIO_PIN_10
 #define FN_BOOT0_GPIO_Port GPIOA
 #define DISP_BCKL_Pin GPIO_PIN_15
@@ -113,6 +116,7 @@ void Error_Handler(void);
 #define BT5_GPIO_Port GPIOD
 #define BT2_Pin GPIO_PIN_7
 #define BT2_GPIO_Port GPIOD
+#define BT2_EXTI_IRQn EXTI9_5_IRQn
 #define BT4_Pin GPIO_PIN_5
 #define BT4_GPIO_Port GPIOB
 #define BT1_Pin GPIO_PIN_9
