@@ -84,6 +84,7 @@ void Error_Handler(void);
 #define CH_EN_OTG_GPIO_Port GPIOC
 #define PWR_INT_Pin GPIO_PIN_1
 #define PWR_INT_GPIO_Port GPIOC
+#define PWR_INT_EXTI_IRQn EXTI1_IRQn
 #define ESP_BOOT_OPT_Pin GPIO_PIN_2
 #define ESP_BOOT_OPT_GPIO_Port GPIOA
 #define LED_TORCH_Pin GPIO_PIN_3

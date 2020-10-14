@@ -26,6 +26,7 @@
 #include "fmc.h"
 #include "crc.h"
 #include "sdmmc.h"
+#include "i2c.h"
 
 #include "debug.h"
 
@@ -140,6 +141,7 @@ uint32_t atoi_hex32(char * buffer);
 #define abs(x) 		((x)>0?(x):-(x))
 
 int8_t complement7(uint8_t in);
+int8_t complement2_8bit(uint8_t in);
 
 /**
  * Convert an angle given in degree to radians.
@@ -156,6 +158,27 @@ inline double to_degrees(double radians)
 {
     return radians * (180.0 / M_PI);
 }
+
+typedef union
+{
+    uint64_t uint64;
+    uint32_t uint32[2];
+    uint8_t uint8[4];
+} byte8;
+
+typedef union
+{
+    uint32_t uint32;
+    int32_t int32;
+    uint8_t uint8[4];
+} byte4;
+
+typedef union
+{
+    uint16_t uint16;
+    int16_t int16;
+    uint8_t uint8[2];
+} byte2;
 
 #define UPDATE_FILE 	"BOOMBOX.FW"
 #define SKIP_CRC_FILE 	"SKIP_CRC"

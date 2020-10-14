@@ -15,12 +15,15 @@
 #include "usbd_desc.h"
 #include "usbd_msc.h"
 
+#include "pwr_mng.h"
 
 bool msc_loop()
 {
 	bool usb_connected = false;
 
-	if (HAL_GPIO_ReadPin(USB_DATA_DET) == HIGH)
+	pwr_step();
+
+	if (pwr.data_port == PWR_DATA_ACTIVE)
 	{
 		usb_connected = true;
 
