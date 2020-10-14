@@ -22,6 +22,7 @@
  */
 #include "../../common.h"
 
+//muse be divideable by 16 bytes (128 bits)!
 typedef struct {
 	uint32_t build_number;	//+4
 	uint32_t size;			//+4
@@ -76,7 +77,7 @@ uint8_t Bootloader_Init(void);
 uint8_t Bootloader_Erase(void);
 
 uint8_t Bootloader_FlashBegin(int32_t addr);
-uint8_t Bootloader_FlashNext(uint32_t data);
+uint8_t Bootloader_FlashNext(uint32_t * data);
 uint8_t Bootloader_FlashEnd(void);
 
 uint8_t Bootloader_CheckSize(uint32_t appsize);

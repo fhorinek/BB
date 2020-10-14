@@ -70,7 +70,7 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+#define APP_ADDRESS     0x08020000
 /* USER CODE END 0 */
 
 /**
@@ -80,7 +80,7 @@ void MX_FREERTOS_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+    SCB->VTOR = APP_ADDRESS;
   /* USER CODE END 1 */
 
   /* MPU Configuration--------------------------------------------------------*/
@@ -120,7 +120,6 @@ int main(void)
   MX_FATFS_Init();
   MX_UART8_Init();
   MX_TIM3_Init();
-  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -164,7 +163,7 @@ void SystemClock_Config(void)
   /** Configure LSE Drive Capability
   */
   HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
   /** Macro to configure the PLL clock source
   */
   __HAL_RCC_PLL_PLLSOURCE_CONFIG(RCC_PLLSOURCE_HSE);

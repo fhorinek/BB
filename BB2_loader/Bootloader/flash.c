@@ -57,7 +57,7 @@ bool flash_loop()
 				if (br == 0)
 					break;
 
-				gfx_draw_progress((progress * sizeof(buff)) / (float)f_size(&update_file));
+				gfx_draw_progress(((progress + 1) * sizeof(buff)) / (float)f_size(&update_file));
 			}
 
 			calc_crc ^= 0xFFFFFFFF;
@@ -104,15 +104,15 @@ bool flash_loop()
 						f_lseek(&update_file, 0);
 
 						f_read(&update_file, tmp, sizeof(btl_header_t), &br);
-						for (uint8_t i = 0; i < sizeof(btl_header_t) / sizeof(uint32_t); i++)
-							Bootloader_FlashNext(tmp[i]);
+						for (uint8_t i = 0; i < sizeof(btl_header_t) / sizeof(uint32_t); i += 4)
+							Bootloader_FlashNext(&tmp[i]);
 
 						break;
 					}
 
-					for (uint16_t j = 0; j < br / 4; j++)
+					for (uint16_t j = 0; j < br / 4; j += 4)
 					{
-						if (Bootloader_FlashNext(buff[j]) != BL_OK)
+						if (Bootloader_FlashNext(&buff[j]) != BL_OK)
 						{
 							write_error = true;
 							break;
@@ -135,7 +135,7 @@ bool flash_loop()
 
 		}
 		f_close(&update_file);
-		f_unlink(UPDATE_FILE);
+//		f_unlink(UPDATE_FILE);
 	}
 
 	return firmware_updated;
