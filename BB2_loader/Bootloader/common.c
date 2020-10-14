@@ -12,3 +12,12 @@ void GpioSetDirection(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint16_t direction
 }
 
 
+int16_t complement2_16bit(uint16_t in)
+{
+#define MASK 0b0111111111111111
+
+	if (in > MASK)
+		return -(in & MASK) + (MASK + 1);
+
+	return in;
+}

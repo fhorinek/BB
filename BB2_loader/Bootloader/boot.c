@@ -13,6 +13,7 @@
 #include "gfx.h"
 #include "msc.h"
 #include "flash.h"
+#include "pwr_mng.h"
 
 void app_deinit()
 {
@@ -58,12 +59,8 @@ void app_deinit()
 	HAL_DeInit();
 }
 
-void app_main()
+void app_init()
 {
-	bool updated;
-	bool usb_connected;
-	bool skip_crc = false;
-
 	INFO("Bootloader init");
 
 	//main power on
@@ -79,8 +76,20 @@ void app_main()
 	HAL_Delay(100);
 	GpioSetDirection(CH_EN_OTG, INPUT, GPIO_NOPULL);
 
+	pwr_init();
+}
+
+void app_main()
+{
+	bool updated;
+	bool usb_connected;
+	bool skip_crc = false;
+
+	app_init();
+
 	while(1)
 	{
+		//usb communication & charging
 		usb_connected = msc_loop();
 
 		if (sd_mount())
