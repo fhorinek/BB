@@ -13,6 +13,7 @@
 #include "gfx.h"
 #include "msc.h"
 #include "flash.h"
+#include "pwr_mng.h"
 
 #define BUTTON_PRESSED(A)  (HAL_GPIO_ReadPin(A) == LOW)
 #define BUTTON_WAIT(A)      while(BUTTON_PRESSED(BT2))

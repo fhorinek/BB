@@ -27,3 +27,13 @@ void gui_set_torch(uint8_t val)
 
     __HAL_TIM_SET_COMPARE(&led_timmer, led_torch, val);
 }
+
+int16_t complement2_16bit(uint16_t in)
+{
+#define MASK 0b0111111111111111
+
+	if (in > MASK)
+		return -(in & MASK) + (MASK + 1);
+
+	return in;
+}

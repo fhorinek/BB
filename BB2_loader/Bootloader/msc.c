@@ -15,6 +15,7 @@
 #include "usbd_desc.h"
 #include "usbd_msc.h"
 
+#include "pwr_mng.h"
 
 bool msc_loop()
 {
