@@ -157,6 +157,10 @@ inline double to_degrees(double radians)
     return radians * (180.0 / M_PI);
 }
 
+void gui_set_backlight(uint8_t val);
+void gui_set_torch(uint8_t val);
+
+
 #define UPDATE_FILE 	"BOOMBOX.FW"
 #define SKIP_CRC_FILE 	"SKIP_CRC"
 #define MSG_DELAY		2000

@@ -18,52 +18,59 @@
 
 bool msc_loop()
 {
-	bool usb_connected = false;
+    INFO("USB mode on");
 
-	if (HAL_GPIO_ReadPin(USB_DATA_DET) == HIGH)
-	{
-		usb_connected = true;
+    uint8_t start_up = false;
 
-		INFO("USB mode on");
-		gfx_draw_status(GFX_STATUS_CHARGE, NULL);
+    //power up the negotiator
+    GpioWrite(CH_EN_OTG, HIGH);
+    HAL_Delay(40);
+    GpioSetDirection(CH_EN_OTG, INPUT, GPIO_NOPULL);
 
-		MX_USB_DEVICE_Init();
+    gfx_draw_status(GFX_STATUS_CHARGE, NULL);
 
-		bool usb_in_use = false;
+    MX_USB_DEVICE_Init();
 
-		while (1)
-		{
-			//get class data
-			USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData;
+    bool usb_in_use = false;
 
-			//are class data avalible (usb init ok)
-			if (hmsc > 0)
-			{
-				//update the screen
-				if (!usb_in_use)
-				{
-					gfx_draw_status(GFX_STATUS_USB, NULL);
-					usb_in_use = true;
-				}
+    while (1)
+    {
+        //get class data
+        USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData;
 
-				//medium was ejected
-				if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
-				{
-					break;
-				}
-			}
+        //are class data avalible (usb init ok)
+        if (hmsc > 0)
+        {
+            //update the screen
+            if (!usb_in_use)
+            {
+                gfx_draw_status(GFX_STATUS_USB, NULL);
+                usb_in_use = true;
+            }
 
-			//cable is disconnected
-			if (HAL_GPIO_ReadPin(USB_DATA_DET) == LOW)
-			{
-				usb_connected = false;
-				break;
-			}
-		}
+            //medium was ejected
+            if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
+            {
+                start_up = true;
+                break;
+            }
+        }
 
-		USBD_DeInit(&hUsbDeviceHS);
-		INFO("USB mode off");
-	}
+        if (!usb_in_use && button_hold(BT3))
+        {
+            start_up = true;
+            break;
+        }
 
-	return usb_connected;
+        //cable is disconnected
+        if (HAL_GPIO_ReadPin(USB_DATA_DET) == LOW)
+        {
+            break;
+        }
+    }
+
+    USBD_DeInit(&hUsbDeviceHS);
+    INFO("USB mode off");
+
+    return start_up;
 }

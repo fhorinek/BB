@@ -74,6 +74,13 @@ void gfx_draw_text(uint16_t x, uint16_t y, char * text, enum mf_align_t align, c
 	mf_render_aligned(gfx_font, x, y, align, text, strlen(text), character_callback, NULL);
 }
 
+void gfx_clear()
+{
+    tft_wait_for_buffer();
+    tft_color_fill(0xFFFF);
+    tft_refresh_buffer(0, 0, 239, 399);
+}
+
 
 uint8_t gfx_bg_init = GFX_NONE;
 
@@ -141,6 +148,14 @@ void gfx_draw_status(uint8_t status, const char * sub_text)
 				color = GFX_GREEN;
 			}
 		break;
+
+        case(GFX_STATUS_TORCH):
+            {
+                strcpy(icon, "5");
+                strcpy(title, "");
+                strcpy(text, "");
+            }
+        break;
 
 	}
 

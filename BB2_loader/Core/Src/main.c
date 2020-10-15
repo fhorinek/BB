@@ -59,7 +59,8 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-void app_main();
+void app_main(uint8_t power_on_mode);
+uint8_t app_poweroff();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -74,7 +75,6 @@ void app_main();
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -83,7 +83,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  uint8_t power_on_mode = app_poweroff();
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -105,7 +105,7 @@ int main(void)
   MX_CRC_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
-  app_main();
+  app_main(power_on_mode);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -191,7 +191,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PLL2.PLL2R = 6;
   PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_3;
   PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2VCOWIDE;
-  PeriphClkInitStruct.PLL2.PLL2FRACN = 6144;
+  PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
   PeriphClkInitStruct.PLL3.PLL3M = 1;
   PeriphClkInitStruct.PLL3.PLL3N = 18;
   PeriphClkInitStruct.PLL3.PLL3P = 4;
