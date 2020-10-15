@@ -22,6 +22,7 @@
 #include "crc.h"
 #include "dma.h"
 #include "fatfs.h"
+#include "i2c.h"
 #include "mdma.h"
 #include "rtc.h"
 #include "sdmmc.h"
@@ -104,6 +105,7 @@ int main(void)
   MX_FATFS_Init();
   MX_CRC_Init();
   MX_RTC_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   app_main(power_on_mode);
   /* USER CODE END 2 */
@@ -181,8 +183,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_UART7
-                              |RCC_PERIPHCLK_SDMMC|RCC_PERIPHCLK_USB
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_SDMMC
+                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_USB
                               |RCC_PERIPHCLK_FMC;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 18;
@@ -203,6 +205,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.FmcClockSelection = RCC_FMCCLKSOURCE_D1HCLK;
   PeriphClkInitStruct.SdmmcClockSelection = RCC_SDMMCCLKSOURCE_PLL2;
   PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+  PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
   PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_PLL3;
   PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)

@@ -82,14 +82,6 @@ void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 	tft_dma_done = false;
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if (GPIO_Pin == DISP_TE_Pin)
-	{
-		tft_irq_display_te();
-	}
-}
-
 
 void tft_init()
 {
