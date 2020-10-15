@@ -12,3 +12,18 @@ void GpioSetDirection(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint16_t direction
 }
 
 
+void gui_set_backlight(uint8_t val)
+{
+    if (val > 100)
+        val = 100;
+
+    __HAL_TIM_SET_COMPARE(&led_timmer, led_bclk, val);
+}
+
+void gui_set_torch(uint8_t val)
+{
+    if (val > 100)
+        val = 100;
+
+    __HAL_TIM_SET_COMPARE(&led_timmer, led_torch, val);
+}

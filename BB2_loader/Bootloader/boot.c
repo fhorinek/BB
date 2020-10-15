@@ -14,6 +14,23 @@
 #include "msc.h"
 #include "flash.h"
 
+#define BUTTON_PRESSED(A)  (HAL_GPIO_ReadPin(A) == LOW)
+#define BUTTON_WAIT(A)      while(BUTTON_PRESSED(BT2))
+
+bool button_hold(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+{
+    uint16_t cnt = 0;
+    while (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == LOW)
+    {
+        cnt++;
+        HAL_Delay(10);
+        if (cnt > 30)
+            return true;
+    }
+
+    return false;
+}
+
 void app_deinit()
 {
 	//deinit
@@ -58,78 +75,142 @@ void app_deinit()
 //	HAL_DeInit();
 }
 
-void power_off()
+#define POWER_ON_USB    0
+#define POWER_ON_BUTTON 1
+#define POWER_ON_TORCH  2
+
+uint8_t app_poweroff()
 {
-    HAL_PWREx_EnterSTOP2Mode(PWR_MAINREGULATOR_ON, STOPEntry)
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**TIM2 GPIO Configuration
+    PA3     ------> TIM2_CH4
+    PA15     ------> TIM2_CH1
+    */
+    GPIO_InitStruct.Pin = LED_TORCH_Pin|DISP_BCKL_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    MX_GPIO_Init();
+
+    while (1)
+    {
+        //usb connected
+        if (HAL_GPIO_ReadPin(USB_DATA_DET) == HIGH)
+            return POWER_ON_USB;
+
+        if (button_hold(BT2))
+            return POWER_ON_TORCH;
+
+        if (button_hold(BT3))
+            return POWER_ON_BUTTON;
+
+        HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+    }
 }
 
-void app_main()
+void app_reset()
+{
+    gfx_clear();
+
+    //prevent to go to factory OTG bootloader
+    BUTTON_WAIT(BT2);
+
+    NVIC_SystemReset();
+}
+
+void app_main(uint8_t power_on_mode)
 {
 	bool updated;
-	bool usb_connected;
 	bool skip_crc = false;
 
 	INFO("Bootloader init");
 
-	//main power on
-	GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
-	//reset
-	GpioWrite(VCC_MAIN_EN, LOW);
-	HAL_Delay(10);
-	GpioWrite(VCC_MAIN_EN, HIGH);
+    //main power on
+    GpioWrite(VCC_MAIN_EN, HIGH);
 
-	//power up the negotiator
-	GpioSetDirection(CH_EN_OTG, OUTPUT, GPIO_NOPULL);
-	GpioWrite(CH_EN_OTG, HIGH);
-	HAL_Delay(100);
-	GpioSetDirection(CH_EN_OTG, INPUT, GPIO_NOPULL);
+    //pwm init
+    HAL_TIM_Base_Start(&led_timmer);
+    HAL_TIM_PWM_Start(&led_timmer, led_bclk);
+    HAL_TIM_PWM_Start(&led_timmer, led_torch);
 
-	while(1)
+	if (power_on_mode == POWER_ON_USB)
 	{
-		usb_connected = msc_loop();
-
-		if (sd_mount())
-		{
-			FILINFO fno;
-
-			updated = flash_loop();
-
-			if (f_stat(SKIP_CRC_FILE, &fno) == FR_OK)
-			{
-				WARN("CRC check override!");
-				skip_crc = true;
-			}
-		}
-		else
-		{
-			gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
-			HAL_Delay(MSG_DELAY);
-		}
-
-		if (flash_verify() || skip_crc)
-		{
-			if (updated)
-			{
-				gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
-				HAL_Delay(MSG_DELAY);
-			}
-
-			app_deinit();
-
-			Bootloader_JumpToApplication();
-		}
-		else
-		{
-			gfx_draw_status(GFX_STATUS_ERROR, "Firmware not valid");
-			HAL_Delay(MSG_DELAY);
-
-			if (!usb_connected)
-			{
-				app_deinit();
-				//TODO: poweroff
-
-				while(1);
-			}
-		}
+	    //if usb mode exited with usb disconnect, power off
+	    if (!msc_loop())
+	    {
+	        app_reset();
+	    }
 	}
+
+    if (power_on_mode == POWER_ON_TORCH)
+    {
+        gui_set_backlight(10);
+        gui_set_torch(10);
+
+        gfx_draw_status(GFX_STATUS_TORCH, NULL);
+
+        BUTTON_WAIT(BT2);
+        BUTTON_WAIT(BT3);
+        BUTTON_WAIT(BT4);
+
+        while(1)
+        {
+            if (button_hold(BT2))
+                break;
+
+            if (button_hold(BT3))
+                break;
+
+            if (button_hold(BT4))
+                break;
+        }
+
+        app_reset();
+    }
+
+    if (sd_mount())
+    {
+        FILINFO fno;
+
+        updated = flash_loop();
+
+        if (f_stat(SKIP_CRC_FILE, &fno) == FR_OK)
+        {
+            WARN("CRC check override!");
+            skip_crc = true;
+        }
+    }
+    else
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+        HAL_Delay(MSG_DELAY);
+    }
+
+    if (flash_verify() || skip_crc)
+    {
+        if (updated)
+        {
+            gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
+            HAL_Delay(MSG_DELAY);
+        }
+
+        app_deinit();
+
+        Bootloader_JumpToApplication();
+    }
+    else
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not valid");
+        HAL_Delay(MSG_DELAY);
+    }
+
+    app_reset();
+
+    //not possible to reach!
+    while(1);
 }

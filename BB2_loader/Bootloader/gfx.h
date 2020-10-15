@@ -14,8 +14,10 @@
 #define GFX_STATUS_USB 		1	//0
 #define GFX_STATUS_UPDATE	2	//3
 #define GFX_STATUS_SUCCESS	3	//1
-#define GFX_STATUS_ERROR	4	//2
+#define GFX_STATUS_ERROR    4   //2
+#define GFX_STATUS_TORCH    5   //5
 
+void gfx_clear();
 void gfx_draw_status(uint8_t status, const char * sub_text);
 void gfx_draw_progress(float val);
 
