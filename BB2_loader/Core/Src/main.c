@@ -183,9 +183,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_SDMMC
-                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_USB
-                              |RCC_PERIPHCLK_FMC;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_UART7
+                              |RCC_PERIPHCLK_SDMMC|RCC_PERIPHCLK_I2C2
+                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_FMC;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 18;
   PeriphClkInitStruct.PLL2.PLL2P = 2;

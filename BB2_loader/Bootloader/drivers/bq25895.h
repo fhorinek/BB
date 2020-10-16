@@ -15,5 +15,4 @@ void bq25895_step();
 void bq25895_irq();
 
 
-
 #endif /* DRIVERS_BQ25895_H_ */

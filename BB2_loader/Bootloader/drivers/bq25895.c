@@ -37,7 +37,7 @@
 #define Charger_IRcomp_Reg 0x08 // default    compensation for battery serial reisstance, voltage clamp & thermal thresholds                     § revise with new battery §
 #define Charger_IRcomp_val 0b01100011     // compensating 60mO serial resistance (10mO shunt + up to 65mO battery protection PCB + up to 30mO internal battery impedance @ 1kHz)
 
-#define Charger_cfg3_Reg 0x09 // 2nd configuration byte - see datasheet page 42
+#define Charger_cfg3_Reg 0x09 // 3nd configuration byte - see datasheet page 42
 #define Charger_cfg3_val 0b01000100 //0x48  // default by me is B01001000
 
 #define Charger_Boost_Reg 0x0A // for 5,2V - [7:4] Boost Mode Voltage Regulation: BOOSTV = 4550 + VALUE[7:4] × 64 [mV]
@@ -106,6 +106,7 @@ void bq25895_init()
 	write_reg(Charger_Boost_Reg, Charger_Boost_val);
 }
 
+
 void bq25895_step()
 {
 	static uint32_t next_period = 0;
@@ -120,47 +121,60 @@ void bq25895_step()
 		have_irq = false;
 		next_period = HAL_GetTick() + 100;
 
-		uint8_t charger_status = (read_reg(0x0B) & 0b11100000) >> 5;
+		uint8_t reg_0B = read_reg(0x0B);
+		uint8_t charger_status = (reg_0B & 0b11100000) >> 5;
+
+        uint8_t reg_11 = read_reg(0x11);
+        uint16_t vbus_volt = 2600 + (0b01111111 & reg_11) * 100;
+
+        uint8_t reg_12 = read_reg(0x12);
+        uint16_t vbus_mamps = reg_12 * 50;
 
 		switch (charger_status)
 		{
 			case 0b000:
 				DBG("No Input");
-				pwr.charge_port = PWR_CHARGE_NONE;
+				if (vbus_volt > 2600)
+				    pwr.charge_port = PWR_CHARGE_WEAK;
+				else
+				    pwr.charge_port = PWR_CHARGE_NONE;
 				break;
 
 			case 0b001:
 				DBG("USB Host SDP");
+				pwr.charge_port = PWR_CHARGE_SLOW;
 				break;
 
 			case 0b010:
 				DBG("USB CDP (1,5A)");
+				pwr.charge_port = PWR_CHARGE_FAST;
 				break;
 
 			case 0b011:
 				DBG("USB DCP (3,25A)");
+				pwr.charge_port = PWR_CHARGE_FAST;
 				break;
 
 			case 0b100:
 				DBG("Adjustable High Voltage DCP (MaxCharge) (1,5A)");
+				pwr.charge_port = PWR_CHARGE_QUICK;
 				break;
 
 			case 0b101:
 				DBG("Unknown Adapter (500mA)");
+				pwr.charge_port = PWR_CHARGE_SLOW;
 				break;
 
 			case 0b110:
 				DBG("Non-Standard Adapter (1A/2A/2,1A/2,4A)");
+				pwr.charge_port = PWR_CHARGE_FAST;
 				break;
 
 			case 0b111:
 				DBG("OTG");
+				Error_Handler();
 				break;
 		}
-
-		//voltage status
-
-		//
 	}
 }
 

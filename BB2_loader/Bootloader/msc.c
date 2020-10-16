@@ -23,54 +23,88 @@ bool msc_loop()
 
     uint8_t start_up = false;
 
-    //power up the negotiator
-    GpioWrite(CH_EN_OTG, HIGH);
-    HAL_Delay(40);
-    GpioSetDirection(CH_EN_OTG, INPUT, GPIO_NOPULL);
+    bool usb_init = false;
 
-    gfx_draw_status(GFX_STATUS_CHARGE, NULL);
-
-    MX_USB_DEVICE_Init();
-
-    bool usb_in_use = false;
+    uint8_t old_charge = 0xFF;
+    uint8_t old_data = 0xFF;
 
     while (1)
     {
+        pwr_step();
+
+        if (pwr.data_port == PWR_DATA_CHARGE && !usb_init)
+        {
+            usb_init = true;
+            MX_USB_DEVICE_Init();
+        }
+
+
         //get class data
         USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData;
 
         //are class data avalible (usb init ok)
         if (hmsc > 0)
         {
-            //update the screen
-            if (!usb_in_use)
+            if (pwr.data_port == PWR_DATA_CHARGE)
             {
-                gfx_draw_status(GFX_STATUS_USB, NULL);
-                usb_in_use = true;
+                pwr.data_port = PWR_DATA_ACTIVE;
             }
+
+            if (pwr.data_port == PWR_DATA_NONE)
+            {
+                usb_init = false;
+                USBD_DeInit(&hUsbDeviceHS);
+            }
+
 
             //medium was ejected
             if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
             {
+                USBD_DeInit(&hUsbDeviceHS);
                 start_up = true;
                 break;
             }
         }
 
-        if (!usb_in_use && button_hold(BT3))
+        //change gfx status if needed
+        if (old_charge != pwr.charge_port || old_data != pwr.data_port)
+        {
+            old_charge = pwr.charge_port;
+            old_data = pwr.data_port;
+
+            //#define GFX_STATUS_CHARGE_NONE  0   //4 _
+            //#define GFX_STATUS_CHARGE_DATA  0   //4 0
+            //#define GFX_STATUS_NONE_DATA    0   //_ 0
+            //#define GFX_STATUS_NONE_CHARGE  0   //0 4
+            if (pwr.charge_port > PWR_CHARGE_NONE && pwr.data_port != PWR_DATA_ACTIVE)
+                gfx_draw_status(GFX_STATUS_CHARGE_NONE, NULL);
+
+            if (pwr.charge_port > PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
+                gfx_draw_status(GFX_STATUS_CHARGE_DATA, NULL);
+
+            if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
+                gfx_draw_status(GFX_STATUS_NONE_DATA, NULL);
+
+            if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_CHARGE)
+                gfx_draw_status(GFX_STATUS_NONE_CHARGE, NULL);
+
+        }
+
+        //no usb comunication and power button pressed
+        if (pwr.data_port != PWR_DATA_ACTIVE && button_hold(BT3))
         {
             start_up = true;
             break;
         }
 
         //cable is disconnected
-        if (HAL_GPIO_ReadPin(USB_DATA_DET) == LOW)
+        if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_NONE)
         {
             break;
         }
     }
 
-    USBD_DeInit(&hUsbDeviceHS);
+
     INFO("USB mode off");
 
     return start_up;

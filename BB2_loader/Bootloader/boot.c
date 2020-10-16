@@ -82,26 +82,16 @@ void app_deinit()
 
 uint8_t app_poweroff()
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**TIM2 GPIO Configuration
-    PA3     ------> TIM2_CH4
-    PA15     ------> TIM2_CH1
-    */
-    GPIO_InitStruct.Pin = LED_TORCH_Pin|DISP_BCKL_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     MX_GPIO_Init();
+    MX_TIM2_Init();
 
     while (1)
     {
         //usb connected
         if (HAL_GPIO_ReadPin(USB_DATA_DET) == HIGH)
+            return POWER_ON_USB;
+
+        if (HAL_GPIO_ReadPin(PWR_INT) == LOW)
             return POWER_ON_USB;
 
         if (button_hold(BT2))
@@ -110,7 +100,7 @@ uint8_t app_poweroff()
         if (button_hold(BT3))
             return POWER_ON_BUTTON;
 
-        HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+        //HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
     }
 }
 
@@ -126,7 +116,7 @@ void app_reset()
 
 void app_main(uint8_t power_on_mode)
 {
-	bool updated;
+	bool updated = false;
 	bool skip_crc = false;
 
 	INFO("Bootloader init");
@@ -138,6 +128,10 @@ void app_main(uint8_t power_on_mode)
     HAL_TIM_Base_Start(&led_timmer);
     HAL_TIM_PWM_Start(&led_timmer, led_bclk);
     HAL_TIM_PWM_Start(&led_timmer, led_torch);
+
+    HAL_Delay(1000);
+
+    pwr_init();
 
 	if (power_on_mode == POWER_ON_USB)
 	{
