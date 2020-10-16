@@ -11,6 +11,7 @@
 
 #include "drivers/tft_hx8352.h"
 #include "lib/mcufont/mcufont.h"
+#include "pwr_mng.h"
 
 const struct mf_font_s * gfx_font;
 
@@ -84,6 +85,28 @@ void gfx_clear()
 
 uint8_t gfx_bg_init = GFX_NONE;
 
+void gfx_get_charge_type(char * text)
+{
+    switch(pwr.charge_port)
+    {
+        case(PWR_CHARGE_NONE):
+            strcpy(text, "");
+        break;
+        case(PWR_CHARGE_WEAK):
+            strcpy(text, "Weak source!");
+        break;
+        case(PWR_CHARGE_SLOW):
+            strcpy(text, "Charging slow");
+        break;
+        case(PWR_CHARGE_FAST):
+            strcpy(text, "Charging fast");
+        break;
+        case(PWR_CHARGE_QUICK):
+            strcpy(text, "Quick charge");
+        break;
+    }
+}
+
 void gfx_draw_status(uint8_t status, const char * sub_text)
 {
 	if (gfx_bg_init == GFX_NONE)
@@ -100,31 +123,59 @@ void gfx_draw_status(uint8_t status, const char * sub_text)
 	tft_color_fill(0xFFFF);
 	gfx_bg_init = GFX_WHITE;
 
-	char icon[2];
+    char icon[2];
+    char icon2[2];
 	char title[64];
-	char text[64];
+    char text[64];
+    char text2[64];
 
-	icon[0] = 0;
+    icon[0] = 0;
+    icon2[0] = 0;
 	title[0] = 0;
-	text[0] = 0;
+    text[0] = 0;
+    text2[0] = 0;
 
 	uint8_t color = GFX_BLACK;
+	bool alt_mode = false;
 
 	switch (status)
 	{
-		case(GFX_STATUS_CHARGE):
-			{
-				strcpy(icon, "4");
-				strcpy(title, "Charging");
-			}
-		break;
-		case(GFX_STATUS_USB):
-			{
-				strcpy(icon, "0");
-				strcpy(title, "USB mode");
-				strcpy(text, "Eject to start");
-			}
-		break;
+        case(GFX_STATUS_CHARGE_NONE):
+            {
+                alt_mode = true;
+                strcpy(icon, "4");
+                strcpy(title, "Charging");
+                gfx_get_charge_type(text);
+            }
+        break;
+        case(GFX_STATUS_CHARGE_DATA):
+            {
+                alt_mode = true;
+                strcpy(icon, "4");
+                strcpy(icon2, "0");
+                strcpy(title, "USB mode");
+                strcpy(text, "Eject to start");
+                gfx_get_charge_type(text2);
+            }
+        break;
+        case(GFX_STATUS_NONE_DATA):
+            {
+                alt_mode = true;
+                strcpy(icon2, "0");
+                strcpy(title, "USB mode");
+                strcpy(text, "Eject to start");
+                strcpy(text, "Charging slow");
+            }
+        break;
+        case(GFX_STATUS_NONE_CHARGE):
+            {
+                alt_mode = true;
+                strcpy(icon2, "4");
+                strcpy(title, "Charging");
+                strcpy(text, "Slow charging");
+                strcpy(text2, "Switch ports!");
+            }
+        break;
 		case(GFX_STATUS_UPDATE):
 			{
 				strcpy(icon, "3");
@@ -161,13 +212,24 @@ void gfx_draw_status(uint8_t status, const char * sub_text)
 
 	INFO("%s: %s", title, text);
 
-	gfx_color = color;
-	gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2, icon, MF_ALIGN_CENTER, gfx_icons);
+	if (alt_mode)
+	{
+        gfx_draw_text(10, TFT_HEIGHT - gfx_icons->height, icon, MF_ALIGN_LEFT, gfx_icons);
+        gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - gfx_icons->height, icon2, MF_ALIGN_RIGHT, gfx_icons);
 
-	gfx_color = GFX_BLACK;
-	gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 3, title, MF_ALIGN_CENTER, gfx_text);
-	gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 2, text, MF_ALIGN_CENTER, gfx_desc);
+        gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_text->height * 2, title, MF_ALIGN_CENTER, gfx_text);
+        gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_text->height * 1, text, MF_ALIGN_CENTER, gfx_desc);
+        gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2), text2, MF_ALIGN_CENTER, gfx_desc);
+	}
+	else
+	{
+        gfx_color = color;
+        gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2, icon, MF_ALIGN_CENTER, gfx_icons);
 
+        gfx_color = GFX_BLACK;
+        gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 3, title, MF_ALIGN_CENTER, gfx_text);
+        gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 2, text, MF_ALIGN_CENTER, gfx_desc);
+	}
 	tft_refresh_buffer(0, 0, 239, 399);
 }
 
