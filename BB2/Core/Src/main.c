@@ -70,7 +70,11 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define APP_ADDRESS     0x08020000
+
+//#define APP_ADDRESS     0x08020000
+//bootloader debug
+#define APP_ADDRESS     0x08040000
+
 /* USER CODE END 0 */
 
 /**

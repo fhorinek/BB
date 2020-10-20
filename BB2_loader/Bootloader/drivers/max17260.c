@@ -111,5 +111,11 @@ void max17260_step()
         pwr.bat_charge = (read_reg16(Fuel_RepCap_Reg) * 5) / Fuel_shunt;
         pwr.bat_time_to_full = read_reg16(Fuel_TTF_Reg) * 5.625;
         pwr.bat_cap = read_reg16(Fuel_DesignCap_Reg);
+
+		DBG("");
+		DBG("PWR Current: %u", pwr.bat_current);
+		DBG("PWR charge: %u", pwr.bat_charge);
+		DBG("PWR Time to Full: %u", pwr.bat_time_to_full);
+		DBG("Batt Cap: %u", pwr.bat_cap);
     }
 }

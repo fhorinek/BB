@@ -129,7 +129,7 @@ void app_main(uint8_t power_on_mode)
     HAL_TIM_PWM_Start(&led_timmer, led_bclk);
     HAL_TIM_PWM_Start(&led_timmer, led_torch);
 
-    HAL_Delay(1000);
+    HAL_Delay(100);
 
     pwr_init();
 
