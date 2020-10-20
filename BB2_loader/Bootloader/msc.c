@@ -65,6 +65,15 @@ bool msc_loop()
                 break;
             }
         }
+        else
+        {
+        	if (pwr.data_port == PWR_DATA_ACTIVE)
+        	{
+                pwr.data_port = PWR_DATA_NONE;
+				usb_init = false;
+				USBD_DeInit(&hUsbDeviceHS);
+        	}
+        }
 
         //change gfx status if needed
         if (old_charge != pwr.charge_port || old_data != pwr.data_port)

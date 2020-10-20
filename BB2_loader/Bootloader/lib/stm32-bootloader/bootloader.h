@@ -42,7 +42,10 @@ typedef struct {
  */
 #define CLEAR_RESET_FLAGS 1
 
-#define BL_SIZE		(uint32_t)0x00020000
+
+//#define BL_SIZE		(uint32_t)0x00020000
+//For debug only must be multipe of 128K
+#define BL_SIZE		(uint32_t)0x00040000
 
 /** Start address of application space in flash */
 #define APP_ADDRESS (uint32_t)(FLASH_BASE + BL_SIZE)

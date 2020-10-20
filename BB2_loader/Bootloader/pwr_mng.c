@@ -27,13 +27,10 @@ void pwr_step()
 	    {
 	        pwr.data_port = PWR_DATA_CHARGE;
 
-
 	        //power up the negotiator
 	        GpioWrite(CH_EN_OTG, HIGH);
 	        HAL_Delay(40);
-	        GpioSetDirection(CH_EN_OTG, INPUT, GPIO_NOPULL);
-
-
+	        GpioWrite(CH_EN_OTG, LOW);
 	    }
 	}
 	else
@@ -43,10 +40,5 @@ void pwr_step()
 
 	bq25895_step();
 	max17260_step();
-
-//	DBG("PWR Current: %u", pwr.bat_current);
-//	DBG("PWR charge: %u", pwr.bat_charge);
-//	DBG("PWR Time to Full: %u", pwr.bat_time_to_full);
-//	DBG("Batt Cap: %u", pwr.bat_cap);
 }
 
