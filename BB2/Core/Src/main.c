@@ -21,7 +21,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
-#include "dma2d.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "mdma.h"
@@ -90,6 +89,9 @@ int main(void)
   /* MPU Configuration--------------------------------------------------------*/
   MPU_Config();
 
+  /* Enable I-Cache---------------------------------------------------------*/
+  SCB_EnableICache();
+
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -120,7 +122,6 @@ int main(void)
   MX_UART4_Init();
   MX_UART5_Init();
   MX_UART7_Init();
-  MX_DMA2D_Init();
   MX_FATFS_Init();
   MX_UART8_Init();
   MX_TIM3_Init();

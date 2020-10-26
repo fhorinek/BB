@@ -50,6 +50,16 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 	local->name_entry = gui_list_textbox_add_entry(list, "Name", "", PAGE_NAME_LEN);
 	gui_list_text_add_entry(list, "Modify widgets");
 	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
+//	gui_list_text_add_entry(list, "Add widget");
 
 	return list;
 }

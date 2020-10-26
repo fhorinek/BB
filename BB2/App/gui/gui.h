@@ -61,7 +61,14 @@ typedef struct
 
 	//display driver
 	lv_disp_drv_t disp_drv;
-	lv_obj_t * keyboard;
+
+	struct
+	{
+		lv_obj_t * obj;
+		lv_obj_t * area;
+		bool showed;
+	} keyboard;
+
 
 	//styles
 	struct
@@ -93,7 +100,7 @@ void gui_loop();
 
 #define GUI_MSG_TIMEOUT			5000
 
-#define GUI_KEYBOARD_SIZE		(LV_VER_RES / 2)
+#define GUI_KEYBOARD_SIZE		(LV_VER_RES / 3)
 
 
 extern gui_t gui;

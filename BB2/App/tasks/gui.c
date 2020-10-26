@@ -13,6 +13,8 @@
 #include "../gui/gui.h"
 #include "../config/config.h"
 
+#include "../lib/lvgl/src/lv_gpu/lv_gpu_stm32_dma2d.h"
+
 #define GUI_BUTTON_CNT	5
 uint8_t gui_button_index = 0;
 
@@ -108,6 +110,12 @@ void task_GUI(void *argument)
 	gui.disp_drv.ver_res = TFT_HEIGHT;
 	gui.disp_drv.flush_cb = gui_disp_flush;
 	gui.disp_drv.buffer = &disp_buf;
+
+    /*Blend two color array using opacity*/
+//	gui.disp_drv.gpu_blend_cb = lv_gpu_stm32_dma2d_blend;
+
+    /*Fill a memory array with a color*/
+//	gui.disp_drv.gpu_fill_cb = lv_gpu_stm32_dma2d_fill;
 
 	lv_disp_drv_register(&gui.disp_drv);
 
