@@ -80,8 +80,7 @@ void pages_load(char * filename, int8_t anim);
 
 void pages_menu_anim_cb(void * obj, lv_anim_value_t val)
 {
-	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, val * 5);
-
+//	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, val * 5);
 	lv_obj_set_x(local->left_menu, val - MENU_RADIUS - MENU_WIDTH);
 	lv_obj_set_x(local->right_menu, LV_HOR_RES - val);
 
@@ -142,7 +141,7 @@ void pages_splash_show()
 
 void pages_splash_hide()
 {
-	//lv_anim_set_time(&local->anim, 1500);
+	lv_anim_set_time(&local->anim, 1500);
 	lv_anim_set_exec_cb(&local->anim, pages_splash_anim_cb);
 
 	lv_anim_set_values(&local->anim, 0, lv_obj_get_height(local->mask) / 2);
@@ -195,8 +194,7 @@ void pages_anim_ready_cb(lv_anim_t * a)
 		if (local->mask_param != NULL)
 			lv_objmask_remove_mask(local->mask, local->mask_param);
 
-		//should power off
-		local->state = MENU_IDLE;
+		system_poweroff();
 
 		return;
 	}
@@ -231,7 +229,8 @@ void pages_power_off()
 void pages_create_menu(lv_obj_t * base)
 {
 	lv_style_init(&local->menu_style);
-	lv_style_set_bg_color(&local->menu_style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+//	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, LV_OPA_50);
+	lv_style_set_bg_color(&local->menu_style, LV_STATE_DEFAULT, LV_COLOR_RED);
 	lv_style_set_text_color(&local->menu_style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	lv_style_set_radius(&local->menu_style, LV_STATE_DEFAULT, MENU_RADIUS);
 

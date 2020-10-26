@@ -144,11 +144,14 @@ void gui_init()
 
 	//first task
 	gui.task.last = NULL;
-	gui.task.actual = &gui_gnss_status;
+	gui.task.actual = &gui_pages;
 
 	//load the screen
 	lv_obj_t * screen = gui_task_create(gui.task.actual);
-	//pages_splash_show();
+
+	if (gui.task.actual == &gui_pages)
+		pages_splash_show();
+
 	lv_scr_load(screen);
 }
 

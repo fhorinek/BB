@@ -62,7 +62,7 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_list_task_cb_
 {
 	lv_obj_t * win = lv_win_create(par, NULL);
 	lv_win_set_title(win, title);
-	lv_obj_set_size(win, LV_HOR_RES, LV_VER_RES);
+	lv_obj_set_size(win, LV_HOR_RES, LV_VER_RES - GUI_STATUSBAR_HEIGHT);
 
 	gui_set_group_focus(lv_win_get_content(win));
 	lv_win_set_layout(win, LV_LAYOUT_COLUMN_MID);
@@ -291,6 +291,7 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 	lv_textarea_set_text(textbox, value);
 	lv_textarea_set_max_length(textbox, max_len);
 	lv_textarea_set_one_line(textbox, true);
+	lv_textarea_set_cursor_hidden(textbox, true);
 	lv_obj_align(textbox, entry, LV_ALIGN_IN_BOTTOM_RIGHT, -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN), -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN));
 	lv_obj_set_auto_realign(textbox, true);
 	lv_obj_set_focus_parent(textbox, true);
@@ -303,7 +304,7 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 
 	lv_obj_set_height(entry, height);
 
-	lv_obj_set_event_cb(entry, keyboard_event_cb);
+	lv_obj_set_event_cb(textbox, keyboard_event_cb);
 
 	return entry;
 }

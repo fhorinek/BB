@@ -6,7 +6,7 @@
 void sd_init()
 {
 	INFO("Mounting SD");
-	uint8_t res =  f_mount(&SDFatFS, SDPath, 1);
+	uint8_t res =  f_mount(&SDFatFS, SDPath, true);
 	if (res != FR_OK)
 	{
 		DBG(" Error mounting SD = %u", res);
@@ -15,7 +15,5 @@ void sd_init()
 
 void sd_deinit()
 {
-//	GpioSetDirection(CDMMC1_SW_EN, OUTPUT);
-//	GpioWrite(CDMMC1_SW_EN, HIGH);
-
+	f_mount(NULL, SDPath, true);
 }
