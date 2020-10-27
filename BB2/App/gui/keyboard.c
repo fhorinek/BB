@@ -40,6 +40,10 @@ void keyboard_event_cb(lv_obj_t * obj, lv_event_t event)
 				keyboard_hide();
 		}
 	}
+	else
+	{
+		gui_list_event_cb(obj, event);
+	}
 }
 
 void keyboard_create()
