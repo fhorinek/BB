@@ -10,8 +10,9 @@
 
 #include "common.h"
 
-#include "drivers/tft_hx8352.h"
 #include "drivers/ll/dma_i2c.h"
+#include "drivers/tft_hx8352.h"
+#include "drivers/led.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -26,7 +27,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart == &debug_uart)
 	{
 		debug_uart_done();
-
 	}
 }
 
@@ -80,6 +80,14 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 			break;
 		}
 
+	}
+}
+
+void HAL_TIM_PeriodElapsedCallback2(TIM_HandleTypeDef *htim)
+{
+	if (htim == &led_timmer)
+	{
+		led_period_irq();
 	}
 }
 

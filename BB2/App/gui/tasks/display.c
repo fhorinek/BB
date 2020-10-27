@@ -4,6 +4,8 @@
 
 #include "../gui_list.h"
 
+#include "../drivers/led.h"
+
 #include "../../config/config.h"
 #include "../../fc/fc.h"
 #include "../../etc/format.h"
@@ -24,7 +26,7 @@ void display_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			case 0:
 			{
 				int16_t val = gui_list_slider_get_value(local->brightness_slider) * 10;
-				gui_set_backlight(val);
+				led_set_backlight(val);
 				config_set_int(&config.settings.display.backlight, val);
 			}
 			break;

@@ -9,6 +9,7 @@
 #include "../lib/lvgl/lvgl.h"
 
 #include "../drivers/tft_hx8352.h"
+#include "../drivers/led.h"
 
 #include "../gui/gui.h"
 #include "../config/config.h"
@@ -90,11 +91,9 @@ void task_GUI(void *argument)
 	lv_log_register_print_cb(lv_debug_cb);
 	lv_init();
 
-	//init PWM backlight
-	HAL_TIM_Base_Start(&led_timmer);
-	HAL_TIM_PWM_Start(&led_timmer, led_bclk);
+	led_init();
 
-	gui_set_backlight(config_get_int(&config.settings.display.backlight));
+	led_set_backlight(config_get_int(&config.settings.display.backlight));
 
 	//display init
 	tft_init();
