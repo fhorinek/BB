@@ -75,6 +75,7 @@ typedef struct
 	{
 		lv_style_t widget_label;
 		lv_style_t widget_box;
+		lv_style_t list_select;
 		const lv_font_t * widget_fonts[NUMBER_OF_WIDGET_FONTS];
 	} styles;
 

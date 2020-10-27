@@ -10,7 +10,12 @@ void sd_init()
 	if (res != FR_OK)
 	{
 		DBG(" Error mounting SD = %u", res);
+
+		return;
 	}
+
+	f_mkdir(PATH_CONFIG_DIR);
+	f_mkdir(PATH_PAGES_DIR);
 }
 
 void sd_deinit()
