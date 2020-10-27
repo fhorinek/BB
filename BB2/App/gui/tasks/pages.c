@@ -13,6 +13,7 @@
 
 #include "../gui_list.h"
 #include "../map/tile.h"
+#include "../gui/statusbar.h"
 
 #include "../widgets/widgets.h"
 #include "../../config/config.h"
