@@ -86,6 +86,7 @@ void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
 
 void gui_init();
 void gui_loop();
+void gui_stop();
 
 #define GUI_TASK_SW_ANIMATION	250
 #define GUI_STATUSBAR_HEIGHT	24

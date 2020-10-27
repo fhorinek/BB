@@ -158,6 +158,8 @@ void task_System(void *argument)
 	//unmount storage
 	sd_deinit();
 
+	osDelay(1000);
+
 	//wait for option button to be release
 	while(HAL_GPIO_ReadPin(BT2) == LOW);
 

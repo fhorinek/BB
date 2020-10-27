@@ -93,11 +93,6 @@ void tft_init()
 	//set pins
 	GpioSetDirection(DISP_TE, INPUT, GPIO_NOPULL);
 
-	//set fmc (in main via MX)
-
-	//relocate FMC memory outside cache region
-	//SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
-
 	//DMA callback
 	tft_dma.XferCpltCallback = tft_irq_dma_done;
 }
