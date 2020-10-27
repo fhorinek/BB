@@ -119,6 +119,12 @@ void gui_init_styles()
 	gui.styles.widget_fonts[4] = &lv_font_montserrat_12;
 }
 
+void gui_stop()
+{
+	tft_wait_for_buffer();
+	tft_color_fill(0xFFFF);
+	tft_refresh_buffer(0, 0, 239, 399);
+}
 
 void gui_init()
 {
