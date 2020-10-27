@@ -19,14 +19,6 @@
 
 gui_t gui;
 
-void gui_set_backlight(uint8_t val)
-{
-	if (val > 100)
-		val = 100;
-
-	__HAL_TIM_SET_COMPARE(&led_timmer, led_bclk, val);
-}
-
 void gui_set_group_focus(lv_obj_t * obj)
 {
 	gui.input.focus = obj;

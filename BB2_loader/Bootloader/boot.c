@@ -38,10 +38,7 @@ void app_deinit()
 	INFO("Bootloader deinit");
 	HAL_Delay(2);
 
-	//MX_GPIO_Init();
-	HAL_NVIC_DisableIRQ(EXTI1_IRQn);
-	HAL_NVIC_DisableIRQ(EXTI3_IRQn);
-	HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
+	MX_GPIO_Deinit();
 
 	//MX_DMA_Init();
 	HAL_DMA_DeInit(&tft_dma);

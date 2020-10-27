@@ -215,7 +215,18 @@ void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 2 */
+void MX_GPIO_Deinit()
+{
+	HAL_NVIC_DisableIRQ(EXTI1_IRQn);
+	HAL_NVIC_DisableIRQ(EXTI3_IRQn);
+	HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
 
+	HAL_GPIO_DeInit(BT2);
+	HAL_GPIO_DeInit(BT3);
+	HAL_GPIO_DeInit(PWR_INT);
+	HAL_GPIO_DeInit(DISP_TE);
+	HAL_GPIO_DeInit(USB_DATA_DET);
+}
 /* USER CODE END 2 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

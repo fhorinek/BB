@@ -81,8 +81,6 @@ typedef struct
 
 } gui_t;
 
-void gui_set_backlight(uint8_t val);
-
 void gui_set_group_focus(lv_obj_t * obj);
 void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
 
