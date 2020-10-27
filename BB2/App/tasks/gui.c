@@ -76,6 +76,11 @@ void lv_debug_cb(lv_log_level_t level, const char * path, uint32_t line, const c
 	debug_send(level, "[LVGL] %s:%lu (%s) %s", path, line, function, desc);
 }
 
+void gui_clean_dcache(struct _disp_drv_t * disp_drv)
+{
+
+}
+
 void task_GUI(void *argument)
 {
 	vTaskSuspend(NULL);
@@ -111,11 +116,8 @@ void task_GUI(void *argument)
 	gui.disp_drv.flush_cb = gui_disp_flush;
 	gui.disp_drv.buffer = &disp_buf;
 
-    /*Blend two color array using opacity*/
-//	gui.disp_drv.gpu_blend_cb = lv_gpu_stm32_dma2d_blend;
+	gui.disp_drv.clean_dcache_cb = gui_clean_dcache;
 
-    /*Fill a memory array with a color*/
-//	gui.disp_drv.gpu_fill_cb = lv_gpu_stm32_dma2d_fill;
 
 	lv_disp_drv_register(&gui.disp_drv);
 

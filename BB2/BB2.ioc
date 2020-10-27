@@ -2,7 +2,7 @@
 CORTEX_M7.AccessPermission-Cortex_Memory_Protection_Unit_Region0_Settings=MPU_REGION_FULL_ACCESS
 CORTEX_M7.BaseAddress-Cortex_Memory_Protection_Unit_Region0_Settings=0x90000000
 CORTEX_M7.CPU_DCache=Disabled
-CORTEX_M7.CPU_ICache=Enabled
+CORTEX_M7.CPU_ICache=Disabled
 CORTEX_M7.DisableExec-Cortex_Memory_Protection_Unit_Region0_Settings=MPU_INSTRUCTION_ACCESS_DISABLE
 CORTEX_M7.Enable-Cortex_Memory_Protection_Unit_Region0_Settings=MPU_REGION_ENABLE
 CORTEX_M7.IPParameters=MPU_Control,CPU_DCache,Enable-Cortex_Memory_Protection_Unit_Region0_Settings,BaseAddress-Cortex_Memory_Protection_Unit_Region0_Settings,Size-Cortex_Memory_Protection_Unit_Region0_Settings,AccessPermission-Cortex_Memory_Protection_Unit_Region0_Settings,IsShareable-Cortex_Memory_Protection_Unit_Region0_Settings,IsCacheable-Cortex_Memory_Protection_Unit_Region0_Settings,DisableExec-Cortex_Memory_Protection_Unit_Region0_Settings,CPU_ICache
@@ -604,7 +604,7 @@ ProjectManager.StackSize=0x400
 ProjectManager.TargetToolchain=STM32CubeIDE
 ProjectManager.ToolChainLocation=
 ProjectManager.UnderRoot=true
-ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-MX_DMA_Init-DMA-false-HAL-true,3-MX_MDMA_Init-MDMA-false-HAL-true,4-SystemClock_Config-RCC-false-HAL-false,5-MX_FMC_Init-FMC-false-HAL-true,6-MX_I2C1_Init-I2C1-false-HAL-true,7-MX_I2C2_Init-I2C2-false-HAL-true,8-MX_OCTOSPI1_Init-OCTOSPI1-false-HAL-true,9-MX_SDMMC1_SD_Init-SDMMC1-false-HAL-true,10-MX_SPI1_Init-SPI1-false-HAL-true,11-MX_TIM2_Init-TIM2-false-HAL-true,12-MX_UART4_Init-UART4-false-HAL-true,13-MX_UART5_Init-UART5-false-HAL-true,14-MX_UART7_Init-UART7-false-HAL-true,15-MX_DMA2D_Init-DMA2D-false-HAL-true,16-MX_FATFS_Init-FATFS-false-HAL-false,17-MX_USB_DEVICE_Init-USB_DEVICE-false-HAL-false,18-MX_UART8_Init-UART8-false-HAL-true,19-MX_TIM3_Init-TIM3-false-HAL-true,20-MX_RTC_Init-RTC-true-HAL-true,0-MX_CORTEX_M7_Init-CORTEX_M7-false-HAL-true
+ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-MX_DMA_Init-DMA-false-HAL-true,3-MX_MDMA_Init-MDMA-false-HAL-true,4-SystemClock_Config-RCC-false-HAL-false,5-MX_FMC_Init-FMC-false-HAL-true,6-MX_I2C1_Init-I2C1-false-HAL-true,7-MX_I2C2_Init-I2C2-false-HAL-true,8-MX_OCTOSPI1_Init-OCTOSPI1-false-HAL-true,9-MX_SDMMC1_SD_Init-SDMMC1-false-HAL-true,10-MX_SPI1_Init-SPI1-false-HAL-true,11-MX_TIM2_Init-TIM2-false-HAL-true,12-MX_UART4_Init-UART4-false-HAL-true,13-MX_UART5_Init-UART5-false-HAL-true,14-MX_UART7_Init-UART7-false-HAL-true,15-MX_FATFS_Init-FATFS-false-HAL-false,16-MX_USB_DEVICE_Init-USB_DEVICE-false-HAL-false,17-MX_UART8_Init-UART8-false-HAL-true,18-MX_TIM3_Init-TIM3-false-HAL-true,19-MX_RTC_Init-RTC-true-HAL-true,0-MX_CORTEX_M7_Init-CORTEX_M7-false-HAL-true
 RCC.ADCFreq_Value=100000000
 RCC.AHB12Freq_Value=280000000
 RCC.AHB4Freq_Value=280000000
