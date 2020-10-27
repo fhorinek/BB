@@ -26,7 +26,8 @@ typedef struct
 	uint8_t data_port;
 
 	int16_t bat_current; //in mA
-	uint8_t	bat_charge;	//in %
+	uint8_t	bat_charge;	//in mAh
+	uint8_t	bat_per;	//in %
 	uint16_t bat_time_to_full; //in s
 	uint16_t bat_cap; //in mA
 

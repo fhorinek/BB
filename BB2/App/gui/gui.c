@@ -112,6 +112,10 @@ void gui_init_styles()
 	lv_style_init(&gui.styles.widget_box);
 	lv_style_set_pad_all(&gui.styles.widget_label, LV_STATE_DEFAULT, 2);
 
+	lv_style_init(&gui.styles.list_select);
+	lv_style_set_radius(&gui.styles.list_select, LV_STATE_FOCUSED, 5);
+	lv_style_set_radius(&gui.styles.list_select, LV_STATE_EDITED, 5);
+
 	gui.styles.widget_fonts[0] = &lv_font_montserrat_44;
 	gui.styles.widget_fonts[1] = &lv_font_montserrat_34;
 	gui.styles.widget_fonts[2] = &lv_font_montserrat_28;

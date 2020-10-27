@@ -77,6 +77,7 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_list_task_cb_
 lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
 	lv_page_glue_obj(entry, true);
@@ -96,6 +97,7 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
 	lv_page_glue_obj(entry, true);
@@ -127,6 +129,7 @@ int16_t gui_list_slider_get_value(lv_obj_t * obj)
 lv_obj_t * gui_list_add_dropdown_entry(lv_obj_t * list, const char * text)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
 	lv_page_glue_obj(entry, true);
@@ -159,6 +162,7 @@ bool gui_list_switch_get_value(lv_obj_t * obj)
 lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_page_glue_obj(entry, true);
 
@@ -187,6 +191,7 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
 	lv_page_glue_obj(entry, true);
@@ -204,6 +209,7 @@ lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text)
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, const char * value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
 	lv_page_glue_obj(entry, true);
 	lv_group_add_obj(gui.input.nav, entry);
@@ -265,6 +271,7 @@ lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text)
 lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
 	lv_obj_set_height(entry, height);
 	lv_page_glue_obj(entry, true);
@@ -279,6 +286,7 @@ lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height)
 lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const char * value, uint8_t max_len)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
 	lv_page_glue_obj(entry, true);
 
