@@ -60,7 +60,7 @@ void entry_set_str(cfg_entry_t * e, char * value)
 
 	case(ENTRY_INT):
 		config_set_int(e, atoi(value));
-		DBG(">int %s = '%s'", e->name_id, e->value.str);
+		DBG(">int %s = %u", e->name_id, e->value.s16);
 		return;
 
 
