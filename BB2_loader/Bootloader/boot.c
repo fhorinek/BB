@@ -35,10 +35,10 @@ bool button_hold(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 void app_deinit()
 {
 	//deinit
-	INFO("Bootloader power off");
+	INFO("Bootloader deinit");
 	HAL_Delay(2);
 
-	//MX_GPIO_Init();
+	MX_GPIO_Deinit();
 
 	//MX_DMA_Init();
 	HAL_DMA_DeInit(&tft_dma);
@@ -71,6 +71,8 @@ void app_deinit()
 
 	//main power off
 	GpioSetDirection(VCC_MAIN_EN, INPUT, GPIO_NOPULL);
+
+	HAL_SuspendTick();
 
 //    HAL_RCC_DeInit();
 //	HAL_DeInit();
@@ -129,7 +131,7 @@ void app_main(uint8_t power_on_mode)
     HAL_TIM_PWM_Start(&led_timmer, led_bclk);
     HAL_TIM_PWM_Start(&led_timmer, led_torch);
 
-    HAL_Delay(1000);
+    HAL_Delay(100);
 
     pwr_init();
 

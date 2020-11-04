@@ -13,9 +13,12 @@
 
 #include "../gui_list.h"
 #include "../map/tile.h"
+#include "../gui/statusbar.h"
 
 #include "../widgets/widgets.h"
 #include "../../config/config.h"
+
+#include "../../drivers/led.h"
 
 extern const lv_img_dsc_t tile;
 
@@ -41,6 +44,9 @@ extern const lv_img_dsc_t tile;
 #define PAGE_ANIM_FROM_LEFT		-1
 #define PAGE_ANIM_NONE			0
 #define PAGE_ANIM_FROM_RIGHT	1
+
+#define MENU_ANIM_TIME		500
+#define SPLASH_ANIM_TIME	1000
 
 REGISTER_TASK_ILS(pages,
 	//on / off mask
@@ -81,7 +87,6 @@ void pages_load(char * filename, int8_t anim);
 void pages_menu_anim_cb(void * obj, lv_anim_value_t val)
 {
 	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, val * 5);
-
 	lv_obj_set_x(local->left_menu, val - MENU_RADIUS - MENU_WIDTH);
 	lv_obj_set_x(local->right_menu, LV_HOR_RES - val);
 
@@ -112,9 +117,9 @@ void pages_splash_anim_cb(void * obj, lv_anim_value_t val)
 	local->mask_param = lv_objmask_add_mask(local->mask, &mask_param);
 }
 
-
 void pages_menu_show()
 {
+	lv_anim_set_time(&local->anim, MENU_ANIM_TIME);
 	lv_anim_set_exec_cb(&local->anim, pages_menu_anim_cb);
 	lv_anim_set_values(&local->anim, 0, MENU_WIDTH);
 	lv_anim_start(&local->anim);
@@ -123,6 +128,7 @@ void pages_menu_show()
 
 void pages_menu_hide()
 {
+	lv_anim_set_time(&local->anim, MENU_ANIM_TIME);
 	lv_anim_set_exec_cb(&local->anim, pages_menu_anim_cb);
 	lv_anim_set_values(&local->anim, MENU_WIDTH, 0);
 	lv_anim_start(&local->anim);
@@ -131,6 +137,7 @@ void pages_menu_hide()
 
 void pages_splash_show()
 {
+	lv_anim_set_time(&local->anim, SPLASH_ANIM_TIME);
 	lv_anim_set_exec_cb(&local->anim, pages_splash_anim_cb);
 
 	lv_anim_set_values(&local->anim, lv_obj_get_height(local->mask) / 2, 0);
@@ -142,7 +149,7 @@ void pages_splash_show()
 
 void pages_splash_hide()
 {
-	//lv_anim_set_time(&local->anim, 1500);
+	lv_anim_set_time(&local->anim, SPLASH_ANIM_TIME);
 	lv_anim_set_exec_cb(&local->anim, pages_splash_anim_cb);
 
 	lv_anim_set_values(&local->anim, 0, lv_obj_get_height(local->mask) / 2);
@@ -150,6 +157,8 @@ void pages_splash_hide()
 
 	lv_anim_start(&local->anim);
 	local->state = SPLASH_OUT;
+
+	led_set_backlight(0);
 }
 
 void pages_indicator_show()
@@ -195,8 +204,8 @@ void pages_anim_ready_cb(lv_anim_t * a)
 		if (local->mask_param != NULL)
 			lv_objmask_remove_mask(local->mask, local->mask_param);
 
-		//should power off
-		local->state = MENU_IDLE;
+		gui_stop();
+		system_poweroff();
 
 		return;
 	}
@@ -231,6 +240,7 @@ void pages_power_off()
 void pages_create_menu(lv_obj_t * base)
 {
 	lv_style_init(&local->menu_style);
+	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, LV_OPA_50);
 	lv_style_set_bg_color(&local->menu_style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 	lv_style_set_text_color(&local->menu_style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	lv_style_set_radius(&local->menu_style, LV_STATE_DEFAULT, MENU_RADIUS);

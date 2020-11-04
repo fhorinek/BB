@@ -19,6 +19,12 @@
 
 #include "../lib/miniz/miniz.h"
 
+static bool power_off = false;
+
+void system_poweroff()
+{
+	power_off = true;
+}
 
 void task_System(void *argument)
 {
@@ -35,7 +41,6 @@ void task_System(void *argument)
 
 	config_load();
 	pages_defragment();
-	config_show();
 
 	PSRAM_Init();
 
@@ -125,13 +130,38 @@ void task_System(void *argument)
 	vTaskResume((TaskHandle_t)GUIHandle);
 //	vTaskResume((TaskHandle_t)USBHandle);
 //	vTaskResume((TaskHandle_t)MEMSHandle);
-	vTaskResume((TaskHandle_t)GNSSHandle);
+//	vTaskResume((TaskHandle_t)GNSSHandle);
 
 
 	for(;;)
 	{
 		osDelay(10);
 
-
+		if (power_off)
+			break;
 	}
+
+	INFO("Power down");
+
+	//todo: deinit threads
+
+	vTaskSuspend((TaskHandle_t)GUIHandle);
+	vTaskSuspend((TaskHandle_t)USBHandle);
+	vTaskSuspend((TaskHandle_t)MEMSHandle);
+	vTaskSuspend((TaskHandle_t)GNSSHandle);
+
+	//deinit fc
+
+	//store configuration
+	config_store();
+
+	//unmount storage
+	sd_deinit();
+
+	osDelay(1000);
+
+	//wait for option button to be release
+	while(HAL_GPIO_ReadPin(BT2) == LOW);
+
+	NVIC_SystemReset();
 }

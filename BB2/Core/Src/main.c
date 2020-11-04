@@ -21,7 +21,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
-#include "dma2d.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "mdma.h"
@@ -65,12 +64,16 @@ void SystemClock_Config(void);
 static void MPU_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+void HAL_TIM_PeriodElapsedCallback2(TIM_HandleTypeDef *htim);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define APP_ADDRESS     0x08020000
+
+//#define APP_ADDRESS     0x08020000
+//bootloader debug
+#define APP_ADDRESS     0x08040000
+
 /* USER CODE END 0 */
 
 /**
@@ -116,7 +119,6 @@ int main(void)
   MX_UART4_Init();
   MX_UART5_Init();
   MX_UART7_Init();
-  MX_DMA2D_Init();
   MX_FATFS_Init();
   MX_UART8_Init();
   MX_TIM3_Init();
@@ -288,7 +290,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-
+  else
+	  HAL_TIM_PeriodElapsedCallback2(htim);
   /* USER CODE END Callback 1 */
 }
 
