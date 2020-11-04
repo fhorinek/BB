@@ -135,6 +135,7 @@ void app_main(uint8_t power_on_mode)
 
     pwr_init();
 
+
 	if (power_on_mode == POWER_ON_USB)
 	{
 	    //if usb mode exited with usb disconnect, power off
