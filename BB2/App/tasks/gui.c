@@ -9,9 +9,12 @@
 #include "../lib/lvgl/lvgl.h"
 
 #include "../drivers/tft_hx8352.h"
+#include "../drivers/led.h"
 
 #include "../gui/gui.h"
 #include "../config/config.h"
+
+#include "../lib/lvgl/src/lv_gpu/lv_gpu_stm32_dma2d.h"
 
 #define GUI_BUTTON_CNT	5
 uint8_t gui_button_index = 0;
@@ -74,6 +77,11 @@ void lv_debug_cb(lv_log_level_t level, const char * path, uint32_t line, const c
 	debug_send(level, "[LVGL] %s:%lu (%s) %s", path, line, function, desc);
 }
 
+void gui_clean_dcache(struct _disp_drv_t * disp_drv)
+{
+
+}
+
 void task_GUI(void *argument)
 {
 	vTaskSuspend(NULL);
@@ -83,11 +91,9 @@ void task_GUI(void *argument)
 	lv_log_register_print_cb(lv_debug_cb);
 	lv_init();
 
-	//init PWM backlight
-	HAL_TIM_Base_Start(&led_timmer);
-	HAL_TIM_PWM_Start(&led_timmer, led_bclk);
+	led_init();
 
-	gui_set_backlight(config_get_int(&config.settings.display.backlight));
+	led_set_backlight(config_get_int(&config.settings.display.backlight));
 
 	//display init
 	tft_init();
@@ -108,6 +114,9 @@ void task_GUI(void *argument)
 	gui.disp_drv.ver_res = TFT_HEIGHT;
 	gui.disp_drv.flush_cb = gui_disp_flush;
 	gui.disp_drv.buffer = &disp_buf;
+
+	gui.disp_drv.clean_dcache_cb = gui_clean_dcache;
+
 
 	lv_disp_drv_register(&gui.disp_drv);
 

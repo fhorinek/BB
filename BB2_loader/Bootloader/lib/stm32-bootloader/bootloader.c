@@ -70,7 +70,7 @@ uint8_t Bootloader_Erase(void)
 		pEraseInit.NbSectors = SECTOR_STEP;
 
 		//skip bootloader
-		if (i == 0)
+		if (i < BL_SIZE / (1024 * 8 * SECTOR_STEP))
 			pEraseInit.Banks = FLASH_BANK_2;
 		else
 			pEraseInit.Banks = FLASH_BANK_1 | FLASH_BANK_2;

@@ -17,6 +17,7 @@
 #include "stdbool.h"
 #include "math.h"
 
+#include "gpio.h"
 #include "dma.h"
 #include "usart.h"
 #include "tim.h"

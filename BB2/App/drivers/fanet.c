@@ -249,7 +249,7 @@ void fanet_parse(uint8_t c)
 
 	static char parser_buffer[FANET_MAX_LEN];
 	static uint8_t parser_buffer_index;
-	static uint8_t parser_state = FANET_IDLE;
+	uint8_t parser_state = FANET_IDLE;
 
 	switch (parser_state)
 	{
@@ -272,6 +272,7 @@ void fanet_parse(uint8_t c)
 	break;
 
 	case(FANET_DATA):
+			break;
 		if (c != '\n')
 		{
 			parser_buffer[parser_buffer_index] = c;

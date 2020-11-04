@@ -30,13 +30,10 @@ void pwr_step()
 	    {
 	        pwr.data_port = PWR_DATA_CHARGE;
 
-
 	        //power up the negotiator
 	        GpioWrite(CH_EN_OTG, HIGH);
 	        HAL_Delay(40);
-	        GpioSetDirection(CH_EN_OTG, INPUT, GPIO_NOPULL);
-
-
+	        GpioWrite(CH_EN_OTG, LOW);
 	    }
 	}
 	else

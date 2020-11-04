@@ -61,26 +61,33 @@ typedef struct
 
 	//display driver
 	lv_disp_drv_t disp_drv;
-	lv_obj_t * keyboard;
+
+	struct
+	{
+		lv_obj_t * obj;
+		lv_obj_t * area;
+		bool showed;
+	} keyboard;
+
 
 	//styles
 	struct
 	{
 		lv_style_t widget_label;
 		lv_style_t widget_box;
+		lv_style_t list_select;
 		const lv_font_t * widget_fonts[NUMBER_OF_WIDGET_FONTS];
 	} styles;
 
 
 } gui_t;
 
-void gui_set_backlight(uint8_t val);
-
 void gui_set_group_focus(lv_obj_t * obj);
 void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
 
 void gui_init();
 void gui_loop();
+void gui_stop();
 
 #define GUI_TASK_SW_ANIMATION	250
 #define GUI_STATUSBAR_HEIGHT	24
@@ -93,7 +100,7 @@ void gui_loop();
 
 #define GUI_MSG_TIMEOUT			5000
 
-#define GUI_KEYBOARD_SIZE		(LV_VER_RES / 2)
+#define GUI_KEYBOARD_SIZE		(LV_VER_RES / 3)
 
 
 extern gui_t gui;

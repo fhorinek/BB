@@ -19,14 +19,6 @@
 
 gui_t gui;
 
-void gui_set_backlight(uint8_t val)
-{
-	if (val > 100)
-		val = 100;
-
-	__HAL_TIM_SET_COMPARE(&led_timmer, led_bclk, val);
-}
-
 void gui_set_group_focus(lv_obj_t * obj)
 {
 	gui.input.focus = obj;
@@ -120,6 +112,10 @@ void gui_init_styles()
 	lv_style_init(&gui.styles.widget_box);
 	lv_style_set_pad_all(&gui.styles.widget_label, LV_STATE_DEFAULT, 2);
 
+	lv_style_init(&gui.styles.list_select);
+	lv_style_set_radius(&gui.styles.list_select, LV_STATE_FOCUSED, 5);
+	lv_style_set_radius(&gui.styles.list_select, LV_STATE_EDITED, 5);
+
 	gui.styles.widget_fonts[0] = &lv_font_montserrat_44;
 	gui.styles.widget_fonts[1] = &lv_font_montserrat_34;
 	gui.styles.widget_fonts[2] = &lv_font_montserrat_28;
@@ -127,6 +123,12 @@ void gui_init_styles()
 	gui.styles.widget_fonts[4] = &lv_font_montserrat_12;
 }
 
+void gui_stop()
+{
+	tft_wait_for_buffer();
+	tft_color_fill(0xFFFF);
+	tft_refresh_buffer(0, 0, 239, 399);
+}
 
 void gui_init()
 {
@@ -144,11 +146,14 @@ void gui_init()
 
 	//first task
 	gui.task.last = NULL;
-	gui.task.actual = &gui_gnss_status;
+	gui.task.actual = &gui_pages;
 
 	//load the screen
 	lv_obj_t * screen = gui_task_create(gui.task.actual);
-	//pages_splash_show();
+
+	if (gui.task.actual == &gui_pages)
+		pages_splash_show();
+
 	lv_scr_load(screen);
 }
 
