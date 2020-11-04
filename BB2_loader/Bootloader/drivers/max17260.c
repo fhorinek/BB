@@ -14,7 +14,7 @@
 #define FuelGauge 0x36        		// Max 17260 - supports the slave address 0x6C (or 0x36 for 7 MSb address), has a variant with slave address of 0x1A
 // regz are 8-bit addrezz but 16-bit value, lower Byte send first; for register type standard resolution see datasheet page 16
 
-#define Fuel_shunt 10               //mOhm - value of shunt resistor is in mOhm cuz I like it to be integer;                                     !!! revise with new Board !!!
+#define Fuel_shunt 10               //mOhm - value of shunt resistor is in mOhm cuz I like it to be an integer;                                     !!! revise with new Board !!!
 
 #define Fuel_DesignCap_Reg 0x18     //The DesignCap register holds the nominal capacity of the cell.
 #define Fuel_DesignCap_val 5000     //design capacity of a cell                                                                                § revise with new battery §
@@ -45,11 +45,19 @@
 
 #define Fuel_TTF_Reg 0x20         //Holds the estimated time to full for the application under present conditions.
 
+#define Fuel_VCell_Reg 0x09       //VCell reports the voltage measured between BATT and GND.
+
 #define Fuel_AvgVCell_Reg 0x19    //The AvgVCell register reports an average of the VCell register readings.
 
-#define Fuel_AvgCurrent_Reg 0x0B  //The AvgCurrent register reports an average of Current register readings
+#define Fuel_Current_Reg 0x0A    //voltage across the sense resistor, result is stored as a two’s complement value in the Current register
+
+#define Fuel_AvgCurrent_Reg 0x0B  //The AvgCurrent register reports Current_Reg integrated over time
+
+#define Fuel_Power_Reg 0xB1      //Instant power calculation from immediate current and voltage. The LSB is (8μV2) / Rsense.
 
 #define Fuel_AvgPower_Reg 0xB3    //Filtered average power from the Power register. The LSB is (8μV2) / Rsense
+
+#define Fuel_AvgTA_Reg 0xB3    //The AvgTA register reports an average of the readings of the measured temperature
 
 static void write_reg(uint8_t reg, uint8_t data)
 {
@@ -82,7 +90,7 @@ static uint16_t read_reg16(uint8_t reg)
 void max17260_init()
 {
 
-    if ((read_reg16(Fuel_IChgTerm_Reg) != Fuel_IChgTerm_val) || (read_reg16(Fuel_ModelCfg_Reg) != Fuel_ModelCfg_val) || (read_reg16(Fuel_VEmpty_Reg) != Fuel_VEmpty_val))
+    if ((read_reg16(Fuel_DesignCap_Reg) != Fuel_DesignCap_val))
     {
         write_reg16(Fuel_DesignCap_Reg, Fuel_DesignCap_val);
         write_reg16(Fuel_ModelCfg_Reg, Fuel_ModelCfg_val);
@@ -107,9 +115,23 @@ void max17260_step()
     {
         next_period = HAL_GetTick() + 100;
 
-        pwr.bat_current = ((complement2_16bit(read_reg16(Fuel_AvgCurrent_Reg)) * 1.5625) / Fuel_shunt);
-        pwr.bat_charge = (read_reg16(Fuel_RepCap_Reg) * 5) / Fuel_shunt;
+        pwr.bat_voltage = read_reg16(Fuel_VCell_Reg);
+        pwr.bat_voltage_avg = read_reg16(Fuel_AvgVCell_Reg);
+
+        pwr.bat_current = ((complement2_16bit(read_reg16(Fuel_Current_Reg)) * 1.5625) / Fuel_shunt);
+        pwr.bat_current_avg = ((complement2_16bit(read_reg16(Fuel_AvgCurrent_Reg)) * 1.5625) / Fuel_shunt);
+
+        pwr.bat_power = ((read_reg16(Fuel_Power_Reg) * 8) / Fuel_shunt);
+        pwr.bat_power_avg = ((read_reg16(Fuel_AvgPower_Reg) * 8) / Fuel_shunt);
+
+        pwr.bat_cap = read_reg16(Fuel_RepCap_Reg) * 5 / Fuel_shunt;
+        pwr.bat_cap_full = read_reg16(Fuel_FullCapRep_Reg) * 5 / Fuel_shunt;
+
+        pwr.bat_soc = (read_reg16(Fuel_SoC_Reg)>>8);
+
         pwr.bat_time_to_full = read_reg16(Fuel_TTF_Reg) * 5.625;
-        pwr.bat_cap = read_reg16(Fuel_DesignCap_Reg);
+
+        pwr.bat_tempfueldie_avg = complement2_16bit(read_reg16(Fuel_AvgTA_Reg)) / 256 ;
+
     }
 }

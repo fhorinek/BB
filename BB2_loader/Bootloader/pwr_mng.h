@@ -25,10 +25,22 @@ typedef struct
 	uint8_t charge_port;
 	uint8_t data_port;
 
-	int16_t bat_current; //in mA
-	uint8_t	bat_charge;	//in %
-	uint16_t bat_time_to_full; //in s
-	uint16_t bat_cap; //in mA
+	uint16_t bat_voltage;       //in mV
+	uint16_t bat_voltage_avg;   //in mV
+
+	int16_t bat_current;        //in mA
+	int16_t bat_current_avg;    //in mA
+
+	int16_t bat_power;          //in mW
+	int16_t bat_power_avg;      //in mW
+
+	uint16_t bat_cap;           //in mAh
+	uint16_t bat_cap_full;      //in mAh
+	uint8_t	bat_soc;	        //in %
+
+	uint16_t bat_time_to_full;  //in s
+
+	int8_t  bat_tempfueldie_avg;//in °C
 
 } power_mng_t;
 
