@@ -19,7 +19,6 @@ void pwr_init()
 	max17260_init();
 	opt3004als_init();
 
-while (true)
     pwr_step();
 }
 
