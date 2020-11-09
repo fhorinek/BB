@@ -1,0 +1,25 @@
+#DROP_POINTS
+#DROP_LINES
+
+#clean geometry
+clean snap-interval=0.0001 gap-fill-area=10km2
+
+#dissolve features
+dissolve2
+
+#simplify geometry
+simplify 10%
+
+#remove small polygons
+filter-islands remove-empty min-area=0.1km2
+
+#clip excess geometry 
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
+
+#explode
+explode
+clean
+
+#tag features
+each 'this.properties = {type:"resident"}'
+
