@@ -1,0 +1,9 @@
+[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
+(
+  way["aerialway"]["aerialway"!="station"];
+  way["power"="line"];
+);
+
+out body;
+>;
+out skel qt;
