@@ -4,3 +4,5 @@
 /BB2 Release.launch
 /.settings/
 /.mxproject
+*~
+*.pyc

@@ -1,0 +1,20 @@
+To enter ST system bootloader:
+    - press and hold left and right arrow (5 seconds)
+    - press and hold option key (1 second)
+    - release one or both of the arrows (1 second)
+    - release everithing elese
+
+
+Command line:
+    dfu-util -a 0 -D BB2_loader.bin -s 0x8000000:mass-erase:force
+
+Explenation
+dfu-util 
+    -a 0                #device Alternate setting for internal flash
+    -D BB2_loader.bin   #Download this binary file to the device
+    -s 0x8000000        #download start address 0x8000000 (internal flash start address)
+        :mass-erase     #mass erase the device
+        :force          #enable mass erase
+        
+        
+  

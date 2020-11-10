@@ -1,0 +1,10 @@
+/BB2/Debug/
+/BB2/Release/
+/BB2_loader/Debug/
+/BB2_loader/Release/
+*.launch
+.mxproject
+.cproject
+*~
+*.pyc
+.ipynb_checkpoints/

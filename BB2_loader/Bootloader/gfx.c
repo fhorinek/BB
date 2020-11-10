@@ -164,7 +164,7 @@ void gfx_draw_status(uint8_t status, const char * sub_text)
                 strcpy(icon2, "0");
                 strcpy(title, "USB mode");
                 strcpy(text, "Eject to start");
-                strcpy(text, "Charging slow");
+                strcpy(text2, "Charging slow");
             }
         break;
         case(GFX_STATUS_NONE_CHARGE):
