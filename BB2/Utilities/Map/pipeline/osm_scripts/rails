@@ -1,0 +1,9 @@
+[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
+(
+    way["railway"="rail"]["usage"="main"];
+    way["railway"="rail"]["usage"="branch"];
+);
+
+out body;
+>;
+out skel qt;
