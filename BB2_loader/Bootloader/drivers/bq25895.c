@@ -133,7 +133,7 @@ void bq25895_step()
 		switch (charger_status)
 		{
 			case 0b000:
-				DBG("No Input");
+				//DBG("No Input");
 				if (vbus_volt > 2600)
 				    pwr.charge_port = PWR_CHARGE_WEAK;
 				else
@@ -141,37 +141,37 @@ void bq25895_step()
 				break;
 
 			case 0b001:
-				DBG("USB Host SDP");
+				//DBG("USB Host SDP");
 				pwr.charge_port = PWR_CHARGE_SLOW;
 				break;
 
 			case 0b010:
-				DBG("USB CDP (1,5A)");
+				//DBG("USB CDP (1,5A)");
 				pwr.charge_port = PWR_CHARGE_FAST;
 				break;
 
 			case 0b011:
-				DBG("USB DCP (3,25A)");
+				//DBG("USB DCP (3,25A)");
 				pwr.charge_port = PWR_CHARGE_FAST;
 				break;
 
 			case 0b100:
-				DBG("Adjustable High Voltage DCP (MaxCharge) (1,5A)");
+				//DBG("Adjustable High Voltage DCP (MaxCharge) (1,5A)");
 				pwr.charge_port = PWR_CHARGE_QUICK;
 				break;
 
 			case 0b101:
-				DBG("Unknown Adapter (500mA)");
+				//DBG("Unknown Adapter (500mA)");
 				pwr.charge_port = PWR_CHARGE_SLOW;
 				break;
 
 			case 0b110:
-				DBG("Non-Standard Adapter (1A/2A/2,1A/2,4A)");
+				//DBG("Non-Standard Adapter (1A/2A/2,1A/2,4A)");
 				pwr.charge_port = PWR_CHARGE_FAST;
 				break;
 
 			case 0b111:
-				DBG("OTG");
+				//DBG("OTG");
 				Error_Handler();
 				break;
 		}
