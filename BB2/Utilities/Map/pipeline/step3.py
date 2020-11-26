@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#this script is for getting osm data for tile
+#this script is for data pre-processing (simplify, slice, crop, remove attributes)
 
 import os
 import common
@@ -14,7 +14,7 @@ def pipeline_step3():
         "lat1": common.lat,
         "lon2": common.lon + common.step,
         "lat2": common.lat + common.step,
-        "assets": common.assets_dir,
+        "split": common.split,
     }
 
     print("Processing tile %s" % common.tile_name)
@@ -51,7 +51,6 @@ def pipeline_step3():
         script = open(script_path, "r").read()
 
         #assign parameters
-        params["output_path"] = os.path.join(common.target_dir_step3, common.tile_name, common.tile_name)
         params["name"] = os.path.splitext(filename)[0]   
         for k in params:
             script = script.replace("%%%s%%" % k, str(params[k]))   

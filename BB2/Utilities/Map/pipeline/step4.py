@@ -1,9 +1,10 @@
 #!/usr/bin/python3
+#this script convert pre-processed data to binary format for BB
 
 import json
 import struct
 import os
-from shapely.geometry import Polygon, Point, LineString
+from shapely.geometry import Polygon, MultiPolygon, Point, LineString
 
 from datetime import datetime 
 from collections import OrderedDict
@@ -137,18 +138,23 @@ class Feature(object):
 
                 if dict_data["properties"]["type"] == "resident":
                     self.type = 201
+          
+            points = []      
 
-            if (len(dict_data["geometry"]['coordinates']) != 1):
+            i = 1
+            for part in dict_data["geometry"]['coordinates']:
+                points += part
+                if i < len(dict_data["geometry"]['coordinates']):
+                    points += [[0x7FFFFFFF / common.GPS_COORD_MUL, 0x7FFFFFFF / common.GPS_COORD_MUL]]
+                i += 1
+                
+            number_of_points = len(points)                
+                
+            if (number_of_points == 0 or number_of_points > 0xFFFF):
                 print(dict_data)
-                tmp = Polygon(dict_data["geometry"]['coordinates'][0]).bounds
+                tmp = Polygon(points).bounds
                 print("rectangle name=error bbox=%f,%f,%f,%f" % tmp)
-            
-                assert(0)
-                
-                
-            number_of_points = len(dict_data["geometry"]['coordinates'][0])
-            assert(number_of_points > 0)
-            assert(number_of_points <= 0xFFFF)
+                assert(0)                
 
             if self.type != -1:
                 #type
@@ -156,13 +162,16 @@ class Feature(object):
                 #number od points
                 self.data += struct.pack("<H", number_of_points)
                 #data
-                for pos in dict_data["geometry"]['coordinates'][0]:
+                for pos in points:
                     lon, lat = pos
                     self.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
                     self.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
 
-                self.geometry = Polygon(dict_data["geometry"]['coordinates'][0])      
-            
+
+                polygons = []
+                for coords in dict_data["geometry"]['coordinates']:
+                    polygons.append(Polygon(coords))
+                self.geometry = MultiPolygon(polygons) 
             
         if self.type == -1:
             print(dict_data)
@@ -174,8 +183,12 @@ class Feature(object):
         else:
             return bbox.intersects(self.geometry)
 
-    def get_data(self):
+    def get_data(self, addr):
+        self.addr = addr
         return self.data
+        
+    def get_addr(self):
+        return self.addr
 
        
 def pipeline_step4():    
@@ -202,29 +215,34 @@ def pipeline_step4():
     h_delta = 1.0 / h_cnt
 
     grid = []
+    features = []
     features_data = bytes()
-    features_address = {}
 
     for i in range(w_cnt * h_cnt):
         grid.append([])
 
     print("Grid is %u x %u" % (w_cnt, h_cnt))
 
-    features = []
-
     #list files
-    files = os.listdir(source_dir)
+    files = open(os.path.join(common.config_dir, "layer_order"), "r").read().split("\n")
     for filename in files:
-        #skip grid
-        if filename == "grid.geojson":
+        if len(filename) == 0:
             continue
-    
-        source = os.path.join(source_dir, filename)
+            
+        source = os.path.join(source_dir, "%s_%s.geojson" % (common.tile_name, filename))
+        #assert os.path.exists(source), "Layer %s not found" % source
+        
+        if not os.path.exists(source):
+            continue
+        
         print("Opening file: %s" % source)
         data = json.loads(open(source, "r").read())
 
         for dict_data in data["features"]:
             features.extend(feature_factory(dict_data))
+
+    for f in features:
+        features_data += f.get_data(len(features_data))
 
     print("Loaded %u features" % len(features))
 
@@ -247,21 +265,22 @@ def pipeline_step4():
                 if f.inside(bbox):
                     grid[grid_index].append(feature_index)
 
-                    if feature_index not in features_address:
-                        features_address[feature_index] = len(features_data)
-                        features_data += features[feature_index].get_data()
 
     print("done")
+
+    print("Checking for missing features...", end="", flush = True)
 
     index_records = 0
     index_contains = []
     duplicates = []
+    duplicates_cnt = 0
     for g in grid:
         index_records += len(g)     
         for i in g:   
             if i not in index_contains:
                 index_contains.append(i)
             else:
+                duplicates_cnt += 1
                 if i not in duplicates:            
                     duplicates.append(i)
        
@@ -285,7 +304,7 @@ def pipeline_step4():
             
         assert(0)
         
-    if len(duplicates) > 0 and debug_duplicates:            
+    if duplicates_cnt > 0 and debug_duplicates:            
         duplicate_file = {}
         duplicate_file["type"] = "FeatureCollection"
         duplicate_file["features"] = []
@@ -298,7 +317,9 @@ def pipeline_step4():
         f.write(json.dumps(duplicate_file))
         f.close()
 
-    print("Index contains %u records (%u duplicates)" % (index_records,  len(duplicates)))
+    print("done")
+
+    print("Index contains %u records (%u duplicates)" % (index_records,  duplicates_cnt))
 
     file_data = bytes()
 
@@ -314,16 +335,18 @@ def pipeline_step4():
     # 32b timestamp
     timestamp = int(datetime.today().timestamp())
     file_data += struct.pack("<I", timestamp)
+    
+    # 32b number of features
+    file_data += struct.pack("<I", index_records)
             
         
     if debug_bin:
         print("\n%08X *** writing grid info" % len(file_data))
         print("         X x Y: [index address], [number of features]")
-    #grid = 8
     # 32b start address
     # 32b number of features
     #           header size + size of grid
-    index_start_address = 8 + (8 * w_cnt * h_cnt)
+    index_start_address = 12 + (8 * w_cnt * h_cnt)
     acc = 0;        
     for y in range(h_cnt):
         for x in range(w_cnt):
@@ -335,7 +358,7 @@ def pipeline_step4():
             acc += 4 * len(grid[grid_index])
             
             
-    #index = 8 + 8 * w * h
+    #index = 12 + 8 * w * h
     # 32b feature address  
     if debug_bin:
         print("\n%08X *** writing index" % len(file_data))
@@ -343,7 +366,7 @@ def pipeline_step4():
     features_stat_address = index_start_address + index_records * 4
     for segment in grid:
         for g in segment:
-            addr = features_address[g] + features_stat_address
+            addr = features[g].get_addr() + features_stat_address
             if debug_bin:
                 print("%08X %4u: %X" % (len(file_data), g, addr))
             file_data += struct.pack("<I", addr)
