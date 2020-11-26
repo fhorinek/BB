@@ -4,11 +4,10 @@
 rename-layers polygons,lines,grid
 
 #clean geometry
-clean snap-interval=0.00001 gap-fill-area=10km2 target=polygons
-clean snap-interval=0.00001 gap-fill-area=10km2 target=lines
+clean snap-interval=0.00001 target=polygons
+clean snap-interval=0.00001 target=lines
 
 #disolve
-dissolve2 target=polygons
 dissolve target=lines
 
 #remove small islands
@@ -28,6 +27,9 @@ clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines
 #slice
 slice grid target=polygons
 merge-layers target=slice-* name=polygons
+split-on-grid %split%,%split% target=polygons
+dissolve2 target=r*
+merge-layers target=r* name=polygons
 explode name=polygons
 
 slice grid target=lines
@@ -37,5 +39,4 @@ explode name=lines
 #tag features
 each 'this.properties = {type:"water", "sliced": true}' target=polygons
 each 'this.properties = {type:"river", "sliced": true}' target=lines
-
 

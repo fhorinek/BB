@@ -122,7 +122,7 @@ def invalidate_step(step, layer = None):
         invalidate_step(4)
 
     if step == 4:
-        path = os.path.join(target_dir_step4, tile_name + ".geojson")
+        path = os.path.join(target_dir_step4, tile_name + ".MAP")
         if os.path.exists(path):
             print("Invalidationg step %u, removing file %s" % (step, path))
             os.remove(path)
@@ -141,7 +141,7 @@ target_dir_step2 = os.path.join(storage_path, "step2", tile_name)
 target_dir_step3 = os.path.join(storage_path, "step3", tile_name)
 target_dir_step4 = os.path.join(storage_path, "step4")
 
-
+config_dir = "config"
 osm_script_dir = "osm_scripts"
 mapshaper_scripts_dir = "mapshaper_scripts"
 
