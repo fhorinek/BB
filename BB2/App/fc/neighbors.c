@@ -57,6 +57,9 @@ void neighbors_update_distance(neighbor_t * nb)
 	uint32_t dist = gnss_distance(nb->latitude, nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, FAI, NULL);
 
 	nb->dist = min(NB_TOO_FAR, dist);
+
+	if (nb->dist != NB_TOO_FAR && nb->dist > nb->max_dist)
+		nb->max_dist = nb->dist;
 }
 
 void neighbors_update(neighbor_t new_data)
