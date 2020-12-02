@@ -81,6 +81,8 @@ typedef struct
 
 	uint16_t timestamp;
 	uint16_t dist; //in m
+
+	uint16_t max_dist;
 } neighbor_t;
 
 

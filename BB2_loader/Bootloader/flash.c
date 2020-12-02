@@ -135,7 +135,7 @@ bool flash_loop()
 
 		}
 		f_close(&update_file);
-//		f_unlink(UPDATE_FILE);
+		f_unlink(UPDATE_FILE);
 	}
 
 	return firmware_updated;

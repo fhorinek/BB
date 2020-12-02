@@ -91,6 +91,8 @@ static void fanet_loop()
 				sprintf(name + strlen(name), ": %s", nb->name);
 
 			format_distance(dist, nb->dist);
+			sprintf(dist + strlen(dist), " / ");
+			format_distance(dist + strlen(dist), nb->max_dist);
 			sprintf(dist + strlen(dist), " @%lus", (HAL_GetTick() / 1000) - nb->timestamp);
 
 			lv_obj_t * entry = gui_list_get_entry(i + 1);

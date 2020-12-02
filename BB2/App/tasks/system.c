@@ -130,7 +130,7 @@ void task_System(void *argument)
 	vTaskResume((TaskHandle_t)GUIHandle);
 //	vTaskResume((TaskHandle_t)USBHandle);
 //	vTaskResume((TaskHandle_t)MEMSHandle);
-//	vTaskResume((TaskHandle_t)GNSSHandle);
+	vTaskResume((TaskHandle_t)GNSSHandle);
 
 
 	for(;;)
