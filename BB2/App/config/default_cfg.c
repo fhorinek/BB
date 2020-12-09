@@ -136,6 +136,17 @@ config_t config =
 			//online track
 			entry_bool("fa_online_track", true),
 		},
+		//bluetooth
+		{
+            //a2dp
+            entry_bool("bt_a2dp", true),
+            //volume
+            entry_int("bt_volume", 50, 0, 100),
+            //name
+            entry_text("bt_name", "Strato", BLUETOOTH_NAME_LEN, 0),
+            //pin
+            entry_text("bt_pin", "1234", BLUETOOTH_PIN_LEN, 0),
+		},
 	},
 	//settings
 	{

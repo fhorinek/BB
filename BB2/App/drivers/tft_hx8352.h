@@ -16,6 +16,7 @@
 extern uint16_t tft_buffer[TFT_BUFFER_SIZE];
 
 void tft_init();
+void tft_stop();
 void tft_reset();
 void tft_init_display();
 

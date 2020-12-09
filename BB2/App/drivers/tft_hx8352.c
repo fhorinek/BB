@@ -97,6 +97,13 @@ void tft_init()
 	tft_dma.XferCpltCallback = tft_irq_dma_done;
 }
 
+
+void tft_stop()
+{
+    HAL_GPIO_WritePin(DISP_RST, LOW);
+}
+
+
 void tft_reset()
 {
 	HAL_GPIO_WritePin(DISP_RST, HIGH);

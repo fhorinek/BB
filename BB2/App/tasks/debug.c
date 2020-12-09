@@ -24,10 +24,13 @@ void debug_dump(uint8_t * data, uint16_t len)
 		if (i % 8 == 7 || i + 1 == len)
 		{
 			tmp[strlen(tmp) - 2] = 0;
-			DBG("[%s]", tmp);
+			debug_send(DBG_DEBUG, "[%s]", tmp);
 		}
 	}
 }
+
+static char debug_privete_memory[1024 * 4];
+static uint16_t debug_private_memory_index = 0;
 
 void debug_send(uint8_t type, const char *format, ...)
 {
@@ -37,7 +40,7 @@ void debug_send(uint8_t type, const char *format, ...)
 	msg.type = type;
 
 	va_list arp;
-	char msg_buff[256];
+	char msg_buff[1024];
 	uint16_t length;
 
 	va_start(arp, format);
@@ -53,7 +56,12 @@ void debug_send(uint8_t type, const char *format, ...)
 		debug_send(DBG_ERROR, "Next message is too long!");
 	}
 
-	msg.message = (char *) malloc(length + 1);
+	//no malloc for ISR!
+	portENTER_CRITICAL();
+	msg.message = &debug_privete_memory[debug_private_memory_index];
+	debug_private_memory_index = (debug_private_memory_index + length + 1) % sizeof(debug_privete_memory);
+	portEXIT_CRITICAL();
+
 	strcpy(msg.message, msg_buff);
 
 	if (xPortIsInsideInterrupt())
@@ -98,7 +106,6 @@ void task_Debug(void *argument)
 		char id[] = "DIWE";
 
 		snprintf(message, sizeof(message), "[%c][%s] %s\n", id[msg.type], msg.sender, msg.message);
-		free(msg.message);
 
 		t_dbg_step = 2;
 		uint8_t res;
