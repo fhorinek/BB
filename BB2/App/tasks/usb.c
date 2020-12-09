@@ -20,7 +20,7 @@ void task_USB(void *argument)
 
 	MX_USB_DEVICE_Init();
 
-	for(;;)
+	while (!system_power_off)
 	{
 		uint8_t Buf[] = "Pojeb sa!\n";
 		osDelay(1000);
@@ -28,4 +28,7 @@ void task_USB(void *argument)
 		CDC_Transmit_HS(Buf, sizeof(Buf) - 1);
 
 	}
+
+    INFO("Done");
+    vTaskSuspend(NULL);
 }

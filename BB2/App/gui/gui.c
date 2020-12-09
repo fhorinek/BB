@@ -128,6 +128,8 @@ void gui_stop()
 	tft_wait_for_buffer();
 	tft_color_fill(0xFFFF);
 	tft_refresh_buffer(0, 0, 239, 399);
+	tft_wait_for_buffer();
+	tft_stop();
 }
 
 void gui_init()

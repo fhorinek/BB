@@ -25,7 +25,7 @@ void task_GNSS(void *argument)
 	fanet_init();
 
 
-	for(;;)
+	while (!system_power_off)
 	{
 		ublox_step();
 
@@ -33,4 +33,7 @@ void task_GNSS(void *argument)
 
 		neighbors_step();
 	}
+
+    INFO("Done");
+	vTaskSuspend(NULL);
 }

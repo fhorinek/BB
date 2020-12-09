@@ -75,6 +75,7 @@ struct vector_float_t
     float z;
 };
 
+extern bool system_power_off;
 
 //RTOS Tasks
 extern osThreadId_t GUIHandle;
@@ -83,6 +84,7 @@ extern osThreadId_t GNSSHandle;
 extern osThreadId_t USBHandle;
 extern osThreadId_t MEMSHandle;
 extern osThreadId_t SystemHandle;
+extern osThreadId_t ESPHandle;
 
 //RTOS Queue
 extern osMessageQueueId_t queue_DebugHandle;
@@ -120,16 +122,10 @@ uint32_t atoi_hex32(char * buffer);
 int8_t complement7(uint8_t in);
 
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);
-
-/**
- * Convert an angle given in degree to radians.
- */
 #define to_radians(degree) (degree / 180.0 * M_PI)
-
-/**
- * Convert an angle given in radians to degree.
- */
 #define to_degrees(radians) (radians * (180.0 / M_PI))
+
+uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
 
 #include "debug.h"
 

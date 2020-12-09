@@ -85,6 +85,14 @@ typedef struct
 	uint16_t max_dist;
 } neighbor_t;
 
+typedef enum
+{
+	esp_off = 0,
+	esp_starting,
+	esp_normal,
+	esp_programming,
+	esp_external
+} esp_mode_t;
 
 typedef struct
 {
@@ -144,6 +152,12 @@ typedef struct
 
 		float pressure; //in Pa
 	} vario;
+
+	struct
+	{
+		esp_mode_t mode;
+		uint32_t version;
+	} esp;
 } fc_t;
 
 extern fc_t fc;

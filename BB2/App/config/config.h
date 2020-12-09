@@ -37,6 +37,9 @@
 #define PAGE_NAME_LEN	8
 #define PAGE_MAX_COUNT	10
 
+#define BLUETOOTH_NAME_LEN      16
+#define BLUETOOTH_PIN_LEN       4
+
 typedef struct
 {
 	struct
@@ -59,12 +62,20 @@ typedef struct
 			cfg_entry_t use_galileo;
 		} gnss;
 
-		struct
-		{
-			cfg_entry_t enabled;
-			cfg_entry_t broadcast_name;
-			cfg_entry_t online_track;
-		} fanet;
+        struct
+        {
+            cfg_entry_t enabled;
+            cfg_entry_t broadcast_name;
+            cfg_entry_t online_track;
+        } fanet;
+
+        struct
+        {
+            cfg_entry_t a2dp;
+            cfg_entry_t volume;
+            cfg_entry_t name;
+            cfg_entry_t pin;
+        } bluetooth;
 	} devices;
 
 	struct

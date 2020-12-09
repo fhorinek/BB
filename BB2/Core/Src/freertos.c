@@ -123,6 +123,18 @@ const osThreadAttr_t GNSS_attributes = {
   .cb_size = sizeof(GNSSControlBlock),
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for ESP */
+osThreadId_t ESPHandle;
+uint32_t ESPBuffer[ 1024 ];
+osStaticThreadDef_t ESPControlBlock;
+const osThreadAttr_t ESP_attributes = {
+  .name = "ESP",
+  .stack_mem = &ESPBuffer[0],
+  .stack_size = sizeof(ESPBuffer),
+  .cb_mem = &ESPControlBlock,
+  .cb_size = sizeof(ESPControlBlock),
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* Definitions for queue_Debug */
 osMessageQueueId_t queue_DebugHandle;
 uint8_t queue_DebugBuffer[ 16 * sizeof( debug_msg_t ) ];
@@ -154,6 +166,7 @@ extern void task_GUI(void *argument);
 extern void task_USB(void *argument);
 extern void task_MEMS(void *argument);
 extern void task_GNSS(void *argument);
+extern void task_ESP(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -224,6 +237,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of GNSS */
   GNSSHandle = osThreadNew(task_GNSS, NULL, &GNSS_attributes);
+
+  /* creation of ESP */
+  ESPHandle = osThreadNew(task_ESP, NULL, &ESP_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

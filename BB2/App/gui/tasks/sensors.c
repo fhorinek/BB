@@ -1,6 +1,6 @@
 #include "sensors.h"
 
-#include "settings.h"
+#include "development.h"
 
 #include "../gui_list.h"
 
@@ -16,7 +16,7 @@ REGISTER_TASK_IL(sensors,
 void sensors_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+		gui_switch_task(&gui_development, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 }
 
 lv_obj_t * sensors_init(lv_obj_t * par)

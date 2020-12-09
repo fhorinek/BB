@@ -49,8 +49,10 @@ void task_MEMS(void *argument)
 
 	ms5611_Init();
 
+//	while(!system_power_off)
 
-	vTaskSuspend(NULL);
+    INFO("Done");
+    vTaskSuspend(NULL);
 }
 
 void mems_meas_phase1() 	//t = 0

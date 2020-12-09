@@ -147,11 +147,14 @@ void task_GUI(void *argument)
 
     uint32_t delay;
 
-	for(;;)
+    while (!system_power_off)
 	{
 		gui_loop();
 
 		delay = lv_task_handler();
 		osDelay(delay);
 	}
+
+    INFO("Done");
+    vTaskSuspend(NULL);
 }
