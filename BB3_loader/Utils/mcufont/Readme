@@ -1,0 +1,12 @@
+Font used
+
+#icons           180
+#Roboto-Bold     28
+#Roboto-Light    28
+
+How to export
+./mcufont import_ttf icons.ttf 180
+./mcufont rlefont_optimize icons180.dat 
+./mcufont rlefont_export icons180.dat icons.h
+
+

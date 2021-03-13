@@ -1,0 +1,16 @@
+[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
+(
+    way["landuse"="residential"];
+    relation["landuse"="residential"];
+
+    way["place"="city"];
+    relation["place"="city"];
+
+    relation["landuse"="industrial"];
+    way["landuse"="industrial"];
+);
+
+out body;
+>;
+out skel qt;
+
