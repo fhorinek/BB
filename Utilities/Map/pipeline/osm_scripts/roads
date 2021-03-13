@@ -1,0 +1,8 @@
+[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
+(
+	way[highway~"^(motorway|trunk|primary|secondary|tertiary|(motorway|trunk|primary|secondary|tertiary)_link)$"];
+);
+
+out body;
+>;
+out skel qt;
