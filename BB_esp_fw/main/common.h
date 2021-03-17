@@ -19,6 +19,17 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
+#include "esp_wifi.h";
+
+#include "../../BB3/App/drivers/esp/protocol_def.h"
+
+typedef struct
+{
+	char device_name[PROTO_DEV_NAME_LEN];
+	wifi_mode_t wifi_mode;
+} config_t;
+
+extern config_t config;
 
 #define HIGH    1
 #define LOW     0

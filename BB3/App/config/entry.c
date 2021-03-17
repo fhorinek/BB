@@ -31,7 +31,7 @@ void entry_set_str(cfg_entry_t * e, char * value)
 	switch (e->type)
 	{
 	case(ENTRY_BOOL):
-		e->value.b = value[0] == 'T';
+	    config_set_select(e, value[0] == 'T');
 		DBG(">bool %s = %s", e->name_id, e->value.b ? "true" : "false");
 		return;
 
@@ -42,12 +42,12 @@ void entry_set_str(cfg_entry_t * e, char * value)
 			{
 				s = &e->params.list[i];
 
-				if (s->value == 0xFF)
+				if (s->value == SELECT_END_VALUE)
 					break;
 
 				if (strcmp(value, s->name_id) == 0)
 				{
-					e->value.u8[0] = s->value;
+					config_set_select(e, s->value)
 					DBG(">select %s = %u (%s)", e->name_id, s->value, s->name_id);
 					return;
 				}

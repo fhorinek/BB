@@ -23,7 +23,7 @@ void fanet_init()
 	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
 	neighbors_reset();
 
-	if (config_get_bool(&config.devices.fanet.enabled))
+	if (config_get_bool(&config.fanet.enabled))
 	{
 		fanet_enable();
 	}
@@ -354,7 +354,7 @@ void fanet_transmit_message(uint8_t type, fanet_addr_t dest, uint8_t len, uint8_
 
 void fanet_step()
 {
-	if (!config_get_bool(&config.devices.fanet.enabled))
+	if (!config_get_bool(&config.fanet.enabled))
 		return;
 
 	static uint16_t read_index = 0;
@@ -392,7 +392,7 @@ void fanet_step()
             fanet_transmit_pos();
         }
 
-        if (next_transmit_name <= HAL_GetTick() && config_get_bool(&config.devices.fanet.broadcast_name))
+        if (next_transmit_name <= HAL_GetTick() && config_get_bool(&config.fanet.broadcast_name))
         {
             next_transmit_name = HAL_GetTick() + FANET_TX_NAME_PERIOD;
 

@@ -11,6 +11,7 @@
 #include "gui/tasks/page/pages.h"
 
 #include "gnss/gnss.h"
+#include "wifi/wifi.h"
 #include "fanet.h"
 #include "display.h"
 #include "development.h"
@@ -42,12 +43,15 @@ void setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
             gui_switch_task(&gui_bluetooth, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 
         if (index == 4)
-            gui_switch_task(&gui_datetime, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+            gui_switch_task(&gui_wifi, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 
         if (index == 5)
-            gui_switch_task(&gui_development, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+            gui_switch_task(&gui_datetime, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 
         if (index == 6)
+            gui_switch_task(&gui_development, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+
+        if (index == 7)
             gui_switch_task(&gui_calibration, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
@@ -64,6 +68,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_text_add_entry(list, "FANET");
     gui_list_text_add_entry(list, "Display");
     gui_list_text_add_entry(list, "Bluetooth");
+    gui_list_text_add_entry(list, "Wi-Fi");
     gui_list_text_add_entry(list, "Time & date");
     gui_list_text_add_entry(list, "Development");
     gui_list_text_add_entry(list, "Calibration");

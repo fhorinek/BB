@@ -321,7 +321,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		if (ubx_nav_timeutc->valid & 0b00000111)
 		{
-			if (config_get_bool(&config.settings.time.sync_gnss) && !fc.gnss.time_synced)
+			if (config_get_bool(&config.time.sync_gnss) && !fc.gnss.time_synced)
 			{
 				fc.gnss.time_synced = true;
 

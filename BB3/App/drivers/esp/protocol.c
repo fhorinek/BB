@@ -10,6 +10,7 @@
 #include "protocol.h"
 #include "etc/stream.h"
 #include "fc/fc.h"
+#include "config/config.h"
 
 
 void esp_send_ping()
@@ -49,6 +50,55 @@ void esp_sound_start(uint8_t id, uint8_t type, uint32_t size)
 void esp_sound_stop()
 {
     protocol_send(PROTO_SOUND_STOP, NULL, 0);
+}
+
+void esp_set_wifi_mode()
+{
+    proto_wifi_mode_t data;
+    data.client = config_get_bool(&config.wifi.enabled) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
+    data.ap = config_get_bool(&config.wifi.ap) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
+
+    protocol_send(PROTO_WIFI_SET_MODE, (void *) &data, sizeof(data));
+}
+
+void esp_set_device_name()
+{
+    proto_set_device_name_t data;
+    strncpy(data.name, config_get_text(&config.device_name), DEV_NAME_LEN);
+
+    protocol_send(PROTO_SET_DEVICE_NAME, (void *) &data, sizeof(data));
+}
+
+void esp_wifi_start_scan(wifi_list_update_cb cb)
+{
+    fc.esp.wifi_list_cb = cb;
+
+    protocol_send(PROTO_WIFI_SCAN_START, NULL, 0);
+}
+
+void esp_wifi_stop_scan()
+{
+    protocol_send(PROTO_WIFI_SCAN_STOP, NULL, 0);
+}
+
+void esp_set_bt_mode()
+{
+
+}
+
+void esp_configure()
+{
+    //set volume
+    esp_set_volume(config_get_int(&config.bluetooth.volume));
+
+    //set device name
+    esp_set_device_name();
+
+    //set wifi mode
+    esp_set_wifi_mode();
+
+    //set bt mode
+    esp_set_bt_mode();
 }
 
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
@@ -94,6 +144,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             fc.esp.version = ((proto_version_t *)data)->version;
             fc.esp.mode = esp_normal;
             DBG("ESP fw: %08X", fc.esp.version);
+
+            esp_configure();
         }
         break;
 
@@ -105,7 +157,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_SOUND_REQ_MORE):
         {
-            proto_sound_req_more_t * packet = data;
+            proto_sound_req_more_t * packet = (proto_sound_req_more_t *)data;
             sound_read_next(packet->id, packet->data_lenght);
         }
         break;

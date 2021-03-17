@@ -1,5 +1,0 @@
-#remove unnecesery data fields
-filter-fields fields=name,ele,natural
-
-#remove peaks without elevation
-filter 'this.properties.ele != undefined'

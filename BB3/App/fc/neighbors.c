@@ -53,7 +53,7 @@ void neighbors_update_distance(neighbor_t * nb)
 	if (!(nb->flags & NB_HAVE_POS))
 		return;
 
-	bool FAI = config_get_select(&config.settings.units.earth_model) == EARTH_FAI;
+	bool FAI = config_get_select(&config.units.earth_model) == EARTH_FAI;
 	uint32_t dist = gnss_distance(nb->latitude, nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, FAI, NULL);
 
 	nb->dist = min(NB_TOO_FAR, dist);

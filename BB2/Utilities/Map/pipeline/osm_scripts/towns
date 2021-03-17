@@ -1,6 +1,0 @@
-[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
-(
-	node[place~"^(city|town|village|hamlet)$"];
-);
-out ;
-

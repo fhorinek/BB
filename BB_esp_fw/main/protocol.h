@@ -9,7 +9,6 @@
 #define MAIN_PROTOCOL_H_
 
 #include "../main/common.h"
-#include "../../BB2/App/drivers/esp/protocol_def.h"
 
 void protocol_send_version();
 

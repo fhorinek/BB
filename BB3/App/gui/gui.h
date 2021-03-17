@@ -83,7 +83,8 @@ typedef struct
 	{
 		lv_obj_t * bar;
 		lv_obj_t * time;
-		lv_obj_t * icons;
+        lv_obj_t * icons;
+        lv_obj_t * gray_icons;
 
 		lv_obj_t * mbox;
 	} statusbar;

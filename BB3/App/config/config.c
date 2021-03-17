@@ -9,9 +9,11 @@
 
 #include "fatfs.h"
 
+
 void config_set_bool(cfg_entry_t * entry, bool val)
 {
 	entry->value.b = val;
+    config_process_cb(entry);
 }
 
 bool config_get_bool(cfg_entry_t * entry)
@@ -26,19 +28,22 @@ void config_set_select(cfg_entry_t * entry, uint8_t val)
 	{
 		s = &entry->params.list[i];
 
-		if (s->value == 0xFF)
+		if (s->value == SELECT_END_VALUE)
 		{
 			//not found set first
 			entry->value.u8[0] = entry->params.list[0].value;
+
 			break;
 		}
 
 		if (s->value == val)
 		{
 			entry->value.u8[0] = val;
-			return;
+			break;
 		}
 	}
+
+    config_process_cb(entry);
 }
 
 uint8_t config_get_select(cfg_entry_t * entry)
@@ -54,7 +59,8 @@ char * config_get_text(cfg_entry_t * entry)
 
 void config_set_text(cfg_entry_t * entry, char * value)
 {
-	strncpy(entry->value.str, value, entry->params.u16[0]);
+    strncpy(entry->value.str, value, entry->params.u16[0]);
+    config_process_cb(entry);
 }
 
 int16_t config_get_int(cfg_entry_t * entry)
@@ -72,6 +78,7 @@ void config_set_int(cfg_entry_t * entry, int16_t value)
         value = entry->params.s16[1];
 
     entry->value.s16[0] = value;
+    config_process_cb(entry);
 }
 
 int32_t config_get_big_int(cfg_entry_t * entry)
@@ -92,6 +99,7 @@ void config_set_big_int(cfg_entry_t * entry, int32_t value)
     }
 
     entry->value.s32 = value;
+    config_process_cb(entry);
 }
 
 float config_get_float(cfg_entry_t * entry)
@@ -112,6 +120,7 @@ void config_set_float(cfg_entry_t * entry, float value)
     }
 
     entry->value.flt = value;
+    config_process_cb(entry);
 }
 
 
@@ -119,6 +128,8 @@ void config_load()
 {
 	FIL f;
 	uint8_t ret;
+
+	config_disable_callbacks();
 
 	char * path = PATH_DEVICE_CFG;
 	ret = f_open(&f, path, FA_READ);
@@ -165,6 +176,10 @@ void config_load()
 		WARN("Unable to open");
 	}
 	INFO("Reading configuration done.");
+
+	config_enable_callbacks();
+
+	config_trigger_callbacks();
 }
 
 void config_store()
@@ -216,3 +231,6 @@ void config_show()
 		INFO("%s", buff);
 	}
 }
+
+
+

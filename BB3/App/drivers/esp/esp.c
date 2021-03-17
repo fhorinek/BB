@@ -44,6 +44,7 @@ void esp_reset()
 void esp_init()
 {
 	fc.esp.mode = esp_starting;
+	fc.esp.wifi_list_cb = NULL;
 
 	stream_init(&esp_stream, esp_stream_buffer, ESP_STREAM_BUFFER_SIZE, esp_parser);
     HAL_UART_Receive_DMA(esp_uart, esp_rx_buffer, ESP_DMA_BUFFER_SIZE);
@@ -83,7 +84,13 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
            protocol_handle(type, data, len);
         break;
         case(stream_res_dirty): //dirty string is ending with 0
+        {
            INFO((char *)data);
+           if (strstr(data, "DOWNLOAD_BOOT") != NULL)
+           {
+               esp_enable_external_programmer();
+           }
+        }
         break;
         case(stream_res_error):
            DUMP(data, len);
