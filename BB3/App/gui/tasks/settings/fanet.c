@@ -27,7 +27,7 @@ static void fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			case 0:
 			{
 				bool val = gui_list_switch_get_value(local->fanet_sw);
-				config_set_bool(&config.devices.fanet.enabled, val);
+				config_set_bool(&config.fanet.enabled, val);
 				if (val)
 				{
 					fanet_enable();
@@ -52,7 +52,7 @@ static lv_obj_t * fanet_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, "FANET Settings", fanet_cb);
 
-	local->fanet_sw = gui_list_switch_add_entry(list, "Enable FANET", config_get_bool(&config.devices.fanet.enabled));
+	local->fanet_sw = gui_list_switch_add_entry(list, "Enable FANET", config_get_bool(&config.fanet.enabled));
 
 	return list;
 }

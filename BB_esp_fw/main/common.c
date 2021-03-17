@@ -7,6 +7,15 @@
 
 #include "../main/common.h"
 
+config_t config =
+{
+	//device_name
+	{'S', 't', 'r', 'a', 't', 'o', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	//wifi_mode
+	WIFI_MODE_NULL,
+
+};
+
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data)
 {
     uint8_t i;

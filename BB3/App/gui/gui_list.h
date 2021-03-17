@@ -17,6 +17,7 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_list_task_cb_
 
 lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool value);
 bool gui_list_switch_get_value(lv_obj_t * entry);
+void gui_list_switch_set_value(lv_obj_t * obj, bool val);
 
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value);
 void gui_list_info_set_value(lv_obj_t * entry, char * value);

@@ -26,7 +26,7 @@ static void bluetooth_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			{
 			    uint8_t vol = gui_list_slider_get_value(local->volume);
 			    esp_set_volume(vol);
-			    config_set_int(&config.devices.bluetooth.volume, vol);
+			    config_set_int(&config.bluetooth.volume, vol);
             }
             break;
 		}
@@ -42,7 +42,7 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Bluetooth", bluetooth_cb);
 
-    local->volume = gui_list_slider_add_entry(list, "Volume", 0, 100, config_get_int(&config.devices.bluetooth.volume));
+    local->volume = gui_list_slider_add_entry(list, "Volume", 0, 100, config_get_int(&config.bluetooth.volume));
 
 	return list;
 }

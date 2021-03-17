@@ -43,9 +43,14 @@ void statusbar_create()
 	gui.statusbar.time = lv_label_create(gui.statusbar.bar, NULL);
 	lv_obj_align(gui.statusbar.time, NULL, LV_ALIGN_IN_LEFT_MID, 5, 0);
 
-	gui.statusbar.icons = lv_label_create(gui.statusbar.bar, NULL);
-	lv_obj_align(gui.statusbar.icons, NULL, LV_ALIGN_IN_RIGHT_MID, -5, 0);
-	lv_obj_set_auto_realign(gui.statusbar.icons, true);
+    gui.statusbar.icons = lv_label_create(gui.statusbar.bar, NULL);
+    lv_obj_align(gui.statusbar.icons, NULL, LV_ALIGN_IN_RIGHT_MID, -5, 0);
+    lv_obj_set_auto_realign(gui.statusbar.icons, true);
+
+    gui.statusbar.gray_icons = lv_label_create(gui.statusbar.bar, NULL);
+    lv_obj_align(gui.statusbar.gray_icons, gui.statusbar.icons, LV_ALIGN_IN_RIGHT_MID, 0, 0);
+    lv_obj_set_auto_realign(gui.statusbar.gray_icons, true);
+    lv_obj_set_style_local_text_color(gui.statusbar.gray_icons, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
 
 	statusbar_step();
 	statusbar_show();
@@ -116,14 +121,29 @@ void statusbar_step()
 	rtc_get_time(&h, &m, &s);
 	lv_label_set_text_fmt(gui.statusbar.time, "%02u:%02u", h, m);
 
-	char icons[64];
+    char icons[64];
+    char gray_icons[64];
 
-	strcpy(icons, "");
+    strcpy(icons, "");
+    strcpy(gray_icons, "");
 
 	// if there is bt connection active
-    sprintf(icons + strlen(icons), " " LV_SYMBOL_BLUETOOTH);
-	//if it is connected to the wifi
-    sprintf(icons + strlen(icons), " " LV_SYMBOL_WIFI);
+    if (fc.esp.state & ESP_STATE_BT_ON)
+    {
+        if (fc.esp.state & ESP_STATE_BT_DATA | fc.esp.state & ESP_STATE_BT_AUDIO)
+            sprintf(icons + strlen(icons), " " LV_SYMBOL_BLUETOOTH);
+        else
+            sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_BLUETOOTH);
+    }
+
+    //if it is connected to the wifi
+    if (fc.esp.state & ESP_STATE_WIFI_ON | fc.esp.state & ESP_STATE_WIFI_AP)
+    {
+        if (fc.esp.state & ESP_STATE_WIFI_CLIENT)
+            sprintf(icons + strlen(icons), " " LV_SYMBOL_WIFI);
+        else
+            sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_WIFI);
+    }
 
     if (pwr.data_port != PWR_DATA_NONE)
         sprintf(icons + strlen(icons), " " LV_SYMBOL_USB);
@@ -148,4 +168,5 @@ void statusbar_step()
     sprintf(icons + strlen(icons), " %s", bat_icon);
 
     lv_label_set_text(gui.statusbar.icons, icons);
+    lv_label_set_text(gui.statusbar.gray_icons, gray_icons);
 }

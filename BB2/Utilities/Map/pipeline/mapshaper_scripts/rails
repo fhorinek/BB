@@ -1,8 +1,0 @@
-#simplify
-simplify 30%
-
-#remove tags
-filter-fields fields=railway
-
-#clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2%

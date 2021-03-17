@@ -33,6 +33,8 @@
 #define DISTANCE_METERS	0
 #define DISTANCE_MILES	1
 
+#define DEV_NAME_LEN   16
+
 #define PAGE_NAME_LEN	16
 #define PAGE_MAX_COUNT	10
 
@@ -41,6 +43,8 @@
 
 typedef struct
 {
+    cfg_entry_t device_name;
+
 	struct
 	{
 		cfg_entry_t name;
@@ -60,58 +64,58 @@ typedef struct
         cfg_entry_t avg_duration;
 	} vario;
 
-	struct
-	{
-		struct
-		{
-			cfg_entry_t use_gps;
-			cfg_entry_t use_glonass;
-			cfg_entry_t use_galileo;
-		} gnss;
+    struct
+    {
+        cfg_entry_t use_gps;
+        cfg_entry_t use_glonass;
+        cfg_entry_t use_galileo;
+    } gnss;
 
-        struct
-        {
-            cfg_entry_t enabled;
-            cfg_entry_t broadcast_name;
-            cfg_entry_t online_track;
-        } fanet;
+    struct
+    {
+        cfg_entry_t enabled;
+        cfg_entry_t broadcast_name;
+        cfg_entry_t online_track;
+    } fanet;
 
-        struct
-        {
-            cfg_entry_t a2dp;
-            cfg_entry_t volume;
-            cfg_entry_t name;
-            cfg_entry_t pin;
-        } bluetooth;
-	} devices;
+    struct
+    {
+        cfg_entry_t a2dp;
+        cfg_entry_t volume;
+        cfg_entry_t name;
+        cfg_entry_t pin;
+    } bluetooth;
 
-	struct
-	{
-		struct
-		{
-			cfg_entry_t backlight;
-			cfg_entry_t backlight_timeout;
-		} display;
+    struct
+    {
+        cfg_entry_t enabled;
+        cfg_entry_t ap;
+    } wifi;
 
-		struct
-		{
-			cfg_entry_t zone;
-            cfg_entry_t sync_gnss;
-            cfg_entry_t dst;
-		} time;
+    struct
+    {
+        cfg_entry_t backlight;
+        cfg_entry_t backlight_timeout;
+    } display;
 
-		struct
-		{
-			cfg_entry_t altitude;
-			cfg_entry_t speed;
-			cfg_entry_t distance;
-			cfg_entry_t geo_datum;
-            cfg_entry_t earth_model;
-            cfg_entry_t time24;
-            cfg_entry_t date;
-            cfg_entry_t vario;
-		} units;
-	} settings;
+    struct
+    {
+        cfg_entry_t zone;
+        cfg_entry_t sync_gnss;
+        cfg_entry_t dst;
+    } time;
+
+    struct
+    {
+        cfg_entry_t altitude;
+        cfg_entry_t speed;
+        cfg_entry_t distance;
+        cfg_entry_t geo_datum;
+        cfg_entry_t earth_model;
+        cfg_entry_t time24;
+        cfg_entry_t date;
+        cfg_entry_t vario;
+    } units;
 
 	struct
 	{
@@ -119,7 +123,16 @@ typedef struct
 	} debug;
 } config_t;
 
+typedef void (* cfg_cb_t)(cfg_entry_t *);
+
+typedef struct
+{
+    cfg_entry_t * entry;
+    cfg_cb_t cb;
+} cfg_callback_pair_t;
+
 extern config_t config;
+extern cfg_callback_pair_t config_callbacks[];
 
 void config_load();
 void config_store();
@@ -143,6 +156,12 @@ void config_set_big_int(cfg_entry_t * entry, int32_t value);
 
 float config_get_float(cfg_entry_t * entry);
 void config_set_float(cfg_entry_t * entry, float value);
+
+
+void config_process_cb(cfg_entry_t * entry);
+void config_trigger_callbacks();
+void config_disable_callbacks();
+void config_enable_callbacks();
 
 
 #endif /* CONFIG_CONFIG_H_ */

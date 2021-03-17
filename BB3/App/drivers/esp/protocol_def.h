@@ -73,6 +73,43 @@ typedef struct {
 
 #define PROTO_SOUND_STOP		0x06
 
+#define PROTO_WIFI_SET_MODE     0x07
+#define PROTO_WIFI_MODE         0x07
+
+#define PROTO_WIFI_MODE_OFF     0
+#define PROTO_WIFI_MODE_ON      1
+#define PROTO_WIFI_MODE_ACTIVE  2
+
+typedef struct {
+    uint8_t client;
+    uint8_t ap;
+} proto_wifi_mode_t;
+
+
+#define PROTO_WIFI_SCAN_START   0x08
+#define PROTO_WIFI_SCAN_RES     0x08
+typedef struct {
+    uint8_t magic;
+    char name[33];
+    uint8_t flags;
+} proto_wifi_scan_res_t;
+
+#define PROTO_WIFI_SCAN_STOP    0x09
+
+#define PROTO_SET_DEVICE_NAME   0x0A
+#define PROTO_DEV_NAME_LEN   16
+typedef struct {
+    char name[PROTO_DEV_NAME_LEN];
+} proto_set_device_name_t;
+
+#define PROTO_BT_SET_MODE       0x0B
+typedef struct {
+    bool a2dp;
+    bool spp;
+    bool ble;
+    char pin[7];
+} proto_set_bt_mode_t;
+
 //-------------------------------------------
 
 

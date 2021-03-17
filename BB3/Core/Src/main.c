@@ -90,7 +90,7 @@ int main(void)
              | SCB_SHCSR_BUSFAULTENA_Msk
              | SCB_SHCSR_MEMFAULTENA_Msk;
 
-  //enable trap for div 0 an unaligned access
+  //enable trap for div 0 and unaligned access
   SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk
            | SCB_CCR_UNALIGN_TRP_Msk;
 

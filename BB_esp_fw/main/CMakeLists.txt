@@ -16,6 +16,7 @@ set(COMPONENT_SRCS
 	"debug.c"
 	"main.c"
 	"protocol.c"
+	"wifi.c"
 )
 
 register_component()

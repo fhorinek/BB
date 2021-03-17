@@ -36,7 +36,7 @@ void datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
     {
         uint16_t val = gui_list_dropdown_get_value(local->tz);
-        config_set_select(&config.settings.time.zone, val);
+        config_set_select(&config.time.zone, val);
         DBG("event: %u val: %u", event, val);
     }
 
@@ -45,19 +45,19 @@ void datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
         if (obj == local->dst)
         {
             bool val = gui_list_switch_get_value(local->dst);
-            config_set_bool(&config.settings.time.dst, val);
+            config_set_bool(&config.time.dst, val);
         }
 
         if (obj == local->tz)
         {
             uint16_t val = gui_list_dropdown_get_value(local->tz);
-            config_set_select(&config.settings.time.zone, val);
+            config_set_select(&config.time.zone, val);
         }
 
         if (obj == local->gnss)
         {
             bool val = gui_list_switch_get_value(local->gnss);
-            config_set_bool(&config.settings.time.sync_gnss, val);
+            config_set_bool(&config.time.sync_gnss, val);
         }
 
 	}
@@ -123,7 +123,7 @@ lv_obj_t * datetime_init(lv_obj_t * par)
     format_date(buf, day, month, year);
 	local->date = gui_list_info_add_entry(list, "Date", buf);
 
-	local->dst = gui_list_switch_add_entry(list, "Daylight saving time", config_get_bool(&config.settings.time.dst));
+	local->dst = gui_list_switch_add_entry(list, "Daylight saving time", config_get_bool(&config.time.dst));
 
     #define OPTION_LEN  10 //UTC+00:11,
 	char options[NUMBER_OF_TIMEZONES * OPTION_LEN + 1];
@@ -139,9 +139,9 @@ lv_obj_t * datetime_init(lv_obj_t * par)
 	}
 	options[NUMBER_OF_TIMEZONES * OPTION_LEN - 1] = 0;
 
-	local->tz = gui_list_dropdown_add_entry(list, "Time zone", options, config_get_select(&config.settings.time.zone));
+	local->tz = gui_list_dropdown_add_entry(list, "Time zone", options, config_get_select(&config.time.zone));
 
-	local->gnss = gui_list_switch_add_entry(list, "Sync with GNSS", config_get_bool(&config.settings.time.sync_gnss));
+	local->gnss = gui_list_switch_add_entry(list, "Sync with GNSS", config_get_bool(&config.time.sync_gnss));
 
 	return list;
 }

@@ -69,7 +69,9 @@ static void uart_event_task(void *pvParameters)
                     {
                         bool have_data = stream_parse(&uart_stream, rx_buff[i]);
                         if (have_data)
+                        {
                             protocol_handle(uart_stream.buffer, uart_stream.lenght);
+                        }
                     }
                 }
                 break;

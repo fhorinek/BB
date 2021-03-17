@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "protocol_def.h"
+#include "fc/fc.h"
 
 void esp_send_ping();
 
@@ -27,6 +28,7 @@ void esp_spi_release_buffer(uint16_t data_written);
 
 void spi_start_transfer(uint16_t size_to_read);
 void esp_spi_prepare();
-
+void esp_wifi_start_scan(wifi_list_update_cb cb);
+void esp_wifi_stop_scan();
 
 #endif /* DRIVERS_ESP_PROTOCOL_H_ */

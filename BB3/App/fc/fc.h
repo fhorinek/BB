@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "drivers/nvm.h"
+#include "drivers/esp/protocol_def.h"
 
 //unit conversions
 #define FC_METER_TO_FEET		(3.2808399)
@@ -43,6 +44,13 @@
 #define GNSS_SAT_GLONASS		0b00000110
 
 #define GNSS_SAT_USED			0b00001000
+
+#define ESP_STATE_WIFI_ON           0b00000001
+#define ESP_STATE_WIFI_CLIENT       0b00000010
+#define ESP_STATE_WIFI_AP           0b00000100
+#define ESP_STATE_BT_ON             0b00001000
+#define ESP_STATE_BT_AUDIO          0b00010000
+#define ESP_STATE_BT_DATA           0b00100000
 
 typedef struct
 {
@@ -105,6 +113,8 @@ typedef enum
     fc_device_not_calibrated,
     fc_dev_off,
 } fc_device_status_t;
+
+typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
 typedef struct
 {
@@ -169,10 +179,11 @@ typedef struct
 	struct
 	{
         uint32_t version;
+        wifi_list_update_cb wifi_list_cb;
 
         fc_device_status_t status;
 		esp_mode_t mode;
-		uint8_t progress;
+		uint8_t state;
 		uint8_t _pad[1];
 	} esp;
 

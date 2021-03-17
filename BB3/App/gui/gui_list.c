@@ -168,6 +168,16 @@ bool gui_list_switch_get_value(lv_obj_t * obj)
 	return lv_switch_get_state(sw);
 }
 
+void gui_list_switch_set_value(lv_obj_t * obj, bool val)
+{
+    //switch widget is last added child
+    lv_obj_t * sw = lv_obj_get_child(obj, NULL);
+    if (val)
+        lv_switch_on(sw, LV_ANIM_ON);
+    else
+        lv_switch_off(sw, LV_ANIM_ON);
+}
+
 lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);

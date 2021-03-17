@@ -121,6 +121,8 @@ cfg_entry_param_range_t acc_gain_range =
 
 config_t config =
 {
+    entry_text("dev_name", "", DEV_NAME_LEN, 0),
+
 	//pilot
 	{
 		//name
@@ -157,78 +159,80 @@ config_t config =
         entry_int("avg_vario", 30, 5, 120),
 	},
 
-	//devices
-	{
-		//gnss
-		{
-			//use_gps
-			entry_bool("gnss_gps", true),
-			//use_glonass
-			entry_bool("gnss_glonass", true),
-			//use_galileo
-			entry_bool("gnss_galileo", true),
-		},
-		//fanet
-		{
-			//enabled
-			entry_bool("fa_en", true),
-			//broadcast_name
-			entry_bool("fa_bcst_name", true),
-			//online track
-			entry_bool("fa_online_track", true),
-		},
-		//bluetooth
-		{
-            //a2dp
-            entry_bool("bt_a2dp", true),
-            //volume
-            entry_int("bt_volume", 50, 0, 100),
-            //name
-            entry_text("bt_name", "Strato", BLUETOOTH_NAME_LEN, 0),
-            //pin
-            entry_text("bt_pin", "1234", BLUETOOTH_PIN_LEN, 0),
-		},
-	},
-	//settings
-	{
-		//display
-		{
-				//backlight
-				entry_int("disp_bckl", 80, 0, 100),
-				//backlight_timeout
-				entry_int("disp_bckl_time", 30, 10, 120),
-		},
+    //gnss
+    {
+        //use_gps
+        entry_bool("gnss_gps", true),
+        //use_glonass
+        entry_bool("gnss_glonass", true),
+        //use_galileo
+        entry_bool("gnss_galileo", true),
+    },
+    //fanet
+    {
+        //enabled
+        entry_bool("fa_en", true),
+        //broadcast_name
+        entry_bool("fa_bcst_name", true),
+        //online track
+        entry_bool("fa_online_track", true),
+    },
+    //bluetooth
+    {
+        //a2dp
+        entry_bool("bt_a2dp", true),
+        //volume
+        entry_int("bt_volume", 50, 0, 100),
+        //name
+        entry_text("bt_name", "Strato", BLUETOOTH_NAME_LEN, 0),
+        //pin
+        entry_text("bt_pin", "1234", BLUETOOTH_PIN_LEN, 0),
+    },
+    //wifi
+    {
+        //enabled
+        entry_bool("wifi", true),
+        entry_bool("wifi_ap", false),
+    },
 
-		//time
-		{
-			//zone
-			entry_select("time_zone", UTC_p0000, timezone_select),
-			//gnss_sync
-			entry_bool("time_gnss_sync", true),
-            //dst
-            entry_bool("time_dst", false),
-		},
+    //display
+    {
+            //backlight
+            entry_int("disp_bckl", 80, 0, 100),
+            //backlight_timeout
+            entry_int("disp_bckl_time", 30, 10, 120),
+    },
 
-		//units
-		{
-			//altitude
-			entry_select("unit_alt", ALTITUDE_M, altitude_select),
-			//speed
-			entry_select("unit_spd", SPEED_KMH, speed_select),
-			//distance
-			entry_select("unit_dist", DISTANCE_METERS, distance_select),
-			//geo_datum
-			entry_select("unit_geo_dat", GNSS_DDdddddd, gdatum_select),
-            //earth_model
-            entry_select("unit_earth", EARTH_WGS84, earth_model_select),
-            //time24
-            entry_bool("unit_time24", true),
-            //date
-            entry_select("unit_date", DATE_DDMMYYYY, date_format_select),
-            //vario
-            entry_select("unit_vario", VARIO_MPS, vario_format_select)
-		},
-	},
+    //time
+    {
+        //zone
+        entry_select("time_zone", UTC_p0000, timezone_select),
+        //gnss_sync
+        entry_bool("time_gnss_sync", true),
+        //dst
+        entry_bool("time_dst", false),
+    },
+
+    //units
+    {
+        //altitude
+        entry_select("unit_alt", ALTITUDE_M, altitude_select),
+        //speed
+        entry_select("unit_spd", SPEED_KMH, speed_select),
+        //distance
+        entry_select("unit_dist", DISTANCE_METERS, distance_select),
+        //geo_datum
+        entry_select("unit_geo_dat", GNSS_DDdddddd, gdatum_select),
+        //earth_model
+        entry_select("unit_earth", EARTH_WGS84, earth_model_select),
+        //time24
+        entry_bool("unit_time24", true),
+        //date
+        entry_select("unit_date", DATE_DDMMYYYY, date_format_select),
+        //vario
+        entry_select("unit_vario", VARIO_MPS, vario_format_select)
+    },
+
 	//debug
 	{
 		//use_serial

@@ -5,7 +5,7 @@
 
 void format_date(char * buf, uint8_t day, uint8_t month, uint16_t year)
 {
-    switch (config_get_select(&config.settings.units.date))
+    switch (config_get_select(&config.units.date))
     {
         case(DATE_DDMMYYYY):
             sprintf(buf, "%02u/%02u/%04u", day, month, year);
@@ -22,7 +22,7 @@ void format_date(char * buf, uint8_t day, uint8_t month, uint16_t year)
 
 void format_time(char * buf, uint8_t hour, uint8_t min)
 {
-    if (config_get_bool(&config.settings.units.time24))
+    if (config_get_bool(&config.units.time24))
     {
         sprintf(buf, "%02u:%02u", hour, min);
     }
@@ -45,7 +45,7 @@ void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lon)
 	uint32_t alat = abs(lat);
 	uint32_t alon = abs(lon);
 
-	switch (config_get_select(&config.settings.units.geo_datum))
+	switch (config_get_select(&config.units.geo_datum))
 	{
 		case(GNSS_DDdddddd):
 			sprintf(slat, "+%0.6f", lat / (float)GNSS_MUL);
@@ -74,7 +74,7 @@ void format_vario(char * val, float in)
 
     int16_t value;
 
-    switch (config_get_select(&config.settings.units.vario))
+    switch (config_get_select(&config.units.vario))
     {
         case(VARIO_MPS):
             value = in * 10;
@@ -92,7 +92,7 @@ void format_vario(char * val, float in)
 
 void format_vario_units(char * units)
 {
-    switch (config_get_select(&config.settings.units.vario))
+    switch (config_get_select(&config.units.vario))
     {
         case(VARIO_MPS):
             strcpy(units, "m/s");
@@ -108,7 +108,7 @@ void format_vario_units(char * units)
 
 void format_distance(char * buf, float in)
 {
-	switch (config_get_select(&config.settings.units.distance))
+	switch (config_get_select(&config.units.distance))
 	{
 		case(DISTANCE_METERS):
 			if (in < 1000) //1km

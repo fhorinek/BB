@@ -1,3 +1,0 @@
-#remove unnecesery data fields
-filter-fields fields=name,place
-

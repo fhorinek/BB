@@ -71,7 +71,7 @@ void fc_set_time(uint32_t datetime)
 
 void fc_set_time_from_utc(uint32_t datetime)
 {
-	int32_t delta = timezone_get_offset(config_get_select(&config.settings.time.zone));
+	int32_t delta = timezone_get_offset(config_get_select(&config.time.zone));
 	fc_set_time(datetime + delta);
 }
 

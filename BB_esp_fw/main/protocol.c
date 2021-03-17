@@ -12,6 +12,8 @@
 #include "etc/stream.h"
 #include "drivers/tas5720.h"
 
+#include "wifi.h"
+
 void protocol_send_version()
 {
     DBG("sending version");
@@ -39,7 +41,9 @@ void protocol_handle(uint8_t *data, uint16_t len)
     data++;
     len--;
 
-    switch (type)
+    DBG("protocol_handle %u", type);
+
+	switch (type)
     {
         case (PROTO_PING):
             DBG("sending pong");
@@ -54,10 +58,41 @@ void protocol_handle(uint8_t *data, uint16_t len)
 
         case (PROTO_SET_VOLUME):
         {
-            proto_volume_t * packet = data;
+            proto_volume_t *packet = data;
 
             if (packet->type == PROTO_VOLUME_MASTER)
                 tas_volume(packet->val);
+        }
+        break;
+
+        case (PROTO_SPI_PREPARE):
+        {
+            spi_prepare_buffer();
+        }
+        break;
+
+        case (PROTO_SOUND_START):
+		{
+        	proto_sound_start_t * packet = data;
+        	pipe_sound_start(packet->file_id, packet->file_type, packet->file_lenght);
+		}
+        break;
+
+        case (PROTO_SOUND_STOP):
+        	pipe_sound_stop();
+        break;
+
+        case (PROTO_WIFI_SET_MODE):
+		{
+        	proto_wifi_mode_t * packet = (proto_wifi_mode_t *)data;
+        	wifi_enable(packet->client, packet->ap);
+		}
+        break;
+
+        case (PROTO_SET_DEVICE_NAME):
+        {
+        	proto_set_device_name_t * packet = (proto_set_device_name_t * )data;
+        	strncpy(config.device_name, packet->name, sizeof(config.device_name));
         }
         break;
 

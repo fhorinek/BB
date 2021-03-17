@@ -128,7 +128,7 @@ void thread_gui_start(void *argument)
 
 	//bck light
 	led_init();
-	led_set_backlight(config_get_int(&config.settings.display.backlight));
+	led_set_backlight(config_get_int(&config.display.backlight));
 
 	//display init
 	tft_init();

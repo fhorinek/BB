@@ -174,6 +174,8 @@ uint32_t calc_crc32(uint32_t * data, uint32_t size);
 
 void rtos_timer_elapsed();
 
+#define DEVICE_ID   ((HAL_GetREVID() << 24) | HAL_GetDEVID())
+
 #include <debug_thread.h>
 
 #endif /* INC_COMMON_H_ */

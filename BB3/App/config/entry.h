@@ -16,7 +16,7 @@
 #define ENTRY_FLOAT		3	//float
 #define ENTRY_TEXT		4	//char[]
 #define ENTRY_SELECT	5	//uint8_t
-#define ENTRY_END		0xFF
+//#define ENTRY_END		0xFF
 
 
 typedef union
@@ -145,7 +145,8 @@ typedef struct
 } cfg_entry_t;
 
 
-#define SELECT_END	{0xFF, ""}
+#define SELECT_END_VALUE    0xFF
+#define SELECT_END	{SELECT_END_VALUE, ""}
 
 
 void config_entry_init();

@@ -83,10 +83,7 @@ void bq25895_boost_voltage(uint8_t val)
 
 void bq25895_batfet_off()
 {
-    uint8_t r0 = system_i2c_read8(BQ_ADR, Charger_cfg3_Reg);
     system_i2c_write8(BQ_ADR, Charger_cfg3_Reg, 0b01100100);
-    uint8_t r1 = system_i2c_read8(BQ_ADR, Charger_cfg3_Reg);
-
 }
 
 void bq25895_init()

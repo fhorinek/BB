@@ -9,7 +9,7 @@
 #include "drivers/esp/esp.h"
 #include "drivers/esp/sound/sound.h"
 
-REGISTER_TASK_I(development,
+REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
     lv_obj_t * usb_otg_pin;
 );
@@ -28,6 +28,15 @@ void development_trigger()
 //    sound_start("/data/test.wav");
 }
 
+static void development_loop()
+{
+    bool ext_active = fc.esp.mode == esp_external;
+    bool val = gui_list_switch_get_value(local->esp_ext_prog);
+
+    if (val != ext_active)
+        gui_list_switch_set_value(local->esp_ext_prog, ext_active);
+}
+
 static void development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_CANCEL)
@@ -42,13 +51,18 @@ static void development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			case 1:
 			{
 				bool val = gui_list_switch_get_value(local->esp_ext_prog);
-				if (val)
+				bool ext_active = fc.esp.mode == esp_external;
+
+				if (val != ext_active)
 				{
-					esp_enable_external_programmer();
-				}
-				else
-				{
-					esp_disable_external_programmer();
+                    if (val)
+                    {
+                        esp_enable_external_programmer();
+                    }
+                    else
+                    {
+                        esp_disable_external_programmer();
+                    }
 				}
 			}
 			break;
