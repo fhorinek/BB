@@ -164,6 +164,9 @@ void * ps_malloc(uint32_t requested_size)
     if (requested_size == 0)
         return NULL;
 
+    //round to next multiple of 3
+    requested_size = (requested_size + 3) & ~3;
+
     ps_malloc_index = ps_malloc_next_free(ps_malloc_index, requested_size);
 
     if (ps_malloc_index != NULL)
@@ -197,6 +200,7 @@ void * ps_malloc(uint32_t requested_size)
             ps_malloc_index = ps_malloc_next_free(ps_malloc_index, 0);
         }
 
+        memset(memory_address, 0, requested_size);
         return memory_address;
     }
     else

@@ -10,4 +10,8 @@
 
 #include "common.h"
 
+void vario_init();
+void vario_profile_load(char * name);
+void vario_step();
+
 #endif /* FC_VARIO_H_ */

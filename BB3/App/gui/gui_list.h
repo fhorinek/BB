@@ -22,6 +22,8 @@ void gui_list_switch_set_value(lv_obj_t * obj, bool val);
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value);
 void gui_list_info_set_value(lv_obj_t * entry, char * value);
 void gui_list_info_set_name(lv_obj_t * entry, char * value);
+char * gui_list_info_get_value(lv_obj_t * entry);
+char * gui_list_info_get_name(lv_obj_t * entry);
 
 lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value);
 int16_t gui_list_slider_get_value(lv_obj_t * entry);
@@ -36,6 +38,8 @@ uint16_t gui_list_dropdown_get_value(lv_obj_t * obj);
 lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height);
 
 lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text);
+void gui_list_text_set_value(lv_obj_t * obj, char * text);
+
 lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text);
 lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text);
 

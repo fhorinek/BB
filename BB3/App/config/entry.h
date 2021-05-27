@@ -8,7 +8,7 @@
 #ifndef CONFIG_ENTRY_H_
 #define CONFIG_ENTRY_H_
 
-#include "../common.h"
+#include "common.h"
 
 #define ENTRY_BOOL		0	//0-1
 #define ENTRY_INT16     1   //int16_t
@@ -149,8 +149,8 @@ typedef struct
 #define SELECT_END	{SELECT_END_VALUE, ""}
 
 
-void config_entry_init();
-cfg_entry_t * entry_find(char * name_id);
+void config_init(cfg_entry_t * structure);
+cfg_entry_t * entry_find(char * name_id, cfg_entry_t * structure);
 void entry_set_str(cfg_entry_t * e, char * value);
 void entry_get_str(char * buff, cfg_entry_t * e);
 

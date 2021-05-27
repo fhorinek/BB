@@ -32,11 +32,19 @@ typedef enum
     fc_dev_off,
 } fc_device_status_t;
 
+typedef enum
+{
+    dm_client = 0,
+    dm_host_sdp,
+    dm_host_cdp,
+    _dm_modes_num
+} pwr_data_mode_t;
+
 typedef struct
 {
     uint8_t data_port;
     uint8_t charge_port;
-    bool pass_through;
+    pwr_data_mode_t data_usb_mode;
     uint16_t boost_output; //in mW
     uint8_t cc_conf;
     uint8_t boost_volt;

@@ -1,6 +1,5 @@
 #include "format.h"
 
-#include "config/config.h"
 #include "fc/fc.h"
 
 void format_date(char * buf, uint8_t day, uint8_t month, uint16_t year)
@@ -106,6 +105,36 @@ void format_vario_units(char * units)
     }
 }
 
+void format_altitude(char * buff, float in)
+{
+    int16_t val;
+
+    switch (config_get_select(&config.units.altitude))
+    {
+        case(ALTITUDE_M):
+            val = in;
+        break;
+        case(ALTITUDE_FT):
+            val = FC_METER_TO_FEET * in;
+        break;
+    }
+
+    sprintf(buff, "%d", val);
+}
+
+void format_altitude_units(char * buff)
+{
+    switch (config_get_select(&config.units.altitude))
+    {
+        case(ALTITUDE_M):
+            strcpy(buff, "m");
+        break;
+        case(ALTITUDE_FT):
+            strcpy(buff, "ft");
+        break;
+    }
+}
+
 void format_distance(char * buf, float in)
 {
 	switch (config_get_select(&config.units.distance))
@@ -135,4 +164,19 @@ void format_distance(char * buf, float in)
 		break;
 
 	}
+}
+
+void format_mac(char * buf, uint8_t * mac)
+{
+    for(uint8_t i = 0; i < 6; i++)
+    {
+        sprintf(buf + i * 3, "%02X:", mac[i]);
+    }
+
+    buf[3 * 6 - 1] = 0;
+}
+
+void format_ip(char * buf, uint8_t * ip)
+{
+    sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
 }

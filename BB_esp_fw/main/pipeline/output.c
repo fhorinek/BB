@@ -10,10 +10,11 @@
 #include "i2s_stream.h"
 #include "downmix.h"
 
+static const char *TAG = "PIPE_OUT";
+
 void pipe_output_init()
 {
     INFO("pipe_downmix_init");
-
 
     //create PIPE
     audio_pipeline_cfg_t output_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();
@@ -28,7 +29,7 @@ void pipe_output_init()
                 .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
                 .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
                 .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-                .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
+                .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2, // | ESP_INTR_FLAG_IRAM,
                 .dma_buf_count = 3,
                 .dma_buf_len = 300,
                 .use_apll = false,
@@ -47,16 +48,7 @@ void pipe_output_init()
             .uninstall_drv = true,
         };
 
-    i2s_pin_config_t pin_config = {
-        .bck_io_num = I2S_BCLK,
-        .ws_io_num = I2S_WS,
-        .data_out_num = I2S_DO,
-        .data_in_num = GPIO_NUM_NC
-    };
-
     pipes.output.i2s_writer = i2s_stream_init(&i2s_cfg);
-    i2s_set_pin(I2S_PORT, &pin_config);
-
 
     downmix_cfg_t downmix_cfg = DEFAULT_DOWNMIX_CONFIG();
     downmix_cfg.downmix_info.source_num = NUMBER_OF_SOURCES;
@@ -70,6 +62,7 @@ void pipe_output_init()
         .gain = {0, 0},
         .transit_time = 0,
     };
+
     esp_downmix_input_info_t source_information[NUMBER_OF_SOURCES] = {0};
     for (uint8_t i = 0; i < NUMBER_OF_SOURCES; i++)
         source_information[i] = source_info;

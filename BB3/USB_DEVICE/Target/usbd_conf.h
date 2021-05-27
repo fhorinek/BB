@@ -36,7 +36,7 @@
 #include "stm32h7xx_hal.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include <debug_thread.h>
+#include <system/debug_thread.h>
 
 #undef malloc
 #define malloc USBD_static_malloc

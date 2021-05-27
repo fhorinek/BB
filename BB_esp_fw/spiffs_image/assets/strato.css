@@ -1,0 +1,104 @@
+iframe
+{
+    display: none;
+}
+
+svg polygon.outline
+{
+    fill: yellow;
+    fill-opacity: 0;
+    stroke: white;
+    stroke-width: 2px;
+}
+svg polygon.outline:hover
+{
+    stroke: yellow !important;
+/*    stroke-width: 4px !important;*/
+ /*   fill-opacity: 0.2 !important;*/
+}
+
+svg rect.outline
+{
+    stroke: white;
+    stroke-width: 2px;
+}
+
+svg .selected
+{
+    stroke: yellow !important;
+    stroke-width: 6px !important;
+/*    fill-opacity: 0.2 !important;*/
+}
+
+svg polyline.axis
+{
+    fill: none;
+    stroke: gray;
+    stroke-width: 1px;
+}
+
+svg polyline.center
+{
+    fill: none;
+    stroke: white;
+    stroke-width: 2px;
+}
+
+svg .checker
+{
+    fill: hsl(240, 100%, 50%);
+    fill-opacity: 0.6;
+}
+
+svg polyline.prev_ruler
+{
+    stroke: white;
+    stroke-width: 3px;
+}
+
+svg text.freq
+{
+    fill: white;
+    dominant-baseline: central;
+    text-anchor: end;
+}
+
+svg text.dura
+{
+    fill: white;
+    dominant-baseline: central;
+}
+
+svg #tone_prev_climb
+{
+    fill: white;
+    text-anchor: middle;
+    font-weight: bold;
+    font-size: 15pt;
+}
+
+svg text.label
+{
+    fill: white;
+    text-anchor: middle;
+    dominant-baseline: hanging;
+}
+
+svg #freq_line
+{
+    fill: none;
+    stroke: yellow;
+    stroke-width: 4px;
+}
+
+svg circle
+{
+    stroke: yellow;
+    stroke-width: 2px;
+}
+
+svg circle:hover
+{
+    fill: yellow;
+}
+

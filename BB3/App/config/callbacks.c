@@ -10,10 +10,21 @@ void dev_name_cb(cfg_entry_t * entry)
     }
 }
 
+void wifi_pass_cb(cfg_entry_t * entry)
+{
+    if (strlen(config_get_text(entry)) < 8)
+    {
+        config_set_text(entry, "");
+    }
+}
+
 cfg_callback_pair_t config_callbacks[] =
 {
-    {&config.device_name, dev_name_cb}
+    {&config.device_name, dev_name_cb},
+    {&config.wifi.ap_pass, wifi_pass_cb}
 };
+
+
 
 static bool config_callbacks_enabled = true;
 

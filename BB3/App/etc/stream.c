@@ -108,7 +108,10 @@ void stream_parse(stream_t *stream, uint8_t data)
         case (stream_head_crc):
             if (stream->crc == data)
             {
-                stream->state = stream_data;
+                if (stream->lenght > 0)
+                    stream->state = stream_data;
+                else
+                    stream->state = stream_crc;
             }
             else
             {

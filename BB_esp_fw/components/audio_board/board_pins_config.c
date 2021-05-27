@@ -25,9 +25,11 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include <string.h>
-#include "board.h"
+
 #include "audio_error.h"
 #include "audio_mem.h"
+
+#include "../audio_board/include/board.h"
 
 static const char *TAG = "KALUGA_V1_2";
 
@@ -45,10 +47,11 @@ esp_err_t get_i2s_pins(i2s_port_t port, i2s_pin_config_t *i2s_config)
 {
     AUDIO_NULL_CHECK(TAG, i2s_config, return ESP_FAIL);
 
-    i2s_config->bck_io_num = GPIO_NUM_16;
+    i2s_config->bck_io_num = GPIO_NUM_27;
     i2s_config->ws_io_num = GPIO_NUM_21;
     i2s_config->data_out_num = GPIO_NUM_4;
     i2s_config->data_in_num = -1;
+
 
     return ESP_OK;
 }

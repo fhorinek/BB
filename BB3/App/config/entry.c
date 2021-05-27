@@ -4,18 +4,14 @@
  *  Created on: May 4, 2020
  *      Author: horinek
  */
-
-#include "entry.h"
+#define DEBUG_LEVEL DBG_DEBUG
 #include "config.h"
 
-
-cfg_entry_t * entry_find(char * name_id)
+cfg_entry_t * entry_find(char * name_id, cfg_entry_t * structure)
 {
-	uint16_t len = sizeof(config_t) / sizeof(cfg_entry_t);
-
-	for (uint16_t i = 0; i < len; i++)
+	for (uint16_t i = 0; i < config_structure_size(structure); i++)
 	{
-		cfg_entry_t * entry = (cfg_entry_t *)(&config) + i;
+		cfg_entry_t * entry = &structure[i];
 
 		if (strcmp(name_id, entry->name_id) == 0)
 		{
@@ -31,7 +27,7 @@ void entry_set_str(cfg_entry_t * e, char * value)
 	switch (e->type)
 	{
 	case(ENTRY_BOOL):
-	    config_set_select(e, value[0] == 'T');
+	    config_set_bool(e, value[0] == 'T');
 		DBG(">bool %s = %s", e->name_id, e->value.b ? "true" : "false");
 		return;
 
@@ -47,7 +43,7 @@ void entry_set_str(cfg_entry_t * e, char * value)
 
 				if (strcmp(value, s->name_id) == 0)
 				{
-					config_set_select(e, s->value)
+					config_set_select(e, s->value);
 					DBG(">select %s = %u (%s)", e->name_id, s->value, s->name_id);
 					return;
 				}
@@ -133,13 +129,11 @@ void entry_get_str(char * buff, cfg_entry_t * e)
 }
 
 
-void config_entry_init()
+void config_init(cfg_entry_t * structure)
 {
-	uint16_t len = sizeof(config_t) / sizeof(cfg_entry_t);
-
-	for (uint16_t i = 0; i < len; i++)
+	for (uint16_t i = 0; i < config_structure_size(structure); i++)
 	{
-		cfg_entry_t * entry = (cfg_entry_t *)(&config) + i;
+		cfg_entry_t * entry = &structure[i];
 
 		switch (entry->type)
 		{

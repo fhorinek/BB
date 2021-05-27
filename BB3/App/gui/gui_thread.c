@@ -13,10 +13,8 @@
 #include "lib/lvgl/lvgl.h"
 #include "lib/lvgl/src/lv_gpu/lv_gpu_stm32_dma2d.h"
 
-#include "drivers/tft_hx8352.h"
+#include "drivers/tft/tft.h"
 #include "drivers/power/led.h"
-
-#include "config/config.h"
 
 void gui_save_screen()
 {
@@ -118,6 +116,16 @@ void gui_take_screenshot()
     gui.take_screenshot = 1;
 }
 
+void gui_lock_acquire()
+{
+    osSemaphoreAcquire(gui.lock, WAIT_INF);
+}
+
+void gui_lock_release()
+{
+    osSemaphoreRelease(gui.lock);
+}
+
 void thread_gui_start(void *argument)
 {
 	INFO("Started");
@@ -132,7 +140,6 @@ void thread_gui_start(void *argument)
 
 	//display init
 	tft_init();
-	tft_init_display();
 
 	//Display driver glue
 	static lv_disp_buf_t disp_buf;
@@ -168,7 +175,7 @@ void thread_gui_start(void *argument)
     //Create lock for lvgl
     gui.lock = osSemaphoreNew(1, 0, NULL);
     vQueueAddToRegistry(gui.lock, "gui.lock");
-    osSemaphoreRelease(gui.lock);
+    gui_lock_release();
 
     start_thread(thread_map);
 
@@ -188,9 +195,9 @@ void thread_gui_start(void *argument)
 		    gui.take_screenshot = 0;
 		}
 
-		osSemaphoreAcquire(gui.lock, WAIT_INF);
+		gui_lock_acquire();
 		delay = lv_task_handler();
-		osSemaphoreRelease(gui.lock);
+		gui_lock_release();
 		osDelay(delay);
 	}
 

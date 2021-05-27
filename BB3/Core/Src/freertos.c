@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "debug_thread.h"
+#include "system/debug_thread.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

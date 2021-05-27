@@ -8,14 +8,16 @@
 #ifndef DRIVERS_ESP_ESP_H_
 #define DRIVERS_ESP_ESP_H_
 
-#include "../../common.h"
+#include "common.h"
+#include "fc/fc.h"
 
 void esp_init();
 void esp_deinit();
 void esp_step();
-void esp_reset();
+void esp_device_reset();
+void esp_state_reset();
 
-void esp_enable_external_programmer();
+void esp_enable_external_programmer(esp_mode_t prog_mode);
 void esp_disable_external_programmer();
 
 void thread_esp_start(void * argument);

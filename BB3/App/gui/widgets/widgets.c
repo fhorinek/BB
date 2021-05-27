@@ -241,6 +241,30 @@ bool widgets_editable(page_layout_t * page)
 	return false;
 }
 
+void widgets_edit(widget_slot_t * ws, uint8_t action)
+{
+    ws->widget->edit(ws, action);
+}
+
+widget_slot_t * widgets_editable_select_next(page_layout_t * page, widget_slot_t * last)
+{
+    if (!widgets_editable(page))
+        return NULL;
+
+    for (uint8_t i = 0;; i = (i + 1) % page->number_of_widgets)
+    {
+        if (page->widget_slots[i].widget->edit == NULL)
+            continue;
+
+        if (last == NULL)
+            return &page->widget_slots[i];
+
+        if (last == &page->widget_slots[i])
+            last = NULL;
+    }
+
+}
+
 void widgets_update(page_layout_t * page)
 {
     for (uint8_t i = 0; i < page->number_of_widgets; i++)

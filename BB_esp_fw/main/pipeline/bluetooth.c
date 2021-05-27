@@ -17,7 +17,7 @@ void pipe_bluetooth_init()
     ESP_ERROR_CHECK(esp_bluedroid_init());
     ESP_ERROR_CHECK(esp_bluedroid_enable());
 
-    esp_bt_dev_set_device_name("ESP_SINK_STREAM_DEMO");
+    esp_bt_dev_set_device_name("Strato");
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
 
     audio_pipeline_cfg_t pipeline_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();

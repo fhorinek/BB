@@ -1,0 +1,41 @@
+LOGS - flight logs
+	[year-month]
+		[year-month-day] [hour:min] [nearest point].igc
+		
+WAYPOINTS - waypoint files
+
+TASKS - defined tasks
+
+AIRSPACE - Airspace files
+
+DATA - automaticaly downloaded maps from server
+	TOPO 		- AGL data
+	MAP 		- Map data
+	INDEX
+		local.lst
+		request.lst
+		usage.lst
+
+SYSTEM - system data
+	[FWID]
+		[fw private data]
+
+	COMMON
+		AREAS
+			slovakia.lst - list of map files
+			slovenia.lst
+			...
+
+	TEMP
+			
+	
+CONFIG
+	PROFILES
+		default.cfg
+	PILOTS
+		default.cfg
+	PAGES
+		default.cfg
+	device.cfg
+	networks.cfg
+	

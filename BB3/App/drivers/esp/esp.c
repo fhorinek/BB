@@ -12,7 +12,10 @@
 #include "fc/fc.h"
 #include "etc/stream.h"
 
+#include "download/slot.h"
+
 #include "protocol.h"
+#include "scan.h"
 
 //DMA buffer
 #define ESP_DMA_BUFFER_SIZE   512
@@ -22,9 +25,14 @@ static uint8_t esp_rx_buffer[ESP_DMA_BUFFER_SIZE];
 static uint8_t esp_stream_buffer[ESP_STREAM_BUFFER_SIZE];
 static stream_t esp_stream;
 
+static uint32_t esp_external_prog_timer = 0;
+#define ESP_EXT_PROG_TIMEOUT    5000
+
+static uint16_t esp_read_index = 0;
+
 void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res);
 
-void esp_reset()
+void esp_device_reset()
 {
     GpioSetDirection(ESP_BOOT, OUTPUT, GPIO_NOPULL);
     GpioSetDirection(ESP_EN, OUTPUT, GPIO_NOPULL);
@@ -40,38 +48,61 @@ void esp_reset()
     GpioSetDirection(ESP_BOOT, INPUT, GPIO_NOPULL);
 }
 
+void esp_state_reset()
+{
+    fc.esp.mode = esp_starting;
+    fc.esp.state = 0;
+    fc.esp.wifi_list_cb = NULL;
+
+    memset(fc.esp.mac_ap, 0, 6);
+    memset(fc.esp.mac_sta, 0, 6);
+    memset(fc.esp.mac_bt, 0, 6);
+
+    memset(fc.esp.ip_ap, 0, 4);
+    memset(fc.esp.ip_sta, 0, 4);
+
+    memset(fc.esp.ssid, 0, PROTO_WIFI_SSID_LEN);
+
+    download_slot_reset();
+}
 
 void esp_init()
 {
-	fc.esp.mode = esp_starting;
-	fc.esp.wifi_list_cb = NULL;
-
 	stream_init(&esp_stream, esp_stream_buffer, ESP_STREAM_BUFFER_SIZE, esp_parser);
     HAL_UART_Receive_DMA(esp_uart, esp_rx_buffer, ESP_DMA_BUFFER_SIZE);
 
-	esp_reset();
+    esp_scan_init();
+    download_slot_init();
+
+    esp_state_reset();
+	esp_device_reset();
 }
+
 
 void esp_deinit()
 {
 	fc.esp.mode = esp_off;
+	fc.esp.state = 0;
     HAL_UART_DeInit(esp_uart);
 	HAL_GPIO_WritePin(ESP_EN, LOW);
 }
 
-void esp_enable_external_programmer()
+void esp_enable_external_programmer(esp_mode_t prog_mode)
 {
     INFO("Enabling external programmer for ESP32");
 
-	fc.esp.mode = esp_external;
+	fc.esp.mode = prog_mode;
 
 	//Enable esp programming
 	HAL_UART_DeInit(esp_uart);
+	GpioSetDirection(ESP_UART_TX, INPUT, GPIO_NOPULL);
+	esp_external_prog_timer = HAL_GetTick() + ESP_EXT_PROG_TIMEOUT;
 }
 
 void esp_disable_external_programmer()
 {
     INFO("Disabling external programmer for ESP32");
+    esp_read_index = ESP_DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(esp_uart->hdmarx);
 	HAL_UART_Init(esp_uart);
 	esp_init();
 }
@@ -88,7 +119,7 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
            INFO((char *)data);
            if (strstr(data, "DOWNLOAD_BOOT") != NULL)
            {
-               esp_enable_external_programmer();
+               esp_enable_external_programmer(esp_external_auto);
            }
         }
         break;
@@ -98,8 +129,6 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
 
     }
 }
-
-static uint16_t esp_read_index = 0;
 
 uint16_t esp_get_waiting()
 {
@@ -152,6 +181,24 @@ void esp_step()
         for (uint16_t i = 0; i < waiting; i++)
         {
             stream_parse(&esp_stream, esp_read_byte());
+        }
+
+        esp_scan_step();
+        download_slot_step();
+    }
+
+    if (fc.esp.mode == esp_external_auto)
+    {
+        if (HAL_GPIO_ReadPin(ESP_UART_TX) == LOW)
+        {
+            esp_external_prog_timer = HAL_GetTick() + ESP_EXT_PROG_TIMEOUT;
+        }
+        else
+        {
+            if (HAL_GetTick() > esp_external_prog_timer)
+            {
+                esp_disable_external_programmer();
+            }
         }
     }
 }

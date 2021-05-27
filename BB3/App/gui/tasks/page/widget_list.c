@@ -10,7 +10,6 @@
 #include "widget_list.h"
 
 #include "gui/gui_list.h"
-#include "config/config.h"
 #include "gui/widgets/widgets.h"
 
 REGISTER_TASK_I(widget_list,

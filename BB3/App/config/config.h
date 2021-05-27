@@ -8,7 +8,7 @@
 #ifndef CONFIG_CONFIG_H_
 #define CONFIG_CONFIG_H_
 
-#include "../common.h"
+#include "common.h"
 #include "entry.h"
 
 #define ALTITUDE_M		0
@@ -35,26 +35,84 @@
 
 #define DEV_NAME_LEN   16
 
-#define PAGE_NAME_LEN	16
-#define PAGE_MAX_COUNT	10
+#define PAGE_NAME_LEN       16
+#define VARIO_PROFILE_LEN   16
+#define PAGE_MAX_COUNT	    10
 
 #define BLUETOOTH_NAME_LEN      16
 #define BLUETOOTH_PIN_LEN       4
 
+#define WIFI_PASS_LEN           64
+#define UPDATE_URL_LEN          128
+
+#define FW_RELEASE  0
+#define FW_TESTING  1
+#define FW_DEVEL    2
+
+#define LOGGER_OFF      0
+#define LOGGER_FLIGHT   1
+#define LOGGER_ALWAYS   2
+
+typedef struct
+{
+    cfg_entry_t name;
+} pilot_profile_t;
+
+typedef struct
+{
+    struct
+    {
+        cfg_entry_t page[PAGE_MAX_COUNT];
+        cfg_entry_t page_last;
+    } ui;
+
+    struct
+    {
+        cfg_entry_t enabled;
+        cfg_entry_t broadcast_name;
+        cfg_entry_t online_track;
+    } fanet;
+
+    struct
+    {
+        struct
+        {
+            cfg_entry_t alt_change_enabled;
+            cfg_entry_t alt_change_value;
+            cfg_entry_t speed_enabled;
+            cfg_entry_t speed_value;
+            cfg_entry_t timeout;
+        } auto_take_off;
+
+        struct
+        {
+            cfg_entry_t alt_change_enabled;
+            cfg_entry_t alt_change_value;
+            cfg_entry_t speed_enabled;
+            cfg_entry_t speed_value;
+            cfg_entry_t timeout;
+        } auto_landing;
+
+        struct
+        {
+            cfg_entry_t mode;
+            cfg_entry_t igc;
+        } logger;
+    }
+    flight;
+
+    struct
+    {
+        cfg_entry_t profile;
+    } vario;
+} flight_profile_t;
+
 typedef struct
 {
     cfg_entry_t device_name;
-
-	struct
-	{
-		cfg_entry_t name;
-	} pilot;
-
-	struct
-	{
-		cfg_entry_t page[PAGE_MAX_COUNT];
-		cfg_entry_t page_last;
-	} ui;
+    cfg_entry_t ask_on_start;
+    cfg_entry_t pilot_profile;
+    cfg_entry_t flight_profile;
 
 	struct
 	{
@@ -73,13 +131,6 @@ typedef struct
 
     struct
     {
-        cfg_entry_t enabled;
-        cfg_entry_t broadcast_name;
-        cfg_entry_t online_track;
-    } fanet;
-
-    struct
-    {
         cfg_entry_t a2dp;
         cfg_entry_t volume;
         cfg_entry_t name;
@@ -89,7 +140,9 @@ typedef struct
     struct
     {
         cfg_entry_t enabled;
+        cfg_entry_t autoconnect;
         cfg_entry_t ap;
+        cfg_entry_t ap_pass;
     } wifi;
 
     struct
@@ -117,6 +170,12 @@ typedef struct
         cfg_entry_t vario;
     } units;
 
+    struct
+    {
+        cfg_entry_t server_url;
+        cfg_entry_t firmware_channel;
+    } system;
+
 	struct
 	{
 		cfg_entry_t use_serial;
@@ -132,18 +191,21 @@ typedef struct
 } cfg_callback_pair_t;
 
 extern config_t config;
+extern flight_profile_t profile;
+extern pilot_profile_t pilot;
+
 extern cfg_callback_pair_t config_callbacks[];
 
-void config_load();
-void config_store();
-void config_default();
-void config_show();
+void config_load(cfg_entry_t * structure, char * path);
+void config_store(cfg_entry_t * structure, char * path);
+void config_show(cfg_entry_t * structure);
 
 void config_set_bool(cfg_entry_t * entry, bool val);
 bool config_get_bool(cfg_entry_t * entry);
 
 void config_set_select(cfg_entry_t * entry, uint8_t val);
 uint8_t config_get_select(cfg_entry_t * entry);
+const char * config_get_select_text(cfg_entry_t * entry);
 
 void config_set_text(cfg_entry_t * entry, char * value);
 char * config_get_text(cfg_entry_t * entry);
@@ -162,6 +224,9 @@ void config_process_cb(cfg_entry_t * entry);
 void config_trigger_callbacks();
 void config_disable_callbacks();
 void config_enable_callbacks();
+uint16_t config_structure_size(cfg_entry_t * structure);
 
+void config_load_all();
+void config_store_all();
 
 #endif /* CONFIG_CONFIG_H_ */

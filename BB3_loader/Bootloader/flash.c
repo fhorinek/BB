@@ -13,6 +13,8 @@
 #include "lib/stm32-bootloader/bootloader.h"
 #include "lib/esp-flasher/flasher.h"
 
+#include "nvm.h"
+
 extern CRC_HandleTypeDef hcrc;
 
 bool flash_loop()
@@ -79,13 +81,13 @@ bool flash_loop()
                     bool write_error = false;
 
                     uint32_t pos = 0;
-                    uint8_t buff[WORK_BUFFER_SIZE];
+                    uint8_t buff[COPY_WORK_BUFFER_SIZE];
 
                     while (chunk.size > pos)
                     {
                         uint32_t to_read = chunk.size - pos;
-                        if (to_read > WORK_BUFFER_SIZE)
-                            to_read = WORK_BUFFER_SIZE;
+                        if (to_read > COPY_WORK_BUFFER_SIZE)
+                            to_read = COPY_WORK_BUFFER_SIZE;
 
                         f_read(&update_file, buff, to_read, &br);
 

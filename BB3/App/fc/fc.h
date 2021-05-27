@@ -45,12 +45,13 @@
 
 #define GNSS_SAT_USED			0b00001000
 
-#define ESP_STATE_WIFI_ON           0b00000001
-#define ESP_STATE_WIFI_CLIENT       0b00000010
+#define ESP_STATE_WIFI_CLIENT       0b00000001
+#define ESP_STATE_WIFI_CONNECTED    0b00000010
 #define ESP_STATE_WIFI_AP           0b00000100
-#define ESP_STATE_BT_ON             0b00001000
-#define ESP_STATE_BT_AUDIO          0b00010000
-#define ESP_STATE_BT_DATA           0b00100000
+#define ESP_STATE_WIFI_AP_CONNECTED 0b00001000
+#define ESP_STATE_BT_ON             0b00010000
+#define ESP_STATE_BT_AUDIO          0b00100000
+#define ESP_STATE_BT_DATA           0b01000000
 
 typedef struct
 {
@@ -100,8 +101,8 @@ typedef enum
 	esp_off = 0,
 	esp_starting,
 	esp_normal,
-	esp_programming,
-	esp_external
+    esp_external_auto,
+    esp_external_manual,
 } esp_mode_t;
 
 typedef enum
@@ -114,10 +115,34 @@ typedef enum
     fc_dev_off,
 } fc_device_status_t;
 
+typedef enum
+{
+    flight_not_ready = 0,
+    flight_wait_to_takeoff,
+    flight_flight,
+    flight_landed
+} fc_flight_mode;
+
 typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
 typedef struct
 {
+    struct
+    {
+        uint32_t start_time;
+        uint32_t duration;
+
+        int16_t start_alt;
+        uint8_t mode;
+        uint8_t _pad[1];
+    } flight;
+
+    struct
+    {
+        float altitude;
+        uint32_t timestamp;
+    } autostart;
+
 	struct
 	{
         uint32_t ttf; //[ms]
@@ -176,15 +201,34 @@ typedef struct
         uint8_t _pad[3];
 	} baro;
 
+    struct
+    {
+        float pressure; //in Pa
+        fc_device_status_t status;
+
+        uint8_t _pad[3];
+    } aux_baro;
+
 	struct
 	{
-        uint32_t version;
+        char ssid[PROTO_WIFI_SSID_LEN];
+
         wifi_list_update_cb wifi_list_cb;
 
-        fc_device_status_t status;
-		esp_mode_t mode;
-		uint8_t state;
-		uint8_t _pad[1];
+        uint8_t ip_ap[4];
+        uint8_t ip_sta[4];
+
+        uint8_t mac_ap[6];
+        esp_mode_t mode;
+        uint8_t state;
+
+        uint8_t mac_sta[6];
+        uint8_t _pad_1[2];
+
+        uint8_t mac_bt[6];
+
+        fc_device_status_t amp_status;
+        fc_device_status_t server_status;
 	} esp;
 
 	struct
@@ -209,10 +253,14 @@ typedef struct
 
 	struct
 	{
-        float altitude;
+        float altitude1;
+        float altitude2;
         float pressure;
         float vario;
         float avg_vario;
+
+        float azimuth;
+        float azimuth_filtered;
 
         fc_device_status_t status;
         uint8_t _pad[3];
@@ -228,6 +276,9 @@ void fc_device_status(char * buff, fc_device_status_t status);
 void fc_set_time_from_utc(uint32_t datetime);
 
 void fc_init();
+void fc_takeoff();
+void fc_landing();
+void fc_reset();
 
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);

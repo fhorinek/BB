@@ -15,6 +15,12 @@
 #define DECLARE_WIDGET(name)	extern widget_t widget_ ## name
 #define LIST_WIDGET(name)       &widget_ ## name
 
+#define WIDGET_ACTION_LEFT      0
+#define WIDGET_ACTION_RIGHT     1
+#define WIDGET_ACTION_MENU      2
+#define WIDGET_ACTION_HOLD      3
+#define WIDGET_ACTION_DEFOCUS   4
+
 typedef struct _widget_slot_t widget_slot_t;
 
 typedef struct _widget_t
@@ -34,7 +40,7 @@ typedef struct _widget_t
 	void (* stop)(widget_slot_t *);
 	//widget update (optional, can be NULL)
 	void (* update)(widget_slot_t *);
-	//widget irqh (optional, can be NULL)
+	//widget edit (optional, can be NULL)
 	void (* edit)(widget_slot_t *, uint8_t);
 
 	uint16_t vars_size;
@@ -57,6 +63,27 @@ typedef struct _widget_t
         h_min, \
         short_name ## _init, \
         short_name ## _stop, \
+        short_name ## _update, \
+        short_name ## _edit, \
+        sizeof(widget_local_vars_t) \
+    };
+
+#define REGISTER_WIDGET_IUE(short_name, name, w_min, h_min, ...) \
+    typedef struct \
+    { \
+        __VA_ARGS__ \
+    } widget_local_vars_t; \
+    static void short_name ## _init(lv_obj_t *, widget_slot_t *); \
+    static void short_name ## _update(widget_slot_t *); \
+    static void short_name ## _edit(widget_slot_t *, uint8_t); \
+    widget_t widget_ ## short_name = \
+    { \
+        #short_name, \
+        name, \
+        w_min, \
+        h_min, \
+        short_name ## _init, \
+        NULL, \
         short_name ## _update, \
         short_name ## _edit, \
         sizeof(widget_local_vars_t) \
@@ -173,6 +200,9 @@ void widget_update(widget_slot_t * ws);
 void widget_deinit(widget_slot_t * ws);
 
 bool widgets_editable(page_layout_t * page);
+void widgets_edit(widget_slot_t * ws, uint8_t action);
+widget_slot_t * widgets_editable_select_next(page_layout_t * page, widget_slot_t * last);
+
 
 void widgets_add(page_layout_t * page, widget_t * w);
 void widgets_remove(page_layout_t * page, uint8_t index);

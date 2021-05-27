@@ -11,7 +11,8 @@
 #include "common.h"
 
 void wifi_init();
-void wifi_enable(bool client, bool ap);
-void wifi_start_scan();
+void wifi_enable(proto_wifi_mode_t * packet);
+void wifi_start_scan(void * parameter);
+void wifi_connect(proto_wifi_connect_t * packet);
 
 #endif /* MAIN_WIFI_H_ */

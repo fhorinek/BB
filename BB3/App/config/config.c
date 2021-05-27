@@ -4,8 +4,8 @@
  *  Created on: May 4, 2020
  *      Author: horinek
  */
-#include <debug_thread.h>
 #include "config.h"
+#include "gui/widgets/widgets.h"
 
 #include "fatfs.h"
 
@@ -49,6 +49,12 @@ void config_set_select(cfg_entry_t * entry, uint8_t val)
 uint8_t config_get_select(cfg_entry_t * entry)
 {
 	return entry->value.u8[0];
+}
+
+
+const char * config_get_select_text(cfg_entry_t * entry)
+{
+    return entry->params.list[entry->value.u8[0]].name_id;
 }
 
 
@@ -124,14 +130,26 @@ void config_set_float(cfg_entry_t * entry, float value)
 }
 
 
-void config_load()
+uint16_t config_structure_size(cfg_entry_t * structure)
+{
+    if (structure == (cfg_entry_t *)&config)
+        return sizeof(config_t) / sizeof(cfg_entry_t);
+    if (structure == (cfg_entry_t *)&profile)
+        return sizeof(flight_profile_t) / sizeof(cfg_entry_t);
+    if (structure == (cfg_entry_t *)&pilot)
+        return sizeof(pilot_profile_t) / sizeof(cfg_entry_t);
+
+    ASSERT(0);
+    return 0;
+}
+
+void config_load(cfg_entry_t * structure, char * path)
 {
 	FIL f;
 	uint8_t ret;
 
 	config_disable_callbacks();
 
-	char * path = PATH_DEVICE_CFG;
 	ret = f_open(&f, path, FA_READ);
 	INFO("Reading configuration from %s", path);
 
@@ -158,7 +176,7 @@ void config_load()
 			memcpy(key, buff, pos - buff);
 			key[pos - buff] = 0;
 
-			cfg_entry_t * e = entry_find(key);
+			cfg_entry_t * e = entry_find(key, structure);
 			if (e != NULL)
 			{
 				entry_set_str(e, pos + 1);
@@ -179,15 +197,15 @@ void config_load()
 
 	config_enable_callbacks();
 
-	config_trigger_callbacks();
+	config_trigger_callbacks(structure);
 }
 
-void config_store()
+
+void config_store(cfg_entry_t * structure, char * path)
 {
 	FIL f;
 	uint8_t ret;
 
-	char * path = PATH_DEVICE_CFG;
 	ret = f_open(&f, path, FA_WRITE | FA_CREATE_ALWAYS);
 	INFO("Writing configuration to %s", path);
 
@@ -197,15 +215,11 @@ void config_store()
 		return;
 	}
 
-	uint16_t len = sizeof(config_t) / sizeof(cfg_entry_t);
-
-	for (uint16_t i = 0; i < len; i++)
+	for (uint16_t i = 0; i < config_structure_size(structure); i++)
 	{
 		char buff[256];
 
-		cfg_entry_t * entry = (cfg_entry_t *)(&config) + i;
-
-		entry_get_str(buff, entry);
+		entry_get_str(buff, &structure[i]);
 		UINT bw;
 		f_write(&f, buff, strlen(buff), &bw);
 
@@ -214,23 +228,46 @@ void config_store()
 	f_close(&f);
 }
 
-void config_show()
+void config_show(cfg_entry_t * structure)
 {
-	uint16_t len = sizeof(config_t) / sizeof(cfg_entry_t);
-
 	INFO("Configuration");
 
-	for (uint16_t i = 0; i < len; i++)
+	for (uint16_t i = 0; i < config_structure_size(structure); i++)
 	{
 		char buff[256];
 
-		cfg_entry_t * entry = (cfg_entry_t *)(&config) + i;
-
-		entry_get_str(buff, entry);
+		entry_get_str(buff, &structure[i]);
 		buff[strlen(buff) - 1] = 0;
 		INFO("%s", buff);
 	}
 }
 
+void config_load_all()
+{
+    config_init((cfg_entry_t *)&config);
+    config_load((cfg_entry_t *)&config, PATH_DEVICE_CFG);
+    pages_defragment();
 
+    char path[64];
+
+    sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
+    config_init((cfg_entry_t *)&profile);
+    config_load((cfg_entry_t *)&profile, path);
+
+    sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
+    config_init((cfg_entry_t *)&pilot);
+    config_load((cfg_entry_t *)&pilot, path);
+}
+
+
+void config_store_all()
+{
+    char path[64];
+
+    config_store(&config, PATH_DEVICE_CFG);
+    sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
+    config_store(&profile, path);
+    sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
+    config_store(&pilot, path);
+}
 

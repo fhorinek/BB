@@ -239,9 +239,9 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
 
 			if (i % 2 == 1)
 			{
-	            osSemaphoreAcquire(gui.lock, WAIT_INF);
+	            gui_lock_acquire();
                 lv_canvas_draw_line(canvas, line_points, 2, draw_desc);
-	            osSemaphoreRelease(gui.lock);
+	            gui_lock_release();
 			}
 
 			edges[active[i]].x_val += edges[active[i]].slope;
@@ -584,9 +584,9 @@ void create_tile(uint32_t lon, uint32_t lat, uint8_t zoom, lv_obj_t * canvas, bo
 				points[j].y = py;
 			}
 
-	        osSemaphoreAcquire(gui.lock, WAIT_INF);
+	        gui_lock_acquire();
 			lv_canvas_draw_line(canvas, points, number_of_points, &line_draw);
-	        osSemaphoreRelease(gui.lock);
+	        gui_lock_release();
 
 			free(points);
 		}

@@ -87,6 +87,10 @@ void Error_Handler(void);
 #define BQ_OTG_GPIO_Port GPIOC
 #define BQ_INT_Pin GPIO_PIN_1
 #define BQ_INT_GPIO_Port GPIOC
+#define ESP_UART_TX_Pin GPIO_PIN_0
+#define ESP_UART_TX_GPIO_Port GPIOA
+#define ESP_UART_RX_Pin GPIO_PIN_1
+#define ESP_UART_RX_GPIO_Port GPIOA
 #define ESP_BOOT_Pin GPIO_PIN_2
 #define ESP_BOOT_GPIO_Port GPIOA
 #define DISP_BCKL_Pin GPIO_PIN_3
@@ -102,14 +106,14 @@ void Error_Handler(void);
 #define FANET_RST_GPIO_Port GPIOB
 #define DISP_RST_Pin GPIO_PIN_12
 #define DISP_RST_GPIO_Port GPIOD
-#define FANET_BOOT0_Pin GPIO_PIN_6
-#define FANET_BOOT0_GPIO_Port GPIOC
+#define NG_CDP_CLM_2_Pin GPIO_PIN_6
+#define NG_CDP_CLM_2_GPIO_Port GPIOC
 #define USB_VBUS_Pin GPIO_PIN_9
 #define USB_VBUS_GPIO_Port GPIOA
 #define ESP_EN_Pin GPIO_PIN_10
 #define ESP_EN_GPIO_Port GPIOA
-#define NG_CDP_CLM_Pin GPIO_PIN_15
-#define NG_CDP_CLM_GPIO_Port GPIOA
+#define NG_CDP_CLM_1_Pin GPIO_PIN_15
+#define NG_CDP_CLM_1_GPIO_Port GPIOA
 #define FANET_SW_Pin GPIO_PIN_3
 #define FANET_SW_GPIO_Port GPIOD
 #define BT1_Pin GPIO_PIN_6
@@ -145,6 +149,8 @@ void Error_Handler(void);
 #define USB_DATA_DFP_3A     USB_DATA_DFP_3A_GPIO_Port, USB_DATA_DFP_3A_Pin
 #define USB_VBUS            USB_VBUS_GPIO_Port, USB_VBUS_Pin
 #define VCC_MAIN_EN         VCC_MAIN_EN_GPIO_Port, VCC_MAIN_EN_Pin
+
+#define ESP_UART_TX         ESP_UART_TX_GPIO_Port, ESP_UART_TX_Pin
 
 #define REV_0               GPIOC, GPIO_PIN_2
 #define REV_1               GPIOC, GPIO_PIN_3

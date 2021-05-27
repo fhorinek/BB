@@ -78,7 +78,24 @@ void GpioSetDirection(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint16_t direction
 	  HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 }
 
+uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data)
+{
+    uint8_t i;
 
+    for (i = 0; i < 8; i++)
+    {
+        if ((data & 0x01) ^ (crc & 0x01))
+        {
+            crc = crc >> 1;
+            crc = crc ^ key;
+        }
+        else
+            crc = crc >> 1;
+        data = data >> 1;
+    }
+
+    return crc;
+}
 
 int16_t complement2_16bit(uint16_t in)
 {

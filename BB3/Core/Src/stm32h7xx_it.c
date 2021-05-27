@@ -161,7 +161,7 @@ HANDLER_ATTR void BusFault_Handler(void)
     if (CFSR & SCB_CFSR_PRECISERR_Msk)
         FAULT(" PRECISERR - Instruction which was executing prior to exception entry triggered the fault");
     if (CFSR & SCB_CFSR_IBUSERR_Msk)
-        FAULT(" IBUSERR");
+        FAULT(" IBUSERR - Instruction access violation");
 
     while (1);
 }

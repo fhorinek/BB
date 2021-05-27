@@ -10,6 +10,8 @@
 #include "drivers/sd.h"
 #include "lib/stm32-bootloader/bootloader.h"
 
+#include "nvm.h"
+
 #include "gfx.h"
 #include "msc.h"
 #include "flash.h"
@@ -68,9 +70,20 @@ void app_deinit()
 #define POWER_ON_BUTTON 1
 #define POWER_ON_TORCH  2
 #define POWER_ON_BOOST  3
+#define POWER_ON_REBOOT 4
 
 uint8_t app_poweroff()
 {
+    if (no_init_check())
+    {
+        uint8_t boot_type = no_init->boot_type;
+        no_init->boot_type = BOOT_NORMAL;
+        no_init_update();
+
+        if (boot_type == BOOT_REBOOT)
+            return POWER_ON_REBOOT;
+    }
+
     MX_GPIO_Init();
     MX_TIM2_Init();
 
@@ -81,7 +94,6 @@ uint8_t app_poweroff()
     GpioWrite(VCC_MAIN_EN, HIGH);
 
     HAL_Delay(100);
-
 
     bq25895_init();
     bq25895_batfet_off();
@@ -108,11 +120,11 @@ uint8_t app_poweroff()
         if (button_hold_2(BT3, 150))
             return POWER_ON_BUTTON;
 
-        if (button_hold_2(BT5, 150))
+        if (button_hold_2(BT4, 150))
             return POWER_ON_BOOST;
 
         //do not sleep if button is pressed
-        if (button_pressed(BT1) || button_pressed(BT3) || button_pressed(BT5))
+        if (button_pressed(BT1) || button_pressed(BT3) || button_pressed(BT4))
             continue;
 
         HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
@@ -148,7 +160,7 @@ void app_main(uint8_t power_on_mode)
 
     if (power_on_mode == POWER_ON_BOOST)
     {
-        pwr_boost_start();
+        pwr_data_mode(dm_host_cdp);
         power_on_mode = POWER_ON_USB;
     }
 
@@ -169,7 +181,7 @@ void app_main(uint8_t power_on_mode)
         led_set_torch(100);
 
         button_wait(BT1);
-        button_wait(BT3);
+        button_wait(BT2);
         button_wait(BT3);
 
         while(1)

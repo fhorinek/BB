@@ -48,18 +48,14 @@ void sound_read_next(uint8_t id, uint32_t requested_size)
     if (free_space < requested_size + sizeof(proto_spi_header_t))
         requested_size = free_space - sizeof(proto_spi_header_t);
 
-    //add header
-    proto_spi_header_t hdr;
-    hdr.packet_type = SPI_EP_SOUND;
-    hdr.data_id = id;
-    memcpy(buf, &hdr,  + sizeof(proto_spi_header_t));
-
     UINT br;
     uint8_t ret = f_read(&audio_file, buf + sizeof(proto_spi_header_t), requested_size, &br);
-    if (ret == FR_OK && br > 0)
+    if (ret == FR_OK)
     {
         if (f_eof(&audio_file))
+        {
             sound_close();
+        }
     }
     else
     {
@@ -67,9 +63,23 @@ void sound_read_next(uint8_t id, uint32_t requested_size)
         WARN("audio file not open for reading");
     }
 
-    //release buffer
-    esp_spi_release_buffer(br + sizeof(proto_spi_header_t));
-    esp_spi_prepare();
+    if (br > 0)
+    {
+        //add header
+        proto_spi_header_t hdr;
+        hdr.packet_type = SPI_EP_SOUND;
+        hdr.data_id = id;
+        hdr.data_len = br;
+        memcpy(buf, &hdr,  + sizeof(proto_spi_header_t));
+
+        //release buffer
+        esp_spi_release_buffer(br + sizeof(proto_spi_header_t));
+        esp_spi_prepare();
+    }
+    else
+    {
+        esp_spi_release_buffer(0);
+    }
 }
 
 void sound_close()

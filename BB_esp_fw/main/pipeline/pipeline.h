@@ -21,10 +21,11 @@
 #include "downmix.h"
 
 
-#define NUMBER_OF_SOURCES		2
+#define NUMBER_OF_SOURCES		3
 
 #define	SOURCE_SOUND_INDEX		0
 #define	SOURCE_BT_INDEX			1
+#define	SOURCE_VARIO_INDEX		2
 
 #define OUTPUT_SAMPLERATE		48000
 #define OUTPUT_CHANNELS			1
@@ -67,12 +68,19 @@ typedef struct
 
 typedef struct
 {
-//	audio_pipeline_handle_t music; 		//music files from stm32
-//	audio_pipeline_handle_t sound; 		//sound effect/alerts from stm32
-//	audio_pipeline_handle_t vario; 		//vario output from esp32
+	audio_pipeline_handle_t pipe;
 
+	audio_element_handle_t stream;
+	audio_element_handle_t raw;
+
+	SemaphoreHandle_t lock;
+} vario_pipe_t;
+
+typedef struct
+{
 	bluetooth_pipe_t bluetooth;			//bt audio
 	sound_pipe_t sound;			//sound effect/alerts from stm32
+	vario_pipe_t vario;
 
 	output_pipe_t output;
 

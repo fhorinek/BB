@@ -12,7 +12,6 @@
 #include "page_edit.h"
 
 #include "gui/gui_list.h"
-#include "config/config.h"
 
 REGISTER_TASK_I(page_settings,
 		char page_name[PAGE_NAME_LEN + 1];
