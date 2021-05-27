@@ -1,5 +1,6 @@
+#include "../audio_board/include/audio_board.h"
+
 #include <stdio.h>
-#include "audio_board.h"
 
 void func(void)
 {

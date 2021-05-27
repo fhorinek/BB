@@ -14,7 +14,7 @@ power_mng_t pwr;
 
 void pwr_init()
 {
-    pwr.pass_through = false;
+    pwr.data_usb_mode = dm_client;
     pwr.cc_conf = 0;
 
 	bq25895_init();
@@ -49,21 +49,33 @@ void pwr_set_cc()
     }
 }
 
-void pwr_boost_start()
+void pwr_data_mode(pwr_data_mode_t mode)
 {
-    pwr.pass_through = true;
-    pwr.boost_output = 0;
-    GpioWrite(NG_CDP_CLM, HIGH);
-    pwr_set_cc();
-}
+    INFO("data_port_mode: %u", mode);
 
-void pwr_boost_stop()
-{
-    pwr.pass_through = false;
-    pwr.boost_output = 0;
-    GpioWrite(NG_CDP_CLM, LOW);
-    GpioSetDirection(USB_DATA_DFP_1A, INPUT, GPIO_NOPULL);
-    GpioSetDirection(USB_DATA_DFP_3A, INPUT, GPIO_NOPULL);
+    pwr.data_usb_mode = mode;
+    switch (mode)
+    {
+        case(dm_client):
+            pwr.boost_output = 0;
+            GpioWrite(NG_CDP_CLM_1, LOW);
+            GpioWrite(NG_CDP_CLM_2, HIGH);
+            GpioSetDirection(USB_DATA_DFP_1A, INPUT, GPIO_NOPULL);
+            GpioSetDirection(USB_DATA_DFP_3A, INPUT, GPIO_NOPULL);
+        break;
+        case(dm_host_sdp):
+            pwr.boost_output = 0;
+            GpioWrite(NG_CDP_CLM_1, HIGH);
+            GpioWrite(NG_CDP_CLM_2, LOW);
+            pwr_set_cc();
+        break;
+        case(dm_host_cdp):
+            pwr.boost_output = 0;
+            GpioWrite(NG_CDP_CLM_1, HIGH);
+            GpioWrite(NG_CDP_CLM_2, HIGH);
+            pwr_set_cc();
+        break;
+    }
 }
 
 #define DEVICE_DRAW 600ul
@@ -73,7 +85,7 @@ void pwr_step()
     bq25895_step();
     max17260_step();
 
-    if (pwr.pass_through)
+    if (pwr.data_usb_mode != dm_client)
     {
         //disable alt charger
         GpioWrite(ALT_CH_EN, HIGH);
@@ -110,14 +122,14 @@ void pwr_step()
                 button_wait(BT2);
             }
 
-            if (button_pressed(BT4))
+            if (button_pressed(BT5))
             {
                 if (pwr.boost_volt > 0b0000)
                 {
                     pwr.boost_volt -= 1;
                     bq25895_boost_voltage(pwr.boost_volt);
                 }
-                button_wait(BT4);
+                button_wait(BT5);
             }
         }
 
@@ -127,10 +139,20 @@ void pwr_step()
             pwr_set_cc();
         }
 
-        if (button_hold(BT5))
+        if (button_pressed(BT4))
         {
-            pwr_boost_stop();
+            if (pwr.data_usb_mode == dm_host_cdp)
+                pwr_data_mode(dm_host_sdp);
+            else
+                pwr_data_mode(dm_host_cdp);
         }
+
+        if (button_hold(BT4))
+        {
+            pwr_data_mode(dm_client);
+        }
+
+
     }
     else
     {
@@ -171,9 +193,9 @@ void pwr_step()
 
         if (pwr.charge_port > PWR_CHARGE_WEAK)
         {
-            if (button_hold(BT5))
+            if (button_hold(BT4))
             {
-                pwr_boost_start();
+                pwr_data_mode(dm_host_sdp);
             }
 
         }

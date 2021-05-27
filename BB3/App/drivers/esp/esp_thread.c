@@ -18,12 +18,6 @@ void thread_esp_start(void *argument)
 	{
 	    esp_step();
 	    taskYIELD();
-
-	    if (HAL_GetTick() - timer > 1000)
-	    {
-//	        esp_send_ping();
-//	        timer = HAL_GetTick();
-	    }
 	}
 
     INFO("Done");

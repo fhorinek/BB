@@ -35,6 +35,10 @@
 #include "cmsis_os2.h"
 #include "fatfs.h"
 
+
+#include "drivers/psram.h"
+#include "config/config.h"
+#include "config/db.h"
 #include "common_gpio.h"
 
 
@@ -142,9 +146,18 @@ extern osSemaphoreId_t lock_fc_global;
 //Paths
 #define PATH_CONFIG_DIR		"config"
 #define PATH_DEVICE_CFG		PATH_CONFIG_DIR "/device.cfg"
+#define PATH_PROFILE_DIR    PATH_CONFIG_DIR "/profiles"
+#define PATH_VARIO_DIR      PATH_CONFIG_DIR "/vario"
+#define PATH_PILOT_DIR      PATH_CONFIG_DIR "/pilots"
 #define PATH_PAGES_DIR      PATH_CONFIG_DIR "/pages"
+#define PATH_NETWORK_DB     PATH_CONFIG_DIR "/networks.cfg"
 #define PATH_SCREENSHOT     "scrshot"
+#define PATH_SYSTEM_DIR     "system"
+#define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
+#define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
+#define PATH_UPDATE_FILE    "strato.fw"
 
+#define TEMP_NAME_LEN       21
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);
@@ -165,6 +178,7 @@ uint32_t atoi_hex32(char * buffer);
 int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
 
+char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);
 #define to_radians(degree) (degree / 180.0 * M_PI)
 #define to_degrees(radians) (radians * (180.0 / M_PI))
@@ -174,8 +188,17 @@ uint32_t calc_crc32(uint32_t * data, uint32_t size);
 
 void rtos_timer_elapsed();
 
-#define DEVICE_ID   ((HAL_GetREVID() << 24) | HAL_GetDEVID())
+void get_tmp_filename(char * fname);
+void clear_dir(char * path);
+bool copy_file(char * src, char * dst);
 
-#include <debug_thread.h>
+bool read_value(char * data, char * key, char * value, uint16_t value_len);
+
+float table_sin(uint16_t angle);
+float table_cos(uint16_t angle);
+
+#define DEVICE_ID   (DBGMCU->IDCODE)
+
+#include <system/debug_thread.h>
 
 #endif /* INC_COMMON_H_ */

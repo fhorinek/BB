@@ -6,9 +6,9 @@
  */
 
 
+#include <gui/tasks/menu/settings.h>
 #include "pages.h"
 
-#include "gui/tasks/settings/settings.h"
 #include "page_settings.h"
 
 #include "gui/widgets/pages.h"
@@ -17,7 +17,6 @@
 #include "gui/statusbar.h"
 
 #include "gui/widgets/widgets.h"
-#include "config/config.h"
 
 #include "drivers/power/led.h"
 
@@ -34,6 +33,7 @@ extern const lv_img_dsc_t tile;
 #define MENU_IN				1
 #define MENU_SHOW			2
 #define MENU_OUT			3
+#define MENU_EDIT_WIDGET    4
 
 #define SPLASH_IN			4
 #define SPLASH_OUT			5
@@ -69,6 +69,8 @@ REGISTER_TASK_ILS(pages,
 	lv_obj_t * indicator;
 
 	lv_style_t menu_style;
+
+	widget_slot_t * active_widget;
 
 	//animation
 	uint8_t state;
@@ -316,10 +318,20 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     switch(event)
     {
         case LV_EVENT_LONG_PRESSED:
+        {
         	if (local->state == MENU_IDLE)
+        	{
         		pages_menu_show();
-        	    lv_indev_wait_release(gui.input.indev);
-            break;
+        	}
+        	else if (local->state == MENU_EDIT_WIDGET)
+        	{
+        	    widgets_edit(local->active_widget, WIDGET_ACTION_HOLD);
+        	}
+
+            lv_indev_wait_release(gui.input.indev);
+
+        }
+        break;
 
         case LV_EVENT_CLICKED:
             if (local->state == MENU_SHOW)
@@ -328,8 +340,19 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
             }
             else
             {
-        	//edit mode
-            //if (local->state == MENU_IDLE)
+                //edit mode
+                if (local->state == MENU_IDLE || local->state == MENU_EDIT_WIDGET)
+                {
+                    if (widgets_editable(local->page))
+                    {
+                        local->state = MENU_EDIT_WIDGET;
+                        if (local->active_widget != NULL)
+                            local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+                        local->active_widget = widgets_editable_select_next(local->page, local->active_widget);
+                        if (local->active_widget != NULL)
+                            local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_FOCUS, NULL);
+                    }
+                }
             }
 
 		break;
@@ -349,9 +372,8 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     				page_settings_set_page_name(local->page_name);
     			break;
         		}
-        		return;
         	}
-        	if (local->state == MENU_IDLE)
+        	else if (local->state == MENU_IDLE)
         	{
         		switch (key)
         		{
@@ -367,7 +389,30 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 
 
         		}
-        		return;
+        	}
+        	else if (local->state == MENU_EDIT_WIDGET)
+        	{
+                switch (key)
+                {
+                case(LV_KEY_RIGHT):
+                    widgets_edit(local->active_widget, WIDGET_ACTION_RIGHT);
+                break;
+                case(LV_KEY_LEFT):
+                    widgets_edit(local->active_widget, WIDGET_ACTION_LEFT);
+                break;
+                case(LV_KEY_HOME):
+                    widgets_edit(local->active_widget, WIDGET_ACTION_MENU);
+                break;
+                case(LV_KEY_ESC):
+                    local->state = MENU_IDLE;
+                    if (local->active_widget != NULL)
+                    {
+                        widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
+                        local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+                    }
+                    local->active_widget = NULL;
+                break;
+                }
         	}
 
         }
@@ -462,13 +507,14 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->page_old = NULL;
 
 	local->pages_cnt = pages_get_count();
-	local->actual_page = config_get_int(&config.ui.page_last);
+	local->actual_page = config_get_int(&profile.ui.page_last);
 
 	pages_create_menu(local->mask);
 
 	pages_load(pages_get_name(local->actual_page), PAGE_ANIM_NONE);
 
 	local->state = MENU_IDLE;
+	local->active_widget = NULL;
 
 	gui_set_loop_speed(50);
 

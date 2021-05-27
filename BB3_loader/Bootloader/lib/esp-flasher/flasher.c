@@ -16,7 +16,7 @@
 
 flasher_ret_t check_update_file(FIL * file)
 {
-    uint8_t buff[WORK_BUFFER_SIZE];
+    uint8_t buff[COPY_WORK_BUFFER_SIZE];
 
     file_header_t file_header;
 
@@ -55,8 +55,8 @@ flasher_ret_t check_update_file(FIL * file)
         while (chunk.size > pos)
         {
             uint32_t to_read = chunk.size - pos;
-            if (to_read > WORK_BUFFER_SIZE)
-                to_read = WORK_BUFFER_SIZE;
+            if (to_read > COPY_WORK_BUFFER_SIZE)
+                to_read = COPY_WORK_BUFFER_SIZE;
 
             ASSERT(f_read(file, buff, to_read, &br) == FR_OK);
 
@@ -135,7 +135,7 @@ uint16_t esp_read_bytes(uint8_t * data, uint16_t len, uint32_t timeout)
 
 flasher_ret_t esp_flash_write_file(FIL * file)
 {
-    uint8_t work_buff[WORK_BUFFER_SIZE];
+    uint8_t work_buff[COPY_WORK_BUFFER_SIZE];
 
     GpioSetDirection(ESP_BOOT, OUTPUT, GPIO_NOPULL);
     GpioSetDirection(ESP_EN, OUTPUT, GPIO_NOPULL);
@@ -192,7 +192,7 @@ flasher_ret_t esp_flash_write_file(FIL * file)
 
         esp_loader_error_t err;
 
-        ASSERT(ESP_PACKET_SIZE < WORK_BUFFER_SIZE);
+        ASSERT(ESP_PACKET_SIZE < COPY_WORK_BUFFER_SIZE);
 
         DBG("Writing 0x%08X %8u %s", chunk.addr, chunk.size, chunk.name);
 

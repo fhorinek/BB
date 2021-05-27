@@ -10,6 +10,7 @@
 #include "bluetooth.h"
 #include "sound.h"
 #include "output.h"
+#include "vario.h"
 
 pipelines_t pipes;
 
@@ -26,13 +27,13 @@ void pipeline_loop(void *pvParameters)
 			continue;
 		}
 
-		if (msg.cmd == AEL_MSG_CMD_ERROR)
-		{
-			INFO("[ * ] Action command: src_type:%d, source:%p cmd:%d, data:%p, data_len:%d",
-					 msg.source_type, msg.source, msg.cmd, msg.data, msg.data_len);
-
-			continue;
-		}
+//		if (msg.cmd == AEL_MSG_CMD_ERROR)
+//		{
+//			INFO("[ * ] Action command: src_type:%d, source:%p cmd:%d, data:%p, data_len:%d",
+//					 msg.source_type, msg.source, msg.cmd, msg.data, msg.data_len);
+//
+//			continue;
+//		}
 
 		if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT)
 		{
@@ -44,6 +45,11 @@ void pipeline_loop(void *pvParameters)
 			if (msg.source == (void *) pipes.sound.decoder)
 			{
 				pipe_sound_event(&msg);
+				continue;
+			}
+			if (msg.source == (void *) pipes.vario.stream)
+			{
+				pipe_vario_event(&msg);
 				continue;
 			}
 		}
@@ -61,7 +67,8 @@ void pipeline_init()
 	pipe_output_init();
 	pipe_sound_init();
 	pipe_bluetooth_init();
+	pipe_vario_init();
 
-	xTaskCreate(pipeline_loop, "pipeline_loop", 2048, NULL, 12, NULL);
+	xTaskCreate(pipeline_loop, "pipeline_loop", 1024 * 2, NULL, 12, NULL);
 }
 

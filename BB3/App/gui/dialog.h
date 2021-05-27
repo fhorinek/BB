@@ -11,6 +11,12 @@
 #include "common.h"
 #include "gui.h"
 
+void dialog_downloads_error(uint8_t res);
+
+void dialog_progress_spin();
+void dialog_progress_set_progress(uint8_t progress);
+void dialog_progress_set_subtitle(char * text);
+
 void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb_t cb);
 
 #endif /* GUI_DIALOG_H_ */

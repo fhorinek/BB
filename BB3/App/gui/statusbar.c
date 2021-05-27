@@ -45,12 +45,11 @@ void statusbar_create()
 
     gui.statusbar.icons = lv_label_create(gui.statusbar.bar, NULL);
     lv_obj_align(gui.statusbar.icons, NULL, LV_ALIGN_IN_RIGHT_MID, -5, 0);
-    lv_obj_set_auto_realign(gui.statusbar.icons, true);
 
     gui.statusbar.gray_icons = lv_label_create(gui.statusbar.bar, NULL);
-    lv_obj_align(gui.statusbar.gray_icons, gui.statusbar.icons, LV_ALIGN_IN_RIGHT_MID, 0, 0);
-    lv_obj_set_auto_realign(gui.statusbar.gray_icons, true);
+    lv_obj_align(gui.statusbar.gray_icons, gui.statusbar.icons, LV_ALIGN_OUT_LEFT_MID, 0, 0);
     lv_obj_set_style_local_text_color(gui.statusbar.gray_icons, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+
 
 	statusbar_step();
 	statusbar_show();
@@ -88,6 +87,8 @@ void statusbar_msg_anim_show_cb(lv_anim_t * a)
 
 void statusbar_add_msg(uint8_t type, char * text)
 {
+    gui_lock_acquire();
+
 	lv_color_t colors[] = {LV_COLOR_GREEN, LV_COLOR_YELLOW, LV_COLOR_RED};
 
 	lv_obj_t * msg = lv_cont_create(gui.statusbar.mbox, NULL);
@@ -110,6 +111,8 @@ void statusbar_add_msg(uint8_t type, char * text)
     lv_anim_set_values(&a, 0, lv_obj_get_height(msg));
     lv_anim_set_ready_cb(&a, statusbar_msg_anim_show_cb);
 	lv_anim_start(&a);
+
+	gui_lock_release();
 }
 
 void statusbar_step()
@@ -127,29 +130,49 @@ void statusbar_step()
     strcpy(icons, "");
     strcpy(gray_icons, "");
 
-	// if there is bt connection active
-    if (fc.esp.state & ESP_STATE_BT_ON)
+    if (fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_auto)
     {
-        if (fc.esp.state & ESP_STATE_BT_DATA | fc.esp.state & ESP_STATE_BT_AUDIO)
-            sprintf(icons + strlen(icons), " " LV_SYMBOL_BLUETOOTH);
-        else
-            sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_BLUETOOTH);
+        sprintf(icons + strlen(icons), " " LV_SYMBOL_DOWNLOAD);
     }
-
-    //if it is connected to the wifi
-    if (fc.esp.state & ESP_STATE_WIFI_ON | fc.esp.state & ESP_STATE_WIFI_AP)
+    else
     {
+        // if there is bt connection active
+        if (fc.esp.state & ESP_STATE_BT_ON)
+        {
+            if (fc.esp.state & ESP_STATE_BT_DATA || fc.esp.state & ESP_STATE_BT_AUDIO)
+                sprintf(icons + strlen(icons), " " LV_SYMBOL_BLUETOOTH);
+            else
+                sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_BLUETOOTH);
+        }
+
+        //if it is connected to the wifi
         if (fc.esp.state & ESP_STATE_WIFI_CLIENT)
-            sprintf(icons + strlen(icons), " " LV_SYMBOL_WIFI);
-        else
-            sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_WIFI);
+        {
+            if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
+                sprintf(icons + strlen(icons), " " LV_SYMBOL_WIFI);
+            else
+                sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_WIFI);
+        }
+
+        //if it is connected to the wifi
+        if (fc.esp.state & ESP_STATE_WIFI_AP)
+        {
+            if (fc.esp.state & ESP_STATE_WIFI_AP_CONNECTED)
+                sprintf(icons + strlen(icons), " AP ");
+            else
+                sprintf(gray_icons + strlen(gray_icons), " AP ");
+        }
     }
 
     if (pwr.data_port != PWR_DATA_NONE)
+    {
         sprintf(icons + strlen(icons), " " LV_SYMBOL_USB);
+    }
 
 	if (pwr.charger.charge_port != PWR_CHARGE_NONE)
+	{
 	    sprintf(icons + strlen(icons), " " LV_SYMBOL_CHARGE);
+	}
 
 	sprintf(icons + strlen(icons), " %u%%", pwr.fuel_gauge.battery_percentage);
 
@@ -169,4 +192,7 @@ void statusbar_step()
 
     lv_label_set_text(gui.statusbar.icons, icons);
     lv_label_set_text(gui.statusbar.gray_icons, gray_icons);
+
+    lv_obj_realign(gui.statusbar.icons);
+    lv_obj_realign(gui.statusbar.gray_icons);
 }

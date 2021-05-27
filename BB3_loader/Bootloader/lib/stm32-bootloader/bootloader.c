@@ -15,6 +15,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "bootloader.h"
+#include "nvm.h"
+
 
 /* Private typedef -----------------------------------------------------------*/
 typedef void (*pFunction)(void); /*!< Function pointer definition */

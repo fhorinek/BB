@@ -11,13 +11,6 @@
 #include "driver/gpio.h"
 
 #include "i2c.h"
-#include "i2s.h"
-
-
-
-#define BOOST_EN        GPIO_NUM_26 //ACTIVE HIGH
-#define AMP_SD          GPIO_NUM_22 //ACTIVE HIGH
-#define AMP_FAULT       GPIO_NUM_35 //ACTIVE LOW
 
 #define TAS_ADDR        0x6C
 
@@ -66,37 +59,39 @@ void tas_init()
     };
     gpio_config(&io_conf);
 
-    //INPUTS
-    io_conf.pin_bit_mask = 1ull << AMP_FAULT;
-    io_conf.mode = GPIO_MODE_INPUT;
-    gpio_config(&io_conf);
+//    //INPUTS
+//    io_conf.pin_bit_mask = 1ull << AMP_FAULT;
+//    io_conf.mode = GPIO_MODE_INPUT;
+//    gpio_config(&io_conf);
 
     gpio_set_level(BOOST_EN, HIGH);
 
     i2c_init();
-    tas_volume(50);
+    tas_volume(0);
 
     uint8_t data;
     data = i2c_read(TAS_ADDR, TAS_ID);
-    DBG("TAS_ID     %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_POWER);
-    DBG("TAS_POWER  %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_DCTRL1);
-    DBG("TAS_DCTRL1 %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_DCTRL2);
-    DBG("TAS_DCTRL2 %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_VOLUME);
-    DBG("TAS_VOLUME %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_ACTRL);
-    DBG("TAS_ACTRL  %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_STATUS);
-    DBG("TAS_STATUS %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_CLIP2);
-    DBG("TAS_CLIP2 %02X", data);
-    data = i2c_read(TAS_ADDR, TAS_CLIP1);
-    DBG("TAS_CLIP1 %02X", data);
+    system_status.amp_ok = (data == 0x01);
+
+//    DBG("TAS_ID     %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_POWER);
+//    DBG("TAS_POWER  %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_DCTRL1);
+//    DBG("TAS_DCTRL1 %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_DCTRL2);
+//    DBG("TAS_DCTRL2 %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_VOLUME);
+//    DBG("TAS_VOLUME %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_ACTRL);
+//    DBG("TAS_ACTRL  %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_STATUS);
+//    DBG("TAS_STATUS %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_CLIP2);
+//    DBG("TAS_CLIP2 %02X", data);
+//    data = i2c_read(TAS_ADDR, TAS_CLIP1);
+//    DBG("TAS_CLIP1 %02X", data);
 
     gpio_set_level(AMP_SD, HIGH);
 
-    i2s_init();
+//    i2s_init();
 }

@@ -10,7 +10,6 @@
 #include "fanet.h"
 #include "gnss_ublox_m8.h"
 
-#include "config/config.h"
 #include "fc/neighbors.h"
 
 

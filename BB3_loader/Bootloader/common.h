@@ -10,7 +10,6 @@
 
 #include "main.h"
 #include "structs.h"
-#include "nvm.h"
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -171,6 +170,8 @@ inline double to_degrees(double radians)
     return radians * (180.0 / M_PI);
 }
 
+uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
+
 void gui_set_backlight(uint8_t val);
 void gui_set_torch(uint8_t val);
 
@@ -181,5 +182,6 @@ void gui_set_torch(uint8_t val);
 #define KEEP_FW_FILE    "KEEP_FW"
 #define MSG_DELAY		2000
 
+#define IN_BOOTLOADER
 
 #endif /* INC_COMMON_H_ */

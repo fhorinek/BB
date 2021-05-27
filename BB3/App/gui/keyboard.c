@@ -12,14 +12,36 @@ void keyboard_obj_event_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CANCEL)
 	{
-		keyboard_hide();
+        if (gui.keyboard.area != NULL)
+        {
+            lv_event_send(gui.keyboard.area, LV_EVENT_LEAVE, NULL);
+        }
+        keyboard_hide();
 	}
 	else if (event == LV_EVENT_FOCUSED)
 	{
-		if (!lv_group_get_editing(gui.input.group))
-		{
-			keyboard_hide();
-		}
+	    if (gui.keyboard.area != NULL)
+	    {
+            if (!lv_group_get_editing(lv_obj_get_group(gui.keyboard.area)))
+            {
+                keyboard_hide();
+            }
+	    }
+	}
+	else if (event == LV_EVENT_APPLY)
+	{
+	    if (gui.keyboard.area != NULL)
+	    {
+	        lv_event_send(gui.keyboard.area, LV_EVENT_APPLY, NULL);
+	    }
+	}
+	else if (event == LV_EVENT_KEY)
+	{
+	    uint32_t key = *((uint32_t*) lv_event_get_data());
+	    if (key == LV_KEY_HOME && gui.keyboard.area != NULL)
+        {
+            lv_event_send(gui.keyboard.area, LV_EVENT_APPLY, NULL);
+        }
 	}
 	else
 	{
@@ -33,11 +55,11 @@ void keyboard_event_cb(lv_obj_t * obj, lv_event_t event)
 	{
 		if (lv_group_get_editing(gui.input.group))
 		{
-				keyboard_show(obj);
+            keyboard_show(obj);
 		}
 		else
 		{
-				keyboard_hide();
+            keyboard_hide();
 		}
 	}
 	else
@@ -75,9 +97,10 @@ void keyboard_show(lv_obj_t * area)
 	lv_anim_set_exec_cb(&a, keyboard_anim_cb);
 	lv_anim_start(&a);
 
-	lv_group_add_obj(gui.input.group, gui.keyboard.obj);
+	lv_group_add_obj(lv_obj_get_group(area), gui.keyboard.obj);
 	lv_group_focus_obj(gui.keyboard.obj);
-	lv_group_set_editing(gui.input.group, true);
+	lv_obj_move_foreground(gui.keyboard.obj);
+	lv_group_set_editing(lv_obj_get_group(area), true);
 
 	lv_keyboard_set_cursor_manage(gui.keyboard.obj, true);
 	lv_keyboard_set_textarea(gui.keyboard.obj, area);
@@ -100,8 +123,9 @@ void keyboard_hide()
 	lv_keyboard_set_textarea(gui.keyboard.obj, NULL);
 
 	lv_group_remove_obj(gui.keyboard.obj);
-	lv_group_set_editing(gui.input.group, false);
+	lv_group_set_editing(lv_obj_get_group(gui.keyboard.area), false);
 	lv_group_focus_obj(gui.keyboard.area);
 
+	gui.keyboard.area = NULL;
 	gui.keyboard.showed = false;
 }

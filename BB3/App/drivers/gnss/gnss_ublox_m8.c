@@ -4,12 +4,10 @@
  *  Created on: 4. 5. 2020
  *      Author: horinek
  */
-#include <debug_thread.h>
 #include "gnss_ublox_m8.h"
 
 #include "fc/fc.h"
 #include "etc/epoch.h"
-#include "config/config.h"
 
 //Pins
 //#define	GPS_SW_EN

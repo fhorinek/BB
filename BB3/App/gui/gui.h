@@ -12,12 +12,14 @@
 #include "lib/lvgl/lvgl.h"
 
 typedef void (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint8_t);
-typedef void (* gui_dialog_cb_t)(uint8_t);
+typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
 
 typedef enum
 {
     dialog_yes_no,
     dialog_progress,
+    dialog_textarea,
+    dialog_confirm,
 } dialog_type_t;
 
 typedef enum
@@ -25,6 +27,7 @@ typedef enum
     dialog_res_none,
     dialog_res_yes,
     dialog_res_no,
+    dialog_res_cancel,
 } dialog_result_t;
 
 
@@ -75,7 +78,8 @@ typedef struct
 
         uint8_t type;
         gui_dialog_cb_t cb;
-        uint8_t _pad[2];
+        bool active;
+        uint8_t _pad[1];
 	} dialog;
 
 	//statusbar
@@ -139,6 +143,10 @@ void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb);
 void gui_init();
 void gui_loop();
 void gui_stop();
+
+void gui_take_screenshot();
+void gui_lock_acquire();
+void gui_lock_release();
 
 #define GUI_TASK_SW_ANIMATION	250
 #define GUI_STATUSBAR_HEIGHT	24

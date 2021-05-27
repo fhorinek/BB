@@ -10,7 +10,7 @@
 
 #include "common.h"
 #include "drivers/bq25895.h"
-#include "drivers/tft_hx8352.h"
+#include "drivers/tft/tft.h"
 #include "drivers/led.h"
 
 void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)

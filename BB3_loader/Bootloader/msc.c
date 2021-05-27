@@ -29,7 +29,7 @@ bool msc_loop()
 
     uint8_t old_charge = 0xFF;
     uint8_t old_data = 0xFF;
-    bool old_pass = 0xFF;
+    pwr_data_mode_t old_data_mode = 0xFF;
     uint32_t next_update = 0;
 
     //todo buttons react & on change
@@ -87,16 +87,16 @@ bool msc_loop()
         }
 
         //change gfx status if needed
-        if (old_charge != pwr.charge_port || old_data != pwr.data_port || old_pass != pwr.pass_through || next_update < HAL_GetTick())
+        if (old_charge != pwr.charge_port || old_data != pwr.data_port || old_data_mode != pwr.data_usb_mode || next_update < HAL_GetTick())
         {
             //to update battery percentage
             next_update = HAL_GetTick() + 2000;
 
             old_charge = pwr.charge_port;
             old_data = pwr.data_port;
-            old_pass = pwr.pass_through;
+            old_data_mode = pwr.data_usb_mode;
 
-            if (pwr.pass_through)
+            if (pwr.data_usb_mode != dm_client)
             {
                 if (pwr.charge_port > PWR_CHARGE_NONE)
                     gfx_draw_status(GFX_STATUS_CHARGE_PASS, NULL);

@@ -107,6 +107,22 @@ cfg_entry_param_select_t timezone_select[] =
 	SELECT_END
 };
 
+cfg_entry_param_select_t firmware_channel_select[] =
+{
+    {FW_RELEASE, "release"},
+    {FW_TESTING, "testing"},
+    {FW_DEVEL, "devel"},
+    SELECT_END
+};
+
+cfg_entry_param_select_t logger_mode_select[] =
+{
+    {LOGGER_OFF, "off"},
+    {LOGGER_FLIGHT, "flight"},
+    {LOGGER_ALWAYS, "always"},
+    SELECT_END
+};
+
 cfg_entry_param_range_t qnh_range =
 {
     .val_min.s32 = 80000,
@@ -119,33 +135,98 @@ cfg_entry_param_range_t acc_gain_range =
     .val_max.flt = 1.0
 };
 
+pilot_profile_t pilot =
+{
+    //name
+    entry_text("pilot_name", "Strato pilot", 64, 0),
+};
+
+
+flight_profile_t profile =
+{
+    //ui
+    {
+        //page
+        {
+            entry_text("page[0]", "default", PAGE_NAME_LEN, 0),
+            entry_text("page[1]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[2]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[3]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[4]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[5]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[6]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[7]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[8]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[9]", "", PAGE_NAME_LEN, 0),
+        },
+        //page_last
+        entry_int("page_last", 0, 0, PAGE_MAX_COUNT - 1),
+    },
+
+    //fanet
+    {
+        //enabled
+        entry_bool("fa_en", true),
+        //broadcast_name
+        entry_bool("fa_bcst_name", true),
+        //online track
+        entry_bool("fa_online_track", true),
+    },
+
+    //flight
+    {
+        //auto_take_off
+        {
+            //alt_change_enabled
+            entry_bool("auto_takeoff_alt", true),
+            //alt_change_value
+            entry_int("auto_takeoff_alt_val", 5, 1, 20),
+            //speed_enabled
+            entry_bool("auto_takeoff_speed", true),
+            //speed_value
+            entry_int("auto_takeoff_speed_val", 5, 1, 20),
+            //timeout
+            entry_int("auto_takeoff_timeout", 30, 1, 120),
+        },
+        //auto_landing
+        {
+            //alt_change_enabled
+            entry_bool("auto_land_alt", true),
+            //alt_change_value
+            entry_int("auto_land_alt_val", 5, 1, 20),
+            //speed_enabled
+            entry_bool("auto_land_speed", true),
+            //speed_value
+            entry_int("auto_land_val", 5, 1, 20),
+            //timeout
+            entry_int("auto_land_timeout", 30, 1, 120),
+        },
+        //logger
+        {
+            //mode
+            entry_select("log_mode", LOGGER_FLIGHT, logger_mode_select),
+            //igc
+            entry_bool("log_igc", true),
+        }
+    },
+
+    //vario
+    {
+        //profile
+        entry_text("vario_profile", "default", VARIO_PROFILE_LEN, 0),
+    },
+};
+
 config_t config =
 {
+    //device_name
     entry_text("dev_name", "", DEV_NAME_LEN, 0),
-
-	//pilot
-	{
-		//name
-		entry_text("pilot_name", "Boombox", 64, 0),
-	},
-	//ui
-	{
-		//page
-		{
-			entry_text("page[0]", "default", PAGE_NAME_LEN, 0),
-			entry_text("page[1]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[2]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[3]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[4]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[5]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[6]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[7]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[8]", "", PAGE_NAME_LEN, 0),
-			entry_text("page[9]", "", PAGE_NAME_LEN, 0),
-		},
-		//page_last
-		entry_int("page_last", 0, 0, PAGE_MAX_COUNT - 1),
-	},
+    //ask_on_start
+    entry_bool("ask", true),
+    //pilot profile
+    entry_text("pilot", "pilot", DEV_NAME_LEN, 0),
+    //flight profile
+    entry_text("flight", "default", DEV_NAME_LEN, 0),
 
 	//alt
 	{
@@ -168,15 +249,7 @@ config_t config =
         //use_galileo
         entry_bool("gnss_galileo", true),
     },
-    //fanet
-    {
-        //enabled
-        entry_bool("fa_en", true),
-        //broadcast_name
-        entry_bool("fa_bcst_name", true),
-        //online track
-        entry_bool("fa_online_track", true),
-    },
+
     //bluetooth
     {
         //a2dp
@@ -188,19 +261,25 @@ config_t config =
         //pin
         entry_text("bt_pin", "1234", BLUETOOTH_PIN_LEN, 0),
     },
+
     //wifi
     {
         //enabled
         entry_bool("wifi", true),
+        //autoconnect
+        entry_bool("wifi_auto", true),
+        //ap
         entry_bool("wifi_ap", false),
+        //ap_pass
+        entry_text("wifi_ap_pass", "12345678", WIFI_PASS_LEN, 0),
     },
 
     //display
     {
-            //backlight
-            entry_int("disp_bckl", 80, 0, 100),
-            //backlight_timeout
-            entry_int("disp_bckl_time", 30, 10, 120),
+        //backlight
+        entry_int("disp_bckl", 80, 0, 100),
+        //backlight_timeout
+        entry_int("disp_bckl_time", 30, 10, 120),
     },
 
     //time
@@ -231,6 +310,14 @@ config_t config =
         entry_select("unit_date", DATE_DDMMYYYY, date_format_select),
         //vario
         entry_select("unit_vario", VARIO_MPS, vario_format_select)
+    },
+
+    //system
+    {
+        //server url
+        entry_text("server_url", "https://vps.skybean.eu/strato", UPDATE_URL_LEN, 0),
+        //firmware_channel
+        entry_select("fw_channel", FW_DEVEL, firmware_channel_select),
     },
 
 	//debug

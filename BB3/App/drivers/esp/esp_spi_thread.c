@@ -72,6 +72,31 @@ void spi_dma_done_cb()
     osSemaphoreRelease(spi_dma_done);
 }
 
+void esp_parse_spi(uint8_t * data, uint16_t len)
+{
+    while (len > 0)
+    {
+        proto_spi_header_t * hdr = (proto_spi_header_t *)data;
+
+        //advance buffer
+        data += sizeof(proto_spi_header_t);
+        len -= sizeof(proto_spi_header_t) + hdr->data_len;
+
+        if (hdr->data_len == 0)
+            return;
+
+        switch (hdr->packet_type)
+        {
+            case(SPI_EP_DOWNLOAD):
+                download_slot_process_data(hdr->data_id, data, hdr->data_len);
+            break;
+        }
+
+        //advance buffer
+        data += hdr->data_len;
+    }
+}
+
 void thread_esp_spi_start(void * argument)
 {
     spi_buffer_access = osSemaphoreNew(1, 0, NULL);
@@ -103,9 +128,10 @@ void thread_esp_spi_start(void * argument)
         osSemaphoreAcquire(spi_dma_done, WAIT_INF);
 
         DBG("SPI RX data: %u", spi_data_to_read);
-        DUMP(spi_rx_buffer, spi_data_to_read);
+        //DUMP(spi_rx_buffer, spi_data_to_read);
 
-        //parse spi data here
+        //parse spi data here (new thread??)
+        esp_parse_spi(spi_rx_buffer, spi_data_to_read);
 
         spi_tx_buffer_index = 0;
         osSemaphoreRelease(spi_buffer_access);

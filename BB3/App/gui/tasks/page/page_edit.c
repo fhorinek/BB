@@ -6,17 +6,15 @@
  */
 
 
+#include <gui/tasks/menu/settings.h>
 #include "page_edit.h"
 
-#include "gui/tasks/settings/settings.h"
 #include "page_settings.h"
 #include "widget_list.h"
 
 #include "gui/widgets/widgets.h"
 #include "gui/dialog.h"
 #include "gui/anim.h"
-
-#include "config/config.h"
 
 typedef enum {
     mode_select,
@@ -153,7 +151,7 @@ void page_edit_move_widget(widget_slot_t * ws, int8_t dir)
     }
 }
 
-void page_edit_remove_cb(dialog_result_t res)
+void page_edit_remove_cb(dialog_result_t res, void * data)
 {
     if (res == dialog_res_yes)
     {

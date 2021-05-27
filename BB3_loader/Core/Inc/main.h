@@ -100,12 +100,15 @@ void Error_Handler(void);
 #define DISP_TE_EXTI_IRQn EXTI9_5_IRQn
 #define DISP_RST_Pin GPIO_PIN_12
 #define DISP_RST_GPIO_Port GPIOD
+#define NG_CDP_CLM_2_Pin GPIO_PIN_6
+#define NG_CDP_CLM_2_GPIO_Port GPIOC
 #define USB_VBUS_Pin GPIO_PIN_9
 #define USB_VBUS_GPIO_Port GPIOA
+#define USB_VBUS_EXTI_IRQn EXTI9_5_IRQn
 #define ESP_EN_Pin GPIO_PIN_10
 #define ESP_EN_GPIO_Port GPIOA
-#define NG_CDP_CLM_Pin GPIO_PIN_15
-#define NG_CDP_CLM_GPIO_Port GPIOA
+#define NG_CDP_CLM_1_Pin GPIO_PIN_15
+#define NG_CDP_CLM_1_GPIO_Port GPIOA
 #define FANET_SW_Pin GPIO_PIN_3
 #define FANET_SW_GPIO_Port GPIOD
 #define BT1_Pin GPIO_PIN_6
@@ -113,11 +116,11 @@ void Error_Handler(void);
 #define BT1_EXTI_IRQn EXTI9_5_IRQn
 #define BT4_Pin GPIO_PIN_7
 #define BT4_GPIO_Port GPIOD
+#define BT4_EXTI_IRQn EXTI9_5_IRQn
 #define BT2_Pin GPIO_PIN_5
 #define BT2_GPIO_Port GPIOB
 #define BT5_Pin GPIO_PIN_9
 #define BT5_GPIO_Port GPIOB
-#define BT5_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
 #define ALT_CH_EN           ALT_CH_EN_GPIO_Port, ALT_CH_EN_Pin
@@ -138,7 +141,8 @@ void Error_Handler(void);
 #define FANET_SW            FANET_SW_GPIO_Port, FANET_SW_Pin
 #define GNSS_RST            GNSS_RST_GPIO_Port, GNSS_RST_Pin
 #define LED_TORCH           LED_TORCH_GPIO_Port, LED_TORCH_Pin
-#define NG_CDP_CLM          NG_CDP_CLM_GPIO_Port, NG_CDP_CLM_Pin
+#define NG_CDP_CLM_1        NG_CDP_CLM_1_GPIO_Port, NG_CDP_CLM_1_Pin
+#define NG_CDP_CLM_2        NG_CDP_CLM_2_GPIO_Port, NG_CDP_CLM_2_Pin
 #define USB_DATA_DFP_1A     USB_DATA_DFP_1A_GPIO_Port, USB_DATA_DFP_1A_Pin
 #define USB_DATA_DFP_3A     USB_DATA_DFP_3A_GPIO_Port, USB_DATA_DFP_3A_Pin
 #define USB_VBUS            USB_VBUS_GPIO_Port, USB_VBUS_Pin

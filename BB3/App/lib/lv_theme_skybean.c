@@ -40,6 +40,8 @@ typedef struct {
     lv_style_t radius;
     lv_style_t white;
     lv_style_t space;
+    lv_style_t small_line;
+
 } theme_styles_t;
 
 /**********************
@@ -139,6 +141,7 @@ lv_theme_t * lv_theme_skybean_init(lv_color_t color_primary, lv_color_t color_se
 
     style_init_reset(&styles->round);
     lv_style_set_radius(&styles->round, LV_STATE_DEFAULT, LV_RADIUS_CIRCLE);
+    lv_style_set_line_rounded(&styles->round, LV_STATE_DEFAULT, true);
 
     style_init_reset(&styles->color);
     lv_style_set_bg_color(&styles->color, LV_STATE_DEFAULT, theme.color_secondary);
@@ -204,6 +207,11 @@ lv_theme_t * lv_theme_skybean_init(lv_color_t color_primary, lv_color_t color_se
     lv_style_set_pad_right(&styles->space, LV_STATE_DEFAULT, LV_DPI / 10);
     lv_style_set_pad_top(&styles->space, LV_STATE_DEFAULT, LV_DPI / 10);
     lv_style_set_pad_bottom(&styles->space, LV_STATE_DEFAULT, LV_DPI / 10);
+
+    style_init_reset(&styles->small_line);
+    lv_style_set_line_width(&styles->small_line, LV_STATE_DEFAULT, 2);
+    lv_style_set_line_rounded(&styles->small_line, LV_STATE_DEFAULT, 1);
+    lv_style_set_line_color(&styles->small_line, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
     theme.apply_xcb = NULL;
     theme.apply_cb = theme_apply;
@@ -327,6 +335,7 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
 #if LV_USE_LINE
         case LV_THEME_LINE:
             list = lv_obj_get_style_list(obj, LV_LABEL_PART_MAIN);
+            _lv_style_list_add_style(list, &styles->small_line);
             break;
 #endif
 
@@ -341,6 +350,7 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
             _lv_style_list_add_style(list, &styles->bg);
             _lv_style_list_add_style(list, &styles->color);
             _lv_style_list_add_style(list, &styles->tick_line);
+            _lv_style_list_add_style(list, &styles->round);
             break;
 #endif
 
@@ -354,6 +364,7 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
             _lv_style_list_add_style(list, &styles->bg);
             _lv_style_list_add_style(list, &styles->color);
             _lv_style_list_add_style(list, &styles->tick_line);
+            _lv_style_list_add_style(list, &styles->round);
             break;
 #endif
 

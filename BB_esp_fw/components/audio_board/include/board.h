@@ -25,9 +25,9 @@
 #ifndef _AUDIO_BOARD_H_
 #define _AUDIO_BOARD_H_
 
+#include "../../audio_board/include/board_def.h"
+#include "../../audio_board/include/board_pins_config.h"
 #include "audio_hal.h"
-#include "board_def.h"
-#include "board_pins_config.h"
 #include "esp_peripherals.h"
 #include "display_service.h"
 #include "periph_sdcard.h"

@@ -19,15 +19,15 @@
 #define UART_RX_PIN		GPIO_NUM_3
 
 #define UART_RX_BUFF	256
-#define UART_TX_BUFF	256
+#define UART_TX_BUFF	512
 
-#define STREAM_RX_BUFFER_SIZE	128
+#define STREAM_RX_BUFFER_SIZE	64*3
 static stream_t uart_stream;
 static uint8_t stream_rx_buffer[STREAM_RX_BUFFER_SIZE];
 
 void uart_send(uint8_t *data, uint16_t len)
 {
-    uart_write_bytes(UART_PORT, data, len);
+    uart_write_bytes(UART_PORT, (char *)data, len);
 }
 
 int uart_elog_vprintf(const char *format, ...)
@@ -50,10 +50,12 @@ int uart_elog_vprintf(const char *format, ...)
 
 static QueueHandle_t uart_queue;
 
+static uint8_t uart_rx_buff[UART_RX_BUFF];
+
 static void uart_event_task(void *pvParameters)
 {
     uart_event_t event;
-    uint8_t rx_buff[UART_RX_BUFF];
+
 
     for (;;)
     {
@@ -64,13 +66,13 @@ static void uart_event_task(void *pvParameters)
             {
                 case UART_DATA:
                 {
-                    uart_read_bytes(UART_PORT, rx_buff, event.size, WAIT_INF);
+                    uart_read_bytes(UART_PORT, uart_rx_buff, event.size, WAIT_INF);
                     for (uint16_t i = 0; i < event.size; i++)
                     {
-                        bool have_data = stream_parse(&uart_stream, rx_buff[i]);
+                        bool have_data = stream_parse(&uart_stream, uart_rx_buff[i]);
                         if (have_data)
                         {
-                            protocol_handle(uart_stream.buffer, uart_stream.lenght);
+                            protocol_handle(uart_stream.packet_type, uart_stream.buffer, uart_stream.lenght);
                         }
                     }
                 }
@@ -118,11 +120,11 @@ void uart_init()
         .source_clk = UART_SCLK_APB,
     };
 
-    uart_driver_install(UART_PORT, UART_RX_BUFF, UART_TX_BUFF, 20, &uart_queue, ESP_INTR_FLAG_IRAM);
+    uart_driver_install(UART_PORT, UART_RX_BUFF, UART_TX_BUFF, 20, &uart_queue, 0);
     uart_param_config(UART_PORT, &uart_config);
     uart_set_pin(UART_PORT, UART_TX_PIN, UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 
-    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 1024 * 3, NULL, 16, NULL);
 
-//    esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
+    //esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
 }

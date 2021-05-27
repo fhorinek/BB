@@ -127,6 +127,13 @@ SECTIONS
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
+  /* Unnitialized data sections into "RAM" Ram type memory */
+	.noinit (NOLOAD):
+	{
+		. = ALIGN(4);
+		. = . + 16;
+  } >RAM
+
   /* Initialized data sections into "RAM" Ram type memory */
   .data : 
   {

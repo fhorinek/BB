@@ -8,11 +8,6 @@
 
 #include "driver/i2c.h"
 
-#define I2C_PORT            I2C_NUM_0
-#define I2C_SCL             GPIO_NUM_32
-#define I2C_SDA             GPIO_NUM_33
-#define I2C_MASTER_FREQ_HZ  100000
-
 esp_err_t i2c_init(void)
 {
     i2c_config_t conf = {

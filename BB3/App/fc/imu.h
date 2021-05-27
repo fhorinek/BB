@@ -10,6 +10,7 @@
 
 #include "common.h"
 
-
+void imu_init();
+void imu_step();
 
 #endif /* DRIVERS_SENSORS_IMU_H_ */

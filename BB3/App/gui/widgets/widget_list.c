@@ -11,6 +11,8 @@ DECLARE_WIDGET(Vario);
 DECLARE_WIDGET(Avg);
 DECLARE_WIDGET(Bar);
 DECLARE_WIDGET(FTime);
+DECLARE_WIDGET(Alt1);
+DECLARE_WIDGET(CompArrow);
 DECLARE_WIDGET(Map);
 
 widget_t * widgets[] =
@@ -18,7 +20,9 @@ widget_t * widgets[] =
     LIST_WIDGET(Vario),
     LIST_WIDGET(Avg),
     LIST_WIDGET(Bar),
+    LIST_WIDGET(Alt1),
     LIST_WIDGET(FTime),
+    LIST_WIDGET(CompArrow),
     LIST_WIDGET(Map),
 };
 

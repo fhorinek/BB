@@ -1,0 +1,21 @@
+{? render /inc/header.htm;Audio test ?}
+
+<h1>Audio test</h1>
+
+<iframe name="api_resp"></iframe>
+
+<form method="POST" action="/api/sound" target="api_resp">
+  <fieldset>
+    <legend>Simple form</legend>
+    {? render /sound/tone_row.htm;1 ?}
+    {? render /sound/tone_row.htm;2 ?}
+    {? render /sound/tone_row.htm;3 ?}
+    {? render /sound/tone_row.htm;4 ?}
+    {? render /sound/tone_row.htm;5 ?}
+    {? render /sound/tone_row.htm;6 ?}
+    <input type="submit" value="Submit">
+    
+  </fieldset>
+</form>
+
+{? insert /inc/footer.htm ?}

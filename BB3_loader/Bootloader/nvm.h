@@ -59,4 +59,52 @@ typedef struct
     uint8_t reserved[NVM_RESERVED];
 } nvm_data_t;
 
+//--------------- No init ---------------------
+
+#define BOOT_NORMAL 0
+#define BOOT_REBOOT 1
+
+typedef struct {
+    uint8_t boot_type;
+
+    uint8_t reserved[14];
+    uint8_t crc;
+} no_init_t;
+
+#define NO_INIT_ADDR                0x24000000
+#define no_init ((no_init_t *)NO_INIT_ADDR)
+
+#define NO_INIT_CRC_KEY      0xD5
+
+static inline uint8_t no_init_crc()
+{
+    uint8_t crc = 0;
+    for (uint8_t i = 0; i < sizeof(no_init_t) - 1; i++)
+    {
+        crc = calc_crc(crc, NO_INIT_CRC_KEY, ((uint8_t *)NO_INIT_ADDR)[i]);
+    }
+
+    return crc;
+}
+
+
+static inline  void no_init_update()
+{
+    no_init->crc = no_init_crc();
+}
+
+static inline uint8_t no_init_check()
+{
+    if (no_init->crc == no_init_crc())
+    {
+        return true;
+    }
+    else
+    {
+        memset((void *)NO_INIT_ADDR, 0, sizeof(no_init_t));
+        no_init_update();
+    }
+}
+
+
 #endif /* NVM_H_ */

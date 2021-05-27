@@ -11,12 +11,24 @@
 #include "etc/epoch.h"
 #include "etc/timezone.h"
 
-#include "config/config.h"
-
 #include "drivers/rtc.h"
 
 fc_t fc __attribute__ ((aligned (4)));
 osSemaphoreId_t lock_fc_global;
+
+void fc_reset()
+{
+    if (fc.fused.status != fc_dev_ready)
+    {
+        fc.flight.mode = flight_not_ready;
+    }
+    else
+    {
+        fc.flight.mode = flight_wait_to_takeoff;
+        fc.autostart.altitude = fc.fused.altitude1;
+        fc.autostart.timestamp = HAL_GetTick();
+    }
+}
 
 void fc_init()
 {
@@ -25,6 +37,104 @@ void fc_init()
     vQueueAddToRegistry(lock_fc_global, "lock_fc_global");
 
 	INFO("Flight computer init");
+
+	vario_profile_load(config_get_text(&profile.vario));
+
+	fc_reset();
+}
+
+void fc_takeoff()
+{
+    INFO("Take-off");
+    fc.flight.start_alt = fc.fused.altitude1;
+    fc.flight.start_time = HAL_GetTick();
+
+    fc.autostart.timestamp = HAL_GetTick();
+    fc.autostart.altitude = fc.fused.altitude1;
+
+    fc.flight.mode = flight_flight;
+}
+
+void fc_landing()
+{
+    INFO("Landing");
+    fc.flight.duration = (HAL_GetTick() - fc.flight.start_time) / 1000;
+    fc.flight.mode = flight_landed;
+}
+
+void fc_step()
+{
+    if (fc.flight.mode == flight_wait_to_takeoff)
+    {
+        if (config_get_bool(&profile.flight.auto_take_off.alt_change_enabled))
+        {
+            if (abs(fc.autostart.altitude - fc.fused.altitude1) >
+                config_get_int(&profile.flight.auto_take_off.alt_change_value))
+            {
+                fc_takeoff();
+            }
+        }
+
+        if (config_get_bool(&profile.flight.auto_take_off.speed_enabled))
+        {
+            if (fc.gnss.fix == 3)
+            {
+                if (fc.gnss.ground_speed >
+                    config_get_int(&profile.flight.auto_take_off.speed_value))
+                {
+                    fc_takeoff();
+                }
+            }
+        }
+
+        uint32_t delta = HAL_GetTick() - fc.autostart.timestamp;
+        if (delta > config_get_int(&profile.flight.auto_take_off.timeout) * 1000)
+        {
+            fc.autostart.timestamp = HAL_GetTick();
+            fc.autostart.altitude = fc.fused.altitude1;
+        }
+
+    }
+
+    if (fc.flight.mode == flight_flight)
+    {
+        bool check = false;
+
+        if (config_get_bool(&profile.flight.auto_landing.alt_change_enabled))
+        {
+            if (abs(fc.autostart.altitude - fc.fused.altitude1) >
+                config_get_int(&profile.flight.auto_landing.alt_change_value))
+            {
+                fc.autostart.timestamp = HAL_GetTick();
+                fc.autostart.altitude = fc.fused.altitude1;
+            }
+            check = true;
+        }
+
+        if (config_get_bool(&profile.flight.auto_landing.speed_enabled))
+        {
+            if (fc.gnss.fix == 3)
+            {
+                if (fc.gnss.ground_speed >
+                    config_get_int(&profile.flight.auto_landing.speed_value))
+                {
+                    fc.autostart.timestamp = HAL_GetTick();
+                }
+                check = true;
+            }
+        }
+
+        if (check)
+        {
+            uint32_t delta = HAL_GetTick() - fc.autostart.timestamp;
+            if (delta > config_get_int(&profile.flight.auto_landing.timeout) * 1000)
+            {
+                fc_landing();
+            }
+        }
+
+    }
+
 }
 
 void fc_device_status(char * buff, fc_device_status_t status)

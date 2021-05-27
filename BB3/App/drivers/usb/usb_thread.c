@@ -5,7 +5,6 @@
  *      Author: horinek
  */
 
-#include <debug_thread.h>
 #include "common.h"
 #include "usb_device.h"
 #include "usbd_cdc_if.h"

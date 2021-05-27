@@ -9,7 +9,7 @@
 
 #include "gfx.h"
 
-#include "drivers/tft_hx8352.h"
+#include "drivers/tft/tft.h"
 #include "lib/mcufont/mcufont.h"
 #include "pwr_mng.h"
 
@@ -161,7 +161,6 @@ void gfx_draw_status(uint8_t status, const char * message)
 	if (gfx_bg_init == GFX_NONE)
 	{
 		tft_init();
-		tft_init_display();
 
 		gfx_text = mf_find_font("Roboto_Bold28");
 		gfx_desc = mf_find_font("Roboto_Light28");
@@ -377,11 +376,18 @@ bool gfx_draw_anim()
     gfx_draw_text(10, TFT_HEIGHT - gfx_icons->height + 16 - GFX_ANIM_TOP, left_icon, MF_ALIGN_LEFT, gfx_icons);
     gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - gfx_icons->height  + 16 - GFX_ANIM_TOP, right_icon, MF_ALIGN_RIGHT, gfx_icons);
 
-    /*
+
     if (gfx_status == GFX_STATUS_CHARGE_PASS || gfx_status == GFX_STATUS_NONE_BOOST)
     {
-        char cc[3];
-        sprintf(cc, "%u%u", (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
+        char cc[8];
+        char mode[4];
+
+        if (pwr.data_usb_mode == dm_host_cdp)
+            strcpy(mode, "CDP");
+        else
+            strcpy(mode, "SDP");
+
+        sprintf(cc, "%s %u%u", mode, (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
         gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48, cc, MF_ALIGN_RIGHT, gfx_desc);
     }
 
@@ -389,8 +395,8 @@ bool gfx_draw_anim()
     {
         char boost[8];
         sprintf(boost, "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
-        gfx_draw_text(TFT_WIDTH - 60, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48, boost, MF_ALIGN_RIGHT, gfx_desc);
-    }*/
+        gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 22, boost, MF_ALIGN_RIGHT, gfx_desc);
+    }
 
     tft_refresh_buffer(0, GFX_ANIM_TOP, 239, GFX_ANIM_BOTTOM - 1);
 

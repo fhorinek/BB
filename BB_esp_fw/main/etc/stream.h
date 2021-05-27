@@ -12,11 +12,12 @@
 
 #define STREAM_STARTBYTE	0xC0	//!< Defined start byte
 #define STREAM_CRC_KEY		0xD5	//!< Defined CRC key
-#define STREAM_OVERHEAD		5
+#define STREAM_OVERHEAD		6
 
 typedef enum
 {
 	stream_idle = 0,
+	stream_packet_type,
 	stream_length_lo,
 	stream_length_hi,
 	stream_head_crc,
@@ -27,6 +28,7 @@ typedef enum
 typedef struct
 {
     stream_parser_state_t state;
+    uint8_t packet_type;
 	uint16_t lenght;
 	uint16_t index;
 	uint8_t crc;
@@ -37,7 +39,7 @@ typedef struct
 
 
 void stream_init(stream_t * stream, uint8_t * buffer, uint16_t buffer_size);
-void stream_packet(uint8_t * out, uint8_t * in, uint16_t in_size);
+void stream_packet(uint8_t type, uint8_t * out, uint8_t * in, uint16_t in_size);
 bool stream_parse(stream_t *stream, uint8_t data);
 
 

@@ -11,33 +11,34 @@
 #include "common.h"
 #include "mems_i2c.h"
 
-//registers of the device
-#define MS5611_D1		0x40
-#define MS5611_D2		0x50
-#define MS5611_RESET	0x1E
-#define MS5611_READ		0x00
-#define MS5611_PROM     0xA2 // by adding ints from 0 to 6 we can read all the prom configuration values.
+typedef struct {
+    struct {
+         uint16_t C1;
+         uint16_t C2;
+         uint16_t C3;
+         uint16_t C4;
+         uint16_t C5;
+         uint16_t C6;
+    } calibration;
 
-// OSR (Over Sampling Ratio) constants
-#define MS5611_OSR_256 	0x00
-#define MS5611_OSR_512 	0x02
-#define MS5611_OSR_1024 0x04
-#define MS5611_OSR_2048 0x06
-#define MS5611_OSR_4096 0x08
+    uint32_t raw_temperature;
+    uint32_t raw_pressure;
+    int32_t dT;
+    int32_t temperature;
 
-#define MS5611_RESET	0x1E
+    uint8_t addr;
+    bool present;
+} ms_sensor_data_t;
 
-#define MS5611_ADDR	    (0x77 << 1)
+#define MS5611_PRIMARY_ADDR     (0x76 << 1)
+#define MS5611_AUX_ADDR         (0x77 << 1)
 
-#define MS5611_PRESS_OSR	MS5611_OSR_4096
-#define MS5611_TEMP_OSR		MS5611_OSR_256
-
-void ms5611_init();
-void ms5611_StartTemperature(mems_i2c_cb_t cb);
-void ms5611_ReadTemperature(mems_i2c_cb_t cb);
-void ms5611_CompensateTemperature();
-void ms5611_StartPressure(mems_i2c_cb_t cb);
-void ms5611_ReadPressure(mems_i2c_cb_t cb);
+bool ms5611_init(ms_sensor_data_t * ms);
+void ms5611_StartTemperature(ms_sensor_data_t * ms, mems_i2c_cb_t cb);
+void ms5611_ReadTemperature(ms_sensor_data_t * ms, mems_i2c_cb_t cb);
+void ms5611_CompensateTemperature(ms_sensor_data_t * ms);
+void ms5611_StartPressure(ms_sensor_data_t * ms, mems_i2c_cb_t cb);
+void ms5611_ReadPressure(ms_sensor_data_t * ms, mems_i2c_cb_t cb);
 float ms5611_CompensatePressure();
 
 #endif /* DRIVERS_MS5611_H_ */

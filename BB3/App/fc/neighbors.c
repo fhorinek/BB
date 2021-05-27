@@ -2,7 +2,6 @@
 #include "neighbors.h"
 
 #include "fc.h"
-#include "config/config.h"
 #include "etc/gnss_calc.h"
 
 void neighbors_reset()

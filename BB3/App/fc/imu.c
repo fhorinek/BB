@@ -3,6 +3,7 @@
 #include "imu.h"
 #include "math.h"
 #include "fc/fc.h"
+#include "compass.h"
 
 #define dt 0.01
 #define beta 0.1
@@ -254,7 +255,9 @@ void imu_step()
     imu_MadgwickQuaternionUpdate();
     fc.imu.acc_gravity_compensated = imu_GravityCompensatedAccel(fc.imu.acc.x, fc.imu.acc.y, fc.imu.acc.z, (float *)&fc.imu.quat);
 
-//  imu_debug();
+    compass_calc();
+
+//    imu_debug();
 }
 
 

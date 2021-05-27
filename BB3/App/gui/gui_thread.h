@@ -11,6 +11,5 @@
 #include "common.h"
 
 void thread_gui_start(void *argument);
-void gui_take_screenshot();
 
 #endif /* GUI_GUI_THREAD_H_ */

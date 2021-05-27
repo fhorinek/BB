@@ -43,11 +43,27 @@ for line in open(esp_chunks_path, "r").readlines()[1:]:
 
 chunks.sort(key=lambda a: a["addr"])
 
+try:
+    build_number = int(open("build_number", "r").read())
+except:
+    build_number = 0
+    
+build_number += 1
 
-build = 0xFFFF0000 | random.randint(0, 0xFFFF)
+open("build_number", "w").write("%u" % build_number)
+
+if len(sys.argv) == 2:
+    ch = sys.argv[1]
+    if ch not in ["R", "T", "D"]:
+        ch = "D"
+else:
+    ch = "D"
+    
+build = build_number | ord(ch) << 24
+
 number_of_records = len(chunks)
 
-f = open("strato.fw", "wb")
+f = open("%c%07u.fw" % (ch, build_number), "wb")
 
 f.write(struct.pack("<L", build))
 f.write(struct.pack("<b", number_of_records))

@@ -13,11 +13,9 @@
 #include "keyboard.h"
 
 #include "tasks/page/pages.h"
-#include "tasks/settings/datetime/datetime.h"
-
 #include "lib/lvgl/src/lv_misc/lv_gc.h"
 
-#include "drivers/tft_hx8352.h"
+#include "drivers/tft/tft.h"
 
 gui_t gui;
 
@@ -163,6 +161,7 @@ void gui_stop()
 void gui_init()
 {
     gui.take_screenshot = false;
+    gui.dialog.active = false;
 
 	gui_init_styles();
 

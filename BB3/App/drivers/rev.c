@@ -10,6 +10,11 @@
 
 static uint8_t rev_id = 0xFF;
 
+void rew_get_sw_string(char * str)
+{
+    sprintf(str, "%c%07lu", (char)((rew_get_sw() & 0xFF000000) >> 24), rew_get_sw() & 0x00FFFFFF);
+}
+
 uint32_t rew_get_sw()
 {
     return nvm->app.build_number;
@@ -55,8 +60,8 @@ uint8_t rev_get_hw()
             rev_id |= (val_up) ? 0x01 : 0x00;
         }
 
-        GpioSetDirection(REV_0, INPUT, GPIO_MODE_ANALOG);
-        GpioSetDirection(REV_1, INPUT, GPIO_MODE_ANALOG);
+        GpioSetDirection(REV_0, INPUT, GPIO_NOPULL);
+        GpioSetDirection(REV_1, INPUT, GPIO_NOPULL);
     }
 
     return rev_id;

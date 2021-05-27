@@ -93,6 +93,13 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 	return entry;
 }
 
+void gui_list_text_set_value(lv_obj_t * obj, char * text)
+{
+    lv_obj_t * label = lv_obj_get_child(obj, NULL);
+    lv_label_set_text(label, text);
+}
+
+
 
 lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value)
 {
@@ -258,15 +265,29 @@ lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * va
 void gui_list_info_set_value(lv_obj_t * obj, char * value)
 {
 	//switch widget is last added child
-	lv_obj_t * label = lv_obj_get_child(obj, NULL);
+	lv_obj_t * label = lv_obj_get_child_back(obj, lv_obj_get_child_back(obj, NULL));
 	lv_label_set_text(label, value);
 }
 
 void gui_list_info_set_name(lv_obj_t * obj, char * value)
 {
 	//switch widget is second last added child
-	lv_obj_t * label = lv_obj_get_child(obj, lv_obj_get_child(obj, NULL));
+	lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
 	lv_label_set_text(label, value);
+}
+
+char * gui_list_info_get_value(lv_obj_t * obj)
+{
+    //switch widget is last added child
+    lv_obj_t * label = lv_obj_get_child_back(obj, lv_obj_get_child_back(obj, NULL));
+    return lv_label_get_text(label);
+}
+
+char * gui_list_info_get_name(lv_obj_t * obj)
+{
+    //switch widget is second last added child
+    lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
+    return lv_label_get_text(label);
 }
 
 
