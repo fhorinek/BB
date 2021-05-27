@@ -1,5 +1,3 @@
 [submodule "BB3/App/lib/lvgl"]
 	path = BB3/App/lib/lvgl
 	url = https://github.com/fhorinek/lvgl.git
-	
-
