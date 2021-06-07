@@ -1,6 +1,7 @@
 #include "pages.h"
 
-#include "../../config/config.h"
+#include "config/config.h"
+#include "gui/widgets/widgets.h"
 
 uint8_t pages_get_count()
 {
@@ -40,4 +41,47 @@ char * pages_get_name(uint8_t index)
 		return config_get_text(&profile.ui.page[index]);
 
 	return config_get_text(&profile.ui.page[0]);
+}
+
+bool page_rename(char * old_name, char * new_name)
+{
+	char path_old[64];
+	char path_new[64];
+
+	snprintf(path_new, "%s/%s.pag", PATH_PAGES_DIR, new_name);
+	snprintf(path_old, "%s/%s.pag", PATH_PAGES_DIR, old_name);
+
+	return f_rename(path_old, path_new) == FR_OK;
+}
+
+bool page_create(char * new_name)
+{
+	char path_new[64];
+
+	snprintf(path_new, sizeof(path_new), "%s/%s.pag", PATH_PAGES_DIR, new_name);
+
+	if (!file_exists(path_new))
+	{
+		page_layout_t page;
+		page.base = NULL;
+		page.number_of_widgets = 0;
+		page.widget_slots = NULL;
+
+		widgets_save_to_file(&page, new_name);
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void page_delete(char * name)
+{
+	char path[64];
+
+	snprintf(path, sizeof(path), "%s/%s.pag", PATH_PAGES_DIR, name);
+
+	f_unlink(path);
 }

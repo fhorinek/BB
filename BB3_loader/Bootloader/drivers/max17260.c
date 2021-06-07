@@ -73,7 +73,10 @@ void max17260_init()
 void max17260_step()
 {
     if (pwr.fuel_gauge.status != fc_dev_ready)
+    {
+    	max17260_init();
         return;
+    }
 
     pwr.fuel_gauge.bat_voltage = MAX_Voltage_to_mV(system_i2c_read16(MAX_ADR, MAX_VCell));
 

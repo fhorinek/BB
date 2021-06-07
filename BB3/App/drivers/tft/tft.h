@@ -16,6 +16,8 @@
 extern uint16_t tft_buffer[TFT_BUFFER_SIZE];
 
 void tft_init();
+void tft_init_bsod();
+
 void tft_stop();
 void tft_reset();
 
@@ -26,8 +28,11 @@ void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void tft_wait_for_buffer();
 void tft_irq_display_te();
 
+void tft_refresh_buffer_force(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
 #define TFT_CONTROLLER_HX8352       0
 #define TFT_CONTROLLER_ILI9327      1
+#define TFT_CONTROLLER_NOT_INIT		0xFF
 
 extern uint8_t tft_controller_type;
 

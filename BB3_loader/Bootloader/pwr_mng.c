@@ -20,14 +20,16 @@ void pwr_init()
 	bq25895_init();
 	max17260_init();
 
-	pwr.boost_volt = 0b00001001; //default 5.126
+	pwr.boost_volt = 0; //default 4.11
 	bq25895_boost_voltage(pwr.boost_volt);
 
 	pwr_step();
 }
 
-void pwr_set_cc()
+void pwr_set_cc(uint8_t cc_conf)
 {
+	pwr.cc_conf = cc_conf & 0b11;
+
     if (pwr.cc_conf & 0b01)
     {
         GpioSetDirection(USB_DATA_DFP_1A, OUTPUT, GPIO_NOPULL);
@@ -54,107 +56,60 @@ void pwr_data_mode(pwr_data_mode_t mode)
     INFO("data_port_mode: %u", mode);
 
     pwr.data_usb_mode = mode;
+    pwr.boost_output = 0;
+
     switch (mode)
     {
         case(dm_client):
-            pwr.boost_output = 0;
+        	//NG Client mode
             GpioWrite(NG_CDP_CLM_1, LOW);
             GpioWrite(NG_CDP_CLM_2, HIGH);
-            GpioSetDirection(USB_DATA_DFP_1A, INPUT, GPIO_NOPULL);
-            GpioSetDirection(USB_DATA_DFP_3A, INPUT, GPIO_NOPULL);
+            //USB-C CC pins
+            pwr_set_cc(0b00);
         break;
-        case(dm_host_sdp):
-            pwr.boost_output = 0;
+
+        case(dm_host_boost):
+			pwr.data_port = PWR_DATA_PASS;
+
+			//disable alt charger
+			GpioWrite(ALT_CH_EN, HIGH);
+
+			//enable BQ boost
+			GpioWrite(BQ_OTG, HIGH);
+
+			//NG SDP mode
             GpioWrite(NG_CDP_CLM_1, HIGH);
             GpioWrite(NG_CDP_CLM_2, LOW);
-            pwr_set_cc();
+
+            //USB-C CC pins
+            pwr_set_cc(0b10);
         break;
-        case(dm_host_cdp):
-            pwr.boost_output = 0;
+
+        case(dm_host_pass):
+			pwr.data_port = PWR_DATA_PASS;
+
+			//disable boost, power is provided from charge port
+			GpioWrite(BQ_OTG, LOW);
+
+        	//NG CDP mode
             GpioWrite(NG_CDP_CLM_1, HIGH);
             GpioWrite(NG_CDP_CLM_2, HIGH);
-            pwr_set_cc();
+            //USB-C CC pins
+            pwr_set_cc(0b01);
         break;
     }
 }
 
-#define DEVICE_DRAW 600ul
+#define DEVICE_DRAW		600ul
+#define MAX_BOOST_DRAW	8000ul
+#define MAX_BOOST_GAP	500ul
 
 void pwr_step()
 {
     bq25895_step();
     max17260_step();
 
-    if (pwr.data_usb_mode != dm_client)
-    {
-        //disable alt charger
-        GpioWrite(ALT_CH_EN, HIGH);
-        pwr.data_port = PWR_DATA_PASS;
-
-        //power port present
-        if (pwr.charge_port > PWR_CHARGE_NONE)
-        {
-            //disable boost, power is provided from charge port
-            GpioWrite(BQ_OTG, LOW);
-        }
-        else
-        {
-            //enable boost, boost is providing power
-            GpioWrite(BQ_OTG, HIGH);
-
-            uint32_t output = (abs(pwr.fuel_gauge.bat_current_avg_calc) * pwr.fuel_gauge.bat_voltage * 10) / 1000;
-            if (output < DEVICE_DRAW)
-            {
-                pwr.boost_output = 0;
-            }
-            else
-            {
-                pwr.boost_output = output - DEVICE_DRAW;
-            }
-
-            if (button_pressed(BT2))
-            {
-                if (pwr.boost_volt < 0b1111)
-                {
-                    pwr.boost_volt += 1;
-                    bq25895_boost_voltage(pwr.boost_volt);
-                }
-                button_wait(BT2);
-            }
-
-            if (button_pressed(BT5))
-            {
-                if (pwr.boost_volt > 0b0000)
-                {
-                    pwr.boost_volt -= 1;
-                    bq25895_boost_voltage(pwr.boost_volt);
-                }
-                button_wait(BT5);
-            }
-        }
-
-        if (button_hold(BT1))
-        {
-            pwr.cc_conf = (pwr.cc_conf + 1) % 0b100;
-            pwr_set_cc();
-        }
-
-        if (button_pressed(BT4))
-        {
-            if (pwr.data_usb_mode == dm_host_cdp)
-                pwr_data_mode(dm_host_sdp);
-            else
-                pwr_data_mode(dm_host_cdp);
-        }
-
-        if (button_hold(BT4))
-        {
-            pwr_data_mode(dm_client);
-        }
-
-
-    }
-    else
+	if (pwr.data_usb_mode == dm_client)
     {
         //data port present
         if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH)
@@ -191,15 +146,71 @@ void pwr_step()
             GpioWrite(ALT_CH_EN, HIGH);
         }
 
-        if (pwr.charge_port > PWR_CHARGE_WEAK)
-        {
             if (button_hold(BT4))
             {
-                pwr_data_mode(dm_host_sdp);
+                if (pwr.charge_port == PWR_CHARGE_NONE)
+                {
+                	pwr_data_mode(dm_host_boost);
+                }
+                else
+                {
+                	pwr_data_mode(dm_host_pass);
+                }
             }
-
-        }
     }
+
+    if (pwr.data_usb_mode == dm_host_boost)
+    {
+        uint32_t output = (abs(pwr.fuel_gauge.bat_current_avg_calc) * pwr.fuel_gauge.bat_voltage * 10) / 1000;
+//        if (output < DEVICE_DRAW)
+//        {
+//            pwr.boost_output = 0;
+//        }
+//        else
+//        {
+//            pwr.boost_output = output - DEVICE_DRAW;
+//        }
+
+        pwr.boost_output = output;
+
+        if (output > MAX_BOOST_DRAW)
+        {
+        	if (pwr.boost_volt > 0b0000)
+        		pwr.boost_volt -= 1;
+        	bq25895_boost_voltage(pwr.boost_volt);
+        }
+        else if (output < (MAX_BOOST_DRAW - MAX_BOOST_GAP))
+        {
+        	if (pwr.boost_volt < 0b1111)
+        		pwr.boost_volt += 1;
+        	bq25895_boost_voltage(pwr.boost_volt);
+        }
+
+
+    	if (button_hold(BT4))
+        {
+    		pwr_data_mode(dm_client);
+        }
+
+    	if (pwr.charge_port > PWR_CHARGE_NONE)
+    	{
+    		pwr_data_mode(dm_host_pass);
+    	}
+    }
+
+    if (pwr.data_usb_mode == dm_host_pass)
+    {
+    	if (button_hold(BT4))
+        {
+    		pwr_data_mode(dm_client);
+        }
+
+    	if (pwr.charge_port == PWR_CHARGE_NONE)
+    	{
+    		pwr_data_mode(dm_host_boost);
+    	}
+    }
+
 
 
 //	DBG("PWR Current: %u", pwr.bat_current);

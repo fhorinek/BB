@@ -92,6 +92,18 @@ typedef struct
     float q3;
 } quaternion_t;
 
+typedef struct
+{
+  uint32_t r0;
+  uint32_t r1;
+  uint32_t r2;
+  uint32_t r3;
+  uint32_t r12;
+  uint32_t lr;
+  uint32_t sp;
+  uint32_t xpsr;
+} context_frame_t;
+
 #define SWAP_UINT24(x) ((((x) & 0xFF0000) >> 16) | ((x) & 0x00FF00) | (((x) & 0x0000FF) << 16))
 #define SWAP_UINT16(x) ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
 
@@ -101,7 +113,7 @@ extern bool system_power_off;
 #define define_thread(NAME, FUNC, STACK, PRIO)  \
 osThreadId_t FUNC = NULL;                 \
 static uint32_t FUNC ## _stack[STACK];  \
-static StaticTask_t FUNC ## _cb; \
+StaticTask_t FUNC ## _cb; \
 const osThreadAttr_t FUNC ## _attr = {  \
   .name = NAME,                         \
   .stack_mem = FUNC ## _stack,          \
@@ -125,6 +137,8 @@ extern osThreadId_t thread_map;
 extern osThreadId_t thread_esp;
 extern osThreadId_t thread_esp_spi;
 extern osThreadId_t thread_usb;
+
+//extern StaticTask_t thread_gui_cb;
 
 extern const osThreadAttr_t thread_esp_spi_attr;
 extern const osThreadAttr_t thread_map_attr;
@@ -177,6 +191,8 @@ uint32_t atoi_hex32(char * buffer);
 
 int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
+
+bool file_exists(char * path);
 
 char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);

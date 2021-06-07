@@ -38,7 +38,7 @@ void fc_init()
 
 	INFO("Flight computer init");
 
-	vario_profile_load(config_get_text(&profile.vario));
+	vario_profile_load(config_get_text(&profile.vario.profile));
 
 	fc_reset();
 }

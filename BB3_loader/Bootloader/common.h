@@ -176,6 +176,8 @@ void gui_set_backlight(uint8_t val);
 void gui_set_torch(uint8_t val);
 
 #define UPDATE_FILE 	"STRATO.FW"
+#define DEV_MODE_FILE   "DEV_MODE"
+#define FORMAT_FILE   	"FORMAT"
 #define SKIP_CRC_FILE   "SKIP_CRC"
 #define SKIP_STM_FILE   "SKIP_STM"
 #define SKIP_ESP_FILE   "SKIP_ESP"
@@ -183,5 +185,7 @@ void gui_set_torch(uint8_t val);
 #define MSG_DELAY		2000
 
 #define IN_BOOTLOADER
+
+extern bool development_mode;
 
 #endif /* INC_COMMON_H_ */

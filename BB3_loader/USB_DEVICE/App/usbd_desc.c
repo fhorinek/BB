@@ -67,7 +67,7 @@
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "SkyBean"
 #define USBD_PID_HS     22314
-#define USBD_PRODUCT_STRING_HS     "BoomBox"
+#define USBD_PRODUCT_STRING_HS     "Strato"
 #define USBD_CONFIGURATION_STRING_HS     "MSC Config"
 #define USBD_INTERFACE_STRING_HS     "MSC Interface"
 

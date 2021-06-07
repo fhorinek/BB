@@ -44,7 +44,16 @@ void debug_send(uint8_t type, const char *format, ...)
 	vsnprintf(msg_buff, sizeof(msg_buff), format, arp);
 	va_end(arp);
 
-	while(!debug_uart_done);
+	uint32_t start = HAL_GetTick();
+	while(!debug_uart_done)
+	{
+		if (HAL_GetTick() - start > 10)
+		{
+			debug_uart_done = true;
+			HAL_UART_DMAStop(debug_uart);
+
+		}
+	}
 
 	char id[] = "DIWE";
 
@@ -52,6 +61,11 @@ void debug_send(uint8_t type, const char *format, ...)
 	snprintf(message, sizeof(message), "[%c] %s\n", id[type], msg_buff);
 
 	debug_uart_done = false;
-	HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)message, strlen(message));
+	uint8_t ret = HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)message, strlen(message));
+	if (ret != HAL_OK)
+	{
+		debug_uart_done = true;
+		HAL_UART_DMAStop(debug_uart);
+	}
 }
 

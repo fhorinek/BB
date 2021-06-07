@@ -35,8 +35,8 @@ typedef enum
 typedef enum
 {
     dm_client = 0,
-    dm_host_sdp,
-    dm_host_cdp,
+    dm_host_boost,
+    dm_host_pass,
     _dm_modes_num
 } pwr_data_mode_t;
 
@@ -77,6 +77,8 @@ extern power_mng_t pwr;
 
 void pwr_init();
 void pwr_step();
+
+void pwr_data_mode(pwr_data_mode_t mode);
 
 void pwr_boost_start();
 void pwr_boost_stop();

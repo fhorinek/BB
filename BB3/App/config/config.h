@@ -103,6 +103,8 @@ typedef struct
 
     struct
     {
+        cfg_entry_t sink;
+        cfg_entry_t lift;
         cfg_entry_t profile;
     } vario;
 } flight_profile_t;

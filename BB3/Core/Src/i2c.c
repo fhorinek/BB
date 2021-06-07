@@ -31,6 +31,13 @@ I2C_HandleTypeDef hi2c2;
 void MX_I2C1_Init(void)
 {
 
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
   hi2c1.Init.Timing = 0x20000209;
   hi2c1.Init.OwnAddress1 = 0;
@@ -59,12 +66,22 @@ void MX_I2C1_Init(void)
   /** I2C Enable Fast Mode Plus
   */
   HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C1);
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
 
 }
 /* I2C2 init function */
 void MX_I2C2_Init(void)
 {
 
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
   hi2c2.Init.Timing = 0x20000209;
   hi2c2.Init.OwnAddress1 = 0;
@@ -93,6 +110,9 @@ void MX_I2C2_Init(void)
   /** I2C Enable Fast Mode Plus
   */
   HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C2);
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
 
 }
 

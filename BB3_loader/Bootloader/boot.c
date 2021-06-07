@@ -31,18 +31,18 @@ void app_deinit()
 	//MX_DMA_Init();
 	HAL_DMA_DeInit(tft_dma);
 
+	//MX_SDMMC1_SD_Init();
+	sd_unmount();
+	HAL_SD_DeInit(&hsd1);
+
 	//void MX_MDMA_Init();
-	HAL_MDMA_DeInit(&hmdma_mdma_channel40_sdmmc1_command_end_0);
+	HAL_MDMA_DeInit(&hmdma_mdma_channel40_sdmmc1_end_data_0);
 
 	//MX_FMC_Init();
 	HAL_SRAM_DeInit(&hsram1);
 
 	//MX_FATFS_Init();
 	FATFS_UnLinkDriver(SDPath);
-
-	//MX_SDMMC1_SD_Init();
-	HAL_SD_DeInit(&hsd1);
-	sd_unmount();
 
 	//MX_TIM2_Init();
     HAL_TIM_PWM_DeInit(disp_timer);
@@ -74,7 +74,7 @@ void app_deinit()
 
 uint8_t app_poweroff()
 {
-    if (no_init_check())
+	if (no_init_check())
     {
         uint8_t boot_type = no_init->boot_type;
         no_init->boot_type = BOOT_NORMAL;
@@ -83,12 +83,6 @@ uint8_t app_poweroff()
         if (boot_type == BOOT_REBOOT)
             return POWER_ON_REBOOT;
     }
-
-    MX_GPIO_Init();
-    MX_TIM2_Init();
-
-    SystemClock_Config();
-    MX_I2C2_Init();
 
     //main power on
     GpioWrite(VCC_MAIN_EN, HIGH);
@@ -99,11 +93,10 @@ uint8_t app_poweroff()
     bq25895_batfet_off();
     bq25895_step();
 
-    //main power on
-    GpioWrite(VCC_MAIN_EN, LOW);
-
     if (pwr.charge_port > PWR_CHARGE_NONE)
         return POWER_ON_USB;
+
+    bool bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
 
     while (1)
     {
@@ -111,7 +104,7 @@ uint8_t app_poweroff()
         if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH)
             return POWER_ON_USB;
 
-        if (HAL_GPIO_ReadPin(BQ_INT) == LOW)
+        if (bq_irq)
             return POWER_ON_USB;
 
         if (button_hold_2(BT1, 150))
@@ -127,7 +120,17 @@ uint8_t app_poweroff()
         if (button_pressed(BT1) || button_pressed(BT3) || button_pressed(BT4))
             continue;
 
+        //main power off, backlight off
+        GpioWrite(VCC_MAIN_EN, LOW);
+        GpioWrite(DISP_BCKL, LOW);
+
         HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+        //check right after wake up INR is only 256us long
+        bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
+
+        SystemClock_Config();
+        PeriphCommonClock_Config();
     }
 }
 
@@ -139,6 +142,41 @@ void app_reset()
     button_wait(BT2);
 
     NVIC_SystemReset();
+}
+
+void app_sleep()
+{
+    led_set_backlight(0);
+    led_set_torch(0);
+
+    HAL_Delay(1000);
+
+    app_reset();
+}
+
+void torch_loop()
+{
+    gfx_draw_status(GFX_STATUS_TORCH, NULL);
+
+    led_set_torch(100);
+
+    //wait for buttons to be released
+    button_wait(BT1);
+    button_wait(BT2);
+    button_wait(BT3);
+
+    //if button 1 - 3 pressed stop the flashlight
+    while(1)
+    {
+        if (button_hold(BT1))
+            break;
+
+        if (button_hold(BT2))
+            break;
+
+        if (button_hold(BT3))
+            break;
+    }
 }
 
 void app_main(uint8_t power_on_mode)
@@ -158,10 +196,32 @@ void app_main(uint8_t power_on_mode)
 
     pwr_init();
 
+    if (power_on_mode == POWER_ON_TORCH)
+    {
+    	torch_loop();
+        app_sleep();
+    }
+
     if (power_on_mode == POWER_ON_BOOST)
     {
-        pwr_data_mode(dm_host_cdp);
+        pwr_data_mode(dm_host_boost);
         power_on_mode = POWER_ON_USB;
+    }
+
+    if (sd_mount())
+    {
+    	if (file_exists(DEV_MODE_FILE))
+    		development_mode = true;
+
+    	bool format = file_exists(FORMAT_FILE);
+
+    	sd_unmount();
+
+    	if (format)
+    	{
+    		sd_format();
+    		sd_set_disk_label();
+    	}
     }
 
 	if (power_on_mode == POWER_ON_USB)
@@ -169,40 +229,9 @@ void app_main(uint8_t power_on_mode)
 	    //if usb mode exited with usb disconnect, power off
 	    if (!msc_loop())
 	    {
-	        app_reset();
+	        app_sleep();
 	    }
 	}
-
-    if (power_on_mode == POWER_ON_TORCH)
-    {
-        gfx_draw_status(GFX_STATUS_TORCH, NULL);
-
-        led_set_backlight(10);
-        led_set_torch(100);
-
-        button_wait(BT1);
-        button_wait(BT2);
-        button_wait(BT3);
-
-        while(1)
-        {
-            if (button_hold(BT1))
-                break;
-
-            if (button_hold(BT2))
-                break;
-
-            if (button_hold(BT3))
-                break;
-        }
-
-        led_set_backlight(0);
-        led_set_torch(0);
-
-        HAL_Delay(1000);
-
-        app_reset();
-    }
 
     if (sd_mount())
     {
@@ -228,9 +257,16 @@ void app_main(uint8_t power_on_mode)
             button_confirm(BT3);
         }
 
-        app_deinit();
-
-        Bootloader_JumpToApplication();
+        if (*(uint32_t *)APP_ADDRESS == 0xFFFFFFFF)
+        {
+            gfx_draw_status(GFX_STATUS_ERROR, "No Firmware");
+            button_confirm(BT3);
+        }
+        else
+        {
+			app_deinit();
+			Bootloader_JumpToApplication();
+        }
     }
     else
     {

@@ -17,6 +17,7 @@
 
 #include "pwr_mng.h"
 
+volatile bool msc_locked = false;
 volatile bool msc_ejected = false;
 
 bool msc_loop()
@@ -32,9 +33,6 @@ bool msc_loop()
     pwr_data_mode_t old_data_mode = 0xFF;
     uint32_t next_update = 0;
 
-    //todo buttons react & on change
-    led_set_backlight(10);
-
     while (1)
     {
         pwr_step();
@@ -42,10 +40,12 @@ bool msc_loop()
         if (pwr.data_port == PWR_DATA_CHARGE && !usb_init)
         {
             usb_init = true;
+            msc_locked = false;
+            msc_ejected = false;
             MX_USB_DEVICE_Init();
         }
 
-        if (msc_ejected)
+        if (msc_ejected && !msc_locked)
         {
             start_up = true;
             break;
@@ -67,14 +67,6 @@ bool msc_loop()
                 usb_init = false;
                 USBD_DeInit(&hUsbDeviceHS);
             }
-
-//            //medium was ejected
-//            if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
-//            {
-//                USBD_DeInit(&hUsbDeviceHS);
-//                start_up = true;
-//                break;
-//            }
         }
         else
         {
@@ -87,7 +79,10 @@ bool msc_loop()
         }
 
         //change gfx status if needed
-        if (old_charge != pwr.charge_port || old_data != pwr.data_port || old_data_mode != pwr.data_usb_mode || next_update < HAL_GetTick())
+        if (old_charge != pwr.charge_port
+        		|| old_data != pwr.data_port
+				|| old_data_mode != pwr.data_usb_mode
+				|| next_update < HAL_GetTick())
         {
             //to update battery percentage
             next_update = HAL_GetTick() + 2000;
@@ -112,11 +107,24 @@ bool msc_loop()
                 if (pwr.charge_port > PWR_CHARGE_NONE && pwr.data_port != PWR_DATA_ACTIVE)
                     gfx_draw_status(GFX_STATUS_CHARGE_NONE, NULL);
 
+                char data_subtext[32];
+                if (pwr.data_port == PWR_DATA_ACTIVE)
+                {
+                	if (msc_ejected && msc_locked)
+                		strcpy(data_subtext, "Please wait");
+
+                	if (!msc_ejected && !msc_locked)
+                		strcpy(data_subtext, "");
+
+                	if (!msc_ejected && msc_locked)
+                		strcpy(data_subtext, "Eject to start");
+                }
+
                 if (pwr.charge_port > PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
-                    gfx_draw_status(GFX_STATUS_CHARGE_DATA, NULL);
+                    gfx_draw_status(GFX_STATUS_CHARGE_DATA, data_subtext);
 
                 if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
-                    gfx_draw_status(GFX_STATUS_NONE_DATA, NULL);
+                    gfx_draw_status(GFX_STATUS_NONE_DATA, data_subtext);
 
                 if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_CHARGE)
                     gfx_draw_status(GFX_STATUS_NONE_CHARGE, NULL);
@@ -131,6 +139,13 @@ bool msc_loop()
         }
 
         bool anim_done = gfx_draw_anim();
+
+        //usb active but device unlocked
+        if (pwr.data_port == PWR_DATA_ACTIVE && !msc_locked && button_hold(BT3))
+        {
+            start_up = true;
+            break;
+        }
 
         //no usb comunication and power button pressed
         if (pwr.data_port != PWR_DATA_ACTIVE && button_hold(BT3))
@@ -147,6 +162,10 @@ bool msc_loop()
 
     }
 
+    if (usb_init)
+    {
+    	USBD_DeInit(&hUsbDeviceHS);
+    }
 
     INFO("USB mode off");
 
@@ -155,14 +174,32 @@ bool msc_loop()
 
 void msc_irq_handler()
 {
+	static uint8_t scsii_state_old = 0xFF;
+
     //class data are avalible
-    if ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData > 0)
+    if ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData > 0 && pwr.data_port == PWR_DATA_ACTIVE)
     {
-        //medium was ejected
-        if (((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData)->scsi_medium_state == SCSI_MEDIUM_EJECTED)
-        {
-            USBD_DeInit(&hUsbDeviceHS);
-            msc_ejected = true;
-        }
+    	uint8_t scsii_state = ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData)->scsi_medium_state;
+
+    	if (scsii_state_old != scsii_state)
+    	{
+    		INFO("scsii state %u %u", scsii_state, hUsbDeviceHS.dev_state);
+    		scsii_state_old = scsii_state;
+
+			if (scsii_state == SCSI_MEDIUM_EJECTED)
+			{
+				msc_ejected = true;
+			}
+
+			if (scsii_state == SCSI_MEDIUM_LOCKED)
+			{
+				msc_locked = true;
+			}
+
+			if (scsii_state == SCSI_MEDIUM_UNLOCKED)
+			{
+				msc_locked = false;
+			}
+    	}
     }
 }

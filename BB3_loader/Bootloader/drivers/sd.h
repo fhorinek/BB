@@ -18,4 +18,7 @@ void sd_deinit();
 bool sd_mount();
 void sd_unmount();
 
+void sd_format();
+void sd_set_disk_label();
+
 #endif /* DRIVERS_SD_H_ */

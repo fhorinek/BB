@@ -401,3 +401,9 @@ float table_cos(uint16_t angle)
     angle += 270;
     return table_sin(angle);
 }
+
+bool file_exists(char * path)
+{
+    FILINFO fno;
+    return (f_stat(path, &fno) == FR_OK);
+}

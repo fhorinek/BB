@@ -698,7 +698,10 @@ function draw_tone_prev(graph, tones, climb)
     }
     post_data["cnt"] = cnt;
     
-    //send_ajax("api/sound", post_data);
+    if ($('#prev_sound').prop('checked'))
+    {
+        send_ajax("api/sound", post_data);
+    }
     
     text_id = "tone_prev_dura_zero";
     text = document.getElementById(text_id);

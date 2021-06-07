@@ -1,5 +1,7 @@
 #include "common.h"
 
+bool development_mode = false;
+
 bool button_pressed(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
     return HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == LOW;
@@ -12,8 +14,25 @@ void button_wait(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 
 void button_confirm(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
-    while(HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == LOW);
-    while(HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) != LOW);
+	//delay is in 10ms, 2000 == 20s
+	uint16_t delay = 2000;
+
+	//wait for button to be released
+    while(HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == LOW)
+    {
+    	delay--;
+    	if (delay == 0)
+    		return;
+    	HAL_Delay(10);
+    }
+    //wait for button to be pressed
+    while(HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) != LOW)
+    {
+    	delay--;
+    	if (delay == 0)
+    		return;
+    	HAL_Delay(10);
+    }
 }
 
 #define HOLD_TIME  750

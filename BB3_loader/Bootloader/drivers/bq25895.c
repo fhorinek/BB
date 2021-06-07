@@ -120,7 +120,10 @@ void bq25895_step()
     static uint32_t next_period = 0;
 
     if (pwr.charger.status != fc_dev_ready)
+    {
+    	bq25895_init();
         return;
+    }
 
     if (!have_irq && next_period > HAL_GetTick())
         return;

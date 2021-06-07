@@ -24,6 +24,7 @@
 #include "stm32h7xx_hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
+#include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -45,13 +46,13 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN 0 */
 #define USBD_STATIC_MEM_SIZE		540
-void * USBD_static_malloc(uint32_t size)
-{
-	static uint8_t mem[USBD_STATIC_MEM_SIZE];
-	ASSERT(USBD_STATIC_MEM_SIZE >= size);
-
-	return mem;
-}
+//void * USBD_static_malloc(uint32_t size)
+//{
+//	static uint8_t mem[USBD_STATIC_MEM_SIZE];
+//	ASSERT(USBD_STATIC_MEM_SIZE >= size);
+//
+//	return mem;
+//}
 /* USER CODE END 0 */
 
 /* USER CODE BEGIN PFP */
@@ -78,6 +79,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   /* USER CODE BEGIN USB_OTG_HS_MspInit 0 */
 
   /* USER CODE END USB_OTG_HS_MspInit 0 */
+  /** Enable USB Voltage detector
+  */
+    HAL_PWREx_EnableUSBVoltageDetector();
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     /**USB_OTG_HS GPIO Configuration
@@ -604,6 +608,26 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_a
 uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   return HAL_PCD_EP_GetRxCount((PCD_HandleTypeDef*) pdev->pData, ep_addr);
+}
+/**
+  * @brief  Static single allocation.
+  * @param  size: Size of allocated memory
+  * @retval None
+  */
+void *USBD_static_malloc(uint32_t size)
+{
+  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+  return mem;
+}
+
+/**
+  * @brief  Dummy memory free
+  * @param  p: Pointer to allocated  memory address
+  * @retval None
+  */
+void USBD_static_free(void *p)
+{
+
 }
 
 /**
