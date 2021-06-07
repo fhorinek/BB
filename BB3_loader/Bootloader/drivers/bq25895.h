@@ -15,5 +15,6 @@ void bq25895_step();
 void bq25895_batfet_off();
 void bq25895_boost_voltage(uint8_t val);
 
+void bq25895_irq();
 
 #endif /* DRIVERS_BQ25895_H_ */

@@ -55,10 +55,10 @@ uint32_t SystemBuffer[ 1024 ];
 osStaticThreadDef_t SystemControlBlock;
 const osThreadAttr_t System_attributes = {
   .name = "System",
-  .stack_mem = &SystemBuffer[0],
-  .stack_size = sizeof(SystemBuffer),
   .cb_mem = &SystemControlBlock,
   .cb_size = sizeof(SystemControlBlock),
+  .stack_mem = &SystemBuffer[0],
+  .stack_size = sizeof(SystemBuffer),
   .priority = (osPriority_t) osPriorityNormal,
 };
 

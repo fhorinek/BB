@@ -29,8 +29,16 @@ OSPI_HandleTypeDef hospi1;
 /* OCTOSPI1 init function */
 void MX_OCTOSPI1_Init(void)
 {
+
+  /* USER CODE BEGIN OCTOSPI1_Init 0 */
+
+  /* USER CODE END OCTOSPI1_Init 0 */
+
   OSPIM_CfgTypeDef sOspiManagerCfg = {0};
 
+  /* USER CODE BEGIN OCTOSPI1_Init 1 */
+
+  /* USER CODE END OCTOSPI1_Init 1 */
   hospi1.Instance = OCTOSPI1;
   hospi1.Init.FifoThreshold = 1;
   hospi1.Init.DualQuad = HAL_OSPI_DUALQUAD_DISABLE;
@@ -59,6 +67,9 @@ void MX_OCTOSPI1_Init(void)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN OCTOSPI1_Init 2 */
+
+  /* USER CODE END OCTOSPI1_Init 2 */
 
 }
 

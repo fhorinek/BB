@@ -160,6 +160,9 @@ void tft_init()
     //init controller
     tft_reset();
 
+    //to dummy reads to prepare the controller
+    tft_read_register(0x00);
+    tft_read_register(0x00);
     uint8_t reg_00 = tft_read_register(0x00);
 
     if (reg_00 == 0x65) //himax

@@ -85,7 +85,7 @@ void statusbar_msg_anim_show_cb(lv_anim_t * a)
 	lv_anim_start(&new_a);
 }
 
-void statusbar_add_msg(uint8_t type, char * text)
+void statusbar_add_msg(statusbar_msg_type_t type, char * text)
 {
     gui_lock_acquire();
 

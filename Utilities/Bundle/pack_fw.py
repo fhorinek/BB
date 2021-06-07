@@ -28,6 +28,9 @@ def read_chunk(bin_path, addr):
 chunks = []
 
 stm_fw_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/Debug/BB3.bin"
+stm_map_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/Debug/BB3.map"
+stm_list_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/Debug/BB3.list"
+
 chunks.append(read_chunk(stm_fw_path, 0x0))
 
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
@@ -63,7 +66,9 @@ build = build_number | ord(ch) << 24
 
 number_of_records = len(chunks)
 
-f = open("%c%07u.fw" % (ch, build_number), "wb")
+filename = "%c%07u" % (ch, build_number)
+
+f = open(filename + ".fw", "wb")
 
 f.write(struct.pack("<L", build))
 f.write(struct.pack("<b", number_of_records))
@@ -84,4 +89,16 @@ for c in chunks:
     f.write(c["data"])
 
 f.close()
+
+import os
+import shutil
+
+if os.path.exists("strato.fw"):
+    os.remove("strato.fw");
+    
+shutil.copyfile(filename + ".fw", "strato.fw")
+shutil.copyfile(stm_map_path, os.path.join("debug", filename + ".map"))
+shutil.copyfile(stm_list_path, os.path.join("debug", filename + ".list"))
+
 print("Done")
+

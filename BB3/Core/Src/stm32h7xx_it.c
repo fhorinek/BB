@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "common.h"
+#include "system/bsod.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -80,18 +81,6 @@ extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
 
-typedef struct
-{
-  uint32_t r0;
-  uint32_t r1;
-  uint32_t r2;
-  uint32_t r3;
-  uint32_t r12;
-  uint32_t lr;
-  uint32_t sp;
-  uint32_t xpsr;
-} context_frame_t;
-
 #define  DUMP_REGISTERS \
     context_frame_t * frame;\
     __asm volatile(         \
@@ -136,7 +125,7 @@ HANDLER_ATTR void UsageFault_Handler(void)
     if (CFSR & SCB_CFSR_UNDEFINSTR_Msk)
         FAULT(" UNDEFINSTR - Undefined instruction was executed");
 
-    while (1);
+    bsod_show(frame);
 }
 
 HANDLER_ATTR void BusFault_Handler(void)
@@ -163,7 +152,7 @@ HANDLER_ATTR void BusFault_Handler(void)
     if (CFSR & SCB_CFSR_IBUSERR_Msk)
         FAULT(" IBUSERR - Instruction access violation");
 
-    while (1);
+    bsod_show(frame);
 }
 
 /* USER CODE END EV */

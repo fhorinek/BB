@@ -31,7 +31,9 @@ static volatile bool tft_dma_done = false;
 static uint16_t tft_win_x1, tft_win_x2;
 static uint16_t tft_win_y1, tft_win_y2;
 
-uint8_t tft_controller_type;
+uint8_t tft_controller_type = 0xFF;
+
+bool tft_normal_mode = true;
 
 void tft_write_register(uint16_t command, uint16_t data)
 {
@@ -64,18 +66,21 @@ void tft_write_data(uint16_t data)
 
 void tft_delay(uint16_t delay)
 {
-#ifdef IN_BOOTLOADER
-    HAL_Delay(delay);
-#else
-    osDelay(delay);
-#endif
+	if (tft_normal_mode)
+	{
+		osDelay(delay);
+	}
+	else
+	{
+		for (uint64_t i = 0; i < (delay * 2800); i++);
+	}
 }
 
 bool tft_buffer_copy()
 {
     if (HAL_DMA_GetState(tft_dma) != HAL_DMA_STATE_READY)
     {
-        return false;
+        HAL_DMA_Abort(tft_dma);
     }
 
     //DMA transfer length is in number of transactions!!!
@@ -114,23 +119,31 @@ void tft_irq_dma_done(DMA_HandleTypeDef *DmaHandle)
 {
     tft_dma_done = true;
 
-#ifndef IN_BOOTLOADER
-    osThreadFlagsSet(thread_gui, 0x01);
-#endif
+    if (tft_normal_mode)
+    {
+    	osThreadFlagsSet(thread_gui, 0x01);
+    }
 }
 
 void tft_wait_for_buffer()
 {
-    while(!tft_dma_done);
+	if (tft_normal_mode)
+	{
+		while(!tft_dma_done);
+	}
+	else
+	{
+		tft_delay(20);
+	}
 }
-
 
 void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-#ifdef IN_BOOTLOADER
-    tft_wait_for_buffer();
-    tft_dma_done = false;
-#endif
+	if (!tft_normal_mode)
+	{
+		tft_wait_for_buffer();
+		tft_dma_done = false;
+	}
 
     tft_win_x1 = x1;
     tft_win_y1 = y1;
@@ -140,9 +153,14 @@ void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
     tft_buffer_ready = true;
 
-#ifndef IN_BOOTLOADER
-    osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
-#endif
+    if (tft_normal_mode)
+    {
+    	osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
+    }
+    else
+    {
+    	tft_buffer_copy();
+    }
 }
 
 void tft_init()
@@ -179,6 +197,22 @@ void tft_init()
         tft_controller_type = TFT_CONTROLLER_ILI9327;
         tft_init_ili9327();
     }
+}
+
+void tft_init_bsod()
+{
+	tft_normal_mode = false;
+	if (tft_controller_type == TFT_CONTROLLER_NOT_INIT)
+	{
+		tft_init();
+	}
+	else
+	{
+		if (HAL_DMA_GetState(tft_dma) != HAL_DMA_STATE_READY)
+		{
+			HAL_DMA_Abort(tft_dma);
+		}
+	}
 }
 
 void tft_stop()

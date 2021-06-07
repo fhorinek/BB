@@ -15,6 +15,7 @@
 
 #include "gui/gui_list.h"
 #include "gui/statusbar.h"
+#include "gui/dialog.h"
 
 #include "gui/widgets/widgets.h"
 
@@ -33,13 +34,13 @@ extern const lv_img_dsc_t tile;
 #define MENU_IN				1
 #define MENU_SHOW			2
 #define MENU_OUT			3
-#define MENU_EDIT_WIDGET    4
+#define MENU_EDIT_WIDGET    5
 
-#define SPLASH_IN			4
-#define SPLASH_OUT			5
+#define SPLASH_IN			6
+#define SPLASH_OUT			7
 
-#define PAGE_SWITCH_LEFT	6
-#define PAGE_SWITCH_RIGHT	7
+#define PAGE_SWITCH_LEFT	8
+#define PAGE_SWITCH_RIGHT	9
 
 
 #define PAGE_ANIM_FROM_LEFT		-1
@@ -150,6 +151,8 @@ void pages_splash_show()
 
 	lv_anim_start(&local->anim);
 	local->state = SPLASH_IN;
+
+//	dialog_show("Thank you for your pre-order!", "We are working hard to bring you usable firmware.\nPlease go to\nstrato.skybean.eu\nand follow the instruction to update your new Strato. \n\nTeam SkyBean", dialog_confirm, NULL);
 }
 
 void pages_splash_hide()
@@ -260,8 +263,9 @@ void pages_create_menu(lv_obj_t * base)
 	lv_label_set_text(local->butt_layout, LV_SYMBOL_LIST);
 	lv_obj_align_origo(local->butt_layout, NULL, LV_ALIGN_IN_TOP_MID, MENU_RADIUS / 2, MENU_HEIGHT / 4);
 
+	//TODO: shortcut 1
 	local->butt_short1 = lv_label_create(local->left_menu, NULL);
-	lv_label_set_text(local->butt_short1, LV_SYMBOL_WIFI);
+	lv_label_set_text(local->butt_short1, "");
 	lv_obj_align_origo(local->butt_short1, NULL, LV_ALIGN_CENTER, MENU_RADIUS / 2, MENU_HEIGHT / 5);
 
 
@@ -274,8 +278,9 @@ void pages_create_menu(lv_obj_t * base)
 	lv_label_set_text(local->butt_settings, LV_SYMBOL_SETTINGS);
 	lv_obj_align_origo(local->butt_settings, NULL, LV_ALIGN_IN_TOP_MID, -MENU_RADIUS / 2, MENU_HEIGHT / 4);
 
+	//TODO: shortcut 2
 	local->butt_short2 = lv_label_create(local->right_menu, NULL);
-	lv_label_set_text(local->butt_short2, LV_SYMBOL_BLUETOOTH);
+	lv_label_set_text(local->butt_short2, "");
 	lv_obj_align_origo(local->butt_short2, NULL, LV_ALIGN_CENTER, -MENU_RADIUS / 2, MENU_HEIGHT / 5);
 
 
@@ -296,20 +301,25 @@ void pages_create_menu(lv_obj_t * base)
 	lv_obj_set_style_local_bg_opa(local->indicator, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
 	lv_obj_set_style_local_pad_hor(local->indicator, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, GUI_INDICATOR_HEIGHT);
 
-	lv_obj_set_size(local->indicator, LV_HOR_RES, GUI_INDICATOR_HEIGHT);
-	lv_obj_set_pos(local->indicator, 0, GUI_INDICATOR_Y_POS);
-	lv_cont_set_layout(local->indicator, LV_LAYOUT_PRETTY_MID);
+	lv_cont_set_fit(local->indicator, LV_FIT_TIGHT);
+	lv_cont_set_layout(local->indicator, LV_LAYOUT_ROW_MID);
+	lv_obj_set_style_local_pad_inner(local->indicator, LV_LED_PART_MAIN, LV_STATE_DEFAULT, GUI_INDICATOR_DOT_SIZE / 2);
 
 	for (uint8_t i = 0; i < local->pages_cnt; i++)
 	{
 		lv_obj_t * dot = lv_led_create(local->indicator, NULL);
 		lv_obj_set_size(dot, GUI_INDICATOR_DOT_SIZE, GUI_INDICATOR_DOT_SIZE);
+
+
 		lv_led_off(dot);
 		if (i == local->actual_page)
 			lv_led_on(dot);
 	}
 
+	lv_obj_align(local->indicator, NULL, LV_ALIGN_OUT_TOP_MID, 0, GUI_INDICATOR_Y_POS);
+
 	local->state = MENU_IDLE;
+
 }
 
 
@@ -369,12 +379,19 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     			break;
     			case(LV_KEY_LEFT):
     				gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-    				page_settings_set_page_name(local->page_name);
+    				page_settings_set_page_name(local->page_name, local->actual_page);
     			break;
         		}
         	}
         	else if (local->state == MENU_IDLE)
         	{
+        		if (local->pages_cnt == 1)
+        		{
+        			pages_indicator_show();
+        			break;
+        		}
+
+
         		switch (key)
         		{
     			case(LV_KEY_RIGHT):
@@ -507,7 +524,19 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->page_old = NULL;
 
 	local->pages_cnt = pages_get_count();
+	if (local->pages_cnt == 0)
+	{
+		page_create("default");
+		config_set_text(&profile.ui.page[0], "default");
+		local->pages_cnt = 1;
+	}
+
 	local->actual_page = config_get_int(&profile.ui.page_last);
+	if (local->actual_page >= local->pages_cnt)
+	{
+		local->actual_page = 0;
+		config_set_int(&profile.ui.page_last, 0);
+	}
 
 	pages_create_menu(local->mask);
 

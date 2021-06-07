@@ -29,7 +29,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
-#include "stm32h7xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -150,6 +149,8 @@ void Error_Handler(void);
 
 #define REV_0               GPIOC, GPIO_PIN_2
 #define REV_1               GPIOC, GPIO_PIN_3
+
+void SystemClock_Config(void);
 
 /* USER CODE END Private defines */
 

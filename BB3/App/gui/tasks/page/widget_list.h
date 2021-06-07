@@ -13,7 +13,7 @@
 
 DECLARE_TASK(widget_list);
 
-void widget_list_set_page_name(char * name);
+void widget_list_set_page_name(char * name, uint8_t page_index);
 void widget_list_select_widget(widget_t * w, uint8_t widget_index);
 
 

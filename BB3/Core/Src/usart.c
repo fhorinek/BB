@@ -38,6 +38,13 @@ DMA_HandleTypeDef hdma_uart8_rx;
 void MX_UART4_Init(void)
 {
 
+  /* USER CODE BEGIN UART4_Init 0 */
+
+  /* USER CODE END UART4_Init 0 */
+
+  /* USER CODE BEGIN UART4_Init 1 */
+
+  /* USER CODE END UART4_Init 1 */
   huart4.Instance = UART4;
   huart4.Init.BaudRate = 115200;
   huart4.Init.WordLength = UART_WORDLENGTH_8B;
@@ -65,12 +72,22 @@ void MX_UART4_Init(void)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN UART4_Init 2 */
+
+  /* USER CODE END UART4_Init 2 */
 
 }
 /* UART5 init function */
 void MX_UART5_Init(void)
 {
 
+  /* USER CODE BEGIN UART5_Init 0 */
+
+  /* USER CODE END UART5_Init 0 */
+
+  /* USER CODE BEGIN UART5_Init 1 */
+
+  /* USER CODE END UART5_Init 1 */
   huart5.Instance = UART5;
   huart5.Init.BaudRate = 9600;
   huart5.Init.WordLength = UART_WORDLENGTH_8B;
@@ -98,12 +115,22 @@ void MX_UART5_Init(void)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN UART5_Init 2 */
+
+  /* USER CODE END UART5_Init 2 */
 
 }
 /* UART7 init function */
 void MX_UART7_Init(void)
 {
 
+  /* USER CODE BEGIN UART7_Init 0 */
+
+  /* USER CODE END UART7_Init 0 */
+
+  /* USER CODE BEGIN UART7_Init 1 */
+
+  /* USER CODE END UART7_Init 1 */
   huart7.Instance = UART7;
   huart7.Init.BaudRate = 921600;
   huart7.Init.WordLength = UART_WORDLENGTH_8B;
@@ -131,12 +158,22 @@ void MX_UART7_Init(void)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN UART7_Init 2 */
+
+  /* USER CODE END UART7_Init 2 */
 
 }
 /* UART8 init function */
 void MX_UART8_Init(void)
 {
 
+  /* USER CODE BEGIN UART8_Init 0 */
+
+  /* USER CODE END UART8_Init 0 */
+
+  /* USER CODE BEGIN UART8_Init 1 */
+
+  /* USER CODE END UART8_Init 1 */
   huart8.Instance = UART8;
   huart8.Init.BaudRate = 115200;
   huart8.Init.WordLength = UART_WORDLENGTH_8B;
@@ -164,6 +201,9 @@ void MX_UART8_Init(void)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN UART8_Init 2 */
+
+  /* USER CODE END UART8_Init 2 */
 
 }
 
@@ -171,11 +211,21 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
   if(uartHandle->Instance==UART4)
   {
   /* USER CODE BEGIN UART4_MspInit 0 */
 
   /* USER CODE END UART4_MspInit 0 */
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART4;
+    PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
     /* UART4 clock enable */
     __HAL_RCC_UART4_CLK_ENABLE();
 
@@ -219,6 +269,16 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE BEGIN UART5_MspInit 0 */
 
   /* USER CODE END UART5_MspInit 0 */
+
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART5;
+    PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
     /* UART5 clock enable */
     __HAL_RCC_UART5_CLK_ENABLE();
 
@@ -262,6 +322,16 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE BEGIN UART7_MspInit 0 */
 
   /* USER CODE END UART7_MspInit 0 */
+
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART7;
+    PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
     /* UART7 clock enable */
     __HAL_RCC_UART7_CLK_ENABLE();
 
@@ -334,6 +404,16 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE BEGIN UART8_MspInit 0 */
 
   /* USER CODE END UART8_MspInit 0 */
+
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART8;
+    PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
     /* UART8 clock enable */
     __HAL_RCC_UART8_CLK_ENABLE();
 

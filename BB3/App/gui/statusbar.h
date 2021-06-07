@@ -10,9 +10,12 @@
 
 #include "gui.h"
 
-#define STATUSBAR_MSG_INFO	0
-#define STATUSBAR_MSG_WARN	1
-#define STATUSBAR_MSG_ERROR	2
+typedef enum
+{
+	STATUSBAR_MSG_INFO = 0,
+	STATUSBAR_MSG_WARN = 1,
+	STATUSBAR_MSG_ERROR = 2
+} statusbar_msg_type_t;
 
 void statusbar_show();
 void statusbar_hide();
@@ -20,6 +23,6 @@ void statusbar_create();
 
 void statusbar_step();
 
-void statusbar_add_msg(uint8_t type, char * text);
+void statusbar_add_msg(statusbar_msg_type_t type, char * text);
 
 #endif /* GUI_STATUSBAR_H_ */

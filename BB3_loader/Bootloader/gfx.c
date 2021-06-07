@@ -9,6 +9,7 @@
 
 #include "gfx.h"
 
+#include "drivers/led.h"
 #include "drivers/tft/tft.h"
 #include "lib/mcufont/mcufont.h"
 #include "pwr_mng.h"
@@ -37,7 +38,7 @@ uint8_t gfx_status;
 #define BAT_W   (BAT_X2 - BAT_X1)
 #define BAT_H   (BAT_Y2 - BAT_Y1)
 
-
+uint8_t gfx_bg_init = GFX_NONE;
 
 #define COLOR_WHITE 0xFFFF
 #define COLOR_BLACK 0x0000
@@ -101,6 +102,9 @@ void gfx_draw_text(uint16_t x, uint16_t y, char * text, enum mf_align_t align, c
 
 void gfx_clear()
 {
+	if (gfx_bg_init == GFX_NONE)
+		return;
+
     tft_wait_for_buffer();
     tft_color_fill(COLOR_WHITE);
     tft_refresh_buffer(0, 0, 239, 399);
@@ -130,7 +134,7 @@ void gfx_draw_dot(int16_t x, int16_t y)
     gfx_draw_text(x, y, "7", MF_ALIGN_CENTER, gfx_icons);
 }
 
-uint8_t gfx_bg_init = GFX_NONE;
+
 
 void gfx_get_charge_type(char * text)
 {
@@ -161,12 +165,15 @@ void gfx_draw_status(uint8_t status, const char * message)
 	if (gfx_bg_init == GFX_NONE)
 	{
 		tft_init();
+	    led_set_backlight(10);
 
 		gfx_text = mf_find_font("Roboto_Bold28");
 		gfx_desc = mf_find_font("Roboto_Light28");
 		gfx_icons = mf_find_font("icons");
 
 		gfx_anim_init();
+
+		srandom(0);
 	}
 
 	tft_wait_for_buffer();
@@ -217,15 +224,30 @@ void gfx_draw_status(uint8_t status, const char * message)
         case(GFX_STATUS_CHARGE_DATA):
             {
                 strcpy(title, "USB mode");
-                strcpy(text, "Eject to start");
-                gfx_get_charge_type(sub_text);
+                if (strlen(message) > 0)
+                {
+					strcpy(text, message);
+					gfx_get_charge_type(sub_text);
+                }
+                else
+                {
+                	gfx_get_charge_type(text);
+                }
             }
         break;
         case(GFX_STATUS_NONE_DATA):
             {
                 strcpy(title, "USB mode");
-                strcpy(text, "Eject to start");
-                strcpy(sub_text, "Charging slow");
+                if (strlen(message) > 0)
+                {
+					strcpy(text, message);
+					strcpy(sub_text, "Charging slow");
+                }
+                else
+                {
+                	strcpy(text, "Charging slow");
+                }
+
             }
         break;
         case(GFX_STATUS_NONE_CHARGE):
@@ -376,26 +398,28 @@ bool gfx_draw_anim()
     gfx_draw_text(10, TFT_HEIGHT - gfx_icons->height + 16 - GFX_ANIM_TOP, left_icon, MF_ALIGN_LEFT, gfx_icons);
     gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - gfx_icons->height  + 16 - GFX_ANIM_TOP, right_icon, MF_ALIGN_RIGHT, gfx_icons);
 
-
-    if (gfx_status == GFX_STATUS_CHARGE_PASS || gfx_status == GFX_STATUS_NONE_BOOST)
+    if (development_mode)
     {
-        char cc[8];
-        char mode[4];
+		if (gfx_status == GFX_STATUS_CHARGE_PASS || gfx_status == GFX_STATUS_NONE_BOOST)
+		{
+			char cc[8];
+			char mode[4];
 
-        if (pwr.data_usb_mode == dm_host_cdp)
-            strcpy(mode, "CDP");
-        else
-            strcpy(mode, "SDP");
+			if (pwr.data_usb_mode == dm_host_pass)
+				strcpy(mode, "CDP");
+			else
+				strcpy(mode, "SDP");
 
-        sprintf(cc, "%s %u%u", mode, (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
-        gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48, cc, MF_ALIGN_RIGHT, gfx_desc);
-    }
+			sprintf(cc, "%s %u%u", mode, (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
+			gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48, cc, MF_ALIGN_RIGHT, gfx_desc);
+		}
 
-    if (gfx_status == GFX_STATUS_NONE_BOOST)
-    {
-        char boost[8];
-        sprintf(boost, "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
-        gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 22, boost, MF_ALIGN_RIGHT, gfx_desc);
+		if (gfx_status == GFX_STATUS_NONE_BOOST)
+		{
+			char boost[8];
+			sprintf(boost, "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
+			gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 22, boost, MF_ALIGN_RIGHT, gfx_desc);
+		}
     }
 
     tft_refresh_buffer(0, GFX_ANIM_TOP, 239, GFX_ANIM_BOTTOM - 1);

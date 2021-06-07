@@ -35,7 +35,7 @@ lv_obj_t * sensors_init(lv_obj_t * par)
     char value[32];
 
     gui_list_info_add_entry(list, "TFT controller", (tft_controller_type == TFT_CONTROLLER_HX8352) ? "HX8352" : "ILI9327");
-    local->baro = gui_list_info_add_entry(list, "Baromenter", "");
+    local->baro = gui_list_info_add_entry(list, "Barometer", "");
 
     fc_device_status(value, fc.gnss.status);
     gui_list_info_add_entry(list, "GNSS", value);

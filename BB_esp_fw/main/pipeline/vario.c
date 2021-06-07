@@ -36,10 +36,19 @@ void pipe_vario_step()
 
 	while (size > 0)
 	{
-		//skip silent tone if it is removed
-		if (tone_active == to_remove && tone_active->buffer == one_ms_silent)
+		//skip tone if marked as removed
+		if (tone_active == to_remove)
 		{
-			tone_position = tone_active->size;
+			if (tone_active->buffer == one_ms_silent)
+			{
+				tone_position = tone_active->size;
+			}
+			else
+			{
+				tone_position = tone_active->size;
+				//TODO: finish wave
+//				tone_position = tone_active->size - tone_active->size / tone_active->repeat;
+			}
 		}
 		else
 		{

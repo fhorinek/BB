@@ -212,6 +212,10 @@ flight_profile_t profile =
 
     //vario
     {
+		//sink
+		entry_int("vario_sink", -50, -100, 100),
+		//lift
+		entry_int("vario_lift", 0, -100, 100),
         //profile
         entry_text("vario_profile", "default", VARIO_PROFILE_LEN, 0),
     },

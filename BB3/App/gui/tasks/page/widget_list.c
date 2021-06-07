@@ -18,12 +18,15 @@ REGISTER_TASK_I(widget_list,
 
     widget_slot_t prev_ws;
     lv_obj_t * prev_obj;
+
+    uint8_t page_index;
 );
 
-void widget_list_set_page_name(char * name)
+void widget_list_set_page_name(char * name, uint8_t index)
 {
     //load page from file
     strncpy(local->page_name, name, sizeof(local->page_name));
+    local->page_index = index;
 }
 
 void widget_list_select_widget(widget_t * w, uint8_t widget_index)
@@ -67,13 +70,13 @@ static void widget_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	if (event == LV_EVENT_CANCEL)
 	{
 		gui_switch_task(&gui_page_edit, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-		page_edit_set_page_name(local->page_name);
+		page_edit_set_page_name(local->page_name, local->page_index);
 	}
 
 	if (event == LV_EVENT_PRESSED)
 	{
         gui_switch_task(&gui_page_edit, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-        page_edit_set_page_name(local->page_name);
+        page_edit_set_page_name(local->page_name, local->page_index);
         page_edit_modify_widget(widgets[index], local->widget_index);
 	}
 

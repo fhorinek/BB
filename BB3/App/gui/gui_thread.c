@@ -116,14 +116,21 @@ void gui_take_screenshot()
     gui.take_screenshot = 1;
 }
 
+
 void gui_lock_acquire()
 {
-    osSemaphoreAcquire(gui.lock, WAIT_INF);
+	if (xGetCurrentTaskHandle() != thread_gui)
+	{
+		osSemaphoreAcquire(gui.lock, WAIT_INF);
+	}
 }
 
 void gui_lock_release()
 {
-    osSemaphoreRelease(gui.lock);
+	if (xGetCurrentTaskHandle() != thread_gui)
+	{
+		osSemaphoreRelease(gui.lock);
+	}
 }
 
 void thread_gui_start(void *argument)

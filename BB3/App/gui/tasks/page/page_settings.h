@@ -12,6 +12,6 @@
 
 DECLARE_TASK(page_settings);
 
-void page_settings_set_page_name(char * name);
+void page_settings_set_page_name(char * name, uint8_t index);
 
 #endif /* GUI_PAGE_SETTINGS_H_ */

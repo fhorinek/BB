@@ -189,7 +189,7 @@ void MX_GPIO_Deinit()
 
 	HAL_GPIO_DeInit(BT1);
     HAL_GPIO_DeInit(BT3);
-    HAL_GPIO_DeInit(BT5);
+    HAL_GPIO_DeInit(BT4);
 	HAL_GPIO_DeInit(BQ_INT);
 	HAL_GPIO_DeInit(DISP_TE);
 	HAL_GPIO_DeInit(USB_VBUS);

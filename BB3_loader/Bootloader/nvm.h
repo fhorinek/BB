@@ -104,6 +104,7 @@ static inline uint8_t no_init_check()
         memset((void *)NO_INIT_ADDR, 0, sizeof(no_init_t));
         no_init_update();
     }
+    return false;
 }
 
 

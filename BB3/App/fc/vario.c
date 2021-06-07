@@ -243,5 +243,10 @@ void vario_step()
     fc.fused.pressure = fc_alt_to_press(altitude, config_get_big_int(&config.vario.qnh1));
     fc.fused.altitude2 = fc_press_to_alt(fc.fused.pressure, config_get_big_int(&config.vario.qnh2));
 
-    vario_play_tone(vario);
+    int16_t ivario = vario * 10;
+    if (config_get_int(&profile.vario.sink) >= ivario
+    	 || config_get_int(&profile.vario.lift) <= ivario)
+    {
+    	vario_play_tone(vario);
+    }
 }

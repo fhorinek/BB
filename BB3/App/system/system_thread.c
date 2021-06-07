@@ -143,7 +143,6 @@ void thread_system_start(void *argument)
 	//init PSRAM
 	PSRAM_init();
 
-
 	//start tasks
 	INFO("Starting tasks...");
 	start_thread(thread_gui);

@@ -24,6 +24,7 @@
 #include "fatfs.h"
 #include "i2c.h"
 #include "mdma.h"
+#include "rng.h"
 #include "sdmmc.h"
 #include "tim.h"
 #include "usart.h"
@@ -57,6 +58,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void PeriphCommonClock_Config(void);
 /* USER CODE BEGIN PFP */
 void app_main(uint8_t power_on_mode);
 uint8_t app_poweroff();
@@ -83,13 +85,22 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t power_on_mode = app_poweroff();
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
+/* Configure the peripherals common clocks */
+  PeriphCommonClock_Config();
+
   /* USER CODE BEGIN SysInit */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_UART7_Init();
+  MX_I2C2_Init();
+
+  uint8_t power_on_mode = app_poweroff();
 
   /* USER CODE END SysInit */
 
@@ -97,17 +108,20 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_MDMA_Init();
+  MX_UART7_Init();
   MX_FMC_Init();
   MX_SDMMC1_SD_Init();
   MX_TIM2_Init();
-  MX_UART7_Init();
   MX_FATFS_Init();
   MX_CRC_Init();
   MX_I2C2_Init();
   MX_TIM15_Init();
   MX_UART4_Init();
+  MX_RNG_Init();
   /* USER CODE BEGIN 2 */
+
   app_main(power_on_mode);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,7 +143,6 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
   /** Supply configuration update enable
   */
@@ -145,14 +158,15 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 1;
   RCC_OscInitStruct.PLL.PLLN = 70;
   RCC_OscInitStruct.PLL.PLLP = 2;
-  RCC_OscInitStruct.PLL.PLLQ = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 28;
   RCC_OscInitStruct.PLL.PLLR = 2;
   RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
   RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
@@ -178,29 +192,28 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART7
-                              |RCC_PERIPHCLK_SDMMC|RCC_PERIPHCLK_I2C2
-                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_FMC;
-  PeriphClkInitStruct.PLL2.PLL2M = 1;
-  PeriphClkInitStruct.PLL2.PLL2N = 18;
-  PeriphClkInitStruct.PLL2.PLL2P = 2;
-  PeriphClkInitStruct.PLL2.PLL2Q = 2;
-  PeriphClkInitStruct.PLL2.PLL2R = 4;
-  PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_3;
-  PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2VCOWIDE;
-  PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
-  PeriphClkInitStruct.PLL3.PLL3M = 1;
-  PeriphClkInitStruct.PLL3.PLL3N = 18;
+}
+
+/**
+  * @brief Peripherals Common Clock Configuration
+  * @retval None
+  */
+void PeriphCommonClock_Config(void)
+{
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+
+  /** Initializes the peripherals clock
+  */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_I2C2;
+  PeriphClkInitStruct.PLL3.PLL3M = 2;
+  PeriphClkInitStruct.PLL3.PLL3N = 48;
   PeriphClkInitStruct.PLL3.PLL3P = 4;
-  PeriphClkInitStruct.PLL3.PLL3Q = 3;
-  PeriphClkInitStruct.PLL3.PLL3R = 3;
-  PeriphClkInitStruct.PLL3.PLL3RGE = RCC_PLL3VCIRANGE_3;
+  PeriphClkInitStruct.PLL3.PLL3Q = 4;
+  PeriphClkInitStruct.PLL3.PLL3R = 4;
+  PeriphClkInitStruct.PLL3.PLL3RGE = RCC_PLL3VCIRANGE_2;
   PeriphClkInitStruct.PLL3.PLL3VCOSEL = RCC_PLL3VCOWIDE;
   PeriphClkInitStruct.PLL3.PLL3FRACN = 0;
-  PeriphClkInitStruct.FmcClockSelection = RCC_FMCCLKSOURCE_D1HCLK;
-  PeriphClkInitStruct.SdmmcClockSelection = RCC_SDMMCCLKSOURCE_PLL2;
-  PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
-  PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
+  PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_PLL3;
   PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_PLL3;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {

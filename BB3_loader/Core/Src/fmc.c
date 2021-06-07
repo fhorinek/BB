@@ -92,6 +92,16 @@ static void HAL_FMC_MspInit(void){
     return;
   }
   FMC_Initialized = 1;
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FMC;
+    PeriphClkInitStruct.FmcClockSelection = RCC_FMCCLKSOURCE_D1HCLK;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
 
   /* Peripheral clock enable */
   __HAL_RCC_FMC_CLK_ENABLE();
