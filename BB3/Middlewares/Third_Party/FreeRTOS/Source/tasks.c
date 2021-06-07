@@ -5307,15 +5307,4 @@ when performing module tests). */
 
 #endif
 
-xTaskHandle xGetCurrentTaskHandle( void )
-{
-	xTaskHandle xReturn;
 
-	portENTER_CRITICAL();
-	{
-		xReturn = ( xTaskHandle ) pxCurrentTCB;
-	}
-	portEXIT_CRITICAL();
-
-	return xReturn;
-}
