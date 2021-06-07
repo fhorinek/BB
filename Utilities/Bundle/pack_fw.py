@@ -103,6 +103,6 @@ shutil.copyfile(stm_list_path, os.path.join("debug", filename + ".list"))
 print("Done")
 
 os.system("git add -A")
-os.system("git commit -m \"Release %s\"" % filename)
-os.system("read");
+os.system("git commit -m \"Snapshot %s\"" % filename)
+
 
