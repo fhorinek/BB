@@ -129,6 +129,7 @@ uint8_t app_poweroff()
         //check right after wake up INR is only 256us long
         bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
 
+        //restore system clock
         SystemClock_Config();
         PeriphCommonClock_Config();
     }

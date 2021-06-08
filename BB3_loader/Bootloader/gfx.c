@@ -350,6 +350,9 @@ void gfx_draw_progress(float val)
 	tft_refresh_buffer(0, GFX_PROGRESS_TOP, 239, 399);
 }
 
+#define USB_ACTIVITY_TIMEOUT	200
+#define USB_ACTIVITY_BLINK		500
+
 bool gfx_draw_anim()
 {
     if (gfx_status < GFX_STATUS_ANIMATED)
@@ -376,11 +379,17 @@ bool gfx_draw_anim()
         break;
         case(GFX_STATUS_CHARGE_DATA):
             strcpy(left_icon, "4");
-            strcpy(right_icon, "0");
+        	if (pwr.data_usb_activity - HAL_GetTick() < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
+        		strcpy(right_icon, "");
+        	else
+        		strcpy(right_icon, "0");
         break;
         case(GFX_STATUS_NONE_DATA):
             strcpy(left_icon, "");
-            strcpy(right_icon, "40");
+    	if (pwr.data_usb_activity - HAL_GetTick() < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
+    		strcpy(right_icon, "4");
+    	else
+            strcpy(right_icon, "04");
         break;
         case(GFX_STATUS_NONE_CHARGE):
             strcpy(left_icon, "");
