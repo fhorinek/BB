@@ -34,8 +34,7 @@ void thread_mems_start(void *argument)
 {
 	INFO("MEMS started");
 
-//    fc.baro.status = ms5611_init(&ms_primary) ? fc_dev_ready : fc_dev_error;
-	fc.baro.status = fc_dev_error;
+    fc.baro.status = ms5611_init(&ms_primary) ? fc_dev_ready : fc_dev_error;
     fc.aux_baro.status = ms5611_init(&ms_aux) ? fc_dev_ready : fc_dev_error;
 
     lsm_init();
@@ -44,10 +43,6 @@ void thread_mems_start(void *argument)
 
 //    if (fc.baro.status != fc_dev_ready)
 //        osThreadSuspend(thread_mems);
-
-//    if (fc.baro.sy)
-//    ms5611_StartPressure(&ms_primary);
-//    osDelay(10);
 
 	HAL_TIM_OC_Start_IT(meas_timer, TIM_CHANNEL_1);
 	HAL_TIM_OC_Start_IT(meas_timer, TIM_CHANNEL_2);
