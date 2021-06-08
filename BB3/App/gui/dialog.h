@@ -18,5 +18,6 @@ void dialog_progress_set_progress(uint8_t progress);
 void dialog_progress_set_subtitle(char * text);
 
 void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb_t cb);
+void dialog_close();
 
 #endif /* GUI_DIALOG_H_ */

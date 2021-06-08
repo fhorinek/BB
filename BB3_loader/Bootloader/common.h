@@ -175,6 +175,8 @@ uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
 void gui_set_backlight(uint8_t val);
 void gui_set_torch(uint8_t val);
 
+void system_reboot();
+
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"

@@ -73,6 +73,9 @@ lv_obj_t * sensors_init(lv_obj_t * par)
     local->gyro = gui_list_info_add_entry(list, "Gyroscope", "");
     local->mag = gui_list_info_add_entry(list, "Magnetometer", "");
 
+    snprintf(value, sizeof(value), "%u", fc.baro.retry_cnt);
+    gui_list_info_add_entry(list, "Baro retry", value);
+
     local->bat_cap = gui_list_info_add_entry(list, "Battery capacity", "");
     local->aux_baro = gui_list_info_add_entry(list, "Aux Barometer", "");
     local->brigh = gui_list_info_add_entry(list, "Brightness", "");

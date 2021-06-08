@@ -169,7 +169,15 @@ extern osSemaphoreId_t lock_fc_global;
 #define PATH_SYSTEM_DIR     "system"
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
-#define PATH_UPDATE_FILE    "strato.fw"
+
+#define UPDATE_FILE 	"STRATO.FW"
+#define DEV_MODE_FILE   "DEV_MODE"
+#define FORMAT_FILE   	"FORMAT"
+#define SKIP_CRC_FILE   "SKIP_CRC"
+#define SKIP_STM_FILE   "SKIP_STM"
+#define SKIP_ESP_FILE   "SKIP_ESP"
+#define KEEP_FW_FILE    "KEEP_FW"
+
 
 #define TEMP_NAME_LEN       21
 

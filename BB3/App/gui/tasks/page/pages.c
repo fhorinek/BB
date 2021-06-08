@@ -152,7 +152,8 @@ void pages_splash_show()
 	lv_anim_start(&local->anim);
 	local->state = SPLASH_IN;
 
-//	dialog_show("Thank you for your pre-order!", "We are working hard to bring you usable firmware.\nPlease go to\nstrato.skybean.eu\nand follow the instruction to update your new Strato. \n\nTeam SkyBean", dialog_confirm, NULL);
+	if (!file_exists(DEV_MODE_FILE))
+		dialog_show("Thank you for your pre-order!", "We are working hard to bring you usable firmware.\nPlease go to\nstrato.skybean.eu\nand follow the instruction to update your new Strato. \n\nTeam SkyBean", dialog_confirm, NULL);
 }
 
 void pages_splash_hide()
