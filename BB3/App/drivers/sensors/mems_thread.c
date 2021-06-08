@@ -34,15 +34,16 @@ void thread_mems_start(void *argument)
 {
 	INFO("MEMS started");
 
-    fc.baro.status = ms5611_init(&ms_primary) ? fc_dev_ready : fc_dev_error;
+//    fc.baro.status = ms5611_init(&ms_primary) ? fc_dev_ready : fc_dev_error;
+	fc.baro.status = fc_dev_error;
     fc.aux_baro.status = ms5611_init(&ms_aux) ? fc_dev_ready : fc_dev_error;
 
     lsm_init();
     imu_init();
     vario_init();
 
-    if (fc.baro.status != fc_dev_ready)
-        osThreadSuspend(thread_mems);
+//    if (fc.baro.status != fc_dev_ready)
+//        osThreadSuspend(thread_mems);
 
 //    if (fc.baro.sy)
 //    ms5611_StartPressure(&ms_primary);
@@ -97,7 +98,10 @@ void mems_phase1()     //t = 0
     mems_i2c_wait();
 
     //start reading raw_pressure
-    ms5611_ReadPressure(&ms_primary, mems_phase1_1);
+	if (fc.baro.status == fc_dev_ready)
+		ms5611_ReadPressure(&ms_primary, mems_phase1_1);
+	else
+		mems_phase1_1_1();
 }
 
 void mems_phase1_1()    //pressure read completed
@@ -127,7 +131,12 @@ void mems_phase2()		//t = 0.78ms
     mems_i2c_wait();
 
     //start reading temperature
-	ms5611_ReadTemperature(&ms_primary, mems_phase2_1);
+    if (fc.baro.status == fc_dev_ready)
+    	ms5611_ReadTemperature(&ms_primary, mems_phase2_1);
+    else if (fc.aux_baro.status == fc_dev_ready)
+    	mems_phase2_2_1();
+    else
+    	mems_phase2_2();
 }
 
 void mems_phase2_1()    //temperature read complete

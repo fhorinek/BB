@@ -364,6 +364,7 @@ static void calibration_event_cb(lv_obj_t * obj, lv_event_t event)
 
         nvm_update_imu_calibration(&calib);
         statusbar_add_msg(STATUSBAR_MSG_INFO, "New calibration values stored");
+        imu_init();
 
         gui_switch_task(&gui_system, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
     }

@@ -17,9 +17,9 @@ REGISTER_TASK_IL(sensors,
     lv_obj_t * brigh;
     lv_obj_t * bat_volt;
     lv_obj_t * bat_cap;
-//    lv_obj_t * acc;
-//    lv_obj_t * gyro;
-//    lv_obj_t * mag;
+    lv_obj_t * acc;
+    lv_obj_t * gyro;
+    lv_obj_t * mag;
 );
 
 void sensors_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
@@ -69,9 +69,9 @@ lv_obj_t * sensors_init(lv_obj_t * par)
     fc_device_status(value, fc.esp.server_status);
     gui_list_info_add_entry(list, "Esp server", value);
 
-//    local->acc = gui_list_info_add_entry(list, "Accelerometer", "");
-//    local->gyro = gui_list_info_add_entry(list, "Gyroscope", "");
-//    local->mag = gui_list_info_add_entry(list, "Magnetometer", "");
+    local->acc = gui_list_info_add_entry(list, "Accelerometer", "");
+    local->gyro = gui_list_info_add_entry(list, "Gyroscope", "");
+    local->mag = gui_list_info_add_entry(list, "Magnetometer", "");
 
     local->bat_cap = gui_list_info_add_entry(list, "Battery capacity", "");
     local->aux_baro = gui_list_info_add_entry(list, "Aux Barometer", "");
@@ -120,22 +120,22 @@ void sensors_loop()
     }
 
 
-//    if (fc.imu.status == fc_dev_ready || fc.imu.status == fc_device_not_calibrated)
-//    {
-//        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.acc.x, fc.imu.raw.acc.y, fc.imu.raw.acc.z);
-//        gui_list_info_set_value(local->acc, value);
-//
-//        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.gyro.x, fc.imu.raw.gyro.y, fc.imu.raw.gyro.z);
-//        gui_list_info_set_value(local->gyro, value);
-//
-//        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.mag.x, fc.imu.raw.mag.y, fc.imu.raw.mag.z);
-//        gui_list_info_set_value(local->mag, value);
-//    }
-//    else
-//    {
-//        fc_device_status(value, fc.imu.status);
-//        gui_list_info_set_value(local->acc, value);
-//        gui_list_info_set_value(local->gyro, value);
-//        gui_list_info_set_value(local->mag, value);
-//    }
+    if (fc.imu.status == fc_dev_ready || fc.imu.status == fc_device_not_calibrated)
+    {
+        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.acc.x, fc.imu.raw.acc.y, fc.imu.raw.acc.z);
+        gui_list_info_set_value(local->acc, value);
+
+        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.gyro.x, fc.imu.raw.gyro.y, fc.imu.raw.gyro.z);
+        gui_list_info_set_value(local->gyro, value);
+
+        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.mag.x, fc.imu.raw.mag.y, fc.imu.raw.mag.z);
+        gui_list_info_set_value(local->mag, value);
+    }
+    else
+    {
+        fc_device_status(value, fc.imu.status);
+        gui_list_info_set_value(local->acc, value);
+        gui_list_info_set_value(local->gyro, value);
+        gui_list_info_set_value(local->mag, value);
+    }
 }
