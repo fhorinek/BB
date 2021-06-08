@@ -66,7 +66,7 @@ flasher_ret_t check_update_file(FIL * file)
 
             if (br == 0)
             {
-                ERR(" chunk %lu %s unexpected eof", chunk.addr, chunk.name);
+                ERR(" chunk %lu %s unexpected eof at %lu", chunk.addr, chunk.name, pos);
                 return flasher_unexpected_eof;
             }
 

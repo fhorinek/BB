@@ -10,7 +10,7 @@
 #include "drivers/bq25895.h"
 #include "drivers/max17260.h"
 
-power_mng_t pwr;
+volatile power_mng_t pwr;
 
 void pwr_init()
 {

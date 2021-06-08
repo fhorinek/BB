@@ -42,12 +42,15 @@ typedef enum
 
 typedef struct
 {
+	uint32_t data_usb_activity;
+
     uint8_t data_port;
     uint8_t charge_port;
     pwr_data_mode_t data_usb_mode;
     uint16_t boost_output; //in mW
     uint8_t cc_conf;
     uint8_t boost_volt;
+
 
     struct
     {
@@ -73,7 +76,7 @@ typedef struct
 
 } power_mng_t;
 
-extern power_mng_t pwr;
+extern volatile power_mng_t pwr;
 
 void pwr_init();
 void pwr_step();

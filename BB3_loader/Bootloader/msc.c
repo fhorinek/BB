@@ -165,7 +165,9 @@ bool msc_loop()
     if (usb_init)
     {
     	USBD_DeInit(&hUsbDeviceHS);
+        HAL_Delay(200);
     }
+
 
     INFO("USB mode off");
 
@@ -175,6 +177,7 @@ bool msc_loop()
 void msc_irq_handler()
 {
 	static uint8_t scsii_state_old = 0xFF;
+	pwr.data_usb_activity = HAL_GetTick();
 
     //class data are avalible
     if ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData > 0 && pwr.data_port == PWR_DATA_ACTIVE)

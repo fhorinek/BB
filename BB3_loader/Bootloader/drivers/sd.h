@@ -10,11 +10,6 @@
 
 #include "../common.h"
 
-bool sd_detect();
-
-void sd_init();
-void sd_deinit();
-
 bool sd_mount();
 void sd_unmount();
 

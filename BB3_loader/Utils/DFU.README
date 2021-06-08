@@ -8,6 +8,7 @@ To enter ST system bootloader:
 
 Command line:
     dfu-util -a 0 -D BB3_loader.bin -s 0x8000000:mass-erase:force
+    dfu-util -a 0 -D BB3_loader.dfu
 
 Explenation
 dfu-util 
