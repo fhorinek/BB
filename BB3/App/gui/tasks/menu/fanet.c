@@ -72,7 +72,7 @@ static void fanet_loop()
 		//remove entry
 		for (uint8_t i = fc.fanet.neighbors_size; i < local->cnt; i++)
 		{
-			lv_obj_t * entry = gui_list_get_entry(i);
+			lv_obj_t * entry = gui_list_get_entry(i + 1);
 			lv_obj_del(entry);
 
 			local->cnt--;

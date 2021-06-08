@@ -17,10 +17,7 @@ static uint8_t fanet_bootloader_state;
 
 void fanet_init()
 {
-	fc.fanet.status = fc_dev_init;
-
 	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
-	neighbors_reset();
 
 	if (config_get_bool(&profile.fanet.enabled))
 	{
@@ -35,6 +32,8 @@ void fanet_init()
 void fanet_enable()
 {
 	fanet_bootloader_state = FANET_BL_RESET;
+	fc.fanet.status = fc_dev_init;
+	neighbors_reset();
 
 	GpioWrite(FANET_RST, LOW);
 	GpioWrite(FANET_SW, HIGH);
