@@ -35,8 +35,8 @@ void info_update_apply_cb(uint8_t res, void * data)
         char path[64];
 
         snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, local->new_fw);
-        f_unlink(PATH_UPDATE_FILE);
-        if (copy_file(path, PATH_UPDATE_FILE))
+        f_unlink(UPDATE_FILE);
+        if (copy_file(path, UPDATE_FILE))
         {
             system_reboot();
         }

@@ -198,7 +198,8 @@ typedef struct
         float pressure; //in Pa
         fc_device_status_t status;
 
-        uint8_t _pad[3];
+        uint8_t retry_cnt;
+        uint8_t _pad[2];
 	} baro;
 
     struct
