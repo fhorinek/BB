@@ -39,7 +39,7 @@ void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x20000209;
+  hi2c1.Init.Timing = 0x2010091A;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -63,9 +63,6 @@ void MX_I2C1_Init(void)
   {
     Error_Handler();
   }
-  /** I2C Enable Fast Mode Plus
-  */
-  HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C1);
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
@@ -83,7 +80,7 @@ void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x20000209;
+  hi2c2.Init.Timing = 0x2010091A;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -107,9 +104,6 @@ void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
-  /** I2C Enable Fast Mode Plus
-  */
-  HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C2);
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
@@ -120,20 +114,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
   if(i2cHandle->Instance==I2C1)
   {
   /* USER CODE BEGIN I2C1_MspInit 0 */
 
   /* USER CODE END I2C1_MspInit 0 */
-  /** Initializes the peripherals clock
-  */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
-    PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
-      Error_Handler();
-    }
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**I2C1 GPIO Configuration
@@ -164,15 +149,6 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
   /* USER CODE BEGIN I2C2_MspInit 0 */
 
   /* USER CODE END I2C2_MspInit 0 */
-
-  /** Initializes the peripherals clock
-  */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C2;
-    PeriphClkInitStruct.I2c123ClockSelection = RCC_I2C123CLKSOURCE_D2PCLK1;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
-      Error_Handler();
-    }
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**I2C2 GPIO Configuration
