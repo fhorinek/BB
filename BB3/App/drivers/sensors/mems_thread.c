@@ -34,8 +34,14 @@ void thread_mems_start(void *argument)
 {
 	INFO("MEMS started");
 
-    fc.baro.status = ms5611_init(&ms_primary) ? fc_dev_ready : fc_dev_error;
-    fc.aux_baro.status = ms5611_init(&ms_aux) ? fc_dev_ready : fc_dev_error;
+	uint8_t cnt = 0;
+	do
+	{
+		fc.baro.status = ms5611_init(&ms_primary) ? fc_dev_ready : fc_dev_error;
+		fc.aux_baro.status = ms5611_init(&ms_aux) ? fc_dev_ready : fc_dev_error;
+		osDelay(10);
+		cnt++;
+	} while(fc.baro.status != fc_dev_ready && cnt < 10);
 
     lsm_init();
     imu_init();
