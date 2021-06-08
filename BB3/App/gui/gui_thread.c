@@ -182,7 +182,7 @@ void thread_gui_start(void *argument)
     //Create lock for lvgl
     gui.lock = osSemaphoreNew(1, 0, NULL);
     vQueueAddToRegistry(gui.lock, "gui.lock");
-    gui_lock_release();
+    osSemaphoreRelease(gui.lock);
 
     start_thread(thread_map);
 
@@ -202,9 +202,10 @@ void thread_gui_start(void *argument)
 		    gui.take_screenshot = 0;
 		}
 
-		gui_lock_acquire();
+		osSemaphoreAcquire(gui.lock, WAIT_INF);
 		delay = lv_task_handler();
-		gui_lock_release();
+		osSemaphoreRelease(gui.lock);
+
 		osDelay(delay);
 	}
 
