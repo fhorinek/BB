@@ -72,6 +72,10 @@ uint8_t BSP_SD_IsDetected(void);
 void    BSP_SD_AbortCallback(void);
 void    BSP_SD_WriteCpltCallback(void);
 void    BSP_SD_ReadCpltCallback(void);
+
+uint8_t BSP_SD_ReadBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks);
+uint8_t BSP_SD_WriteBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks);
+
 /* USER CODE END BSP_H_CODE */
 
 #ifdef __cplusplus

@@ -19,6 +19,7 @@
 
 volatile bool msc_locked = false;
 volatile bool msc_ejected = false;
+volatile uint32_t msc_activity = 0;
 
 bool msc_loop()
 {
@@ -41,11 +42,10 @@ bool msc_loop()
         {
             usb_init = true;
             msc_locked = false;
-            msc_ejected = false;
             MX_USB_DEVICE_Init();
         }
 
-        if (msc_ejected && !msc_locked)
+        if (msc_ejected)
         {
             start_up = true;
             break;
@@ -107,24 +107,11 @@ bool msc_loop()
                 if (pwr.charge_port > PWR_CHARGE_NONE && pwr.data_port != PWR_DATA_ACTIVE)
                     gfx_draw_status(GFX_STATUS_CHARGE_NONE, NULL);
 
-                char data_subtext[32];
-                if (pwr.data_port == PWR_DATA_ACTIVE)
-                {
-                	if (msc_ejected && msc_locked)
-                		strcpy(data_subtext, "Please wait");
-
-                	if (!msc_ejected && !msc_locked)
-                		strcpy(data_subtext, "");
-
-                	if (!msc_ejected && msc_locked)
-                		strcpy(data_subtext, "Eject to start");
-                }
-
                 if (pwr.charge_port > PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
-                    gfx_draw_status(GFX_STATUS_CHARGE_DATA, data_subtext);
+                    gfx_draw_status(GFX_STATUS_CHARGE_DATA, NULL);
 
                 if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
-                    gfx_draw_status(GFX_STATUS_NONE_DATA, data_subtext);
+                    gfx_draw_status(GFX_STATUS_NONE_DATA, NULL);
 
                 if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_CHARGE)
                     gfx_draw_status(GFX_STATUS_NONE_CHARGE, NULL);
@@ -165,9 +152,7 @@ bool msc_loop()
     if (usb_init)
     {
     	USBD_DeInit(&hUsbDeviceHS);
-        HAL_Delay(200);
     }
-
 
     INFO("USB mode off");
 

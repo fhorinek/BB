@@ -121,7 +121,6 @@ void bq25895_step()
 
     if (pwr.charger.status != fc_dev_ready)
     {
-    	bq25895_init();
         return;
     }
 
