@@ -70,7 +70,7 @@
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
-#define SD_DMA_TIMEOUT					100
+
 
 /* USER CODE END PRIVATE_DEFINES */
 
@@ -256,16 +256,12 @@ int8_t STORAGE_IsWriteProtected_HS(uint8_t lun)
 int8_t STORAGE_Read_HS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 13 */
-
-    HAL_SD_ReadBlocks_DMA(&hsd1, buf, blk_addr, blk_len);
-    uint32_t start = HAL_GetTick();
-    while (hsd1.State == HAL_SD_STATE_BUSY)
-    {
-    	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-    		return USBD_FAIL;
-    };
-
-    return hsd1.ErrorCode;
+	uint8_t ret = BSP_SD_ReadBlocks_DMA((uint32_t *)buf, blk_addr, blk_len);
+	if (ret != MSD_ERROR)
+	{
+		BSP_SD_ReadBlocks_DMA_Wait(blk_addr, blk_len);
+	}
+	return ret;
   /* USER CODE END 13 */
 }
 
@@ -280,15 +276,12 @@ int8_t STORAGE_Read_HS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
 int8_t STORAGE_Write_HS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 14 */
-    HAL_SD_WriteBlocks_DMA(&hsd1, buf, blk_addr, blk_len);
-    uint32_t start = HAL_GetTick();
-    while (hsd1.State == HAL_SD_STATE_BUSY)
-    {
-    	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-    		return USBD_FAIL;
-    };
-
-    return hsd1.ErrorCode;
+	uint8_t ret = BSP_SD_WriteBlocks_DMA((uint32_t *)buf, blk_addr, blk_len);
+	if (ret != MSD_ERROR)
+	{
+		BSP_SD_WriteBlocks_DMA_Wait(blk_addr, blk_len);
+	}
+	return ret;
   /* USER CODE END 14 */
 }
 

@@ -319,7 +319,7 @@ config_t config =
     //system
     {
         //server url
-        entry_text("server_url", "https://vps.skybean.eu/strato", UPDATE_URL_LEN, 0),
+        entry_text("server_url", "https://strato.skybean.eu/update", UPDATE_URL_LEN, 0),
         //firmware_channel
         entry_select("fw_channel", FW_DEVEL, firmware_channel_select),
     },

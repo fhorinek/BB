@@ -90,7 +90,7 @@ uint8_t app_poweroff()
     HAL_Delay(100);
 
     bq25895_init();
-    bq25895_batfet_off();
+//    bq25895_batfet_off();
     bq25895_step();
 
     if (pwr.charge_port > PWR_CHARGE_NONE)
@@ -131,7 +131,7 @@ uint8_t app_poweroff()
 
         //restore system clock
         SystemClock_Config();
-        PeriphCommonClock_Config();
+//        PeriphCommonClock_Config();
     }
 }
 

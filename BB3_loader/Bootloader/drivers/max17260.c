@@ -74,7 +74,6 @@ void max17260_step()
 {
     if (pwr.fuel_gauge.status != fc_dev_ready)
     {
-    	max17260_init();
         return;
     }
 

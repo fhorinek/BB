@@ -226,7 +226,7 @@ void gfx_draw_status(uint8_t status, const char * message)
                 strcpy(title, "USB mode");
                 if (strlen(message) > 0)
                 {
-					strcpy(text, message);
+					strcpy(text, "Eject to start");
 					gfx_get_charge_type(sub_text);
                 }
                 else
@@ -240,7 +240,7 @@ void gfx_draw_status(uint8_t status, const char * message)
                 strcpy(title, "USB mode");
                 if (strlen(message) > 0)
                 {
-					strcpy(text, message);
+					strcpy(text, "Eject to start");
 					strcpy(sub_text, "Charging slow");
                 }
                 else
@@ -295,7 +295,7 @@ void gfx_draw_status(uint8_t status, const char * message)
 
 	}
 
-	INFO("%s: %s", title, text);
+//	INFO("%s: %s", title, text);
 
 	if (gfx_status >= GFX_STATUS_ANIMATED)
 	{

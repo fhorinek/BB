@@ -127,7 +127,9 @@ __weak uint8_t BSP_SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t 
 }
 
 /* USER CODE BEGIN BeforeReadDMABlocksSection */
-/* can be used to modify previous code / undefine following code / add code */
+
+
+
 /* USER CODE END BeforeReadDMABlocksSection */
 /**
   * @brief  Reads block(s) from a specified address in an SD card, in DMA mode.
@@ -150,7 +152,10 @@ __weak uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_
 }
 
 /* USER CODE BEGIN BeforeWriteDMABlocksSection */
-/* can be used to modify previous code / undefine following code / add code */
+
+
+
+
 /* USER CODE END BeforeWriteDMABlocksSection */
 /**
   * @brief  Writes block(s) to a specified address in an SD card, in DMA mode.
@@ -173,7 +178,10 @@ __weak uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint3
 }
 
 /* USER CODE BEGIN BeforeEraseSection */
-/* can be used to modify previous code / undefine following code / add code */
+
+
+
+
 /* USER CODE END BeforeEraseSection */
 /**
   * @brief  Erases the specified memory area of the given SD card.
