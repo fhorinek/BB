@@ -39,6 +39,8 @@
 #define VARIO_PROFILE_LEN   16
 #define PAGE_MAX_COUNT	    10
 
+#define PILOT_NAME_LEN		64
+
 #define BLUETOOTH_NAME_LEN      16
 #define BLUETOOTH_PIN_LEN       4
 
@@ -103,8 +105,11 @@ typedef struct
 
     struct
     {
+        cfg_entry_t in_flight;
         cfg_entry_t sink;
         cfg_entry_t lift;
+        cfg_entry_t acc_gain;
+        cfg_entry_t avg_duration;
         cfg_entry_t profile;
     } vario;
 } flight_profile_t;
@@ -120,8 +125,6 @@ typedef struct
 	{
         cfg_entry_t qnh1;
         cfg_entry_t qnh2;
-        cfg_entry_t acc_gain;
-        cfg_entry_t avg_duration;
 	} vario;
 
     struct

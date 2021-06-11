@@ -251,7 +251,7 @@ widget_slot_t * widgets_editable_select_next(page_layout_t * page, widget_slot_t
     if (!widgets_editable(page))
         return NULL;
 
-    for (uint8_t i = 0;; i = (i + 1) % page->number_of_widgets)
+    for (uint8_t i = 0; i < page->number_of_widgets; i++)
     {
         if (page->widget_slots[i].widget->edit == NULL)
             continue;
@@ -263,6 +263,7 @@ widget_slot_t * widgets_editable_select_next(page_layout_t * page, widget_slot_t
             last = NULL;
     }
 
+    return NULL;
 }
 
 void widgets_update(page_layout_t * page)

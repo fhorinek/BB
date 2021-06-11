@@ -28,6 +28,8 @@ void format_vario_units(char * units);
 void format_mac(char * buf, uint8_t * mac);
 void format_ip(char * buf, uint8_t * ip);
 
+void format_speed(char * val, float in);
+void format_speed_units(char * units);
 
 
 #endif /* ETC_FORMAT_H_ */

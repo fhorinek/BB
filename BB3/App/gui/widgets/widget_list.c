@@ -14,6 +14,8 @@ DECLARE_WIDGET(FTime);
 DECLARE_WIDGET(Alt1);
 DECLARE_WIDGET(CompArrow);
 DECLARE_WIDGET(Map);
+DECLARE_WIDGET(GSpeed);
+DECLARE_WIDGET(GAlt);
 
 widget_t * widgets[] =
 {
@@ -23,7 +25,9 @@ widget_t * widgets[] =
     LIST_WIDGET(Alt1),
     LIST_WIDGET(FTime),
     LIST_WIDGET(CompArrow),
-    LIST_WIDGET(Map),
+    LIST_WIDGET(GSpeed),
+    LIST_WIDGET(GAlt),
+//    LIST_WIDGET(Map),
 };
 
 

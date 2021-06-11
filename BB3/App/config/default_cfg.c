@@ -138,7 +138,7 @@ cfg_entry_param_range_t acc_gain_range =
 pilot_profile_t pilot =
 {
     //name
-    entry_text("pilot_name", "Strato pilot", 64, 0),
+    entry_text("pilot_name", "Strato pilot", PILOT_NAME_LEN, 0),
 };
 
 
@@ -212,10 +212,16 @@ flight_profile_t profile =
 
     //vario
     {
+		//in_flight
+		entry_bool("vario_in_flight", true),
 		//sink
 		entry_int("vario_sink", -50, -100, 100),
 		//lift
 		entry_int("vario_lift", 0, -100, 100),
+        //acc_gain
+        entry_float("vario_acc", 1.0, acc_gain_range),
+        //avg_vario
+        entry_int("vario_avg", 30, 5, 120),
         //profile
         entry_text("vario_profile", "default", VARIO_PROFILE_LEN, 0),
     },
@@ -238,10 +244,6 @@ config_t config =
         entry_big_int("qnh1", 101325, qnh_range),
         //qnh2
         entry_big_int("qnh2", 101325, qnh_range),
-        //acc_gain
-        entry_float("acc_gain", 1.0, acc_gain_range),
-        //avg_vario
-        entry_int("avg_vario", 30, 5, 120),
 	},
 
     //gnss

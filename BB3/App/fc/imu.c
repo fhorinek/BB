@@ -178,34 +178,34 @@ void imu_debug()
     if (cnt != 0)
       return;
 
-  #define _180_DIV_PI         57.2957795f
+	#define _180_DIV_PI         57.2957795f
 
-  float q0 = fc.imu.quat.q0;
-  float q1 = fc.imu.quat.q1;
-  float q2 = fc.imu.quat.q2;
-  float q3 = fc.imu.quat.q3;
+	float q0 = fc.imu.quat.q0;
+	float q1 = fc.imu.quat.q1;
+	float q2 = fc.imu.quat.q2;
+	float q3 = fc.imu.quat.q3;
 
-  float sinr_cosp = +2.0 * (q0 * q1 + q2 * q3);
-  float cosr_cosp = +1.0 - 2.0 * (q1 * q1 + q2 * q2);
-  float roll = atan2(sinr_cosp, cosr_cosp);
+	float sinr_cosp = +2.0 * (q0 * q1 + q2 * q3);
+	float cosr_cosp = +1.0 - 2.0 * (q1 * q1 + q2 * q2);
+	float roll = atan2(sinr_cosp, cosr_cosp);
 
-  float pitch;
+	float pitch;
 
-  // pitch (y-axis rotation)
-  float sinp = +2.0 * (q0 * q2 - q3 * q1);
-  if (fabs(sinp) >= 1)
-      pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-  else
-      pitch = asin(sinp);
+	// pitch (y-axis rotation)
+	float sinp = +2.0 * (q0 * q2 - q3 * q1);
+	if (fabs(sinp) >= 1)
+	  pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	else
+	  pitch = asin(sinp);
 
-  // yaw (z-axis rotation)
-  float siny_cosp = +2.0 * (q0 * q3 + q1 * q2);
-  float cosy_cosp = +1.0 - 2.0 * (q2 * q2 + q3 * q3);
-  float yaw = atan2(siny_cosp, cosy_cosp);
+	// yaw (z-axis rotation)
+	float siny_cosp = +2.0 * (q0 * q3 + q1 * q2);
+	float cosy_cosp = +1.0 - 2.0 * (q2 * q2 + q3 * q3);
+	float yaw = atan2(siny_cosp, cosy_cosp);
 
-  yaw *= _180_DIV_PI;
-  pitch *= _180_DIV_PI;
-  roll *= _180_DIV_PI;
+	yaw *= _180_DIV_PI;
+	pitch *= _180_DIV_PI;
+	roll *= _180_DIV_PI;
 
 //    DBG("%0.2f;%0.2f;%0.2f;%0.2f;", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
 //

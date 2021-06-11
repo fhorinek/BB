@@ -7,6 +7,7 @@
 
 #include "widget.h"
 
+#include "gui/tasks/page/pages.h"
 
 void widget_create_base(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -194,10 +195,14 @@ lv_obj_t * widget_create_edit_overlay(char * title, char * message)
         lv_label_set_text(text_label, message);
     }
 
+    pages_lock_widget();
+
     return base;
 }
 
 void widget_destroy_edit_overlay(lv_obj_t * base)
 {
     lv_obj_del_async(base);
+
+    pages_unlock_widget();
 }

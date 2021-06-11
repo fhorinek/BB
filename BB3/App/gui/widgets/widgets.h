@@ -20,6 +20,7 @@
 #define WIDGET_ACTION_MENU      2
 #define WIDGET_ACTION_HOLD      3
 #define WIDGET_ACTION_DEFOCUS   4
+#define WIDGET_ACTION_CLOSE     5
 
 typedef struct _widget_slot_t widget_slot_t;
 

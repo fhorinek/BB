@@ -120,7 +120,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
     		{
     			tone_part_t ** new_tones = ps_malloc(sizeof(tone_part_t *) * 1);
 				new_tones[0] = vario_create_part(0, 10);
-				pipe_vario_replace(new_tones, packet->size);
+				pipe_vario_replace(new_tones, 1);
     		}
     		else
     		{
