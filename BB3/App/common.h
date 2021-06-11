@@ -28,6 +28,7 @@
 #include "rtc.h"
 #include "spi.h"
 #include "crc.h"
+#include "sdmmc.h"
 
 //os
 #include "FreeRTOS.h"
@@ -158,6 +159,8 @@ extern osSemaphoreId_t lock_fc_global;
 //#define FC_ATOMIC_ACCESS		for(osSemaphoreAcquire(fc_global_lockHandle, 0); osSemaphoreGetCount(fc_global_lockHandle) == 0; osSemaphoreRelease(fc_global_lockHandle))
 #define FC_ATOMIC_ACCESS
 //Paths
+#define	PATH_LEN	128
+
 #define PATH_CONFIG_DIR		"config"
 #define PATH_DEVICE_CFG		PATH_CONFIG_DIR "/device.cfg"
 #define PATH_PROFILE_DIR    PATH_CONFIG_DIR "/profiles"
@@ -169,6 +172,7 @@ extern osSemaphoreId_t lock_fc_global;
 #define PATH_SYSTEM_DIR     "system"
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
+#define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"

@@ -177,14 +177,22 @@ void gui_set_torch(uint8_t val);
 
 void system_reboot();
 
+void clear_dir(char * path);
+
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"
 #define SKIP_CRC_FILE   "SKIP_CRC"
+#define SKIP_FS_FILE    "SKIP_FS"
 #define SKIP_STM_FILE   "SKIP_STM"
 #define SKIP_ESP_FILE   "SKIP_ESP"
 #define KEEP_FW_FILE    "KEEP_FW"
+#define SYSTEM_PATH		"system"
+#define ASSET_PATH		SYSTEM_PATH "/assets"
+
 #define MSG_DELAY		2000
+
+
 
 #define IN_BOOTLOADER
 

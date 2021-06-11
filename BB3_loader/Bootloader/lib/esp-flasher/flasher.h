@@ -19,10 +19,23 @@ typedef struct
 
 typedef struct
 {
+	char name[32];
+	uint32_t addr;
+	uint32_t size;
+	uint8_t _pad[8];
+} meta_info_t;
+
+#define CHUNK_STM_ADDR	0x00000000
+#define CHUNK_FILE_TYPE	0x40000000
+#define CHUNK_DIR_TYPE	0x80000000
+#define CHUNK_FS_MASK	0xC0000000
+
+typedef struct
+{
         uint32_t addr;
         uint32_t size;
         uint32_t crc;
-        char name[16];
+        char name[32];
 } chunk_header_t;
 
 typedef enum
@@ -35,8 +48,10 @@ typedef enum
     flasher_unable_to_set_baudrate,
     flasher_unable_to_program,
     flasher_wrong_size,
+	flasher_not_valid
 } flasher_ret_t;
 
+uint32_t flasher_aligned(uint32_t size);
 flasher_ret_t check_update_file(FIL * file);
 flasher_ret_t esp_flash_write_file(FIL * file);
 
