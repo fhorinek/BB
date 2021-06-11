@@ -90,7 +90,7 @@ uint8_t app_poweroff()
     HAL_Delay(100);
 
     bq25895_init();
-//    bq25895_batfet_off();
+    bq25895_batfet_off();
     bq25895_step();
 
     if (pwr.charge_port > PWR_CHARGE_NONE)
@@ -195,13 +195,15 @@ void app_main(uint8_t power_on_mode)
 
     HAL_Delay(100);
 
-    pwr_init();
 
     if (power_on_mode == POWER_ON_TORCH)
     {
     	torch_loop();
         app_sleep();
     }
+
+    pwr_init();
+
 
     if (power_on_mode == POWER_ON_BOOST)
     {

@@ -55,8 +55,15 @@ void vario_profile_free(vario_profile_t * prof)
 
 void vario_profile_load(char * name)
 {
-    char path[64];
+    char path[PATH_LEN];
     snprintf(path, sizeof(path), "%s/%s.cfg", PATH_VARIO_DIR, name);
+
+    if (!file_exists(path))
+    {
+    	char def[PATH_LEN];
+    	snprintf(def, sizeof(def), "%s/defaults/vario/default.cfg", PATH_ASSET_DIR);
+    	copy_file(def, path);
+    }
 
     vario_profile_t * prof = NULL;
     int16_t tone_size;

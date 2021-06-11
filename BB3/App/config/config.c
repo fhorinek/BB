@@ -271,3 +271,4 @@ void config_store_all()
     config_store(&pilot, path);
 }
 
+

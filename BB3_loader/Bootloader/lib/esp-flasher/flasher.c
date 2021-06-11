@@ -13,12 +13,20 @@
 #include "gfx.h"
 #include "lib/stm32-bootloader/bootloader.h"
 
+uint32_t flasher_aligned(uint32_t size)
+{
+	return (size + 3) & ~3;
+}
 
 flasher_ret_t check_update_file(FIL * file)
 {
     uint8_t buff[COPY_WORK_BUFFER_SIZE];
 
     file_header_t file_header;
+
+    uint8_t stm_fw = false;
+    uint8_t esp_parts = 0;
+    uint16_t assets = 0;
 
     //rewind
     f_lseek(file, 0);
@@ -40,11 +48,22 @@ flasher_ret_t check_update_file(FIL * file)
             return flasher_unexpected_eof;
         }
 
-        if (chunk.addr == 0)
+        if (chunk.addr == CHUNK_STM_ADDR)
         {
             if (Bootloader_CheckSize(chunk.size) != BL_OK)
                 return flasher_wrong_size;
+            else
+            	stm_fw++;
+
+        } else if (chunk.addr & CHUNK_FS_MASK)
+        {
+        	assets++;
         }
+        else
+        {
+        	esp_parts++;
+        }
+
 
         uint32_t crc;
 
@@ -52,9 +71,11 @@ flasher_ret_t check_update_file(FIL * file)
         __HAL_CRC_DR_RESET(&hcrc);
         uint32_t pos = 0;
 
-        while (chunk.size > pos)
+        uint32_t aligned_size = flasher_aligned(chunk.size);
+
+        while (aligned_size > pos)
         {
-            uint32_t to_read = chunk.size - pos;
+            uint32_t to_read = aligned_size - pos;
             if (to_read > COPY_WORK_BUFFER_SIZE)
                 to_read = COPY_WORK_BUFFER_SIZE;
 
@@ -73,17 +94,26 @@ flasher_ret_t check_update_file(FIL * file)
             pos += br;
         }
 
+        crc = HAL_CRC_Accumulate(&hcrc, chunk.name, sizeof(chunk.name));
+        crc = HAL_CRC_Accumulate(&hcrc, &chunk.addr, sizeof(chunk.addr));
+        crc = HAL_CRC_Accumulate(&hcrc, &chunk.size, sizeof(chunk.size));
+
         crc ^= 0xFFFFFFFF;
 
         if (crc != chunk.crc)
         {
-            ERR(" chunk %s crc fail", chunk.addr, chunk.name);
+            ERR(" chunk %08X %s crc fail", chunk.addr, chunk.name);
             return flasher_crc_failed;
             break;
         }
     }
 
-    return flasher_ok;
+    INFO("STM: %u, ESP: %u, ASSETS: %u", stm_fw, esp_parts, assets);
+
+    if (stm_fw == 1 && esp_parts > 2)
+    	return flasher_ok;
+    else
+    	return flasher_not_valid;
 }
 
 #define ESP_DMA_BUFFER_SIZE 256
@@ -182,9 +212,10 @@ flasher_ret_t esp_flash_write_file(FIL * file)
             return flasher_unexpected_eof;
         }
 
-        if (chunk.addr == 0)
+        //
+        if (chunk.addr == CHUNK_STM_ADDR || chunk.addr & CHUNK_FS_MASK)
         {
-            f_lseek(file, f_tell(file) + chunk.size);
+            f_lseek(file, f_tell(file) + flasher_aligned(chunk.size));
             continue;
         }
 

@@ -164,7 +164,7 @@ void * ps_malloc(uint32_t requested_size)
     if (requested_size == 0)
         return NULL;
 
-    //round to next multiple of 3
+    //round to next multiple of 4
     requested_size = (requested_size + 3) & ~3;
 
     ps_malloc_index = ps_malloc_next_free(ps_malloc_index, requested_size);
@@ -299,16 +299,16 @@ bool PSRAM_test()
 //
 //    }
 
-    void * a, *b, *c, *d;
-    a = ps_malloc(1024);
-    ps_free(a);
-
-    a = ps_malloc(1024);
-    b = ps_malloc(1024);
-    ps_free(a);
-    c = ps_malloc(2048);
-    ps_free(b);
-    ps_free(c);
+//    void * a, *b, *c, *d;
+//    a = ps_malloc(1024);
+//    ps_free(a);
+//
+//    a = ps_malloc(1024);
+//    b = ps_malloc(1024);
+//    ps_free(a);
+//    c = ps_malloc(2048);
+//    ps_free(b);
+//    ps_free(c);
 
     return true;
 }

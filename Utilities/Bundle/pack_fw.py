@@ -5,17 +5,43 @@ import random
 import struct
 import zlib
 import os
+import shutil
 
+
+name_max_len = 32
 
 def read_chunk(bin_path, addr):
-    data = open(bin_path, "rb").read()
-    crc = zlib.crc32(data)
+
+    if os.path.isdir(bin_path):
+        data = bytes([])
+    else:
+        data = open(bin_path, "rb").read()
+
     size = len(data)
-    name = os.path.basename(bin_path).split(".")[0]
-    print("  0x%X\t%u bytes\tcrc %08X\t%s" % (addr, size, crc, name))
+    #align to 32b
+    if len(data) % 4 != 0:
+        data += bytes([0] * (4 - (len(data) % 4)))
+        
+    name = bytes(os.path.basename(bin_path), encoding='ascii')
+    name = name[0:name_max_len - 1]
+    name += bytes([0] * (name_max_len - len(name)))
+
+    meta = name + struct.pack("<LL", addr, size)
+
+    crc = zlib.crc32(data + meta)
+
+    
+    #print(" 0 %08X" % zlib.crc32(data[0:8192]))    
+    
+    #print(" 1 %08X" % zlib.crc32(data))
+    #print(" 2 %08X" % zlib.crc32(data + name))
+    #print(" 3 %08X" % zlib.crc32(data + name + struct.pack("<L", addr)))
+    #print(" 4 %08X" % zlib.crc32(data + name + struct.pack("<LL", addr, size)))
+
+    print("  0x%08X\t%10u bytes\tcrc %08X\t%s" % (addr, size, crc, str(name, encoding='ascii')))
     
     chunk = {
-        "name": bytes(name, encoding="ascii"),
+        "name": name,
         "size": size,
         "crc": crc,
         "addr": addr,
@@ -27,12 +53,58 @@ def read_chunk(bin_path, addr):
 
 chunks = []
 
-stm_fw_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/Debug/BB3.bin"
-stm_map_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/Debug/BB3.map"
-stm_list_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/Debug/BB3.list"
+#STM
+stm_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/"
+stm_assets_path = os.path.join(stm_base_path, "Assets")
+stm_fw_path = os.path.join(stm_base_path, "Debug")
+stm_bin_file = os.path.join(stm_fw_path, "BB3.bin")
+stm_map_file = os.path.join(stm_fw_path, "BB3.map")
+stm_list_file = os.path.join(stm_fw_path, "BB3.list")
 
-chunks.append(read_chunk(stm_fw_path, 0x0))
+# assets
+def add_files(path, level):
+    #print("add_files", path, level)
+    index = 0
+    #files
+    for file in os.listdir(path):
+        if file[0] == ".":
+            continue
+        if file[-1] == "~":
+            continue
 
+        chunk = os.path.join(path, file)
+        if os.path.isdir(chunk):
+            continue
+        
+        addr = 0x40000000 | index | level << 16
+        index += 1
+        chunks.append(read_chunk(chunk, addr))
+
+    #dirs
+    for file in os.listdir(path):
+        if file[0] == ".":
+            continue
+
+        chunk = os.path.join(path, file)
+        if not os.path.isdir(chunk):
+            continue
+            
+        addr = 0x80000000 | index | level << 16
+        index += 1        
+        chunks.append(read_chunk(chunk, addr))
+        add_files(chunk, level + 1)
+
+            
+
+
+#STM firmware
+chunks.append(read_chunk(stm_bin_file, 0x0))
+
+#add assets
+add_files(stm_assets_path, 0)
+
+
+#ESP
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
 esp_chunks_path = os.path.join(esp_fw_base_path, "flash_args")
 
@@ -42,9 +114,6 @@ for line in open(esp_chunks_path, "r").readlines()[1:]:
     bin_path = os.path.join(esp_fw_base_path, bin_path)
     
     chunks.append(read_chunk(bin_path, addr))
-
-
-chunks.sort(key=lambda a: a["addr"])
 
 try:
     build_number = int(open("build_number", "r").read())
@@ -66,9 +135,10 @@ build = build_number | ord(ch) << 24
 
 number_of_records = len(chunks)
 
-filename = "%c%07u" % (ch, build_number)
+if os.path.exists("strato.fw"):
+    os.remove("strato.fw");
 
-f = open(filename + ".fw", "wb")
+f = open("strato.fw", "wb")
 
 f.write(struct.pack("<L", build))
 f.write(struct.pack("<b", number_of_records))
@@ -80,29 +150,23 @@ for c in chunks:
     f.write(struct.pack("<L", c["addr"]))
     f.write(struct.pack("<L", c["size"]))
     f.write(struct.pack("<L", c["crc"]))
-    for i in range(16):
-        if i < len(c["name"]):
-            f.write(struct.pack("<b", c["name"][i]))        
-        else:    
-            f.write(struct.pack("<b", 0))        
-        
+    f.write(c["name"])        
+
     f.write(c["data"])
 
 f.close()
 
-import os
-import shutil
-
-if os.path.exists("strato.fw"):
-    os.remove("strato.fw");
+build = "%c%07u" % (ch, build_number)
+folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
     
-shutil.copyfile(filename + ".fw", "strato.fw")
-shutil.copyfile(stm_map_path, os.path.join("debug", filename + ".map"))
-shutil.copyfile(stm_list_path, os.path.join("debug", filename + ".list"))
+os.mkdir(folder)
+shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
+shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
+shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
 
 print("Done")
 
 os.system("git add -A")
-os.system("git commit -m \"Snapshot %s\"" % filename)
+os.system("git commit -m \"Snapshot build %s\"" % build)
 
 

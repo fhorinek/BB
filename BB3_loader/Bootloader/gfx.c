@@ -224,30 +224,15 @@ void gfx_draw_status(uint8_t status, const char * message)
         case(GFX_STATUS_CHARGE_DATA):
             {
                 strcpy(title, "USB mode");
-                if (strlen(message) > 0)
-                {
-					strcpy(text, "Eject to start");
-					gfx_get_charge_type(sub_text);
-                }
-                else
-                {
-                	gfx_get_charge_type(text);
-                }
+				strcpy(text, "Eject to start");
+				gfx_get_charge_type(sub_text);
             }
         break;
         case(GFX_STATUS_NONE_DATA):
             {
                 strcpy(title, "USB mode");
-                if (strlen(message) > 0)
-                {
-					strcpy(text, "Eject to start");
-					strcpy(sub_text, "Charging slow");
-                }
-                else
-                {
-                	strcpy(text, "Charging slow");
-                }
-
+				strcpy(text, "Eject to start");
+				strcpy(sub_text, "Charging slow");
             }
         break;
         case(GFX_STATUS_NONE_CHARGE):
