@@ -8,7 +8,7 @@
 
 #include "gui/widgets/widget.h"
 
-REGISTER_WIDGET_IUE
+REGISTER_WIDGET_ISUE
 (
     Alt1,
     "Altitude QNH1",
@@ -34,7 +34,7 @@ static void Alt1_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void Alt1_edit(widget_slot_t * slot, uint8_t action)
 {
-    if (action == WIDGET_ACTION_DEFOCUS)
+    if (action == WIDGET_ACTION_CLOSE)
     {
         if (local->edit != NULL)
         {
@@ -46,10 +46,12 @@ static void Alt1_edit(widget_slot_t * slot, uint8_t action)
     }
 
 
-    if (local->edit == NULL)
+    if (action == WIDGET_ACTION_LEFT || action == WIDGET_ACTION_RIGHT || action == WIDGET_ACTION_HOLD)
     {
-        local->edit = widget_create_edit_overlay("Altitude 1", "Set QNH1");
-
+		if (local->edit == NULL)
+		{
+			local->edit = widget_create_edit_overlay("Altitude 1", "Set QNH1");
+		}
     }
 }
 
@@ -69,4 +71,11 @@ static void Alt1_update(widget_slot_t * slot)
     widget_update_font_size(local->value, slot->obj);
 }
 
+static void Alt1_stop(widget_slot_t * slot)
+{
+    if (local->edit != NULL)
+    {
+        widget_destroy_edit_overlay(local->edit);
+    }
+}
 

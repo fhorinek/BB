@@ -344,7 +344,7 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 	uint8_t height = lv_obj_get_height(label) + lv_obj_get_height(textbox);
 	height += lv_obj_get_style_pad_top(entry, LV_CONT_PART_MAIN);
 	height += lv_obj_get_style_pad_bottom(entry, LV_CONT_PART_MAIN);
-	height +=- 5;
+	height += 2;
 
 	lv_obj_set_height(entry, height);
 
@@ -366,3 +366,4 @@ void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 	lv_obj_t * label = lv_obj_get_child(obj, NULL);
 	lv_textarea_set_text(label, value);
 }
+

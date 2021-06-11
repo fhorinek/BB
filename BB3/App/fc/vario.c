@@ -9,6 +9,8 @@
 #include "fc/fc.h"
 #include "fc/kalman.h"
 
+#include "drivers/esp/protocol.h"
+
 void vario_init()
 {
     fc.fused.status = fc_dev_init;
@@ -159,6 +161,8 @@ bool get_between(vario_tone_t * tone, int16_t climb, int16_t * freq, int16_t * d
     return false;
 }
 
+static bool vario_is_silent = true;
+
 void vario_play_tone(float vario)
 {
     static int16_t last_value = 0xFFFF;
@@ -170,7 +174,7 @@ void vario_play_tone(float vario)
 
     if (next_time < HAL_GetTick())
     {
-        next_time = HAL_GetTick() + 100;
+        next_time = HAL_GetTick() + 50;
     }
     else
     {
@@ -178,9 +182,10 @@ void vario_play_tone(float vario)
     }
 
 
-    if (vario_int != last_value)
+    if (vario_int != last_value || vario_is_silent)
     {
         last_value = vario_int;
+        vario_is_silent = false;
 
         proto_tone_play_t data;
         data.size = 0;
@@ -199,6 +204,18 @@ void vario_play_tone(float vario)
         protocol_send(PROTO_TONE_PLAY, (void *)&data, sizeof(data));
     }
 
+}
+
+void vario_silent()
+{
+	if (vario_is_silent)
+		return;
+
+	vario_is_silent = true;
+
+    proto_tone_play_t data;
+    data.size = 0;
+    protocol_send(PROTO_TONE_PLAY, (void *)&data, sizeof(data));
 }
 
 void vario_step()
@@ -220,7 +237,7 @@ void vario_step()
     }
 
     float altitude, vario;
-    float acc = fc.imu.acc_gravity_compensated * config_get_float(&config.vario.acc_gain);
+    float acc = fc.imu.acc_gravity_compensated * config_get_float(&profile.vario.acc_gain);
 
     kalman_step(raw_altitude, acc, &altitude, &vario);
 
@@ -245,15 +262,26 @@ void vario_step()
     }
 
     fc.fused.vario = vario;
-    fc.fused.avg_vario += (vario - fc.fused.avg_vario) / (float)(config_get_int(&config.vario.avg_duration) * 100);
+    fc.fused.avg_vario += (vario - fc.fused.avg_vario) / (float)(config_get_int(&profile.vario.avg_duration) * 100);
     fc.fused.altitude1 = altitude;
     fc.fused.pressure = fc_alt_to_press(altitude, config_get_big_int(&config.vario.qnh1));
     fc.fused.altitude2 = fc_press_to_alt(fc.fused.pressure, config_get_big_int(&config.vario.qnh2));
 
     int16_t ivario = vario * 10;
-    if (config_get_int(&profile.vario.sink) >= ivario
-    	 || config_get_int(&profile.vario.lift) <= ivario)
+    if (config_get_bool(&profile.vario.in_flight) && fc.flight.mode != flight_flight)
     {
-    	vario_play_tone(vario);
+    	vario_silent();
+    }
+    else
+    {
+		if (config_get_int(&profile.vario.sink) >= ivario
+			 || config_get_int(&profile.vario.lift) <= ivario)
+		{
+			vario_play_tone(vario);
+		}
+		else
+		{
+			vario_silent();
+		}
     }
 }

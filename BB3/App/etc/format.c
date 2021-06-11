@@ -180,3 +180,46 @@ void format_ip(char * buf, uint8_t * ip)
 {
     sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
 }
+
+void format_speed(char * val, float in)
+{
+    int16_t value;
+
+    switch (config_get_select(&config.units.speed))
+    {
+        case(SPEED_KMH):
+            value = in * FC_MPS_TO_KPH;
+        break;
+        case(SPEED_MPH):
+            value = in * FC_MPS_TO_MPH;
+        break;
+        case(SPEED_MPS):
+            value = in;
+        break;
+        case(SPEED_KNOTS):
+            value = in * FC_MPS_TO_KNOTS;
+        break;
+    }
+
+    sprintf(val, "%0.1f", value / 10.0);
+}
+
+void format_speed_units(char * units)
+{
+    switch (config_get_select(&config.units.speed))
+    {
+        case(SPEED_KMH):
+            strcpy(units, "km/h");
+        break;
+        case(SPEED_MPH):
+            strcpy(units, "mi/h");
+        break;
+        case(SPEED_MPS):
+            strcpy(units, "m/s");
+        break;
+        case(SPEED_KNOTS):
+            strcpy(units, "kt");
+        break;
+    }
+}
+

@@ -23,7 +23,7 @@ static void Avg_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     char title[16];
-    sprintf(title, "Avg (%us)", config_get_int(&config.vario.avg_duration));
+    sprintf(title, "Avg (%us)", config_get_int(&profile.vario.avg_duration));
     widget_add_title(base, slot, title);
 
     char units[8];

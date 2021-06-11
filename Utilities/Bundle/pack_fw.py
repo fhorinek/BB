@@ -164,9 +164,9 @@ shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
 shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
 shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
 
-print("Done")
-
 os.system("git add -A")
 os.system("git commit -m \"Snapshot build %s\"" % build)
+
+print("Done")
 
 

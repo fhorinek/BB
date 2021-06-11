@@ -21,24 +21,19 @@ static void fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
-		switch(index)
+		if (obj == local->fanet_sw)
 		{
-			case 0:
+			bool val = gui_list_switch_get_value(local->fanet_sw);
+			config_set_bool(&profile.fanet.enabled, val);
+			if (val)
 			{
-				bool val = gui_list_switch_get_value(local->fanet_sw);
-				config_set_bool(&profile.fanet.enabled, val);
-				if (val)
-				{
-					fanet_enable();
-				}
-				else
-				{
-					fanet_disable();
-				}
+				fanet_enable();
 			}
-			break;
+			else
+			{
+				fanet_disable();
+			}
 		}
-
 	}
 }
 

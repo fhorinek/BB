@@ -35,12 +35,13 @@ extern const lv_img_dsc_t tile;
 #define MENU_SHOW			2
 #define MENU_OUT			3
 #define MENU_EDIT_WIDGET    5
+#define MENU_EDIT_OVERLAY   6
 
-#define SPLASH_IN			6
-#define SPLASH_OUT			7
+#define SPLASH_IN			7
+#define SPLASH_OUT			8
 
-#define PAGE_SWITCH_LEFT	8
-#define PAGE_SWITCH_RIGHT	9
+#define PAGE_SWITCH_LEFT	9
+#define PAGE_SWITCH_RIGHT	10
 
 
 #define PAGE_ANIM_FROM_LEFT		-1
@@ -323,6 +324,15 @@ void pages_create_menu(lv_obj_t * base)
 
 }
 
+void pages_lock_widget()
+{
+	local->state = MENU_EDIT_OVERLAY;
+}
+
+void pages_unlock_widget()
+{
+	local->state = MENU_EDIT_WIDGET;
+}
 
 static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 {
@@ -337,6 +347,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
         	else if (local->state == MENU_EDIT_WIDGET)
         	{
         	    widgets_edit(local->active_widget, WIDGET_ACTION_HOLD);
+        	}
+        	else if (local->state == MENU_EDIT_OVERLAY)
+        	{
+        		widgets_edit(local->active_widget, WIDGET_ACTION_CLOSE);
         	}
 
             lv_indev_wait_release(gui.input.indev);
@@ -357,11 +371,21 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                     if (widgets_editable(local->page))
                     {
                         local->state = MENU_EDIT_WIDGET;
+
+                        //defocus old
                         if (local->active_widget != NULL)
-                            local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+                        {
+                        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+                        	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
+                        }
+
                         local->active_widget = widgets_editable_select_next(local->page, local->active_widget);
+
+                        //focus new
                         if (local->active_widget != NULL)
                             local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_FOCUS, NULL);
+                        else
+                        	local->state = MENU_IDLE;
                     }
                 }
             }
@@ -408,31 +432,43 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 
         		}
         	}
-        	else if (local->state == MENU_EDIT_WIDGET)
+        	else if (local->state == MENU_EDIT_WIDGET || local->state == MENU_EDIT_OVERLAY)
         	{
                 switch (key)
                 {
-                case(LV_KEY_RIGHT):
-                    widgets_edit(local->active_widget, WIDGET_ACTION_RIGHT);
-                break;
-                case(LV_KEY_LEFT):
-                    widgets_edit(local->active_widget, WIDGET_ACTION_LEFT);
-                break;
-                case(LV_KEY_HOME):
-                    widgets_edit(local->active_widget, WIDGET_ACTION_MENU);
-                break;
-                case(LV_KEY_ESC):
-                    local->state = MENU_IDLE;
-                    if (local->active_widget != NULL)
-                    {
-                        widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
-                        local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
-                    }
-                    local->active_widget = NULL;
-                break;
+					case(LV_KEY_RIGHT):
+						widgets_edit(local->active_widget, WIDGET_ACTION_RIGHT);
+					break;
+					case(LV_KEY_LEFT):
+						widgets_edit(local->active_widget, WIDGET_ACTION_LEFT);
+					break;
+					case(LV_KEY_HOME):
+						widgets_edit(local->active_widget, WIDGET_ACTION_MENU);
+					break;
+					case(LV_KEY_ENTER):
+						if (local->state == MENU_EDIT_OVERLAY)
+						{
+							widgets_edit(local->active_widget, WIDGET_ACTION_RIGHT);
+						}
+					break;
+					case(LV_KEY_ESC):
+						if (local->state == MENU_EDIT_OVERLAY)
+						{
+							widgets_edit(local->active_widget, WIDGET_ACTION_CLOSE);
+						}
+						else
+						{
+							local->state = MENU_IDLE;
+							if (local->active_widget != NULL)
+							{
+								widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
+								local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+							}
+							local->active_widget = NULL;
+						}
+					break;
                 }
         	}
-
         }
 		break;
     }
