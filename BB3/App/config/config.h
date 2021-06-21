@@ -58,6 +58,8 @@
 typedef struct
 {
     cfg_entry_t name;
+    cfg_entry_t broadcast_name;
+    cfg_entry_t online_track;
 } pilot_profile_t;
 
 typedef struct
@@ -71,8 +73,6 @@ typedef struct
     struct
     {
         cfg_entry_t enabled;
-        cfg_entry_t broadcast_name;
-        cfg_entry_t online_track;
     } fanet;
 
     struct

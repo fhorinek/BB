@@ -383,14 +383,14 @@ void fanet_step()
 	if (fc.fanet.status == fc_dev_ready)
 	{
         //if enabled tracking etc...
-        if (next_transmit_tracking <= HAL_GetTick()/* && && fc.gnss.valid*/)
+        if (next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix == 3)
         {
             next_transmit_tracking = HAL_GetTick() + FANET_TX_TRACKING_PERIOD;
 
             fanet_transmit_pos();
         }
 
-        if (next_transmit_name <= HAL_GetTick() && config_get_bool(&profile.fanet.broadcast_name))
+        if (next_transmit_name <= HAL_GetTick() && config_get_bool(&pilot.broadcast_name))
         {
             next_transmit_name = HAL_GetTick() + FANET_TX_NAME_PERIOD;
 

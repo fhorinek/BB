@@ -92,8 +92,8 @@ int main(void)
              | SCB_SHCSR_MEMFAULTENA_Msk;
 
   //enable trap for div 0 and unaligned access
-  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk
-           | SCB_CCR_UNALIGN_TRP_Msk;
+  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
+           //| SCB_CCR_UNALIGN_TRP_Msk;
 
   /* USER CODE END 1 */
 

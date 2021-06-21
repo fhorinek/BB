@@ -65,12 +65,6 @@ void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lon)
 
 void format_vario(char * val, float in)
 {
-    if (fc.fused.status != fc_dev_ready)
-    {
-        strcpy(val, "---");
-        return;
-    }
-
     int16_t value;
 
     switch (config_get_select(&config.units.vario))

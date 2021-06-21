@@ -106,20 +106,29 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
-	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
+	lv_cont_set_layout(entry, LV_LAYOUT_PRETTY_MID);
 	lv_page_glue_obj(entry, true);
+
+	uint16_t w = lv_obj_get_width_fit(entry);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
+	lv_label_set_long_mode(label, LV_LABEL_LONG_SROLL_CIRC);
+	lv_obj_set_width(label, w);
 
 	lv_obj_t * slider = lv_slider_create(entry,  NULL);
 	lv_group_add_obj(gui.input.group, slider);
-	lv_obj_set_size(slider, lv_obj_get_width_fit(entry), 14);
+	lv_obj_set_size(slider, w * 2 / 3, 14);
 	lv_obj_set_focus_parent(slider, true);
-	lv_obj_align(slider, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -2);
 
 	lv_slider_set_range(slider, value_min, value_max);
 	lv_slider_set_value(slider, value, LV_ANIM_OFF);
+	lv_slider_set_type(slider, LV_SLIDER_TYPE_SYMMETRICAL);
+
+	lv_obj_t * val = lv_label_create(entry, NULL);
+	lv_label_set_text(val, "");
+	lv_label_set_align(val, LV_LABEL_ALIGN_CENTER);
+	lv_obj_set_size(val, w / 3, 14);
 
 	lv_obj_set_event_cb(slider, gui_list_event_cb);
 
@@ -128,9 +137,14 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 
 int16_t gui_list_slider_get_value(lv_obj_t * obj)
 {
-	//slider widget is last added child
-	lv_obj_t * slider = lv_obj_get_child(obj, NULL);
+	lv_obj_t * slider = lv_obj_get_child(obj, lv_obj_get_child(obj, NULL));
 	return lv_slider_get_value(slider);
+}
+
+void gui_list_slider_set_label(lv_obj_t * obj, char * text)
+{
+	lv_obj_t * label = lv_obj_get_child(obj, NULL);
+	lv_label_set_text(label, text);
 }
 
 lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const char * options, uint16_t selected)
@@ -366,4 +380,3 @@ void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 	lv_obj_t * label = lv_obj_get_child(obj, NULL);
 	lv_textarea_set_text(label, value);
 }
-

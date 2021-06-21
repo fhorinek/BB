@@ -21,6 +21,7 @@
 #define WIDGET_ACTION_HOLD      3
 #define WIDGET_ACTION_DEFOCUS   4
 #define WIDGET_ACTION_CLOSE     5
+#define WIDGET_ACTION_MIDDLE    6
 
 typedef struct _widget_slot_t widget_slot_t;
 

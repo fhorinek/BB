@@ -8,6 +8,8 @@
 
 #include "fc.h"
 
+#include "kalman.h"
+
 #include "etc/epoch.h"
 #include "etc/timezone.h"
 
@@ -198,5 +200,13 @@ float fc_press_to_alt(float pressure, float qnh)
 float fc_alt_to_press(float alt, float qnh)
 {
     return qnh * pow(1.0 - (alt / 44330.0), 5.255);
+}
+
+void fc_manual_alt1_change(float val)
+{
+	kalman_configure(val);
+
+    if (fc.flight.mode == flight_wait_to_takeoff)
+    	fc.autostart.altitude = val;
 }
 
