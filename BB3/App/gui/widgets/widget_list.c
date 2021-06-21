@@ -16,6 +16,7 @@ DECLARE_WIDGET(CompArrow);
 DECLARE_WIDGET(Map);
 DECLARE_WIDGET(GSpeed);
 DECLARE_WIDGET(GAlt);
+DECLARE_WIDGET(GHdg);
 
 widget_t * widgets[] =
 {
@@ -27,6 +28,7 @@ widget_t * widgets[] =
     LIST_WIDGET(CompArrow),
     LIST_WIDGET(GSpeed),
     LIST_WIDGET(GAlt),
+	LIST_WIDGET(GHdg)
 //    LIST_WIDGET(Map),
 };
 

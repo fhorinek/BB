@@ -53,6 +53,7 @@ static void Alt1_edit(widget_slot_t * slot, uint8_t action)
     if (action == WIDGET_ACTION_MIDDLE)
     {
     	widget_destroy_edit_overlay(local->edit);
+    	local->edit = NULL;
     }
 
     if (action == WIDGET_ACTION_LEFT || action == WIDGET_ACTION_RIGHT || action == WIDGET_ACTION_HOLD)
@@ -64,10 +65,16 @@ static void Alt1_edit(widget_slot_t * slot, uint8_t action)
 
 		if (local->edit == NULL)
 		{
+			//create menu
 			local->edit = widget_create_edit_overlay("Altitude 1", "Set QNH1");
 			lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
-			lv_obj_t * alt = lv_label_create(base, NULL);
 			lv_obj_t * qnh = lv_label_create(base, NULL);
+			lv_obj_set_style_local_text_font(qnh, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[1]);
+			lv_obj_t * alt = lv_label_create(base, NULL);
+			lv_obj_set_style_local_text_font(alt, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[1]);
+
+			//update values
+			Alt1_update(slot);
 		}
 
 		if (HAL_GetTick() - local->last_action < 300)
@@ -125,8 +132,8 @@ static void Alt1_update(widget_slot_t * slot)
     if (local->edit != NULL)
     {
 		lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
-		lv_obj_t * qnh = lv_obj_get_child(base, NULL);
-		lv_obj_t * alt = lv_obj_get_child(base, qnh);
+		lv_obj_t * alt = lv_obj_get_child(base, NULL);
+		lv_obj_t * qnh = lv_obj_get_child(base, alt);
 
 		char buff[32];
 		char val[16];
