@@ -18,7 +18,7 @@ def read_chunk(bin_path, addr):
         data = open(bin_path, "rb").read()
 
     size = len(data)
-    #align to 32b
+    #align data to 32b
     if len(data) % 4 != 0:
         data += bytes([0] * (4 - (len(data) % 4)))
         
@@ -26,17 +26,13 @@ def read_chunk(bin_path, addr):
     name = name[0:name_max_len - 1]
     name += bytes([0] * (name_max_len - len(name)))
 
-    meta = name + struct.pack("<LL", addr, size)
 
-    crc = zlib.crc32(data + meta)
-
-    
-    #print(" 0 %08X" % zlib.crc32(data[0:8192]))    
-    
-    #print(" 1 %08X" % zlib.crc32(data))
-    #print(" 2 %08X" % zlib.crc32(data + name))
-    #print(" 3 %08X" % zlib.crc32(data + name + struct.pack("<L", addr)))
-    #print(" 4 %08X" % zlib.crc32(data + name + struct.pack("<LL", addr, size)))
+    if addr == 0:
+        #no meta info for STM fw
+        crc = zlib.crc32(data)
+    else:
+        meta = name + struct.pack("<LL", addr, size) 
+        crc = zlib.crc32(data + meta)
 
     print("  0x%08X\t%10u bytes\tcrc %08X\t%s" % (addr, size, crc, str(name, encoding='ascii')))
     

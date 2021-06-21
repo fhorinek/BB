@@ -123,21 +123,10 @@ bool flash_loop()
                     }
                     else
                     {
-                    	//store meta info
-                    	meta_info_t meta;
-                    	memcpy(meta.name, chunk.name, sizeof(chunk.name));
-                    	meta.size = chunk.size;
-                    	meta.addr = chunk.addr;
-
-                        for (uint32_t i = 0; i < sizeof(meta_info_t); i += 16)
-                        {
-                            Bootloader_FlashNext((uint32_t *)(((uint8_t *)&meta) + i));
-                        }
-
                         //store fw info
                         Bootloader_FlashBegin(NVM_ADDR);
 
-                        nvm_temp.app.size = chunk.size + sizeof(meta) - sizeof(meta._pad);
+                        nvm_temp.app.size = chunk.size;
                         nvm_temp.app.crc = chunk.crc;
                         nvm_temp.app.build_number = hdr.build_number;
 

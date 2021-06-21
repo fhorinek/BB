@@ -33,6 +33,12 @@ typedef enum
 
 #define NUMBER_OF_WIDGET_FONTS	5
 
+#define FONT_XL	0
+#define FONT_L	1
+#define FONT_M	2
+#define FONT_S	3
+#define FONT_XS	4
+
 typedef struct
 {
 	lv_obj_t * (* init)(lv_obj_t *);

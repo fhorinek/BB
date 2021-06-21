@@ -94,9 +94,12 @@ flasher_ret_t check_update_file(FIL * file)
             pos += br;
         }
 
-        crc = HAL_CRC_Accumulate(&hcrc, chunk.name, sizeof(chunk.name));
-        crc = HAL_CRC_Accumulate(&hcrc, &chunk.addr, sizeof(chunk.addr));
-        crc = HAL_CRC_Accumulate(&hcrc, &chunk.size, sizeof(chunk.size));
+        if (chunk.addr != CHUNK_STM_ADDR)
+        {
+			crc = HAL_CRC_Accumulate(&hcrc, chunk.name, sizeof(chunk.name));
+			crc = HAL_CRC_Accumulate(&hcrc, &chunk.addr, sizeof(chunk.addr));
+			crc = HAL_CRC_Accumulate(&hcrc, &chunk.size, sizeof(chunk.size));
+        }
 
         crc ^= 0xFFFFFFFF;
 
