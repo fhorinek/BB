@@ -157,6 +157,7 @@ folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
     
 os.mkdir(folder)
 shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
+shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
 shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
 shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
 
