@@ -9,6 +9,7 @@
 #include "drivers/power/led.h"
 #include "drivers/nvm.h"
 #include "lib/mcufont/mcufont.h"
+#include "drivers/rev.h"
 
 const struct mf_font_s * bosd_font;
 
@@ -154,9 +155,13 @@ void bsod_show(context_frame_t * frame)
 
 	snprintf(buff, sizeof(buff), "CFSR: %08lX", CFSR);
 	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    char rev_str[10];
-    rew_get_sw_string(rev_str);
-	snprintf(buff, sizeof(buff), "FW: %s", rev_str);
+
+    char tmp[10];
+    rew_get_sw_string(tmp);
+	snprintf(buff, sizeof(buff), "FW: %s", tmp);
+	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+
+	snprintf(buff, sizeof(buff), "HW: %02X", rev_get_hw());
 	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
 
     bosd_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - LINE_SIZE, "Reset", MF_ALIGN_CENTER);

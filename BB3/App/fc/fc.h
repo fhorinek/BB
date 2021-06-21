@@ -285,5 +285,6 @@ float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);
 float fc_alt_to_press(float alt, float qnh);
 
+void fc_manual_alt1_change(float val);
 
 #endif /* FC_FC_H_ */

@@ -139,6 +139,10 @@ pilot_profile_t pilot =
 {
     //name
     entry_text("pilot_name", "Strato pilot", PILOT_NAME_LEN, 0),
+    //broadcast_name
+    entry_bool("bcst_name", true),
+    //online track
+    entry_bool("online_track", true),
 };
 
 
@@ -167,10 +171,6 @@ flight_profile_t profile =
     {
         //enabled
         entry_bool("fa_en", true),
-        //broadcast_name
-        entry_bool("fa_bcst_name", true),
-        //online track
-        entry_bool("fa_online_track", true),
     },
 
     //flight

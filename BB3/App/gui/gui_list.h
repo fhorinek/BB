@@ -27,6 +27,7 @@ char * gui_list_info_get_name(lv_obj_t * entry);
 
 lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value);
 int16_t gui_list_slider_get_value(lv_obj_t * entry);
+void gui_list_slider_set_label(lv_obj_t * obj, char * text);
 
 lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const char * value, uint8_t max_len);
 void gui_list_textbox_set_value(lv_obj_t * obj, const char * value);

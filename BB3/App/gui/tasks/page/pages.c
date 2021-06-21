@@ -388,6 +388,11 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                         	local->state = MENU_IDLE;
                     }
                 }
+                else if (local->state == MENU_EDIT_OVERLAY)
+                {
+                	widgets_edit(local->active_widget, WIDGET_ACTION_MIDDLE);
+                }
+
             }
 
 		break;
@@ -445,12 +450,7 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 					case(LV_KEY_HOME):
 						widgets_edit(local->active_widget, WIDGET_ACTION_MENU);
 					break;
-					case(LV_KEY_ENTER):
-						if (local->state == MENU_EDIT_OVERLAY)
-						{
-							widgets_edit(local->active_widget, WIDGET_ACTION_RIGHT);
-						}
-					break;
+
 					case(LV_KEY_ESC):
 						if (local->state == MENU_EDIT_OVERLAY)
 						{

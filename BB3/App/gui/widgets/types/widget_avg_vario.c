@@ -35,7 +35,12 @@ static void Avg_init(lv_obj_t * base, widget_slot_t * slot)
 static void Avg_update(widget_slot_t * slot)
 {
     char value[8];
-    format_vario(value, fc.fused.avg_vario);
+
+    if (fc.fused.status != fc_dev_ready)
+        strcpy(value, "---");
+    else
+        format_vario(value, fc.fused.avg_vario);
+
     lv_label_set_text(local->value, value);
     widget_update_font_size(local->value, slot->obj);
 }
