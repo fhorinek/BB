@@ -66,6 +66,9 @@ void pipe_vario_step()
 	xSemaphoreGive(pipes.vario.lock);
 }
 
+//#define HALF_AMP 32767
+#define HALF_AMP 16384
+
 uint16_t * vario_generate_tone(uint16_t freq, uint16_t * len)
 {
 	*len = OUTPUT_SAMPLERATE / freq;
@@ -73,7 +76,7 @@ uint16_t * vario_generate_tone(uint16_t freq, uint16_t * len)
 
 	for (uint16_t i = 0; i < *len; i++)
 	{
-		buff[i] = 32767 + (sin((M_TWOPI * i) / *len) * 32767);
+		buff[i] = 32767 + (sin((M_TWOPI * i) / *len) * HALF_AMP);
 	}
 
 	return buff;
