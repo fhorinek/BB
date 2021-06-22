@@ -18,7 +18,7 @@ static uint16_t tone_position = 0;
 static uint16_t tone_repeates = 0;
 
 
-static int16_t * one_ms_silent;
+static uint16_t * one_ms_silent;
 
 void vario_tone_free(tone_part_t * tone)
 {
@@ -32,33 +32,10 @@ void pipe_vario_step()
 	xSemaphoreTake(pipes.vario.lock, WAIT_INF);
 
 	ringbuf_handle_t rb = audio_element_get_output_ringbuf(pipes.sound.stream);
-	uint16_t size = rb_bytes_available(rb) / 2;
+	uint16_t size = rb_bytes_available(rb) / sizeof(uint16_t);
 
 	while (size > 0)
 	{
-		//skip tone if marked as removed
-		if (tone_active == to_remove)
-		{
-			if (tone_active->buffer == one_ms_silent)
-			{
-				tone_position = tone_active->size;
-			}
-			else
-			{
-				tone_position = tone_active->size;
-				//TODO: finish wave
-//				tone_position = tone_active->size - tone_active->size / tone_active->repeat;
-			}
-		}
-		else
-		{
-			uint16_t to_write = min(tone_active->size - tone_position, size);
-			raw_stream_write(pipes.vario.stream, (char *)(tone_active->buffer + tone_position), to_write * 2);
-
-			size -= to_write;
-			tone_position = (tone_position + to_write);
-		}
-
 		if (tone_position >= tone_active->size || tone_active->size == 0)
 		{
 			tone_position = 0;
@@ -71,25 +48,32 @@ void pipe_vario_step()
 				{
 					vario_tone_free(to_remove);
 					to_remove = NULL;
+					tone_index = 0;
 				}
 
 				tone_active = tones[tone_index];
 				tone_repeates = 0;
 			}
 		}
+
+		uint16_t to_write = min(tone_active->size - tone_position, size);
+		raw_stream_write(pipes.vario.stream, (char *)(tone_active->buffer + tone_position), to_write * sizeof(uint16_t));
+
+		size -= to_write;
+		tone_position = (tone_position + to_write);
 	}
 
 	xSemaphoreGive(pipes.vario.lock);
 }
 
-int16_t * vario_generate_tone(uint16_t freq, uint16_t * len)
+uint16_t * vario_generate_tone(uint16_t freq, uint16_t * len)
 {
 	*len = OUTPUT_SAMPLERATE / freq;
-	int16_t * buff = ps_malloc(*len * sizeof(int16_t));
+	uint16_t * buff = ps_malloc(*len * sizeof(uint16_t));
 
 	for (uint16_t i = 0; i < *len; i++)
 	{
-		buff[i] = sin((M_TWOPI * i) / *len) * 32767;
+		buff[i] = 32767 + (sin((M_TWOPI * i) / *len) * 32767);
 	}
 
 	return buff;
@@ -119,20 +103,37 @@ tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 
 void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 {
+	while(to_remove != NULL);
+
 	xSemaphoreTake(pipes.vario.lock, WAIT_INF);
 
 	for (uint8_t i = 0; i < tone_cnt; i++)
 	{
 		if (tones[i] != tone_active)
+		{
 			vario_tone_free(tones[i]);
+		}
 		else
+		{
+			//gracefully remove tone
 			to_remove = tones[i];
+
+			if (tone_active->buffer == one_ms_silent)
+			{
+				//silent tone, skip
+				tone_position = tone_active->size;
+			}
+			else
+			{
+				//finish wave
+				tone_repeates = tone_active->repeat;
+			}
+		}
 	}
 
 	free(tones);
-
+	
 	tones = new_tones;
-	tone_index %= cnt;
 	tone_cnt = cnt;
 
 	xSemaphoreGive(pipes.vario.lock);
