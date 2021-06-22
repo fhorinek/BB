@@ -324,7 +324,7 @@ function draw_tones(graph, tone, offset, id)
 
                     var id_index = parseInt(profile_point_wheel.tone_index);
                     var sub_index = parseInt(profile_point_wheel.sub_index);
-                    point_move(sub_index, id_index, e.originalEvent.deltaY);
+                    point_move_y(sub_index, id_index, e.originalEvent.deltaY);
                 });            
 
                 
@@ -781,14 +781,14 @@ function add_point(e, w, h)
     }
 }
 
-function point_move(sub_index, point_index, delta)
+function point_move_y(sub_index, point_index, delta)
 {
     var sorted = sorted_list(Object.keys(profile_tones[profile_tone_selected]));
     var key = sorted[point_index];
 
     var val = profile_tones[profile_tone_selected][key][sub_index];
     
-    if (delta > 0)
+    if (delta < 0)
         val--;
     else
         val++;
@@ -884,7 +884,7 @@ function draw_line(graph, tone)
                 
                 var id_index = parseInt(profile_point_wheel.tone_index);
                 var sub_index = parseInt(profile_point_wheel.sub_index);
-                point_move(sub_index, id_index, e.originalEvent.deltaY);
+                point_move_y(sub_index, id_index, e.originalEvent.deltaY);
             });            
             
             $(circle).dblclick(function(e){
@@ -906,6 +906,48 @@ function draw_line(graph, tone)
 function draw_freq(graph, tone)
 {
     draw_line(graph, tone)
+}
+
+//********************************
+function point_move_x(sub_index, tone_index, diff)
+{
+    var sorted = sorted_list(Object.keys(profile_tones[profile_tone_selected]));
+    var old_key = sorted[tone_index];
+
+    var prev_key = sorted[tone_index - 1];
+    var next_key = sorted[tone_index + 1];            
+
+    var freq = profile_tones[profile_tone_selected][old_key][0];
+    var dura = profile_tones[profile_tone_selected][old_key][1];
+
+    var climb = old_key + diff;
+
+    if (prev_key != undefined)
+        if (prev_key >= climb - 0.01)
+            climb = prev_key + 0.01;
+
+    if (next_key != undefined)
+        if (next_key <= climb + 0.01)
+            climb = next_key - 0.01
+
+    delete profile_tones[profile_tone_selected][old_key];
+    profile_tones[profile_tone_selected][climb] = [freq, dura];
+  
+
+    draw_line($("#profile_freq"), profile_tones[profile_tone_selected]);      
+    draw_graph($("#profile_dura"), profile_tones);
+    
+        var res = [];
+    for (var tone in profile_tones)
+    {
+        tone = profile_tones[tone];
+        res.push(get_between(tone, climb));
+    }
+
+    
+    draw_tone_prev($("#profile_dura"), res, climb);    
+
+    return climb;
 }
 
 var drag_climb_orig = false;
@@ -1015,9 +1057,37 @@ $(function() {
         {
             var id_index = parseInt(profile_point_wheel.tone_index);
             var sub_index = parseInt(profile_point_wheel.sub_index);
-            point_move(sub_index, id_index, e.originalEvent.deltaY);
+            point_move_y(sub_index, id_index, -e.originalEvent.deltaY);
+        }
+    });  
+    
+    $(document).on("keydown", function(e){
+    if (profile_point_wheel != null)
+        {
+            var diff_x = 0;            
+            var diff_y = 0;
+            
+            if (e.originalEvent.key == "ArrowUp")
+                diff_y = +1;
+            if (e.originalEvent.key == "ArrowDown")
+                diff_y = -1;
+            if (e.originalEvent.key == "ArrowLeft")
+                diff_x = -1;
+            if (e.originalEvent.key == "ArrowRight")
+                diff_x = +1;
+                
+        
+            var id_index = parseInt(profile_point_wheel.tone_index);
+            var sub_index = parseInt(profile_point_wheel.sub_index);
+            
+            if (diff_y != 0)
+                point_move_y(sub_index, id_index, diff_y);
+
+            if (diff_x != 0)
+                point_move_x(sub_index, id_index, diff_x / 10.0);
         }
     });      
+    
 
     $("#profile_freq").mousemove(function(e){
     

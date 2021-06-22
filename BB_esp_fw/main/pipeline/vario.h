@@ -22,7 +22,7 @@ void pipe_vario_event(audio_event_iface_msg_t * msg);
 
 typedef struct _tone_part_t
 {
-	int16_t * buffer;
+	uint16_t * buffer;
 	uint16_t size;
 	uint16_t repeat;
 } tone_part_t;
