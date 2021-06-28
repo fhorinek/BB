@@ -252,7 +252,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		FC_ATOMIC_ACCESS
 		{
-			fc.gnss.ground_speed = ubx_nav_velned->gSpeed / 1000.0;
+			fc.gnss.ground_speed = ubx_nav_velned->gSpeed / 100.0;
 			fc.gnss.heading = ubx_nav_velned->heading / 100000;
 		}
 

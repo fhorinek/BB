@@ -18,6 +18,7 @@ bool send_file_internal(output_buffer_t * ob, char * path)
 
 	uint32_t readed;
 
+	//send data if any so we can use ob from 0
 	ob_output(ob, 0);
 
 	do

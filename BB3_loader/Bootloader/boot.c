@@ -180,10 +180,46 @@ void torch_loop()
     }
 }
 
+//emergency sdcard format
+#define FORMAT_WAIT_SECONDS	10
+void format_loop()
+{
+	uint32_t start = HAL_GetTick();
+	bool tgl = true;
+
+	while (button_pressed(BT2) && button_pressed(BT5))
+	{
+		uint8_t delta = (HAL_GetTick() - start) / 1000;
+
+		if (delta > FORMAT_WAIT_SECONDS)
+		{
+    		sd_format();
+
+    		//to set disk label
+    		sd_mount();
+    		sd_unmount();
+		}
+
+		tgl = !tgl;
+
+		char msg[64];
+		if (delta >= FORMAT_WAIT_SECONDS / 2 && tgl)
+			strcpy(msg, "");
+		else
+ 			snprintf(msg, sizeof(msg), "Reset in %us", FORMAT_WAIT_SECONDS - delta);
+
+		gfx_draw_status(GFX_STATUS_WARNING, msg);
+
+		HAL_Delay(200);
+	}
+}
+
 void app_main(uint8_t power_on_mode)
 {
 	bool updated = false;
 	bool skip_crc = false;
+
+	debug_enable();
 
 	INFO("Bootloader init");
 
@@ -211,6 +247,12 @@ void app_main(uint8_t power_on_mode)
         power_on_mode = POWER_ON_USB;
     }
 
+    if (button_pressed(BT2) && button_pressed(BT5))
+    {
+    	format_loop();
+    }
+
+
     if (sd_mount())
     {
     	if (file_exists(DEV_MODE_FILE))
@@ -223,7 +265,10 @@ void app_main(uint8_t power_on_mode)
     	if (format)
     	{
     		sd_format();
-    		sd_set_disk_label();
+
+    		//to set disk label
+    		sd_mount();
+    		sd_unmount();
     	}
     }
 

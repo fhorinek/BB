@@ -72,14 +72,14 @@ void pipe_vario_step()
 uint16_t * vario_generate_tone(uint16_t freq, uint16_t * len)
 {
 	*len = OUTPUT_SAMPLERATE / freq;
-	uint16_t * buff = ps_malloc(*len * sizeof(uint16_t));
+	int16_t * buff = ps_malloc(*len * sizeof(uint16_t));
 
 	for (uint16_t i = 0; i < *len; i++)
 	{
-		buff[i] = 32767 + (sin((M_TWOPI * i) / *len) * HALF_AMP);
+		buff[i] = (sin((M_TWOPI * i) / *len) * HALF_AMP);
 	}
 
-	return buff;
+	return (uint16_t *)buff;
 }
 
 #define ONE_MS	(OUTPUT_SAMPLERATE / 1000)

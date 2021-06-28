@@ -12,9 +12,9 @@
 #define API_SOUND_POST_LEN	256
 esp_err_t api_handle_sound(httpd_req_t * req)
 {
-	char * data = ps_malloc(API_SOUND_POST_LEN);
 
     size_t recv_size = min(req->content_len, API_SOUND_POST_LEN);
+	char * data = ps_malloc(recv_size);
     int ret = httpd_req_recv(req, data, recv_size);
 
     char tone_key[16];
@@ -52,6 +52,45 @@ esp_err_t api_handle_sound(httpd_req_t * req)
     httpd_resp_send(req, NULL, 0);
 
 	return ESP_OK;
+}
+
+#define API_FS_POST_LEN	140
+
+static uint8_t api_fs_req = 0;
+
+esp_err_t api_list_files(httpd_req_t * req)
+{
+    size_t recv_size = min(req->content_len, API_FS_POST_LEN);
+	char * post_data = ps_malloc(recv_size);
+    int ret = httpd_req_recv(req, post_data, recv_size);
+
+    output_buffer_t * ob = ob_create(req, OB_DEFAULT_SIZE);
+
+	proto_fs_list_req data;
+	if (read_post(post_data, "path", data.path, sizeof(data.path)))
+	{
+		if (!read_post_int(post_data, "filter", &data.filter))
+			data.filter = PROTO_FS_TYPE_FILE | PROTO_FS_TYPE_FOLDER;
+		data.req_id = api_fs_req;
+
+		protocol_send(PROTO_FS_LIST_REQ, (void *)&data, sizeof(data));
+
+
+
+
+	}
+
+	return ESP_OK;
+}
+
+esp_err_t api_get_file(httpd_req_t * req)
+{
+
+}
+
+esp_err_t api_save_file(httpd_req_t * req)
+{
+
 }
 
 

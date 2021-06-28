@@ -253,7 +253,12 @@ void imu_step()
     imu_normalize();
 
     imu_MadgwickQuaternionUpdate();
-    fc.imu.acc_gravity_compensated = imu_GravityCompensatedAccel(fc.imu.acc.x, fc.imu.acc.y, fc.imu.acc.z, (float *)&fc.imu.quat);
+    float accel = imu_GravityCompensatedAccel(fc.imu.acc.x, fc.imu.acc.y, fc.imu.acc.z, (float *)&fc.imu.quat);
+
+    if (isnan(accel))
+    	return;
+
+    fc.imu.acc_gravity_compensated = accel;
 
     compass_calc();
 
