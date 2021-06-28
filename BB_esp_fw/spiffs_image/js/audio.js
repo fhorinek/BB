@@ -923,12 +923,12 @@ function point_move_x(sub_index, tone_index, diff)
     var climb = old_key + diff;
 
     if (prev_key != undefined)
-        if (prev_key >= climb - 0.01)
-            climb = prev_key + 0.01;
+        if (prev_key >= climb - 0.1)
+            climb = prev_key + 0.1;
 
     if (next_key != undefined)
-        if (next_key <= climb + 0.01)
-            climb = next_key - 0.01
+        if (next_key <= climb + 0.1)
+            climb = next_key - 0.1
 
     delete profile_tones[profile_tone_selected][old_key];
     profile_tones[profile_tone_selected][climb] = [freq, dura];
@@ -977,12 +977,12 @@ function point_drag(sub_index, tone_index, climb, val, e)
     var dura = profile_tones[profile_tone_selected][old_key][1];
 
     if (prev_key != undefined)
-        if (prev_key >= climb - 0.01)
-            climb = prev_key + 0.01;
+        if (prev_key >= climb - 0.1)
+            climb = prev_key + 0.1;
 
     if (next_key != undefined)
-        if (next_key <= climb + 0.01)
-            climb = next_key - 0.01
+        if (next_key <= climb + 0.1)
+            climb = next_key - 0.1
 
     delete profile_tones[profile_tone_selected][old_key];
     profile_tones[profile_tone_selected][climb] = [freq, dura];
@@ -1142,7 +1142,61 @@ $(function() {
         
         var blob = new Blob([text], {type: "text/plain"});
         saveAs(blob, "profile.cfg");
-        console.log(text);
+        //console.log(text);
+    });
+    
+    $("#load").click(function()
+    {
+    	$("#file-selector").click();
+    });;
+    
+    $("#file-selector").change(function(files){
+    	var file = this.files[0];
+    	
+    	if (this.files.length != 1 || (file.name.slice(-4) != ".cfg"))
+    	{
+    		alert("Please select .cfg file");
+    		this.val(null);
+    		return;
+    	}
+    	
+    	var reader = new FileReader();
+    	reader.onload = function(e) 
+    	{
+    	    var text = String.fromCharCode.apply(null, new Uint8Array(e.target.result)).split("\n");
+    	    
+    	    var data = {};
+    	    
+    	    for (var index in text)
+    	    {
+    	        var pair = text[index];
+    	        pair = pair.split("\t");
+    	        data[pair[0]] = pair[1];
+    	    }
+    	    
+    	    var new_tones = {};
+    	    for (var i = 0; i < data["tone_size"]; i++)
+    	    {
+        	    new_tones[i] = {};
+    	    
+        	    for (var j = 0; j < data["tone_" + i + "_size"]; j++)
+        	    {
+        	        var base = "tone_" + i + "_" + j + "_";
+        	        
+        	        var c = parseFloat(data[base + "c"]) / 100;
+        	        var d = parseInt(data[base + "d"]);
+        	        var f = parseInt(data[base + "f"]);
+        	        
+        	        new_tones[i][c] = [f, d];
+        	    }
+    	    }
+    	    
+    	    profile_tones = new_tones;
+    	    
+            select_tone(0);
+    	};
+    	  
+    	reader.readAsArrayBuffer(file);
     });
 });
 
