@@ -177,7 +177,7 @@ void format_ip(char * buf, uint8_t * ip)
 
 void format_speed(char * val, float in)
 {
-    int16_t value;
+    float value;
 
     switch (config_get_select(&config.units.speed))
     {
@@ -195,7 +195,7 @@ void format_speed(char * val, float in)
         break;
     }
 
-    sprintf(val, "%0.1f", value / 10.0);
+    sprintf(val, "%0.1f", value);
 }
 
 void format_speed_units(char * units)

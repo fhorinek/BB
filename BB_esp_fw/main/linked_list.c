@@ -27,6 +27,7 @@ void ll_add_item(uint8_t msg_type, uint8_t msg_id, uint16_t data_size)
 
 	item->msg_id = msg_id;
 	item->msg_type = msg_type;
+	item->semaphore = xCreate
 }
 
 

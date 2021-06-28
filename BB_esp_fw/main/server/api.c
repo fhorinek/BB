@@ -8,6 +8,8 @@
 #include "api.h"
 
 #include "../pipeline/vario.h"
+#include "../server/ob.h"
+#include "../protocol.h"
 
 #define API_SOUND_POST_LEN	256
 esp_err_t api_handle_sound(httpd_req_t * req)
@@ -75,9 +77,7 @@ esp_err_t api_list_files(httpd_req_t * req)
 
 		protocol_send(PROTO_FS_LIST_REQ, (void *)&data, sizeof(data));
 
-
-
-
+		//wait for response
 	}
 
 	return ESP_OK;
@@ -85,12 +85,12 @@ esp_err_t api_list_files(httpd_req_t * req)
 
 esp_err_t api_get_file(httpd_req_t * req)
 {
-
+	return ESP_OK;
 }
 
 esp_err_t api_save_file(httpd_req_t * req)
 {
-
+	return ESP_OK;
 }
 
 
