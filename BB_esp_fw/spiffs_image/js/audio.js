@@ -1174,10 +1174,10 @@ $(function() {
     	        data[pair[0]] = pair[1];
     	    }
     	    
-    	    var new_tones = {};
+    	    var new_tones = [];
     	    for (var i = 0; i < data["tone_size"]; i++)
     	    {
-        	    new_tones[i] = {};
+        	    new_tones[i] = [];
     	    
         	    for (var j = 0; j < data["tone_" + i + "_size"]; j++)
         	    {
