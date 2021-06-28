@@ -269,6 +269,14 @@ void gfx_draw_status(uint8_t status, const char * message)
 				color = GFX_GREEN;
 			}
 		break;
+		case(GFX_STATUS_WARNING):
+			{
+				strcpy(icon, "2");
+				strcpy(title, "Warning");
+				strcpy(text, message);
+				color = GFX_RED;
+			}
+		break;
 
         case(GFX_STATUS_TORCH):
             {

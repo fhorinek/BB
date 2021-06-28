@@ -30,6 +30,8 @@
 			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
 	} while(0);
 
+
+void debug_enable();
 void debug_send(uint8_t type, const char *format, ...);
 
 #endif /* DEBUG_H_ */

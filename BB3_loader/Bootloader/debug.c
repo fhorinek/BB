@@ -14,11 +14,17 @@
 #include <string.h>
 
 bool debug_uart_done = true;
+bool debug_off = true;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart == debug_uart)
 		debug_uart_done = true;
+}
+
+void debug_enable()
+{
+	debug_off = false;
 }
 
 void debug_dump(uint8_t * data, uint16_t len)
@@ -37,6 +43,9 @@ void debug_dump(uint8_t * data, uint16_t len)
 
 void debug_send(uint8_t type, const char *format, ...)
 {
+	if (debug_off)
+		return;
+
 	va_list arp;
 	char msg_buff[250];
 

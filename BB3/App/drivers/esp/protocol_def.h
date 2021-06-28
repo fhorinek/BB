@@ -108,6 +108,9 @@ typedef struct {
 #define PROTO_WIFI_SSID_LEN   	32
 #define PROTO_WIFI_PASS_LEN		64
 
+#define PROTO_FS_PATH_LEN		128
+#define PROTO_FS_NAME_LEN		32
+
 typedef struct {
     char ssid[PROTO_WIFI_SSID_LEN];
     char pass[PROTO_WIFI_PASS_LEN];
@@ -200,6 +203,26 @@ typedef struct {
 typedef struct {
     uint8_t data_id;
 } proto_download_stop_t;
+
+#define PROTO_FS_LIST_REQ			0x40
+#define PROTO_FS_LIST_RES			0x40
+
+#define PROTO_FS_TYPE_FILE			0b00000001
+#define PROTO_FS_TYPE_FOLDER		0b00000010
+#define PROTO_FS_TYPE_END			0b10000000
+
+typedef struct {
+	char path[PROTO_FS_PATH_LEN];
+	uint8_t filter;
+	uint8_t req_id;
+} proto_fs_list_req;
+
+typedef struct {
+	char name[PROTO_FS_NAME_LEN];
+	uint8_t type;
+	uint8_t req_id;
+} proto_fs_list_res;
+
 
 //
 //#define PROTO_BT_SET_MODE       0xff

@@ -181,6 +181,14 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 		}
         break;
 
+        case (PROTO_FS_LIST_RES):
+		{
+        	proto_fs_list_res * packet = (proto_fs_list_res *)data;
+
+
+		}
+        break;
+
         default:
             DBG("Unknown packet");
             DUMP(data, len);
