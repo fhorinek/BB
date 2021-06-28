@@ -184,6 +184,7 @@ typedef struct
 	struct
 	{
 		cfg_entry_t use_serial;
+		cfg_entry_t use_file;
 	} debug;
 } config_t;
 

@@ -330,5 +330,7 @@ config_t config =
 	{
 		//use_serial
 		entry_bool("dbg_serial", true),
+		//use_file
+		entry_bool("dbg_file", false),
 	},
 };

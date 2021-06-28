@@ -39,6 +39,7 @@ static uint16_t debug_tx_buffer_lenght = 0;
 static char debug_rx_buffer[DEBUG_RX_BUFFER];
 static uint16_t debug_rx_read_index = 0;
 
+osSemaphoreId_t debug_data;
 osSemaphoreId_t debug_dma_done;
 osSemaphoreId_t debug_new_message;
 
@@ -120,7 +121,7 @@ void debug_send(uint8_t type, const char *format, ...)
     {
         if (!xPortIsInsideInterrupt())
         {
-            portENTER_CRITICAL();
+        	osSemaphoreAcquire(debug_data, WAIT_INF);
         }
 
         if (DEBUG_TX_BUFFER - debug_tx_buffer_lenght < total_lenght)
@@ -152,7 +153,7 @@ void debug_send(uint8_t type, const char *format, ...)
 
         if (!xPortIsInsideInterrupt())
         {
-            portEXIT_CRITICAL();
+        	osSemaphoreRelease(debug_data);
         }
     }
     else
@@ -196,14 +197,19 @@ void thread_debug_start(void *argument)
 {
     debug_dma_done = osSemaphoreNew(1, 0, NULL);
     debug_new_message = osSemaphoreNew(1, 0, NULL);
+    debug_data = osSemaphoreNew(1, 0, NULL);
+
+    vQueueAddToRegistry(debug_data, "debug_data");
     vQueueAddToRegistry(debug_dma_done, "debug_dma_done");
     vQueueAddToRegistry(debug_new_message, "debug_new_message");
 
     HAL_UART_Receive_DMA(debug_uart, (uint8_t *)debug_rx_buffer, DEBUG_RX_BUFFER);
 
     osSemaphoreRelease(debug_dma_done);
+    osSemaphoreRelease(debug_data);
 
-//	FIL debug_file;
+	FIL debug_file;
+	bool debug_file_open = false;
 
     debug_thread_ready = true;
 	INFO("\n\n\n-----------------------------------------------------------------------------");
@@ -212,6 +218,8 @@ void thread_debug_start(void *argument)
 	{
 	    osSemaphoreAcquire(debug_new_message, WAIT_INF);
 
+	    osSemaphoreAcquire(debug_data, WAIT_INF);
+
         uint16_t to_transmit = debug_tx_buffer_lenght;
 
         if (to_transmit > 0)
@@ -219,13 +227,34 @@ void thread_debug_start(void *argument)
             if (to_transmit > DEBUG_TX_BUFFER - debug_tx_buffer_read_index)
                 to_transmit = DEBUG_TX_BUFFER - debug_tx_buffer_read_index;
 
-            portENTER_CRITICAL();
-            HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+
+            if (config_get_bool(&config.debug.use_serial))
+            {
+            	HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+            }
+
+            if (config_get_bool(&config.debug.use_file))
+            {
+            	//open
+            	if (!debug_file_open)
+            	{
+            		f_open(&debug_file, DEBUG_FILE, FA_OPEN_APPEND | FA_WRITE);
+            		debug_file_open = true;
+            	}
+
+            	//write
+            	UINT bw;
+            	f_write(&debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit, &bw);
+            	//sync
+            	f_sync(&debug_file);
+            }
+
             debug_tx_buffer_lenght -= to_transmit;
             debug_tx_buffer_read_index = (debug_tx_buffer_read_index + to_transmit) % DEBUG_TX_BUFFER;
-            portEXIT_CRITICAL();
 
             osSemaphoreAcquire(debug_dma_done, WAIT_INF);
 	    }
+
+        osSemaphoreRelease(debug_data);
 	}
 }
