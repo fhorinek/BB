@@ -13,6 +13,8 @@ REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
     lv_obj_t * esp_boot0;
     lv_obj_t * usb_otg_pin;
+    lv_obj_t * use_serial;
+    lv_obj_t * use_file;
 );
 
 void development_trigger()
@@ -77,6 +79,16 @@ static void development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
             bool val = gui_list_switch_get_value(local->usb_otg_pin);
             GpioWrite(BQ_OTG, val);
         }
+
+		if (obj == local->use_serial)
+		{
+			config_set_bool(&config.debug.use_serial, gui_list_switch_get_value(local->use_serial));
+		}
+
+		if (obj == local->use_file)
+		{
+			config_set_bool(&config.debug.use_file, gui_list_switch_get_value(local->use_file));
+		}
 	}
 
 	if (event == LV_EVENT_CLICKED)
@@ -106,6 +118,9 @@ static lv_obj_t * development_init(lv_obj_t * par)
     local->usb_otg_pin = gui_list_switch_add_entry(list, "USB OTG pin", GpioRead(BQ_OTG));
     gui_list_text_add_entry(list, "Sensors");
     gui_list_text_add_entry(list, "Fake");
+
+    local->use_serial = gui_list_switch_add_entry(list, "Debug to serial", config_get_bool(&config.debug.use_serial));
+    local->use_file = gui_list_switch_add_entry(list, "Debug to file", config_get_bool(&config.debug.use_file));
 
 	return list;
 }

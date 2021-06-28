@@ -174,6 +174,7 @@ extern osSemaphoreId_t lock_fc_global;
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 
+#define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"
