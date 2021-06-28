@@ -250,7 +250,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		ubx_nav_velned_t * ubx_nav_velned = (ubx_nav_velned_t *)msg_payload;
 
-		INFO("gspd", ubx_nav_velned->gSpeed);
+		INFO("gspd %lu", ubx_nav_velned->gSpeed);
 
 		FC_ATOMIC_ACCESS
 		{
