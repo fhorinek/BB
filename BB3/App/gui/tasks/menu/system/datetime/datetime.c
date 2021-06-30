@@ -34,24 +34,31 @@ void datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 	}
 
-    {
-        uint16_t val = gui_list_dropdown_get_value(local->tz);
-        config_set_select(&config.time.zone, val);
-        DBG("event: %u val: %u", event, val);
-    }
-
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
         if (obj == local->dst)
         {
-            bool val = gui_list_switch_get_value(local->dst);
+        	//get utc time
+        	uint64_t ts = fc_get_utc_time();
+
+        	bool val = gui_list_switch_get_value(local->dst);
             config_set_bool(&config.time.dst, val);
+
+            //set as utc
+        	fc_set_time_from_utc(ts);
         }
 
         if (obj == local->tz)
         {
+        	//get utc time
+        	uint64_t ts = fc_get_utc_time();
+
+        	//change timezone
             uint16_t val = gui_list_dropdown_get_value(local->tz);
             config_set_select(&config.time.zone, val);
+
+            //set as utc
+        	fc_set_time_from_utc(ts);
         }
 
         if (obj == local->gnss)
@@ -129,7 +136,7 @@ lv_obj_t * datetime_init(lv_obj_t * par)
 	char options[NUMBER_OF_TIMEZONES * OPTION_LEN + 1];
 	for (uint8_t i = 0; i < NUMBER_OF_TIMEZONES; i++)
 	{
-	    int32_t offset = timezone_get_offset(i);
+	    int32_t offset = timezone_get_offset(i, false);
 	    char c = (offset >= 0) ? '+' : '-';
 	    offset = abs(offset);
 	    uint8_t h = offset / 3600;

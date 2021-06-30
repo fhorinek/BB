@@ -14,9 +14,53 @@
 #include "etc/timezone.h"
 
 #include "drivers/rtc.h"
+#include "fc/vario.h"
+#include "fc/logger/logger.h"
 
-fc_t fc __attribute__ ((aligned (4)));
-osSemaphoreId_t lock_fc_global;
+fc_t fc;
+
+void fc_history_record_cb(void * arg)
+{
+	fc_pos_history_t pos;
+	pos.flags = 0;
+
+	if (fc.fused.status == fc_dev_ready)
+	{
+		pos.flags |= FC_POS_HAVE_BARO;
+		pos.baro_alt = fc.fused.altitude1;
+		pos.vario = fc.fused.vario * 100;
+	}
+
+	if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready)
+	{
+		pos.lat = fc.gnss.latitude;
+		pos.lon = fc.gnss.longtitude;
+		pos.ground_hdg = fc.gnss.heading;
+		pos.ground_spd = fc.gnss.ground_speed * 100;
+		if (fc.gnss.fix == 3)
+		{
+			pos.gnss_alt = fc.gnss.altitude_above_ellipsiod;
+			pos.flags |= FC_POS_GNSS_3D;
+		}
+		else
+		{
+			pos.flags |= FC_POS_GNSS_2D;
+		}
+	}
+	else
+	{
+		pos.flags |= FC_POS_NO_GNSS;
+	}
+
+	FC_ATOMIC_ACCESS
+	{
+		memcpy(&fc.history.positions[fc.history.index], &pos, sizeof(pos));
+		fc.history.index = (fc.history.index + 1) % FC_HISTORY_SIZE;
+
+		if (fc.history.size < FC_HISTORY_SIZE)
+			fc.history.size++;
+	}
+}
 
 void fc_reset()
 {
@@ -30,19 +74,32 @@ void fc_reset()
         fc.autostart.altitude = fc.fused.altitude1;
         fc.autostart.timestamp = HAL_GetTick();
     }
+
+    fc.history.index = 0;
+    fc.history.size = 0;
 }
 
 void fc_init()
 {
     //create released semaphore
-    lock_fc_global = osSemaphoreNew(1, 1, NULL);
-    vQueueAddToRegistry(lock_fc_global, "lock_fc_global");
+    fc.lock = osSemaphoreNew(1, 1, NULL);
+    vQueueAddToRegistry(fc.lock, "fc.lock");
 
 	INFO("Flight computer init");
 
+	fc.history.positions = (fc_pos_history_t *) ps_malloc(sizeof(fc_pos_history_t) * FC_HISTORY_SIZE);
+	fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
+
 	vario_profile_load(config_get_text(&profile.vario.profile));
+    osTimerStart(fc.history.timer, 1);//FC_HISTORY_PERIOD);
 
 	fc_reset();
+}
+
+void fc_deinit()
+{
+	INFO("Flight computer deinit");
+	osTimerStop(fc.history.timer);
 }
 
 void fc_takeoff()
@@ -55,6 +112,8 @@ void fc_takeoff()
     fc.autostart.altitude = fc.fused.altitude1;
 
     fc.flight.mode = flight_flight;
+
+    logger_start();
 }
 
 void fc_landing()
@@ -62,6 +121,8 @@ void fc_landing()
     INFO("Landing");
     fc.flight.duration = (HAL_GetTick() - fc.flight.start_time) / 1000;
     fc.flight.mode = flight_landed;
+
+    logger_stop();
 }
 
 void fc_step()
@@ -183,8 +244,14 @@ void fc_set_time(uint32_t datetime)
 
 void fc_set_time_from_utc(uint32_t datetime)
 {
-	int32_t delta = timezone_get_offset(config_get_select(&config.time.zone));
+	int32_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
 	fc_set_time(datetime + delta);
+}
+
+uint64_t fc_get_utc_time()
+{
+	int32_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
+	return rtc_get_epoch() - delta;
 }
 
 float fc_alt_to_qnh(float alt, float pressure)

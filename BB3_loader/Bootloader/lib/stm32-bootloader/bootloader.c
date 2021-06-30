@@ -170,8 +170,7 @@ uint8_t Bootloader_FlashEnd(void)
  */
 uint8_t Bootloader_CheckSize(uint32_t appsize)
 {
-    return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK
-                                                                : BL_SIZE_ERROR;
+    return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS - sizeof(nvm_data_t)) >= appsize) ? BL_OK : BL_SIZE_ERROR;
 }
 
 /**

@@ -50,7 +50,7 @@ int16_t timezone_offset[] = {
 	504,	//UTC_p1400
 };
 
-int32_t timezone_get_offset(uint8_t index)
+int32_t timezone_get_offset(uint8_t index, bool dst)
 {
-	return timezone_offset[index] * 100;
+	return timezone_offset[index] * 100 + ((dst) ? 3600 : 0);
 }

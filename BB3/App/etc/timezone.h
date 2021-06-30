@@ -51,6 +51,6 @@
 #define	UTC_p1300	36
 #define	UTC_p1400	37
 
-int32_t timezone_get_offset(uint8_t index);
+int32_t timezone_get_offset(uint8_t index, bool dst);
 
 #endif /* ETC_TIMEZONE_H_ */

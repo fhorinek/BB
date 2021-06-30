@@ -203,6 +203,7 @@ void thread_system_start(void *argument)
 	INFO("Tasks stopped");
 
 	//deinit fc
+	fc_deinit();
 
 	//store configuration
 	config_store_all();
