@@ -193,20 +193,31 @@ void format_loop()
 
 		if (delta > FORMAT_WAIT_SECONDS)
 		{
+            Bootloader_Init();
+            gfx_draw_status(GFX_STATUS_UPDATE, "Erasing STM");
+            Bootloader_Erase();
+            Bootloader_FlashEnd();
+
     		sd_format();
 
     		//to set disk label
     		sd_mount();
     		sd_unmount();
+
+    		break;
 		}
 
 		tgl = !tgl;
 
 		char msg[64];
 		if (delta >= FORMAT_WAIT_SECONDS / 2 && tgl)
+		{
 			strcpy(msg, "");
+		}
 		else
- 			snprintf(msg, sizeof(msg), "Reset in %us", FORMAT_WAIT_SECONDS - delta);
+		{
+ 			snprintf(msg, sizeof(msg), "Erase in %us", FORMAT_WAIT_SECONDS - delta);
+		}
 
 		gfx_draw_status(GFX_STATUS_WARNING, msg);
 
@@ -318,7 +329,7 @@ void app_main(uint8_t power_on_mode)
     }
     else
     {
-        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not valid");
+        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not found");
         button_confirm(BT3);
     }
 

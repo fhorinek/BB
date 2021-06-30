@@ -10,6 +10,15 @@
 
 #include "gui.h"
 
+typedef void (* format_cb_t)(char *, float);
+
+typedef struct
+{
+	format_cb_t format;
+	float disp_multi;
+	float step;
+} gui_list_slider_options_t;
+
 void gui_list_init();
 void gui_list_event_cb(lv_obj_t * obj, lv_event_t event);
 
@@ -45,6 +54,10 @@ lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text);
 lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text);
 
 lv_obj_t * gui_list_get_entry(uint8_t index);
+
+lv_obj_t * gui_config_entry_create(lv_obj_t * list, cfg_entry_t * entry, char * name, void * params);
+void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params);
+
 
 //last created list
 extern lv_obj_t * gui_list;

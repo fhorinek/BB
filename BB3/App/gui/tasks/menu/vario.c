@@ -14,27 +14,17 @@ REGISTER_TASK_I(vario,
 	lv_obj_t * sink;
 );
 
-static void update_sliders()
-{
-	char val[32];
-	char units[16];
+gui_list_slider_options_t sink_lift_opt = {
+	.disp_multi = 0.1,
+	.step = 1,
+	.format = format_vario_with_units,
+};
 
-	snprintf(val, sizeof(val), "%u%%", gui_list_slider_get_value(local->acc_gain) * 10);
-	gui_list_slider_set_label(local->acc_gain, val);
-
-	format_vario_units(units);
-
-	format_vario(val, (float)config_get_int(&profile.vario.lift) / 10.0);
-	sprintf(val + strlen(val), " %s", units);
-
-	gui_list_slider_set_label(local->lift, val);
-
-	format_vario(val, (float)config_get_int(&profile.vario.sink) / 10.0);
-	sprintf(val + strlen(val), " %s", units);
-	gui_list_slider_set_label(local->sink, val);
-
-}
-
+gui_list_slider_options_t acc_opt = {
+	.disp_multi = 1,
+	.step = 0.1,
+	.format = format_percent,
+};
 
 static void vario_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
@@ -47,40 +37,36 @@ static void vario_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	{
 		if (obj == local->acc_gain)
 		{
-			config_set_float(&profile.vario.acc_gain, gui_list_slider_get_value(local->acc_gain) / 10.0);
-			update_sliders();
+			gui_config_entry_update(obj, &profile.vario.acc_gain, &acc_opt);
 		}
 
 		if (obj == local->in_flight)
-			config_set_bool(&profile.vario.in_flight, gui_list_switch_get_value(local->in_flight));
+		{
+			gui_config_entry_update(obj, &profile.vario.in_flight, NULL);
+		}
 
 		if (obj == local->lift)
 		{
-			config_set_int(&profile.vario.lift, gui_list_slider_get_value(local->lift));
-			update_sliders();
+			gui_config_entry_update(obj, &profile.vario.lift, &sink_lift_opt);
 		}
 
 		if (obj == local->sink)
 		{
-			config_set_int(&profile.vario.sink, gui_list_slider_get_value(local->sink));
-			update_sliders();
+			gui_config_entry_update(obj, &profile.vario.sink, &sink_lift_opt);
 		}
 	}
-
-
 }
+
 
 
 static lv_obj_t * vario_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Vario settings", vario_cb);
 
-	local->in_flight = gui_list_switch_add_entry(list, "Audio only in flight", config_get_bool(&profile.vario.in_flight));
-	local->acc_gain = gui_list_slider_add_entry(list, "Accelerometer gain", 0, 10, config_get_float(&profile.vario.acc_gain) * 10);
-
-	local->lift = gui_list_slider_add_entry(list, "Lift threshold", -100, 100, config_get_int(&profile.vario.lift));
-	local->sink = gui_list_slider_add_entry(list, "Sink threshold", -100, 100, config_get_int(&profile.vario.sink));
-	update_sliders();
+	local->in_flight = gui_config_entry_create(list, &profile.vario.in_flight, "Audio only in flight", NULL);
+	local->acc_gain = gui_config_entry_create(list, &profile.vario.acc_gain, "Accelerometer gain", &acc_opt);
+	local->lift = gui_config_entry_create(list, &profile.vario.lift, "Lift threshold", &sink_lift_opt);
+	local->sink = gui_config_entry_create(list, &profile.vario.sink, "Sink threshold", &sink_lift_opt);
 
 	return list;
 }

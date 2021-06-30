@@ -125,8 +125,34 @@ typedef enum
 
 typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
+#define FC_POS_NO_GNSS	0b0000
+#define FC_POS_GNSS_2D	0b0010
+#define FC_POS_GNSS_3D	0b0100
+#define FC_POS_HAVE_BARO	0b1000
+
+#define FC_HISTORY_SIZE		120
+#define FC_HISTORY_PERIOD	1000
+
 typedef struct
 {
+	int32_t lat;
+	int32_t lon;
+
+	int16_t baro_alt;
+	int16_t gnss_alt; //above ellipsoid
+
+	int16_t ground_hdg; //in deg
+	int16_t ground_spd; //in cm/s
+
+	int16_t vario; //in cm/s
+	uint16_t flags;
+} fc_pos_history_t;
+
+
+typedef struct
+{
+	osSemaphoreId_t lock;
+
     struct
     {
         uint32_t start_time;
@@ -264,10 +290,19 @@ typedef struct
         float azimuth_filtered;
 
         fc_device_status_t status;
-        uint8_t _pad[3];
 
-	    //history
+        uint8_t _pad[3];
 	} fused;
+
+	struct
+	{
+		osTimerId timer;
+        fc_pos_history_t * positions;
+
+        uint16_t index;
+        uint16_t size;
+	} history;
+
 } fc_t;
 
 extern fc_t fc;
@@ -275,11 +310,14 @@ extern fc_t fc;
 void fc_device_status(char * buff, fc_device_status_t status);
 
 void fc_set_time_from_utc(uint32_t datetime);
+uint64_t fc_get_utc_time();
 
 void fc_init();
 void fc_takeoff();
 void fc_landing();
 void fc_reset();
+
+void fc_deinit();
 
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);

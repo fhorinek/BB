@@ -73,6 +73,15 @@ bool nvm_load_imu_calibration(imu_calibration_t * calib)
     if (crc == nvm->imu_calibration.crc)
     {
         memcpy(calib, &nvm->imu_calibration, sizeof(imu_calibration_t));
+
+        INFO("---------------------------------------------------");
+        INFO("ACC sens %0.6f; %0.6f; %0.6f;", calib->acc_sens.x, calib->acc_sens.y, calib->acc_sens.z);
+        INFO("ACC bias %0.6f; %0.6f; %0.6f;", calib->acc_bias.x, calib->acc_bias.y, calib->acc_bias.z);
+        INFO("GYR bias %0.6f; %0.6f; %0.6f;", calib->gyro_bias.x, calib->gyro_bias.y, calib->gyro_bias.z);
+        INFO("MAG sens %0.6f; %0.6f; %0.6f;", calib->mag_sens.x, calib->mag_sens.y, calib->mag_sens.z);
+        INFO("MAG bias %0.6f; %0.6f; %0.6f;", calib->mag_bias.x, calib->mag_bias.y, calib->mag_bias.z);
+        INFO("---------------------------------------------------");
+
         return true;
     }
 

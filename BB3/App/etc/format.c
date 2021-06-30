@@ -99,6 +99,15 @@ void format_vario_units(char * units)
     }
 }
 
+void format_vario_with_units(char * buff, float in)
+{
+	char val[16];
+	char units[16];
+	format_vario(val, in);
+	format_vario_units(units);
+	sprintf(buff, "%s %s", val, units);
+}
+
 void format_altitude(char * buff, float in)
 {
     int16_t val;
@@ -215,5 +224,11 @@ void format_speed_units(char * units)
             strcpy(units, "kt");
         break;
     }
+}
+
+void format_percent(char * buff, float in)
+{
+	uint8_t val = min(in * 100, 100);
+    sprintf(buff, "%u%%", val);
 }
 

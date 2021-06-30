@@ -66,7 +66,13 @@ char * config_get_text(cfg_entry_t * entry)
 void config_set_text(cfg_entry_t * entry, char * value)
 {
     strncpy(entry->value.str, value, entry->params.u16[0]);
+    entry->value.str[entry->params.u16[0] + 1] = 0;
     config_process_cb(entry);
+}
+
+uint16_t config_text_max_len(cfg_entry_t * entry)
+{
+	return entry->params.u16[0];
 }
 
 int16_t config_get_int(cfg_entry_t * entry)
@@ -86,6 +92,19 @@ void config_set_int(cfg_entry_t * entry, int16_t value)
     entry->value.s16[0] = value;
     config_process_cb(entry);
 }
+
+
+int16_t config_int_max(cfg_entry_t * entry)
+{
+	return entry->params.s16[1];
+}
+
+int16_t config_int_min(cfg_entry_t * entry)
+{
+	return entry->params.s16[0];
+}
+
+
 
 int32_t config_get_big_int(cfg_entry_t * entry)
 {
@@ -129,13 +148,25 @@ void config_set_float(cfg_entry_t * entry, float value)
     config_process_cb(entry);
 }
 
+float config_float_max(cfg_entry_t * entry)
+{
+	return entry->params.range->val_max.flt;
+}
+
+float config_float_min(cfg_entry_t * entry)
+{
+	return entry->params.range->val_min.flt;
+}
+
 
 uint16_t config_structure_size(cfg_entry_t * structure)
 {
     if (structure == (cfg_entry_t *)&config)
         return sizeof(config_t) / sizeof(cfg_entry_t);
+
     if (structure == (cfg_entry_t *)&profile)
         return sizeof(flight_profile_t) / sizeof(cfg_entry_t);
+
     if (structure == (cfg_entry_t *)&pilot)
         return sizeof(pilot_profile_t) / sizeof(cfg_entry_t);
 

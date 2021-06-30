@@ -17,7 +17,7 @@ uint64_t datetime_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, 
     uint64_t timestamp;
 
     // seconds from 1970 till 1 jan 00:00:00 this year
-    timestamp = (year - 1970) * (60 * 60 * 24L * 365);
+    timestamp = ((int64_t)year - 1970l) * (60l * 60l * 24l * 365l);
 
     // add extra days for leap years
     for (i = 1970; i < year; i++)

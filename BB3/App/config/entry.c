@@ -140,8 +140,8 @@ void config_init(cfg_entry_t * structure)
 
 			case(ENTRY_TEXT):
 			{
-				char * tmp = (char *) malloc(entry->params.u16[0]);
-				strncpy(tmp, (char *)entry->value.cstr, entry->params.u16[0]);
+				char * tmp = (char *) malloc(entry->params.u16[0] + 1);
+				strncpy(tmp, (char *)entry->value.cstr, entry->params.u16[0] + 1);
 				entry->value.str = tmp;
 				break;
 			}

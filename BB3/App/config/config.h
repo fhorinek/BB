@@ -215,16 +215,20 @@ const char * config_get_select_text(cfg_entry_t * entry);
 
 void config_set_text(cfg_entry_t * entry, char * value);
 char * config_get_text(cfg_entry_t * entry);
+uint16_t config_text_max_len(cfg_entry_t * entry);
 
 int16_t config_get_int(cfg_entry_t * entry);
 void config_set_int(cfg_entry_t * entry, int16_t value);
+int16_t config_int_max(cfg_entry_t * entry);
+int16_t config_int_min(cfg_entry_t * entry);
 
 int32_t config_get_big_int(cfg_entry_t * entry);
 void config_set_big_int(cfg_entry_t * entry, int32_t value);
 
 float config_get_float(cfg_entry_t * entry);
 void config_set_float(cfg_entry_t * entry, float value);
-
+float config_float_max(cfg_entry_t * entry);
+float config_float_min(cfg_entry_t * entry);
 
 void config_process_cb(cfg_entry_t * entry);
 void config_trigger_callbacks();

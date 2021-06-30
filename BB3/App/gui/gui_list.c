@@ -380,3 +380,81 @@ void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 	lv_obj_t * label = lv_obj_get_child(obj, NULL);
 	lv_textarea_set_text(label, value);
 }
+
+lv_obj_t * gui_config_entry_create(lv_obj_t * list, cfg_entry_t * entry, char * name, void * params)
+{
+	lv_obj_t * obj = NULL;
+
+	switch (entry->type)
+	{
+		case (ENTRY_BOOL):
+			obj = gui_list_switch_add_entry(list, name, config_get_bool(entry));
+			break;
+
+		case (ENTRY_TEXT):
+			obj = gui_list_textbox_add_entry(list, name, config_get_text(entry), config_text_max_len(entry));
+			break;
+
+		case (ENTRY_FLOAT):
+		{
+			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+			int16_t min = config_float_min(entry) / opt->step;
+			int16_t max = config_float_max(entry) / opt->step;
+			obj = gui_list_slider_add_entry(list, name, min, max, config_get_float(entry) / opt->step);
+			gui_config_entry_update(obj, entry, params);
+			break;
+		}
+
+		case (ENTRY_INT16):
+		{
+			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+			int16_t min = config_int_min(entry) / opt->step;
+			int16_t max = config_int_max(entry) / opt->step;
+			obj = gui_list_slider_add_entry(list, name, min, max, config_get_int(entry) / opt->step);
+			gui_config_entry_update(obj, entry, params);
+			break;
+		}
+
+		default:
+			obj = gui_list_info_add_entry(list, name, "???");
+	}
+
+	return obj;
+}
+
+void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
+{
+	switch (entry->type)
+	{
+		case (ENTRY_BOOL):
+			config_set_bool(entry, gui_list_switch_get_value(obj));
+			break;
+
+		case (ENTRY_TEXT):
+			config_set_text(entry, gui_list_textbox_get_value(obj));
+			break;
+
+		case (ENTRY_FLOAT):
+		{
+			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+			float value = gui_list_slider_get_value(obj) * opt->step;
+			config_set_float(entry, value);
+			char text[16];
+			opt->format(text, value * opt->disp_multi);
+ 			gui_list_slider_set_label(obj, text);
+			break;
+		}
+
+		case (ENTRY_INT16):
+		{
+			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+			float value = gui_list_slider_get_value(obj) * opt->step;
+			config_set_int(entry, value);
+			char text[16];
+			opt->format(text, value * opt->disp_multi);
+ 			gui_list_slider_set_label(obj, text);
+			break;
+		}
+	}
+}
+
