@@ -56,7 +56,7 @@ bool page_rename(char * old_name, char * new_name)
 
 bool page_create(char * new_name)
 {
-	char path_new[64];
+	char path_new[PATH_LEN];
 
 	snprintf(path_new, sizeof(path_new), "%s/%s.pag", PATH_PAGES_DIR, new_name);
 

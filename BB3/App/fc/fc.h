@@ -130,8 +130,9 @@ typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 #define FC_POS_GNSS_3D	0b0100
 #define FC_POS_HAVE_BARO	0b1000
 
-#define FC_HISTORY_SIZE		120
-#define FC_HISTORY_PERIOD	1000
+#define FC_HISTORY_PERIOD	250
+#define FC_HISTORY_TIME		30
+#define FC_HISTORY_SIZE		((FC_HISTORY_TIME * 1000) / FC_HISTORY_PERIOD)
 
 typedef struct
 {

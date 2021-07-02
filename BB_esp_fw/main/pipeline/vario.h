@@ -22,13 +22,20 @@ void pipe_vario_event(audio_event_iface_msg_t * msg);
 
 typedef struct _tone_part_t
 {
-	uint16_t * buffer;
+	int16_t * buffer;
 	uint16_t size;
 	uint16_t repeat;
 } tone_part_t;
 
-tone_part_t * vario_create_part(uint16_t freq, uint16_t duration);
-void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt);
+typedef struct
+{
+	int16_t tone;
+	int16_t dura;
+} tone_pair_t;
+
+void vario_create_sequence(tone_pair_t * pairs, uint8_t cnt);
+
+#define ONE_MS	(OUTPUT_SAMPLERATE / 1000)
 
 void pipe_vario_step();
 

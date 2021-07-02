@@ -145,7 +145,8 @@ static void Alt1_update(widget_slot_t * slot)
 		lv_label_set_text(alt, buff);
 
 		snprintf(buff, sizeof(buff), "%lu Pa", config_get_big_int(&config.vario.qnh1));
-		lv_label_set_text(qnh, buff);    }
+		lv_label_set_text(qnh, buff);
+    }
 }
 
 static void Alt1_stop(widget_slot_t * slot)

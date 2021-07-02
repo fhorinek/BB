@@ -4,7 +4,7 @@
  *  Created on: May 6, 2020
  *      Author: horinek
  */
-
+#define DEBUG_LEVEL	DEBUG_DBG
 
 #include "fc.h"
 
@@ -21,6 +21,8 @@ fc_t fc;
 
 void fc_history_record_cb(void * arg)
 {
+//	DBG("fc_history_record_cb");
+
 	fc_pos_history_t pos;
 	pos.flags = 0;
 
@@ -87,13 +89,15 @@ void fc_init()
 
 	INFO("Flight computer init");
 
+	vario_profile_load(config_get_text(&profile.vario.profile));
+
 	fc.history.positions = (fc_pos_history_t *) ps_malloc(sizeof(fc_pos_history_t) * FC_HISTORY_SIZE);
 	fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
 
-	vario_profile_load(config_get_text(&profile.vario.profile));
-    osTimerStart(fc.history.timer, 1);//FC_HISTORY_PERIOD);
+    osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
 
 	fc_reset();
+	logger_init();
 }
 
 void fc_deinit()
@@ -276,4 +280,3 @@ void fc_manual_alt1_change(float val)
     if (fc.flight.mode == flight_wait_to_takeoff)
     	fc.autostart.altitude = val;
 }
-

@@ -18,7 +18,7 @@ static uint16_t tone_position = 0;
 static uint16_t tone_repeates = 0;
 
 
-static uint16_t * one_ms_silent;
+static int16_t * one_ms_silent;
 
 void vario_tone_free(tone_part_t * tone)
 {
@@ -36,21 +36,31 @@ void pipe_vario_step()
 
 	while (size > 0)
 	{
-		if (tone_position >= tone_active->size || tone_active->size == 0)
+		//active tone is marked for removal
+		if (tone_active == to_remove)
+		{
+			//actual tone is silent or wave is finished
+			if (tone_active->buffer == one_ms_silent || tone_position >= tone_active->size)
+			{
+				vario_tone_free(to_remove);
+				to_remove = NULL;
+
+				tone_active = tones[tone_index];
+				tone_position = 0;
+			}
+		}
+
+		//one repetition of tone is done
+		if (tone_position >= tone_active->size)
 		{
 			tone_position = 0;
 			tone_repeates++;
 
+			//all repetitions are done
 			if (tone_repeates >= tone_active->repeat)
 			{
+				//select new tone
 				tone_index = (tone_index + 1) % tone_cnt;
-				if (tone_active == to_remove)
-				{
-					vario_tone_free(to_remove);
-					to_remove = NULL;
-					tone_index = 0;
-				}
-
 				tone_active = tones[tone_index];
 				tone_repeates = 0;
 			}
@@ -66,23 +76,12 @@ void pipe_vario_step()
 	xSemaphoreGive(pipes.vario.lock);
 }
 
-//#define HALF_AMP 32767
-#define HALF_AMP 16384
+#define HALF_AMP 32767
 
-uint16_t * vario_generate_tone(uint16_t freq, uint16_t * len)
+uint16_t vario_tone_lenght(uint16_t freq)
 {
-	*len = OUTPUT_SAMPLERATE / freq;
-	int16_t * buff = ps_malloc(*len * sizeof(uint16_t));
-
-	for (uint16_t i = 0; i < *len; i++)
-	{
-		buff[i] = (sin((M_TWOPI * i) / *len) * HALF_AMP);
-	}
-
-	return (uint16_t *)buff;
+	return OUTPUT_SAMPLERATE / freq;
 }
-
-#define ONE_MS	(OUTPUT_SAMPLERATE / 1000)
 
 tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 {
@@ -96,9 +95,51 @@ tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 	}
 	else
 	{
-		tone->buffer = vario_generate_tone(freq, &tone->size);
-		tone->repeat = (duration * ONE_MS) / tone->size;
-		ASSERT(tone->repeat > 0);
+		tone->size = vario_tone_lenght(freq);
+		tone->buffer = ps_malloc(tone->size * sizeof(int16_t));
+		for (uint16_t i = 0; i < tone->size; i++)
+			tone->buffer[i] = (int16_t)(sin((M_TWOPI * i) / tone->size) * HALF_AMP);
+
+		tone->repeat = max(1, (duration * ONE_MS) / tone->size);
+	}
+
+	return tone;
+}
+
+tone_part_t * vario_create_part_fade(uint16_t freq, uint16_t duration, bool down)
+{
+	tone_part_t * tone = ps_malloc(sizeof(tone_part_t));
+
+	if (freq == 0)
+	{
+		tone->buffer = one_ms_silent;
+		tone->repeat = duration;
+		tone->size = ONE_MS;
+	}
+	else
+	{
+		uint16_t wave_len = vario_tone_lenght(freq);
+		uint16_t wave_cnt = (duration * ONE_MS) / wave_len;
+		tone->size = wave_len * wave_cnt;
+
+		tone->buffer = ps_malloc(tone->size * sizeof(int16_t));
+		for (uint16_t i = 0; i < tone->size; i++)
+		{
+			int16_t amp = HALF_AMP;
+
+			if (down)
+			{
+				amp = (amp * (tone->size - i - 1)) / tone->size;
+			}
+			else
+			{
+				amp = (amp * i) / tone->size;
+			}
+
+			tone->buffer[i] = (int16_t)(sin((M_TWOPI * (i % wave_len)) / wave_len) * amp);
+		}
+
+		tone->repeat = 1;
 	}
 
 	return tone;
@@ -106,40 +147,96 @@ tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 
 void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 {
+	//if tone replacement is pending wait
 	while(to_remove != NULL);
 
 	xSemaphoreTake(pipes.vario.lock, WAIT_INF);
 
+	//get last position in tone
+	uint32_t actual_pos = 0;
 	for (uint8_t i = 0; i < tone_cnt; i++)
 	{
 		if (tones[i] != tone_active)
 		{
+			if (to_remove == NULL)
+				actual_pos += tones[i]->size * tones[i]->repeat;
+
 			vario_tone_free(tones[i]);
 		}
 		else
 		{
-			//gracefully remove tone
-			to_remove = tones[i];
+			//one wave is in progress, replacement will occur after wave is done
+			actual_pos += tones[i]->size * (tone_repeates + 1);
 
-			if (tone_active->buffer == one_ms_silent)
-			{
-				//silent tone, skip
-				tone_position = tone_active->size;
-			}
-			else
-			{
-				//finish wave
-				tone_repeates = tone_active->repeat;
-			}
+			//gracefully remove tone in next buffer write
+			to_remove = tones[i];
 		}
 	}
 
+	//free tones
 	free(tones);
 	
+	//assign new tones
 	tones = new_tones;
 	tone_cnt = cnt;
 
+	//fallback if new tone is shorter then last one
+	//start new tone from the beginning
+	tone_index = 0;
+	tone_repeates = 0;
+
+	//set same position in new tone
+	uint32_t total_duration = 0;
+	for (uint8_t i = 0; i < cnt; i++)
+	{
+		uint32_t duration = tones[i]->size * tones[i]->repeat;
+
+		if (total_duration + duration > actual_pos)
+		{
+			tone_index = i;
+			tone_repeates = (actual_pos - total_duration) / tones[i]->size;
+			break;
+		}
+		else
+		{
+			total_duration += duration;
+		}
+	}
+
 	xSemaphoreGive(pipes.vario.lock);
+}
+
+#define FADE 10 //in ms
+
+void vario_create_sequence(tone_pair_t * pairs, uint8_t cnt)
+{
+	tone_part_t ** new_tones = ps_malloc(sizeof(tone_part_t *) * cnt * 2);
+	uint8_t index = 0;
+	for (uint8_t i = 0; i < cnt; i++)
+	{
+		uint16_t next_tone = pairs[(i + 1) % cnt].tone;
+		uint16_t tone = pairs[i].tone;
+		uint16_t dura = pairs[i].dura;
+
+		bool fade = false;
+		bool down;
+
+		if ((tone > 0 && next_tone == 0) || (tone == 0 && next_tone > 0))
+		{
+			fade = true;
+			down = tone > 0;
+			dura = max(0, dura - FADE);
+		}
+
+		new_tones[index++] = vario_create_part(tone, dura);
+
+		if (fade)
+		{
+			new_tones[index++] = vario_create_part_fade((down) ? tone : next_tone, FADE, down);
+		}
+	}
+
+	pipe_vario_replace(new_tones, index);
 }
 
 void pipe_vario_loop()
@@ -149,7 +246,7 @@ void pipe_vario_loop()
 
 	tones = malloc(sizeof(tone_part_t *) * 1);
 
-	tones[0] = vario_create_part(0, 100);
+	tones[0] = vario_create_part(0, 1);
 
 	tone_active = tones[0];
 	tone_index = 0;
