@@ -563,7 +563,21 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->pages_cnt = pages_get_count();
 	if (local->pages_cnt == 0)
 	{
-		page_create("default");
+		char def[PATH_LEN];
+    	snprintf(def, sizeof(def), "%s/defaults/pages/default.pag", PATH_ASSET_DIR);
+
+    	if (file_exists(def))
+    	{
+    		char path[PATH_LEN];
+    		snprintf(path, sizeof(path), "%s/default.pag", PATH_PAGES_DIR);
+
+    		copy_file(def, path);
+    	}
+    	else
+    	{
+    		page_create("default");
+    	}
+
 		config_set_text(&profile.ui.page[0], "default");
 		local->pages_cnt = 1;
 	}

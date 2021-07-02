@@ -116,23 +116,27 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 		{
         	proto_tone_play_t * packet = (proto_tone_play_t *)data;
 
+        	tone_pair_t * pairs;
+
     		if (packet->size == 0)
     		{
-    			tone_part_t ** new_tones = ps_malloc(sizeof(tone_part_t *) * 1);
-				new_tones[0] = vario_create_part(0, 10);
-				pipe_vario_replace(new_tones, 1);
+    			pairs = ps_malloc(sizeof(tone_pair_t *) * 1);
+				pairs[0].dura = 1;
+				pairs[0].tone = 0;
+				packet->size = 1;
     		}
     		else
     		{
-    			tone_part_t ** new_tones = ps_malloc(sizeof(tone_part_t *) * packet->size);
+    			pairs = ps_malloc(sizeof(tone_pair_t *) * packet->size);
 				for (uint8_t i = 0; i < packet->size; i++)
 				{
-					new_tones[i] = vario_create_part(packet->freq[i], packet->dura[i]);
+					pairs[i].dura = packet->dura[i];
+					pairs[i].tone = packet->freq[i];
 				}
-
-				pipe_vario_replace(new_tones, packet->size);
     		}
 
+			vario_create_sequence(pairs, packet->size);
+			free(pairs);
 		}
         break;
 

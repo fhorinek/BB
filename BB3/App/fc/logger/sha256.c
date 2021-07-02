@@ -3,14 +3,14 @@
 #define HASH_LENGTH 32
 #define BLOCK_LENGTH 64
 
-union _buffer {
+typedef union  {
   uint8_t b[BLOCK_LENGTH];
   uint32_t w[BLOCK_LENGTH/4];
-};
-union _state {
+} _buffer;
+typedef union {
   uint8_t b[HASH_LENGTH];
   uint32_t w[HASH_LENGTH/4];
-};
+} _state;
 
 
 void pad();
@@ -179,8 +179,8 @@ uint8_t* sha256_result(void)
 #define HMAC_IPAD 0x36
 #define HMAC_OPAD 0x5c
 
-uint8_t keyBuffer[BLOCK_LENGTH]; // K0 in FIPS-198a
-uint8_t innerHash[HASH_LENGTH];
+static uint8_t keyBuffer[BLOCK_LENGTH]; // K0 in FIPS-198a
+static uint8_t innerHash[HASH_LENGTH];
 
 void sha256_initHmac(const uint8_t *key, int keyLength)
 {
