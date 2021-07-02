@@ -217,7 +217,7 @@ flight_profile_t profile =
 		//sink
 		entry_int("vario_sink", -50, -100, 100),
 		//lift
-		entry_int("vario_lift", 10, -100, 100),
+		entry_int("vario_lift", 1, -100, 100),
         //acc_gain
         entry_float("vario_acc", 1.0, acc_gain_range),
         //avg_vario
