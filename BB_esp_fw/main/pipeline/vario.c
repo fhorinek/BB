@@ -76,7 +76,7 @@ void pipe_vario_step()
 	xSemaphoreGive(pipes.vario.lock);
 }
 
-#define HALF_AMP 32767
+#define HALF_AMP (32767/2)
 
 uint16_t vario_tone_lenght(uint16_t freq)
 {
