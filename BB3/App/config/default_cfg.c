@@ -137,8 +137,12 @@ cfg_entry_param_range_t acc_gain_range =
 
 pilot_profile_t pilot =
 {
-    //name
-    entry_text("pilot_name", "Strato pilot", PILOT_NAME_LEN, 0),
+	//name
+	entry_text("pilot_name", "Strato pilot", PILOT_NAME_LEN, 0),
+	//glider type
+	entry_text("gliser_type", "", PILOT_NAME_LEN, 0),
+	//glider name
+	entry_text("glider_id", "", PILOT_NAME_LEN, 0),
     //broadcast_name
     entry_bool("bcst_name", true),
     //online track

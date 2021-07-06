@@ -24,13 +24,17 @@ void fc_history_record_cb(void * arg)
 //	DBG("fc_history_record_cb");
 
 	fc_pos_history_t pos;
-	pos.flags = 0;
+	memset(&pos, 0, sizeof(pos));
 
 	if (fc.fused.status == fc_dev_ready)
 	{
 		pos.flags |= FC_POS_HAVE_BARO;
-		pos.baro_alt = fc.fused.altitude1;
+		pos.baro_alt = fc_press_to_alt(fc.fused.pressure, 101325);
 		pos.vario = fc.fused.vario * 100;
+	}
+	else
+	{
+		return;
 	}
 
 	if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready)
@@ -63,6 +67,7 @@ void fc_history_record_cb(void * arg)
 			fc.history.size++;
 	}
 }
+
 
 void fc_reset()
 {

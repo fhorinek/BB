@@ -60,6 +60,16 @@ uint8_t datetime_wday_from_epoch(uint64_t epoch)
     return ((epoch / (60 * 60 * 24)) + 4) % 7;
 }
 
+void time_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour)
+{
+	*psec=epoch%60;
+	epoch/=60; // now it is minutes
+	*pmin=epoch%60;
+	epoch/=60; // now it is hours
+	*phour=epoch%24;
+}
+
+
 void datetime_from_epoch(uint64_t epoch, uint8_t *psec, uint8_t *pmin, uint8_t *phour, uint8_t *pday, uint8_t *pwday, uint8_t *pmonth, uint16_t *pyear)
 {
     uint8_t year;

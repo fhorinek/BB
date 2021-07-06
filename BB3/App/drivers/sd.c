@@ -105,6 +105,8 @@ void sd_init()
 		return;
 	}
 
+    f_mkdir(PATH_LOGS_DIR);
+
 	f_mkdir(PATH_CONFIG_DIR);
 	f_mkdir(PATH_PAGES_DIR);
     f_mkdir(PATH_PILOT_DIR);

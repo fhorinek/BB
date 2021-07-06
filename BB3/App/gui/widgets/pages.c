@@ -45,11 +45,11 @@ char * pages_get_name(uint8_t index)
 
 bool page_rename(char * old_name, char * new_name)
 {
-	char path_old[64];
-	char path_new[64];
+	char path_old[PATH_LEN];
+	char path_new[PATH_LEN];
 
-	snprintf(path_new, "%s/%s.pag", PATH_PAGES_DIR, new_name);
-	snprintf(path_old, "%s/%s.pag", PATH_PAGES_DIR, old_name);
+	snprintf(path_new, sizeof(path_new), "%s/%s.pag", PATH_PAGES_DIR, new_name);
+	snprintf(path_old, sizeof(path_old), "%s/%s.pag", PATH_PAGES_DIR, old_name);
 
 	return f_rename(path_old, path_new) == FR_OK;
 }

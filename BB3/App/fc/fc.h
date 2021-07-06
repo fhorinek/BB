@@ -317,6 +317,7 @@ void fc_init();
 void fc_takeoff();
 void fc_landing();
 void fc_reset();
+void fc_step();
 
 void fc_deinit();
 

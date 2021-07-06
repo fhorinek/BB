@@ -171,6 +171,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
+#define PATH_LOGS_DIR      "logs"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
@@ -225,6 +226,8 @@ float table_sin(uint16_t angle);
 float table_cos(uint16_t angle);
 
 #define DEVICE_ID   (DBGMCU->IDCODE)
+
+void system_reboot();
 
 #include <system/debug_thread.h>
 
