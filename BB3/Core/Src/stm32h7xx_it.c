@@ -136,7 +136,7 @@ HANDLER_ATTR void BusFault_Handler(void)
     uint32_t CFSR = SCB->CFSR;
     FAULT("BFSR: 0x%04X", (CFSR & SCB_CFSR_BUSFAULTSR_Msk) >> SCB_CFSR_BUSFAULTSR_Pos);
     if (CFSR & SCB_CFSR_BFARVALID_Msk)
-        FAULT(" BFARVALID - Bus Fault Address Register valid %08X", SCB->BFAR);
+        FAULT(" BFARVALID - Bus Fault Address Register valid 0x%08X", SCB->BFAR);
     if (CFSR & SCB_CFSR_LSPERR_Msk)
         FAULT(" LSPERR");
     if (CFSR & SCB_CFSR_STKERR_Msk)

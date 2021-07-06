@@ -58,6 +58,8 @@
 typedef struct
 {
     cfg_entry_t name;
+    cfg_entry_t glider_type;
+    cfg_entry_t glider_id;
     cfg_entry_t broadcast_name;
     cfg_entry_t online_track;
 } pilot_profile_t;

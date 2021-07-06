@@ -12,6 +12,8 @@
 
 #include "drivers/rev.h"
 #include "drivers/esp/download/slot.h"
+#include "drivers/esp/protocol.h"
+#include "fc/fc.h"
 
 #include "gui/dialog.h"
 
@@ -162,6 +164,9 @@ lv_obj_t * info_init(lv_obj_t * par)
 
     snprintf(value, sizeof(value), "%08lX", DEVICE_ID);
     gui_list_info_add_entry(list, "Serial number", value);
+
+    snprintf(value, sizeof(value), "%02X%04X", fc.fanet.addr.manufacturer_id, fc.fanet.addr.user_id);
+    gui_list_info_add_entry(list, "FANET ID", value);
 
     snprintf(value, sizeof(value), "%02X", rev_get_hw());
     gui_list_info_add_entry(list, "Hardware revision", value);

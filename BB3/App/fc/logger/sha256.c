@@ -61,12 +61,12 @@ void sha256_init(void)
 	bufferOffset = 0;
 }
 
-uint32_t sha256_ror32(uint32_t number, uint8_t bits)
+uint32_t ror32(uint32_t number, uint8_t bits)
 {
 	return ((number << (32 - bits)) | (number >> bits));
 }
 
-void sha256_hashBlock()
+void hashBlock()
 {
 	// Sha256 only for now
 	uint8_t i;
@@ -95,7 +95,7 @@ void sha256_hashBlock()
 		t1 = h;
 		t1 += ror32(e, 6) ^ ror32(e, 11) ^ ror32(e, 25); // ∑1(e)
 		t1 += g ^ (e & (g ^ f)); // Ch(e,f,g)
-		t1 += pgm_read_dword(sha256K + i); // Ki
+		t1 += sha256K[i]; // Ki
 		t1 += buffer.w[i & 15]; // Wi
 		t2 = ror32(a, 2) ^ ror32(a, 13) ^ ror32(a, 22); // ∑0(a)
 		t2 += ((b & c) | (a & (b | c))); // Maj(a,b,c)
@@ -118,7 +118,7 @@ void sha256_hashBlock()
 	state.w[7] += h;
 }
 
-void sha256_addUncounted(uint8_t data)
+void addUncounted(uint8_t data)
 {
 	buffer.b[bufferOffset ^ 3] = data;
 	bufferOffset++;
@@ -135,7 +135,7 @@ void sha256_write(uint8_t data)
 	addUncounted(data);
 }
 
-void sha256_pad()
+void pad()
 {
 	// Implement SHA-256 padding (fips180-2 §5.1.1)
 
@@ -189,9 +189,9 @@ void sha256_initHmac(const uint8_t *key, int keyLength)
 	if (keyLength > BLOCK_LENGTH)
 	{
 		// Hash long keys
-		init();
+		sha256_init();
 		for (; keyLength--;)
-			write(*key++);
+			sha256_write(*key++);
 		memcpy(keyBuffer, sha256_result(), HASH_LENGTH);
 	}
 	else
@@ -201,10 +201,10 @@ void sha256_initHmac(const uint8_t *key, int keyLength)
 	}
 	//for (i=0; i<BLOCK_LENGTH; i++) debugHH(keyBuffer[i]);
 	// Start inner hash
-	init();
+	sha256_init();
 	for (i = 0; i < BLOCK_LENGTH; i++)
 	{
-		write(keyBuffer[i] ^ HMAC_IPAD);
+		sha256_write(keyBuffer[i] ^ HMAC_IPAD);
 	}
 }
 
@@ -216,10 +216,10 @@ uint8_t* sha256_resultHmac(void)
 	// now innerHash[] contains H((K0 xor ipad)||text)
 
 	// Calculate outer hash
-	init();
+	sha256_init();
 	for (i = 0; i < BLOCK_LENGTH; i++)
-		write(keyBuffer[i] ^ HMAC_OPAD);
+		sha256_write(keyBuffer[i] ^ HMAC_OPAD);
 	for (i = 0; i < HASH_LENGTH; i++)
-		write(innerHash[i]);
+		sha256_write(innerHash[i]);
 	return sha256_result();
 }

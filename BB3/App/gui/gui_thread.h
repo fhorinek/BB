@@ -10,6 +10,7 @@
 
 #include "common.h"
 
+void gui_take_screenshot();
 void thread_gui_start(void *argument);
 
 #endif /* GUI_GUI_THREAD_H_ */
