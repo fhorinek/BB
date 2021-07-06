@@ -265,7 +265,7 @@ config_t config =
         //a2dp
         entry_bool("bt_a2dp", true),
         //volume
-        entry_int("bt_volume", 50, 0, 100),
+        entry_int("bt_volume", 75, 0, 100),
         //name
         entry_text("bt_name", "Strato", BLUETOOTH_NAME_LEN, 0),
         //pin
