@@ -1,4 +1,4 @@
-
+#define DEBUG_LEVEL	DEBUG_DBG
 #include "igc.h"
 
 #include "fc/fc.h"
@@ -9,7 +9,7 @@
 
 static osTimerId timer;
 
-#define IGC_PERIOD	1000
+#define IGC_PERIOD	900
 #define LOG_IGC_MANUFACTURER_ID	"XSB"
 #define LOG_IGC_DEVICE_ID		"STR"
 
@@ -240,9 +240,7 @@ void igc_start()
 
 			fc_pos_history_t * pos = &fc.history.positions[index];
 
-			char valid = 'V'; //not valid
-			if (pos->flags & FC_POS_GNSS_3D)
-				valid = 'A'; //valid
+			bool valid = pos->flags & FC_POS_GNSS_3D;
 
 			igc_write_b(now - i, pos->lat, pos->lon, pos->gnss_alt, valid, pos->baro_alt);
 		}

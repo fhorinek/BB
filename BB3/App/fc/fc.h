@@ -125,9 +125,9 @@ typedef enum
 
 typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
-#define FC_POS_NO_GNSS	0b0000
-#define FC_POS_GNSS_2D	0b0010
-#define FC_POS_GNSS_3D	0b0100
+#define FC_POS_NO_GNSS		0b0000
+#define FC_POS_GNSS_2D		0b0010
+#define FC_POS_GNSS_3D		0b0100
 #define FC_POS_HAVE_BARO	0b1000
 
 #define FC_HISTORY_PERIOD	250
