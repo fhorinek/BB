@@ -70,7 +70,7 @@ void igc_write_grecord()
 
 static uint32_t last_timestamp = 0;
 
-void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt, char valid, int16_t baro_alt)
+void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt, bool valid, int16_t baro_alt)
 {
 	char line[79];
 
@@ -92,10 +92,14 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 	uint32_t mlat2 = (mlat % GNSS_MUL) / 1000;
 	uint32_t mlon2 = (mlon % GNSS_MUL) / 1000;
 
+
 	snprintf(slat, sizeof(slat), "%02lu%02lu%03lu%c", alat / GNSS_MUL, mlat1, mlat2, lat > 0 ? 'N' : 'S');
 	snprintf(slon, sizeof(slon), "%03lu%02lu%03lu%c", alon / GNSS_MUL, mlon1, mlon2, lon > 0 ? 'E' : 'W');
 
-	char c = valid ? 'A' : 'V';
+	DBG("lat %ld %lu %lu %lu '%s'", lat, mlat, mlat1, mlat2, slat);
+	DBG("lon %ld %lu %lu %lu '%s'", lon, mlon, mlon1, mlon2, slon);
+
+	char c = (valid) ? 'A' : 'V';
 
 	snprintf(line, sizeof(line), "B%02u%02u%02u%s%s%c%05d%05d", hour, min, sec, slat, slon, c, baro_alt, gnss_alt);
 	igc_writeline(line);
