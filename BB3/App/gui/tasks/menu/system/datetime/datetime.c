@@ -29,11 +29,6 @@ REGISTER_TASK_IL(datetime,
 
 void datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-	if (event == LV_EVENT_CANCEL)
-	{
-		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-	}
-
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
         if (obj == local->dst)
@@ -109,7 +104,7 @@ lv_obj_t * datetime_init(lv_obj_t * par)
 {
 	DBG("settings init");
 
-	lv_obj_t * list = gui_list_create(par, "Time & date", datetime_cb);
+	lv_obj_t * list = gui_list_create(par, "Time & date", &gui_settings, datetime_cb);
 
 	uint8_t hour;
 	uint8_t minute;

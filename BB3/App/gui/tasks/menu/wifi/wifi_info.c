@@ -13,12 +13,6 @@ REGISTER_TASK_IL(wifi_info,
     lv_obj_t * ap_mac;
 );
 
-static void wifi_info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
-{
-	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_wifi, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-}
-
 static void wifi_info_loop()
 {
     char tmp[32];
@@ -38,7 +32,7 @@ static void wifi_info_loop()
 
 static lv_obj_t * wifi_info_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Network info", wifi_info_cb);
+	lv_obj_t * list = gui_list_create(par, "Network info", &gui_wifi, NULL);
 
     local->sta_ip = gui_list_info_add_entry(list, "Client IP", "");
     local->sta_mac = gui_list_info_add_entry(list, "Client MAC", "");

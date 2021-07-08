@@ -41,13 +41,8 @@ static void development_loop()
         gui_list_switch_set_value(local->esp_ext_prog, ext_active);
 }
 
-static void development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-	if (event == LV_EVENT_CANCEL)
-	{
-		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-	}
-
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
 		if (obj == local->esp_ext_prog)
@@ -102,13 +97,15 @@ static void development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
         if (index == 5)
             gui_switch_task(&gui_fake, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
+
+	return true;
 }
 
 
 
 static lv_obj_t * development_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Develpment", development_cb);
+	lv_obj_t * list = gui_list_create(par, "Develpment", &gui_settings, development_cb);
 
 	bool ext_active = fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual;
 

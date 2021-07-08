@@ -29,13 +29,6 @@ REGISTER_TASK_IL(gnss_status,
 #define STYLE_GALILEO	2
 #define STYLE_BEIDOU	3
 
-void gnss_status_cb(lv_obj_t * obj, lv_event_t event)
-{
-	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_gnss, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-
-}
-
 void gui_list_event_cb(lv_obj_t * obj, lv_event_t event);
 
 lv_obj_t * gnss_status_init(lv_obj_t * par)
@@ -66,9 +59,7 @@ lv_obj_t * gnss_status_init(lv_obj_t * par)
 	lv_style_init(&local->style_unused);
 	lv_style_set_bg_opa(&local->style_unused, LV_STATE_DEFAULT, LV_OPA_50);
 
-	lv_obj_t * list = gui_list_create(par, "GNSS Status", gnss_status_cb);
-
-    gui_set_dummy_event_cb(par, gnss_status_cb);
+	lv_obj_t * list = gui_list_create(par, "GNSS Status", &gui_gnss, NULL);
 
 	local->map = gui_list_cont_add(list, GNSS_STATUS_MAP);
 	lv_obj_set_style_local_bg_color(local->map, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x7e8aea));

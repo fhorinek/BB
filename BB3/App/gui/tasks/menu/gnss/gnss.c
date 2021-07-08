@@ -16,11 +16,8 @@ REGISTER_TASK_IL(gnss,
 	lv_obj_t * label_lon;
 );
 
-void gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-
 	if (event == LV_EVENT_CLICKED)
 	{
 		if (index == 0 && fc.gnss.status == fc_dev_ready)
@@ -28,13 +25,13 @@ void gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			gui_switch_task(&gui_gnss_status, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 		}
 	}
-
+	return true;
 }
 
 
 lv_obj_t * gnss_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "GNSS Settings", gnss_cb);
+	lv_obj_t * list = gui_list_create(par, "GNSS Settings", &gui_settings, gnss_cb);
 
 	local->label_status = gui_list_info_add_entry(list, "Status", "");
 	local->label_ttf = gui_list_info_add_entry(list, "TTF", "");

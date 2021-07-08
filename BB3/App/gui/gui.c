@@ -179,6 +179,10 @@ void gui_init()
 	gui.task.last = NULL;
 	gui.task.actual = &gui_pages;
 
+	//list
+	gui.list.back = NULL;
+	gui.list.entry_list = NULL;
+
 	//load the screen
 	lv_obj_t * screen = gui_task_create(gui.task.actual);
 

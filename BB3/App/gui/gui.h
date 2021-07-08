@@ -11,8 +11,17 @@
 #include "common.h"
 #include "lib/lvgl/lvgl.h"
 
-typedef void (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint8_t);
+typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint8_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
+
+typedef struct _config_entry_ll_t
+{
+	lv_obj_t * obj;
+	cfg_entry_t * entry;
+	void * params;
+
+	struct _config_entry_ll_t * next;
+} config_entry_ll_t;
 
 typedef enum
 {
@@ -74,6 +83,8 @@ typedef struct
 	{
 		lv_obj_t * object;
 		gui_list_task_cb_t callback;
+		gui_task_t * back;
+		config_entry_ll_t * entry_list;
 	} list;
 
 	//dialog
