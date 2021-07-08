@@ -319,6 +319,9 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		if (ubx_nav_timeutc->valid & 0b00000111)
 		{
+			fc.gnss.utc_time = datetime_to_epoch(ubx_nav_timeutc->sec, ubx_nav_timeutc->min, ubx_nav_timeutc->hour,
+					ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
+
 			if (config_get_bool(&config.time.sync_gnss) && !fc.gnss.time_synced)
 			{
 				fc.gnss.time_synced = true;
@@ -326,10 +329,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 				DBG("DATE %u.%u.%u", ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
 				DBG("TIME %02u:%02u.%02u", ubx_nav_timeutc->hour, ubx_nav_timeutc->min, ubx_nav_timeutc->sec);
 
-				uint32_t utc_epoch = datetime_to_epoch(ubx_nav_timeutc->sec, ubx_nav_timeutc->min, ubx_nav_timeutc->hour,
-						ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
-
-				fc_set_time_from_utc(utc_epoch);
+				fc_set_time_from_utc(fc.gnss.utc_time);
 			}
 		}
 
