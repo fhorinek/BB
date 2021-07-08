@@ -166,13 +166,8 @@ void wifi_list_connect_cb(uint8_t res, void * data)
     }
 }
 
-static void wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-	if (event == LV_EVENT_CANCEL)
-	{
-		gui_switch_task(&gui_wifi, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-	}
-
 	if (event == LV_EVENT_CLICKED)
 	{
 	    if (obj == local->info)
@@ -209,7 +204,7 @@ static void wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	        }
 	    }
 	}
-
+	return true;
 }
 
 
@@ -218,7 +213,7 @@ static lv_obj_t * wifi_list_init(lv_obj_t * par)
     local->new_scan = true;
     esp_wifi_start_scan(wifi_list_update);
 
-	lv_obj_t * list = gui_list_create(par, "Select network", wifi_list_cb);
+	lv_obj_t * list = gui_list_create(par, "Select network", &gui_wifi, wifi_list_cb);
 
     local->spinner = lv_spinner_create(par, NULL);
     lv_obj_set_size(local->spinner, 100, 100);

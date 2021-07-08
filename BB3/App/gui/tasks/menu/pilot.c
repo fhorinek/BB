@@ -13,11 +13,8 @@ REGISTER_TASK_I(pilot,
 	lv_obj_t * online;
 );
 
-static void pilot_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool pilot_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-	if (event == LV_EVENT_CANCEL)
-		gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-
 	if (event == LV_EVENT_LEAVE || event == LV_EVENT_APPLY || event == LV_EVENT_FOCUSED)
 	{
 		if (obj == local->name)
@@ -40,11 +37,12 @@ static void pilot_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
 	}
 
+	return true;
 }
 
 static lv_obj_t * pilot_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Pilot", pilot_cb);
+	lv_obj_t * list = gui_list_create(par, "Pilot", &gui_settings, pilot_cb);
 
     local->name = gui_list_textbox_add_entry(list, "Pilot name", config_get_text(&pilot.name), PILOT_NAME_LEN);
     local->bcast = gui_list_switch_add_entry(list, "Broadcast name", config_get_bool(&pilot.broadcast_name));

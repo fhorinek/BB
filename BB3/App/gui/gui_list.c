@@ -26,10 +26,6 @@ lv_obj_t * gui_list_get_entry(uint8_t index)
 
 void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 {
-
-	if (gui.list.callback == NULL)
-		return;
-
 	//get top parent
 	lv_obj_t * top = obj;
 
@@ -55,11 +51,36 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 		index++;
 	}
 
-	gui.list.callback(child, event, index);
+	//call cb
+	bool default_handler = true;
+
+	if (gui.list.callback != NULL)
+		default_handler = gui.list.callback(child, event, index);
+
+	if (default_handler)
+	{
+		//update config entry
+		config_entry_ll_t * entry = gui_config_entry_find(child);
+		if (entry != NULL)
+		{
+			if (event == LV_EVENT_VALUE_CHANGED)
+				gui_config_entry_update(child, entry->entry, entry->params);
+
+			if (event == LV_EVENT_CLICKED)
+				gui_config_entry_clicked(child, entry->entry, entry->params);
+		}
+
+		//go back
+		if (event == LV_EVENT_CANCEL && gui.list.back != NULL)
+			gui_switch_task(gui.list.back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+	}
 }
 
-lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_list_task_cb_t cb)
+lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back, gui_list_task_cb_t cb)
 {
+	//clear the list
+	gui_config_entry_clear();
+
 	lv_obj_t * win = lv_win_create(par, NULL);
 	lv_win_set_title(win, title);
 	lv_obj_set_size(win, LV_HOR_RES, LV_VER_RES - GUI_STATUSBAR_HEIGHT);
@@ -70,6 +91,7 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_list_task_cb_
 	//object that hold list entries
 	gui.list.object = lv_obj_get_child(lv_win_get_content(win), NULL);
 	gui.list.callback = cb;
+	gui.list.back = back;
 
 	return win;
 }
@@ -118,7 +140,7 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 
 	lv_obj_t * slider = lv_slider_create(entry,  NULL);
 	lv_group_add_obj(gui.input.group, slider);
-	lv_obj_set_size(slider, w * 2 / 3, 14);
+	lv_obj_set_size(slider, w / 2, 14);
 	lv_obj_set_focus_parent(slider, true);
 
 	lv_slider_set_range(slider, value_min, value_max);
@@ -128,7 +150,7 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 	lv_obj_t * val = lv_label_create(entry, NULL);
 	lv_label_set_text(val, "");
 	lv_label_set_align(val, LV_LABEL_ALIGN_CENTER);
-	lv_obj_set_size(val, w / 3, 14);
+	lv_obj_set_size(val, w / 2, 14);
 
 	lv_obj_set_event_cb(slider, gui_list_event_cb);
 
@@ -381,79 +403,155 @@ void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 	lv_textarea_set_text(label, value);
 }
 
+
+
+void gui_config_entry_clear()
+{
+	config_entry_ll_t * next = gui.list.entry_list;
+
+	while (next != NULL)
+	{
+		config_entry_ll_t * actual = next;
+		next = actual->next;
+		free(actual);
+	}
+
+	gui.list.entry_list = NULL;
+}
+
+void gui_config_entry_add(lv_obj_t * obj, cfg_entry_t * entry, void * params)
+{
+	config_entry_ll_t * item = (config_entry_ll_t *) malloc(sizeof(config_entry_ll_t));
+	item->obj = obj;
+	item->entry = entry;
+	item->params = params;
+	item->next = NULL;
+
+	if (gui.list.entry_list == NULL)
+	{
+		gui.list.entry_list = item;
+		return;
+	}
+
+	config_entry_ll_t * last = gui.list.entry_list;
+	while (last->next != NULL)
+	{
+		last = last->next;
+	}
+
+	last->next = item;
+}
+
+config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj)
+{
+	config_entry_ll_t * next = gui.list.entry_list;
+
+	while (next != NULL)
+	{
+		if (next->obj == obj)
+			return next;
+
+		next = next->next;
+	}
+
+	return NULL;
+}
+
 lv_obj_t * gui_config_entry_create(lv_obj_t * list, cfg_entry_t * entry, char * name, void * params)
 {
 	lv_obj_t * obj = NULL;
 
-	switch (entry->type)
+	if (entry == NULL)
 	{
-		case (ENTRY_BOOL):
-			obj = gui_list_switch_add_entry(list, name, config_get_bool(entry));
-			break;
-
-		case (ENTRY_TEXT):
-			obj = gui_list_textbox_add_entry(list, name, config_get_text(entry), config_text_max_len(entry));
-			break;
-
-		case (ENTRY_FLOAT):
-		{
-			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
-			int16_t min = config_float_min(entry) / opt->step;
-			int16_t max = config_float_max(entry) / opt->step;
-			obj = gui_list_slider_add_entry(list, name, min, max, config_get_float(entry) / opt->step);
-			gui_config_entry_update(obj, entry, params);
-			break;
-		}
-
-		case (ENTRY_INT16):
-		{
-			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
-			int16_t min = config_int_min(entry) / opt->step;
-			int16_t max = config_int_max(entry) / opt->step;
-			obj = gui_list_slider_add_entry(list, name, min, max, config_get_int(entry) / opt->step);
-			gui_config_entry_update(obj, entry, params);
-			break;
-		}
-
-		default:
-			obj = gui_list_info_add_entry(list, name, "???");
+		obj = gui_list_text_add_entry(list, name);
 	}
+	else
+	{
+		switch (entry->type)
+		{
+			case (ENTRY_BOOL):
+				obj = gui_list_switch_add_entry(list, name, config_get_bool(entry));
+				break;
+
+			case (ENTRY_TEXT):
+				obj = gui_list_textbox_add_entry(list, name, config_get_text(entry), config_text_max_len(entry));
+				break;
+
+			case (ENTRY_FLOAT):
+			{
+				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+				int16_t min = config_float_min(entry) / opt->step;
+				int16_t max = config_float_max(entry) / opt->step;
+				obj = gui_list_slider_add_entry(list, name, min, max, config_get_float(entry) / opt->step);
+				gui_config_entry_update(obj, entry, params);
+				break;
+			}
+
+			case (ENTRY_INT16):
+			{
+				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+				int16_t min = config_int_min(entry) / opt->step;
+				int16_t max = config_int_max(entry) / opt->step;
+				obj = gui_list_slider_add_entry(list, name, min, max, config_get_int(entry) / opt->step);
+				gui_config_entry_update(obj, entry, params);
+				break;
+			}
+
+			default:
+				obj = gui_list_info_add_entry(list, name, "???");
+		}
+	}
+
+	//add to list
+	gui_config_entry_add(obj, entry, params);
 
 	return obj;
 }
 
+void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params)
+{
+	if (entry == NULL)
+	{
+		gui_switch_task((gui_task_t *)params, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+	}
+}
+
+
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	switch (entry->type)
+	if (entry != NULL)
 	{
-		case (ENTRY_BOOL):
-			config_set_bool(entry, gui_list_switch_get_value(obj));
-			break;
-
-		case (ENTRY_TEXT):
-			config_set_text(entry, gui_list_textbox_get_value(obj));
-			break;
-
-		case (ENTRY_FLOAT):
+		switch (entry->type)
 		{
-			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
-			float value = gui_list_slider_get_value(obj) * opt->step;
-			config_set_float(entry, value);
-			char text[16];
-			opt->format(text, value * opt->disp_multi);
- 			gui_list_slider_set_label(obj, text);
-			break;
-		}
+			case (ENTRY_BOOL):
+				config_set_bool(entry, gui_list_switch_get_value(obj));
+				break;
 
-		case (ENTRY_INT16):
-		{
-			gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
-			float value = gui_list_slider_get_value(obj) * opt->step;
-			config_set_int(entry, value);
-			char text[16];
-			opt->format(text, value * opt->disp_multi);
- 			gui_list_slider_set_label(obj, text);
-			break;
+			case (ENTRY_TEXT):
+				config_set_text(entry, (char *)gui_list_textbox_get_value(obj));
+				break;
+
+			case (ENTRY_FLOAT):
+			{
+				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+				float value = gui_list_slider_get_value(obj) * opt->step;
+				config_set_float(entry, value);
+				char text[16];
+				opt->format(text, value * opt->disp_multi);
+				gui_list_slider_set_label(obj, text);
+				break;
+			}
+
+			case (ENTRY_INT16):
+			{
+				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+				float value = gui_list_slider_get_value(obj) * opt->step;
+				config_set_int(entry, value);
+				char text[16];
+				opt->format(text, value * opt->disp_multi);
+				gui_list_slider_set_label(obj, text);
+				break;
+			}
 		}
 	}
 }

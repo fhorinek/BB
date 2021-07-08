@@ -21,6 +21,7 @@ void format_distance(char * buf, float in);
 
 void format_altitude(char * buff, float in);
 void format_altitude_units(char * buff);
+void format_altitude_with_units(char * buff, float in);
 
 void format_vario(char * val, float in);
 void format_vario_units(char * units);
@@ -31,7 +32,9 @@ void format_ip(char * buf, uint8_t * ip);
 
 void format_speed(char * val, float in);
 void format_speed_units(char * units);
+void format_speed_with_units(char * buff, float in);
 
 void format_percent(char * buff, float in);
+void format_duration(char * buff, float in);
 
 #endif /* ETC_FORMAT_H_ */

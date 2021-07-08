@@ -65,7 +65,7 @@ void widget_list_show_widget(uint8_t index)
     widget_init(&local->prev_ws, local->prev_obj);
 }
 
-static void widget_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool widget_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_CANCEL)
 	{
@@ -84,6 +84,8 @@ static void widget_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
     {
         widget_list_show_widget(index);
     }
+
+    return true;
 }
 
 
@@ -92,7 +94,7 @@ static void widget_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
 static lv_obj_t * widget_list_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Select widget", widget_list_cb);
+	lv_obj_t * list = gui_list_create(par, "Select widget", NULL, widget_list_cb);
 
 	lv_obj_set_y(list, WIDGET_LIST_PREV_HEIGHT);
 	lv_obj_set_height(list, LV_VER_RES - GUI_STATUSBAR_HEIGHT - WIDGET_LIST_PREV_HEIGHT);

@@ -45,10 +45,12 @@ void page_settings_delete_cb(uint8_t res, void * data)
 	}
 }
 
-static void page_setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_CANCEL)
+	{
 		gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+	}
 
 	if (event == LV_EVENT_LEAVE || event == LV_EVENT_APPLY || event == LV_EVENT_FOCUSED)
 	{
@@ -115,13 +117,13 @@ static void page_setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
         }
 	}
 
-
+	return true;
 }
 
 
 static lv_obj_t * page_settings_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Page settings", page_setting_cb);
+	lv_obj_t * list = gui_list_create(par, "Page settings", NULL, page_setting_cb);
 
 	local->name_entry = gui_list_textbox_add_entry(list, "Name", "", PAGE_NAME_LEN);
     gui_list_text_add_entry(list, "Edit layout");

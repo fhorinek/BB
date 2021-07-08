@@ -131,9 +131,6 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
 
 void info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-    if (event == LV_EVENT_CANCEL)
-        gui_switch_task(&gui_system, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-
     if (event == LV_EVENT_CLICKED)
     {
         if (index == 0)
@@ -147,13 +144,13 @@ void info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
             dialog_progress_spin();
         }
     }
-
+    return true;
 }
 
 
 lv_obj_t * info_init(lv_obj_t * par)
 {
-    lv_obj_t * list = gui_list_create(par, "Device info", info_cb);
+    lv_obj_t * list = gui_list_create(par, "Device info", &gui_system, info_cb);
 
     char rev_str[10];
     char value[32];

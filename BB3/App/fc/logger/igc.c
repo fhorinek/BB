@@ -23,7 +23,7 @@ void igc_writeline(char * line)
 	uint8_t l = strlen(line);
 	UINT wl;
 
-	DBG("IGC:%s\n", line);
+	DBG("IGC:%s", line);
 
 	char new_line[l + 3];
 	snprintf(new_line, sizeof(new_line), "%s\r\n", line);

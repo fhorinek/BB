@@ -138,6 +138,15 @@ void format_altitude_units(char * buff)
     }
 }
 
+void format_altitude_with_units(char * buff, float in)
+{
+	char val[16];
+	char units[16];
+	format_altitude(val, in);
+	format_altitude_units(units);
+	sprintf(buff, "%s %s", val, units);
+}
+
 void format_distance(char * buf, float in)
 {
 	switch (config_get_select(&config.units.distance))
@@ -226,9 +235,40 @@ void format_speed_units(char * units)
     }
 }
 
+void format_speed_with_units(char * buff, float in)
+{
+	char val[16];
+	char units[16];
+	format_speed(val, in);
+	format_speed_units(units);
+	sprintf(buff, "%s %s", val, units);
+}
+
+
 void format_percent(char * buff, float in)
 {
 	uint8_t val = min(in * 100, 100);
     sprintf(buff, "%u%%", val);
 }
 
+void format_duration(char * buff, float in)
+{
+	int16_t sec = in;
+
+	if (sec > 60)
+	{
+		if (sec > 3600)
+		{
+			sprintf(buff, "%uh %um", sec / 3600, (sec % 3600) / 60);
+		}
+		else
+		{
+			sprintf(buff, "%um %us", sec / 60, sec % 60);
+		}
+	}
+	else
+	{
+		sprintf(buff, "%us", sec);
+	}
+
+}
