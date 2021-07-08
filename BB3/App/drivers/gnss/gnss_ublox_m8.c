@@ -450,7 +450,7 @@ void ublox_parse(uint8_t b)
 		PM_CK_B
 	} mode;
 
-	ALIGN static uint8_t msg_payload[1024];
+	static uint8_t msg_payload[1024];
 
     static uint16_t index = 0;
     static uint16_t msg_len;

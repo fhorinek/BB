@@ -121,8 +121,25 @@ void statusbar_step()
 	uint8_t m;
 	uint8_t s;
 
-	rtc_get_time(&h, &m, &s);
-	lv_label_set_text_fmt(gui.statusbar.time, "%02u:%02u", h, m);
+	if (rtc_is_valid())
+	{
+		rtc_get_time(&h, &m, &s);
+		lv_label_set_text_fmt(gui.statusbar.time, "%02u:%02u", h, m);
+	}
+	else
+	{
+		if (BLINK(2000))
+		{
+			lv_label_set_text(gui.statusbar.time, "--:--");
+		}
+		else
+		{
+			if (rtc_is_waiting_or_valid())
+				lv_label_set_text(gui.statusbar.time, "No GNSS");
+			else
+				lv_label_set_text(gui.statusbar.time, "Set time");
+		}
+	}
 
     char icons[64];
     char gray_icons[64];
