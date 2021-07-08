@@ -109,11 +109,15 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 void igc_tick_cb(void * arg)
 {
 	//write B record
+	DBG("igc_tick_cb");
 
 	uint32_t timestamp = (fc.gnss.fix == 0) ? fc_get_utc_time() : fc.gnss.utc_time;
 
 	if ((last_timestamp >= timestamp) && (abs(last_timestamp - timestamp) < 10))
+	{
+		DBG("last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
 		return;
+	}
 
 	last_timestamp = timestamp;
 
