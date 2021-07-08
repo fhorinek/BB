@@ -108,6 +108,7 @@ void fc_init()
 void fc_deinit()
 {
 	INFO("Flight computer deinit");
+	logger_stop();
 	osTimerStop(fc.history.timer);
 }
 
