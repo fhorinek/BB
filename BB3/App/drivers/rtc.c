@@ -7,30 +7,52 @@
 
 #include "rtc.h"
 
-#define RTC_TAMP_SET    0xDEADBEEF
-#define RTC_TAMP_GPS    0xC0FFEE
+#define RTC_TAMP_SET    0xDEADBEE
+#define RTC_TAMP_WAIT   0x0C0FFEE
 
 #define RTC_START_YEAR  2020
 
-bool rtc_is_set()
+bool rtc_is_waiting_or_valid()
 {
-    if (TAMP->BKP0R != RTC_TAMP_SET)
-        if (TAMP->BKP0R != RTC_TAMP_GPS)
-            return false;
-
-    return true;
+    return (TAMP->BKP0R == RTC_TAMP_SET) || (TAMP->BKP0R == RTC_TAMP_WAIT);
 }
+
+bool rtc_is_valid()
+{
+	return	TAMP->BKP0R == RTC_TAMP_SET;
+}
+
+void rtc_flag_clear()
+{
+	TAMP->BKP0R = 0;
+}
+
+void rtc_flag_set()
+{
+	//time is set
+	TAMP->BKP0R = RTC_TAMP_SET;
+}
+
+void rtc_flag_wait()
+{
+	//we will wait for GNSS or WIFI
+	TAMP->BKP0R = RTC_TAMP_WAIT;
+}
+
 
 void rtc_init()
 {
     MX_RTC_Init();
 
-    if (TAMP->BKP0R != RTC_TAMP_SET)
+    if (!rtc_is_waiting_or_valid())
     {
         rtc_set_time(12, 00, 00);
-        rtc_set_date(1 , 2, 1, 2020);
+        rtc_set_date(1, 1, 1, 2020);
 
-        TAMP->BKP0R = RTC_TAMP_SET;
+		if (config_get_bool(&config.time.sync_gnss))
+			rtc_flag_wait();
+		else
+			rtc_flag_clear();
     }
 }
 
@@ -58,6 +80,8 @@ void rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second)
 	sTime.Seconds = second;
 	sTime.SubSeconds = 0;
 
+	rtc_flag_set();
+
 	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 }
 
@@ -69,6 +93,8 @@ void rtc_set_date(uint8_t day, uint8_t wday, uint8_t month, uint16_t year)
 	sDate.WeekDay = wday;
 	sDate.Month = month;
 	sDate.Year = year - RTC_START_YEAR;
+
+	rtc_flag_set();
 
 	HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 }

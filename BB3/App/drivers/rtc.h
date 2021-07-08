@@ -11,8 +11,12 @@
 #include "../common.h"
 
 void rtc_init();
+
+bool rtc_is_waiting_or_valid();
 bool rtc_is_valid();
-bool rtc_is_set();
+
+void rtc_flag_set();
+void rtc_flag_wait();
 
 void rtc_get_time(uint8_t * hour, uint8_t * minute, uint8_t * second);
 void rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second);

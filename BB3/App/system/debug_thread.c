@@ -86,7 +86,7 @@ void debug_fault(const char *format, ...)
     osSemaphoreRelease(debug_dma_done);
 }
 
-ALIGN static char debug_label[] = "DIWE";
+static char debug_label[] = "DIWE";
 
 void debug_send(uint8_t type, const char *format, ...)
 {

@@ -96,8 +96,8 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 	snprintf(slat, sizeof(slat), "%02lu%02lu%03lu%c", alat / GNSS_MUL, mlat1, mlat2, lat > 0 ? 'N' : 'S');
 	snprintf(slon, sizeof(slon), "%03lu%02lu%03lu%c", alon / GNSS_MUL, mlon1, mlon2, lon > 0 ? 'E' : 'W');
 
-	DBG("lat %ld %lu %lu %lu %lu '%s'", lat, alat, mlat, mlat1, mlat2, slat);
-	DBG("lon %ld %lu %lu %lu %lu '%s'", lon, alon, mlon, mlon1, mlon2, slon);
+//	DBG("lat %ld %lu %lu %lu %lu '%s'", lat, alat, mlat, mlat1, mlat2, slat);
+//	DBG("lon %ld %lu %lu %lu %lu '%s'", lon, alon, mlon, mlon1, mlon2, slon);
 
 	char c = (valid) ? 'A' : 'V';
 
@@ -109,7 +109,7 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 void igc_tick_cb(void * arg)
 {
 	//write B record
-	DBG("igc_tick_cb");
+//	DBG("igc_tick_cb");
 
 	uint32_t timestamp = (fc.gnss.fix == 0) ? fc_get_utc_time() : fc.gnss.utc_time;
 
@@ -157,7 +157,9 @@ void igc_start()
 	uint8_t wday;
 	uint8_t month;
 	uint16_t year;
-	datetime_from_epoch(fc_get_utc_time(), &sec, &min, &hour, &day, &wday, &month, &year);
+	uint32_t utc_time = fc_get_utc_time();
+	DBG("utc_time %lu", utc_time);
+	datetime_from_epoch(utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 
 	snprintf(path, sizeof(path), "%s/%02u.%04u", PATH_LOGS_DIR, month, year);
 	f_mkdir(path);

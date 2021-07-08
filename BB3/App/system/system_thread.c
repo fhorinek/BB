@@ -125,10 +125,6 @@ void thread_system_start(void *argument)
     INFO("FW stm: %08X", rew_get_sw());
     INFO("\n\n");
 
-    //rtc init
-    rtc_init();
-
-
     osDelay(100);
 	pwr_init();
 
@@ -139,6 +135,9 @@ void thread_system_start(void *argument)
 
 	//load config
 	config_load_all();
+
+    //rtc init
+    rtc_init();
 
 	//init PSRAM
 	PSRAM_init();

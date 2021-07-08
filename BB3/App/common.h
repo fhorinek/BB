@@ -127,7 +127,7 @@ const osThreadAttr_t FUNC ## _attr = {  \
 #define start_thread(FUNC)  \
     FUNC = osThreadNew(FUNC ## _start, NULL, &FUNC ## _attr);
 
-#define ALIGN     alignas(4)
+#define BLINK(A)	(HAL_GetTick() % A > (A / 2))
 
 //RTOS Threads
 extern osThreadId_t thread_debug;
