@@ -134,7 +134,7 @@ void statusbar_step()
 		}
 		else
 		{
-			if (rtc_is_waiting_or_valid())
+			if (config_get_bool(&config.time.sync_gnss))
 				lv_label_set_text(gui.statusbar.time, "No GNSS");
 			else
 				lv_label_set_text(gui.statusbar.time, "Set time");
