@@ -80,8 +80,8 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 
 	time_from_epoch(timestamp, &sec, &min, &hour);
 
-	char slat[10];
-	char slon[10];
+	char slat[16];
+	char slon[16];
 
 	uint32_t alat = abs(lat);
 	uint32_t alon = abs(lon);
@@ -89,15 +89,15 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 	uint32_t mlon = ((alon % GNSS_MUL) * 60);
 	uint32_t mlat1 = mlat / GNSS_MUL;
 	uint32_t mlon1 = mlon / GNSS_MUL;
-	uint32_t mlat2 = (mlat % GNSS_MUL) / 1000;
-	uint32_t mlon2 = (mlon % GNSS_MUL) / 1000;
+	uint32_t mlat2 = (mlat % GNSS_MUL) / 10000;
+	uint32_t mlon2 = (mlon % GNSS_MUL) / 10000;
 
 
 	snprintf(slat, sizeof(slat), "%02lu%02lu%03lu%c", alat / GNSS_MUL, mlat1, mlat2, lat > 0 ? 'N' : 'S');
 	snprintf(slon, sizeof(slon), "%03lu%02lu%03lu%c", alon / GNSS_MUL, mlon1, mlon2, lon > 0 ? 'E' : 'W');
 
-	DBG("lat %ld %lu %lu %lu '%s'", lat, mlat, mlat1, mlat2, slat);
-	DBG("lon %ld %lu %lu %lu '%s'", lon, mlon, mlon1, mlon2, slon);
+	DBG("lat %ld %lu %lu %lu %lu '%s'", lat, alat, mlat, mlat1, mlat2, slat);
+	DBG("lon %ld %lu %lu %lu %lu '%s'", lon, alon, mlon, mlon1, mlon2, slon);
 
 	char c = (valid) ? 'A' : 'V';
 
