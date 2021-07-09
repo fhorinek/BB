@@ -18,7 +18,7 @@ REGISTER_TASK_I(dateset,
     lv_style_t style;
 );
 
-void dateset_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool dateset_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
     if (event == LV_EVENT_CANCEL)
     {
@@ -98,6 +98,8 @@ void dateset_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
         }
 
     }
+
+    return false;
 }
 
 #define ROLLER_HEIGHT 270

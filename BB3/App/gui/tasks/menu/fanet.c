@@ -14,7 +14,7 @@ REGISTER_TASK_IL(fanet,
 	lv_obj_t * fanet_sw;
 );
 
-static void fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
@@ -32,6 +32,8 @@ static void fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			}
 		}
 	}
+
+	return false;
 }
 
 

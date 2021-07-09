@@ -6,6 +6,7 @@
 #include "etc/epoch.h"
 #include "etc/timezone.h"
 #include "drivers/rev.h"
+#include "drivers/rtc.h"
 
 static osTimerId timer;
 
@@ -14,6 +15,7 @@ static osTimerId timer;
 #define LOG_IGC_DEVICE_ID		"STR"
 
 FIL log_file;
+static bool started = false;
 
 #define IGC_NO_PRIVATE_KEY
 
@@ -37,6 +39,15 @@ void igc_writeline(char * line)
 	for (uint8_t i = 0; i < l; i++)
 		sha256_write(line[i]);
 #endif
+}
+
+void igc_comment(char * text)
+{
+	char line[79];
+
+	snprintf(line, sizeof(line), "L%s %s", LOG_IGC_MANUFACTURER_ID, text);
+	igc_writeline(line);
+	//igc_write_grecord();
 }
 
 void igc_write_grecord()
@@ -106,41 +117,7 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 	igc_write_grecord();
 }
 
-void igc_tick_cb(void * arg)
-{
-	//write B record
-//	DBG("igc_tick_cb");
-
-	uint32_t timestamp = (fc.gnss.fix == 0) ? fc_get_utc_time() : fc.gnss.utc_time;
-
-	if ((last_timestamp >= timestamp) && (abs(last_timestamp - timestamp) < 10))
-	{
-		DBG("last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
-		return;
-	}
-
-	last_timestamp = timestamp;
-
-	bool valid = (fc.gnss.fix == 3);
-
-	igc_write_b(timestamp, fc.gnss.latitude, fc.gnss.longtitude, fc.gnss.altitude_above_ellipsiod, valid, fc_press_to_alt(fc.fused.pressure, 101325));
-}
-
-void igc_init()
-{
-	timer = osTimerNew(igc_tick_cb, osTimerPeriodic, NULL, NULL);
-}
-
-void igc_comment(char * text)
-{
-	char line[79];
-
-	snprintf(line, sizeof(line), "L%s %s", LOG_IGC_MANUFACTURER_ID, text);
-	igc_writeline(line);
-	//igc_write_grecord();
-}
-
-void igc_start()
+void igc_start_write()
 {
 	sha256_init();
 
@@ -256,15 +233,58 @@ void igc_start()
 		}
 	}
 
-	igc_comment("timer start");
+}
 
+void igc_tick_cb(void * arg)
+{
+	if (started)
+	{
+		//write B record
+
+		uint32_t timestamp = (fc.gnss.fix == 0) ? fc_get_utc_time() : fc.gnss.utc_time;
+
+		if ((last_timestamp >= timestamp) && (abs(last_timestamp - timestamp) < 10))
+		{
+			DBG("last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
+			return;
+		}
+
+		last_timestamp = timestamp;
+
+		bool valid = (fc.gnss.fix == 3);
+
+		igc_write_b(timestamp, fc.gnss.latitude, fc.gnss.longtitude, fc.gnss.altitude_above_ellipsiod, valid, fc_press_to_alt(fc.fused.pressure, 101325));
+	}
+	else
+	{
+		if (rtc_is_valid())
+		{
+			igc_start_write();
+			started = true;
+		}
+	}
+}
+
+void igc_init()
+{
+	started = false;
+	timer = osTimerNew(igc_tick_cb, osTimerPeriodic, NULL, NULL);
+}
+
+
+void igc_start()
+{
+	DBG("IGC timer start");
     osTimerStart(timer, IGC_PERIOD);
 }
 
 void igc_stop()
 {
 	osTimerStop(timer);
-	igc_comment("end");
 
-	f_close(&log_file);
+	if (started)
+	{
+		igc_comment("end");
+		f_close(&log_file);
+	}
 }

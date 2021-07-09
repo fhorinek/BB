@@ -12,18 +12,6 @@
 
 #include "gui/statusbar.h"
 
-typedef enum
-{
-    calib_gyro,
-    calib_acc_nx,
-    calib_acc_ny,
-    calib_acc_px,
-    calib_acc_py,
-    calib_acc_pz,
-    calib_acc_nz,
-    calib_mag
-} calib_state_t;
-
 REGISTER_TASK_IL(calibration,
     calib_state_t state;
 

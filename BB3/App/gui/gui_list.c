@@ -54,6 +54,8 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 	//call cb
 	bool default_handler = true;
 
+	gui_task_t * back_task = gui.list.back;
+
 	if (gui.list.callback != NULL)
 		default_handler = gui.list.callback(child, event, index);
 
@@ -63,6 +65,9 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 		config_entry_ll_t * entry = gui_config_entry_find(child);
 		if (entry != NULL)
 		{
+			if (event == LV_EVENT_LEAVE || event == LV_EVENT_APPLY || event == LV_EVENT_FOCUSED)
+				gui_config_entry_textbox(child, entry->entry, entry->params);
+
 			if (event == LV_EVENT_VALUE_CHANGED)
 				gui_config_entry_update(child, entry->entry, entry->params);
 
@@ -71,8 +76,10 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 		}
 
 		//go back
-		if (event == LV_EVENT_CANCEL && gui.list.back != NULL)
-			gui_switch_task(gui.list.back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+		if (event == LV_EVENT_CANCEL && back_task != NULL)
+		{
+			gui_switch_task(back_task, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+		}
 	}
 }
 
@@ -457,7 +464,7 @@ config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj)
 	return NULL;
 }
 
-lv_obj_t * gui_config_entry_create(lv_obj_t * list, cfg_entry_t * entry, char * name, void * params)
+lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params)
 {
 	lv_obj_t * obj = NULL;
 
@@ -516,6 +523,19 @@ void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params
 	}
 }
 
+
+void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params)
+{
+	if (entry != NULL)
+	{
+		if (entry->type == ENTRY_TEXT)
+		{
+			keyboard_hide();
+
+			config_set_text(entry, (char *)gui_list_textbox_get_value(obj));
+		}
+	}
+}
 
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {

@@ -39,9 +39,9 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, "System", &gui_settings, system_cb);
 
-    gui_config_entry_create(list, NULL, "Time & date", &gui_datetime);
-    gui_config_entry_create(list, NULL, "Display", &gui_display);
-    gui_config_entry_create(list, NULL, "Calibration", &gui_calibration);
+    gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
+    gui_list_auto_entry(list, "Display", NEXT_TASK, &gui_display);
+    gui_list_auto_entry(list, "Calibration", NEXT_TASK, &gui_calibration);
 
     char rev_str[10];
     rew_get_sw_string(rev_str);

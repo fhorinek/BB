@@ -129,7 +129,7 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
     gui_lock_release();
 }
 
-void info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
     if (event == LV_EVENT_CLICKED)
     {

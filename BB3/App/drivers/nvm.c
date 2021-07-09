@@ -84,6 +84,11 @@ bool nvm_load_imu_calibration(imu_calibration_t * calib)
 
         return true;
     }
+    else
+    {
+    	//set defaults
+
+    }
 
     return false;
 }

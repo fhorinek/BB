@@ -12,7 +12,7 @@ void thread_esp_start(void *argument)
 
 	start_thread(thread_esp_spi);
 
-	uint32_t timer = HAL_GetTick();
+	//uint32_t timer = HAL_GetTick();
 
 	while(!system_power_off)
 	{

@@ -31,11 +31,11 @@ static lv_obj_t * take_off_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Automatic Take-off", &gui_flight, NULL);
 
-	gui_config_entry_create(list, &profile.flight.auto_take_off.alt_change_enabled, "Use altitude", NULL);
-	gui_config_entry_create(list, &profile.flight.auto_take_off.alt_change_value, "Change greater then", &alt_param);
-	gui_config_entry_create(list, &profile.flight.auto_take_off.speed_enabled, "Use ground speed", NULL);
-	gui_config_entry_create(list, &profile.flight.auto_take_off.speed_value, "Exceed speed", &spd_param);
-	gui_config_entry_create(list, &profile.flight.auto_take_off.timeout, "Within time", &time_param);
+	gui_list_auto_entry(list, "Use altitude", &profile.flight.auto_take_off.alt_change_enabled, NULL);
+	gui_list_auto_entry(list, "Change greater then", &profile.flight.auto_take_off.alt_change_value, &alt_param);
+	gui_list_auto_entry(list, "Use ground speed", &profile.flight.auto_take_off.speed_enabled, NULL);
+	gui_list_auto_entry(list, "Exceed speed", &profile.flight.auto_take_off.speed_value, &spd_param);
+	gui_list_auto_entry(list, "Within time", &profile.flight.auto_take_off.timeout, &time_param);
 
 	return list;
 }
