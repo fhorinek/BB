@@ -26,15 +26,15 @@ lv_obj_t * settings_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Device settings", &gui_pages, NULL);
 
-	gui_config_entry_create(list, NULL, "Pilot", &gui_pilot);
-	gui_config_entry_create(list, NULL, "Vario", &gui_vario);
-	gui_config_entry_create(list, NULL, "Flight", &gui_flight);
-	gui_config_entry_create(list, NULL, "GNSS", &gui_gnss);
-	gui_config_entry_create(list, NULL, "FANET", &gui_fanet);
-	gui_config_entry_create(list, NULL, "Audio", &gui_bluetooth);
-	gui_config_entry_create(list, NULL, "Wi-Fi", &gui_wifi);
-	gui_config_entry_create(list, NULL, "System", &gui_system);
-	gui_config_entry_create(list, NULL, "Development", &gui_development);
+	gui_list_auto_entry(list, "Pilot", NEXT_TASK, &gui_pilot);
+	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario);
+	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
+	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);
+	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
+	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_bluetooth);
+	gui_list_auto_entry(list, "Wi-Fi", NEXT_TASK, &gui_wifi);
+	gui_list_auto_entry(list, "System", NEXT_TASK, &gui_system);
+	gui_list_auto_entry(list, "Development", NEXT_TASK, &gui_development);
 
 	return list;
 }

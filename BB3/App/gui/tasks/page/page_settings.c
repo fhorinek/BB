@@ -61,12 +61,12 @@ static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 			char * text = (char *)gui_list_textbox_get_value(local->name_entry);
 
 			if (strcmp(text, local->page_name) == 0)
-				return;
+				return false;
 
 			if (strlen(text) == 0)
 			{
 				gui_list_textbox_set_value(local->name_entry, local->page_name);
-				return;
+				return false;
 			}
 
 			if (!page_rename(local->page_name, text))

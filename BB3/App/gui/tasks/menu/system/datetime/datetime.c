@@ -19,6 +19,8 @@
 #include "etc/format.h"
 #include "etc/timezone.h"
 
+#include "fc/fc.h"
+
 REGISTER_TASK_IL(datetime,
     lv_obj_t * time;
     lv_obj_t * date;
@@ -27,7 +29,7 @@ REGISTER_TASK_IL(datetime,
     lv_obj_t * gnss;
 );
 
-void datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
@@ -74,6 +76,7 @@ void datetime_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
 	}
 
+	return true;
 }
 
 

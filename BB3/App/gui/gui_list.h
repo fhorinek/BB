@@ -59,7 +59,9 @@ void gui_config_entry_clear();
 void gui_config_entry_add(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj);
 
-lv_obj_t * gui_config_entry_create(lv_obj_t * list, cfg_entry_t * entry, char * name, void * params);
+#define NEXT_TASK	NULL
+lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params);
+void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 

@@ -15,7 +15,7 @@ gui_list_slider_options_t vol_opt = {
 	.format = format_percent,
 };
 
-static void bluetooth_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool bluetooth_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
 	if (event == LV_EVENT_VALUE_CHANGED)
 	{
@@ -35,7 +35,7 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Audio", &gui_settings, bluetooth_cb);
 
-	local->volume = gui_config_entry_create(list, &config.bluetooth.volume, "Volume", &vol_opt);
+	local->volume = gui_list_auto_entry(list, "Volume", &config.bluetooth.volume, &vol_opt);
 
 	return list;
 }

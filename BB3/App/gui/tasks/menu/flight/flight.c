@@ -13,8 +13,8 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Flight settings", &gui_settings, NULL);
 
-	gui_config_entry_create(list, NULL, "Automatic Take-off", &gui_take_off);
-	gui_config_entry_create(list, NULL, "Automatic Landing", &gui_landing);
+	gui_list_auto_entry(list, "Automatic Take-off", NEXT_TASK, &gui_take_off);
+	gui_list_auto_entry(list, "Automatic Landing", NEXT_TASK, &gui_landing);
 
 	return list;
 }
