@@ -15,7 +15,9 @@
 #define DATE_YYYYMMDD   2
 
 void format_date(char * buf, uint8_t day, uint8_t month, uint16_t year);
+void format_date_epoch(char * buff, uint64_t epoch);
 void format_time(char * buf, uint8_t hour, uint8_t min);
+
 void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lot);
 void format_distance(char * buf, float in);
 

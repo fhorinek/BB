@@ -208,9 +208,10 @@ typedef struct
 
 	struct
 	{
+		uint64_t flarm_expires;
         neighbor_t neighbor[NB_NUMBER_IN_MEMORY];
-        fanet_addr_t addr;
 
+        fanet_addr_t addr;
         fc_device_status_t status;
 
 		uint8_t neighbors_size;

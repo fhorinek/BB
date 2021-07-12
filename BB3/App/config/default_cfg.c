@@ -9,12 +9,13 @@
 #include "entry.h"
 #include "etc/timezone.h"
 #include "etc/format.h"
+#include "drivers/gnss/fanet.h"
 
 cfg_entry_param_select_t date_format_select[] =
 {
-    {DATE_DDMMYYYY, "DMY"},
-    {DATE_MMDDYYYY, "MDY"},
-    {DATE_YYYYMMDD, "YMD"},
+    {DATE_DDMMYYYY, "DD.MM.YYYY"},
+    {DATE_MMDDYYYY, "MM/DD/YYYY"},
+    {DATE_YYYYMMDD, "YYYY-MM-DD"},
     SELECT_END
 };
 
@@ -35,32 +36,32 @@ cfg_entry_param_select_t gdatum_select[] =
 
 cfg_entry_param_select_t speed_select[] =
 {
-	{SPEED_KMH, "Kmh"},
+	{SPEED_KMH, "Km/h"},
 	{SPEED_MPH, "Mph"},
-	{SPEED_MPS, "Mps"},
+	{SPEED_MPS, "m/s"},
 	{SPEED_KNOTS, "Knots"},
 	SELECT_END
 };
 
 cfg_entry_param_select_t distance_select[] =
 {
-	{DISTANCE_METERS, "Km"},
-	{DISTANCE_MILES, "Mi"},
+	{DISTANCE_METERS, "Kilometers"},
+	{DISTANCE_MILES, "Miles"},
 	SELECT_END
 };
 
 cfg_entry_param_select_t altitude_select[] =
 {
-	{ALTITUDE_M, "m"},
-	{ALTITUDE_FT, "ft"},
+	{ALTITUDE_M, "Meters"},
+	{ALTITUDE_FT, "Feets"},
 	SELECT_END
 };
 
 cfg_entry_param_select_t vario_format_select[] =
 {
-    {VARIO_MPS, "mps"},
-    {VARIO_KN, "kn"},
-    {VARIO_FPM, "fpm"},
+    {VARIO_MPS, "m/s"},
+    {VARIO_KN, "Knots"},
+    {VARIO_FPM, "100ft/m"},
     SELECT_END
 };
 
@@ -135,12 +136,40 @@ cfg_entry_param_range_t acc_gain_range =
     .val_max.flt = 1.0
 };
 
+
+cfg_entry_param_select_t fanet_air_type[] =
+{
+    {FANET_AIRCRAFT_TYPE_OTHER, "Other"},
+    {FANET_AIRCRAFT_TYPE_PARAGLIDER, "Paraglider"},
+    {FANET_AIRCRAFT_TYPE_HANGGLIDER, "Hangglider"},
+    {FANET_AIRCRAFT_TYPE_BALLON, "Ballon"},
+    {FANET_AIRCRAFT_TYPE_GLIDER, "Glider"},
+    {FANET_AIRCRAFT_TYPE_POWERED, "Powered Aircraft"},
+    {FANET_AIRCRAFT_TYPE_HELICOPTER, "Helicopter"},
+    {FANET_AIRCRAFT_TYPE_UAV, "UAV"},
+    SELECT_END
+};
+
+cfg_entry_param_select_t fanet_ground_type[] =
+{
+    {FANET_GROUND_TYPE_OTHER, "Other"},
+    {FANET_GROUND_TYPE_WALKING, "Walking"},
+    {FANET_GROUND_TYPE_VEHICLE, "Vehicle"},
+    {FANET_GROUND_TYPE_BIKE, "Bike"},
+    {FANET_GROUND_TYPE_BOOT, "Boot"},
+    {FANET_GROUND_TYPE_NEED_RIDE, "Need a ride"},
+    {FANET_GROUND_TYPE_NEED_TECH_SUPP, "Need technical support"},
+    {FANET_GROUND_TYPE_NEED_MEDICAL, "Need medical help"},
+    {FANET_GROUND_TYPE_DISTRESS, "Distress call"},
+    SELECT_END
+};
+
 pilot_profile_t pilot =
 {
 	//name
 	entry_text("pilot_name", "Strato pilot", PILOT_NAME_LEN, 0),
 	//glider type
-	entry_text("gliser_type", "", PILOT_NAME_LEN, 0),
+	entry_text("glider_type", "", PILOT_NAME_LEN, 0),
 	//glider name
 	entry_text("glider_id", "", PILOT_NAME_LEN, 0),
     //broadcast_name
@@ -173,8 +202,14 @@ flight_profile_t profile =
 
     //fanet
     {
-        //enabled
-        entry_bool("fa_en", true),
+		//enabled
+		entry_bool("fa_en", true),
+		//flarm
+		entry_bool("flarm", true),
+		//air_type
+		entry_select("fa_air", FANET_AIRCRAFT_TYPE_PARAGLIDER, fanet_air_type),
+		//air_type
+		entry_select("fa_ground", FANET_GROUND_TYPE_WALKING, fanet_ground_type),
     },
 
     //flight
@@ -336,5 +371,8 @@ config_t config =
 		entry_bool("dbg_serial", true),
 		//use_file
 		entry_bool("dbg_file", false),
+		//esp_off
+		entry_bool("dbg_esp_off", false),
+
 	},
 };

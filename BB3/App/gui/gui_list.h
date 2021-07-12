@@ -37,6 +37,7 @@ char * gui_list_info_get_name(lv_obj_t * entry);
 lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value);
 int16_t gui_list_slider_get_value(lv_obj_t * entry);
 void gui_list_slider_set_label(lv_obj_t * obj, char * text);
+void gui_list_slider_set_value(lv_obj_t * obj, int16_t value);
 
 lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const char * value, uint8_t max_len);
 void gui_list_textbox_set_value(lv_obj_t * obj, const char * value);
@@ -44,6 +45,7 @@ const char * gui_list_textbox_get_value(lv_obj_t * obj);
 
 lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const char * options, uint16_t selected);
 uint16_t gui_list_dropdown_get_value(lv_obj_t * obj);
+void gui_list_dropdown_set_value(lv_obj_t * obj, uint8_t index);
 
 lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height);
 
@@ -65,6 +67,7 @@ void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 
+void gui_config_config_cb(cfg_entry_t * entry);
 
 //last created list
 extern lv_obj_t * gui_list;

@@ -12,8 +12,11 @@
 
 void config_set_bool(cfg_entry_t * entry, bool val)
 {
-	entry->value.b = val;
-    config_process_cb(entry);
+	if (entry->value.b != val)
+	{
+		entry->value.b = val;
+		config_process_cb(entry);
+	}
 }
 
 bool config_get_bool(cfg_entry_t * entry)
@@ -23,27 +26,30 @@ bool config_get_bool(cfg_entry_t * entry)
 
 void config_set_select(cfg_entry_t * entry, uint8_t val)
 {
-	cfg_entry_param_select_t * s;
-	for(uint8_t i = 0; ; i++)
+	if (val != entry->value.u8[0])
 	{
-		s = &entry->params.list[i];
-
-		if (s->value == SELECT_END_VALUE)
+		cfg_entry_param_select_t * s;
+		for(uint8_t i = 0; ; i++)
 		{
-			//not found set first
-			entry->value.u8[0] = entry->params.list[0].value;
+			s = &entry->params.list[i];
 
-			break;
+			if (s->value == SELECT_END_VALUE)
+			{
+				//not found set first
+				entry->value.u8[0] = entry->params.list[0].value;
+
+				break;
+			}
+
+			if (s->value == val)
+			{
+				entry->value.u8[0] = val;
+				break;
+			}
 		}
 
-		if (s->value == val)
-		{
-			entry->value.u8[0] = val;
-			break;
-		}
+		config_process_cb(entry);
 	}
-
-    config_process_cb(entry);
 }
 
 uint8_t config_get_select(cfg_entry_t * entry)
@@ -51,10 +57,43 @@ uint8_t config_get_select(cfg_entry_t * entry)
 	return entry->value.u8[0];
 }
 
-
 const char * config_get_select_text(cfg_entry_t * entry)
 {
     return entry->params.list[entry->value.u8[0]].name_id;
+}
+
+uint8_t config_get_select_at_index(cfg_entry_t * entry, uint8_t index)
+{
+    return entry->params.list[index].value;
+}
+
+const char * config_get_select_text_at_index(cfg_entry_t * entry, uint8_t index)
+{
+    return entry->params.list[index].name_id;
+}
+
+uint8_t config_get_select_cnt(cfg_entry_t * entry)
+{
+	uint8_t cnt = 0;
+
+	while (entry->params.list[cnt].value != SELECT_END_VALUE)
+		cnt++;
+
+	return cnt;
+}
+
+uint8_t config_get_select_index(cfg_entry_t * entry)
+{
+	uint8_t index = 0;
+
+	while (entry->params.list[index].value != SELECT_END_VALUE)
+	{
+		if (entry->params.list[index].value == entry->value.u8[0])
+			return index;
+		index++;
+	}
+
+	return SELECT_END_VALUE;
 }
 
 
@@ -65,9 +104,12 @@ char * config_get_text(cfg_entry_t * entry)
 
 void config_set_text(cfg_entry_t * entry, char * value)
 {
-    strncpy(entry->value.str, value, entry->params.u16[0]);
-    entry->value.str[entry->params.u16[0] + 1] = 0;
-    config_process_cb(entry);
+	if (strcmp(value, entry->value.str) != 0)
+	{
+		strncpy(entry->value.str, value, entry->params.u16[0]);
+		entry->value.str[entry->params.u16[0] + 1] = 0;
+		config_process_cb(entry);
+	}
 }
 
 uint16_t config_text_max_len(cfg_entry_t * entry)
@@ -82,15 +124,18 @@ int16_t config_get_int(cfg_entry_t * entry)
 
 void config_set_int(cfg_entry_t * entry, int16_t value)
 {
-    //clip min - max
-    if (value < entry->params.s16[0])
-        value = entry->params.s16[0];
+	if (entry->value.s16[0] != value)
+	{
+		//clip min - max
+		if (value < entry->params.s16[0])
+			value = entry->params.s16[0];
 
-    if (value > entry->params.s16[1])
-        value = entry->params.s16[1];
+		if (value > entry->params.s16[1])
+			value = entry->params.s16[1];
 
-    entry->value.s16[0] = value;
-    config_process_cb(entry);
+		entry->value.s16[0] = value;
+		config_process_cb(entry);
+	}
 }
 
 
@@ -113,18 +158,21 @@ int32_t config_get_big_int(cfg_entry_t * entry)
 
 void config_set_big_int(cfg_entry_t * entry, int32_t value)
 {
-    //clip
-    if (entry->params.range != NULL)
-    {
-        if (value > entry->params.range->val_max.s32)
-            value = entry->params.range->val_max.s32;
+	if (entry->value.s32 != value)
+	{
+		//clip
+		if (entry->params.range != NULL)
+		{
+			if (value > entry->params.range->val_max.s32)
+				value = entry->params.range->val_max.s32;
 
-        if (value < entry->params.range->val_min.s32)
-            value = entry->params.range->val_min.s32;
-    }
+			if (value < entry->params.range->val_min.s32)
+				value = entry->params.range->val_min.s32;
+		}
 
-    entry->value.s32 = value;
-    config_process_cb(entry);
+		entry->value.s32 = value;
+		config_process_cb(entry);
+	}
 }
 
 float config_get_float(cfg_entry_t * entry)
@@ -134,18 +182,21 @@ float config_get_float(cfg_entry_t * entry)
 
 void config_set_float(cfg_entry_t * entry, float value)
 {
-    //clip
-    if (entry->params.range != NULL)
-    {
-        if (value > entry->params.range->val_max.flt)
-            value = entry->params.range->val_max.flt;
+	if (entry->value.flt != value)
+	{
+		//clip
+		if (entry->params.range != NULL)
+		{
+			if (value > entry->params.range->val_max.flt)
+				value = entry->params.range->val_max.flt;
 
-        if (value < entry->params.range->val_min.flt)
-            value = entry->params.range->val_min.flt;
-    }
+			if (value < entry->params.range->val_min.flt)
+				value = entry->params.range->val_min.flt;
+		}
 
-    entry->value.flt = value;
-    config_process_cb(entry);
+		entry->value.flt = value;
+		config_process_cb(entry);
+	}
 }
 
 float config_float_max(cfg_entry_t * entry)
@@ -178,8 +229,6 @@ void config_load(cfg_entry_t * structure, char * path)
 {
 	FIL f;
 	uint8_t ret;
-
-	config_disable_callbacks();
 
 	ret = f_open(&f, path, FA_READ);
 	INFO("Reading configuration from %s", path);
@@ -225,10 +274,6 @@ void config_load(cfg_entry_t * structure, char * path)
 		WARN("Unable to open");
 	}
 	INFO("Reading configuration done.");
-
-	config_enable_callbacks();
-
-	config_trigger_callbacks(structure);
 }
 
 
@@ -275,6 +320,8 @@ void config_show(cfg_entry_t * structure)
 
 void config_load_all()
 {
+	config_disable_callbacks();
+
     config_init((cfg_entry_t *)&config);
     config_load((cfg_entry_t *)&config, PATH_DEVICE_CFG);
     pages_defragment();
@@ -288,6 +335,8 @@ void config_load_all()
     sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
     config_init((cfg_entry_t *)&pilot);
     config_load((cfg_entry_t *)&pilot, path);
+
+	config_enable_callbacks();
 }
 
 

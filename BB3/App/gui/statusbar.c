@@ -117,14 +117,17 @@ void statusbar_add_msg(statusbar_msg_type_t type, char * text)
 
 void statusbar_step()
 {
-	uint8_t h;
-	uint8_t m;
-	uint8_t s;
 
 	if (rtc_is_valid())
 	{
+		uint8_t h;
+		uint8_t m;
+		uint8_t s;
+
 		rtc_get_time(&h, &m, &s);
-		lv_label_set_text_fmt(gui.statusbar.time, "%02u:%02u", h, m);
+		char buff[8];
+		format_time(buff, h, m);
+		lv_label_set_text(gui.statusbar.time, buff);
 	}
 	else
 	{

@@ -1,4 +1,4 @@
-//#define DBG_LEVEL DBG_DEBUG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "fanet.h"
 
@@ -58,6 +58,30 @@ void fanet_send(const char * msg)
 	HAL_UART_Transmit(fanet_uart, (uint8_t *)fmsg, strlen(fmsg), 100);
 }
 
+void fanet_configure_flarm()
+{
+	if (!config_get_bool(&profile.fanet.enabled))
+		return;
+
+	char cmd[8];
+	snprintf(cmd, sizeof(cmd), "FAP %u", config_get_bool(&profile.fanet.flarm));
+	fanet_send(cmd);
+}
+
+void fanet_configure_type()
+{
+	if (!config_get_bool(&profile.fanet.enabled))
+		return;
+
+	uint8_t air = config_get_select(&profile.fanet.air_type);
+	uint8_t track = config_get_select(&pilot.online_track);
+	uint8_t ground = config_get_select(&profile.fanet.ground_type);
+
+	char cmd[16];
+	snprintf(cmd, sizeof(cmd), "FNC %u,%u,%u", air, track, ground);
+	fanet_send(cmd);
+}
+
 void fanet_parse_dg(char * buffer)
 {
 	DBG("DG: %s", buffer);
@@ -65,7 +89,13 @@ void fanet_parse_dg(char * buffer)
 	if (start_with(buffer, "V "))
 	{
 		strcpy(fc.fanet.version, buffer + 2);
+
+		//get module address
 		fanet_send("FNA");
+	}
+	else if (start_with(buffer, "R OK"))
+	{
+		fanet_configure_flarm();
 	}
 }
 
@@ -191,14 +221,13 @@ void fanet_parse_fn(char * buffer)
 		fc.fanet.addr.manufacturer_id = manu_id;
 		fc.fanet.addr.user_id = user_id;
 
-		//TDOD: set air type. livetracking, grountype
-		fanet_send("FNC 1,1,1");
+		//check FLARM expiration
+		fanet_send("FAX");
 	}
 	else if (start_with(buffer, "R OK") && fc.fanet.status == fc_dev_init)
 	{
 		//enable RX
 		fanet_send("DGP 1");
-		fc.fanet.status = fc_dev_ready;
 	}
 	else if (start_with(buffer, "F "))
 	{
@@ -240,7 +269,20 @@ void fanet_parse_fn(char * buffer)
 
 void fanet_parse_fa(char * buffer)
 {
-	//DBG("FA: %s", buffer);
+	DBG("FA: %s", buffer);
+
+	//Get FLARM expiration
+	if (start_with(buffer, "X "))
+	{
+		unsigned int year, month, day;
+		sscanf(buffer + 2, "%u,%u,%u", &year, &month, &day);
+		fc.fanet.flarm_expires = datetime_to_epoch(0, 0, 0, day, month + 1, year + 1900);
+
+		fanet_configure_type();
+	} else if (start_with(buffer, "P OK") && fc.fanet.status == fc_dev_init)
+	{
+		fc.fanet.status = fc_dev_ready;
+	}
 }
 
 void fanet_parse(uint8_t c)

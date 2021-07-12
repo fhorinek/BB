@@ -1,6 +1,5 @@
 #include <gui/tasks/menu/development/fake.h>
 #include <gui/tasks/menu/development/sensors.h>
-#include <gui/tasks/menu/fanet.h>
 #include <gui/tasks/menu/settings.h>
 #include "gui/gui_list.h"
 #include "fc/fc.h"
@@ -13,8 +12,7 @@ REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
     lv_obj_t * esp_boot0;
     lv_obj_t * usb_otg_pin;
-    lv_obj_t * use_serial;
-    lv_obj_t * use_file;
+    lv_obj_t * trigger;
 );
 
 void development_trigger()
@@ -74,28 +72,12 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
             bool val = gui_list_switch_get_value(local->usb_otg_pin);
             GpioWrite(BQ_OTG, val);
         }
-
-		if (obj == local->use_serial)
-		{
-			config_set_bool(&config.debug.use_serial, gui_list_switch_get_value(local->use_serial));
-		}
-
-		if (obj == local->use_file)
-		{
-			config_set_bool(&config.debug.use_file, gui_list_switch_get_value(local->use_file));
-		}
 	}
 
 	if (event == LV_EVENT_CLICKED)
 	{
-        if (index == 0)
+        if (obj == local->trigger)
             development_trigger();
-
-        if (index == 4)
-            gui_switch_task(&gui_sensors, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-
-        if (index == 5)
-            gui_switch_task(&gui_fake, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
 	return true;
@@ -109,15 +91,16 @@ static lv_obj_t * development_init(lv_obj_t * par)
 
 	bool ext_active = fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual;
 
-    gui_list_text_add_entry(list, "Trigger");
+    local->trigger = gui_list_text_add_entry(list, "Trigger");
+    gui_list_auto_entry(list, "Sensors", NEXT_TASK, &gui_sensors);
+    gui_list_auto_entry(list, "Fake", NEXT_TASK, &gui_fake);
+
+    gui_list_auto_entry(list, "Disable ESP32", &config.debug.esp_off, NULL);
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
     local->esp_boot0 = gui_list_switch_add_entry(list, "ESP boot0", false);
     local->usb_otg_pin = gui_list_switch_add_entry(list, "USB OTG pin", GpioRead(BQ_OTG));
-    gui_list_text_add_entry(list, "Sensors");
-    gui_list_text_add_entry(list, "Fake");
-
-    local->use_serial = gui_list_switch_add_entry(list, "Debug to serial", config_get_bool(&config.debug.use_serial));
-    local->use_file = gui_list_switch_add_entry(list, "Debug to file", config_get_bool(&config.debug.use_file));
+    gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
+    gui_list_auto_entry(list, "Debug to file", &config.debug.use_file, NULL);
 
 	return list;
 }

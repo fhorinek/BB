@@ -13,6 +13,8 @@
 #include "calibration.h"
 #include "display.h"
 #include "info.h"
+#include "units.h"
+
 #include "../settings.h"
 
 #include "drivers/rev.h"
@@ -41,6 +43,7 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
     gui_list_auto_entry(list, "Display", NEXT_TASK, &gui_display);
+    gui_list_auto_entry(list, "Units", NEXT_TASK, &gui_units);
     gui_list_auto_entry(list, "Calibration", NEXT_TASK, &gui_calibration);
 
     char rev_str[10];

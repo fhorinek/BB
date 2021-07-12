@@ -75,6 +75,9 @@ typedef struct
     struct
     {
         cfg_entry_t enabled;
+        cfg_entry_t flarm;
+        cfg_entry_t air_type;
+        cfg_entry_t ground_type;
     } fanet;
 
     struct
@@ -187,6 +190,7 @@ typedef struct
 	{
 		cfg_entry_t use_serial;
 		cfg_entry_t use_file;
+		cfg_entry_t esp_off;
 	} debug;
 } config_t;
 
@@ -213,7 +217,11 @@ bool config_get_bool(cfg_entry_t * entry);
 
 void config_set_select(cfg_entry_t * entry, uint8_t val);
 uint8_t config_get_select(cfg_entry_t * entry);
+uint8_t config_get_select_at_index(cfg_entry_t * entry, uint8_t index);
+uint8_t config_get_select_index(cfg_entry_t * entry);
 const char * config_get_select_text(cfg_entry_t * entry);
+const char * config_get_select_text_at_index(cfg_entry_t * entry, uint8_t index);
+uint8_t config_get_select_cnt(cfg_entry_t * entry);
 
 void config_set_text(cfg_entry_t * entry, char * value);
 char * config_get_text(cfg_entry_t * entry);

@@ -106,7 +106,7 @@ typedef union
 #define entry_float(name_id, def, range_struct) \
     {\
         name_id, \
-        {.flt = {def}}, \
+        {.flt = def}, \
         ENTRY_FLOAT, \
         {.range = &range_struct} \
     }

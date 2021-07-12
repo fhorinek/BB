@@ -29,7 +29,7 @@
 
 //RTOS Tasks
 define_thread("Debug", thread_debug, 1024, osPriorityHigh);
-define_thread("GUI", thread_gui, 1024, osPriorityNormal);
+define_thread("GUI", thread_gui, 2048, osPriorityNormal);
 define_thread("Map", thread_map, 1024, osPriorityNormal);
 define_thread("GNSS", thread_gnss, 1024, osPriorityNormal);
 define_thread("MEMS", thread_mems, 2048, osPriorityNormal);

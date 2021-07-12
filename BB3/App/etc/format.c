@@ -2,40 +2,49 @@
 
 #include "fc/fc.h"
 
-void format_date(char * buf, uint8_t day, uint8_t month, uint16_t year)
+void format_date_epoch(char * buff, uint64_t epoch)
+{
+	uint8_t sec, min, hour, day, wday, month;
+	uint16_t year;
+
+	datetime_from_epoch(epoch, &sec, &min, &hour, &day, &wday, &month, &year);
+	format_date(buff, day, month, year);
+}
+
+void format_date(char * buff, uint8_t day, uint8_t month, uint16_t year)
 {
     switch (config_get_select(&config.units.date))
     {
         case(DATE_DDMMYYYY):
-            sprintf(buf, "%02u/%02u/%04u", day, month, year);
+            sprintf(buff, "%02u.%02u.%04u", day, month, year);
         break;
         case(DATE_MMDDYYYY):
-            sprintf(buf, "%02u/%02u/%04u", month, day, year);
+            sprintf(buff, "%02u/%02u/%04u", month, day, year);
         break;
         case(DATE_YYYYMMDD):
-            sprintf(buf, "%04u/%02u/%02u", year, day, month);
+            sprintf(buff, "%04u-%02u-%02u", year, day, month);
         break;
 
     }
 }
 
-void format_time(char * buf, uint8_t hour, uint8_t min)
+void format_time(char * buff, uint8_t hour, uint8_t min)
 {
     if (config_get_bool(&config.units.time24))
     {
-        sprintf(buf, "%02u:%02u", hour, min);
+        sprintf(buff, "%02u:%02u", hour, min);
     }
     else
     {
-        char c = 'A';
+        char c = 'a';
         if (hour >= 12)
         {
-            c = 'P';
+            c = 'p';
             if (hour > 13)
                 hour -= 12;
         }
 
-        sprintf(buf, "%02u:%02u%cM", hour, min, c);
+        sprintf(buff, "%u:%02u %cm", hour, min, c);
     }
 }
 
@@ -272,3 +281,4 @@ void format_duration(char * buff, float in)
 	}
 
 }
+
