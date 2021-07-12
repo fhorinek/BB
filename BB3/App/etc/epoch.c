@@ -60,7 +60,7 @@ uint8_t datetime_wday_from_epoch(uint64_t epoch)
     return ((epoch / (60 * 60 * 24)) + 4) % 7;
 }
 
-void time_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour)
+void time_from_epoch(uint64_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour)
 {
 	*psec=epoch%60;
 	epoch/=60; // now it is minutes

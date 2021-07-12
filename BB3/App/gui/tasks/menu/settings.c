@@ -11,7 +11,7 @@
 #include <gui/tasks/menu/vario.h>
 #include <gui/tasks/menu/bluetooth.h>
 #include <gui/tasks/menu/development/development.h>
-#include <gui/tasks/menu/fanet.h>
+#include <gui/tasks/menu/fanet/fanet.h>
 #include <gui/tasks/menu/gnss/gnss.h>
 #include <gui/tasks/menu/system/system.h>
 #include <gui/tasks/menu/wifi/wifi.h>

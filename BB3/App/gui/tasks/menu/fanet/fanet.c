@@ -1,39 +1,20 @@
-#include <gui/tasks/menu/fanet.h>
+#include "fanet.h"
+
 #include <gui/tasks/menu/settings.h>
 #include "settings.h"
 
 #include "gui/gui_list.h"
-
 #include "fc/fc.h"
-#include "etc/format.h"
 
 REGISTER_TASK_IL(fanet,
 	uint8_t cnt;
 	uint8_t magic;
-
-	lv_obj_t * fanet_sw;
 );
 
 static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 {
-	if (event == LV_EVENT_VALUE_CHANGED)
-	{
-		if (obj == local->fanet_sw)
-		{
-			bool val = gui_list_switch_get_value(local->fanet_sw);
-			config_set_bool(&profile.fanet.enabled, val);
-			if (val)
-			{
-				fanet_enable();
-			}
-			else
-			{
-				fanet_disable();
-			}
-		}
-	}
 
-	return false;
+	return true;
 }
 
 
@@ -43,9 +24,9 @@ static lv_obj_t * fanet_init(lv_obj_t * par)
 	local->cnt = 0;
 	local->magic = 0;
 
-	lv_obj_t * list = gui_list_create(par, "FANET Settings", &gui_settings, fanet_cb);
+	lv_obj_t * list = gui_list_create(par, "FANET neighbors", &gui_settings, fanet_cb);
 
-	local->fanet_sw = gui_list_switch_add_entry(list, "Enable FANET", config_get_bool(&profile.fanet.enabled));
+	gui_list_auto_entry(list, "Settings", NEXT_TASK, &gui_fanet_settings);
 
 	return list;
 }

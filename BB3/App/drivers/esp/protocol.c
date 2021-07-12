@@ -155,6 +155,9 @@ void esp_http_stop(uint8_t data_id)
 
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 {
+	if (fc.esp.mode == esp_off)
+		return;
+
     uint8_t buf_out[data_len + STREAM_OVERHEAD];
 
     stream_packet(type, buf_out, data, data_len);

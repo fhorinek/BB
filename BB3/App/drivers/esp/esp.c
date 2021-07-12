@@ -68,7 +68,13 @@ void esp_state_reset()
 
 void esp_init()
 {
-	stream_init(&esp_stream, esp_stream_buffer, ESP_STREAM_BUFFER_SIZE, esp_parser);
+    if (config_get_bool(&config.debug.esp_off))
+    {
+    	fc.esp.mode = esp_off;
+    	return;
+    }
+
+    stream_init(&esp_stream, esp_stream_buffer, ESP_STREAM_BUFFER_SIZE, esp_parser);
     HAL_UART_Receive_DMA(esp_uart, esp_rx_buffer, ESP_DMA_BUFFER_SIZE);
 
     esp_scan_init();

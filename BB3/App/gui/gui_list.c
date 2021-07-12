@@ -170,6 +170,13 @@ int16_t gui_list_slider_get_value(lv_obj_t * obj)
 	return lv_slider_get_value(slider);
 }
 
+
+void gui_list_slider_set_value(lv_obj_t * obj, int16_t value)
+{
+	lv_obj_t * slider = lv_obj_get_child(obj, lv_obj_get_child(obj, NULL));
+	lv_slider_set_value(slider, value, LV_ANIM_ON);
+}
+
 void gui_list_slider_set_label(lv_obj_t * obj, char * text)
 {
 	lv_obj_t * label = lv_obj_get_child(obj, NULL);
@@ -209,6 +216,13 @@ uint16_t gui_list_dropdown_get_value(lv_obj_t * obj)
     //dropdown widgt
     lv_obj_t * dd = lv_obj_get_child(lv_obj_get_child(obj, NULL), NULL);
     return lv_dropdown_get_selected(dd);
+}
+
+void gui_list_dropdown_set_value(lv_obj_t * obj, uint8_t index)
+{
+    //dropdown widgt
+    lv_obj_t * dd = lv_obj_get_child(lv_obj_get_child(obj, NULL), NULL);
+    lv_dropdown_set_selected(dd, index);
 }
 
 bool gui_list_switch_get_value(lv_obj_t * obj)
@@ -464,6 +478,21 @@ config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj)
 	return NULL;
 }
 
+config_entry_ll_t * gui_config_entry_find_by_entry(cfg_entry_t * entry)
+{
+	config_entry_ll_t * next = gui.list.entry_list;
+
+	while (next != NULL)
+	{
+		if (next->entry == entry)
+			return next;
+
+		next = next->next;
+	}
+
+	return NULL;
+}
+
 lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params)
 {
 	lv_obj_t * obj = NULL;
@@ -501,6 +530,26 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 				int16_t max = config_int_max(entry) / opt->step;
 				obj = gui_list_slider_add_entry(list, name, min, max, config_get_int(entry) / opt->step);
 				gui_config_entry_update(obj, entry, params);
+				break;
+			}
+
+			case (ENTRY_SELECT):
+			{
+				uint8_t cnt = config_get_select_cnt(entry);
+
+				char * options = (char *) malloc(cnt * 32);
+				options[0] = 0;
+				for (uint8_t i = 0; i < cnt; i++)
+				{
+					char option[32];
+					snprintf(option, sizeof(option), "%s\n", config_get_select_text_at_index(entry, i));
+					strcat(options, option);
+ 				}
+				//remove last \n
+				options[strlen(options) - 1] = 0;
+
+				obj = gui_list_dropdown_add_entry(list, name, options, config_get_select(entry));
+				free(options);
 				break;
 			}
 
@@ -572,7 +621,61 @@ void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 				gui_list_slider_set_label(obj, text);
 				break;
 			}
+
+			case (ENTRY_SELECT):
+			{
+				uint8_t index = gui_list_dropdown_get_value(obj);
+				uint8_t val = config_get_select_at_index(entry, index);
+				config_set_select(entry, val);
+			}
 		}
 	}
 }
 
+void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params)
+{
+	if (entry != NULL)
+	{
+		switch (entry->type)
+		{
+			case (ENTRY_BOOL):
+				gui_list_switch_set_value(obj, config_get_bool(entry));
+				break;
+
+			case (ENTRY_TEXT):
+				gui_list_textbox_set_value(obj, config_get_text(entry));
+				break;
+
+			case (ENTRY_FLOAT):
+			{
+				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+				int16_t value = config_get_float(entry) / opt->step;
+				gui_list_slider_set_value(obj, value);
+				break;
+			}
+
+			case (ENTRY_INT16):
+			{
+				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
+				int16_t value = config_get_int(entry) / opt->step;
+				gui_list_slider_set_value(obj, value);
+				break;
+			}
+
+			case (ENTRY_SELECT):
+			{
+				uint8_t val = config_get_select_index(entry);
+				gui_list_dropdown_set_value(obj, val);
+			}
+		}
+	}
+
+	lv_obj_invalidate(obj);
+}
+
+void gui_config_config_cb(cfg_entry_t * entry)
+{
+	config_entry_ll_t * e = gui_config_entry_find_by_entry(entry);
+	if (e != NULL)
+		gui_config_entry_refresh(e->obj, entry, e->params);
+}
