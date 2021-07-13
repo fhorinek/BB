@@ -65,6 +65,13 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 		config_entry_ll_t * entry = gui_config_entry_find(child);
 		if (entry != NULL)
 		{
+			if (entry->entry == CUSTOM_CB)
+			{
+				bool cont = ((gui_list_task_cb_t)entry->params)(child, event, index);
+				if (!cont)
+					return;
+			}
+
 			if (event == LV_EVENT_LEAVE || event == LV_EVENT_APPLY || event == LV_EVENT_FOCUSED)
 				gui_config_entry_textbox(child, entry->entry, entry->params);
 
@@ -128,7 +135,11 @@ void gui_list_text_set_value(lv_obj_t * obj, char * text)
     lv_label_set_text(label, text);
 }
 
-
+const char * gui_list_text_get_value(lv_obj_t * obj)
+{
+    lv_obj_t * label = lv_obj_get_child(obj, NULL);
+    return lv_label_get_text(label);
+}
 
 lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value)
 {
@@ -497,7 +508,11 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 {
 	lv_obj_t * obj = NULL;
 
-	if (entry == NULL)
+	if (entry == NEXT_TASK)
+	{
+		obj = gui_list_text_add_entry(list, name);
+	}
+	else if (entry == CUSTOM_CB)
 	{
 		obj = gui_list_text_add_entry(list, name);
 	}
@@ -566,7 +581,7 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 
 void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	if (entry == NULL)
+	if (entry == NEXT_TASK)
 	{
 		gui_switch_task((gui_task_t *)params, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
@@ -575,7 +590,7 @@ void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params
 
 void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	if (entry != NULL)
+	if (entry > SPECIAL_HANDLING)
 	{
 		if (entry->type == ENTRY_TEXT)
 		{
@@ -588,7 +603,7 @@ void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params
 
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	if (entry != NULL)
+	if (entry > SPECIAL_HANDLING)
 	{
 		switch (entry->type)
 		{
@@ -634,7 +649,7 @@ void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 
 void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	if (entry != NULL)
+	if (entry > SPECIAL_HANDLING)
 	{
 		switch (entry->type)
 		{

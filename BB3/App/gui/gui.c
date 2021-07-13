@@ -59,13 +59,23 @@ void screen_event_cb(lv_obj_t * obj, lv_event_t event)
 		{
 			if (gui.task.last->stop != NULL)
 			{
-				gui.task.last->stop();
+				if (gui.task.last == gui.task.actual)
+				{
+					void * actual_memory = *gui.task.actual->local_vars;
+					*gui.task.last->local_vars = gui.task.last_memory;
+					gui.task.last->stop();
+					*gui.task.actual->local_vars = actual_memory;
+				}
+				else
+				{
+					gui.task.last->stop();
+				}
 			}
 
-			if (*gui.task.last->local_vars != NULL)
+			if (gui.task.last_memory != NULL)
 			{
-				free(*gui.task.last->local_vars);
-				*gui.task.last->local_vars = NULL;
+				free(gui.task.last_memory);
+				gui.task.last_memory = NULL;
 			}
 		}
 	}
@@ -101,9 +111,12 @@ lv_obj_t * gui_task_create(gui_task_t * task)
 }
 
 
-void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
+void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 {
 	gui.input.focus = NULL;
+
+	//hide ctx
+	ctx_hide();
 
     //reset input dev
     lv_indev_reset(gui.input.indev, NULL);
@@ -115,6 +128,7 @@ void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 
 	//switch task
 	gui.task.last = gui.task.actual;
+	gui.task.last_memory = *gui.task.last->local_vars;
 	gui.task.actual = next;
 
 	gui_set_loop_speed(GUI_DEFAULT_LOOP_SPEED);
@@ -124,6 +138,8 @@ void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 
 	//switch screens
 	lv_scr_load_anim(screen, anim, GUI_TASK_SW_ANIMATION, 0, true);
+
+	return gui.task.last_memory;
 }
 
 
@@ -170,6 +186,9 @@ void gui_init()
 
 	//create keyboard
 	keyboard_create();
+
+	//init ctx menu
+	ctx_init();
 
 	//set group focus callback
 	gui.input.focus = NULL;

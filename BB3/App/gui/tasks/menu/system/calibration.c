@@ -343,8 +343,6 @@ static void calibration_event_cb(lv_obj_t * obj, lv_event_t event)
         calib.mag_bias.y = local->mag_max.y - calib.mag_sens.y;
         calib.mag_bias.z = local->mag_max.z - calib.mag_sens.z;
 
-
-
         FC_ATOMIC_ACCESS
         {
             memcpy(&fc.imu.calibration, &calib, sizeof(imu_calibration_t));

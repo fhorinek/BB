@@ -134,7 +134,7 @@ void igc_start_write()
 	uint8_t wday;
 	uint8_t month;
 	uint16_t year;
-	uint32_t utc_time = fc_get_utc_time();
+	uint64_t utc_time = fc_get_utc_time();
 	DBG("utc_time %lu", utc_time);
 	datetime_from_epoch(utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 
