@@ -75,9 +75,16 @@ void wifi_mode_cb(cfg_entry_t * entry)
 	esp_set_wifi_mode();
 }
 
+void bt_volume_cb(cfg_entry_t * entry)
+{
+	uint8_t vol = config_get_int(entry);
+	esp_set_volume(vol);
+}
+
 cfg_callback_pair_t config_callbacks[] =
 {
     {&config.device_name, dev_name_cb},
+	{&config.bluetooth.volume, bt_volume_cb},
     {&config.wifi.ap_pass, wifi_pass_cb},
     {&config.wifi.enabled, wifi_mode_cb},
     {&config.wifi.ap, wifi_mode_cb},

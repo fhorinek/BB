@@ -205,6 +205,7 @@ int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
 
 bool file_exists(char * path);
+bool file_isdir(char * path);
 
 char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);

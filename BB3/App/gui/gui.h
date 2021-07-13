@@ -13,6 +13,7 @@
 
 typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint8_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
+typedef void (* gui_ctx_cb_t)(uint8_t, lv_obj_t *);
 
 typedef struct _config_entry_ll_t
 {
@@ -54,7 +55,7 @@ typedef struct
 	void (* loop)();
 	void (* stop)();
 	void ** local_vars;
-	uint16_t local_vars_size;
+	uint32_t local_vars_size;
 } gui_task_t;
 
 typedef struct
@@ -64,6 +65,7 @@ typedef struct
 	{
 		gui_task_t * last;
 		gui_task_t * actual;
+		void * last_memory;
 
 		uint16_t loop_speed;
 		lv_scr_load_anim_t next_anim;
@@ -110,7 +112,7 @@ typedef struct
 		lv_obj_t * mbox;
 	} statusbar;
 
-
+	//keyboard
 	struct
 	{
 		lv_obj_t * obj;
@@ -127,10 +129,11 @@ typedef struct
         lv_style_t widget_unit;
 		lv_style_t widget_box;
 		lv_style_t list_select;
+		lv_style_t ctx_menu;
 		const lv_font_t * widget_fonts[NUMBER_OF_WIDGET_FONTS];
 	} styles;
 
-
+	//map
 	struct
 	{
         lv_obj_t * canvas;
@@ -144,6 +147,16 @@ typedef struct
         uint8_t _pad[2];
 	} map;
 
+	//ctx menu
+	struct
+	{
+		lv_obj_t * hint;
+		lv_obj_t * dropdown;
+		lv_obj_t * last_focus;
+		gui_ctx_cb_t cb;
+
+	} ctx;
+
 	osSemaphoreId_t lock;
 
 	uint8_t take_screenshot;
@@ -152,7 +165,7 @@ typedef struct
 } gui_t;
 
 void gui_set_group_focus(lv_obj_t * obj);
-void gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
+void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
 
 void gui_set_loop_speed(uint16_t speed);
 void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb);

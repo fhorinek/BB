@@ -19,7 +19,7 @@ bool rtc_is_waiting_or_valid()
 
 bool rtc_is_valid()
 {
-	return	TAMP->BKP0R == RTC_TAMP_SET;
+	return TAMP->BKP0R == RTC_TAMP_SET;
 }
 
 void rtc_flag_clear()
@@ -80,9 +80,8 @@ void rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second)
 	sTime.Seconds = second;
 	sTime.SubSeconds = 0;
 
-	rtc_flag_set();
-
 	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+	rtc_flag_set();
 }
 
 void rtc_set_date(uint8_t day, uint8_t wday, uint8_t month, uint16_t year)
@@ -94,9 +93,8 @@ void rtc_set_date(uint8_t day, uint8_t wday, uint8_t month, uint16_t year)
 	sDate.Month = month;
 	sDate.Year = year - RTC_START_YEAR;
 
-	rtc_flag_set();
-
 	HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+	rtc_flag_set();
 }
 
 void rtc_get_date(uint8_t * day, uint8_t * wday, uint8_t * month, uint16_t * year)

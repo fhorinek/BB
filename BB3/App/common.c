@@ -407,3 +407,13 @@ bool file_exists(char * path)
     FILINFO fno;
     return (f_stat(path, &fno) == FR_OK);
 }
+
+bool file_isdir(char * path)
+{
+    FILINFO fno;
+    if (f_stat(path, &fno) == FR_OK)
+    {
+    	return fno.fattrib & AM_DIR;
+    }
+    return false;
+}

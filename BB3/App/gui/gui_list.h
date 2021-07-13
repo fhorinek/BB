@@ -51,6 +51,7 @@ lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height);
 
 lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text);
 void gui_list_text_set_value(lv_obj_t * obj, char * text);
+const char * gui_list_text_get_value(lv_obj_t * obj);
 
 lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text);
 lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text);
@@ -61,7 +62,10 @@ void gui_config_entry_clear();
 void gui_config_entry_add(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj);
 
-#define NEXT_TASK	NULL
+#define NEXT_TASK			(cfg_entry_t *)0
+#define CUSTOM_CB			(cfg_entry_t *)1
+#define SPECIAL_HANDLING	10
+
 lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params);
 void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params);
