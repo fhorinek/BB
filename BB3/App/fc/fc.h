@@ -172,13 +172,13 @@ typedef struct
 
 	struct
 	{
+        uint64_t utc_time;
         uint32_t ttf; //[ms]
 
         int32_t latitude;   //*10^7
         int32_t longtitude; //*10^7
         float ground_speed; //[m/s]
         float heading;
-        uint32_t utc_time;
         float altitude_above_ellipsiod; //[m]
         float altitude_above_msl; //[m]
         float horizontal_accuracy; //[m]
