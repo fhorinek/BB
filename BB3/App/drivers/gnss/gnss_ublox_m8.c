@@ -4,6 +4,7 @@
  *  Created on: 4. 5. 2020
  *      Author: horinek
  */
+#define DEBUG_LEVEL DBG_DEBUG
 #include "gnss_ublox_m8.h"
 
 #include "fc/fc.h"
@@ -322,12 +323,13 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			fc.gnss.utc_time = datetime_to_epoch(ubx_nav_timeutc->sec, ubx_nav_timeutc->min, ubx_nav_timeutc->hour,
 					ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
 
+			DBG("DATE %u.%u.%u", ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
+			DBG("TIME %02u:%02u.%02u", ubx_nav_timeutc->hour, ubx_nav_timeutc->min, ubx_nav_timeutc->sec);
+			DBG("UTC %lu", fc.gnss.utc_time);
+
 			if (config_get_bool(&config.time.sync_gnss) && !fc.gnss.time_synced)
 			{
 				fc.gnss.time_synced = true;
-
-				DBG("DATE %u.%u.%u", ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
-				DBG("TIME %02u:%02u.%02u", ubx_nav_timeutc->hour, ubx_nav_timeutc->min, ubx_nav_timeutc->sec);
 
 				fc_set_time_from_utc(fc.gnss.utc_time);
 			}
