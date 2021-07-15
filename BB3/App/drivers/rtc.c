@@ -7,8 +7,8 @@
 
 #include "rtc.h"
 
-#define RTC_TAMP_SET    0xDEADBEE
-#define RTC_TAMP_WAIT   0x0C0FFEE
+#define RTC_TAMP_SET    0xDEADBEE1
+#define RTC_TAMP_WAIT   0x0C0FFEE1
 
 #define RTC_START_YEAR  2020
 

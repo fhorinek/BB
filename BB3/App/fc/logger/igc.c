@@ -233,6 +233,9 @@ void igc_start_write()
 		}
 	}
 
+	igc_comment("buffer end");
+
+
 }
 
 void igc_tick_cb(void * arg)
@@ -286,5 +289,6 @@ void igc_stop()
 	{
 		igc_comment("end");
 		f_close(&log_file);
+		started = false;
 	}
 }
