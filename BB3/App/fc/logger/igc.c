@@ -142,6 +142,7 @@ void igc_start_write()
 	f_mkdir(path);
 	snprintf(path, sizeof(path), "%s/%02u.%04u/%02u.%02u.%04u %02u.%02u.igc", PATH_LOGS_DIR, month, year, day, month, year, hour, min);
 	uint8_t res = f_open(&log_file, path, FA_WRITE | FA_CREATE_ALWAYS);
+	DBG("IGC OPEN %s, res = %u", path, res);
 	ASSERT(res == FR_OK);
 	if (res != FR_OK)
 		return;
