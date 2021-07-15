@@ -318,7 +318,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		ubx_nav_timeutc_t * ubx_nav_timeutc = (ubx_nav_timeutc_t *)msg_payload;
 
-		if (ubx_nav_timeutc->valid & 0b00000111)
+		if ((ubx_nav_timeutc->valid & 0b00000111) == 0b00000111)
 		{
 			fc.gnss.utc_time = datetime_to_epoch(ubx_nav_timeutc->sec, ubx_nav_timeutc->min, ubx_nav_timeutc->hour,
 					ubx_nav_timeutc->day, ubx_nav_timeutc->month, ubx_nav_timeutc->year);
