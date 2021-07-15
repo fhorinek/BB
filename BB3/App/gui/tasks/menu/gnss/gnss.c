@@ -45,8 +45,8 @@ void gnss_loop()
 {
 	char sta[32];
 	char ttf[16];
-	char lat[16];
-	char lon[16];
+	char lat[32];
+	char lon[32];
 
 	if (fc.gnss.status == fc_dev_ready)
 	{
