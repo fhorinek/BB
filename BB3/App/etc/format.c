@@ -282,3 +282,12 @@ void format_duration(char * buff, float in)
 
 }
 
+void format_uuid(char * buff)
+{
+	uint8_t uuid[12];
+	rev_get_uuid(uuid);
+
+	for (uint8_t i = 0; i < 12; i++)
+		sprintf(buff + (i * 2), "%02X", uuid[i]);
+}
+

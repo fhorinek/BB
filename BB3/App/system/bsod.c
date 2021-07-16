@@ -157,7 +157,7 @@ void bsod_show(context_frame_t * frame)
 	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
 
     char tmp[10];
-    rew_get_sw_string(tmp);
+    rev_get_sw_string(tmp);
 	snprintf(buff, sizeof(buff), "FW: %s", tmp);
 	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
 

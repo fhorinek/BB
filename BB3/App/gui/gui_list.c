@@ -424,15 +424,15 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 const char * gui_list_textbox_get_value(lv_obj_t * obj)
 {
 	//switch widget is last added child
-	lv_obj_t * label = lv_obj_get_child(obj, NULL);
-	return lv_textarea_get_text(label);
+	lv_obj_t * textbox = lv_obj_get_child(obj, NULL);
+	return lv_textarea_get_text(textbox);
 }
 
 void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 {
 	//switch widget is last added child
-	lv_obj_t * label = lv_obj_get_child(obj, NULL);
-	lv_textarea_set_text(label, value);
+	lv_obj_t * textbox = lv_obj_get_child(obj, NULL);
+	lv_textarea_set_text(textbox, value);
 }
 
 
@@ -587,32 +587,35 @@ void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params
 	}
 }
 
+static cfg_entry_t * gui_update_entry_origin = NULL;
 
 void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
+	gui_update_entry_origin = entry;
+
 	if (entry > SPECIAL_HANDLING)
 	{
 		if (entry->type == ENTRY_TEXT)
 		{
 			keyboard_hide();
 
-			config_set_text(entry, (char *)gui_list_textbox_get_value(obj));
+			config_set_text(entry, gui_list_textbox_get_value(obj));
 		}
 	}
+
+	gui_update_entry_origin = NULL;
 }
 
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
+	gui_update_entry_origin = entry;
+
 	if (entry > SPECIAL_HANDLING)
 	{
 		switch (entry->type)
 		{
 			case (ENTRY_BOOL):
 				config_set_bool(entry, gui_list_switch_get_value(obj));
-				break;
-
-			case (ENTRY_TEXT):
-				config_set_text(entry, (char *)gui_list_textbox_get_value(obj));
 				break;
 
 			case (ENTRY_FLOAT):
@@ -645,6 +648,8 @@ void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 			}
 		}
 	}
+
+	gui_update_entry_origin = NULL;
 }
 
 void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params)
@@ -690,6 +695,9 @@ void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params
 
 void gui_config_config_cb(cfg_entry_t * entry)
 {
+	if (entry == gui_update_entry_origin)
+		return;
+
 	config_entry_ll_t * e = gui_config_entry_find_by_entry(entry);
 	if (e != NULL)
 		gui_config_entry_refresh(e->obj, entry, e->params);

@@ -7,6 +7,7 @@
 
 
 #include "keyboard.h"
+#include "gui_list.h"
 
 void keyboard_obj_event_cb(lv_obj_t * obj, lv_event_t event)
 {
@@ -60,6 +61,7 @@ void keyboard_event_cb(lv_obj_t * obj, lv_event_t event)
 		else
 		{
             keyboard_hide();
+            gui_list_event_cb(obj, event);
 		}
 	}
 	else

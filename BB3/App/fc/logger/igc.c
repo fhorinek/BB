@@ -151,10 +151,12 @@ void igc_start_write()
 
 	//A record
 	char serial_number[23];
-	sprintf(serial_number, "%08lX", DEVICE_ID);
-	for (uint8_t i = 8; i < 22; i++)
-		serial_number[i] = '0';
-	serial_number[22] = 0;
+
+	uint8_t uuid[12];
+	rev_get_uuid(uuid);
+
+	for (uint8_t i = 0; i < 11; i++)
+		sprintf(serial_number + (i * 2), "%02X", uuid[i]);
 
 	sprintf(line, "A%s%s:%s", LOG_IGC_MANUFACTURER_ID, LOG_IGC_DEVICE_ID, serial_number);
 	igc_writeline(line);
@@ -180,7 +182,7 @@ void igc_start_write()
 	igc_writeline(line);
 	//H F RFW FIRMWARE VERSION
 	char sw[10];
-	rew_get_sw_string(sw);
+	rev_get_sw_string(sw);
 	sprintf(line, "HFRFWFIRMWAREVERSION:%s", sw);
 	igc_writeline(line);
 	//H F RHW HARDWARE VERSION
