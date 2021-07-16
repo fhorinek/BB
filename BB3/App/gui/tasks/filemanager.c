@@ -1,3 +1,4 @@
+#define DEBUG_LEVEL	DBG_DEBUG
 #include "filemanager.h"
 
 #include "gui/gui_list.h"
@@ -131,6 +132,12 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, filemanager
     FRESULT res;
     DIR dir;
     FILINFO fno;
+
+
+    if (level > 100)
+    	DBG("too deep!");
+
+    DBG("path '%s'; level %u; back %X; cb %X", path, level, back, cb);
 
     if (strlen(path) == 0)
     {

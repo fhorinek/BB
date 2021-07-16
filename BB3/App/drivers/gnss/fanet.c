@@ -279,7 +279,8 @@ void fanet_parse_fa(char * buffer)
 		fc.fanet.flarm_expires = datetime_to_epoch(0, 0, 0, day, month + 1, year + 1900);
 
 		fanet_configure_type();
-	} else if (start_with(buffer, "P OK") && fc.fanet.status == fc_dev_init)
+	}
+	else if (start_with(buffer, "R OK") && fc.fanet.status == fc_dev_init)
 	{
 		fc.fanet.status = fc_dev_ready;
 	}

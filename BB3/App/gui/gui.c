@@ -11,6 +11,7 @@
 #include "gui_list.h"
 #include "statusbar.h"
 #include "keyboard.h"
+#include "ctx.h"
 
 #include "tasks/page/pages.h"
 #include "lib/lvgl/src/lv_misc/lv_gc.h"
@@ -50,34 +51,40 @@ static void gui_group_focus_cb(lv_group_t * group)
     	lv_page_focus(gui.input.focus, focused, LV_ANIM_ON);
 }
 
+void end_last_task()
+{
+	if (gui.task.last != NULL)
+	{
+		if (gui.task.last->stop != NULL)
+		{
+			if (gui.task.last == gui.task.actual)
+			{
+				void * actual_memory = *gui.task.actual->local_vars;
+				*gui.task.last->local_vars = gui.task.last_memory;
+				gui.task.last->stop();
+				*gui.task.actual->local_vars = actual_memory;
+			}
+			else
+			{
+				gui.task.last->stop();
+			}
+		}
+
+		if (gui.task.last_memory != NULL)
+		{
+			free(gui.task.last_memory);
+			gui.task.last_memory = NULL;
+		}
+	}
+
+}
+
 //when task screen is deleted, trigger task stop, clear memory
 void screen_event_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_DELETE)
 	{
-		if (gui.task.last != NULL)
-		{
-			if (gui.task.last->stop != NULL)
-			{
-				if (gui.task.last == gui.task.actual)
-				{
-					void * actual_memory = *gui.task.actual->local_vars;
-					*gui.task.last->local_vars = gui.task.last_memory;
-					gui.task.last->stop();
-					*gui.task.actual->local_vars = actual_memory;
-				}
-				else
-				{
-					gui.task.last->stop();
-				}
-			}
-
-			if (gui.task.last_memory != NULL)
-			{
-				free(gui.task.last_memory);
-				gui.task.last_memory = NULL;
-			}
-		}
+		end_last_task();
 	}
 }
 
@@ -127,6 +134,14 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 	lv_group_set_editing(gui.input.group, false);
 
 	//switch task
+	lv_disp_t * d = lv_disp_get_default();
+	if (d->prev_scr != NULL)
+	{
+		end_last_task();
+		//remove delete callback from last task
+		lv_obj_set_event_cb(d->prev_scr, NULL);
+	}
+
 	gui.task.last = gui.task.actual;
 	gui.task.last_memory = *gui.task.last->local_vars;
 	gui.task.actual = next;
@@ -197,6 +212,7 @@ void gui_init()
 	//first task
 	gui.task.last = NULL;
 	gui.task.actual = &gui_pages;
+	gui.task.last_memory = NULL;
 
 	//list
 	gui.list.back = NULL;
