@@ -47,7 +47,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Calibration", NEXT_TASK, &gui_calibration);
 
     char rev_str[10];
-    rew_get_sw_string(rev_str);
+    rev_get_sw_string(rev_str);
     local->info = gui_list_info_add_entry(list, "Device info", rev_str);
 
     return list;

@@ -105,7 +105,7 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
         if (read_value(ds->data, "firmware", local->new_fw, sizeof(local->new_fw)))
         {
             char rev_str[10];
-            rew_get_sw_string(rev_str);
+            rev_get_sw_string(rev_str);
             if (strncmp(rev_str, local->new_fw, strlen(rev_str)) == 0)
             {
                 dialog_show("Up to date", "You are using the latest firmware", dialog_confirm, NULL);
@@ -155,11 +155,11 @@ lv_obj_t * info_init(lv_obj_t * par)
     char rev_str[10];
     char value[32];
 
-    rew_get_sw_string(rev_str);
+    rev_get_sw_string(rev_str);
     snprintf(value, sizeof(value), "Firmware %s", rev_str);
     gui_list_info_add_entry(list, "Check for updates", value);
 
-    snprintf(value, sizeof(value), "%08lX", DEVICE_ID);
+    format_uuid(value);
     gui_list_info_add_entry(list, "Serial number", value);
 
     snprintf(value, sizeof(value), "%02X%04X", fc.fanet.addr.manufacturer_id, fc.fanet.addr.user_id);

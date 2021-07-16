@@ -226,7 +226,6 @@ bool read_value(char * data, char * key, char * value, uint16_t value_len);
 float table_sin(uint16_t angle);
 float table_cos(uint16_t angle);
 
-#define DEVICE_ID   (DBGMCU->IDCODE)
 
 void system_reboot();
 

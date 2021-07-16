@@ -11,7 +11,7 @@
     if (strlen(config_get_text(entry)) == 0)
     {
         char dev_name[DEV_NAME_LEN];
-        sprintf(dev_name, "Strato_%lX", DEVICE_ID);
+        sprintf(dev_name, "Strato_%X", rev_get_short_id());
         config_set_text(entry, dev_name);
     }
 }

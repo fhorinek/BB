@@ -39,4 +39,6 @@ void format_speed_with_units(char * buff, float in);
 void format_percent(char * buff, float in);
 void format_duration(char * buff, float in);
 
+void format_uuid(char * buff);
+
 #endif /* ETC_FORMAT_H_ */

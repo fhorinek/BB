@@ -10,8 +10,11 @@
 
 #include "common.h"
 
+void rev_get_uuid(uint8_t * buff);
+uint32_t rev_get_short_id();
+
 uint32_t rew_get_sw();
-void rew_get_sw_string(char * str);
+void rev_get_sw_string(char * str);
 
 uint8_t rev_get_hw();
 
