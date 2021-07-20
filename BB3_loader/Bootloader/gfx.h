@@ -16,6 +16,7 @@
 #define GFX_STATUS_ERROR        2   //2
 #define GFX_STATUS_TORCH        3   //5
 #define GFX_STATUS_WARNING		4	//2
+#define GFX_STATUS_LOW_BAT      5   //5
 
 #define GFX_STATUS_ANIMATED     10
 #define GFX_STATUS_CHARGE_NONE  10   //4 _

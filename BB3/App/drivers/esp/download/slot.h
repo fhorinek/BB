@@ -54,6 +54,7 @@ typedef struct
 void download_slot_init();
 void download_slot_step();
 void download_slot_reset();
+uint8_t download_slot_cancel(uint8_t data_id);
 
 uint8_t download_slot_create(uint8_t type, download_slot_cb_t cb);
 void download_slot_process_data(uint8_t data_id, uint8_t * data, uint16_t len);

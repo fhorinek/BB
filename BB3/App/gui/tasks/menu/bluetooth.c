@@ -10,7 +10,7 @@ REGISTER_TASK_I(bluetooth,
 );
 
 gui_list_slider_options_t vol_opt = {
-	.disp_multi = 0.01,
+	.disp_multi = 1,
 	.step = 1,
 	.format = format_percent,
 };

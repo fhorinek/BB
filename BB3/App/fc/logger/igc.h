@@ -10,4 +10,8 @@
 
 #include "common.h"
 
+void igc_init();
+void igc_start();
+void igc_stop();
+
 #endif /* FC_LOGGER_IGC_H_ */

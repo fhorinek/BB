@@ -8,6 +8,7 @@
 #include "gui/widgets/widgets.h"
 
 #include "fatfs.h"
+#include "gui/widgets/pages.h"
 
 
 void config_set_bool(cfg_entry_t * entry, bool val)
@@ -342,13 +343,17 @@ void config_load_all()
 
 void config_store_all()
 {
-    char path[64];
+    char path[PATH_LEN];
 
-    config_store(&config, PATH_DEVICE_CFG);
+    config_store((cfg_entry_t * )&config, PATH_DEVICE_CFG);
     sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
-    config_store(&profile, path);
+    config_store((cfg_entry_t * )&profile, path);
     sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
-    config_store(&pilot, path);
+    config_store((cfg_entry_t * )&pilot, path);
 }
 
-
+void config_restore_factory()
+{
+	clear_dir(PATH_CONFIG_DIR);
+	system_reboot();
+}

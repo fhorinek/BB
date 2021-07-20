@@ -13,6 +13,8 @@
 #include "config/config.h"
 #include "gui/dialog.h"
 
+#include "etc/format.h"
+
 typedef struct
 {
     uint8_t mac[6];

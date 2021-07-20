@@ -309,13 +309,13 @@ FRESULT f_delete_node (
     path[--i] = 0;  /* Restore the path name */
     f_closedir(&dir);
 
-//    if (fr == FR_OK) fr = f_unlink(path);  /* Delete the empty directory */
+    if (fr == FR_OK) fr = f_unlink(path);  /* Delete the empty directory */
     return fr;
 }
 
 void clear_dir(char * path)
 {
-    char path_buff[128];
+    char path_buff[PATH_LEN];
     strcpy(path_buff, path);
     f_delete_node(path_buff, sizeof(path_buff));
 }

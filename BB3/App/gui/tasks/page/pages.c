@@ -24,6 +24,8 @@
 extern const lv_img_dsc_t tile;
 
 #define MENU_TIMEOUT	2000
+#define EDIT_TIMEOUT	6000
+#define OVER_TIMEOUT	10000
 
 #define MENU_RADIUS	15
 #define MENU_WIDTH	35
@@ -153,7 +155,7 @@ void pages_splash_show()
 	lv_anim_start(&local->anim);
 	local->state = SPLASH_IN;
 
-	if (!file_exists(DEV_MODE_FILE))
+	if (config_get_bool(&config.display.show_msg))
 		dialog_show("Thank you for your pre-order!", "We are working hard to bring you usable firmware.\nPlease go to\nstrato.skybean.eu\nand follow the instruction to update your new Strato. \n\nTeam SkyBean", dialog_confirm, NULL);
 }
 
@@ -327,11 +329,13 @@ void pages_create_menu(lv_obj_t * base)
 void pages_lock_widget()
 {
 	local->state = MENU_EDIT_OVERLAY;
+	local->timer = HAL_GetTick() + OVER_TIMEOUT;
 }
 
 void pages_unlock_widget()
 {
 	local->state = MENU_EDIT_WIDGET;
+	local->timer = HAL_GetTick() + MENU_TIMEOUT;
 }
 
 static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
@@ -371,6 +375,7 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                     if (widgets_editable(local->page))
                     {
                         local->state = MENU_EDIT_WIDGET;
+                        local->timer = HAL_GetTick() + MENU_TIMEOUT;
 
                         //defocus old
                         if (local->active_widget != NULL)
@@ -600,6 +605,34 @@ static void pages_loop()
 	if (local->state == MENU_SHOW && local->timer < HAL_GetTick())
 	{
 		pages_menu_hide();
+	}
+
+	if (local->state == MENU_EDIT_WIDGET && local->timer < HAL_GetTick())
+	{
+        //defocus old
+        if (local->active_widget != NULL)
+        {
+        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+        	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
+        	local->active_widget = NULL;
+        }
+
+		local->state = MENU_IDLE;
+	}
+
+	if (local->state == MENU_EDIT_OVERLAY && local->timer < HAL_GetTick())
+	{
+        //defocus old
+        if (local->active_widget != NULL)
+        {
+        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+        	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
+        	local->active_widget = NULL;
+        }
+        //close overlay
+		widgets_edit(local->active_widget, WIDGET_ACTION_CLOSE);
+
+		local->state = MENU_IDLE;
 	}
 	widgets_update(local->page);
 }

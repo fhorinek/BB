@@ -161,6 +161,14 @@ void thread_system_start(void *argument)
 
 		pwr_step();
 
+		if (pwr.fuel_gauge.bat_voltage < 310
+			&& pwr.data_port == PWR_DATA_NONE
+			&& pwr.charger.charge_port == PWR_CHARGE_NONE)
+		{
+			INFO("Emergency shut down!");
+			system_poweroff();
+		}
+
 		cmd_step();
 
 		fc_step();

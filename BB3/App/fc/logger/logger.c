@@ -12,6 +12,12 @@
 
 #include "igc.h"
 
+fc_logger_status_t logger_state()
+{
+	return fc.logger.igc;
+}
+
+
 void logger_init()
 {
 	igc_init();

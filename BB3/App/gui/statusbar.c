@@ -9,6 +9,8 @@
 #include "drivers/rtc.h"
 #include "drivers/power/pwr_mng.h"
 
+#include "etc/format.h"
+
 void statusbar_show()
 {
 	//animation
@@ -31,6 +33,56 @@ void statusbar_hide()
 	lv_anim_start(&a);
 }
 
+#define 	I_HIDE		0
+#define 	I_SHOW		1
+#define 	I_BLINK		2
+#define 	I_GRAY		3
+#define 	I_YELLOW	4
+#define 	I_RED		5
+
+static void set_icon(uint8_t index, uint8_t state)
+{
+	lv_obj_t * icon = gui.statusbar.icons[index];
+	switch(state)
+	{
+		case(I_HIDE):
+			lv_obj_set_hidden(icon, true);
+			lv_label_set_long_mode(icon, LV_LABEL_LONG_CROP);
+			lv_obj_set_width(icon, 0);
+			return;
+		break;
+		case(I_SHOW):
+			lv_obj_set_hidden(icon, false);
+			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+		break;
+		case(I_BLINK):
+			if (BLINK(2000))
+				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+			else
+				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+
+			lv_obj_set_hidden(icon, false);
+			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+		break;
+		case(I_GRAY):
+			lv_obj_set_hidden(icon, false);
+			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+		break;
+		case(I_YELLOW):
+			lv_obj_set_hidden(icon, false);
+			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
+		break;
+		case(I_RED):
+			lv_obj_set_hidden(icon, false);
+			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+		break;
+	}
+}
+
 void statusbar_create()
 {
 	lv_obj_t * bg = lv_obj_create(lv_layer_sys(), NULL);
@@ -43,13 +95,27 @@ void statusbar_create()
 	gui.statusbar.time = lv_label_create(gui.statusbar.bar, NULL);
 	lv_obj_align(gui.statusbar.time, NULL, LV_ALIGN_IN_LEFT_MID, 5, 0);
 
-    gui.statusbar.icons = lv_label_create(gui.statusbar.bar, NULL);
-    lv_obj_align(gui.statusbar.icons, NULL, LV_ALIGN_IN_RIGHT_MID, -5, 0);
+	for (uint8_t i = 0; i < BAR_ICON_CNT; i++)
+	{
+		gui.statusbar.icons[i] = lv_label_create(gui.statusbar.bar, NULL);
+		if (i == 0)
+			lv_obj_align(gui.statusbar.icons[i], NULL, LV_ALIGN_IN_RIGHT_MID, -5, 0);
+		else
+			lv_obj_align(gui.statusbar.icons[i], gui.statusbar.icons[i - 1], LV_ALIGN_OUT_LEFT_MID, 0, 0);
 
-    gui.statusbar.gray_icons = lv_label_create(gui.statusbar.bar, NULL);
-    lv_obj_align(gui.statusbar.gray_icons, gui.statusbar.icons, LV_ALIGN_OUT_LEFT_MID, 0, 0);
-    lv_obj_set_style_local_text_color(gui.statusbar.gray_icons, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+		set_icon(i, I_HIDE);
+	}
 
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BAT], LV_SYMBOL_BATTERY_EMPTY);
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_CHARGE], LV_SYMBOL_CHARGE " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_USB], LV_SYMBOL_USB " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_GNSS], LV_SYMBOL_GPS " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_LOG], LV_SYMBOL_FILE " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BT], LV_SYMBOL_BLUETOOTH " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_AP], "AP ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_WIFI], LV_SYMBOL_WIFI " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_SYS], LV_SYMBOL_SETTINGS " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_DL], LV_SYMBOL_DOWNLOAD " ");
 
 	statusbar_step();
 	statusbar_show();
@@ -62,10 +128,6 @@ void statusbar_create()
 	lv_obj_set_style_local_pad_all(gui.statusbar.mbox, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 0);
 	lv_cont_set_fit2(gui.statusbar.mbox, LV_FIT_NONE, LV_FIT_TIGHT);
 	lv_cont_set_layout(gui.statusbar.mbox, LV_LAYOUT_COLUMN_LEFT);
-
-//	statusbar_add_msg(STATUSBAR_MSG_ERROR, "GNSS Error");
-//	statusbar_add_msg(STATUSBAR_MSG_WARN, "Battery low");
-//	statusbar_add_msg(STATUSBAR_MSG_INFO, "Uploading tracklog...\n\n");
 }
 
 void statusbar_msg_anim_hide_cb(lv_anim_t * a)
@@ -115,6 +177,8 @@ void statusbar_add_msg(statusbar_msg_type_t type, char * text)
 	gui_lock_release();
 }
 
+
+
 void statusbar_step()
 {
 
@@ -133,68 +197,99 @@ void statusbar_step()
 	{
 		if (BLINK(2000))
 		{
-			lv_label_set_text(gui.statusbar.time, "--:--");
-		}
-		else
-		{
 			if (config_get_bool(&config.time.sync_gnss))
 				lv_label_set_text(gui.statusbar.time, "No GNSS");
 			else
 				lv_label_set_text(gui.statusbar.time, "Set time");
 		}
+		else
+		{
+			lv_label_set_text(gui.statusbar.time, "--:--");
+		}
 	}
-
-    char icons[64];
-    char gray_icons[64];
-
-    strcpy(icons, "");
-    strcpy(gray_icons, "");
 
     if (fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_auto)
     {
-        sprintf(icons + strlen(icons), " " LV_SYMBOL_DOWNLOAD);
+    	set_icon(BAR_ICON_SYS, I_BLINK);
+    	set_icon(BAR_ICON_WIFI, I_HIDE);
+    	set_icon(BAR_ICON_AP, I_HIDE);
+    	set_icon(BAR_ICON_BT, I_HIDE);
     }
     else
     {
+    	set_icon(BAR_ICON_SYS, I_HIDE);
         // if there is bt connection active
         if (fc.esp.state & ESP_STATE_BT_ON)
         {
             if (fc.esp.state & ESP_STATE_BT_DATA || fc.esp.state & ESP_STATE_BT_AUDIO)
-                sprintf(icons + strlen(icons), " " LV_SYMBOL_BLUETOOTH);
+            	set_icon(BAR_ICON_BT, I_SHOW);
             else
-                sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_BLUETOOTH);
+            	set_icon(BAR_ICON_BT, I_GRAY);
+        }
+        else
+        {
+        	set_icon(BAR_ICON_BT, I_HIDE);
         }
 
         //if it is connected to the wifi
         if (fc.esp.state & ESP_STATE_WIFI_CLIENT)
         {
             if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
-                sprintf(icons + strlen(icons), " " LV_SYMBOL_WIFI);
+            	set_icon(BAR_ICON_WIFI, I_SHOW);
             else
-                sprintf(gray_icons + strlen(gray_icons), " " LV_SYMBOL_WIFI);
+            	set_icon(BAR_ICON_WIFI, I_GRAY);
+        }
+        else
+        {
+        	set_icon(BAR_ICON_WIFI, I_HIDE);
         }
 
-        //if it is connected to the wifi
+        //if something is connecected to AP
         if (fc.esp.state & ESP_STATE_WIFI_AP)
         {
             if (fc.esp.state & ESP_STATE_WIFI_AP_CONNECTED)
-                sprintf(icons + strlen(icons), " AP ");
+            	set_icon(BAR_ICON_AP, I_SHOW);
             else
-                sprintf(gray_icons + strlen(gray_icons), " AP ");
+            	set_icon(BAR_ICON_AP, I_GRAY);
         }
+        else
+        {
+        	set_icon(BAR_ICON_AP, I_HIDE);
+        }
+
     }
 
-    if (pwr.data_port != PWR_DATA_NONE)
+    if (fc.gnss.fix == 3)
     {
-        sprintf(icons + strlen(icons), " " LV_SYMBOL_USB);
+    	set_icon(BAR_ICON_GNSS, I_SHOW);
+    }
+    else if (fc.gnss.fix == 2)
+    {
+    	set_icon(BAR_ICON_GNSS, I_YELLOW);
+    }
+    else
+    {
+    	set_icon(BAR_ICON_GNSS, I_BLINK);
     }
 
-	if (pwr.charger.charge_port != PWR_CHARGE_NONE)
-	{
-	    sprintf(icons + strlen(icons), " " LV_SYMBOL_CHARGE);
-	}
+    fc_logger_status_t logger = logger_state();
+    if (logger == fc_logger_record)
+    {
+    	set_icon(BAR_ICON_LOG, I_SHOW);
+    }
+    else if (logger == fc_logger_wait)
+    {
+    	set_icon(BAR_ICON_LOG, I_BLINK);
+    }
+    else
+    {
+    	set_icon(BAR_ICON_LOG, I_HIDE);
+    }
 
-	sprintf(icons + strlen(icons), " %u%%", pwr.fuel_gauge.battery_percentage);
+
+	set_icon(BAR_ICON_USB, (pwr.data_port != PWR_DATA_NONE) ? I_SHOW : I_HIDE);
+	set_icon(BAR_ICON_CHARGE, (pwr.charger.charge_port != PWR_CHARGE_NONE) ? I_SHOW : I_HIDE);
+
 
 	char bat_icon[4];
     if (pwr.fuel_gauge.battery_percentage < 20)
@@ -208,11 +303,20 @@ void statusbar_step()
     else
         strcpy(bat_icon, LV_SYMBOL_BATTERY_FULL);
 
-    sprintf(icons + strlen(icons), " %s", bat_icon);
+    if (pwr.fuel_gauge.battery_percentage > 10)
+    	set_icon(BAR_ICON_BAT, I_SHOW);
+    else if (pwr.fuel_gauge.battery_percentage > 5)
+		set_icon(BAR_ICON_BAT, I_YELLOW);
+    else
+    	set_icon(BAR_ICON_BAT, I_RED);
 
-    lv_label_set_text(gui.statusbar.icons, icons);
-    lv_label_set_text(gui.statusbar.gray_icons, gray_icons);
+    if (config_get_bool(&config.display.bat_per))
+    	lv_label_set_text_fmt(gui.statusbar.icons[BAR_ICON_BAT], "%u%%%s", pwr.fuel_gauge.battery_percentage, bat_icon);
+    else
+    	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BAT], bat_icon);
 
-    lv_obj_realign(gui.statusbar.icons);
-    lv_obj_realign(gui.statusbar.gray_icons);
+	for (uint8_t i = 0; i < BAR_ICON_CNT; i++)
+	{
+		lv_obj_realign(gui.statusbar.icons[i]);
+	}
 }
