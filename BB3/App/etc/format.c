@@ -256,7 +256,7 @@ void format_speed_with_units(char * buff, float in)
 
 void format_percent(char * buff, float in)
 {
-	uint8_t val = min(in * 100, 100);
+	uint8_t val = min(in, 100);
     sprintf(buff, "%u%%", val);
 }
 

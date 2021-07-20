@@ -169,6 +169,9 @@ void torch_loop()
     //if button 1 - 3 pressed stop the flashlight
     while(1)
     {
+    	pwr_step();
+    	bat_check_step();
+
         if (button_hold(BT1))
             break;
 
@@ -225,6 +228,18 @@ void format_loop()
 	}
 }
 
+void bat_check_step()
+{
+	if (pwr.fuel_gauge.bat_voltage < 310
+			&& (pwr.data_port == PWR_DATA_NONE || pwr.data_port == PWR_DATA_PASS)
+			&& pwr.charge_port == PWR_CHARGE_NONE)
+	{
+		gfx_draw_status(GFX_STATUS_LOW_BAT, NULL);
+		button_confirm(BT3);
+		app_sleep();
+	}
+}
+
 void app_main(uint8_t power_on_mode)
 {
 	bool updated = false;
@@ -242,15 +257,18 @@ void app_main(uint8_t power_on_mode)
 
     HAL_Delay(100);
 
+    pwr_init();
+
+    if (power_on_mode != POWER_ON_USB)
+    {
+    	bat_check_step();
+    }
 
     if (power_on_mode == POWER_ON_TORCH)
     {
     	torch_loop();
         app_sleep();
     }
-
-    pwr_init();
-
 
     if (power_on_mode == POWER_ON_BOOST)
     {

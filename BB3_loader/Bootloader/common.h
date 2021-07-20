@@ -192,10 +192,10 @@ void clear_dir(char * path);
 
 #define MSG_DELAY		2000
 
-
-
 #define IN_BOOTLOADER
 
 extern bool development_mode;
+
+void bat_check_step();
 
 #endif /* INC_COMMON_H_ */

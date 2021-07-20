@@ -16,7 +16,7 @@ static gui_list_slider_options_t sink_lift_opt = {
 };
 
 static gui_list_slider_options_t acc_opt = {
-	.disp_multi = 1,
+	.disp_multi = 100,
 	.step = 0.1,
 	.format = format_percent,
 };

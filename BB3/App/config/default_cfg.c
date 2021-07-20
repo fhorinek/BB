@@ -322,9 +322,13 @@ config_t config =
     //display
     {
         //backlight
-        entry_int("disp_bckl", 80, 0, 100),
+        entry_int("disp_bckl", 20, 0, 100),
         //backlight_timeout
         entry_int("disp_bckl_time", 30, 10, 120),
+		//show_msg
+        entry_bool("show_msg", true),
+		//show_msg
+        entry_bool("bat_per", false),
     },
 
     //time

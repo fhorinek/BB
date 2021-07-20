@@ -16,6 +16,7 @@
 #include "fc/fc.h"
 
 #include "gui/dialog.h"
+#include "etc/format.h"
 
 REGISTER_TASK_I(info,
     char new_fw[32];

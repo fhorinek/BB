@@ -159,6 +159,8 @@ typedef struct
     {
         cfg_entry_t backlight;
         cfg_entry_t backlight_timeout;
+        cfg_entry_t show_msg;
+        cfg_entry_t bat_per;
     } display;
 
     struct
@@ -248,5 +250,6 @@ uint16_t config_structure_size(cfg_entry_t * structure);
 
 void config_load_all();
 void config_store_all();
+void config_restore_factory();
 
 #endif /* CONFIG_CONFIG_H_ */

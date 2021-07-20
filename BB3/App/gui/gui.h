@@ -49,6 +49,20 @@ typedef enum
 #define FONT_S	3
 #define FONT_XS	4
 
+
+#define BAR_ICON_DL		9
+#define BAR_ICON_SYS	8
+#define BAR_ICON_WIFI	7
+#define BAR_ICON_AP		6
+#define BAR_ICON_BT		5
+#define BAR_ICON_LOG	4
+#define BAR_ICON_GNSS	3
+#define BAR_ICON_USB	2
+#define BAR_ICON_CHARGE	1
+#define BAR_ICON_BAT	0
+
+#define BAR_ICON_CNT	10
+
 typedef struct
 {
 	lv_obj_t * (* init)(lv_obj_t *);
@@ -106,8 +120,7 @@ typedef struct
 	{
 		lv_obj_t * bar;
 		lv_obj_t * time;
-        lv_obj_t * icons;
-        lv_obj_t * gray_icons;
+        lv_obj_t * icons[BAR_ICON_CNT];
 
 		lv_obj_t * mbox;
 	} statusbar;

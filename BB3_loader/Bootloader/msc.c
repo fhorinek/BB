@@ -34,6 +34,8 @@ bool msc_loop()
     pwr_data_mode_t old_data_mode = 0xFF;
     uint32_t next_update = 0;
 
+    uint32_t pwr_delay = HAL_GetTick() + 4000;
+
     while (1)
     {
         pwr_step();
@@ -142,11 +144,18 @@ bool msc_loop()
         }
 
         //no cable connected, animatin is done
-        if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_NONE && anim_done)
+        if (pwr.charge_port == PWR_CHARGE_NONE
+        		&& pwr.data_port == PWR_DATA_NONE
+				&& anim_done
+				&& pwr_delay < HAL_GetTick())
         {
             break;
         }
 
+        if (pwr_delay < HAL_GetTick() && anim_done)
+        {
+        	bat_check_step();
+        }
     }
 
     if (usb_init)

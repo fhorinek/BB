@@ -149,6 +149,12 @@ typedef struct
 	uint16_t flags;
 } fc_pos_history_t;
 
+typedef enum
+{
+	fc_logger_off = 0,
+	fc_logger_wait,
+	fc_logger_record,
+} fc_logger_status_t;
 
 typedef struct
 {
@@ -304,6 +310,13 @@ typedef struct
         uint16_t index;
         uint16_t size;
 	} history;
+
+	struct
+	{
+		fc_logger_status_t igc;
+
+		uint8_t _pad[3];
+	} logger;
 
 } fc_t;
 

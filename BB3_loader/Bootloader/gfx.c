@@ -286,6 +286,15 @@ void gfx_draw_status(uint8_t status, const char * message)
             }
         break;
 
+        case(GFX_STATUS_LOW_BAT):
+            {
+        		color = GFX_RED;
+                strcpy(icon, "6");
+                strcpy(title, "Battery empty");
+                strcpy(text, "Charge your device!");
+            }
+        break;
+
 	}
 
 //	INFO("%s: %s", title, text);
@@ -317,7 +326,16 @@ void gfx_draw_status(uint8_t status, const char * message)
 	else
 	{
         gfx_color = color;
-        gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2 - 50, icon, MF_ALIGN_CENTER, gfx_icons);
+
+        if (gfx_status == GFX_STATUS_LOW_BAT)
+        {
+        	gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2, "6", MF_ALIGN_CENTER, gfx_icons);
+        	gfx_rect(BAT_X1, BAT_Y1, BAT_X2, BAT_Y2, COLOR_WHITE);
+        }
+        else
+        {
+            gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2 - 50, icon, MF_ALIGN_CENTER, gfx_icons);
+        }
 
         gfx_color = GFX_BLACK;
         gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 3, title, MF_ALIGN_CENTER, gfx_text);

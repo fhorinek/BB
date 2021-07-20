@@ -18,17 +18,21 @@
 #include "../settings.h"
 
 #include "drivers/rev.h"
+#include "gui/dialog.h"
 
-REGISTER_TASK_I(system,
-	lv_obj_t * info;
-);
+REGISTER_TASK_I(system);
 
-static bool system_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static void restore_dialog_cb(uint8_t res, void * data)
+{
+	if (res == dialog_res_yes)
+		config_restore_factory();
+}
+
+static bool restore_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        if (obj == local->info)
-            gui_switch_task(&gui_info, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+        dialog_show("Warning", "Do you want to restore factory settings?", dialog_yes_no, restore_dialog_cb);
     }
 
     return true;
@@ -39,7 +43,7 @@ lv_obj_t * system_init(lv_obj_t * par)
 {
     DBG("settings init");
 
-    lv_obj_t * list = gui_list_create(par, "System", &gui_settings, system_cb);
+    lv_obj_t * list = gui_list_create(par, "System", &gui_settings, NULL);
 
     gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
     gui_list_auto_entry(list, "Display", NEXT_TASK, &gui_display);
@@ -48,7 +52,10 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     char rev_str[10];
     rev_get_sw_string(rev_str);
-    local->info = gui_list_info_add_entry(list, "Device info", rev_str);
+    lv_obj_t * info = gui_list_info_add_entry(list, "Device info", rev_str);
+    gui_config_entry_add(info, NEXT_TASK, &gui_info);
+
+    gui_list_auto_entry(list, "Restore factory settings", CUSTOM_CB, restore_cb);
 
     return list;
 }

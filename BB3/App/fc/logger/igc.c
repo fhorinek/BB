@@ -266,6 +266,7 @@ void igc_tick_cb(void * arg)
 		if (rtc_is_valid())
 		{
 			igc_start_write();
+			fc.logger.igc = fc_logger_record;
 			started = true;
 		}
 	}
@@ -275,6 +276,8 @@ void igc_init()
 {
 	started = false;
 	timer = osTimerNew(igc_tick_cb, osTimerPeriodic, NULL, NULL);
+
+	fc.logger.igc = fc_logger_off;
 }
 
 
@@ -282,6 +285,7 @@ void igc_start()
 {
 	DBG("IGC timer start");
     osTimerStart(timer, IGC_PERIOD);
+    fc.logger.igc = fc_logger_wait;
 }
 
 void igc_stop()
@@ -294,4 +298,5 @@ void igc_stop()
 		f_close(&log_file);
 		started = false;
 	}
+	fc.logger.igc = fc_logger_off;
 }
