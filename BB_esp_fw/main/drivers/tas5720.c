@@ -74,6 +74,7 @@ void tas_init()
     system_status.amp_ok = (data == 0x01);
 
 //    DBG("TAS_ID     %02X", data);
+
 //    data = i2c_read(TAS_ADDR, TAS_POWER);
 //    DBG("TAS_POWER  %02X", data);
 //    data = i2c_read(TAS_ADDR, TAS_DCTRL1);

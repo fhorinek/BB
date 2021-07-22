@@ -627,10 +627,11 @@ static void pages_loop()
         {
         	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
+
+        	//close overlay
+    		widgets_edit(local->active_widget, WIDGET_ACTION_CLOSE);
         	local->active_widget = NULL;
         }
-        //close overlay
-		widgets_edit(local->active_widget, WIDGET_ACTION_CLOSE);
 
 		local->state = MENU_IDLE;
 	}

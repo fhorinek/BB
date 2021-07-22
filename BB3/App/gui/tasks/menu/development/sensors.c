@@ -1,6 +1,7 @@
 #include <gui/tasks/menu/development/development.h>
 #include <gui/tasks/menu/development/sensors.h>
 #include "development.h"
+#include "imu.h"
 
 #include "gui/gui_list.h"
 
@@ -8,8 +9,10 @@
 #include "drivers/power/pwr_mng.h"
 #include "etc/format.h"
 
+
 #include "drivers/tft/tft.h"
 #include "drivers/sensors/lsm/lsm.h"
+
 
 REGISTER_TASK_IL(sensors,
     lv_obj_t * baro;
@@ -17,9 +20,6 @@ REGISTER_TASK_IL(sensors,
     lv_obj_t * brigh;
     lv_obj_t * bat_volt;
     lv_obj_t * bat_cap;
-    lv_obj_t * acc;
-    lv_obj_t * gyro;
-    lv_obj_t * mag;
 );
 
 lv_obj_t * sensors_init(lv_obj_t * par)
@@ -41,7 +41,8 @@ lv_obj_t * sensors_init(lv_obj_t * par)
 
     if (fc.imu.status != fc_dev_error)
     {
-        gui_list_info_add_entry(list, "9-axis sensor", (lsm_sensor_type == LSM_TYPE_LSM9DS0) ? "LSM9DS0" : "LSM9DS1");
+        lv_obj_t * obj = gui_list_info_add_entry(list, "9-axis sensor", (lsm_sensor_type == LSM_TYPE_LSM9DS0) ? "LSM9DS0" : "LSM9DS1");
+        gui_config_entry_add(obj, NEXT_TASK, &gui_imu);
     }
     else
     {
@@ -63,17 +64,12 @@ lv_obj_t * sensors_init(lv_obj_t * par)
     fc_device_status(value, fc.esp.server_status);
     gui_list_info_add_entry(list, "Esp server", value);
 
-    local->acc = gui_list_info_add_entry(list, "Accelerometer", "");
-    local->gyro = gui_list_info_add_entry(list, "Gyroscope", "");
-    local->mag = gui_list_info_add_entry(list, "Magnetometer", "");
-
     snprintf(value, sizeof(value), "%u", fc.baro.retry_cnt);
     gui_list_info_add_entry(list, "Baro retry", value);
 
     local->bat_cap = gui_list_info_add_entry(list, "Battery capacity", "");
     local->aux_baro = gui_list_info_add_entry(list, "Aux Barometer", "");
     local->brigh = gui_list_info_add_entry(list, "Brightness", "");
-
 
 	return list;
 }
@@ -114,25 +110,5 @@ void sensors_loop()
         fc_device_status(value, pwr.fuel_gauge.status);
         gui_list_info_set_value(local->bat_volt, value);
         gui_list_info_set_value(local->bat_cap, value);
-    }
-
-
-    if (fc.imu.status == fc_dev_ready || fc.imu.status == fc_device_not_calibrated)
-    {
-        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.acc.x, fc.imu.raw.acc.y, fc.imu.raw.acc.z);
-        gui_list_info_set_value(local->acc, value);
-
-        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.gyro.x, fc.imu.raw.gyro.y, fc.imu.raw.gyro.z);
-        gui_list_info_set_value(local->gyro, value);
-
-        snprintf(value, sizeof(value), "%d %d %d", fc.imu.raw.mag.x, fc.imu.raw.mag.y, fc.imu.raw.mag.z);
-        gui_list_info_set_value(local->mag, value);
-    }
-    else
-    {
-        fc_device_status(value, fc.imu.status);
-        gui_list_info_set_value(local->acc, value);
-        gui_list_info_set_value(local->gyro, value);
-        gui_list_info_set_value(local->mag, value);
     }
 }

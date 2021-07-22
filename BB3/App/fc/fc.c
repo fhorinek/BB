@@ -77,7 +77,6 @@ void fc_reset()
     }
     else
     {
-        fc.flight.mode = flight_wait_to_takeoff;
         fc.autostart.altitude = fc.fused.altitude1;
         fc.autostart.timestamp = HAL_GetTick();
     }
@@ -100,6 +99,8 @@ void fc_init()
 	fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
 
     osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
+
+    fc.flight.mode = flight_wait_to_takeoff;
 
 	fc_reset();
 	logger_init();
@@ -132,12 +133,15 @@ void fc_landing()
     fc.flight.duration = (HAL_GetTick() - fc.flight.start_time) / 1000;
     fc.flight.mode = flight_landed;
 
+    fc_reset();
+
     logger_stop();
 }
 
 void fc_step()
 {
-    if (fc.flight.mode == flight_wait_to_takeoff)
+    if (fc.flight.mode == flight_wait_to_takeoff
+    		|| fc.flight.mode == flight_landed)
     {
         if (config_get_bool(&profile.flight.auto_take_off.alt_change_enabled))
         {

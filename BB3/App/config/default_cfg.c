@@ -377,6 +377,5 @@ config_t config =
 		entry_bool("dbg_file", false),
 		//esp_off
 		entry_bool("dbg_esp_off", false),
-
 	},
 };

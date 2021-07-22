@@ -37,7 +37,7 @@ static void FTime_edit(widget_slot_t * slot, uint8_t action)
         else if (fc.flight.mode == flight_flight)
             fc_landing();
         else if (fc.flight.mode == flight_landed)
-            fc_reset();
+        	fc_takeoff();
     }
 }
 
@@ -46,7 +46,7 @@ static void FTime_update(widget_slot_t * slot)
     if (fc.flight.mode == flight_not_ready)
     {
         lv_label_set_text(local->value, "---");
-        lv_label_set_text(local->sub, "");
+        lv_label_set_text(local->sub, "wait");
     }
     else if (fc.flight.mode == flight_wait_to_takeoff)
     {

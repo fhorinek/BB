@@ -44,6 +44,9 @@ neighbor_t * neighbors_add(fanet_addr_t addr)
 	nb->flags = 0;
 	nb->name[0] = 0;
 
+	nb->max_dist = 0;
+	nb->dist = 0;
+
 	return nb;
 }
 

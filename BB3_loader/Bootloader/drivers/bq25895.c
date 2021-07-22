@@ -24,13 +24,13 @@
 #define Charger_cfg2_val 		0b01110000
 
 #define Charger_ICHG_Reg 		0x04   // [7] Current pulse control Enable; [6:0] Fast Charge Current Limit: ICHG = VALUE × 64 [mA] // Default 2048mA, Clamped at 5056mA    § revise with new battery §
-#define Charger_ICHG_val 		0b10100100    // 0xA4 -> Pulse control active
+#define Charger_ICHG_val 		0b10100000    // 0xA4 -> Pulse control active
 
 #define Charger_ICHG2_Reg 		0x05  // [7:4] Precharge Current Limit: IPRECHG = 64 + VALUE[7:4] × 64 [mA] // default 128mA  [3:0] Termination Current Limit: ITERM = 64 + VALUE[3:0] × 64 [mA] // default 256mA
-#define Charger_ICHG2_val 		0x31  // Iprech = 3 (DEC) = 256mA; Iterm = 1 (DEC) = 128mA         § revise with new battery §
+#define Charger_ICHG2_val 		0x22  // Iprech = 192mA; Iterm = 192mA         § revise with new battery §
 
 #define Charger_BatChV_Reg 		0x06 // for 4,2V [7:2] Charge Voltage Limit: VREG = 3840 + VALUE[7:2] × 16 [mV] // default undefined              § revise with new battery §
-#define Charger_BatChV_val 		0b01011100 // Charge to 4,208V, start Fast charge @ 3V
+#define Charger_BatChV_val 		0b01011110 // Charge to 4,208V, start Fast charge @ 3V
 
 #define Charger_Btimers_Reg 	0x07 // timers for Watchdog & battery charge modes timeouts - see datasheet page 40                              §§ please revise
 #define Charger_Btimers_val 	0x8D
