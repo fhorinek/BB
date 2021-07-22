@@ -6,7 +6,7 @@
 #include "drivers/esp/esp.h"
 #include "drivers/esp/protocol.h"
 #include "drivers/psram.h"
-
+#include "etc/format.h"
 
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
@@ -83,11 +83,16 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	return true;
 }
 
-
+gui_list_slider_options_t opt =
+{
+	.disp_multi = 1,
+	.step = 1,
+	.format = format_int
+};
 
 static lv_obj_t * development_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Develpment", &gui_settings, development_cb);
+	lv_obj_t * list = gui_list_create(par, "Development", &gui_settings, development_cb);
 
 	bool ext_active = fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual;
 

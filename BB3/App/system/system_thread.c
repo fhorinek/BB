@@ -153,6 +153,7 @@ void thread_system_start(void *argument)
 	fc_init();
 
 	uint32_t power_off_timer = 0;
+	uint32_t under_voltage_timer = 0;
     #define POWER_OFF_TIMEOUT   500
 
 	for(;;)
@@ -161,12 +162,27 @@ void thread_system_start(void *argument)
 
 		pwr_step();
 
-		if (pwr.fuel_gauge.bat_voltage < 310
+		if (pwr.fuel_gauge.bat_voltage < 300
 			&& pwr.data_port == PWR_DATA_NONE
 			&& pwr.charger.charge_port == PWR_CHARGE_NONE)
 		{
-			INFO("Emergency shut down!");
-			system_poweroff();
+			if (under_voltage_timer == 0)
+			{
+				under_voltage_timer = HAL_GetTick();
+			}
+
+			WARN("Voltage low: %0.2fV, %ums", pwr.fuel_gauge.bat_voltage / 100.0, HAL_GetTick() - under_voltage_timer);
+
+			//if battery is under 3.0V for more than 500ms
+			if (HAL_GetTick() - under_voltage_timer > 500)
+			{
+				WARN("Emergency shut down!");
+				system_poweroff();
+			}
+		}
+		else
+		{
+			under_voltage_timer = 0;
 		}
 
 		cmd_step();

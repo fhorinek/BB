@@ -240,6 +240,8 @@ typedef struct {
 //
 //} proto_set_bt_mode_t;
 
+//------------------------------------------
+
 #define PROTO_FANET_BOOT0_CTRL			0xFE
 typedef struct {
 	bool level; //high output or input

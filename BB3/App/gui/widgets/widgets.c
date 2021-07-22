@@ -243,6 +243,7 @@ bool widgets_editable(page_layout_t * page)
 
 void widgets_edit(widget_slot_t * ws, uint8_t action)
 {
+	ASSERT(ws != NULL);
     ws->widget->edit(ws, action);
 }
 

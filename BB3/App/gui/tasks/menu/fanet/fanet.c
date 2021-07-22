@@ -58,19 +58,38 @@ static void fanet_loop()
 		{
 			neighbor_t * nb = &fc.fanet.neighbor[i];
 			char name[32];
-			char dist[16];
+			char tmp[16];
+			char text[32];
 
 			sprintf(name, "%02X:%04X", nb->addr.manufacturer_id, nb->addr.user_id);
 			if (nb->name[0] != 0)
-				sprintf(name + strlen(name), ": %s", nb->name);
+				sprintf(name, "%02X:%04X: %s", nb->addr.manufacturer_id, nb->addr.user_id, nb->name);
+			else
+				sprintf(name, "%02X:%04X", nb->addr.manufacturer_id, nb->addr.user_id);
 
-			format_distance(dist, nb->dist);
-			sprintf(dist + strlen(dist), " / ");
-			format_distance(dist + strlen(dist), nb->max_dist);
-			sprintf(dist + strlen(dist), " @%lus", (HAL_GetTick() / 1000) - nb->timestamp);
+			strcpy(text, "");
+ 			if (nb->flags & NB_HAVE_POS)
+ 			{
+				format_distance(tmp, nb->dist);
+				strcat(text, tmp);
+ 			}
+
+			if (nb->max_dist != 0)
+			{
+				if (nb->flags & NB_HAVE_POS)
+				{
+					char slash[] = " / ";
+					strcat(text, slash);
+				}
+				format_distance(tmp, nb->max_dist);
+				strcat(text, tmp);
+			}
+
+			sprintf(tmp, " @%lus", (HAL_GetTick() / 1000) - nb->timestamp);
+			strcat(text, tmp);
 
 			lv_obj_t * entry = gui_list_get_entry(i + 1);
-			gui_list_info_set_value(entry, dist);
+			gui_list_info_set_value(entry, text);
 			gui_list_info_set_name(entry, name);
 		}
 	}

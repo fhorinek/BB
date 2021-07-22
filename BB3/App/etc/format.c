@@ -291,3 +291,9 @@ void format_uuid(char * buff)
 		sprintf(buff + (i * 2), "%02X", uuid[i]);
 }
 
+void format_int(char * buff, float in)
+{
+	int32_t i = in;
+	sprintf(buff, "%ld", i);
+}
+

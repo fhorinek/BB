@@ -178,12 +178,6 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 		}
         break;
 
-        case (PROTO_FANET_BOOT0_CTRL):
-		{
-        	proto_fanet_boot0_ctrl_t * packet = (proto_fanet_boot0_ctrl_t *)data;
-        	fanet_boot0_ctrl(packet);
-		}
-        break;
 
         case (PROTO_FS_LIST_RES):
 		{
@@ -192,6 +186,15 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
 		}
         break;
+
+
+        case (PROTO_FANET_BOOT0_CTRL):
+		{
+        	proto_fanet_boot0_ctrl_t * packet = (proto_fanet_boot0_ctrl_t *)data;
+        	fanet_boot0_ctrl(packet);
+		}
+        break;
+
 
         default:
             DBG("Unknown packet");

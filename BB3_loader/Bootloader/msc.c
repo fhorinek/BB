@@ -69,6 +69,15 @@ bool msc_loop()
                 usb_init = false;
                 USBD_DeInit(&hUsbDeviceHS);
             }
+
+            if (pwr.charge_port == PWR_CHARGE_NONE
+            		&& old_charge > PWR_CHARGE_NONE)
+            {
+            	//after bq usb disconnection, restart usb stack
+                pwr.data_port = PWR_DATA_NONE;
+				usb_init = false;
+				USBD_DeInit(&hUsbDeviceHS);
+            }
         }
         else
         {
