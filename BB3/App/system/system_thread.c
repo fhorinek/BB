@@ -240,7 +240,7 @@ void thread_system_start(void *argument)
 	osDelay(1000);
 
 	//wait for option button to be released
-	while(HAL_GPIO_ReadPin(BT2) == LOW);
+	while(HAL_GPIO_ReadPin(BT4) == LOW);
 
 	//reset
 	NVIC_SystemReset();

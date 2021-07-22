@@ -100,7 +100,6 @@ void fc_init()
 
     osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
 
-    fc.flight.mode = flight_wait_to_takeoff;
 
 	fc_reset();
 	logger_init();

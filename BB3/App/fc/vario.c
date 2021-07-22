@@ -253,6 +253,8 @@ void vario_step()
             fc.fused.status = fc_dev_ready;
             fc.fused.avg_vario = vario;
             fc.fused.altitude1 = altitude;
+
+            fc.flight.mode = flight_wait_to_takeoff;
             fc_reset();
         }
         else
