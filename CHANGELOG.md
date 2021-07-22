@@ -1,3 +1,14 @@
+# 20.07.2021 -
+
+## Added
+ * Automatic power-down when 3.1 V on battery is reached - this will prevent triggering battery protection
+ 
+## Fixes
+ * OGN Tracking #16
+ 
+## Note
+ * Bootloader update recomended
+
 # 12.07.2021 - Build 132
 
 ## Added
