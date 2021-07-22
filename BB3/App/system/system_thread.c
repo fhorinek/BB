@@ -162,7 +162,7 @@ void thread_system_start(void *argument)
 
 		pwr_step();
 
-		if (pwr.fuel_gauge.bat_voltage < 300
+		if ((pwr.fuel_gauge.bat_voltage < 300 || pwr.fuel_gauge.bat_current < -2000)
 			&& pwr.data_port == PWR_DATA_NONE
 			&& pwr.charger.charge_port == PWR_CHARGE_NONE)
 		{
@@ -171,10 +171,10 @@ void thread_system_start(void *argument)
 				under_voltage_timer = HAL_GetTick();
 			}
 
-			WARN("Voltage low: %0.2fV, %ums", pwr.fuel_gauge.bat_voltage / 100.0, HAL_GetTick() - under_voltage_timer);
+			WARN("PWR protection: %0.2fV, %dma, %ums", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current , HAL_GetTick() - under_voltage_timer);
 
-			//if battery is under 3.0V for more than 500ms
-			if (HAL_GetTick() - under_voltage_timer > 500)
+			//if battery is under 3.0V for more than 200ms
+			if (HAL_GetTick() - under_voltage_timer > 200)
 			{
 				WARN("Emergency shut down!");
 				system_poweroff();
