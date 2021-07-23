@@ -134,6 +134,25 @@ void bsod_show(context_frame_t * frame)
     if (CFSR & SCB_CFSR_IBUSERR_Msk)
     	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IBUSERR", MF_ALIGN_LEFT);
 
+    if (CFSR & SCB_CFSR_BUSFAULTSR_Msk)
+    	bosd_draw_text(TFT_WIDTH / 2, (line++) * LINE_SIZE, "** Mem Fault **", MF_ALIGN_CENTER);
+    if (CFSR & SCB_CFSR_MMARVALID_Msk)
+    {
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MMARVALID", MF_ALIGN_LEFT);
+    	snprintf(buff, sizeof(buff), "MMFAR: %08lX", SCB->BFAR);
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+    }
+    if (CFSR & SCB_CFSR_IACCVIOL_Msk)
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IACCVIOL", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_DACCVIOL_Msk)
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "DACCVIOL", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MUNSTKERR_Msk)
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MUNSTKERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MSTKERR_Msk)
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MSTKERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MLSPERR_Msk)
+    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MLSPERR", MF_ALIGN_LEFT);
+
     line++;
 
     snprintf(buff, sizeof(buff), "SP: 0x%08lX", frame->sp);

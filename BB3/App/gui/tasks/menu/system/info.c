@@ -16,6 +16,7 @@
 #include "fc/fc.h"
 
 #include "gui/dialog.h"
+#include "gui/tasks/filemanager.h"
 #include "etc/format.h"
 
 REGISTER_TASK_I(info,
@@ -148,6 +149,33 @@ static bool info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
     return true;
 }
 
+void manual_install_fm_cb(char * path)
+{
+	char text[64];
+	path = strrchr(path, '/');
+
+	if (path == NULL)
+		return;
+	path++;
+
+	snprintf(text, sizeof(text), "Install version %s", path);
+	strncpy(local->new_fw, path, sizeof(local->new_fw));
+	dialog_show("Start update?", text, dialog_yes_no, info_update_apply_cb);
+}
+
+static bool manual_install_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+		filemanager_open(PATH_FW_DIR, 0, &gui_info, manual_install_fm_cb);
+
+		//supress default handler
+		return false;
+	}
+
+	return true;
+}
 
 lv_obj_t * info_init(lv_obj_t * par)
 {
@@ -159,6 +187,8 @@ lv_obj_t * info_init(lv_obj_t * par)
     rev_get_sw_string(rev_str);
     snprintf(value, sizeof(value), "Firmware %s", rev_str);
     gui_list_info_add_entry(list, "Check for updates", value);
+
+    gui_list_auto_entry(list, "Install update", CUSTOM_CB, manual_install_cb);
 
     format_uuid(value);
     gui_list_info_add_entry(list, "Serial number", value);

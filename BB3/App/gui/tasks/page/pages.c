@@ -431,12 +431,14 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
         		{
     			case(LV_KEY_RIGHT):
     				local->actual_page = (local->actual_page + 1) % local->pages_cnt;
-					pages_load((char *)pages_get_name(local->actual_page), PAGE_ANIM_FROM_RIGHT);
+					pages_load((char *)pages_get_name(local->actual_page),
+							config_get_bool(&config.display.page_anim) ? PAGE_ANIM_FROM_RIGHT : PAGE_ANIM_NONE);
 
     			break;
     			case(LV_KEY_LEFT):
    					local->actual_page = ((local->actual_page > 0) ? local->actual_page : local->pages_cnt) - 1;
-					pages_load((char *)pages_get_name(local->actual_page), PAGE_ANIM_FROM_LEFT);
+					pages_load((char *)pages_get_name(local->actual_page),
+							config_get_bool(&config.display.page_anim) ? PAGE_ANIM_FROM_LEFT : PAGE_ANIM_NONE);
     			break;
 
 

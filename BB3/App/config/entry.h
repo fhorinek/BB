@@ -95,7 +95,7 @@ typedef union
 #define entry_big_int(name_id, def, range_struct) \
     {\
         name_id, \
-        {.s32 = {def}}, \
+        {.s32 = def}, \
         ENTRY_INT32, \
         {.range = &range_struct} \
     }
