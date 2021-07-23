@@ -1,4 +1,17 @@
-# 20.07.2021 -
+# 23.07.2021 - Build 138
+
+## Added
+ * Abiliti to downgrade/change firmware via menu
+
+## Fixes
+ * Audio stops randomly during flight #22
+ * QNH change causes device crash #30
+ * Crash while in active flight and opening menu #23
+ * Vario freeze on high volume #5
+ * Vario sound "all the time rising" #15
+ 
+
+# 20.07.2021 - Build 133
 
 ## Added
  * Automatic power-down when 3.1 V on battery is reached - this will prevent triggering battery protection
