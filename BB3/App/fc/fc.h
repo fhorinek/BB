@@ -258,7 +258,8 @@ typedef struct
         uint8_t state;
 
         uint8_t mac_sta[6];
-        uint8_t _pad_1[2];
+        bool tone_ready;
+        uint8_t _pad[1];
 
         uint8_t mac_bt[6];
 

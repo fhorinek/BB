@@ -169,8 +169,8 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 {
-    if (type != PROTO_DEBUG)
-        DBG("protocol_handle %u", type);
+//    if (type != PROTO_DEBUG)
+//        DBG("protocol_handle %u", type);
 
     switch(type)
     {
@@ -215,6 +215,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             memcpy(fc.esp.mac_ap, packet->wifi_ap_mac, 6);
             memcpy(fc.esp.mac_sta, packet->wifi_sta_mac, 6);
             memcpy(fc.esp.mac_bt, packet->bluetooth_mac, 6);
+
+            fc.esp.tone_ready = true;
         }
         break;
 
@@ -239,6 +241,10 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
                 fc.esp.wifi_list_cb(packet);
             }
         }
+        break;
+
+        case(PROTO_TONE_ACK):
+			fc.esp.tone_ready = true;
         break;
 
         case(PROTO_WIFI_SCAN_END):

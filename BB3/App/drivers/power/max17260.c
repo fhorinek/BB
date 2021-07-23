@@ -68,10 +68,17 @@ void max17260_init()
     }
 }
 
-void max17260_step()
+bool max17260_step()
 {
+	static uint32_t next_time = 0;
+
+	if (HAL_GetTick() < next_time)
+		return false;
+
+	next_time = HAL_GetTick() + 180;
+
     if (pwr.fuel_gauge.status != fc_dev_ready)
-        return;
+        return false;
 
     pwr.fuel_gauge.bat_voltage = MAX_Voltage_to_mV(system_i2c_read16(MAX_ADR, MAX_VCell));
 
@@ -84,4 +91,6 @@ void max17260_step()
     pwr.fuel_gauge.battery_percentage = MAX_to_percent(system_i2c_read16(MAX_ADR, MAX_SoC));
 
     pwr.fuel_gauge.bat_time_to_full = MAX_Time_to_seconds(system_i2c_read16(MAX_ADR, MAX_TTF));
+
+    return true;
 }

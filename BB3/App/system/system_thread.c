@@ -108,6 +108,13 @@ void cmd_step()
     }
 }
 
+#define CRITICAL_VOLTAGE	300
+#define CRITICAL_CURRENT	2500
+#define CRITICAL_CNT_VOL	1
+#define CRITICAL_CNT_OFF	4
+
+#define POWER_OFF_TIMEOUT   500
+
 void thread_system_start(void *argument)
 {
     //Enabling main power
@@ -153,36 +160,46 @@ void thread_system_start(void *argument)
 	fc_init();
 
 	uint32_t power_off_timer = 0;
-	uint32_t under_voltage_timer = 0;
-    #define POWER_OFF_TIMEOUT   500
+	uint8_t critical_counter = 0;
 
 	for(;;)
 	{
 		osDelay(10);
 
-		pwr_step();
+		bool gauge_updated = pwr_step();
 
-		if ((pwr.fuel_gauge.bat_voltage < 300 || pwr.fuel_gauge.bat_current < -2000)
-			&& pwr.data_port == PWR_DATA_NONE
-			&& pwr.charger.charge_port == PWR_CHARGE_NONE)
+		if (gauge_updated)
 		{
-			if (under_voltage_timer == 0)
+			if ((pwr.fuel_gauge.bat_voltage < CRITICAL_VOLTAGE || pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
+				&& pwr.data_port == PWR_DATA_NONE
+				&& pwr.charger.charge_port == PWR_CHARGE_NONE)
 			{
-				under_voltage_timer = HAL_GetTick();
+				WARN("PWR protection: %0.2fV, %dma, %u", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current , critical_counter);
+
+				//current draw for more than CRITICAL_TIME_VOL
+				if (critical_counter > CRITICAL_CNT_VOL
+						&& pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
+				{
+					WARN("Emergency volume down!");
+					uint8_t vol = config_get_int(&config.bluetooth.volume);
+					if (vol > 0)
+						vol--;
+					config_set_int(&config.bluetooth.volume, vol);
+				}
+
+				//for more than CRITICAL_TIME_OFF
+				if (critical_counter > CRITICAL_CNT_OFF)
+				{
+					WARN("Emergency shut down!");
+					system_poweroff();
+				}
+
+				critical_counter++;
 			}
-
-			WARN("PWR protection: %0.2fV, %dma, %ums", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current , HAL_GetTick() - under_voltage_timer);
-
-			//if battery is under 3.0V for more than 200ms
-			if (HAL_GetTick() - under_voltage_timer > 200)
+			else
 			{
-				WARN("Emergency shut down!");
-				system_poweroff();
+				critical_counter = 0;
 			}
-		}
-		else
-		{
-			under_voltage_timer = 0;
 		}
 
 		cmd_step();

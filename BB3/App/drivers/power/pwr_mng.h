@@ -59,6 +59,6 @@ typedef struct
 extern power_mng_t pwr;
 
 void pwr_init();
-void pwr_step();
+bool pwr_step();
 
 #endif /* PWR_MNG_H_ */

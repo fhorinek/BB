@@ -21,7 +21,7 @@ void pwr_init()
     pwr_step();
 }
 
-void pwr_step()
+bool pwr_step()
 {
 	if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH)
 	{
@@ -41,13 +41,9 @@ void pwr_step()
 	}
 
 	bq25895_step();
-	max17260_step();
+	bool ret = max17260_step();
 	opt3004_step();
 
-
-//	DBG("PWR Current: %u", pwr.bat_current);
-//	DBG("PWR charge: %u", pwr.bat_charge);
-//	DBG("PWR Time to Full: %u", pwr.bat_time_to_full);
-//	DBG("Batt Cap: %u", pwr.bat_cap);
+	return ret;
 }
 

@@ -671,6 +671,9 @@ void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params
 				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
 				int16_t value = config_get_float(entry) / opt->step;
 				gui_list_slider_set_value(obj, value);
+				char text[16];
+				opt->format(text, value * opt->disp_multi);
+				gui_list_slider_set_label(obj, text);
 				break;
 			}
 
@@ -679,6 +682,9 @@ void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params
 				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
 				int16_t value = config_get_int(entry) / opt->step;
 				gui_list_slider_set_value(obj, value);
+				char text[16];
+				opt->format(text, value * opt->disp_multi);
+				gui_list_slider_set_label(obj, text);
 				break;
 			}
 

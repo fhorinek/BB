@@ -11,6 +11,6 @@
 #include "common.h"
 
 void max17260_init();
-void max17260_step();
+bool max17260_step();
 
 #endif /* DRIVERS_MAX17260_H_ */

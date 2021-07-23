@@ -172,14 +172,10 @@ void vario_play_tone(float vario)
     if (current_profile == NULL)
         return;
 
-    if (next_time < HAL_GetTick())
-    {
-        next_time = HAL_GetTick() + 50;
-    }
-    else
-    {
+    if (!fc.esp.tone_ready)
         return;
-    }
+
+    fc.esp.tone_ready = false;
 
 
     if (vario_int != last_value || vario_is_silent)
