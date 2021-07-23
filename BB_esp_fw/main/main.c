@@ -73,7 +73,7 @@ void app_main(void)
     protocol_enable();
     protocol_send_info();
 
-    heap_caps_print_heap_info(0);
+//    heap_caps_print_heap_info(0);
 //
 //    uint32_t total_spi = heap_caps_get_total_size(MALLOC_CAP_SPIRAM);
 //    uint32_t total_dma = heap_caps_get_total_size(MALLOC_CAP_DMA);

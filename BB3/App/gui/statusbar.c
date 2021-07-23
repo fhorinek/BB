@@ -311,9 +311,13 @@ void statusbar_step()
     	set_icon(BAR_ICON_BAT, I_RED);
 
     if (config_get_bool(&config.display.bat_per))
+    {
     	lv_label_set_text_fmt(gui.statusbar.icons[BAR_ICON_BAT], "%u%%%s", pwr.fuel_gauge.battery_percentage, bat_icon);
+    }
     else
+    {
     	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BAT], bat_icon);
+    }
 
 	for (uint8_t i = 0; i < BAR_ICON_CNT; i++)
 	{

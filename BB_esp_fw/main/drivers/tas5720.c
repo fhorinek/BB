@@ -34,15 +34,15 @@
 
 //range 0 - 100 [-100dB .. +24dB]
 // 0 = mute
-void tas_volume(uint8_t val)
+void tas_volume(uint8_t in)
 {
-    if (val > 0)
-    {
-        if (val > 100)
-            val = 100;
+	uint8_t val = min(in, 100);
 
-        val = 0x07 + val * 2.48;
-    }
+	val = log10(val + 1) * 41;
+
+//	INFO("TAS volume %u -> %u", in, val);
+
+	val = 0x07 + val * 2.48;
 
     i2c_write(TAS_ADDR, TAS_VOLUME, val);
 }

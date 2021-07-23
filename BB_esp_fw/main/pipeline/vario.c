@@ -1,3 +1,4 @@
+#define DEBUG_LEVEL DBG_DEBUG
 #include "vario.h"
 
 #include "../protocol.h"
@@ -204,6 +205,8 @@ void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 	}
 
 	xSemaphoreGive(pipes.vario.lock);
+
+	protocol_send(PROTO_TONE_ACK, NULL, 0);
 }
 
 #define FADE 10 //in ms

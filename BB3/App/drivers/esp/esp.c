@@ -53,6 +53,7 @@ void esp_state_reset()
     fc.esp.mode = esp_starting;
     fc.esp.state = 0;
     fc.esp.wifi_list_cb = NULL;
+    fc.esp.tone_ready = false;
 
     memset(fc.esp.mac_ap, 0, 6);
     memset(fc.esp.mac_sta, 0, 6);
