@@ -254,7 +254,7 @@ flight_profile_t profile =
 		//in_flight
 		entry_bool("vario_in_flight", true),
 		//sink
-		entry_int("vario_sink", -50, -100, 100),
+		entry_int("vario_sink", -5, -100, 100),
 		//lift
 		entry_int("vario_lift", 1, -100, 100),
         //acc_gain
@@ -329,6 +329,8 @@ config_t config =
         entry_bool("show_msg", true),
 		//show_msg
         entry_bool("bat_per", false),
+		//page_anim
+        entry_bool("page_anim", true),
     },
 
     //time

@@ -17,25 +17,10 @@
 #include <gui/tasks/menu/wifi/wifi.h>
 #include "gui/tasks/page/pages.h"
 #include "gui/tasks/menu/flight/flight.h"
-#include "gui/tasks/filemanager.h"
 
 #include "gui/gui_list.h"
 
 REGISTER_TASK_I(settings);
-
-static bool fm_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
-{
-	if (event == LV_EVENT_CLICKED)
-	{
-		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-		filemanager_open("", 0, &gui_settings, NULL);
-
-		//supress default handler
-		return false;
-	}
-
-	return true;
-}
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
@@ -45,7 +30,6 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
 	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
-//	gui_list_auto_entry(list, "Logs", CUSTOM_CB, fm_cb);
 	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);
 	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_bluetooth);
 	gui_list_auto_entry(list, "Wi-Fi", NEXT_TASK, &gui_wifi);

@@ -161,6 +161,7 @@ typedef struct
         cfg_entry_t backlight_timeout;
         cfg_entry_t show_msg;
         cfg_entry_t bat_per;
+        cfg_entry_t page_anim;
     } display;
 
     struct

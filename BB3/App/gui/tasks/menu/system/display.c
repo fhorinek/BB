@@ -22,6 +22,7 @@ lv_obj_t * display_init(lv_obj_t * par)
 	lv_obj_t * list = gui_list_create(par, "Display Settings", &gui_system, NULL);
 
 	gui_list_auto_entry(list, "Brightness", &config.display.backlight, &back_param);
+	gui_list_auto_entry(list, "Page animation", &config.display.page_anim, NULL);
 	gui_list_auto_entry(list, "Battery percent", &config.display.bat_per, NULL);
 	gui_list_auto_entry(list, "Welcome message", &config.display.show_msg, NULL);
 
