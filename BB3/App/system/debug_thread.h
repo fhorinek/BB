@@ -51,7 +51,7 @@
 #define ASSERT(cond)	\
 	do {	\
 		if (!(cond))	\
-			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+			ERR("Assertion failed %s:%u", __FILE__, __LINE__); \
 	} while(0);
 
 
