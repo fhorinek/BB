@@ -1,3 +1,14 @@
+# 30.07.2021 - Build 139
+
+## Added
+ * Audio profile editor on device, connect directly to strato ip via web browser
+ * Profile selection in vario settings
+ * FANET will switch between flying and hiking based on flight status34 
+
+## Fixed
+ * Audio vario respose
+ * bluetooth playback #28
+
 # 23.07.2021 - Build 138
 
 ## Added
