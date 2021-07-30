@@ -156,6 +156,10 @@ typedef enum
 	fc_logger_record,
 } fc_logger_status_t;
 
+#define FANET_MODE_CHANGE_REG	0b00000001
+#define FANET_TYPE_CHANGE_REG	0b00000010
+#define FANET_FLARM_CHANGE_REG	0b00000100
+
 typedef struct
 {
 	osSemaphoreId_t lock;
@@ -166,7 +170,7 @@ typedef struct
         uint32_t duration;
 
         int16_t start_alt;
-        uint8_t mode;
+        fc_flight_mode mode;
         uint8_t _pad[1];
     } flight;
 
@@ -222,6 +226,7 @@ typedef struct
 
 		uint8_t neighbors_size;
 		uint8_t neighbors_magic;
+		uint8_t flags;
 
         char version[21];
 

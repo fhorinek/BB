@@ -15,8 +15,8 @@ void fanet_enable();
 void fanet_disable();
 void fanet_step();
 
-void fanet_configure_flarm();
-void fanet_configure_type();
+void fanet_configure_flarm(bool init);
+void fanet_configure_type(bool init);
 
 #define FANET_AIRCRAFT_TYPE_OTHER				0
 #define FANET_AIRCRAFT_TYPE_PARAGLIDER			1	//with FLARM

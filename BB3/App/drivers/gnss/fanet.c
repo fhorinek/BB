@@ -33,6 +33,7 @@ void fanet_enable()
 {
 	fanet_bootloader_state = FANET_BL_RESET;
 	fc.fanet.status = fc_dev_init;
+	fc.fanet.flags = 0;
 	neighbors_reset();
 
 	GpioWrite(FANET_RST, LOW);
@@ -58,20 +59,34 @@ void fanet_send(const char * msg)
 	HAL_UART_Transmit(fanet_uart, (uint8_t *)fmsg, strlen(fmsg), 100);
 }
 
-void fanet_configure_flarm()
+void fanet_configure_flarm(bool init)
 {
 	if (!config_get_bool(&profile.fanet.enabled))
 		return;
+
+	//FANET enabled but not ready
+	if (fc.fanet.status != fc_dev_ready && !init)
+	{
+		fc.fanet.flags |= FANET_FLARM_CHANGE_REG;
+		return;
+	}
 
 	char cmd[8];
 	snprintf(cmd, sizeof(cmd), "FAP %u", config_get_bool(&profile.fanet.flarm));
 	fanet_send(cmd);
 }
 
-void fanet_configure_type()
+void fanet_configure_type(bool init)
 {
 	if (!config_get_bool(&profile.fanet.enabled))
 		return;
+
+	//FANET enabled but not ready
+	if (fc.fanet.status != fc_dev_ready && !init)
+	{
+		fc.fanet.flags |= FANET_TYPE_CHANGE_REG;
+		return;
+	}
 
 	uint8_t air = config_get_select(&profile.fanet.air_type);
 	uint8_t track = config_get_select(&pilot.online_track);
@@ -79,6 +94,24 @@ void fanet_configure_type()
 
 	char cmd[16];
 	snprintf(cmd, sizeof(cmd), "FNC %u,%u,%u", air, track, ground);
+	fanet_send(cmd);
+}
+
+void fanet_set_mode()
+{
+	if (!config_get_bool(&profile.fanet.enabled))
+		return;
+
+	if (fc.fanet.status != fc_dev_ready)
+	{
+		fc.fanet.flags |= FANET_MODE_CHANGE_REG;
+		return;
+	}
+
+	bool air_mode = fc.flight.mode == flight_flight;
+
+	char cmd[16];
+	snprintf(cmd, sizeof(cmd), "FNM %u", air_mode ? 0 : 1);
 	fanet_send(cmd);
 }
 
@@ -91,11 +124,13 @@ void fanet_parse_dg(char * buffer)
 		strcpy(fc.fanet.version, buffer + 2);
 
 		//get module address
-		fanet_send("FNA");
+		if (fc.fanet.status == fc_dev_init)
+			fanet_send("FNA");
 	}
 	else if (start_with(buffer, "R OK"))
 	{
-		fanet_configure_flarm();
+		if (fc.fanet.status == fc_dev_init)
+			fanet_configure_flarm(true);
 	}
 }
 
@@ -222,12 +257,14 @@ void fanet_parse_fn(char * buffer)
 		fc.fanet.addr.user_id = user_id;
 
 		//check FLARM expiration
-		fanet_send("FAX");
+		if (fc.fanet.status == fc_dev_init)
+			fanet_send("FAX");
 	}
-	else if (start_with(buffer, "R OK") && fc.fanet.status == fc_dev_init)
+	else if (start_with(buffer, "R OK"))
 	{
 		//enable RX
-		fanet_send("DGP 1");
+		if (fc.fanet.status == fc_dev_init)
+			fanet_send("DGP 1");
 	}
 	else if (start_with(buffer, "F "))
 	{
@@ -278,11 +315,13 @@ void fanet_parse_fa(char * buffer)
 		sscanf(buffer + 2, "%u,%u,%u", &year, &month, &day);
 		fc.fanet.flarm_expires = datetime_to_epoch(0, 0, 0, day, month + 1, year + 1900);
 
-		fanet_configure_type();
+		if (fc.fanet.status == fc_dev_init)
+			fanet_configure_type(true);
 	}
-	else if (start_with(buffer, "R OK") && fc.fanet.status == fc_dev_init)
+	else if (start_with(buffer, "R OK"))
 	{
-		fc.fanet.status = fc_dev_ready;
+		if (fc.fanet.status == fc_dev_init)
+			fc.fanet.status = fc_dev_ready;
 	}
 }
 
@@ -425,6 +464,27 @@ void fanet_step()
 
 	if (fc.fanet.status == fc_dev_ready)
 	{
+		if (fc.fanet.flags & FANET_TYPE_CHANGE_REG)
+		{
+			fc.fanet.flags &= ~FANET_TYPE_CHANGE_REG;
+			fanet_configure_type(false);
+			return;
+		}
+
+		if (fc.fanet.flags & FANET_FLARM_CHANGE_REG)
+		{
+			fc.fanet.flags &= ~FANET_FLARM_CHANGE_REG;
+			fanet_configure_flarm(false);
+			return;
+		}
+
+		if (fc.fanet.flags & FANET_MODE_CHANGE_REG)
+		{
+			fc.fanet.flags &= ~FANET_MODE_CHANGE_REG;
+			fanet_set_mode();
+			return;
+		}
+
         //if enabled tracking etc...
         if (next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix == 3)
         {

@@ -76,7 +76,11 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 		else
 		{
 			if (local->cb != NULL)
-				local->cb(new_path);
+			{
+				bool ret = local->cb(new_path);
+				if (ret)
+					gui_switch_task(local->back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+			}
 		}
 
 	}

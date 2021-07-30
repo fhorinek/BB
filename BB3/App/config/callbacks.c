@@ -48,7 +48,7 @@ void flarm_enable_cb(cfg_entry_t * entry)
 		config_enable_callbacks();
 	}
 
-	fanet_configure_flarm();
+	fanet_configure_flarm(false);
 }
 
 void flarm_config_cb(cfg_entry_t * entry)
@@ -61,7 +61,7 @@ void flarm_config_cb(cfg_entry_t * entry)
 		config_enable_callbacks();
 	}
 
-	fanet_configure_type();
+	fanet_configure_type(false);
 }
 
 void dbg_esp_off_cb(cfg_entry_t * entry)

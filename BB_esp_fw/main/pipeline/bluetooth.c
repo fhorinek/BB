@@ -35,6 +35,7 @@ void pipe_bluetooth_init()
         rsp_cfg.src_ch = 2;
         rsp_cfg.dest_rate = OUTPUT_SAMPLERATE;
         rsp_cfg.dest_ch = OUTPUT_CHANNELS;
+        rsp_cfg.task_prio = 23;
 	pipes.bluetooth.filter = rsp_filter_init(&rsp_cfg);
 
 

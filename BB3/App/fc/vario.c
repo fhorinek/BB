@@ -62,9 +62,15 @@ void vario_profile_load(char * name)
 
     if (!file_exists(path))
     {
-    	char def[PATH_LEN];
-    	snprintf(def, sizeof(def), "%s/defaults/vario/default.cfg", PATH_ASSET_DIR);
-    	copy_file(def, path);
+    	config_set_text(&profile.vario.profile, "default");
+    	snprintf(path, sizeof(path), "%s/default.cfg", PATH_VARIO_DIR);
+
+    	if (!file_exists(path))
+    	{
+			char def[PATH_LEN];
+			snprintf(def, sizeof(def), "%s/defaults/vario/default.cfg", PATH_ASSET_DIR);
+			copy_file(def, path);
+    	}
     }
 
     vario_profile_t * prof = NULL;
@@ -166,7 +172,7 @@ static bool vario_is_silent = true;
 void vario_play_tone(float vario)
 {
     static int16_t last_value = 0xFFFF;
-    int16_t vario_int = vario * 10;
+    int16_t vario_int = vario * 100;
     static uint32_t next_time = 0;
 
     if (current_profile == NULL)

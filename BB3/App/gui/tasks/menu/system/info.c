@@ -149,7 +149,7 @@ static bool info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
     return true;
 }
 
-void manual_install_fm_cb(char * path)
+bool manual_install_fm_cb(char * path)
 {
 	char text[64];
 	path = strrchr(path, '/');
@@ -161,6 +161,8 @@ void manual_install_fm_cb(char * path)
 	snprintf(text, sizeof(text), "Install version %s", path);
 	strncpy(local->new_fw, path, sizeof(local->new_fw));
 	dialog_show("Start update?", text, dialog_yes_no, info_update_apply_cb);
+
+	return true;
 }
 
 static bool manual_install_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)

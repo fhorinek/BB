@@ -18,6 +18,10 @@
 
 #include "fc/fc.h"
 
+#include "file.h"
+
+static bool spi_prepare_in_progress = false;
+
 void esp_send_ping()
 {
     protocol_send(PROTO_PING, NULL, 0);
@@ -48,7 +52,11 @@ void esp_boot0_ctrl(bool val)
 
 void esp_spi_prepare()
 {
-    protocol_send(PROTO_SPI_PREPARE, NULL, 0);
+	if (!spi_prepare_in_progress)
+	{
+		protocol_send(PROTO_SPI_PREPARE, NULL, 0);
+		spi_prepare_in_progress = true;
+	}
 }
 
 void esp_sound_start(uint8_t id, uint8_t type, uint32_t size)
@@ -223,6 +231,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         case(PROTO_SPI_READY):
         {
             spi_start_transfer(((proto_spi_ready_t *)data)->data_lenght);
+            spi_prepare_in_progress = false;
         }
         break;
 
@@ -317,6 +326,24 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         case(PROTO_DOWNLOAD_INFO):
             download_slot_process_info((proto_download_info_t *)data);
         break;
+
+        case(PROTO_FS_LIST_REQ):
+        	file_list_path((proto_fs_list_req_t *)data);
+        break;
+
+        case(PROTO_FS_GET_FILE_REQ):
+		{
+			//create new thread
+			proto_fs_get_file_req_t * packet = (proto_fs_get_file_req_t *) malloc(sizeof(proto_fs_get_file_req_t));
+			memcpy(packet, data, sizeof(proto_fs_get_file_req_t));
+
+			xTaskCreate((TaskFunction_t)file_send_file, "file_send_file", 1024 * 4, (void *)packet, 24, NULL);
+		}
+		break;
+
+        case(PROTO_FS_SAVE_FILE_REQ):
+			file_get_file_info((proto_fs_save_file_req_t *) data);
+		break;
 
         default:
             DBG("Unknown packet: %02X", type);

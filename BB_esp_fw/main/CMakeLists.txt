@@ -19,6 +19,7 @@ idf_component_register(SRCS
 	"common.c"
 	"debug.c"
 	"download.c"
+	"linked_list.c"
 	"main.c"
 	"protocol.c"
 	"wifi.c"

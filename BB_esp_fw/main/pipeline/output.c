@@ -53,6 +53,7 @@ void pipe_output_init()
     downmix_cfg_t downmix_cfg = DEFAULT_DOWNMIX_CONFIG();
     downmix_cfg.downmix_info.source_num = NUMBER_OF_SOURCES;
     downmix_cfg.downmix_info.mode = ESP_DOWNMIX_WORK_MODE_SWITCH_ON;
+    downmix_cfg.task_prio = 20;
 
     pipes.output.mix = downmix_init(&downmix_cfg);
 

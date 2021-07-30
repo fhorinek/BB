@@ -16,6 +16,7 @@
 #include "pipeline/sound.h"
 #include "pipeline/vario.h"
 #include "download.h"
+#include "linked_list.h"
 
 static bool protocol_enable_processing = false;
 
@@ -67,7 +68,7 @@ void protocol_send(uint8_t type, uint8_t *data, uint16_t data_len)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
-//    DBG("protocol_handle %u", type);
+    //DBG("protocol_handle %u", type);
     
     if (!protocol_enable_processing)
     {
@@ -181,12 +182,31 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
         case (PROTO_FS_LIST_RES):
 		{
-        	proto_fs_list_res * packet = (proto_fs_list_res *)data;
-
-
+        	proto_fs_list_res_t * packet = (proto_fs_list_res_t *)data;
+        	ll_item_t * handle = ll_find_item(PROTO_FS_LIST_RES, packet->req_id);
+        	if (handle != NULL)
+        	{
+        		xSemaphoreTake(handle->write, WAIT_INF);
+        		memcpy(handle->data_ptr, data, sizeof(proto_fs_list_res_t));
+        		xSemaphoreGive(handle->read);
+        	}
 		}
         break;
 
+
+        case (PROTO_FS_GET_FILE_RES):
+		{
+        	//normal transfer is done via SPI, this means that file was not found
+        	proto_fs_list_req_t * packet = (proto_fs_list_res_t *)data;
+        	ll_item_t * handle = ll_find_item(PROTO_FS_GET_FILE_RES, packet->req_id);
+        	if (handle != NULL)
+        	{
+        		xSemaphoreTake(handle->write, WAIT_INF);
+        		handle->data_ptr = NULL;
+        		xSemaphoreGive(handle->read);
+        	}
+		}
+        break;
 
         case (PROTO_FANET_BOOT0_CTRL):
 		{
