@@ -27,7 +27,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	lv_obj_t * list = gui_list_create(par, "Device settings", &gui_pages, NULL);
 
 	gui_list_auto_entry(list, "Pilot", NEXT_TASK, &gui_pilot);
-	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario);
+	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
 	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
 	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);

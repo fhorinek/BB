@@ -10,7 +10,7 @@
 
 #include "gui/gui.h"
 
-typedef void (* filemanager_cb_t)(char *);
+typedef bool (* filemanager_cb_t)(char *);
 
 DECLARE_TASK(filemanager);
 void filemanager_open(char * path, uint8_t level, gui_task_t * back, filemanager_cb_t cb);

@@ -67,6 +67,49 @@ void * ps_malloc(uint32_t size)
 	return ptr;
 }
 
+void url_decode(char * dst, uint16_t len)
+{
+	char * src_buf = ps_malloc(len + 1);
+
+	strncpy(src_buf, dst, len);
+	src_buf[len] = 0;
+	char * src = src_buf;
+
+    char a, b;
+    while (*src)
+    {
+		if ((*src == '%') && ((a = src[1]) && (b = src[2])) && (isxdigit(a) && isxdigit(b)))
+		{
+			if (a >= 'a')
+				a -= 'a'-'A';
+			if (a >= 'A')
+				a -= ('A' - 10);
+			else
+				a -= '0';
+			if (b >= 'a')
+				b -= 'a'-'A';
+			if (b >= 'A')
+				b -= ('A' - 10);
+			else
+				b -= '0';
+			*dst++ = 16* a + b;
+				src += 3;
+		}
+		else if (*src == '+')
+		{
+			*dst++ = ' ';
+			src++;
+		}
+		else
+		{
+				*dst++ = *src++;
+		}
+    }
+    *dst++ = '\0';
+
+    free(src_buf);
+}
+
 bool read_post(char * data, char * key, char * value, uint16_t value_len)
 {
     char * pos = strstr(data, key);
@@ -81,20 +124,16 @@ bool read_post(char * data, char * key, char * value, uint16_t value_len)
 
         if (value_start == value_end)
         {
-            return false;
+        	value[0] = 0;
+        	return true;
         }
 
-        if (value_end == NULL)
-        {
-            strncpy(value, value_start, value_len);
-            value[value_len] = 0;
-        }
-        else
-        {
+        if (value_end != NULL)
             value_len = min(value_end - value_start, value_len);
-            strncpy(value, value_start, value_len);
-            value[value_len] = 0;
-        }
+
+		strncpy(value, value_start, value_len);
+		value[value_len] = 0;
+		url_decode(value, value_len);
 
         return true;
     }

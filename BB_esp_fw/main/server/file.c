@@ -10,6 +10,31 @@
 
 #define READ_BUFFER_SIZE	(1024 * 50)
 
+char * get_mime_type(char * path)
+{
+	char * ext = strrchr(path, '.');
+	if (ext != NULL)
+		ext++;
+
+	if (ext == NULL || strcmp(ext, "htm") == 0)
+		return NULL;
+	else if (strcmp(ext, "css") == 0)
+		return "text/css";
+	else if (strcmp(ext, "png") == 0)
+		return "image/png";
+	else if (strcmp(ext, "svg") == 0)
+		return "image/svg+xml";
+	else
+		return NULL;
+}
+
+void set_mime_type(httpd_req_t * req, char * path)
+{
+	char * ct = get_mime_type(path);
+	if (ct != NULL)
+		httpd_resp_set_type(req, ct);
+}
+
 bool send_file_internal(output_buffer_t * ob, char * path)
 {
 	FILE * f = fopen(path, "r");
@@ -33,7 +58,7 @@ bool send_file_internal(output_buffer_t * ob, char * path)
 	return true;
 }
 
-void send_file(httpd_req_t *req, char * path)
+void send_file(httpd_req_t * req, char * path)
 {
 	FILE * f = fopen(path, "r");
 	if (f == NULL)
@@ -44,6 +69,8 @@ void send_file(httpd_req_t *req, char * path)
 
 	char * read_buffer = ps_malloc(READ_BUFFER_SIZE);
 	uint32_t readed;
+
+	set_mime_type(req, path);
 
 	do
 	{

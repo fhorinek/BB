@@ -123,6 +123,7 @@ void fc_takeoff()
 
     fc.flight.mode = flight_flight;
 
+    fanet_set_mode();
     logger_start();
 }
 
@@ -134,6 +135,7 @@ void fc_landing()
 
     fc_reset();
 
+    fanet_set_mode();
     logger_stop();
 }
 

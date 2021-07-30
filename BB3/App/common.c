@@ -210,12 +210,22 @@ uint32_t calc_crc32(uint32_t * data, uint32_t size)
     return crc ^ 0xFFFFFFFF;
 }
 
-void get_tmp_filename(char * fname)
+void get_tmp_path(char * fname, uint32_t id)
+{
+    sprintf(fname, "%s/%08X", PATH_TEMP_DIR, id);
+}
+
+uint32_t get_tmp_filename(char * fname)
 {
     static uint32_t counter = 0;
 
-    sprintf(fname, "%s/%08X", PATH_TEMP_DIR, counter);
+    if (fname != NULL)
+    	get_tmp_path(fname, counter);
+
+    uint32_t tmp = counter;
     counter++;
+
+    return tmp;
 }
 
 #define COPY_WORK_BUFFER_SIZE (1024 * 4)

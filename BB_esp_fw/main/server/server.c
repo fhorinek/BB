@@ -59,6 +59,27 @@ static const httpd_uri_t api_handler = {
     .user_ctx  = NULL,
 };
 
+static const httpd_uri_t api_fs_list = {
+    .uri       = "/api/list_fs",
+    .method    = HTTP_POST,
+    .handler   = api_handle_list_fs,
+    .user_ctx  = NULL,
+};
+
+static const httpd_uri_t api_fs_get_file = {
+    .uri       = "/api/get_file",
+    .method    = HTTP_POST,
+    .handler   = api_handle_get_file,
+    .user_ctx  = NULL,
+};
+
+static const httpd_uri_t api_fs_save_file = {
+    .uri       = "/api/save_file",
+    .method    = HTTP_POST,
+    .handler   = api_handle_save_file,
+    .user_ctx  = NULL,
+};
+
 static const httpd_uri_t file_handler = {
     .uri       = "*",
     .method    = HTTP_GET,
@@ -103,6 +124,9 @@ void server_init()
         httpd_register_uri_handler(server, &index_handler);
         httpd_register_uri_handler(server, &api_handler);
         httpd_register_uri_handler(server, &page_handler);
+        httpd_register_uri_handler(server, &api_fs_list);
+        httpd_register_uri_handler(server, &api_fs_get_file);
+        httpd_register_uri_handler(server, &api_fs_save_file);
         httpd_register_uri_handler(server, &file_handler);
 //        httpd_register_basic_auth(server);
 

@@ -63,6 +63,7 @@ uint8_t * esp_spi_acquire_buffer_ptr(uint16_t * size_avalible)
 
 void esp_spi_release_buffer(uint16_t data_written)
 {
+	data_written = (data_written + 3) & ~3;
     spi_tx_buffer_index += data_written;
     osSemaphoreRelease(spi_buffer_access);
 }
@@ -90,10 +91,15 @@ void esp_parse_spi(uint8_t * data, uint16_t len)
             case(SPI_EP_DOWNLOAD):
                 download_slot_process_data(hdr->data_id, data, hdr->data_len);
             break;
+
+            case(SPI_EP_FILE):
+				file_get_file_data(hdr->data_id, data, hdr->data_len);
+			break;
         }
 
         //advance buffer
-        data += hdr->data_len;
+        uint16_t size = (hdr->data_len + 3) & ~3;
+        data += size;
     }
 }
 
@@ -118,6 +124,8 @@ void thread_esp_spi_start(void * argument)
         uint16_t spi_data_to_send = spi_tx_buffer_index;
         if (spi_data_to_read > spi_data_to_send)
             spi_data_to_send = spi_data_to_read;
+
+        ASSERT(spi_data_to_send > 0);
 
         uint8_t res = HAL_SPI_TransmitReceive_DMA(esp_spi, spi_tx_buffer, spi_rx_buffer, spi_data_to_send);
         if (res != HAL_OK)

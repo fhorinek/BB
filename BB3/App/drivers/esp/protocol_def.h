@@ -216,14 +216,35 @@ typedef struct {
 	char path[PROTO_FS_PATH_LEN];
 	uint8_t filter;
 	uint8_t req_id;
-} proto_fs_list_req;
+} proto_fs_list_req_t;
 
 typedef struct {
 	char name[PROTO_FS_NAME_LEN];
 	uint8_t type;
 	uint8_t req_id;
-} proto_fs_list_res;
+} proto_fs_list_res_t;
 
+#define PROTO_FS_GET_FILE_REQ		0x41
+#define PROTO_FS_GET_FILE_RES		0x41
+
+typedef struct {
+	char path[PROTO_FS_PATH_LEN];
+	uint16_t chunk_size;
+	uint8_t req_id;
+} proto_fs_get_file_req_t;
+
+typedef struct {
+	uint8_t req_id;
+} proto_fs_get_file_res_t;
+
+#define PROTO_FS_SAVE_FILE_REQ		0x42
+typedef struct {
+	char path[PROTO_FS_PATH_LEN];
+	uint32_t size;
+	uint8_t req_id;
+} proto_fs_save_file_req_t;
+
+//response trought SPI
 
 //
 //#define PROTO_BT_SET_MODE       0xff
@@ -263,6 +284,7 @@ typedef struct
 #define SPI_EP_SOUND		0
 #define SPI_EP_MUSIC		1
 #define SPI_EP_DOWNLOAD     2
+#define SPI_EP_FILE		    3
 
 
 #endif /* DRIVERS_ESP_PROTOCOL_DEF_H_ */

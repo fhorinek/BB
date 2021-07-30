@@ -8,9 +8,11 @@
 
 #include "spi.h"
 
+
 #include "driver/spi_slave.h"
 #include "../protocol.h"
 #include "../pipeline/sound.h"
+#include "../linked_list.h"
 
 static SemaphoreHandle_t spi_buffer_access;
 static SemaphoreHandle_t spi_prepare_semaphore;
@@ -37,20 +39,21 @@ uint8_t * spi_acquire_buffer_ptr(uint32_t * size_avalible)
 
 void spi_release_buffer(uint32_t data_written)
 {
+	data_written = (data_written + 3) & ~3;
     spi_tx_buffer_index += data_written;
     xSemaphoreGive(spi_buffer_access);
 }
 
 void spi_setup_cb(spi_slave_transaction_t *trans)
 {
-//    INFO("spi_setup_cb: Buffer ready");
+//    DBG("spi_setup_cb: Buffer ready");
 
     protocol_send_spi_ready(spi_data_to_send);
 }
 
 void spi_trans_cb(spi_slave_transaction_t *trans)
 {
-//    INFO("spi_trans_cb: Transaction done");
+//    DBG("spi_trans_cb: Transaction done");
 }
 
 uint16_t spi_send(uint8_t * data, uint16_t len)
@@ -98,11 +101,25 @@ void spi_parse(uint8_t * data, uint16_t len)
 			pipe_sound_write(hdr->data_id, data, hdr->data_len);
 		}
 
+		if (hdr->packet_type == SPI_EP_FILE)
+		{
+        	ll_item_t * handle = ll_find_item(PROTO_FS_GET_FILE_RES, hdr->data_id);
+        	if (handle != NULL)
+        	{
+        		xSemaphoreTake(handle->write, WAIT_INF);
+        		handle->data_ptr = ps_malloc(hdr->data_len + 4);
+        		*((uint32_t *)(handle->data_ptr)) = hdr->data_len;
+        		memcpy(handle->data_ptr + 4, data, hdr->data_len);
+        		xSemaphoreGive(handle->read);
+        	}
+		}
+
+
 		//advance buffer
-		data += hdr->data_len;
+		uint16_t size = (hdr->data_len + 3) & ~3;
+		data += size;
 	}
 }
-
 
 void spi_task(void *pvParameters)
 {

@@ -3,6 +3,6 @@
 
 #include "gui/gui.h"
 
-DECLARE_TASK(vario);
+DECLARE_TASK(vario_settings);
 
 #endif /* GUI_VARIO_H_ */

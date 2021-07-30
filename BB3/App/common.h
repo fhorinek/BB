@@ -217,7 +217,9 @@ uint32_t calc_crc32(uint32_t * data, uint32_t size);
 
 void rtos_timer_elapsed();
 
-void get_tmp_filename(char * fname);
+void get_tmp_path(char * fname, uint32_t id);
+uint32_t get_tmp_filename(char * fname);
+
 void clear_dir(char * path);
 bool copy_file(char * src, char * dst);
 

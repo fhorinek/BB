@@ -102,3 +102,18 @@ svg circle:hover
     fill: yellow;
 }
 
+.icon
+{
+    color: black;
+    background-color: white;
+    border-radius: 4px;
+    margin: 0 5px 0 5px;
+}
+
+img.icon
+{
+    position: relative;
+    top: 4px;
+}
+
+
