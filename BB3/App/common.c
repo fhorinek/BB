@@ -418,6 +418,13 @@ bool file_exists(char * path)
     return (f_stat(path, &fno) == FR_OK);
 }
 
+bool touch(char * path)
+{
+	FIL f;
+    f_open(&f, path, FA_CREATE_ALWAYS);
+    f_close(&f);
+}
+
 bool file_isdir(char * path)
 {
     FILINFO fno;

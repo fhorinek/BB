@@ -4,6 +4,7 @@
  *  Created on: Feb 5, 2021
  *      Author: horinek
  */
+#define DEBUG_LEVEL	DBG_DEBUG
 #include "vario.h"
 
 #include "fc/fc.h"
@@ -140,12 +141,17 @@ bool get_between(vario_tone_t * tone, int16_t climb, int16_t * freq, int16_t * d
     uint8_t prev = 0xFF;
     uint8_t next = 0xFF;
 
+    //clamp
+    if (climb > 1000)
+    	climb = 1000;
+    else if (climb < -1000)
+    	climb = -1000;
+
     for (uint8_t i = 0; i < tone->size; i++)
     {
         if (tone->points[i].climb <= climb)
         {
             prev = i;
-            continue;
         }
 
         if (tone->points[i].climb >= climb)
@@ -157,7 +163,12 @@ bool get_between(vario_tone_t * tone, int16_t climb, int16_t * freq, int16_t * d
 
     if (prev != 0xFF && next != 0xFF)
     {
-        float m = (climb - tone->points[prev].climb) / (float)(tone->points[next].climb - tone->points[prev].climb);
+        float m;
+        if (prev != next)
+        	m = (climb - tone->points[prev].climb) / (float)(tone->points[next].climb - tone->points[prev].climb);
+        else
+        	m = 0;
+
         *freq = tone->points[prev].freq + m * (tone->points[next].freq - tone->points[prev].freq);
         *dura = tone->points[prev].dura + m * (tone->points[next].dura - tone->points[prev].dura);
 
@@ -172,8 +183,9 @@ static bool vario_is_silent = true;
 void vario_play_tone(float vario)
 {
     static int16_t last_value = 0xFFFF;
+    static uint8_t packet_id = 0;
+
     int16_t vario_int = vario * 100;
-    static uint32_t next_time = 0;
 
     if (current_profile == NULL)
         return;
@@ -181,12 +193,11 @@ void vario_play_tone(float vario)
     if (!fc.esp.tone_ready)
         return;
 
-    fc.esp.tone_ready = false;
-
-
     if (vario_int != last_value || vario_is_silent)
     {
-        last_value = vario_int;
+    	fc.esp.tone_ready = false;
+
+    	last_value = vario_int;
         vario_is_silent = false;
 
         proto_tone_play_t data;
@@ -203,6 +214,9 @@ void vario_play_tone(float vario)
             }
         }
 
+        packet_id = (packet_id + 1) % 100;
+        data.id = packet_id;
+//        DBG("Tone normal send");
         protocol_send(PROTO_TONE_PLAY, (void *)&data, sizeof(data));
     }
 
@@ -213,10 +227,18 @@ void vario_silent()
 	if (vario_is_silent)
 		return;
 
+    if (!fc.esp.tone_ready)
+        return;
+
+    fc.esp.tone_ready = false;
+
 	vario_is_silent = true;
+
 
     proto_tone_play_t data;
     data.size = 0;
+    data.id = 0xFF;
+//    DBG("Tone silent send");
     protocol_send(PROTO_TONE_PLAY, (void *)&data, sizeof(data));
 }
 
@@ -264,6 +286,25 @@ void vario_step()
             return;
         }
     }
+
+#if 0
+    static float demo = 0;
+    static bool rising = true;
+
+    if (rising)
+    {
+    	demo += 0.01;
+    	if (demo > 12)
+    		rising = false;
+    }
+    else
+    {
+    	demo -= 0.01;
+    	if (demo < -12)
+    		rising = true;
+    }
+    vario = demo;
+#endif
 
     fc.fused.vario = vario;
     fc.fused.avg_vario += (vario - fc.fused.avg_vario) / (float)(config_get_int(&profile.vario.avg_duration) * 100);

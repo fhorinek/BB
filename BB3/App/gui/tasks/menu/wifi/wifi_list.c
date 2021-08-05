@@ -26,7 +26,7 @@ network_info_t;
 
 #define NUMBER_OF_NETWORKS  16
 
-REGISTER_TASK_I(wifi_list,
+REGISTER_TASK_IS(wifi_list,
     lv_obj_t * spinner;
     lv_obj_t * info;
 
@@ -224,5 +224,10 @@ static lv_obj_t * wifi_list_init(lv_obj_t * par)
     local->info = gui_list_text_add_entry(list, "Scanning...");
 
 	return list;
+}
+
+static void wifi_list_stop()
+{
+	esp_wifi_stop_scan();
 }
 

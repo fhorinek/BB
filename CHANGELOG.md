@@ -1,3 +1,12 @@
+# 05.08.2021 - Build 140
+
+## Changed
+ * Development menu is hidden, click 5 times on serial number in device info to enable it #40
+ 
+## Fixed
+ * Audio Vario freezes #52, #15
+ * Wifi menu #43, #25, #44
+
 # 30.07.2021 - Build 139
 
 ## Added

@@ -160,7 +160,7 @@ HANDLER_ATTR void MemManage_Handler(void)
 
 	FAULT("Program stopped in MemManage_Handler");
 	uint32_t CFSR = SCB->CFSR;
-    FAULT("MFSR: 0x%04X", (CFSR & SCB_CFSR_BUSFAULTSR_Msk) >> SCB_CFSR_BUSFAULTSR_Pos);
+    FAULT("MFSR: 0x%04X", (CFSR & SCB_CFSR_BUSFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
     if (CFSR & SCB_CFSR_IACCVIOL_Msk)
         FAULT(" IACCVIOL - Instruction access violation");
     if (CFSR & SCB_CFSR_DACCVIOL_Msk)

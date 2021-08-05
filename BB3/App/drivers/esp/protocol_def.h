@@ -95,9 +95,9 @@ typedef struct {
     uint16_t freq[8];
     uint16_t dura[8];
     uint8_t size;
+    uint8_t id;
 } proto_tone_play_t;
 #define PROTO_TONE_ACK	        0x14
-
 
 #define PROTO_WIFI_SET_MODE     0x20
 #define PROTO_WIFI_MODE         0x20

@@ -174,7 +174,7 @@ void download_slot_process_info(proto_download_info_t * info)
 
                         download_slot_file_data_t * data = (download_slot_file_data_t *) malloc(sizeof(download_slot_file_data_t));
                         get_tmp_filename(data->name);
-                        f_open(&data->f, data->name, FA_WRITE | FA_CREATE_NEW);
+                        f_open(&data->f, data->name, FA_WRITE | FA_CREATE_ALWAYS);
 
                         ds->data = (uint8_t *)data;
                     }

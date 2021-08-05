@@ -327,5 +327,33 @@ void pipe_vario_event(audio_event_iface_msg_t * msg)
 	}
 }
 
+void vario_proces_packet(proto_tone_play_t * packet)
+{
+	//DBG("Packet id = %u", packet->id);
+
+	tone_pair_t * pairs;
+
+	if (packet->size == 0)
+	{
+		pairs = ps_malloc(sizeof(tone_pair_t *) * 1);
+		pairs[0].dura = 1;
+		pairs[0].tone = 0;
+		packet->size = 1;
+	}
+	else
+	{
+		pairs = ps_malloc(sizeof(tone_pair_t *) * packet->size);
+		for (uint8_t i = 0; i < packet->size; i++)
+		{
+			pairs[i].dura = packet->dura[i];
+			pairs[i].tone = packet->freq[i];
+		}
+	}
+
+	vario_create_sequence(pairs, packet->size);
+	free(pairs);
+	free(packet);
+	vTaskDelete(NULL);
+}
 
 

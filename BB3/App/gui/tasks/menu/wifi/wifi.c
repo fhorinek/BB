@@ -1,7 +1,6 @@
-#include <gui/tasks/menu/settings.h>
-#include <gui/tasks/menu/wifi/wifi.h>
-#include <gui/tasks/menu/wifi/wifi_list.h>
-#include <gui/tasks/menu/wifi/wifi_info.h>
+#include "wifi.h"
+#include "wifi_list.h"
+#include "wifi_info.h"
 #include "../settings.h"
 
 #include "gui/gui_list.h"
@@ -29,7 +28,7 @@ static bool wifi_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 
 static void wifi_loop()
 {
-    if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
+	if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
     {
         char msg[16 + sizeof(fc.esp.ssid)];
         snprintf(msg, sizeof(msg), "Connected to '%s'", fc.esp.ssid);

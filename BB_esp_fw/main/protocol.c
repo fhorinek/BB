@@ -68,7 +68,7 @@ void protocol_send(uint8_t type, uint8_t *data, uint16_t data_len)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
-    //DBG("protocol_handle %u", type);
+    int64_t start = esp_timer_get_time();
     
     if (!protocol_enable_processing)
     {
@@ -115,29 +115,10 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
         case (PROTO_TONE_PLAY):
 		{
-        	proto_tone_play_t * packet = (proto_tone_play_t *)data;
+        	proto_tone_play_t * packet = (proto_tone_play_t *) ps_malloc(sizeof(proto_tone_play_t));
+        	memcpy(packet, data, sizeof(proto_tone_play_t));
 
-        	tone_pair_t * pairs;
-
-    		if (packet->size == 0)
-    		{
-    			pairs = ps_malloc(sizeof(tone_pair_t *) * 1);
-				pairs[0].dura = 1;
-				pairs[0].tone = 0;
-				packet->size = 1;
-    		}
-    		else
-    		{
-    			pairs = ps_malloc(sizeof(tone_pair_t *) * packet->size);
-				for (uint8_t i = 0; i < packet->size; i++)
-				{
-					pairs[i].dura = packet->dura[i];
-					pairs[i].tone = packet->freq[i];
-				}
-    		}
-
-			vario_create_sequence(pairs, packet->size);
-			free(pairs);
+        	xTaskCreate((TaskFunction_t)vario_proces_packet, "vario_proces_packet", 1024 * 3, (void *)packet, 24, NULL);
 		}
         break;
 
@@ -152,6 +133,11 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
         case (PROTO_WIFI_SCAN_START):
         	xTaskCreate((TaskFunction_t)wifi_start_scan, "wifi_start_scan", 1024 * 3, NULL, 24, NULL);
+        break;
+
+        case (PROTO_WIFI_SCAN_STOP):
+			//hard stop
+			esp_wifi_scan_stop();
         break;
 
         case (PROTO_WIFI_CONNECT):
@@ -197,7 +183,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         case (PROTO_FS_GET_FILE_RES):
 		{
         	//normal transfer is done via SPI, this means that file was not found
-        	proto_fs_list_req_t * packet = (proto_fs_list_res_t *)data;
+        	proto_fs_list_res_t * packet = (proto_fs_list_res_t *)data;
         	ll_item_t * handle = ll_find_item(PROTO_FS_GET_FILE_RES, packet->req_id);
         	if (handle != NULL)
         	{
@@ -221,4 +207,10 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
             DUMP(data, len);
         break;
     }
+
+	int64_t delta = esp_timer_get_time() - start;
+	if (delta > 1000)
+	{
+		DBG("handle %02X %0.3fms", type, delta / 1000.0);
+	}
 }
