@@ -38,5 +38,6 @@ void vario_create_sequence(tone_pair_t * pairs, uint8_t cnt);
 #define ONE_MS	(OUTPUT_SAMPLERATE / 1000)
 
 void pipe_vario_step();
+void vario_proces_packet(proto_tone_play_t * packet);
 
 #endif /* MAIN_PIPELINE_VARIO_H_ */

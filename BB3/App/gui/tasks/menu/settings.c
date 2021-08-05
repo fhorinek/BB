@@ -34,7 +34,9 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_bluetooth);
 	gui_list_auto_entry(list, "Wi-Fi", NEXT_TASK, &gui_wifi);
 	gui_list_auto_entry(list, "System", NEXT_TASK, &gui_system);
-	gui_list_auto_entry(list, "Development", NEXT_TASK, &gui_development);
+
+	if (file_exists(DEV_MODE_FILE))
+		gui_list_auto_entry(list, "Development", NEXT_TASK, &gui_development);
 
 	return list;
 }

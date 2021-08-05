@@ -25,6 +25,8 @@ static uint8_t wifi_ap_clients = 0;
 
 static esp_netif_t * ap_netif;
 
+static SemaphoreHandle_t wifi_lock;
+
 #define WIFI_CONNECTION_TRIES	10
 
 void wifi_ip_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
@@ -166,11 +168,16 @@ void wifi_init()
     mdns_hostname_set(DEVICE_HOSTNAME);
     mdns_instance_name_set(DEVICE_INSTANCE);
     mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
+
+    wifi_lock = xSemaphoreCreateBinary();
+    xSemaphoreGive(wifi_lock);
 }
 
 
 void wifi_enable(proto_wifi_mode_t * packet)
 {
+	xSemaphoreTake(wifi_lock, WAIT_INF);
+
 	wifi_mode_t mode;
 
 	if (packet->client && !packet->ap)
@@ -228,6 +235,8 @@ void wifi_enable(proto_wifi_mode_t * packet)
 		free(wifi_config);
 	}
 
+	xSemaphoreGive(wifi_lock);
+
 	free(packet);
 	vTaskDelete(NULL);
 }
@@ -236,6 +245,8 @@ void wifi_enable(proto_wifi_mode_t * packet)
 
 void wifi_start_scan(void * parameter)
 {
+	xSemaphoreTake(wifi_lock, WAIT_INF);
+
 	if (wifi_mode == WIFI_MODE_STA || wifi_mode == WIFI_MODE_APSTA)
 	{
 		uint16_t number = SCAN_LIST_SIZE;
@@ -263,11 +274,15 @@ void wifi_start_scan(void * parameter)
 	    free(ap_info);
 	}
 
+	xSemaphoreGive(wifi_lock);
+
 	vTaskDelete(NULL);
 }
 
 void wifi_connect(proto_wifi_connect_t * packet)
 {
+	xSemaphoreTake(wifi_lock, WAIT_INF);
+
 	if (wifi_mode == WIFI_MODE_STA || wifi_mode == WIFI_MODE_APSTA)
 	{
 		INFO("Connect to '%s' pw '%s' ch %u", packet->ssid, packet->pass, packet->ch);
@@ -309,6 +324,7 @@ void wifi_connect(proto_wifi_connect_t * packet)
 		free(wifi_config);
 	}
 
+	xSemaphoreGive(wifi_lock);
 
 	free(packet);
 	vTaskDelete(NULL);

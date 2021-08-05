@@ -18,10 +18,12 @@
 #include "gui/dialog.h"
 #include "gui/tasks/filemanager.h"
 #include "etc/format.h"
+#include "gui/statusbar.h"
 
 REGISTER_TASK_I(info,
     char new_fw[32];
     uint8_t slot_id;
+    uint8_t click_cnt;
 );
 
 void info_update_progress_cb(uint8_t res, void * data)
@@ -131,20 +133,17 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
     gui_lock_release();
 }
 
-static bool info_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool info_update_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        if (index == 0)
-        {
-            char url[128];
+		char url[128];
 
-            snprintf(url, sizeof(url), "%s/%s/", config_get_text(&config.system.server_url), config_get_select_text(&config.system.firmware_channel));
+		snprintf(url, sizeof(url), "%s/%s/", config_get_text(&config.system.server_url), config_get_select_text(&config.system.firmware_channel));
 
-            local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_PSRAM, info_update_get_info_cb);
-            dialog_show("Checking for updates", "", dialog_progress, info_update_progress_cb);
-            dialog_progress_spin();
-        }
+		local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_PSRAM, info_update_get_info_cb);
+		dialog_show("Checking for updates", "", dialog_progress, info_update_progress_cb);
+		dialog_progress_spin();
     }
     return true;
 }
@@ -165,7 +164,7 @@ bool manual_install_fm_cb(char * path)
 	return true;
 }
 
-static bool manual_install_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool manual_install_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CLICKED)
 	{
@@ -179,21 +178,51 @@ static bool manual_install_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
 	return true;
 }
 
+static bool info_serial_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+    	local->click_cnt++;
+    	if (local->click_cnt > 5)
+    	{
+    		local->click_cnt = 0;
+
+    		if (file_exists(DEV_MODE_FILE))
+    		{
+    			f_unlink(DEV_MODE_FILE);
+    			statusbar_add_msg(STATUSBAR_MSG_INFO, "Developer mode disabled");
+    		}
+    		else
+    		{
+    			touch(DEV_MODE_FILE);
+    			statusbar_add_msg(STATUSBAR_MSG_INFO, "Developer mode enabled");
+    		}
+
+    	}
+    }
+    return true;
+}
+
+
 lv_obj_t * info_init(lv_obj_t * par)
 {
-    lv_obj_t * list = gui_list_create(par, "Device info", &gui_system, info_cb);
+	local->click_cnt = 0;
+
+    lv_obj_t * list = gui_list_create(par, "Device info", &gui_system, NULL);
 
     char rev_str[10];
     char value[32];
 
     rev_get_sw_string(rev_str);
     snprintf(value, sizeof(value), "Firmware %s", rev_str);
-    gui_list_info_add_entry(list, "Check for updates", value);
+    lv_obj_t * obj = gui_list_info_add_entry(list, "Check for updates", value);
+    gui_config_entry_add(obj, CUSTOM_CB, info_update_cb);
 
     gui_list_auto_entry(list, "Install update", CUSTOM_CB, manual_install_cb);
 
-    format_uuid(value);
-    gui_list_info_add_entry(list, "Serial number", value);
+    snprintf(value, sizeof(value), "%08lX", rev_get_short_id());
+    obj = gui_list_info_add_entry(list, "Serial number", value);
+    gui_config_entry_add(obj, CUSTOM_CB, info_serial_cb);
 
     snprintf(value, sizeof(value), "%02X%04X", fc.fanet.addr.manufacturer_id, fc.fanet.addr.user_id);
     gui_list_info_add_entry(list, "FANET ID", value);

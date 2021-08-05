@@ -101,6 +101,16 @@ void esp_wifi_start_scan(wifi_list_update_cb cb)
     protocol_send(PROTO_WIFI_SCAN_START, NULL, 0);
 }
 
+void esp_wifi_stop_scan()
+{
+    if (fc.esp.wifi_list_cb != NULL)
+    {
+    	fc.esp.wifi_list_cb = NULL;
+    	protocol_send(PROTO_WIFI_SCAN_STOP, NULL, 0);
+    }
+
+}
+
 void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch)
 {
     proto_wifi_connect_t data;
@@ -253,7 +263,10 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         break;
 
         case(PROTO_TONE_ACK):
+		{
+			//DBG("Tone ready");
 			fc.esp.tone_ready = true;
+		}
         break;
 
         case(PROTO_WIFI_SCAN_END):

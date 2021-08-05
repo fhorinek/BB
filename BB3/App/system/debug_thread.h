@@ -48,10 +48,15 @@
 #define ERR(...)
 #endif
 
+#define __DEBUG_BKPT()  asm volatile ("bkpt 0")
+
 #define ASSERT(cond)	\
 	do {	\
 		if (!(cond))	\
+		{ \
 			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+			__DEBUG_BKPT();\
+		} \
 	} while(0);
 
 

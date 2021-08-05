@@ -71,7 +71,7 @@ static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
 
     local->bar_avg = lv_obj_create(slot->obj, NULL);
     lv_obj_set_x(local->bar_avg, 1);
-    lv_obj_set_width(local->bar_avg, slot->w / 3 - 1);
+    lv_obj_set_width(local->bar_avg, slot->w / 2 - 1);
 
     for (uint8_t i = 0; i < SEGMENTS_CNT - 1; i++)
     {
@@ -90,19 +90,32 @@ static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void Bar_update(widget_slot_t * slot)
 {
-    //TODO: change offests
-    int16_t y1 = slot->h / 2 - (slot->h / SEGMENTS_CNT) * local->offset;
+    int8_t old_offset = local->offset;
+
+    if (abs(fc.fused.vario) >= 9.0)
+    	local->offset = 9 * (fc.fused.vario / abs(fc.fused.vario));
+    else if (abs(fc.fused.vario) >= 6.0)
+    	local->offset = 6 * (fc.fused.vario / abs(fc.fused.vario));
+    else if (abs(fc.fused.vario) >= 3.0)
+    	local->offset = 3 * (fc.fused.vario / abs(fc.fused.vario));
+    else if (abs(fc.fused.vario) <= 1.0)
+    	local->offset = 0;
+
+    if (old_offset != local->offset)
+    	Bar_update_range(slot);
+
+	int16_t y1 = slot->h / 2 - (slot->h / SEGMENTS_CNT) * -local->offset;
     int16_t y2 = (slot->h / SEGMENTS_CNT) * -fc.fused.avg_vario;
 
     if (y2 < 0)
     {
-        lv_obj_set_style_local_bg_color(local->bar_avg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_darken(LV_COLOR_GREEN, LV_OPA_60));
+        lv_obj_set_style_local_bg_color(local->bar_avg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_darken(LV_COLOR_GREEN, LV_OPA_70));
         lv_obj_set_y(local->bar_avg, y1 + y2);
         lv_obj_set_height(local->bar_avg, -y2);
     }
     else
     {
-        lv_obj_set_style_local_bg_color(local->bar_avg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_darken(LV_COLOR_RED, LV_OPA_60));
+        lv_obj_set_style_local_bg_color(local->bar_avg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_darken(LV_COLOR_RED, LV_OPA_70));
         lv_obj_set_y(local->bar_avg, y1);
         lv_obj_set_height(local->bar_avg, y2);
     }

@@ -337,6 +337,9 @@ void config_load_all()
     config_init((cfg_entry_t *)&pilot);
     config_load((cfg_entry_t *)&pilot, path);
 
+    //make sure to process
+    config_process_cb(&config.device_name);
+
 	config_enable_callbacks();
 }
 

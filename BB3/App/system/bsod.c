@@ -134,7 +134,7 @@ void bsod_show(context_frame_t * frame)
     if (CFSR & SCB_CFSR_IBUSERR_Msk)
     	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IBUSERR", MF_ALIGN_LEFT);
 
-    if (CFSR & SCB_CFSR_BUSFAULTSR_Msk)
+    if (CFSR & SCB_CFSR_MEMFAULTSR_Msk)
     	bosd_draw_text(TFT_WIDTH / 2, (line++) * LINE_SIZE, "** Mem Fault **", MF_ALIGN_CENTER);
     if (CFSR & SCB_CFSR_MMARVALID_Msk)
     {
