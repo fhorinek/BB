@@ -109,6 +109,11 @@ void sd_format()
 
 	uint8_t res = f_mkfs(SDPath, FM_FAT32, 0, work, sizeof(work));
 	DBG(" f_mkfs = %u", res);
+
+	sd_mount();
+	sd_set_disk_label();
+	sd_unmount();
+
 }
 
 void sd_set_disk_label()
@@ -119,7 +124,7 @@ void sd_set_disk_label()
 	f_getlabel(SDPath, label, &len);
 	len = min(sizeof(label) - 1, len);
 	label[len] = 0;
-	if (strcmp(DISK_NAME, label) != 0)
+	if (strlen(label) == 0)
 	{
 		f_setlabel(DISK_NAME);
 	}

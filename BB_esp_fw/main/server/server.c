@@ -55,30 +55,38 @@ static const httpd_uri_t page_handler = {
 static const httpd_uri_t api_handler = {
     .uri       = "/api/sound",
     .method    = HTTP_POST,
-    .handler   = api_handle_sound,
+    .handler   = api_sound,
     .user_ctx  = NULL,
 };
 
 static const httpd_uri_t api_fs_list = {
     .uri       = "/api/list_fs",
     .method    = HTTP_POST,
-    .handler   = api_handle_list_fs,
+    .handler   = api_list_fs,
     .user_ctx  = NULL,
 };
 
 static const httpd_uri_t api_fs_get_file = {
     .uri       = "/api/get_file",
     .method    = HTTP_POST,
-    .handler   = api_handle_get_file,
+    .handler   = api_get_file,
     .user_ctx  = NULL,
 };
 
 static const httpd_uri_t api_fs_save_file = {
     .uri       = "/api/save_file",
     .method    = HTTP_POST,
-    .handler   = api_handle_save_file,
+    .handler   = api_save_file,
     .user_ctx  = NULL,
 };
+
+static const httpd_uri_t api_fake_gnss_h = {
+    .uri       = "/api/fake_gnss",
+    .method    = HTTP_POST,
+    .handler   = api_fake_gnss,
+    .user_ctx  = NULL,
+};
+
 
 static const httpd_uri_t file_handler = {
     .uri       = "*",
@@ -127,10 +135,10 @@ void server_init()
         httpd_register_uri_handler(server, &api_fs_list);
         httpd_register_uri_handler(server, &api_fs_get_file);
         httpd_register_uri_handler(server, &api_fs_save_file);
+        httpd_register_uri_handler(server, &api_fake_gnss_h);
         httpd_register_uri_handler(server, &file_handler);
-//        httpd_register_basic_auth(server);
 
-//        return server;
+//        httpd_register_basic_auth(server);
     }
 }
 

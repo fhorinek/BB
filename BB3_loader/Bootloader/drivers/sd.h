@@ -14,7 +14,6 @@ bool sd_mount();
 void sd_unmount();
 
 void sd_format();
-void sd_set_disk_label();
 
 uint8_t BSP_SD_ReadBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks);
 uint8_t BSP_SD_WriteBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks);

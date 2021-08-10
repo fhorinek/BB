@@ -259,13 +259,13 @@ void fc_set_time(uint32_t datetime)
 
 void fc_set_time_from_utc(uint32_t datetime)
 {
-	int32_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
+	int64_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
 	fc_set_time(datetime + delta);
 }
 
 uint64_t fc_get_utc_time()
 {
-	int32_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
+	int64_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
 	return rtc_get_epoch() - delta;
 }
 

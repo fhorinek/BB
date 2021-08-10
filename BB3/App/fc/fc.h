@@ -197,7 +197,7 @@ typedef struct
         fc_device_status_t status;
 		uint8_t fix; //2 - 2D, 3 - 3D
 		bool time_synced;
-		uint8_t _pad[1];
+		bool fake;
 
 		struct
 		{

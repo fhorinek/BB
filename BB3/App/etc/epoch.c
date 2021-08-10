@@ -87,7 +87,7 @@ void datetime_from_epoch(uint64_t epoch, uint8_t *psec, uint8_t *pmin, uint8_t *
 
     year = 70;
     days = 0;
-    while ((unsigned) (days += (LEAP_YEAR(year) ? 366 : 365)) <= epoch)
+    while ((uint64_t) (days += (LEAP_YEAR(year) ? 366 : 365)) <= epoch)
     {
         year++;
     }

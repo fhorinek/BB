@@ -55,7 +55,6 @@
 		if (!(cond))	\
 		{ \
 			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
-			__DEBUG_BKPT();\
 		} \
 	} while(0);
 

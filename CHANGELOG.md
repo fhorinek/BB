@@ -2,6 +2,7 @@
 
 ## Changed
  * Development menu is hidden, click 5 times on serial number in device info to enable it #40
+ * Vario bar widget will change offset to show lift above 3m/s
  
 ## Fixed
  * Audio Vario freezes #52, #15

@@ -358,6 +358,33 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 			file_get_file_info((proto_fs_save_file_req_t *) data);
 		break;
 
+        case(PROTO_FAKE_GNSS):
+		{
+        	proto_fake_gnss_t * packet = (proto_fake_gnss_t *)data;
+
+			if (config_get_bool(&config.time.sync_gnss) && packet->timestamp != 0)
+			{
+				fc_set_time_from_utc(packet->timestamp);
+				fc.gnss.utc_time = packet->timestamp;
+			}
+			else
+			{
+				fc.gnss.utc_time = fc_get_utc_time();
+			}
+
+
+        	FC_ATOMIC_ACCESS
+			{
+				fc.gnss.fake = true;
+				fc.gnss.latitude = packet->lat;
+				fc.gnss.longtitude = packet->lon;
+				fc.gnss.heading = packet->heading;
+				fc.gnss.ground_speed = packet->speed;
+				fc.gnss.fix = packet->fix;
+			}
+		}
+        break;
+
         default:
             DBG("Unknown packet: %02X", type);
             DUMP(data, len);

@@ -31,6 +31,7 @@ void ublox_init()
 	{
 		fc.gnss.status = fc_dev_init;
 		fc.gnss.time_synced = false;
+		fc.gnss.fake = false;
 	}
 
 	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
@@ -629,7 +630,9 @@ void ublox_step()
 	//parse the data
 	for (uint16_t i = 0; i < waiting; i++)
 	{
-		ublox_parse(gnss_rx_buffer[read_index]);
+		if (fc.gnss.fake == false)
+			ublox_parse(gnss_rx_buffer[read_index]);
+
 		read_index = (read_index + 1) % GNSS_BUFFER_SIZE;
 	}
 }
