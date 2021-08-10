@@ -264,10 +264,20 @@ typedef struct {
 
 //------------------------------------------
 
-#define PROTO_FANET_BOOT0_CTRL			0xFE
+#define PROTO_FANET_BOOT0_CTRL			0xF0
 typedef struct {
 	bool level; //high output or input
 } proto_fanet_boot0_ctrl_t;
+
+#define PROTO_FAKE_GNSS					0xF1
+typedef struct {
+	int32_t timestamp;
+	int32_t lat;
+	int32_t lon;
+	int16_t speed;
+	int16_t heading;
+	uint8_t fix; //0: No signal, 2: 2D, 3: 3D, 0xFF turn off fake gnss
+} proto_fake_gnss_t;
 
 //-------------------------------------------
 

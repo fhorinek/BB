@@ -1,4 +1,4 @@
-#define DEBUG_LEVEL	DEBUG_DBG
+//#define DEBUG_LEVEL	DEBUG_DBG
 #include "igc.h"
 
 #include "fc/fc.h"
@@ -8,19 +8,21 @@
 #include "drivers/rev.h"
 #include "drivers/rtc.h"
 
+#include <private_key.h>
+
 static osTimerId timer;
 
 #define IGC_PERIOD	900
 #define LOG_IGC_MANUFACTURER_ID	"XSB"
-#define LOG_IGC_DEVICE_ID		"STR"
+#define LOG_IGC_DEVICE_ID		"DRP"
+//#define LOG_IGC_DEVICE_ID		"STR"
 
 FIL log_file;
 static bool started = false;
 
-#define IGC_NO_PRIVATE_KEY
+sha_internal_state_t sha_state;
 
-
-void igc_writeline(char * line)
+void igc_writeline_2(char * line, bool sign)
 {
 	uint8_t l = strlen(line);
 	UINT wl;
@@ -36,8 +38,52 @@ void igc_writeline(char * line)
 	ASSERT(f_sync(&log_file) == FR_OK);
 
 #ifndef IGC_NO_PRIVATE_KEY
-	for (uint8_t i = 0; i < l; i++)
-		sha256_write(line[i]);
+	if (sign)
+	{
+		for (uint8_t i = 0; i < l; i++)
+		{
+			sha256_write(&sha_state, new_line[i]);
+		}
+	}
+#endif
+}
+
+void igc_writeline(char * line)
+{
+	igc_writeline_2(line, true);
+}
+
+
+void igc_write_grecord()
+{
+#ifndef IGC_NO_PRIVATE_KEY
+
+	if (fc.gnss.fake)
+		return;
+
+	char line[79];
+
+	sha_internal_state_t tmp_sha;
+	memcpy(&tmp_sha, &sha_state, sizeof(sha_state));
+
+	//G record
+	uint8_t * res = sha256_result(&tmp_sha);
+	strcpy(line, "G");
+	for (uint8_t i = 0; i < 20; i++)
+	{
+		char tmp[3];
+
+		sprintf(tmp, "%02X", res[i]);
+		strcat(line, tmp);
+	}
+
+	uint32_t pos = f_tell(&log_file);
+
+	igc_writeline_2(line, false);
+	f_sync(&log_file);
+
+	//rewind pointer
+	ASSERT(f_lseek(&log_file, pos) == FR_OK);
 #endif
 }
 
@@ -46,37 +92,8 @@ void igc_comment(char * text)
 	char line[79];
 
 	snprintf(line, sizeof(line), "L%s %s", LOG_IGC_MANUFACTURER_ID, text);
-	igc_writeline(line);
-	//igc_write_grecord();
-}
-
-void igc_write_grecord()
-{
-#ifndef IGC_NO_PRIVATE_KEY
-	char line[79];
-
-	Sha256Class tmp_sha;
-	memcpy(&tmp_sha, &sha256, sizeof(tmp_sha));
-
-	//G record
-	uint8_t * res = sha256_result();
-	strcpy(line, "G");
-	for (uint8_t i = 0; i < 20; i++)
-	{
-		char tmp[3];
-
-		sprintf(tmp, PSTR("%02X"), res[i]);
-		strcat(line, tmp);
-	}
-
-	uint32_t pos = f_tell(&log_file);
-
-	igc_writeline(line, false);
-	f_sync(&log_file);
-
-	//rewind pointer
-	ASSERT(f_lseek(&log_file, pos) == FR_OK);
-#endif
+	igc_writeline_2(line, false);
+	igc_write_grecord();
 }
 
 static uint32_t last_timestamp = 0;
@@ -117,9 +134,16 @@ void igc_write_b(uint32_t timestamp, int32_t lat, int32_t lon, int16_t gnss_alt,
 	igc_write_grecord();
 }
 
+IGC_PRIVATE_KEY_BODY;
+
 void igc_start_write()
 {
-	sha256_init();
+	sha256_init(&sha_state);
+
+	uint8_t device_id[12];
+	rev_get_uuid(device_id);
+
+	IGC_PRIVATE_KEY_ADD;
 
 	char line[79];
 
@@ -152,15 +176,11 @@ void igc_start_write()
 	//A record
 	char serial_number[23];
 
-	uint8_t uuid[12];
-	rev_get_uuid(uuid);
-
 	for (uint8_t i = 0; i < 11; i++)
-		sprintf(serial_number + (i * 2), "%02X", uuid[i]);
+		sprintf(serial_number + (i * 2), "%02X", device_id[i]);
 
 	sprintf(line, "A%s%s:%s", LOG_IGC_MANUFACTURER_ID, LOG_IGC_DEVICE_ID, serial_number);
 	igc_writeline(line);
-
 	//H records
 	//H F DTE
 	sprintf(line, "HFDTE%02u%02u%02u", day, month, year % 100);
@@ -216,7 +236,7 @@ void igc_start_write()
 	igc_writeline(line);
 #endif
 
-	igc_comment("buffer");
+	igc_comment("pre flight buffer");
 
 	//write buffer
 	FC_ATOMIC_ACCESS

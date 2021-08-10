@@ -141,7 +141,19 @@ bool read_post(char * data, char * key, char * value, uint16_t value_len)
     return false;
 }
 
-bool read_post_int(char * data, char * key, int16_t * value)
+bool read_post_int32(char * data, char * key, int32_t * value)
+{
+	char tmp[12];
+	if (read_post(data, key, tmp, sizeof(tmp)))
+	{
+		*value = atoi(tmp);
+		return true;
+	}
+
+	return false;
+}
+
+bool read_post_int16(char * data, char * key, int16_t * value)
 {
 	char tmp[8];
 	if (read_post(data, key, tmp, sizeof(tmp)))

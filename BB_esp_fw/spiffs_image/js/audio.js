@@ -624,9 +624,9 @@ $(function() {
          $.post({
             url: "api/save_file", 
             data: data,
-            complete: function(res){
+/*            complete: function(res){
                 alert(res.responseText);
-            }
+            }*/
         });
     });    
     

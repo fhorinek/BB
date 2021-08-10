@@ -28,7 +28,7 @@ char * get_post_data(httpd_req_t * req)
 }
 
 
-esp_err_t api_handle_sound(httpd_req_t * req)
+esp_err_t api_sound(httpd_req_t * req)
 {
 	char * data = get_post_data(req);
 
@@ -39,7 +39,7 @@ esp_err_t api_handle_sound(httpd_req_t * req)
 
     tone_pair_t * pairs;
 
-	if (read_post_int(data, "cnt", &cnt))
+	if (read_post_int16(data, "cnt", &cnt))
 	{
 		pairs = ps_malloc(sizeof(tone_pair_t *) * cnt);
 		for (uint8_t i = 0; i < cnt; i++)
@@ -47,8 +47,8 @@ esp_err_t api_handle_sound(httpd_req_t * req)
 			sprintf(tone_key, "tone_%u", i);
 			sprintf(dura_key, "dura_%u", i);
 
-			read_post_int(data, tone_key, &pairs[i].tone);
-			read_post_int(data, dura_key, &pairs[i].dura);
+			read_post_int16(data, tone_key, &pairs[i].tone);
+			read_post_int16(data, dura_key, &pairs[i].dura);
 		}
 
 		vario_create_sequence(pairs, cnt);
@@ -66,7 +66,7 @@ esp_err_t api_handle_sound(httpd_req_t * req)
 #define API_FS_WAIT		500
 static uint8_t api_fs_req = 0;
 
-esp_err_t api_handle_list_fs(httpd_req_t * req)
+esp_err_t api_list_fs(httpd_req_t * req)
 {
 	char * post_data = get_post_data(req);
 
@@ -77,7 +77,7 @@ esp_err_t api_handle_list_fs(httpd_req_t * req)
 	if (read_post(post_data, "path", data.path, sizeof(data.path)))
 	{
 		int16_t tmp;
-		if (!read_post_int(post_data, "filter", &tmp))
+		if (!read_post_int16(post_data, "filter", &tmp))
 		{
 			data.filter = PROTO_FS_TYPE_FILE | PROTO_FS_TYPE_FOLDER;
 		}
@@ -144,7 +144,7 @@ esp_err_t api_handle_list_fs(httpd_req_t * req)
 	return ESP_OK;
 }
 
-esp_err_t api_handle_get_file(httpd_req_t * req)
+esp_err_t api_get_file(httpd_req_t * req)
 {
 	char * post_data = get_post_data(req);
 
@@ -204,7 +204,8 @@ esp_err_t api_handle_get_file(httpd_req_t * req)
 
 #define API_SAVE_FILE_CHUNK		1024
 #define TAG "API"
-esp_err_t api_handle_save_file(httpd_req_t * req)
+
+esp_err_t api_save_file(httpd_req_t * req)
 {
     size_t recv_size = min(req->content_len, 10 * 1024);
 	char * post_data = ps_malloc(recv_size + 1);
@@ -266,6 +267,33 @@ esp_err_t api_handle_save_file(httpd_req_t * req)
 	httpd_resp_send(req, msg, sizeof(msg) - 1);
 
 	free(post_data);
+	return ESP_OK;
+}
+
+esp_err_t api_fake_gnss(httpd_req_t * req)
+{
+	char * post_data = get_post_data(req);
+
+	proto_fake_gnss_t data;
+
+	read_post_int32(post_data, "time", &data.timestamp);
+	read_post_int32(post_data, "lat", &data.lat);
+	read_post_int32(post_data, "lon", &data.lon);
+	read_post_int16(post_data, "speed", &data.speed);
+	read_post_int16(post_data, "heading", &data.heading);
+
+	int16_t tmp;
+
+	read_post_int16(post_data, "fix", &tmp);
+	data.fix = tmp;
+
+	protocol_send(PROTO_FAKE_GNSS, (void *)&data, sizeof(data));
+
+	free(post_data);
+
+    httpd_resp_set_status(req, HTTPD_204);
+    httpd_resp_send(req, NULL, 0);
+
 	return ESP_OK;
 }
 

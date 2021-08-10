@@ -203,10 +203,6 @@ void format_loop()
 
     		sd_format();
 
-    		//to set disk label
-    		sd_mount();
-    		sd_unmount();
-
     		break;
 		}
 
@@ -294,10 +290,6 @@ void app_main(uint8_t power_on_mode)
     	if (format)
     	{
     		sd_format();
-
-    		//to set disk label
-    		sd_mount();
-    		sd_unmount();
     	}
     }
 
