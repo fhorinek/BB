@@ -98,7 +98,18 @@ uint8_t BSP_SD_WriteBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks)
 	  return MSD_OK;
 }
 
+void sd_set_disk_label()
+{
+	//set disk name to Strato
+	char label[36];
 
+	f_getlabel(SDPath, label, NULL);
+
+	if (strlen(label) == 0)
+	{
+		f_setlabel(DISK_NAME);
+	}
+}
 
 void sd_format()
 {
@@ -109,25 +120,6 @@ void sd_format()
 
 	uint8_t res = f_mkfs(SDPath, FM_FAT32, 0, work, sizeof(work));
 	DBG(" f_mkfs = %u", res);
-
-	sd_mount();
-	sd_set_disk_label();
-	sd_unmount();
-
-}
-
-void sd_set_disk_label()
-{
-	//set disk name to Strato
-	char label[16];
-	DWORD len;
-	f_getlabel(SDPath, label, &len);
-	len = min(sizeof(label) - 1, len);
-	label[len] = 0;
-	if (strlen(label) == 0)
-	{
-		f_setlabel(DISK_NAME);
-	}
 }
 
 bool sd_mount()
