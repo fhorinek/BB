@@ -5,6 +5,7 @@
 
 #include "gui/gui_list.h"
 #include "fc/fc.h"
+#include "etc/format.h"
 
 REGISTER_TASK_IL(fanet,
 	uint8_t cnt;
