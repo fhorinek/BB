@@ -277,7 +277,7 @@ void app_main(uint8_t power_on_mode)
     	format_loop();
     }
 
-
+    //check for FORMAT file
     if (sd_mount())
     {
     	if (file_exists(DEV_MODE_FILE))

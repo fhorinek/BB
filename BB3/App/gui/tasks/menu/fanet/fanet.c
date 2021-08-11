@@ -70,7 +70,7 @@ static void fanet_loop()
 			strcpy(text, "");
  			if (nb->flags & NB_HAVE_POS)
  			{
-				format_distance(tmp, nb->dist);
+				format_distance(tmp, (float)nb->dist);
 				strcat(text, tmp);
  			}
 
@@ -81,7 +81,7 @@ static void fanet_loop()
 					char slash[] = " / ";
 					strcat(text, slash);
 				}
-				format_distance(tmp, nb->max_dist);
+				format_distance(tmp, (float)nb->max_dist);
 				strcat(text, tmp);
 			}
 
