@@ -105,11 +105,11 @@ uint32_t gnss_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, b
         dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 1000.0;
 	}
 
-    if (bearing || 1)
+    if (bearing)
     {
         if (d_lon  == 0 && d_lat == 0)
 			*bearing = 0;
-
+	else
 		*bearing = ((int16_t)to_degrees(atan2(d_lon, d_lat)) + 360) % 360;
 //		DEBUG("a=%d\n", *bearing);
     }
