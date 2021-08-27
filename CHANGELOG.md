@@ -1,3 +1,14 @@
+# 11.08.2021 - Build 143
+
+## Added
+ * G-record for IGC
+ * GNSS spoofing 
+ 
+## Fixed
+ * Fanet distance display
+ * Bootloader will only change the drive name if it is not set
+
+
 # 05.08.2021 - Build 140
 
 ## Changed

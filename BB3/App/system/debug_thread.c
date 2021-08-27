@@ -227,10 +227,13 @@ void thread_debug_start(void *argument)
             if (to_transmit > DEBUG_TX_BUFFER - debug_tx_buffer_read_index)
                 to_transmit = DEBUG_TX_BUFFER - debug_tx_buffer_read_index;
 
+            bool dma_used = false;
+
 
             if (config_get_bool(&config.debug.use_serial))
             {
             	HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+            	dma_used = true;
             }
 
             if (config_get_bool(&config.debug.use_file))
@@ -252,7 +255,10 @@ void thread_debug_start(void *argument)
             debug_tx_buffer_lenght -= to_transmit;
             debug_tx_buffer_read_index = (debug_tx_buffer_read_index + to_transmit) % DEBUG_TX_BUFFER;
 
-            osSemaphoreAcquire(debug_dma_done, WAIT_INF);
+            if (dma_used)
+            {
+            	osSemaphoreAcquire(debug_dma_done, WAIT_INF);
+            }
 	    }
 
         osSemaphoreRelease(debug_data);

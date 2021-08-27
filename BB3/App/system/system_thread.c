@@ -208,35 +208,36 @@ void thread_system_start(void *argument)
 
 		if (system_power_off)
 		{
-		    if (power_off_timer == 0)
-		    {
-		        power_off_timer = HAL_GetTick();
-		    }
+	        power_off_timer = HAL_GetTick();
 
-		    bool waiting = false;
+	        bool waiting;
+			do
+			{
+				waiting = false;
 
-		    for (uint8_t i = 0; i < thread_cnt; i++)
-		    {
-		        if (thread_list[i] != NULL)
-		        {
-		            if (osThreadGetState(*thread_list[i]) == osThreadBlocked)
-		                continue;
+				for (uint8_t i = 0; i < thread_cnt; i++)
+				{
+					if (thread_list[i] != NULL)
+					{
+						if (osThreadGetState(*thread_list[i]) == osThreadBlocked)
+							continue;
 
-		            if (HAL_GetTick() - power_off_timer > POWER_OFF_TIMEOUT)
-		            {
-		                WARN("Task '%s' is not stoping! Suspending now!", osThreadGetName(*thread_list[i]));
-		                osThreadSuspend(*thread_list[i]);
-		                thread_list[i] = NULL;
-		            }
-		            else
-		            {
-		                waiting = true;
-		            }
-		        }
-		    }
+						if (HAL_GetTick() - power_off_timer > POWER_OFF_TIMEOUT)
+						{
+							WARN("Task '%s' is not stoping! Suspending now!", osThreadGetName(*thread_list[i]));
+							osThreadSuspend(*thread_list[i]);
+							thread_list[i] = NULL;
+						}
+						else
+						{
+							waiting = true;
+						}
+					}
+				}
 
-		    if (!waiting)
-		        break;
+			} while(waiting);
+
+		    break;
 		}
 	}
 
