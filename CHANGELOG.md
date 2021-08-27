@@ -1,3 +1,13 @@
+# 27.08.2021 - Build 144
+
+## Changed
+ * power off sequence handler
+ 
+## Fixed
+ * "Back"-Button in Device settings/System/Time #61
+ * Powering off with debug to serial disabled
+ 
+
 # 11.08.2021 - Build 143
 
 ## Added
