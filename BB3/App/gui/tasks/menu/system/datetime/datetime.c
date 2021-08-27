@@ -107,7 +107,7 @@ lv_obj_t * datetime_init(lv_obj_t * par)
 {
 	DBG("settings init");
 
-	lv_obj_t * list = gui_list_create(par, "Time & date", &gui_settings, datetime_cb);
+	lv_obj_t * list = gui_list_create(par, "Time & date", &gui_system, datetime_cb);
 
 	uint8_t hour;
 	uint8_t minute;

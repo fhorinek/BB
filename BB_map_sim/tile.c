@@ -503,25 +503,25 @@ void create_tile(uint32_t lon, uint32_t lat, uint8_t zoom, lv_obj_t * canvas)
 	int16_t vmin = 100;
 	int16_t vmax = 445;
 
-//	for (uint16_t y = 0; y < h; y++)
-//	{
-//		for (uint16_t x = 0; x < w; x++)
-//		{
-//			int16_t alt = agl_get_alt(lat1 - step_y * y, lon1 + step_x * x, false);
-//			//120 - 0 green - red
-//			//100
-//
-//			if (amin > alt) amin = alt;
-//			if (amax < alt) amax = alt;
-//
-//			float a = 1.0 - ((alt - vmin) / (float)(vmax - vmin));
-//			if (a < 0) a = 0;
-//			if (a > 1) a = 1;
-//			uint8_t h = 120 * a;
-//			lv_color_t color = lv_color_hsv_to_rgb(h, 100, 100);
-//			lv_canvas_set_px(canvas, x, y, color);
-//		}
-//	}
+	for (uint16_t y = 0; y < h; y++)
+	{
+		for (uint16_t x = 0; x < w; x++)
+		{
+			int16_t alt = agl_get_alt(lat1 - step_y * y, lon1 + step_x * x, false);
+			//120 - 0 green - red
+			//100
+
+			if (amin > alt) amin = alt;
+			if (amax < alt) amax = alt;
+
+			float a = 1.0 - ((alt - vmin) / (float)(vmax - vmin));
+			if (a < 0) a = 0;
+			if (a > 1) a = 1;
+			uint8_t h = 120 * a;
+			lv_color_t color = lv_color_hsv_to_rgb(h, 100, 100);
+			lv_canvas_set_px(canvas, x, y, color);
+		}
+	}
 	INFO("min %d", amin);
 	INFO("max %d", amax);
 
