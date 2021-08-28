@@ -1,7 +1,7 @@
 # 27.08.2021 - Build 145
 
 ## Changed
- * power off sequence handler
+ * power off sequence handler (should fix #64, #62, #60)
  
 ## Fixed
  * "Back"-Button in Device settings/System/Time #61
