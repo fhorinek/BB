@@ -1,4 +1,4 @@
-# 27.08.2021 - Build 144
+# 27.08.2021 - Build 145
 
 ## Changed
  * power off sequence handler

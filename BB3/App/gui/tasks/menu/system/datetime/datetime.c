@@ -9,7 +9,7 @@
 
 #include "datetime.h"
 
-#include <gui/tasks/menu/settings.h>
+#include <gui/tasks/menu/system/system.h>
 #include <gui/tasks/menu/system/datetime/timeset.h>
 #include <gui/tasks/menu/system/datetime/dateset.h>
 
