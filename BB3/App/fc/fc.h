@@ -160,6 +160,9 @@ typedef enum
 #define FANET_TYPE_CHANGE_REG	0b00000010
 #define FANET_FLARM_CHANGE_REG	0b00000100
 
+#define FC_GLIDE_MIN_SPEED		(0.55) //2km/h
+#define FC_GLIDE_MIN_SINK		(-0.01)
+
 typedef struct
 {
 	osSemaphoreId_t lock;
@@ -299,6 +302,9 @@ typedef struct
         float pressure;
         float vario;
         float avg_vario;
+        float gr_vario;
+
+        float glide_ratio;
 
         float azimuth;
         float azimuth_filtered;

@@ -259,8 +259,10 @@ flight_profile_t profile =
 		entry_int("vario_lift", 1, -100, 100),
         //acc_gain
         entry_float("vario_acc", 1.0, acc_gain_range),
-        //avg_vario
-        entry_int("vario_avg", 30, 5, 120),
+        //avg_duration
+        entry_int("vario_avg", 15, 5, 120),
+        //gr_duration
+        entry_int("vario_gr", 20, 5, 120),
         //profile
         entry_text("vario_profile", "default", VARIO_PROFILE_LEN, 0),
     },

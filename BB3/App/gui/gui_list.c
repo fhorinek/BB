@@ -7,7 +7,7 @@
 #include "gui_list.h"
 #include "keyboard.h"
 
-lv_obj_t * gui_list_get_entry(uint8_t index)
+lv_obj_t * gui_list_get_entry(uint16_t index)
 {
 	lv_obj_t * child = NULL;
 	while(1)
@@ -24,7 +24,7 @@ lv_obj_t * gui_list_get_entry(uint8_t index)
 	}
 }
 
-void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
+uint16_t gui_list_index(lv_obj_t * obj)
 {
 	//get top parent
 	lv_obj_t * top = obj;
@@ -33,10 +33,10 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 	{
 		top = top->parent;
 		if (top == NULL)
-			return;
+			return GUI_LIST_NO_LAST_POS;
 	}
 
-	uint8_t index = 0;
+	uint16_t index = 0;
 
 	lv_obj_t * child = NULL;
 	while (1)
@@ -46,10 +46,21 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 			break;
 
 		if (child == NULL)
-			return;
+			return GUI_LIST_NO_LAST_POS;
 
 		index++;
 	}
+
+	return index;
+}
+
+void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
+{
+	uint16_t index = gui_list_index(obj);
+	if (index == GUI_LIST_NO_LAST_POS)
+		return;
+
+	lv_obj_t * child = gui_list_get_entry(index);
 
 	//call cb
 	bool default_handler = true;
@@ -88,6 +99,33 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 			gui_switch_task(back_task, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 		}
 	}
+}
+
+void gui_list_store_pos(gui_task_t * task)
+{
+	task->last_menu_pos = GUI_LIST_NO_LAST_POS;
+
+	if (gui.list.object != NULL)
+	{
+		lv_obj_t * focused = lv_group_get_focused(gui.input.group);
+		if (focused != NULL)
+		{
+			task->last_menu_pos = gui_list_index(focused);
+		}
+	}
+}
+
+void gui_list_retrive_pos(gui_task_t * task)
+{
+	if (gui.list.object == NULL)
+		return;
+
+	if (task->last_menu_pos == GUI_LIST_NO_LAST_POS)
+		return;
+
+	lv_obj_t * obj = gui_list_get_entry(task->last_menu_pos);
+	if (obj != NULL)
+		lv_group_focus_obj(obj);
 }
 
 lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back, gui_list_task_cb_t cb)

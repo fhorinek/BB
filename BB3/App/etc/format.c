@@ -1,6 +1,7 @@
 #include "format.h"
 
 #include "fc/fc.h"
+#include "etc/epoch.h"
 
 void format_date_epoch(char * buff, uint64_t epoch)
 {
@@ -297,3 +298,23 @@ void format_int(char * buff, float in)
 	sprintf(buff, "%ld", i);
 }
 
+
+void format_hdg_to_points(char * buff, float in)
+{
+	if (22.5 <= in && in < 67.5)
+		strcpy(buff, "NE");
+	else if (67.5 <= in && in < 112.5)
+		strcpy(buff, "E");
+	else if (112.5 <= in && in < 157.5)
+		strcpy(buff, "SE");
+	else if (157.5 <= in && in < 202.5)
+		strcpy(buff, "S");
+	else if (202.5 <= in && in < 247.5)
+		strcpy(buff, "SW");
+	else if (247.5 <= in && in < 292.5)
+		strcpy(buff, "W");
+	else if (292.5 <= in && in < 337.5)
+		strcpy(buff, "NW");
+	else
+		strcpy(buff, "N");
+}

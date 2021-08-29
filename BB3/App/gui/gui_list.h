@@ -56,7 +56,7 @@ const char * gui_list_text_get_value(lv_obj_t * obj);
 lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text);
 lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text);
 
-lv_obj_t * gui_list_get_entry(uint8_t index);
+lv_obj_t * gui_list_get_entry(uint16_t index);
 
 void gui_config_entry_clear();
 void gui_config_entry_add(lv_obj_t * obj, cfg_entry_t * entry, void * params);
@@ -72,6 +72,9 @@ void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 
 void gui_config_config_cb(cfg_entry_t * entry);
+
+void gui_list_store_pos(gui_task_t * task);
+void gui_list_retrive_pos(gui_task_t * task);
 
 //last created list
 extern lv_obj_t * gui_list;

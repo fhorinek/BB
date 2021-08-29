@@ -20,6 +20,8 @@ REGISTER_TASK_IL(sensors,
     lv_obj_t * brigh;
     lv_obj_t * bat_volt;
     lv_obj_t * bat_cap;
+    lv_obj_t * aux_ch;
+    lv_obj_t * bq_boost;
 );
 
 lv_obj_t * sensors_init(lv_obj_t * par)
@@ -71,6 +73,9 @@ lv_obj_t * sensors_init(lv_obj_t * par)
     local->aux_baro = gui_list_info_add_entry(list, "Aux Barometer", "");
     local->brigh = gui_list_info_add_entry(list, "Brightness", "");
 
+    local->aux_ch = gui_list_info_add_entry(list, "Aux charger state", "");
+    local->bq_boost = gui_list_info_add_entry(list, "BQ boost state", "");
+
 	return list;
 }
 
@@ -111,4 +116,16 @@ void sensors_loop()
         gui_list_info_set_value(local->bat_volt, value);
         gui_list_info_set_value(local->bat_cap, value);
     }
+
+    bool state = GpioRead(ALT_CH_EN);
+    if (state)
+    	gui_list_info_set_value(local->aux_ch, "high");
+    else
+    	gui_list_info_set_value(local->aux_ch, "low");
+
+    state = GpioRead(BQ_OTG);
+    if (state)
+    	gui_list_info_set_value(local->bq_boost, "high");
+    else
+    	gui_list_info_set_value(local->bq_boost, "low");
 }

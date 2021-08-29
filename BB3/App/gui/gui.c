@@ -112,6 +112,8 @@ lv_obj_t * gui_task_create(gui_task_t * task)
 	if (task->loop != NULL)
 	    task->loop();
 
+	gui_list_retrive_pos(task);
+
 	lv_obj_set_event_cb(screen, screen_event_cb);
 
 	return screen;
@@ -120,6 +122,8 @@ lv_obj_t * gui_task_create(gui_task_t * task)
 
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 {
+	gui_list_store_pos(gui.task.actual);
+
 	gui.input.focus = NULL;
 
 	//hide ctx

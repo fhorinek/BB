@@ -42,4 +42,6 @@ void format_duration(char * buff, float in);
 void format_uuid(char * buff);
 void format_int(char * buff, float in);
 
+void format_hdg_to_points(char * buff, float in);
+
 #endif /* ETC_FORMAT_H_ */

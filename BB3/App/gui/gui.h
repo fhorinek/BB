@@ -11,7 +11,7 @@
 #include "common.h"
 #include "lib/lvgl/lvgl.h"
 
-typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint8_t);
+typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint16_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
 typedef void (* gui_ctx_cb_t)(uint8_t, lv_obj_t *);
 
@@ -69,7 +69,8 @@ typedef struct
 	void (* loop)();
 	void (* stop)();
 	void ** local_vars;
-	uint32_t local_vars_size;
+	uint16_t local_vars_size;
+	uint16_t last_menu_pos;
 } gui_task_t;
 
 typedef struct
@@ -208,6 +209,8 @@ void gui_lock_release();
 
 extern gui_t gui;
 
+#define GUI_LIST_NO_LAST_POS	0xFFFF
+
 #define DECLARE_TASK(name) \
 	extern gui_task_t gui_ ## name;
 
@@ -226,7 +229,8 @@ extern gui_t gui;
 		name ## _loop, \
 		name ## _stop, \
 		(void *)&local, \
-		sizeof(gui_local_vars_t)\
+		sizeof(gui_local_vars_t),\
+		GUI_LIST_NO_LAST_POS\
 	};\
 
 #define REGISTER_TASK_IS(name, ...) \
@@ -243,7 +247,8 @@ extern gui_t gui;
 		NULL, \
 		name ## _stop, \
 		(void *)&local, \
-		sizeof(gui_local_vars_t)\
+		sizeof(gui_local_vars_t),\
+		GUI_LIST_NO_LAST_POS\
 	};\
 
 #define REGISTER_TASK_I(name, ...) \
@@ -259,7 +264,8 @@ extern gui_t gui;
 		NULL, \
 		NULL, \
 		(void *)&local, \
-		sizeof(gui_local_vars_t)\
+		sizeof(gui_local_vars_t),\
+		GUI_LIST_NO_LAST_POS\
 	};\
 
 #define REGISTER_TASK_IL(name, ...) \
@@ -276,7 +282,8 @@ extern gui_t gui;
 		name ## _loop, \
 		NULL, \
 		(void *)&local, \
-		sizeof(gui_local_vars_t)\
+		sizeof(gui_local_vars_t),\
+		GUI_LIST_NO_LAST_POS\
 	};\
 
 #endif /* GUI_GUI_H_ */

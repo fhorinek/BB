@@ -157,7 +157,8 @@ void bq25895_step()
 
         case 0b111:
             //DBG("OTG");
-            Error_Handler();
+        	WARN("BQ in unexpected state OTG");
+            //Error_Handler();
             break;
     }
 

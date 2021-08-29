@@ -115,6 +115,7 @@ typedef struct
         cfg_entry_t lift;
         cfg_entry_t acc_gain;
         cfg_entry_t avg_duration;
+        cfg_entry_t gr_duration;
         cfg_entry_t profile;
     } vario;
 } flight_profile_t;

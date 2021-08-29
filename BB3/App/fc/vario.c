@@ -276,6 +276,7 @@ void vario_step()
         {
             fc.fused.status = fc_dev_ready;
             fc.fused.avg_vario = vario;
+            fc.fused.gr_vario = vario;
             fc.fused.altitude1 = altitude;
 
             fc.flight.mode = flight_wait_to_takeoff;
@@ -308,6 +309,7 @@ void vario_step()
 
     fc.fused.vario = vario;
     fc.fused.avg_vario += (vario - fc.fused.avg_vario) / (float)(config_get_int(&profile.vario.avg_duration) * 100);
+    fc.fused.gr_vario += (vario - fc.fused.gr_vario) / (float)(config_get_int(&profile.vario.gr_duration) * 100);
     fc.fused.altitude1 = altitude;
     fc.fused.pressure = fc_alt_to_press(altitude, config_get_big_int(&config.vario.qnh1));
     fc.fused.altitude2 = fc_press_to_alt(fc.fused.pressure, config_get_big_int(&config.vario.qnh2));
