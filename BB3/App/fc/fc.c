@@ -213,6 +213,19 @@ void fc_step()
 
     }
 
+	//glide ratio
+	//when you have GNSS, baro and speed is higher than 2km/h and you are sinking <= -0.01
+	if (fc.gnss.fix == 3
+			&& fc.fused.status == fc_dev_ready
+			&& fc.gnss.ground_speed > FC_GLIDE_MIN_SPEED
+			&& fc.fused.gr_vario <= FC_GLIDE_MIN_SINK)
+	{
+		fc.fused.glide_ratio = fc.gnss.ground_speed  / abs(fc.fused.gr_vario);
+	}
+	else
+	{
+		fc.fused.glide_ratio = NAN;
+	}
 }
 
 void fc_device_status(char * buff, fc_device_status_t status)

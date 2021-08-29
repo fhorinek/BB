@@ -1,3 +1,15 @@
+# 29.08.2021 - Build 146
+
+## Added
+ * Widget Glide ratio
+ * Height above take-off
+ * Compass arrow, points
+ * Ground heading arrow, points, number
+ * Battery
+
+## Changed
+ * system i2c recovery (should also help with #64, #62, #60)
+
 # 27.08.2021 - Build 145
 
 ## Changed

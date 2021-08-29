@@ -32,7 +32,7 @@ static void GHdg_update(widget_slot_t * slot)
     char value[8];
     if (fc.gnss.fix == 0)
     {
-    	strcpy(value, "---");
+    	strcpy(value, "No\nGNSS");
     }
     else
     {

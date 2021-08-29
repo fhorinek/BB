@@ -17,14 +17,16 @@ DATA - automaticaly downloaded maps from server
 		usage.lst
 
 SYSTEM - system data
-	[FWID]
-		[fw private data]
+	ASSETS
+	    DEFAULTS
+	        - default configurations
 
-	COMMON
 		AREAS
 			slovakia.lst - list of map files
 			slovenia.lst
 			...
+
+		[fw private data]
 
 	TEMP
 			

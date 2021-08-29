@@ -54,11 +54,12 @@ uint8_t thread_cnt = sizeof(thread_list) / sizeof(osThreadId_t *);
 osMessageQueueId_t queue_Debug;
 
 bool system_power_off = false;
+bool start_power_off = false;
 
 void system_poweroff()
 {
-    INFO("Starting power off sequence");
-    system_power_off = true;
+    DBG("Start power off");
+    start_power_off = true;
 }
 
 void system_reboot()
@@ -206,8 +207,11 @@ void thread_system_start(void *argument)
 
 		fc_step();
 
-		if (system_power_off)
+		if (start_power_off)
 		{
+			INFO("Starting power off sequence");
+			system_power_off = true;
+
 	        power_off_timer = HAL_GetTick();
 
 	        bool waiting;

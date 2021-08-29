@@ -74,19 +74,19 @@ void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle)
      float fsin = table_sin(angle);
      float fcos = table_cos(angle);
 
-     points[0].x = mx + fsin * s / 3;
+     points[0].x = mx - fsin * s / 3;
      points[0].y = my + fcos * s / 3;
-     points[2].x = mx - fsin * s / 5;
+     points[2].x = mx + fsin * s / 5;
      points[2].y = my - fcos * s / 5;
 
      fsin = table_sin(angle + 25);
      fcos = table_cos(angle + 25);
-     points[1].x = mx - fsin * s / 3;
+     points[1].x = mx + fsin * s / 3;
      points[1].y = my - fcos * s / 3;
 
      fsin = table_sin(angle + 335);
      fcos = table_cos(angle + 335);
-     points[3].x = mx - fsin * s / 3;
+     points[3].x = mx + fsin * s / 3;
      points[3].y = my - fcos * s / 3;
 
      points[4].x = points[0].x;
@@ -139,7 +139,7 @@ void widget_update_font_size(lv_obj_t * label, lv_obj_t * area)
 	uint8_t len = strlen(ext->text) - 1;
 	for (i = 0; i < NUMBER_OF_WIDGET_FONTS; i++)
 	{
-		_lv_txt_get_size(&size, "0", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+		_lv_txt_get_size(&size, "%", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
 		size.x *= len;
 		if (size.x <= w && size.y <= h)
 			break;

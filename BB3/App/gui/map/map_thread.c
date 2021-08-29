@@ -58,5 +58,6 @@ void thread_map_start(void *argument)
 //        taskYIELD();
     }
 
+    INFO("Done");
     osThreadSuspend(thread_map);
 }
