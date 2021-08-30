@@ -157,7 +157,7 @@ void format_altitude_with_units(char * buff, float in)
 	sprintf(buff, "%s %s", val, units);
 }
 
-void format_distance(char * buf, float in)
+void format_distance_with_units(char * buf, float in)
 {
 	switch (config_get_select(&config.units.distance))
 	{
@@ -176,12 +176,11 @@ void format_distance(char * buf, float in)
 		{
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (in < 1.0) //1mi
-				sprintf(buf, "%0.2fmi", mi);
+				sprintf(buf, "%0.0fft", mi * 5280);
 			if (in < 10.0) //10mi
 				sprintf(buf, "%0.1fmi", mi);
 			else
 				sprintf(buf, "%0.0fmi", mi);
-
 		}
 		break;
 

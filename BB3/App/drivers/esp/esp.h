@@ -25,4 +25,6 @@ void thread_esp_spi_start(void * argument);
 
 uint16_t esp_read_bytes(uint8_t * data, uint16_t len, uint32_t timeout);
 
+void esp_uart_rx_irq_cb();
+
 #endif /* DRIVERS_ESP_ESP_H_ */

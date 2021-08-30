@@ -205,8 +205,6 @@ void thread_system_start(void *argument)
 
 		cmd_step();
 
-		fc_step();
-
 		if (start_power_off)
 		{
 			INFO("Starting power off sequence");

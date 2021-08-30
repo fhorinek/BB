@@ -155,8 +155,27 @@ void pages_splash_show()
 	lv_anim_start(&local->anim);
 	local->state = SPLASH_IN;
 
-	if (config_get_bool(&config.display.show_msg))
-		dialog_show("Thank you for your pre-order!", "We are working hard to bring you usable firmware.\nPlease go to\nstrato.skybean.eu\nand follow the instruction to update your new Strato. \n\nTeam SkyBean", dialog_confirm, NULL);
+	if (file_exists(PATH_NEW_FW))
+	{
+		f_unlink(PATH_NEW_FW);
+
+		if (config_get_bool(&config.display.show_msg))
+		{
+			#define RELEASE_NOTE_BUFF_SIZE (1024 * 8)
+			char * buff = ps_malloc(RELEASE_NOTE_BUFF_SIZE);
+
+			FIL f;
+			if (f_open(&f, PATH_RELEASE_NOTE, FA_READ) == FR_OK)
+			{
+				UINT br;
+				f_read(&f, buff, RELEASE_NOTE_BUFF_SIZE, &br);
+				f_close(&f);
+				dialog_show("Firmware updated", buff, dialog_confirm, NULL);
+			}
+
+			ps_free(buff);
+		}
+	}
 }
 
 void pages_splash_hide()

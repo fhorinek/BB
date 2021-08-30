@@ -63,7 +63,7 @@ void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle)
 {
     // make sure, that angle is always between 0 and 359:
      if (angle < 0 || angle > 359)
-         angle = (angle % 360 + 360) % 360;
+         angle = (angle + 360) % 360;
 
      int16_t w = lv_obj_get_width(arrow);
      int16_t h = lv_obj_get_height(arrow);
@@ -124,6 +124,9 @@ lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * 
 
 void widget_update_font_size(lv_obj_t * label, lv_obj_t * area)
 {
+	static uint8_t font_size_cache_x[NUMBER_OF_WIDGET_FONTS] = {0};
+	static uint8_t font_size_cache_y[NUMBER_OF_WIDGET_FONTS] = {0};
+
 	lv_style_int_t line_space = lv_obj_get_style_text_line_space(label, LV_LABEL_PART_MAIN);
 	lv_style_int_t letter_space = lv_obj_get_style_text_letter_space(label, LV_LABEL_PART_MAIN);
 	lv_coord_t w = lv_obj_get_width_fit(area);
@@ -137,16 +140,27 @@ void widget_update_font_size(lv_obj_t * label, lv_obj_t * area)
 
 	uint8_t i;
 	uint8_t len = strlen(ext->text) - 1;
-	for (i = 0; i < NUMBER_OF_WIDGET_FONTS; i++)
+	for (i = 0; i < NUMBER_OF_WIDGET_FONTS - 1; i++)
 	{
-		_lv_txt_get_size(&size, "%", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
-		size.x *= len;
-		if (size.x <= w && size.y <= h)
+		if (font_size_cache_x[i] == 0)
+		{
+			_lv_txt_get_size(&size, "%", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+			font_size_cache_x[i] = size.x;
+			font_size_cache_y[i] = size.y;
+		}
+
+		uint16_t x = font_size_cache_x[i] * len;
+		uint16_t y = font_size_cache_y[i];
+
+		if (x <= w && y <= h)
 			break;
 	}
 
 	//set smallest as fallback
-	lv_obj_set_style_local_text_font(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[i]);
+	if (lv_obj_get_style_text_font(label, LV_LABEL_PART_MAIN) != gui.styles.widget_fonts[i])
+	{
+		lv_obj_set_style_local_text_font(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[i]);
+	}
 }
 
 static void widget_opa_anim(lv_obj_t * obj, lv_anim_value_t v)

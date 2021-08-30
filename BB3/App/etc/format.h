@@ -19,7 +19,7 @@ void format_date_epoch(char * buff, uint64_t epoch);
 void format_time(char * buf, uint8_t hour, uint8_t min);
 
 void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lot);
-void format_distance(char * buf, float in);
+void format_distance_with_units(char * buf, float in);
 
 void format_altitude(char * buff, float in);
 void format_altitude_units(char * buff);

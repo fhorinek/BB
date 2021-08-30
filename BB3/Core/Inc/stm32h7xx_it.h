@@ -67,12 +67,14 @@ void I2C2_ER_IRQHandler(void);
 void SPI1_IRQHandler(void);
 void DMA1_Stream7_IRQHandler(void);
 void SDMMC1_IRQHandler(void);
+void UART4_IRQHandler(void);
 void DMA2_Stream0_IRQHandler(void);
 void OTG_HS_IRQHandler(void);
 void UART7_IRQHandler(void);
 void OCTOSPI1_IRQHandler(void);
 void TIM15_IRQHandler(void);
 void TIM17_IRQHandler(void);
+void MDMA_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
