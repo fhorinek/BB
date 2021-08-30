@@ -11,6 +11,7 @@
 #include "gnss_ublox_m8.h"
 
 #include "fc/neighbors.h"
+#include "fc/navigation.h"
 
 
 void thread_gnss_start(void *argument)
@@ -31,6 +32,8 @@ void thread_gnss_start(void *argument)
 
 		neighbors_step();
 
+		navigation_step();
+		
 		osDelay(10);
 	}
 
