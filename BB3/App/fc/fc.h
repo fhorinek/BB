@@ -170,6 +170,8 @@ typedef struct
         uint32_t duration;
 
         int16_t start_alt;
+      	uint32_t odometer;              // in m
+
         fc_flight_mode mode;
         uint8_t _pad[1];
     } flight;
