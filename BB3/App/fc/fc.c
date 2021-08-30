@@ -16,6 +16,9 @@
 #include "drivers/rtc.h"
 #include "fc/vario.h"
 #include "fc/logger/logger.h"
+#include "fc/agl.h"
+#include "fc/navigation.h"
+
 
 fc_t fc;
 
@@ -83,7 +86,14 @@ void fc_reset()
 
     fc.history.index = 0;
     fc.history.size = 0;
+
+	fc.agl.ground_height = AGL_INVALID;
+	fc.agl.agl = AGL_INVALID;
+
+	fc.flight.odometer = 0;
 }
+
+static osTimerId fc_timer;
 
 void fc_init()
 {
@@ -103,6 +113,9 @@ void fc_init()
 
 	fc_reset();
 	logger_init();
+
+	fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
+	osTimerStart(fc_timer, FC_STEP_PERIOD);
 }
 
 void fc_deinit()
@@ -110,6 +123,7 @@ void fc_deinit()
 	INFO("Flight computer deinit");
 	logger_stop();
 	osTimerStop(fc.history.timer);
+	osTimerStop(fc_timer);
 }
 
 void fc_takeoff()
@@ -139,6 +153,7 @@ void fc_landing()
     logger_stop();
 }
 
+//run via timer every 250ms
 void fc_step()
 {
     if (fc.flight.mode == flight_wait_to_takeoff
@@ -226,6 +241,10 @@ void fc_step()
 	{
 		fc.fused.glide_ratio = NAN;
 	}
+
+	navigation_step();
+
+	agl_step();
 }
 
 void fc_device_status(char * buff, fc_device_status_t status)

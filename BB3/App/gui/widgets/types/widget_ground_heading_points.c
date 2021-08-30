@@ -33,6 +33,7 @@ static void GHdgPoints_update(widget_slot_t * slot)
     if (fc.gnss.fix == 0)
     {
     	strcpy(value, "No\nGNSS");
+    	lv_label_set_text(local->value, value);
     }
     else
     {

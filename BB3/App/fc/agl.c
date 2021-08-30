@@ -264,3 +264,17 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
     return alt;
 }
 
+void agl_step()
+{
+	if (fc.gnss.fix == 3)
+		fc.agl.ground_height = agl_get_alt(fc.gnss.latitude, fc.gnss.longtitude, true);
+	else
+		fc.agl.ground_height = AGL_INVALID;
+
+	if (fc.agl.ground_height == AGL_INVALID)
+		fc.agl.agl = AGL_INVALID;
+	else
+		fc.agl.agl = fc.gnss.altitude_above_msl - fc.agl.ground_height;
+
+}
+

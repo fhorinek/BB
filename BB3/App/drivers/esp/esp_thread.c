@@ -3,10 +3,15 @@
 #include "drivers/esp/esp.h"
 #include "drivers/esp/protocol.h"
 
+void esp_uart_rx_irq_cb()
+{
+	osThreadFlagsSet(thread_esp, 0x01);
+}
 
 void thread_esp_start(void *argument)
 {
 	INFO("Started");
+
 
 	esp_init();
 
@@ -17,7 +22,8 @@ void thread_esp_start(void *argument)
 	while(!system_power_off)
 	{
 	    esp_step();
-	    taskYIELD();
+		//wait for 100ms or rx int
+	    osThreadFlagsWait(0x01, osFlagsWaitAny, 250);
 	}
 
     INFO("Done");

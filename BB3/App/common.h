@@ -172,6 +172,8 @@ extern osThreadId_t SystemHandle;
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 #define PATH_LOGS_DIR      "logs"
+#define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
+#define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"

@@ -14,6 +14,7 @@
 #include "drivers/power/system_i2c.h"
 #include "drivers/tft/tft.h"
 #include "drivers/power/led.h"
+#include "drivers/esp/esp.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -28,6 +29,14 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	if (huart == debug_uart)
 	{
 		debug_uart_done();
+	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == esp_uart)
+	{
+		esp_uart_rx_irq_cb();
 	}
 }
 

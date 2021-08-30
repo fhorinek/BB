@@ -134,6 +134,8 @@ typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 #define FC_HISTORY_TIME		30
 #define FC_HISTORY_SIZE		((FC_HISTORY_TIME * 1000) / FC_HISTORY_PERIOD)
 
+#define FC_STEP_PERIOD		250
+
 typedef struct
 {
 	int32_t lat;
@@ -332,6 +334,12 @@ typedef struct
 		uint8_t _pad[3];
 	} logger;
 
+
+	struct
+	{
+		int16_t ground_height;
+		int16_t agl;
+	} agl;
 } fc_t;
 
 extern fc_t fc;
