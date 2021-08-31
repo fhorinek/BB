@@ -203,7 +203,14 @@ static bool info_serial_cb(lv_obj_t * obj, lv_event_t event)
     return true;
 }
 
-
+static bool info_serial_release_note_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+    	gui_show_release_note();
+    }
+    return true;
+}
 lv_obj_t * info_init(lv_obj_t * par)
 {
 	local->click_cnt = 0;
@@ -217,6 +224,9 @@ lv_obj_t * info_init(lv_obj_t * par)
     snprintf(value, sizeof(value), "Firmware %s", rev_str);
     lv_obj_t * obj = gui_list_info_add_entry(list, "Check for updates", value);
     gui_config_entry_add(obj, CUSTOM_CB, info_update_cb);
+
+    obj = gui_list_text_add_entry(list, "Release note");
+    gui_config_entry_add(obj, CUSTOM_CB, info_serial_release_note_cb);
 
     gui_list_auto_entry(list, "Install update", CUSTOM_CB, manual_install_cb);
 

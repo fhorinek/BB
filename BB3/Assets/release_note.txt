@@ -1,13 +1,15 @@
-Build 145
-Widget Bundle
+Topic: Widget Bundle
+
 Added widgets:
 - Glide ratio
 - Height AGL
 - Compass 
 - Ground heading
 - Battery
+- Odometer
+- Height above take-off
 
 Fixes:
-- Power off battery drain
+- Power off batt. drain
 
 

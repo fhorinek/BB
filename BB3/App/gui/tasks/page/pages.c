@@ -161,19 +161,7 @@ void pages_splash_show()
 
 		if (config_get_bool(&config.display.show_msg))
 		{
-			#define RELEASE_NOTE_BUFF_SIZE (1024 * 8)
-			char * buff = ps_malloc(RELEASE_NOTE_BUFF_SIZE);
-
-			FIL f;
-			if (f_open(&f, PATH_RELEASE_NOTE, FA_READ) == FR_OK)
-			{
-				UINT br;
-				f_read(&f, buff, RELEASE_NOTE_BUFF_SIZE, &br);
-				f_close(&f);
-				dialog_show("Firmware updated", buff, dialog_confirm, NULL);
-			}
-
-			ps_free(buff);
+			gui_show_release_note();
 		}
 	}
 }

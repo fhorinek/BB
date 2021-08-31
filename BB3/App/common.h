@@ -166,14 +166,23 @@ extern osThreadId_t SystemHandle;
 #define PATH_PILOT_DIR      PATH_CONFIG_DIR "/pilots"
 #define PATH_PAGES_DIR      PATH_CONFIG_DIR "/pages"
 #define PATH_NETWORK_DB     PATH_CONFIG_DIR "/networks.cfg"
+
 #define PATH_SCREENSHOT     "scrshot"
+
 #define PATH_SYSTEM_DIR     "system"
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
+
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
-#define PATH_LOGS_DIR      "logs"
+#define PATH_LOGS_DIR       "logs"
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
+
+#define PATH_DATA_DIR       "data"
+#define PATH_TOPO_DIR       PATH_DATA_DIR "/topo"
+#define PATH_MAP_DIR        PATH_DATA_DIR "/map"
+#define PATH_MAP_INDEX      PATH_DATA_DIR "/map.db"
+#define PATH_TOPO_INDEX     PATH_DATA_DIR "/topo.db"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
