@@ -75,7 +75,7 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
             dialog_stop(dialog_res_yes, NULL);
     }
 
-    if (gui.dialog.type == dialog_confirm)
+    if (gui.dialog.type == dialog_confirm || gui.dialog.type == dialog_release_note)
     {
         if (key == LV_KEY_ESC || key == LV_KEY_ENTER)
             dialog_stop(dialog_res_none, NULL);
@@ -204,14 +204,14 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
     lv_obj_t * title_label = lv_label_create(cont, NULL);
     lv_label_set_align(title_label, LV_LABEL_ALIGN_CENTER);
     lv_label_set_long_mode(title_label, LV_LABEL_LONG_BREAK);
-    lv_obj_set_width(title_label, (LV_HOR_RES * 3) / 4);
+    lv_obj_set_width(title_label, (LV_HOR_RES * 4) / 5);
     lv_obj_set_style_local_text_font(title_label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
     lv_label_set_text(title_label, title);
 
     lv_obj_t * text_label = lv_label_create(cont, NULL);
     lv_label_set_align(text_label, LV_LABEL_ALIGN_CENTER);
     lv_label_set_long_mode(text_label, LV_LABEL_LONG_BREAK);
-    lv_obj_set_width(text_label, (LV_HOR_RES * 3) / 4);
+    lv_obj_set_width(text_label, (LV_HOR_RES * 4) / 5);
     lv_obj_set_style_local_pad_top(text_label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 10);
     lv_label_set_text(text_label, message);
 
@@ -246,6 +246,13 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
         }
         break;
 
+        case (dialog_release_note):
+        {
+        	lv_label_set_align(text_label, LV_LABEL_ALIGN_LEFT);
+            lv_obj_set_width(title_label, LV_HOR_RES);
+            lv_obj_set_width(text_label, (LV_HOR_RES * 5) / 6);
+        }
+        break;
 
         case (dialog_progress):
         {

@@ -30,6 +30,7 @@ typedef enum
     dialog_progress,
     dialog_textarea,
     dialog_confirm,
+    dialog_release_note,
 } dialog_type_t;
 
 typedef enum
@@ -191,6 +192,8 @@ void gui_stop();
 void gui_take_screenshot();
 void gui_lock_acquire();
 void gui_lock_release();
+
+void gui_show_release_note();
 
 #define GUI_TASK_SW_ANIMATION	250
 #define GUI_STATUSBAR_HEIGHT	24

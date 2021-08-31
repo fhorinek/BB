@@ -1,3 +1,11 @@
+# 31.08.2021 - Build 147
+
+## Added
+ * Odometer
+ 
+## Fixes
+ * Arrow widgets crash 
+
 # 29.08.2021 - Build 146
 
 ## Added
