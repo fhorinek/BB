@@ -120,6 +120,11 @@ typedef struct
         cfg_entry_t avg_duration;
         cfg_entry_t profile;
     } vario;
+
+    struct
+	{
+    	cfg_entry_t zoom_flight;
+	} map;
 } flight_profile_t;
 
 typedef struct

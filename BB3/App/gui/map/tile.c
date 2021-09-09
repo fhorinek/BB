@@ -408,6 +408,34 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lat, int32_t step_x, int32_t 
 }
 #define MAP_DIV_CONST	80000
 
+void tile_get_filename(char * fn, int32_t lat, int32_t lon)
+{
+    char lat_c, lon_c;
+
+    if (lat >= 0)
+    {
+        lat_c = 'N';
+    }
+    else
+    {
+        lat_c = 'S';
+        lat = abs(lat) + 1;
+    }
+
+    if (lon >= 0)
+    {
+        lon_c = 'E';
+    }
+    else
+    {
+        lon_c = 'W';
+        lon = abs(lon) + 1;
+    }
+
+    sprintf(fn, "%c%02u%c%03u", lat_c, lat, lon_c, lon);
+}
+
+
 void create_tile(uint32_t lon, uint32_t lat, uint8_t zoom, lv_obj_t * canvas, bool skip_topo)
 {
 	uint16_t w = lv_obj_get_width(canvas);
@@ -434,14 +462,20 @@ void create_tile(uint32_t lon, uint32_t lat, uint8_t zoom, lv_obj_t * canvas, bo
 	    draw_topo(lon1, lat1, lat, step_x, step_y, canvas);
 
 
-	int32_t flon = 13 * GPS_COORD_MUL;
-	int32_t flat = 46 * GPS_COORD_MUL;
+	int32_t flon = lat;//13 * GPS_COORD_MUL;
+	int32_t flat = lon;//46 * GPS_COORD_MUL;
 
 	FIL map_data;
 
-	if (f_open(&map_data, "/DATA/MAPS/N46E013.MAP", FA_READ) != FR_OK)
+	char name[16];
+	char path[PATH_LEN];
+	tile_get_filename(name, lat, lon);
+	snprintf(path, "%s/%s.map", PATH_MAP_DIR, name);
+
+	if (f_open(&map_data, path, FA_READ) != FR_OK)
 	{
 	    ERR("map file not found");
+	    db_insert(PATH_MAP_INDEX, name, "W"); //set want flag
 	    return;
 	}
 

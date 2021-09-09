@@ -268,6 +268,12 @@ flight_profile_t profile =
         //profile
         entry_text("vario_profile", "default", VARIO_PROFILE_LEN, 0),
     },
+
+	//map
+	{
+	        //zoom_flight
+	        entry_int("zoom_flight", 25, 5, 50),
+	},
 };
 
 config_t config =
