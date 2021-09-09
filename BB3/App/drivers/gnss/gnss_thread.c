@@ -4,6 +4,7 @@
  *  Created on: Apr 23, 2020
  *      Author: horinek
  */
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "gnss_thread.h"
 

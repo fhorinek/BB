@@ -4,7 +4,7 @@
  *  Created on: 4. 5. 2020
  *      Author: horinek
  */
-//#define DEBUG_LEVEL DBG_DEBUG
+#define DEBUG_LEVEL DBG_DEBUG
 #include "gnss_ublox_m8.h"
 
 #include "fc/fc.h"
@@ -441,7 +441,7 @@ static char ublox_start_word[] = "$GNRMC";
 
 void ublox_parse(uint8_t b)
 {
-	//INFO(">> %c %u", b, b);
+	INFO(">> %c %u", b, b);
 
 	static enum {
 		PM_INIT,
