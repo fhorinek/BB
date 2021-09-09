@@ -1,14 +1,26 @@
+# 09.09.2021 - Build 149
 
 ## Added
  * Bootloader wipe will preserve the calibration
-
+ * Store configuration after exiting the settings menu #65
+ * Vario bar now support fpm & knots units #77
+ * Altitude 2 (QNH2) widget
+ * G-meter widget
+ * Easier way to enter Bootloader
+ 
+## Fixed
+ * retun to last page #82
+ * QNH change trigger auto-takeoff #83
+ * Correct menu position when escaping submenu #66
+ * OTA update stability improved
+ * MEMS i2c recovery
 
 # 31.08.2021 - Build 148
 
 ## Added
  * Odometer
  
-## Fixes
+## Fixed
  * Arrow widgets crash 
 
 # 29.08.2021 - Build 146
