@@ -1,3 +1,9 @@
+# 09.09.2021 - Build 154
+
+## Fixed
+ * GNSS init error
+ * return page after power off/on #86
+
 # 09.09.2021 - Build 149
 
 ## Added
