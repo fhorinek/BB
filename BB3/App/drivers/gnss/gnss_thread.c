@@ -4,7 +4,7 @@
  *  Created on: Apr 23, 2020
  *      Author: horinek
  */
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "gnss_thread.h"
 
@@ -29,6 +29,11 @@ void gnss_uart_rx_irq_idle()
 {
 	osThreadFlagsSet(thread_gnss, 0x01);
 	DBG("GNSS RX IDLE");
+}
+
+void gnss_start_ublox_dma()
+{
+	ublox_start_dma();
 }
 
 void thread_gnss_start(void *argument)

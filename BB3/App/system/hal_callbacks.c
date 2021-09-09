@@ -72,7 +72,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-//	while(1);
+	if (huart == gnss_uart)
+	{
+		//Frame error can be triggered by baudrate change
+		gnss_start_ublox_dma();
+
+	}
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
