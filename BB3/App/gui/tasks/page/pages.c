@@ -223,6 +223,7 @@ void pages_anim_ready_cb(lv_anim_t * a)
 		if (local->mask_param != NULL)
 			lv_objmask_remove_mask(local->mask, local->mask_param);
 
+		pages_stop();
 		gui_stop();
 		system_poweroff();
 
