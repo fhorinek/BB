@@ -13,11 +13,26 @@
 #include "fc/neighbors.h"
 #include "fc/navigation.h"
 
+void gnss_uart_rx_irq_ht()
+{
+	osThreadFlagsSet(thread_gnss, 0x01);
+	DBG("GNSS RX HT");
+}
+void gnss_uart_rx_irq_tc()
+{
+	osThreadFlagsSet(thread_gnss, 0x01);
+	DBG("GNSS RX TC");
+}
+
+void gnss_uart_rx_irq_idle()
+{
+	osThreadFlagsSet(thread_gnss, 0x01);
+	DBG("GNSS RX IDLE");
+}
 
 void thread_gnss_start(void *argument)
 {
 	INFO("Started");
-
 
 	ublox_init();
 
@@ -31,10 +46,10 @@ void thread_gnss_start(void *argument)
 		fanet_step();
 
 		neighbors_step();
-
-		navigation_step();
 		
-		osDelay(10);
+		DBG(" ---- Sleep start ---- ");
+		int ret = osThreadFlagsWait(0x01, osFlagsWaitAny, 250);
+		DBG(" ---- Sleep end (%d) ---- ", ret);
 	}
 
     INFO("Done");

@@ -64,12 +64,15 @@ void info_update_get_file_cb(uint8_t res, download_slot_t * ds)
         dialog_close();
         download_slot_file_data_t * data = (download_slot_file_data_t *)ds->data;
         char path[64];
+        char tmp_path[TEMP_NAME_LEN];
+
+        get_tmp_path(tmp_path, data->tmp_id);
 
         snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, local->new_fw);
 
         f_unlink(path);
-        f_rename(data->name, path);
-        f_unlink(data->name);
+        f_rename(tmp_path, path);
+        f_unlink(tmp_path);
 
         dialog_show("Start update process?", "", dialog_yes_no, info_update_apply_cb);
     }
@@ -154,7 +157,7 @@ bool manual_install_fm_cb(char * path)
 	path = strrchr(path, '/');
 
 	if (path == NULL)
-		return;
+		return true;
 	path++;
 
 	snprintf(text, sizeof(text), "Install version %s", path);

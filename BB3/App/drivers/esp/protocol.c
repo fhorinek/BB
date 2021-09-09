@@ -375,6 +375,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         	FC_ATOMIC_ACCESS
 			{
+        		fc.gnss.itow = HAL_GetTick();
 				fc.gnss.fake = true;
 				fc.gnss.latitude = packet->lat;
 				fc.gnss.longtitude = packet->lon;

@@ -108,6 +108,8 @@ typedef struct
 #define SWAP_UINT24(x) ((((x) & 0xFF0000) >> 16) | ((x) & 0x00FF00) | (((x) & 0x0000FF) << 16))
 #define SWAP_UINT16(x) ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
 
+#define __align __attribute__ ((aligned (4)))
+
 extern bool system_power_off;
 
 //RTOS Macros
@@ -178,11 +180,9 @@ extern osThreadId_t SystemHandle;
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
 
-#define PATH_DATA_DIR       "data"
-#define PATH_TOPO_DIR       PATH_DATA_DIR "/topo"
-#define PATH_MAP_DIR        PATH_DATA_DIR "/map"
-#define PATH_MAP_INDEX      PATH_DATA_DIR "/map.db"
-#define PATH_TOPO_INDEX     PATH_DATA_DIR "/topo.db"
+#define PATH_TOPO_DIR       "agl"
+#define PATH_MAP_DIR        "map"
+#define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
@@ -240,8 +240,8 @@ bool read_value(char * data, char * key, char * value, uint16_t value_len);
 float table_sin(uint16_t angle);
 float table_cos(uint16_t angle);
 
-
 void system_reboot();
+void system_reboot_bl();
 
 #include <system/debug_thread.h>
 

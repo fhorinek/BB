@@ -10,7 +10,11 @@
 
 REGISTER_TASK_I(flight);
 
-
+static gui_list_slider_options_t dura_opt = {
+	.disp_multi = 1,
+	.step = 1,
+	.format = format_duration,
+};
 
 static lv_obj_t * flight_init(lv_obj_t * par)
 {
@@ -77,6 +81,10 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 
 	obj = gui_list_info_add_entry(list, "Automatic Landing", desc);
 	gui_config_entry_add(obj, NEXT_TASK, &gui_landing);
+
+
+	gui_list_auto_entry(list, "Glide ratio time", &profile.flight.gr_duration, &dura_opt);
+	gui_list_auto_entry(list, "G-meter time", &profile.flight.acc_duration, &dura_opt);
 
 
 	return list;

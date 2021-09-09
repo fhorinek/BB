@@ -12,6 +12,7 @@ DECLARE_WIDGET(Avg);
 DECLARE_WIDGET(Bar);
 DECLARE_WIDGET(FTime);
 DECLARE_WIDGET(Alt1);
+DECLARE_WIDGET(Alt2);
 DECLARE_WIDGET(HeightTO);
 DECLARE_WIDGET(CompHdg);
 DECLARE_WIDGET(CompArrow);
@@ -26,6 +27,7 @@ DECLARE_WIDGET(Glide);
 DECLARE_WIDGET(Battery);
 DECLARE_WIDGET(Agl);
 DECLARE_WIDGET(Odo);
+DECLARE_WIDGET(Acc);
 
 widget_t * widgets[] =
 {
@@ -35,6 +37,7 @@ widget_t * widgets[] =
     LIST_WIDGET(Glide),
     LIST_WIDGET(Bar),
     LIST_WIDGET(Alt1),
+    LIST_WIDGET(Alt2),
     LIST_WIDGET(Agl),
     LIST_WIDGET(FTime),
     LIST_WIDGET(CompHdg),
@@ -47,6 +50,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(GHdgArrow),
 	LIST_WIDGET(Battery),
 	LIST_WIDGET(Odo),
+	LIST_WIDGET(Acc),
 //    LIST_WIDGET(Map),
 };
 

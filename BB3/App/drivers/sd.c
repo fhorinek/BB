@@ -117,6 +117,11 @@ void sd_init()
     f_mkdir(PATH_FW_DIR);
     if (f_mkdir(PATH_TEMP_DIR) == FR_EXIST)
         clear_dir(PATH_TEMP_DIR);
+    else
+    	f_mkdir(PATH_TEMP_DIR);
+
+    f_mkdir(PATH_TOPO_DIR);
+    f_mkdir(PATH_MAP_DIR);
 
 }
 

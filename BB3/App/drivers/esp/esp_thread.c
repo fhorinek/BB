@@ -22,7 +22,7 @@ void thread_esp_start(void *argument)
 	while(!system_power_off)
 	{
 	    esp_step();
-		//wait for 100ms or rx int
+		//wait for 250ms or rx int
 	    osThreadFlagsWait(0x01, osFlagsWaitAny, 250);
 	}
 

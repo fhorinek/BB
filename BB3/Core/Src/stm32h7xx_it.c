@@ -25,6 +25,8 @@
 /* USER CODE BEGIN Includes */
 #include "common.h"
 #include "system/bsod.h"
+#include "drivers/esp/esp.h"
+#include "drivers/gnss/gnss_thread.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -78,7 +80,9 @@ extern DMA_HandleTypeDef hdma_uart7_tx;
 extern DMA_HandleTypeDef hdma_uart7_rx;
 extern DMA_HandleTypeDef hdma_uart8_rx;
 extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart7;
+extern UART_HandleTypeDef huart8;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
@@ -476,11 +480,38 @@ void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
 
+	if (__HAL_UART_GET_IT_SOURCE(&huart4, UART_IT_IDLE))
+	{
+		__HAL_UART_CLEAR_FLAG(&huart4, UART_CLEAR_IDLEF);
+		esp_uart_rx_irq_cb();
+	}
+
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
 
   /* USER CODE END UART4_IRQn 1 */
+}
+
+/**
+  * @brief This function handles UART5 global interrupt.
+  */
+void UART5_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART5_IRQn 0 */
+
+	if (__HAL_UART_GET_IT_SOURCE(&huart5, UART_IT_IDLE))
+	{
+		__HAL_UART_CLEAR_FLAG(&huart5, UART_CLEAR_IDLEF);
+		gnss_uart_rx_irq_idle();
+	}
+
+
+  /* USER CODE END UART5_IRQn 0 */
+  HAL_UART_IRQHandler(&huart5);
+  /* USER CODE BEGIN UART5_IRQn 1 */
+
+  /* USER CODE END UART5_IRQn 1 */
 }
 
 /**
@@ -526,6 +557,24 @@ void UART7_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles UART8 global interrupt.
+  */
+void UART8_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART8_IRQn 0 */
+	if (__HAL_UART_GET_IT_SOURCE(&huart8, UART_IT_IDLE))
+	{
+		__HAL_UART_CLEAR_FLAG(&huart8, UART_CLEAR_IDLEF);
+		gnss_uart_rx_irq_idle();
+	}
+  /* USER CODE END UART8_IRQn 0 */
+  HAL_UART_IRQHandler(&huart8);
+  /* USER CODE BEGIN UART8_IRQn 1 */
+
+  /* USER CODE END UART8_IRQn 1 */
+}
+
+/**
   * @brief This function handles OCTOSPI1 global interrupt.
   */
 void OCTOSPI1_IRQHandler(void)
@@ -537,6 +586,20 @@ void OCTOSPI1_IRQHandler(void)
   /* USER CODE BEGIN OCTOSPI1_IRQn 1 */
 
   /* USER CODE END OCTOSPI1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMAMUX1 overrun interrupt.
+  */
+void DMAMUX1_OVR_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMAMUX1_OVR_IRQn 0 */
+
+  /* USER CODE END DMAMUX1_OVR_IRQn 0 */
+
+  /* USER CODE BEGIN DMAMUX1_OVR_IRQn 1 */
+
+  /* USER CODE END DMAMUX1_OVR_IRQn 1 */
 }
 
 /**

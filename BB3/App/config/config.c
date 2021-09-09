@@ -10,6 +10,7 @@
 #include "fatfs.h"
 #include "gui/widgets/pages.h"
 
+bool config_changed = false;
 
 void config_set_bool(cfg_entry_t * entry, bool val)
 {
@@ -347,6 +348,11 @@ void config_load_all()
 void config_store_all()
 {
     char path[PATH_LEN];
+
+    if (!config_changed)
+    	return;
+
+    config_changed = false;
 
     config_store((cfg_entry_t * )&config, PATH_DEVICE_CFG);
     sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));

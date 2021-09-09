@@ -187,6 +187,61 @@ void format_distance_with_units(char * buf, float in)
 	}
 }
 
+void format_distance(char * buf, float in)
+{
+	switch (config_get_select(&config.units.distance))
+	{
+		case(DISTANCE_METERS):
+			if (in < 1000) //1km
+				sprintf(buf, "%0.0f", in);
+			else if (in < 10000) //10km
+				sprintf(buf, "%0.2f", in / 1000.0);
+			else if (in < 100000) //100km
+				sprintf(buf, "%0.1f", in / 1000.0);
+			else
+				sprintf(buf, "%0.0f", in / 1000.0);
+		break;
+
+		case(DISTANCE_MILES):
+		{
+			float mi = (in / 1000.0) * FC_KM_TO_MILE;
+			if (mi < 1.0) //1mi
+				sprintf(buf, "%0.0f", mi * 5280);
+			if (mi < 10.0) //10mi
+				sprintf(buf, "%0.1f", mi);
+			else
+				sprintf(buf, "%0.0f", mi);
+		}
+		break;
+
+	}
+}
+
+void format_distance_units(char * buf, float in)
+{
+	switch (config_get_select(&config.units.distance))
+	{
+		case(DISTANCE_METERS):
+			if (in < 1000) //1km
+				strcpy(buf, "m");
+			else if (in < 10000) //10km
+				strcpy(buf, "km");
+		break;
+
+		case(DISTANCE_MILES):
+		{
+			float mi = (in / 1000.0) * FC_KM_TO_MILE;
+			if (mi < 1.0) //1mi
+				strcpy(buf, "ft");
+			if (mi < 10.0) //10mi
+				strcpy(buf, "mi");
+		}
+		break;
+
+	}
+}
+
+
 void format_mac(char * buf, uint8_t * mac)
 {
     for(uint8_t i = 0; i < 6; i++)

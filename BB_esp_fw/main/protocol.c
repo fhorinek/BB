@@ -54,8 +54,8 @@ void protocol_send_sound_reg_more(uint8_t id, uint32_t len)
     protocol_send(PROTO_SOUND_REQ_MORE, (uint8_t*) &data, sizeof(data));
 }
 
-void esp_log_impl_lock(void);
-void esp_log_impl_unlock(void);
+//void esp_log_impl_lock(void);
+//void esp_log_impl_unlock(void);
 
 void protocol_send(uint8_t type, uint8_t *data, uint16_t data_len)
 {
@@ -65,6 +65,8 @@ void protocol_send(uint8_t type, uint8_t *data, uint16_t data_len)
 
     uart_send(buf_out, sizeof(buf_out));
 }
+
+#define PROTOCOL_SUBPROCESS_PRIORITY	11
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
@@ -118,7 +120,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         	proto_tone_play_t * packet = (proto_tone_play_t *) ps_malloc(sizeof(proto_tone_play_t));
         	memcpy(packet, data, sizeof(proto_tone_play_t));
 
-        	xTaskCreate((TaskFunction_t)vario_proces_packet, "vario_proces_packet", 1024 * 3, (void *)packet, 24, NULL);
+        	xTaskCreate((TaskFunction_t)vario_proces_packet, "vario_proces_packet", 1024 * 3, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
 		}
         break;
 
@@ -127,12 +129,12 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         	proto_wifi_mode_t * packet = (proto_wifi_mode_t *) ps_malloc(sizeof(proto_wifi_mode_t));
         	memcpy(packet, data, sizeof(proto_wifi_mode_t));
 
-        	xTaskCreate((TaskFunction_t)wifi_enable, "wifi_enable", 1024 * 3, (void *)packet, 24, NULL);
+        	xTaskCreate((TaskFunction_t)wifi_enable, "wifi_enable", 1024 * 3, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
 		}
         break;
 
         case (PROTO_WIFI_SCAN_START):
-        	xTaskCreate((TaskFunction_t)wifi_start_scan, "wifi_start_scan", 1024 * 3, NULL, 24, NULL);
+        	xTaskCreate((TaskFunction_t)wifi_start_scan, "wifi_start_scan", 1024 * 3, NULL, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
         break;
 
         case (PROTO_WIFI_SCAN_STOP):
@@ -145,7 +147,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         	proto_wifi_connect_t * packet = (proto_wifi_connect_t *) ps_malloc(sizeof(proto_wifi_connect_t));
         	memcpy(packet, data, sizeof(proto_wifi_connect_t));
 
-			xTaskCreate((TaskFunction_t)wifi_connect, "wifi_connect", 1024 * 3, (void *)packet, 24, NULL);
+			xTaskCreate((TaskFunction_t)wifi_connect, "wifi_connect", 1024 * 3, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
 		}
         break;
 
@@ -155,7 +157,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         	proto_download_url_t * packet = (proto_download_url_t *) ps_malloc(sizeof(proto_download_url_t));
         	memcpy(packet, data, sizeof(proto_download_url_t));
 
-			xTaskCreate((TaskFunction_t)download_url, "download_url", 1024 * 4, (void *)packet, 24, NULL);
+			xTaskCreate((TaskFunction_t)download_url, "download_url", 1024 * 4, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
 		}
         break;
 

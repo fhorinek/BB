@@ -155,6 +155,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 				{
 					files_fpos[file_index].flags |= POS_FLAG_NOT_FOUND;
 					WARN("not found!");
+					db_insert(PATH_TOPO_INDEX, filename, "W"); //set want flag
 
 					return AGL_INVALID;
 				}

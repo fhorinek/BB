@@ -71,6 +71,11 @@ void system_reboot()
     system_poweroff();
 }
 
+void system_reboot_bl()
+{
+	NVIC_SystemReset();
+}
+
 void i2c_scan()
 {
     DBG("scanning system i2c...");

@@ -37,7 +37,18 @@ bool mems_i2c_test_device(uint8_t addr)
 
 void mems_i2c_wait()
 {
-    while(HAL_I2C_GetState(mems_i2c) != HAL_I2C_STATE_READY);
+	uint32_t start = HAL_GetTick();
+    while(HAL_I2C_GetState(mems_i2c) != HAL_I2C_STATE_READY)
+    {
+    	if (start + 10 < HAL_GetTick())
+    	{
+    		ERR("Mems I2C stalled, trying to reset");
+    		HAL_I2C_Init(mems_i2c);
+    		mems_i2c_continue();
+    		return;
+    	}
+
+    }
 }
 
 void mems_i2c_cmd8(uint8_t adr, uint8_t cmd)

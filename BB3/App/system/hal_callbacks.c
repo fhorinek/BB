@@ -15,6 +15,7 @@
 #include "drivers/tft/tft.h"
 #include "drivers/power/led.h"
 #include "drivers/esp/esp.h"
+#include "drivers/gnss/gnss_thread.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -32,11 +33,40 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (huart == esp_uart)
+	{
+		esp_uart_rx_irq_cb();
+	}
+
+	if (huart == gnss_uart)
+	{
+		gnss_uart_rx_irq_ht();
+	}
+
+	if (huart == fanet_uart)
+	{
+		gnss_uart_rx_irq_ht();
+	}
+}
+
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart == esp_uart)
 	{
 		esp_uart_rx_irq_cb();
+	}
+
+	if (huart == gnss_uart)
+	{
+		gnss_uart_rx_irq_tc();
+	}
+
+	if (huart == fanet_uart)
+	{
+		gnss_uart_rx_irq_tc();
 	}
 }
 

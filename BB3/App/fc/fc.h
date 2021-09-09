@@ -125,10 +125,10 @@ typedef enum
 
 typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
-#define FC_POS_NO_GNSS		0b0000
-#define FC_POS_GNSS_2D		0b0010
-#define FC_POS_GNSS_3D		0b0100
-#define FC_POS_HAVE_BARO	0b1000
+#define FC_POS_GNSS_2D		0b0001
+#define FC_POS_GNSS_3D		0b0010
+#define FC_POS_HAVE_BARO	0b0100
+#define FC_POS_HAVE_ACC		0b1000
 
 #define FC_HISTORY_PERIOD	250
 #define FC_HISTORY_TIME		30
@@ -149,6 +149,9 @@ typedef struct
 
 	int16_t vario; //in cm/s
 	uint16_t flags;
+
+	int16_t accel; //in 1/1000 g
+	uint8_t _pad[2];
 } fc_pos_history_t;
 
 typedef enum
@@ -185,6 +188,9 @@ typedef struct
     {
         float altitude;
         uint32_t timestamp;
+
+        bool wait_for_manual_change;
+        uint8_t _pad[3];
     } autostart;
 
 	struct
@@ -192,6 +198,7 @@ typedef struct
         uint64_t utc_time;
         uint32_t ttf; //[ms]
 
+        uint32_t itow;
         int32_t latitude;   //*10^7
         int32_t longtitude; //*10^7
         float ground_speed; //[m/s]

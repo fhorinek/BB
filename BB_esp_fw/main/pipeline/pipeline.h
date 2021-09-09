@@ -93,4 +93,6 @@ extern pipelines_t pipes;
 void pipeline_init();
 void pipeline_loop();
 
+void pipeline_monitor();
+
 #endif /* MAIN_PIPELINE_PIPELINE_H_ */

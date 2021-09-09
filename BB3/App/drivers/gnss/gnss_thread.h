@@ -11,5 +11,8 @@
 #include "common.h"
 
 void thread_gnss_start(void *argument);
+void gnss_uart_rx_irq_ht();
+void gnss_uart_rx_irq_tc();
+void gnss_uart_rx_irq_idle();
 
 #endif /* DRIVERS_GNSS_GNSS_THREAD_H_ */

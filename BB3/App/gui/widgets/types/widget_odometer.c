@@ -18,6 +18,7 @@ REGISTER_WIDGET_IUE
     WIDGET_VAL_MIN_H,
 
     lv_obj_t * value;
+	lv_obj_t * units;
 );
 
 
@@ -26,7 +27,7 @@ static void Odo_init(lv_obj_t * base, widget_slot_t * slot)
     widget_create_base(base, slot);
     widget_add_title(base, slot, NULL);
 
-    local->value = widget_add_value(base, slot, NULL, NULL);
+    local->value = widget_add_value(base, slot, "", &local->units);
 
 }
 
@@ -46,9 +47,12 @@ static void Odo_update(widget_slot_t * slot)
 {
     char value[16];
 
-    format_distance_with_units(value, fc.flight.odometer);
+    format_distance(value, fc.flight.odometer);
     lv_label_set_text(local->value, value);
     widget_update_font_size(local->value, slot->obj);
+
+    format_distance_units(value, fc.flight.odometer);
+    lv_label_set_text(local->units, value);
 }
 
 

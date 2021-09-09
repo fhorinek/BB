@@ -48,7 +48,7 @@ typedef struct
 typedef struct
 {
     FIL f;
-    char name[TEMP_NAME_LEN];
+    uint32_t tmp_id;
 } download_slot_file_data_t;
 
 void download_slot_init();

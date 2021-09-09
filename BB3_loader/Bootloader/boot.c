@@ -198,7 +198,23 @@ void format_loop()
 		{
             Bootloader_Init();
             gfx_draw_status(GFX_STATUS_UPDATE, "Erasing STM");
+
+            nvm_data_t nvm_temp;
+            memcpy(&nvm_temp, (uint8_t *)NVM_ADDR, sizeof(nvm_data_t));
+
             Bootloader_Erase();
+
+            Bootloader_FlashBegin(NVM_ADDR);
+
+			nvm_temp.app.size = 0;
+			nvm_temp.app.crc = 0;
+			nvm_temp.app.build_number = 0;
+
+			for (uint32_t i = 0; i < sizeof(nvm_data_t); i += 16)
+			{
+				Bootloader_FlashNext((uint32_t *)(((uint8_t *)&nvm_temp) + i));
+			}
+
             Bootloader_FlashEnd();
 
     		sd_format();

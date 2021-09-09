@@ -219,6 +219,11 @@ lv_obj_t * widget_edit_overlay_get_base(lv_obj_t * edit)
 	return lv_obj_get_child(edit, NULL);
 }
 
+void widget_reset_edit_overlay_timer()
+{
+	pages_lock_reset();
+}
+
 void widget_destroy_edit_overlay(lv_obj_t * base)
 {
     lv_obj_del_async(base);

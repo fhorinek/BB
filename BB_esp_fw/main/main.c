@@ -37,6 +37,8 @@ void print_task_info()
 			INFO("%-32s\t%u\t%0.0f", ts->pcTaskName, ts->usStackHighWaterMark, ulStatsAsPercentage);
 		}
 	}
+	INFO("\n");
+	free(StatusArray);
 }
 
 //memory layout
@@ -92,11 +94,12 @@ void app_main(void)
 //    	INFO("INT %0.1f %lu/%lu", (free_internal * 100.0) / total_internal, free_internal, total_internal);
 //    	INFO("\n");
 
-//    	print_task_info();
+    	//print_task_info();
 
-//        vTaskDelay(5000 / portTICK_PERIOD_MS);
-//
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+
+//    	pipeline_monitor();
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
    //     taskYIELD();
     }
 }

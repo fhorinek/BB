@@ -27,27 +27,29 @@ void navigation_step()
 {
 	static int32_t last_lat = NO_LAT_DATA;
 	static int32_t last_lon;
+	static uint32_t last_time;
 
-	static uint32_t next_update = 0;
-
-	if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready && next_update < HAL_GetTick())
+	if (fc.gnss.fix > 0 && last_time != fc.gnss.itow)
 	{
-		next_update = HAL_GetTick() + 1000;
-
 		// Do we already have a previous GPS point?
 		if (last_lat != NO_LAT_DATA)
 		{
 			bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
-			uint32_t v = gnss_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);
+			uint32_t dist = gnss_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);
+
+			uint32_t delta = fc.gnss.itow - last_time;
+			float speed = dist * (1000.0 / delta);
+			INFO("%lu %0.2f %lu", dist, speed, delta);
 
 			//do not add when gps speed is < 1 km/h
 			//do not add when difference between calculated speed and gps speed is > 10 km/h
-			if (fabs(v - fc.gnss.ground_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gnss.ground_speed > FC_ODO_MIN_SPEED)
-				fc.flight.odometer += v;
+			if (fabs(speed - fc.gnss.ground_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gnss.ground_speed > FC_ODO_MIN_SPEED)
+				fc.flight.odometer += dist;
 		}
 
 		// Save the current GPS position for the next step
 		last_lat = fc.gnss.latitude;
 		last_lon = fc.gnss.longtitude;
+		last_time = fc.gnss.itow;
 	}
 }

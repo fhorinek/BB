@@ -8,6 +8,7 @@ Added widgets:
 - Battery
 - Odometer
 - Height above take-off
+- G-meter
 
 Fixes:
 - Power off batt. drain

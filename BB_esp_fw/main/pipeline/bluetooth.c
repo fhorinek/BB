@@ -31,15 +31,17 @@ void pipe_bluetooth_init()
 
 
     rsp_filter_cfg_t rsp_cfg = DEFAULT_RESAMPLE_FILTER_CONFIG();
-        rsp_cfg.src_rate = 44100;
-        rsp_cfg.src_ch = 2;
-        rsp_cfg.dest_rate = OUTPUT_SAMPLERATE;
-        rsp_cfg.dest_ch = OUTPUT_CHANNELS;
-        rsp_cfg.task_prio = 23;
+	rsp_cfg.src_rate = 44100;
+	rsp_cfg.src_ch = 2;
+	rsp_cfg.dest_rate = OUTPUT_SAMPLERATE;
+	rsp_cfg.dest_ch = OUTPUT_CHANNELS;
+	rsp_cfg.task_prio = 23;
+	rsp_cfg.out_rb_size = 16*1024;
+
 	pipes.bluetooth.filter = rsp_filter_init(&rsp_cfg);
 
 
-    raw_stream_cfg_t raw_cfg = RAW_STREAM_CFG_DEFAULT();
+	raw_stream_cfg_t raw_cfg = RAW_STREAM_CFG_DEFAULT();
     raw_cfg.type = AUDIO_STREAM_WRITER;
     pipes.bluetooth.raw = raw_stream_init(&raw_cfg);
 

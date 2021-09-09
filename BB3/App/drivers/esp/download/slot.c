@@ -6,16 +6,21 @@
  */
 //#define DEBUG_LEVEL DBG_DEBUG
 #include "slot.h"
+#include "drivers/esp/protocol.h"
 
 #include "drivers/psram.h"
 
 download_slot_t * download_slot[DOWNLOAD_SLOT_NUMBER] = {NULL};
 osSemaphoreId_t download_slot_access;
 
-#define DOWNLOAD_TIMEOUT            (5 * 1000)
+#define DOWNLOAD_TIMEOUT            (30 * 1000)
 
 static void download_slot_free(uint8_t data_id)
 {
+	proto_download_stop_t data;
+	data.data_id = data_id;
+	protocol_send(PROTO_DOWNLOAD_STOP, (void *)&data, sizeof(data));
+
     if (download_slot[data_id] == NULL)
         return;
 
@@ -151,49 +156,74 @@ void download_slot_process_info(proto_download_info_t * info)
 
     download_slot_t * ds = download_slot_get(info->end_point);
 
-    switch(info->result)
+    if (ds != NULL)
     {
-        case (PROTO_DOWNLOAD_OK):
-        {
-            if (ds != NULL)
-            {
-                ds->timestamp = HAL_GetTick();
+		switch(info->result)
+		{
+			case (PROTO_DOWNLOAD_OK):
+			{
+				if (ds != NULL)
+				{
+					ds->timestamp = HAL_GetTick();
 
-                switch(ds->type)
-                {
-                    case(DOWNLOAD_SLOT_TYPE_PSRAM):
-                        ds->size = info->size;
-                        ds->pos = 0;
-                        ds->data = ps_malloc(ds->size + 1);
-                    break;
+					switch(ds->type)
+					{
+						case(DOWNLOAD_SLOT_TYPE_PSRAM):
+							ds->size = info->size;
+							ds->pos = 0;
+							if (info->size == 0)
+								ds->data = NULL;
+							else
+								ds->data = ps_malloc(ds->size + 1);
+						break;
 
-                    case(DOWNLOAD_SLOT_TYPE_FILE):
-                    {
-                        ds->size = info->size;
-                        ds->pos = 0;
+						case(DOWNLOAD_SLOT_TYPE_FILE):
+						{
+							ds->size = info->size;
+							ds->pos = 0;
 
-                        download_slot_file_data_t * data = (download_slot_file_data_t *) malloc(sizeof(download_slot_file_data_t));
-                        get_tmp_filename(data->name);
-                        f_open(&data->f, data->name, FA_WRITE | FA_CREATE_ALWAYS);
+							download_slot_file_data_t * data = (download_slot_file_data_t *) malloc(sizeof(download_slot_file_data_t));
+							char path[TEMP_NAME_LEN];
+							data->tmp_id = get_tmp_filename(path);
+							FRESULT res = f_open(&data->f, path, FA_WRITE | FA_CREATE_ALWAYS);
 
-                        ds->data = (uint8_t *)data;
-                    }
-                    break;
-                }
+							if (res != FR_OK)
+							{
+								ERR("Failed to create file %s, res = %u", path, res);
 
-            }
-        }
-        break;
+							}
 
-        case (PROTO_DOWNLOAD_NOT_FOUND):
-            ds->cb(DOWNLOAD_SLOT_NOT_FOUND, ds);
-            download_slot_free(info->end_point);
-        break;
+							ds->data = (uint8_t *)data;
+						}
+						break;
+					}
 
-        case (PROTO_DOWNLOAD_NO_CONNECTION):
-            ds->cb(DOWNLOAD_SLOT_NO_CONNECTION, ds);
-            download_slot_free(info->end_point);
-        break;
+				}
+			}
+			break;
+
+			case (PROTO_DOWNLOAD_NOT_FOUND):
+				ds->cb(DOWNLOAD_SLOT_NOT_FOUND, ds);
+				download_slot_free(info->end_point);
+			break;
+
+			case (PROTO_DOWNLOAD_NO_CONNECTION):
+				ds->cb(DOWNLOAD_SLOT_NO_CONNECTION, ds);
+				download_slot_free(info->end_point);
+			break;
+
+			case (PROTO_DOWNLOAD_DONE):
+				if (ds->type == DOWNLOAD_SLOT_TYPE_FILE)
+					f_close(&((download_slot_file_data_t *)ds->data)->f);
+
+				if (ds->type == DOWNLOAD_SLOT_TYPE_PSRAM)
+					((char *)ds->data)[ds->pos + 1] = 0;
+
+				ds->cb(DOWNLOAD_SLOT_COMPLETE, ds);
+
+				download_slot_free(info->end_point);
+			break;
+		}
     }
 
     download_slot_unlock();
@@ -207,7 +237,7 @@ void download_slot_process_data(uint8_t data_id, uint8_t * data, uint16_t len)
 
     if (ds != NULL)
     {
-        if (ds->pos + len > ds->size)
+        if (ds->pos + len > ds->size && ds->size != 0)
         {
             len = ds->size - ds->pos;
             WARN("Data are larger than expected!");
@@ -216,6 +246,17 @@ void download_slot_process_data(uint8_t data_id, uint8_t * data, uint16_t len)
         switch (ds->type)
         {
             case(DOWNLOAD_SLOT_TYPE_PSRAM):
+            	if (ds->size == 0)
+            	{
+            		uint32_t new_size = ds->pos + len;
+            		uint8_t * new_buff = ps_malloc(new_size);
+            		if (ds->data != NULL)
+            		{
+            			memcpy(new_buff, ds->data, ds->pos);
+            			ps_free(ds->data);
+            		}
+            		ds->data = new_buff;
+            	}
                 memcpy(ds->data + ds->pos, data, len);
             break;
 
@@ -233,20 +274,6 @@ void download_slot_process_data(uint8_t data_id, uint8_t * data, uint16_t len)
         ds->timestamp = HAL_GetTick();
 
         ds->cb(DOWNLOAD_SLOT_PROGRESS, ds);
-        
-        if (ds->size == ds->pos)
-        {
-            if (ds->type == DOWNLOAD_SLOT_TYPE_FILE)
-                f_close(&((download_slot_file_data_t *)ds->data)->f);
-
-            if (ds->type == DOWNLOAD_SLOT_TYPE_PSRAM)
-                ((char *)ds->data)[ds->size] = 0;
-
-            ds->cb(DOWNLOAD_SLOT_COMPLETE, ds);
-
-            download_slot_free(data_id);
-        }
-
     }
     else
     {

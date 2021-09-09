@@ -105,6 +105,9 @@ typedef struct
             cfg_entry_t mode;
             cfg_entry_t igc;
         } logger;
+
+        cfg_entry_t acc_duration;
+        cfg_entry_t gr_duration;
     }
     flight;
 
@@ -115,7 +118,6 @@ typedef struct
         cfg_entry_t lift;
         cfg_entry_t acc_gain;
         cfg_entry_t avg_duration;
-        cfg_entry_t gr_duration;
         cfg_entry_t profile;
     } vario;
 } flight_profile_t;
@@ -195,6 +197,7 @@ typedef struct
 		cfg_entry_t use_serial;
 		cfg_entry_t use_file;
 		cfg_entry_t esp_off;
+		cfg_entry_t vario_random;
 	} debug;
 } config_t;
 
@@ -253,5 +256,7 @@ uint16_t config_structure_size(cfg_entry_t * structure);
 void config_load_all();
 void config_store_all();
 void config_restore_factory();
+
+extern bool config_changed;
 
 #endif /* CONFIG_CONFIG_H_ */

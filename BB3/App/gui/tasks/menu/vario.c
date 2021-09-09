@@ -69,7 +69,6 @@ static lv_obj_t * vario_settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Lift threshold", &profile.vario.lift, &sink_lift_opt);
 	gui_list_auto_entry(list, "Sink threshold", &profile.vario.sink, &sink_lift_opt);
 	gui_list_auto_entry(list, "Average time", &profile.vario.avg_duration, &avg_opt);
-	gui_list_auto_entry(list, "Glide ratio time", &profile.vario.gr_duration, &avg_opt);
 
 	lv_obj_t * obj = gui_list_info_add_entry(list, "Vario profile", config_get_text(&profile.vario.profile));
 	gui_config_entry_add(obj, CUSTOM_CB, vario_profile_cb);
