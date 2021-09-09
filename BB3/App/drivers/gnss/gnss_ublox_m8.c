@@ -4,7 +4,7 @@
  *  Created on: 4. 5. 2020
  *      Author: horinek
  */
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 #include "gnss_ublox_m8.h"
 
 #include "fc/fc.h"
@@ -23,6 +23,12 @@ static uint32_t ublox_last_command_time;
 static uint32_t ublox_start_time;
 
 #define UBLOX_CMD_TIMEOUT 1500
+
+void ublox_start_dma()
+{
+	WARN("GNSS Uart error");
+	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
+}
 
 void ublox_init()
 {
@@ -441,7 +447,7 @@ static char ublox_start_word[] = "$GNRMC";
 
 void ublox_parse(uint8_t b)
 {
-	INFO(">> %c %u", b, b);
+	DBG(">> %c %u", b, b);
 
 	static enum {
 		PM_INIT,

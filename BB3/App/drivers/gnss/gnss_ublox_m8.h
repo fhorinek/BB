@@ -14,4 +14,6 @@ void ublox_init();
 void ublox_deinit();
 void ublox_step();
 
+void ublox_start_dma();
+
 #endif /* DRIVERS_GNSS_UBLOX_M8_H_ */
