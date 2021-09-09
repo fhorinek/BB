@@ -34,7 +34,7 @@ void thread_map_start(void *argument)
     INFO("Started");
     map_init();
     bool skip_first = true;
-    osThreadSuspend(thread_map);
+//    osThreadSuspend(thread_map);
 
     osDelay(1000);
 
