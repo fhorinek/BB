@@ -37,7 +37,18 @@ static void Bar_update_range(widget_slot_t * slot)
         {
             lv_obj_set_pos(local->lines[i], 0, y);
             lv_obj_set_size(local->lines[i], slot->w, 3);
-            lv_label_set_text_fmt(local->labels[i], "%+d", val);
+            switch (config_get_select(&config.units.vario))
+            {
+				case(VARIO_MPS):
+					lv_label_set_text_fmt(local->labels[i], "%+d", val);
+				break;
+				case(VARIO_KN):
+					lv_label_set_text_fmt(local->labels[i], "%+d", val * 2);
+				break;
+				case(VARIO_FPM):
+					lv_label_set_text_fmt(local->labels[i], "%+d", val * 200);
+				break;
+            }
         }
         else
         {
@@ -75,8 +86,6 @@ static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
 
     for (uint8_t i = 0; i < SEGMENTS_CNT - 1; i++)
     {
-        int16_t y = (slot->h / (SEGMENTS_CNT)) * (i + 1);
-
         local->lines[i] = lv_obj_create(slot->obj, NULL);
         lv_obj_add_style(local->lines[i], LV_OBJ_PART_MAIN, &local->line);
 
@@ -92,20 +101,37 @@ static void Bar_update(widget_slot_t * slot)
 {
     int8_t old_offset = local->offset;
 
-    if (abs(fc.fused.vario) >= 9.0)
-    	local->offset = 9 * (fc.fused.vario / abs(fc.fused.vario));
-    else if (abs(fc.fused.vario) >= 6.0)
-    	local->offset = 6 * (fc.fused.vario / abs(fc.fused.vario));
-    else if (abs(fc.fused.vario) >= 3.0)
-    	local->offset = 3 * (fc.fused.vario / abs(fc.fused.vario));
-    else if (abs(fc.fused.vario) <= 1.0)
+    float vario = fc.fused.vario;
+    float avg_vario = fc.fused.avg_vario;
+
+    switch (config_get_select(&config.units.vario))
+    {
+		case(VARIO_KN): //one slot == 2 kn
+			vario = vario * 0.97192;
+			avg_vario = avg_vario * 0.97192;
+		break;
+		case(VARIO_FPM): //one slot == 200fpm
+			vario = vario * 0.98425;
+			avg_vario = avg_vario * 0.98425;
+		break;
+    }
+
+    if (abs(vario) >= 9.0)
+    	local->offset = 9 * (vario / abs(vario));
+    else if (abs(vario) >= 6.0)
+    	local->offset = 6 * (vario / abs(vario));
+    else if (abs(vario) >= 3.0)
+    	local->offset = 3 * (vario / abs(vario));
+    else if (abs(vario) <= 1.0)
     	local->offset = 0;
 
     if (old_offset != local->offset)
+    {
     	Bar_update_range(slot);
+    }
 
 	int16_t y1 = slot->h / 2 - (slot->h / SEGMENTS_CNT) * -local->offset;
-    int16_t y2 = (slot->h / SEGMENTS_CNT) * -fc.fused.avg_vario;
+    int16_t y2 = (slot->h / SEGMENTS_CNT) * -avg_vario;
 
     if (y2 < 0)
     {
@@ -120,7 +146,7 @@ static void Bar_update(widget_slot_t * slot)
         lv_obj_set_height(local->bar_avg, y2);
     }
 
-    y2 = (slot->h / SEGMENTS_CNT) * -fc.fused.vario;
+    y2 = (slot->h / SEGMENTS_CNT) * -vario;
 
     if (y2 < 0)
     {

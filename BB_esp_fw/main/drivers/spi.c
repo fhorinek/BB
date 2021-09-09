@@ -187,7 +187,7 @@ void spi_init()
     assert(ret == ESP_OK);
 
     //create spi task
-    xTaskCreate(spi_task, "spi_task", 1024 * 2, NULL, 14, NULL);
+    xTaskCreate(spi_task, "spi_task", 512 * 5, NULL, 17, NULL);
 }
 
 

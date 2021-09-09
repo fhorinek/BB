@@ -223,6 +223,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		FC_ATOMIC_ACCESS
 		{
+			fc.gnss.itow = ubx_nav_posllh->iTOW;
 			fc.gnss.longtitude = ubx_nav_posllh->lon;
 			fc.gnss.latitude = ubx_nav_posllh->lat;
 			fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
@@ -440,6 +441,8 @@ static char ublox_start_word[] = "$GNRMC";
 
 void ublox_parse(uint8_t b)
 {
+	//INFO(">> %c %u", b, b);
+
 	static enum {
 		PM_INIT,
 		PM_IDLE,
@@ -453,7 +456,7 @@ void ublox_parse(uint8_t b)
 		PM_CK_B
 	} mode;
 
-	static uint8_t msg_payload[1024];
+	static __align uint8_t msg_payload[1024];
 
     static uint16_t index = 0;
     static uint16_t msg_len;
@@ -601,22 +604,28 @@ void ublox_parse(uint8_t b)
 	}
 }
 
+uint16_t ublox_gnss_waiting;
+
 void ublox_step()
 {
 	static uint16_t read_index = 0;
-	uint16_t waiting;
 
 	uint16_t write_index = GNSS_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(gnss_uart->hdmarx);
 
 	//Get number of bytes waiting in buffer
 	if (read_index > write_index)
 	{
-		waiting = GNSS_BUFFER_SIZE - read_index + write_index;
+		ublox_gnss_waiting = GNSS_BUFFER_SIZE - read_index + write_index;
 	}
 	else
 	{
-		waiting = write_index - read_index;
+		ublox_gnss_waiting = write_index - read_index;
 	}
+
+	//this is necessary to proper function
+	taskYIELD();
+
+	//INFO("gnss waiting %u", ublox_gnss_waiting);
 
 	if (ublox_last_command_time != false)
 	{
@@ -628,10 +637,12 @@ void ublox_step()
 	}
 
 	//parse the data
-	for (uint16_t i = 0; i < waiting; i++)
+	for (uint16_t i = 0; i < ublox_gnss_waiting; i++)
 	{
 		if (fc.gnss.fake == false)
+		{
 			ublox_parse(gnss_rx_buffer[read_index]);
+		}
 
 		read_index = (read_index + 1) % GNSS_BUFFER_SIZE;
 	}

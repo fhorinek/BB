@@ -14,6 +14,8 @@
 #include "etc/timezone.h"
 
 #include "drivers/rtc.h"
+#include "drivers/gnss/fanet.h"
+
 #include "fc/vario.h"
 #include "fc/logger/logger.h"
 #include "fc/agl.h"
@@ -35,10 +37,6 @@ void fc_history_record_cb(void * arg)
 		pos.baro_alt = fc_press_to_alt(fc.fused.pressure, 101325);
 		pos.vario = fc.fused.vario * 100;
 	}
-	else
-	{
-		return;
-	}
 
 	if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready)
 	{
@@ -56,9 +54,11 @@ void fc_history_record_cb(void * arg)
 			pos.flags |= FC_POS_GNSS_2D;
 		}
 	}
-	else
+
+	if (fc.imu.status == fc_dev_ready)
 	{
-		pos.flags |= FC_POS_NO_GNSS;
+		pos.flags |= FC_POS_HAVE_ACC;
+		pos.accel = fc.imu.acc_total * 1000;
 	}
 
 	FC_ATOMIC_ACCESS
@@ -164,7 +164,8 @@ void fc_step()
             if (abs(fc.autostart.altitude - fc.fused.altitude1) >
                 config_get_int(&profile.flight.auto_take_off.alt_change_value))
             {
-                fc_takeoff();
+            	if (!fc.autostart.wait_for_manual_change)
+            		fc_takeoff();
             }
         }
 
@@ -320,6 +321,9 @@ void fc_manual_alt1_change(float val)
 {
 	kalman_configure(val);
 
-    if (fc.flight.mode == flight_wait_to_takeoff)
+    if (fc.flight.mode != flight_flight)
+    {
     	fc.autostart.altitude = val;
+    	fc.autostart.wait_for_manual_change = true;
+    }
 }

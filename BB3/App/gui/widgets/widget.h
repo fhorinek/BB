@@ -28,6 +28,7 @@ lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * 
 lv_obj_t * widget_create_edit_overlay(char * title, char * message);
 void widget_destroy_edit_overlay(lv_obj_t * base);
 lv_obj_t * widget_edit_overlay_get_base(lv_obj_t * edit);
+void widget_reset_edit_overlay_timer();
 
 #define local	((widget_local_vars_t *)slot->vars)
 

@@ -20,7 +20,7 @@
 
 #include "gui/gui_list.h"
 
-REGISTER_TASK_I(settings);
+REGISTER_TASK_IS(settings);
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
@@ -39,4 +39,12 @@ lv_obj_t * settings_init(lv_obj_t * par)
 		gui_list_auto_entry(list, "Development", NEXT_TASK, &gui_development);
 
 	return list;
+}
+
+void settings_stop()
+{
+	if (gui.task.actual == &gui_pages)
+	{
+		config_store_all();
+	}
 }

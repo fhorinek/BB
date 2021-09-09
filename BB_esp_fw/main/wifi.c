@@ -31,7 +31,7 @@ static SemaphoreHandle_t wifi_lock;
 
 void wifi_ip_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
-	DBG("IP EVENT: %s %d", event_base, event_id);
+
 	switch (event_id)
 	{
 		case(IP_EVENT_STA_GOT_IP):
@@ -44,27 +44,35 @@ void wifi_ip_events(void * null, esp_event_base_t event_base, int32_t event_id, 
 
 			protocol_send(PROTO_WIFI_GOT_IP, (uint8_t *)&data, sizeof(data));
 		}
+		break;
 
 		case(IP_EVENT_AP_STAIPASSIGNED):
 		{
 //			protocol_send(PROTO_WIFI_GOT_IP, (uint8_t *) data, sizeof(data));
 
 		}
+		break;
+
+		default:
+			INFO("Unhandled IP EVENT: %s %d", event_base, event_id);
 
 	}
 }
 
 void wifi_eth_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
-	DBG("ETH EVENT: %s %d", event_base, event_id);
+	INFO("unhandled ETH EVENT: %s %d", event_base, event_id);
 
 }
 
 void wifi_wifi_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
-	DBG("WIFI EVENT: %s %d", event_base, event_id);
 	switch (event_id)
 	{
+		case(WIFI_EVENT_SCAN_DONE):
+			INFO("WIFI_EVENT_SCAN_DONE");
+		break;
+
 		case(WIFI_EVENT_STA_START):
 			protocol_send(PROTO_WIFI_ENABLED, NULL, 0);
 		break;
@@ -144,6 +152,9 @@ void wifi_wifi_events(void * null, esp_event_base_t event_base, int32_t event_id
 					protocol_send(PROTO_WIFI_AP_DISCONNETED, NULL, 0);
 			}
 		break;
+
+		default:
+			INFO("unhandled WIFI EVENT: %s %d", event_base, event_id);
 	}
 }
 

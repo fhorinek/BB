@@ -307,12 +307,17 @@ void vario_step()
     vario = demo;
 #endif
 
+    if (config_get_bool(&config.debug.vario_random))
+    	vario = ((rand() % 100) / 10.0) - 5.0;
+
     fc.fused.vario = vario;
     fc.fused.avg_vario += (vario - fc.fused.avg_vario) / (float)(config_get_int(&profile.vario.avg_duration) * 100);
-    fc.fused.gr_vario += (vario - fc.fused.gr_vario) / (float)(config_get_int(&profile.vario.gr_duration) * 100);
+    fc.fused.gr_vario += (vario - fc.fused.gr_vario) / (float)(config_get_int(&profile.flight.gr_duration) * 100);
     fc.fused.altitude1 = altitude;
     fc.fused.pressure = fc_alt_to_press(altitude, config_get_big_int(&config.vario.qnh1));
     fc.fused.altitude2 = fc_press_to_alt(fc.fused.pressure, config_get_big_int(&config.vario.qnh2));
+
+    fc.autostart.wait_for_manual_change = false;
 
     int16_t ivario = vario * 10;
     if (config_get_bool(&profile.vario.in_flight) && fc.flight.mode != flight_flight)

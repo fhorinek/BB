@@ -283,7 +283,8 @@ bool copy_file(char * src, char * dst)
 
 FRESULT f_delete_node (
     TCHAR* path,    /* Path name buffer with the sub-directory to delete */
-    UINT sz_buff  /* Size of path name buffer (items) */
+    UINT sz_buff,  /* Size of path name buffer (items) */
+	bool preserve_root
 )
 {
     UINT i, j;
@@ -309,7 +310,7 @@ FRESULT f_delete_node (
             path[i + j] = fno.fname[j];
         } while (fno.fname[j++]);
         if (fno.fattrib & AM_DIR) {    /* Item is a directory */
-            fr = f_delete_node(path, sz_buff);
+            fr = f_delete_node(path, sz_buff, false);
         } else {                        /* Item is a file */
             fr = f_unlink(path);
         }
@@ -319,7 +320,7 @@ FRESULT f_delete_node (
     path[--i] = 0;  /* Restore the path name */
     f_closedir(&dir);
 
-    if (fr == FR_OK) fr = f_unlink(path);  /* Delete the empty directory */
+    if (fr == FR_OK && !preserve_root) fr = f_unlink(path);  /* Delete the empty directory */
     return fr;
 }
 
@@ -327,7 +328,7 @@ void clear_dir(char * path)
 {
     char path_buff[PATH_LEN];
     strcpy(path_buff, path);
-    f_delete_node(path_buff, sizeof(path_buff));
+    f_delete_node(path_buff, sizeof(path_buff), true);
 }
 
 bool read_value(char * data, char * key, char * value, uint16_t value_len)

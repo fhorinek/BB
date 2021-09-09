@@ -333,6 +333,11 @@ void pages_create_menu(lv_obj_t * base)
 
 }
 
+void pages_lock_reset()
+{
+	local->timer = HAL_GetTick() + OVER_TIMEOUT;
+}
+
 void pages_lock_widget()
 {
 	local->state = MENU_EDIT_OVERLAY;
@@ -652,6 +657,8 @@ static void pages_stop()
 	lv_style_reset(&local->menu_style);
 
 	widgets_deinit_page(local->page);
+
+	config_set_int(&profile.ui.page_last, local->actual_page);
 
 	free(local->page);
 }

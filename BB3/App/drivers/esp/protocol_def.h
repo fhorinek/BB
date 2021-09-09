@@ -189,8 +189,9 @@ typedef struct {
 } proto_download_url_t;
 
 #define PROTO_DOWNLOAD_OK               0
-#define PROTO_DOWNLOAD_NOT_FOUND        1
-#define PROTO_DOWNLOAD_NO_CONNECTION    2
+#define PROTO_DOWNLOAD_DONE             1
+#define PROTO_DOWNLOAD_NOT_FOUND        10
+#define PROTO_DOWNLOAD_NO_CONNECTION    20
 #define PROTO_DOWNLAOD_NO_FREE_SLOT     0xFF
 
 typedef struct {

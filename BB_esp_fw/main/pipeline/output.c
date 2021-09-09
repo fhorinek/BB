@@ -10,8 +10,6 @@
 #include "i2s_stream.h"
 #include "downmix.h"
 
-static const char *TAG = "PIPE_OUT";
-
 void pipe_output_init()
 {
     INFO("pipe_downmix_init");
@@ -20,7 +18,31 @@ void pipe_output_init()
     audio_pipeline_cfg_t output_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();
     pipes.output.pipe = audio_pipeline_init(&output_cfg);
 
-    //Config
+    //Create Mixer
+    downmix_cfg_t downmix_cfg = DEFAULT_DOWNMIX_CONFIG();
+    downmix_cfg.downmix_info.source_num = NUMBER_OF_SOURCES;
+    downmix_cfg.downmix_info.mode = ESP_DOWNMIX_WORK_MODE_SWITCH_ON;
+    downmix_cfg.task_prio = 22;
+
+    pipes.output.mix = downmix_init(&downmix_cfg);
+
+    esp_downmix_input_info_t source_info = {
+        .samplerate = OUTPUT_SAMPLERATE,
+        .channel = OUTPUT_CHANNELS,
+        .gain = {0, 0},
+        .transit_time = 0,
+    };
+
+    esp_downmix_input_info_t source_information[NUMBER_OF_SOURCES] = {0};
+    for (uint8_t i = 0; i < NUMBER_OF_SOURCES; i++)
+        source_information[i] = source_info;
+
+    source_info_init(pipes.output.mix, source_information);
+    downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_ONE_CHANNEL);
+    downmix_set_work_mode(pipes.output.mix, ESP_DOWNMIX_WORK_MODE_SWITCH_ON);
+
+
+    //Create i2s output
     i2s_stream_cfg_t i2s_cfg =  {
             .type = AUDIO_STREAM_WRITER,
             .i2s_config = {
@@ -49,28 +71,6 @@ void pipe_output_init()
         };
 
     pipes.output.i2s_writer = i2s_stream_init(&i2s_cfg);
-
-    downmix_cfg_t downmix_cfg = DEFAULT_DOWNMIX_CONFIG();
-    downmix_cfg.downmix_info.source_num = NUMBER_OF_SOURCES;
-    downmix_cfg.downmix_info.mode = ESP_DOWNMIX_WORK_MODE_SWITCH_ON;
-    downmix_cfg.task_prio = 20;
-
-    pipes.output.mix = downmix_init(&downmix_cfg);
-
-    esp_downmix_input_info_t source_info = {
-        .samplerate = OUTPUT_SAMPLERATE,
-        .channel = OUTPUT_CHANNELS,
-        .gain = {0, 0},
-        .transit_time = 0,
-    };
-
-    esp_downmix_input_info_t source_information[NUMBER_OF_SOURCES] = {0};
-    for (uint8_t i = 0; i < NUMBER_OF_SOURCES; i++)
-        source_information[i] = source_info;
-
-    source_info_init(pipes.output.mix, source_information);
-    downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_ONE_CHANNEL);
-    downmix_set_work_mode(pipes.output.mix, ESP_DOWNMIX_WORK_MODE_SWITCH_ON);
 
     audio_pipeline_register(pipes.output.pipe, pipes.output.mix, "mix");
     audio_pipeline_register(pipes.output.pipe, pipes.output.i2s_writer, "i2s");

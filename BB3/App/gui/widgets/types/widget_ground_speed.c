@@ -34,7 +34,7 @@ static void GSpeed_update(widget_slot_t * slot)
     char value[8];
     if (fc.gnss.fix == 0)
     {
-    	strcpy(value, "---");
+    	strcpy(value, "No GNSS");
     }
     else
     {

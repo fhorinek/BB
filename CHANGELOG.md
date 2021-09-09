@@ -1,4 +1,9 @@
-# 31.08.2021 - Build 147
+
+## Added
+ * Bootloader wipe will preserve the calibration
+
+
+# 31.08.2021 - Build 148
 
 ## Added
  * Odometer

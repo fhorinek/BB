@@ -13,7 +13,7 @@
     if (strlen(config_get_text(entry)) == 0)
     {
         char dev_name[DEV_NAME_LEN];
-        sprintf(dev_name, "Strato_%X", rev_get_short_id());
+        sprintf(dev_name, "Strato_%lX", rev_get_short_id());
         config_set_text(entry, dev_name);
     }
 }
@@ -125,6 +125,8 @@ void config_process_cb(cfg_entry_t * entry)
     gui_lock_acquire();
     gui_config_config_cb(entry);
     gui_lock_release();
+
+    config_changed = true;
 }
 
 void config_trigger_callbacks()

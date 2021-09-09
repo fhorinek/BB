@@ -246,7 +246,11 @@ flight_profile_t profile =
             entry_select("log_mode", LOGGER_FLIGHT, logger_mode_select),
             //igc
             entry_bool("log_igc", true),
-        }
+        },
+        //acc_duration
+		entry_int("acc_dura", 5, 1, 30),
+		//gr_duration
+		entry_int("gr_dura", 20, 5, 120),
     },
 
     //vario
@@ -261,8 +265,6 @@ flight_profile_t profile =
         entry_float("vario_acc", 1.0, acc_gain_range),
         //avg_duration
         entry_int("vario_avg", 15, 5, 120),
-        //gr_duration
-        entry_int("vario_gr", 20, 5, 120),
         //profile
         entry_text("vario_profile", "default", VARIO_PROFILE_LEN, 0),
     },
@@ -381,5 +383,7 @@ config_t config =
 		entry_bool("dbg_file", false),
 		//esp_off
 		entry_bool("dbg_esp_off", false),
+		//vario_random
+		entry_bool("dbg_vario_rnd", false),
 	},
 };

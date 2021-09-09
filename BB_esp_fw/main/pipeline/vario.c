@@ -294,7 +294,7 @@ void pipe_vario_init()
 
     audio_pipeline_run(pipes.vario.pipe);
 
-    xTaskCreate(pipe_vario_loop, "pipe_vario_loop", 1024 * 2, NULL, 12, NULL);
+    xTaskCreate(pipe_vario_loop, "pipe_vario_loop", 1024 * 2, NULL, 20, NULL);
 
     xSemaphoreGive(pipes.vario.lock);
 }

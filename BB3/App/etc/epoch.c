@@ -83,7 +83,7 @@ void datetime_from_epoch(uint64_t epoch, uint8_t *psec, uint8_t *pmin, uint8_t *
     *phour = epoch % 24;
     epoch /= 24; // now it is days
 
-    *pwday = (epoch + 4) % 7;
+    *pwday = ((epoch + 3) % 7) + 1;
 
     year = 70;
     days = 0;

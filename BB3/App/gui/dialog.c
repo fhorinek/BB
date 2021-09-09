@@ -81,6 +81,17 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
             dialog_stop(dialog_res_none, NULL);
     }
 
+    if (gui.dialog.type == dialog_bootloader)
+    {
+        if (key == LV_KEY_ESC)
+            dialog_stop(dialog_res_no, NULL);
+
+        if (key == LV_KEY_HOME)
+        {
+        	system_reboot_bl();
+        }
+    }
+
     if (gui.dialog.type == dialog_progress)
     {
         if (key == LV_KEY_ESC)
@@ -251,6 +262,24 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
         	lv_label_set_align(text_label, LV_LABEL_ALIGN_LEFT);
             lv_obj_set_width(title_label, LV_HOR_RES);
             lv_obj_set_width(text_label, (LV_HOR_RES * 5) / 6);
+        }
+        break;
+
+        case (dialog_bootloader):
+        {
+            lv_obj_t * yes = lv_label_create(gui.dialog.window, NULL);
+            lv_obj_set_style_local_text_font(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+            lv_obj_set_style_local_text_color(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+            lv_obj_set_style_local_pad_all(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 5);
+            lv_label_set_text(yes, LV_SYMBOL_LIST);
+            lv_obj_align(yes, gui.dialog.window, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+
+            lv_obj_t * no = lv_label_create(gui.dialog.window, NULL);
+            lv_obj_set_style_local_text_font(no, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+            lv_obj_set_style_local_text_color(no, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+            lv_obj_set_style_local_pad_all(no, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 5);
+            lv_label_set_text(no, LV_SYMBOL_CLOSE);
+            lv_obj_align(no, gui.dialog.window, LV_ALIGN_IN_BOTTOM_LEFT, 0, 0);
         }
         break;
 

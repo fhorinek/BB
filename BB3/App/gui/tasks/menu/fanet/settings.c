@@ -37,7 +37,7 @@ static lv_obj_t * fanet_settings_init(lv_obj_t * par)
     	if (delta > 0)
     		snprintf(value, sizeof(value), "%s in %u days", tmp, delta);
     	else
-    		snprintf(value, sizeof(value), "%s EXPIRED!", tmp, delta);
+    		snprintf(value, sizeof(value), "%s EXPIRED!", tmp);
     }
 
     gui_list_info_add_entry(list, "FLARM expires", value);
