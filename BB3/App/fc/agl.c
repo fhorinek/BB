@@ -144,7 +144,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 				files_fpos[file_index] = fpos;
 
 				agl_get_filename(filename, fpos);
-				snprintf(path, sizeof(path), "DATA/TOPO/%s.hgt", filename);
+				snprintf(path, sizeof(path), PATH_TOPO_DIR "/%s.hgt", filename);
 
 				f_close(&files_cache[file_index]);
 				f_close(&files_cache2[file_index]);

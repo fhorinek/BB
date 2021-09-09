@@ -153,14 +153,14 @@ typedef struct
 	struct
 	{
         lv_obj_t * canvas;
-        int32_t map_lat;
-        int32_t map_lan;
-
         lv_color_t * buffer[2];
 
+        int32_t center_lon[2];
+        int32_t center_lat[2];
+
+        uint8_t zoom[2];
         uint8_t active_buffer;
         uint8_t magic;
-        uint8_t _pad[2];
 	} map;
 
 	//ctx menu

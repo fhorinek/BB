@@ -183,6 +183,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_TOPO_DIR       "agl"
 #define PATH_MAP_DIR        "map"
 #define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
+#define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"

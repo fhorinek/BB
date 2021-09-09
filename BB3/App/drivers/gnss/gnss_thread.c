@@ -48,7 +48,7 @@ void thread_gnss_start(void *argument)
 		neighbors_step();
 		
 		DBG(" ---- Sleep start ---- ");
-		int ret = osThreadFlagsWait(0x01, osFlagsWaitAny, 250);
+		int ret = osThreadFlagsWait(0x01, osFlagsWaitAny, 10);
 		DBG(" ---- Sleep end (%d) ---- ", ret);
 	}
 
