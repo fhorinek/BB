@@ -163,6 +163,8 @@ void wifi_init()
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+    print_free_memory("esp_netif_init");
+
     sta_netif = esp_netif_create_default_wifi_sta();
     assert(sta_netif);
     ap_netif = esp_netif_create_default_wifi_ap();
@@ -174,6 +176,8 @@ void wifi_init()
     esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_wifi_events, NULL, NULL);
     esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID, wifi_ip_events, NULL, NULL);
     esp_event_handler_instance_register(ETH_EVENT, ESP_EVENT_ANY_ID, wifi_eth_events, NULL, NULL);
+
+    print_free_memory("esp_wifi_init");
 
     ESP_ERROR_CHECK(mdns_init());
     mdns_hostname_set(DEVICE_HOSTNAME);

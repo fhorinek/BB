@@ -154,4 +154,7 @@ split = 8
 GPS_COORD_MUL = 10000000
 
 overpass_read_chunk_size = 4096
-overpass_url = "http://overpass-api.de/api/interpreter"
+#overpass_url = "http://overpass-api.de/api/interpreter"
+#overpass_url = "https://lz4.overpass-api.de/api/interpreter"
+overpass_url = "https://overpass.kumi.systems/api/interpreter"
+

@@ -7,6 +7,8 @@
 #include "gui_list.h"
 #include "keyboard.h"
 
+#include "etc/format.h"
+
 lv_obj_t * gui_list_get_entry(uint16_t index)
 {
 	lv_obj_t * child = NULL;
@@ -542,6 +544,12 @@ config_entry_ll_t * gui_config_entry_find_by_entry(cfg_entry_t * entry)
 	return NULL;
 }
 
+static gui_list_slider_options_t slider_default_format = {
+	.disp_multi = 1,
+	.step = 1,
+	.format = format_int,
+};
+
 lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params)
 {
 	lv_obj_t * obj = NULL;
@@ -568,6 +576,12 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 
 			case (ENTRY_FLOAT):
 			{
+				if (params == NULL)
+				{
+					WARN("Slider parameter is missing!");
+					params = &slider_default_format;
+				}
+
 				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
 				int16_t min = config_float_min(entry) / opt->step;
 				int16_t max = config_float_max(entry) / opt->step;
@@ -578,6 +592,13 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 
 			case (ENTRY_INT16):
 			{
+				if (params == NULL)
+				{
+					WARN("Slider parameter is missing!");
+					params = &slider_default_format;
+				}
+
+
 				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
 				int16_t min = config_int_min(entry) / opt->step;
 				int16_t max = config_int_max(entry) / opt->step;

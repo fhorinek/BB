@@ -19,4 +19,6 @@ bool PSRAM_test();
 void * ps_malloc(uint32_t requested_size);
 void ps_free(void * ptr);
 
+void ps_malloc_info();
+
 #endif /* DRIVERS_PSRAM_H_ */

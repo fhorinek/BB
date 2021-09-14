@@ -79,10 +79,17 @@ void pipeline_init()
     pipes.events = audio_event_iface_init(&evt_cfg);
 
 	pipe_output_init();
-	pipe_sound_init();
-	pipe_bluetooth_init();
-	pipe_vario_init();
+	print_free_memory("pipe_output_init");
 
-	xTaskCreate(pipeline_loop, "pipeline_loop", 1024 * 2, NULL, 15, NULL);
+	pipe_sound_init();
+	print_free_memory("pipe_sound_init");
+
+	pipe_bluetooth_init();
+	print_free_memory("pipe_bluetooth_init");
+
+	pipe_vario_init();
+	print_free_memory("pipe_vario_init");
+
+	xTaskCreate(pipeline_loop, "pipeline_loop", 1024, NULL, 15, NULL);
 }
 

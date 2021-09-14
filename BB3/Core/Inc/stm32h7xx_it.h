@@ -74,7 +74,6 @@ void OTG_HS_IRQHandler(void);
 void UART7_IRQHandler(void);
 void UART8_IRQHandler(void);
 void OCTOSPI1_IRQHandler(void);
-void DMAMUX1_OVR_IRQHandler(void);
 void TIM15_IRQHandler(void);
 void TIM17_IRQHandler(void);
 void MDMA_IRQHandler(void);
