@@ -25,6 +25,7 @@ void pipe_output_init()
     downmix_cfg.task_prio = 22;
 
     pipes.output.mix = downmix_init(&downmix_cfg);
+    print_free_memory("downmix_init");
 
     esp_downmix_input_info_t source_info = {
         .samplerate = OUTPUT_SAMPLERATE,
@@ -40,7 +41,6 @@ void pipe_output_init()
     source_info_init(pipes.output.mix, source_information);
     downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_ONE_CHANNEL);
     downmix_set_work_mode(pipes.output.mix, ESP_DOWNMIX_WORK_MODE_SWITCH_ON);
-
 
     //Create i2s output
     i2s_stream_cfg_t i2s_cfg =  {
@@ -72,12 +72,17 @@ void pipe_output_init()
 
     pipes.output.i2s_writer = i2s_stream_init(&i2s_cfg);
 
+    print_free_memory("i2s_stream_init");
+
     audio_pipeline_register(pipes.output.pipe, pipes.output.mix, "mix");
+    print_free_memory("audio_pipeline_register 1");
     audio_pipeline_register(pipes.output.pipe, pipes.output.i2s_writer, "i2s");
+    print_free_memory("audio_pipeline_register 2");
 
     const char *link[2] = {"mix", "i2s"};
     audio_pipeline_link(pipes.output.pipe, &link[0], 2);
 
+    print_free_memory("audio_pipeline_link");
     audio_pipeline_run(pipes.output.pipe);
 }
 

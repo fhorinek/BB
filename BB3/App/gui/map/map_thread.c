@@ -11,65 +11,137 @@
 
 #include "fc/fc.h"
 
-
-#define BORDER_W (280 / 2)
-#define BORDER_H (400 / 2)
-
 void map_init()
 {
-    gui.map.active_buffer = 0;
+	gui.map.magic = 0;
+
+    for (uint8_t i = 0; i < 9; i++)
+    {
+		gui.map.chunks[i].buffer = NULL;
+	}
+
     gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
 
-//    LV_IMG_CF_TRUE_COLOR
-    gui.map.buffer[0] = ps_malloc(MAP_W * MAP_H * sizeof(lv_color_t));
-    gui.map.buffer[1] = ps_malloc(MAP_W * MAP_H * sizeof(lv_color_t));
-    lv_obj_set_hidden(gui.map.canvas, true);
+    for (uint8_t i = 0; i < 9; i++)
+    {
+    	gui.map.chunks[i].buffer = ps_malloc(MAP_BUFFER_SIZE);
+    	gui.map.chunks[i].ready = false;
+    }
 
-    lv_canvas_set_buffer(gui.map.canvas, gui.map.buffer[0], MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
-    lv_canvas_fill_bg(gui.map.canvas, LV_COLOR_YELLOW, LV_OPA_COVER);
+    lv_obj_set_hidden(gui.map.canvas, true);
 }
 
 void thread_map_start(void *argument)
 {
     INFO("Started");
     map_init();
-    bool skip_first = true;
-    osThreadSuspend(thread_map);
 
     osDelay(1000);
 
     while(!system_power_off)
     {
-    	if (fc.gnss.fix != 3)
+        if (fc.gnss.fix != 3)
     	{
-            osDelay(1000);
+        	osDelay(1000);
     		continue;
     	}
 
-        osDelay(10000);
+        uint8_t old_magic = gui.map.magic;
 
+        uint8_t zoom = config_get_int(&profile.map.zoom_flight);
 
-    	gui.map.active_buffer = !gui.map.active_buffer;
+    	int32_t step_x;
+    	int32_t step_y;
+    	tile_get_steps(fc.gnss.latitude, zoom, &step_x, &step_y);
 
-        gui.map.center_lon[gui.map.active_buffer] = fc.gnss.longtitude;
-        gui.map.center_lat[gui.map.active_buffer] = fc.gnss.latitude;
-        gui.map.zoom[gui.map.active_buffer] = config_get_int(&profile.map.zoom_flight);
+    	//get vectors
+    	uint32_t step_lon = MAP_W * step_x;
+    	uint32_t step_lat = MAP_H * step_y;
 
-        uint32_t start = HAL_GetTick();
-        DBG("tile start");
-        lv_canvas_set_buffer(gui.map.canvas, gui.map.buffer[gui.map.active_buffer], MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+    	int32_t c_lon;
+    	int32_t c_lat;
+    	tile_align_to_cache_grid(fc.gnss.longtitude, fc.gnss.latitude, zoom, &c_lon, &c_lat);
 
-        create_tile(gui.map.center_lon[gui.map.active_buffer],
-        			gui.map.center_lat[gui.map.active_buffer],
-					gui.map.zoom[gui.map.active_buffer],
-					gui.map.canvas, skip_first);
+    	typedef struct
+    	{
+    		int32_t lon;
+    		int32_t lat;
 
-        skip_first = false;
+    		uint8_t chunk;
+    		bool reload;
+    		uint8_t _pad[2];
+    	} tile_info_t;
 
-        gui.map.active_buffer = !gui.map.active_buffer;
-        gui.map.magic++;
+    	tile_info_t tiles[9];
 
-        DBG("tile duration %0.2fs", (HAL_GetTick() - start) / 1000.0);
+    	static uint8_t gen_order[9] = {4, 3, 5, 1, 7, 0, 2, 6, 8};
+    	for (uint8_t i = 0; i < 9; i++)
+    	{
+    		uint8_t j = gen_order[i];
+
+    		tiles[i].lon = c_lon - step_lon + step_lon * (j % 3);
+    		tiles[i].lat = c_lat - step_lat + step_lat * (j / 3);
+
+    		tiles[i].chunk = tile_find_inside(tiles[i].lon, tiles[i].lat, zoom);
+
+//    		DBG("L %u = %u (%ld %ld)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
+    	}
+//    	DBG("");
+
+    	//assign buffers to tiles
+    	for (uint8_t i = 0; i < 9; i++)
+    	{
+    		if (tiles[i].chunk != 0xFF)
+    		{
+    			tiles[i].reload = false;
+    			continue;
+    		}
+
+			tiles[i].reload = true;
+
+    		for (uint8_t j = 0; j < 9; j++)
+    		{
+    			bool used = false;
+    			for (uint8_t k = 0; k < 9; k++)
+    			{
+    				if (tiles[k].chunk == j)
+    				{
+    					used = true;
+    					break;
+    				}
+    			}
+
+    			if (!used)
+    			{
+    				tiles[i].chunk = j;
+    				break;
+    			}
+    		}
+    	}
+
+    	//only cache first
+    	for (uint8_t i = 0; i < 9; i++)
+    	{
+    		if (tiles[i].reload)
+    		{
+    			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+    				tiles[i].reload = false;
+    		}
+    	}
+
+    	//last resort, regenerate
+    	for (uint8_t i = 0; i < 9; i++)
+    	{
+    		if (tiles[i].reload)
+    		{
+    			tile_generate(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+    			break;
+    		}
+    	}
+
+		if (gui.map.magic == old_magic)
+			osDelay(1000);
+
     }
 
     INFO("Done");

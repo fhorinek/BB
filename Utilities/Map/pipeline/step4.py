@@ -45,7 +45,8 @@ class Feature(object):
             if "name" in dict_data["properties"]:
                 self.name = dict_data["properties"]["name"]
             if "ele" in dict_data["properties"]:
-                self.elevation = int(float(dict_data["properties"]["ele"].replace(",", ".")))
+                ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".")
+                self.elevation = int(float(ele))
             
             
             if "natural" in dict_data["properties"]:
@@ -80,6 +81,8 @@ class Feature(object):
                 self.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
                 self.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
                 self.data += self.name.encode("UTF-8")
+                while len(self.data) % 4 != 0:
+                    self.data += struct.pack("B", 0)
 
                 self.geometry = Point(lon, lat)
 
@@ -118,6 +121,8 @@ class Feature(object):
             if self.type != -1:
                 #type
                 self.data += struct.pack("B", self.type)
+                #pad
+                self.data += struct.pack("B", 0)                
                 #number od points
                 self.data += struct.pack("<H", number_of_points)
                 #data
@@ -159,6 +164,8 @@ class Feature(object):
             if self.type != -1:
                 #type
                 self.data += struct.pack("B", self.type)
+                #pad
+                self.data += struct.pack("B", 0)                
                 #number od points
                 self.data += struct.pack("<H", number_of_points)
                 #data
@@ -184,6 +191,7 @@ class Feature(object):
             return bbox.intersects(self.geometry)
 
     def get_data(self, addr):
+        assert(addr % 4 == 0)
         self.addr = addr
         return self.data
         

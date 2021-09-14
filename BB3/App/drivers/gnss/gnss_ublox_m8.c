@@ -638,6 +638,7 @@ void ublox_step()
 		if (HAL_GetTick() - ublox_last_command_time > UBLOX_CMD_TIMEOUT)
 		{
 			WARN("Command %u timeouted, retry", ublox_last_command);
+			ublox_start_dma();
 			ublox_command(ublox_last_command);
 		}
 	}

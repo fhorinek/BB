@@ -35,43 +35,62 @@ void pipe_vario_step()
 	ringbuf_handle_t rb = audio_element_get_output_ringbuf(pipes.sound.stream);
 	uint16_t size = rb_bytes_available(rb) / sizeof(uint16_t);
 
-	while (size > 0)
+	if (tone_active != NULL)
 	{
-		//active tone is marked for removal
-		if (tone_active == to_remove)
+		while (size > 0)
 		{
-			//actual tone is silent or wave is finished
-			if (tone_active->buffer == one_ms_silent || tone_position >= tone_active->size)
+			//active tone is marked for removal
+			if (tone_active == to_remove)
 			{
-				vario_tone_free(to_remove);
-				to_remove = NULL;
+				//actual tone is silent or wave is finished
+				if (tone_active->buffer == one_ms_silent || tone_position >= tone_active->size)
+				{
+					vario_tone_free(to_remove);
+					to_remove = NULL;
 
-				tone_active = tones[tone_index];
+					if (tone_cnt > 0)
+					{
+						tone_active = tones[tone_index];
+						tone_position = 0;
+					}
+					else
+					{
+						tone_active = NULL;
+						break;
+					}
+				}
+			}
+
+			//one repetition of tone is done
+			if (tone_position >= tone_active->size)
+			{
 				tone_position = 0;
+				tone_repeates++;
+
+				//all repetitions are done
+				if (tone_repeates >= tone_active->repeat)
+				{
+					//select new tone
+					if (tone_cnt > 0)
+					{
+						tone_index = (tone_index + 1) % tone_cnt;
+						tone_active = tones[tone_index];
+						tone_repeates = 0;
+					}
+					else
+					{
+						tone_active = NULL;
+						break;
+					}
+				}
 			}
+
+			uint16_t to_write = min(tone_active->size - tone_position, size);
+			raw_stream_write(pipes.vario.stream, (char *)(tone_active->buffer + tone_position), to_write * sizeof(uint16_t));
+
+			size -= to_write;
+			tone_position = (tone_position + to_write);
 		}
-
-		//one repetition of tone is done
-		if (tone_position >= tone_active->size)
-		{
-			tone_position = 0;
-			tone_repeates++;
-
-			//all repetitions are done
-			if (tone_repeates >= tone_active->repeat)
-			{
-				//select new tone
-				tone_index = (tone_index + 1) % tone_cnt;
-				tone_active = tones[tone_index];
-				tone_repeates = 0;
-			}
-		}
-
-		uint16_t to_write = min(tone_active->size - tone_position, size);
-		raw_stream_write(pipes.vario.stream, (char *)(tone_active->buffer + tone_position), to_write * sizeof(uint16_t));
-
-		size -= to_write;
-		tone_position = (tone_position + to_write);
 	}
 
 	xSemaphoreGive(pipes.vario.lock);
@@ -175,7 +194,10 @@ void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 	}
 
 	//free tones
-	free(tones);
+	if (tones != NULL)
+	{
+		free(tones);
+	}
 	
 	//assign new tones
 	tones = new_tones;
@@ -204,6 +226,12 @@ void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 		}
 	}
 
+	if (tone_active == NULL)
+	{
+		tone_active = tones[tone_index];
+		tone_position = 0;
+	}
+
 	xSemaphoreGive(pipes.vario.lock);
 
 	protocol_send(PROTO_TONE_ACK, NULL, 0);
@@ -213,6 +241,12 @@ void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 
 void vario_create_sequence(tone_pair_t * pairs, uint8_t cnt)
 {
+	if (cnt == 0)
+	{
+		pipe_vario_replace(NULL, 0);
+		return;
+	}
+
 	tone_part_t ** new_tones = ps_malloc(sizeof(tone_part_t *) * cnt * 2);
 	uint8_t index = 0;
 	for (uint8_t i = 0; i < cnt; i++)
@@ -294,7 +328,7 @@ void pipe_vario_init()
 
     audio_pipeline_run(pipes.vario.pipe);
 
-    xTaskCreate(pipe_vario_loop, "pipe_vario_loop", 1024 * 2, NULL, 20, NULL);
+    xTaskCreate(pipe_vario_loop, "pipe_vario_loop", 512 * 3, NULL, 20, NULL);
 
     xSemaphoreGive(pipes.vario.lock);
 }
@@ -331,18 +365,12 @@ void vario_proces_packet(proto_tone_play_t * packet)
 {
 	//DBG("Packet id = %u", packet->id);
 
-	tone_pair_t * pairs;
+	tone_pair_t * pairs = NULL;
 
-	if (packet->size == 0)
-	{
-		pairs = ps_malloc(sizeof(tone_pair_t *) * 1);
-		pairs[0].dura = 1;
-		pairs[0].tone = 0;
-		packet->size = 1;
-	}
-	else
+	if (packet->size != 0)
 	{
 		pairs = ps_malloc(sizeof(tone_pair_t *) * packet->size);
+
 		for (uint8_t i = 0; i < packet->size; i++)
 		{
 			pairs[i].dura = packet->dura[i];
@@ -351,7 +379,12 @@ void vario_proces_packet(proto_tone_play_t * packet)
 	}
 
 	vario_create_sequence(pairs, packet->size);
-	free(pairs);
+
+	if (pairs != NULL)
+	{
+		free(pairs);
+	}
+
 	free(packet);
 	vTaskDelete(NULL);
 }

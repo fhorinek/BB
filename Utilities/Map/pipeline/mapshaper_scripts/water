@@ -1,4 +1,5 @@
 #USE_GRID
+#DROP_POINTS
 
 #rename layers
 rename-layers polygons,lines,grid
@@ -9,6 +10,7 @@ clean snap-interval=0.00001 target=lines
 
 #disolve
 dissolve target=lines
+dissolve2 target=polygons
 
 #remove small islands
 filter-slivers min-area=5000sqm target=polygons
@@ -27,9 +29,6 @@ clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines
 #slice
 slice grid target=polygons
 merge-layers target=slice-* name=polygons
-split-on-grid %split%,%split% target=polygons
-dissolve2 target=r*
-merge-layers target=r* name=polygons
 explode name=polygons
 
 slice grid target=lines

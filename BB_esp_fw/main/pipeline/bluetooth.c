@@ -20,6 +20,8 @@ void pipe_bluetooth_init()
     esp_bt_dev_set_device_name("Strato");
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
 
+    print_free_memory("esp_bt_controller_init");
+
     audio_pipeline_cfg_t pipeline_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();
     pipes.bluetooth.pipe = audio_pipeline_init(&pipeline_cfg);
 

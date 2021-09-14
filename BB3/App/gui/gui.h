@@ -77,6 +77,21 @@ typedef struct
 
 typedef struct
 {
+    lv_color_t * buffer;
+
+    int32_t center_lon;
+    int32_t center_lat;
+
+    uint8_t zoom;
+    bool ready;
+    bool not_used;
+
+    uint8_t _pad[2];
+
+} map_chunk_t;
+
+typedef struct
+{
 	//active task
 	struct
 	{
@@ -153,14 +168,11 @@ typedef struct
 	struct
 	{
         lv_obj_t * canvas;
-        lv_color_t * buffer[2];
 
-        int32_t center_lon[2];
-        int32_t center_lat[2];
+        map_chunk_t chunks[9];
 
-        uint8_t zoom[2];
-        uint8_t active_buffer;
         uint8_t magic;
+        uint8_t _pad[3];
 	} map;
 
 	//ctx menu

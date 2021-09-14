@@ -39,7 +39,7 @@ void navigation_step()
 
 			uint32_t delta = fc.gnss.itow - last_time;
 			float speed = dist * (1000.0 / delta);
-			INFO("%lu %0.2f %lu", dist, speed, delta);
+			DBG("%lu %0.2f %lu", dist, speed, delta);
 
 			//do not add when gps speed is < 1 km/h
 			//do not add when difference between calculated speed and gps speed is > 10 km/h

@@ -21,9 +21,8 @@
 #define UART_RX_BUFF	256
 #define UART_TX_BUFF	512
 
-#define STREAM_RX_BUFFER_SIZE	64*3
+#define STREAM_RX_BUFFER_SIZE	256
 static stream_t uart_stream;
-static uint8_t stream_rx_buffer[STREAM_RX_BUFFER_SIZE];
 
 void uart_send(uint8_t *data, uint16_t len)
 {
@@ -50,12 +49,11 @@ int uart_elog_vprintf(const char *format, ...)
 
 static QueueHandle_t uart_queue;
 
-static uint8_t uart_rx_buff[UART_RX_BUFF];
-
 static void uart_event_task(void *pvParameters)
 {
     uart_event_t event;
 
+    uint8_t * uart_rx_buff = ps_malloc(UART_RX_BUFF);
 
     for (;;)
     {
@@ -104,11 +102,14 @@ static void uart_event_task(void *pvParameters)
         }
     }
 
+    free(uart_rx_buff);
+
     vTaskDelete(NULL);
 }
 
 void uart_init()
 {
+	uint8_t * stream_rx_buffer = ps_malloc(STREAM_RX_BUFFER_SIZE);
     stream_init(&uart_stream, stream_rx_buffer, STREAM_RX_BUFFER_SIZE);
 
     uart_config_t uart_config = {
@@ -124,7 +125,7 @@ void uart_init()
     uart_param_config(UART_PORT, &uart_config);
     uart_set_pin(UART_PORT, UART_TX_PIN, UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 
-    xTaskCreate(uart_event_task, "uart_event_task", 1024 * 3, NULL, 16, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 1024 * 2, NULL, 16, NULL);
 
     //esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
 }

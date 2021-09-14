@@ -589,20 +589,6 @@ void OCTOSPI1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMAMUX1 overrun interrupt.
-  */
-void DMAMUX1_OVR_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMAMUX1_OVR_IRQn 0 */
-
-  /* USER CODE END DMAMUX1_OVR_IRQn 0 */
-
-  /* USER CODE BEGIN DMAMUX1_OVR_IRQn 1 */
-
-  /* USER CODE END DMAMUX1_OVR_IRQn 1 */
-}
-
-/**
   * @brief This function handles TIM15 global interrupt.
   */
 void TIM15_IRQHandler(void)
