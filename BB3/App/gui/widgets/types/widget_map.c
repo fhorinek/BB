@@ -16,6 +16,11 @@ REGISTER_WIDGET_IU(Map,
     WIDGET_VAL_MIN_H,
 
     lv_obj_t * image[9];
+	lv_obj_t * arrow;
+	lv_obj_t * dot;
+
+    lv_point_t points[WIDGET_ARROW_POINTS];
+
     uint8_t magic;
 );
 
@@ -36,10 +41,15 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 		lv_obj_set_hidden(local->image[i], true);
 	}
 
-    lv_obj_t * pos = lv_obj_create(slot->obj, NULL);
-    lv_obj_set_size(pos, 10, 10);
-    lv_obj_align(pos, slot->obj, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_local_bg_color(pos, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_PURPLE);
+    local->dot = lv_obj_create(slot->obj, NULL);
+    lv_obj_set_size(local->dot, 10, 10);
+    lv_obj_align(local->dot, slot->obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_PURPLE);
+    lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
+
+    local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
+    lv_obj_set_style_local_line_color(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_PURPLE);
+    lv_obj_set_style_local_line_width(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 4);
 }
 
 static void Map_update(widget_slot_t * slot)
@@ -57,15 +67,51 @@ static void Map_update(widget_slot_t * slot)
     for (uint8_t i = 0; i < 9; i++)
     {
     	if (!gui.map.chunks[i].ready)
+    	{
     		continue;
+    	}
+
+    	int32_t disp_lat;
+    	int32_t disp_lon;
+
+        if (fc.gnss.fix == 0)
+    	{
+        	disp_lat = config_get_big_int(&profile.ui.last_lat);
+        	disp_lon = config_get_big_int(&profile.ui.last_lon);
+    	}
+        else
+        {
+        	disp_lat = fc.gnss.latitude;
+        	disp_lon = fc.gnss.longtitude;
+        }
 
 		int16_t x, y;
-		tile_geo_to_pix(i, fc.gnss.longtitude, fc.gnss.latitude, &x, &y);
+		tile_geo_to_pix(i, disp_lon, disp_lat, &x, &y);
 
 		x -= slot->w / 2;
 		y -= slot->h / 2;
 
 		lv_obj_set_pos(local->image[i], -x, -y);
+    }
+
+    if (fc.gnss.fix == 0)
+    {
+    	lv_obj_set_hidden(local->arrow, true);
+    	lv_obj_set_hidden(local->dot, true);
+    }
+    else
+    {
+    	if (fc.gnss.ground_speed > 2)
+		{
+			widget_arrow_rotate_size(local->arrow, local->points, -fc.gnss.heading, 40);
+			lv_obj_set_hidden(local->arrow, false);
+			lv_obj_set_hidden(local->dot, true);
+    	}
+    	else
+    	{
+			lv_obj_set_hidden(local->arrow, true);
+			lv_obj_set_hidden(local->dot, false);
+    	}
     }
 
 }

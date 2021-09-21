@@ -40,11 +40,19 @@ void thread_map_start(void *argument)
 
     while(!system_power_off)
     {
-        if (fc.gnss.fix != 3)
+    	int32_t disp_lat;
+    	int32_t disp_lon;
+
+        if (fc.gnss.fix == 0)
     	{
-        	osDelay(1000);
-    		continue;
+        	disp_lat = config_get_big_int(&profile.ui.last_lat);
+        	disp_lon = config_get_big_int(&profile.ui.last_lon);
     	}
+        else
+        {
+        	disp_lat = fc.gnss.latitude;
+        	disp_lon = fc.gnss.longtitude;
+        }
 
         uint8_t old_magic = gui.map.magic;
 
@@ -52,7 +60,7 @@ void thread_map_start(void *argument)
 
     	int32_t step_x;
     	int32_t step_y;
-    	tile_get_steps(fc.gnss.latitude, zoom, &step_x, &step_y);
+    	tile_get_steps(disp_lat, zoom, &step_x, &step_y);
 
     	//get vectors
     	uint32_t step_lon = MAP_W * step_x;
@@ -60,7 +68,7 @@ void thread_map_start(void *argument)
 
     	int32_t c_lon;
     	int32_t c_lat;
-    	tile_align_to_cache_grid(fc.gnss.longtitude, fc.gnss.latitude, zoom, &c_lon, &c_lat);
+    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat);
 
     	typedef struct
     	{

@@ -136,6 +136,13 @@ cfg_entry_param_range_t acc_gain_range =
     .val_max.flt = 1.0
 };
 
+cfg_entry_param_range_t big_int_max_range =
+{
+    .val_min.s32 = INT32_MIN,
+    .val_max.s32 = INT32_MAX
+};
+
+
 
 cfg_entry_param_select_t fanet_air_type[] =
 {
@@ -198,6 +205,10 @@ flight_profile_t profile =
         },
         //page_last
         entry_int("page_last", 0, 0, PAGE_MAX_COUNT - 1),
+        //last_lon
+		entry_big_int("last_lon", 0, big_int_max_range),
+        //last_lat
+		entry_big_int("last_lon", 0, big_int_max_range),
     },
 
     //fanet
