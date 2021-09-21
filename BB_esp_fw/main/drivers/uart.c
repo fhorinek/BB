@@ -125,7 +125,7 @@ void uart_init()
     uart_param_config(UART_PORT, &uart_config);
     uart_set_pin(UART_PORT, UART_TX_PIN, UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 
-    xTaskCreate(uart_event_task, "uart_event_task", 1024 * 2, NULL, 16, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 1024 * 3, NULL, 16, NULL);
 
     //esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
 }

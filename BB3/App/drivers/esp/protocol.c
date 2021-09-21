@@ -383,6 +383,9 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 				fc.gnss.ground_speed = packet->speed;
 				fc.gnss.fix = packet->fix;
 			}
+
+    		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
+    		config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
 		}
         break;
 

@@ -119,7 +119,7 @@ typedef struct
 } map_info_entry_t;
 
 
-#define CACHE_VERSION	24
+#define CACHE_VERSION	33
 
 typedef struct
 {
@@ -617,6 +617,13 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 
 	lv_draw_line_dsc_t line_draw;
 	lv_draw_line_dsc_init(&line_draw);
+	lv_draw_line_dsc_t warn_line_draw;
+	lv_draw_line_dsc_init(&warn_line_draw);
+
+	warn_line_draw.width = 3;
+	warn_line_draw.color = LV_COLOR_RED;
+	warn_line_draw.round_end = 1;
+	warn_line_draw.round_start = 1;
 
 	lv_draw_label_dsc_t text_draw;
 	lv_draw_label_dsc_init(&text_draw);
@@ -658,6 +665,8 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 //	        gui_lock_release();
 //		}
 
+		bool draw_warning = false;
+
 		if (type / 100 == 1) //lines
 		{
 			switch (type)
@@ -665,15 +674,15 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 			//road
 			case(100):
 				line_draw.width = 2;
-				line_draw.color = LV_COLOR_BLACK;
+				line_draw.color = LV_COLOR_MAROON;
 				break;
 			case(101):
-				line_draw.width = 1;
+				line_draw.width = 2;
 				line_draw.color = LV_COLOR_BLACK;
 				break;
 			case(102):
 				line_draw.width = 1;
-				line_draw.color = LV_COLOR_GRAY;
+				line_draw.color = LV_COLOR_BLACK;
 				break;
 
 			//rail
@@ -688,10 +697,11 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 				line_draw.color = LV_COLOR_BLUE;
 				break;
 
-			//power
+			//power or airline
 			default:
 				line_draw.width = 1;
-				line_draw.color = LV_COLOR_RED;
+				line_draw.color = LV_COLOR_BLACK;
+				draw_warning = true;
 				break;
 
 			}
@@ -722,7 +732,15 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 			}
 
 	        gui_lock_acquire();
-			lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
+			if (draw_warning)
+			{
+//				for (uint16_t j = 0; j < number_of_points; j++)
+//				{
+//					points[j].y -= 4;
+//				}
+				lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
+			}
+	        lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
 	        gui_lock_release();
 
 			free(points);
@@ -783,6 +801,8 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 		actual = actual->next;
 	}
 	list_free(start, end);
+
+	return true;
 }
 
 bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint8_t zoom)

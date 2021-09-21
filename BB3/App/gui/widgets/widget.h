@@ -23,6 +23,7 @@ lv_obj_t * widget_add_value(lv_obj_t * base, widget_slot_t * slot, char * unit, 
 void widget_update_font_size(lv_obj_t * label, lv_obj_t * area);
 
 void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle);
+void widget_arrow_rotate_size(lv_obj_t * arrow, lv_point_t * points, int16_t angle, uint8_t s);
 lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * points, char * unit, lv_obj_t ** unit_obj);
 
 lv_obj_t * widget_create_edit_overlay(char * title, char * message);

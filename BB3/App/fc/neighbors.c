@@ -94,8 +94,7 @@ void neighbors_update_name(fanet_addr_t addr, char * name)
 	if (nb == NULL)
 		nb = neighbors_add(addr);
 
-	memcpy(&nb->name, name, NB_NAME_LEN);
-	nb->name[NB_NAME_LEN - 1] = 0;
+	strncpy(nb->name, name, NB_NAME_LEN);
 	nb->timestamp = HAL_GetTick() / 1000;
 
 	//notify GUI

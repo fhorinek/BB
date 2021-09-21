@@ -85,14 +85,15 @@ typedef struct
 
     uint16_t alititude;
     uint16_t timestamp;
+
     uint16_t dist; //in m
     uint16_t max_dist;
 
     fanet_addr_t addr;
     uint8_t flags;
 
-    uint8_t heading;
 	char name[NB_NAME_LEN];
+    uint8_t heading;
 
 } neighbor_t;
 

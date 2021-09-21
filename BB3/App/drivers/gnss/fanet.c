@@ -141,15 +141,21 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 		case(FANET_MSG_TYPE_TRACKING):
 		{
 			multi_value tmp;
-			tmp.u32 = 0;
-
 			
 			//latitude
-			memcpy((void *)&tmp, data + 0, 3);
+//			memcpy((void *)&tmp, data + 0, 3);
+			tmp.u32 = 0;
+			tmp.u8[0] = data[0];
+			tmp.u8[1] = data[1];
+			tmp.u8[2] = data[2];
 			int32_t lat = (tmp.s32 / 93206.0) * GNSS_MUL;
 
 			//longitude
-			memcpy((void *)&tmp, data + 3, 3);
+//			memcpy((void *)&tmp, data + 3, 3);
+			tmp.u32 = 0;
+			tmp.u8[0] = data[3];
+			tmp.u8[1] = data[4];
+			tmp.u8[2] = data[5];
 			int32_t lon = (tmp.s32 / 46603.0) * GNSS_MUL;
 
 			//altitude
@@ -213,14 +219,21 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 		case(FANET_MSG_TYPE_GROUND_TRACKING):
 		{
 			multi_value tmp;
-			tmp.u32 = 0;
 
 			//latitude
-			memcpy((void *)&tmp, data + 0, 3);
+//			memcpy((void *)&tmp, data + 0, 3);
+			tmp.u32 = 0;
+			tmp.u8[0] = data[0];
+			tmp.u8[1] = data[1];
+			tmp.u8[2] = data[2];
 			int32_t lat = (tmp.s32 / 93206.0) * GNSS_MUL;
 
 			//longitude
-			memcpy((void *)&tmp, data + 3, 3);
+//			memcpy((void *)&tmp, data + 3, 3);
+			tmp.u32 = 0;
+			tmp.u8[0] = data[3];
+			tmp.u8[1] = data[4];
+			tmp.u8[2] = data[5];
 			int32_t lon = (tmp.s32 / 46603.0) * GNSS_MUL;
 
 			//flags

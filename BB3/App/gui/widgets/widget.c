@@ -59,18 +59,14 @@ lv_obj_t * widget_add_value(lv_obj_t * base, widget_slot_t * slot, char * unit, 
     return value_obj;
 }
 
-void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle)
+void widget_arrow_rotate_size(lv_obj_t * arrow, lv_point_t * points, int16_t angle, uint8_t s)
 {
     // make sure, that angle is always between 0 and 359:
      if (angle < 0 || angle > 359)
          angle = (angle + 360) % 360;
 
-     int16_t w = lv_obj_get_width(arrow);
-     int16_t h = lv_obj_get_height(arrow);
-     uint8_t s = (min(w, h) * 2) / 3;
-
-     uint8_t mx = w / 2;
-     uint8_t my = h / 2;
+     uint8_t mx = lv_obj_get_width(arrow) / 2;
+     uint8_t my = lv_obj_get_height(arrow) / 2;
      float fsin = table_sin(angle);
      float fcos = table_cos(angle);
 
@@ -94,6 +90,16 @@ void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle)
 
      lv_obj_invalidate(arrow);
 }
+
+
+void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle)
+{
+    int16_t w = lv_obj_get_width(arrow);
+    int16_t h = lv_obj_get_height(arrow);
+    uint8_t s = (min(w, h) * 2) / 3;
+    widget_arrow_rotate_size(arrow, points, angle,s);
+}
+
 
 lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * points, char * unit, lv_obj_t ** unit_obj)
 {

@@ -70,6 +70,8 @@ typedef struct
     {
         cfg_entry_t page[PAGE_MAX_COUNT];
         cfg_entry_t page_last;
+        cfg_entry_t last_lon;
+        cfg_entry_t last_lat;
     } ui;
 
     struct
