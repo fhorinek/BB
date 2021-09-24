@@ -52,7 +52,7 @@ chunks = []
 #STM
 stm_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/"
 stm_assets_path = os.path.join(stm_base_path, "Assets")
-stm_fw_path = os.path.join(stm_base_path, "Debug")
+stm_fw_path = os.path.join(stm_base_path, "Release")
 stm_bin_file = os.path.join(stm_fw_path, "BB3.bin")
 stm_map_file = os.path.join(stm_fw_path, "BB3.map")
 stm_list_file = os.path.join(stm_fw_path, "BB3.list")
