@@ -17,6 +17,10 @@ void esp_step();
 void esp_device_reset();
 void esp_state_reset();
 
+void esp_reboot();
+
+void esp_start_dma();
+
 void esp_enable_external_programmer(esp_mode_t prog_mode);
 void esp_disable_external_programmer();
 

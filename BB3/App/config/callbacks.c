@@ -83,6 +83,28 @@ void bt_volume_cb(cfg_entry_t * entry)
 	esp_set_volume(vol);
 }
 
+void bt_mode_cb(cfg_entry_t * entry)
+{
+	if (entry != &config.bluetooth.enabled)
+	{
+		if (config_get_bool(&config.bluetooth.a2dp) != false
+				|| config_get_bool(&config.bluetooth.spp) != false
+				|| config_get_bool(&config.bluetooth.ble) != false)
+		{
+			config_set_bool(&config.bluetooth.enabled, true);
+		}
+	}
+
+	if (config_get_bool(&config.bluetooth.a2dp) == false
+			&& config_get_bool(&config.bluetooth.spp) == false
+			&& config_get_bool(&config.bluetooth.ble) == false)
+	{
+		config_set_bool(&config.bluetooth.enabled, false);
+	}
+
+	esp_reboot();
+}
+
 void disp_bck_cb(cfg_entry_t * entry)
 {
 	uint8_t val = config_get_int(entry);
@@ -93,6 +115,10 @@ cfg_callback_pair_t config_callbacks[] =
 {
     {&config.device_name, dev_name_cb},
 	{&config.bluetooth.volume, bt_volume_cb},
+	{&config.bluetooth.enabled, bt_mode_cb},
+	{&config.bluetooth.a2dp, bt_mode_cb},
+	{&config.bluetooth.spp, bt_mode_cb},
+	{&config.bluetooth.ble, bt_mode_cb},
     {&config.wifi.ap_pass, wifi_pass_cb},
     {&config.wifi.enabled, wifi_mode_cb},
     {&config.wifi.ap, wifi_mode_cb},

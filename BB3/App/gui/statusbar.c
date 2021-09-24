@@ -10,6 +10,7 @@
 #include "drivers/power/pwr_mng.h"
 
 #include "etc/format.h"
+#include "fc/logger/logger.h"
 
 void statusbar_show()
 {
@@ -221,7 +222,7 @@ void statusbar_step()
         // if there is bt connection active
         if (fc.esp.state & ESP_STATE_BT_ON)
         {
-            if (fc.esp.state & ESP_STATE_BT_DATA || fc.esp.state & ESP_STATE_BT_AUDIO)
+            if (fc.esp.state & ESP_STATE_BT_A2DP || fc.esp.state & ESP_STATE_BT_SPP || fc.esp.state & ESP_STATE_BT_BLE)
             	set_icon(BAR_ICON_BT, I_SHOW);
             else
             	set_icon(BAR_ICON_BT, I_GRAY);

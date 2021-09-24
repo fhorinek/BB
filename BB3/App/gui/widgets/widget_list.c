@@ -51,7 +51,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(Battery),
 	LIST_WIDGET(Odo),
 	LIST_WIDGET(Acc),
-    LIST_WIDGET(Map),
+//    LIST_WIDGET(Map),
 };
 
 

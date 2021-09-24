@@ -11,6 +11,7 @@
 #include "pipeline.h"
 
 void pipe_bluetooth_init();
+
 void pipe_bluetooth_event(audio_event_iface_msg_t * msg);
 
 #endif /* MAIN_PIPELINE_BLUETOOTH_H_ */

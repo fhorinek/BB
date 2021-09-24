@@ -33,7 +33,7 @@ static void GHdgArrow_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void GHdgArrow_update(widget_slot_t * slot)
 {
-	if (fc.gnss.fix != 3)
+	if (fc.gnss.fix == 0)
 	{
 		lv_label_set_text(local->text, "No\nGNSS");
 		widget_update_font_size(local->text, slot->obj);

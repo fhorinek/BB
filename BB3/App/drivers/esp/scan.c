@@ -58,7 +58,10 @@ void esp_scan_cb(proto_wifi_scan_res_t * network)
 
 void esp_scan_init()
 {
-    esp_scan_list = (scan_network_info_t *)ps_malloc(sizeof(scan_network_info_t) * SCAN_NUMBER_OF_NETWORKS);
+	if (esp_scan_list == NULL)
+	{
+		esp_scan_list = (scan_network_info_t *)ps_malloc(sizeof(scan_network_info_t) * SCAN_NUMBER_OF_NETWORKS);
+	}
     scan_index = 0;
     scan_auto_timer = 0;
 }

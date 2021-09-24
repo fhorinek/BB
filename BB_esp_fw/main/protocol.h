@@ -22,4 +22,6 @@ void protocol_send_sound_reg_more(uint8_t id, uint32_t len);
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len);
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len);
 
+void protocol_send_heartbeat();
+
 #endif /* MAIN_PROTOCOL_H_ */

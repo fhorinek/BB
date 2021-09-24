@@ -50,8 +50,9 @@
 #define ESP_STATE_WIFI_AP           0b00000100
 #define ESP_STATE_WIFI_AP_CONNECTED 0b00001000
 #define ESP_STATE_BT_ON             0b00010000
-#define ESP_STATE_BT_AUDIO          0b00100000
-#define ESP_STATE_BT_DATA           0b01000000
+#define ESP_STATE_BT_A2DP           0b00100000
+#define ESP_STATE_BT_SPP            0b01000000
+#define ESP_STATE_BT_BLE            0b10000000
 
 typedef struct
 {
@@ -273,18 +274,21 @@ typedef struct
         uint8_t ip_ap[4];
         uint8_t ip_sta[4];
 
+        uint32_t tone_next_tx;
+
         uint8_t mac_ap[6];
         esp_mode_t mode;
         uint8_t state;
 
         uint8_t mac_sta[6];
-        bool tone_ready;
-        uint8_t _pad[1];
+        uint8_t _pad[2];
 
         uint8_t mac_bt[6];
 
         fc_device_status_t amp_status;
         fc_device_status_t server_status;
+
+        uint32_t last_ping;
 	} esp;
 
 	struct

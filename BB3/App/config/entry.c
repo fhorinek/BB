@@ -4,7 +4,7 @@
  *  Created on: May 4, 2020
  *      Author: horinek
  */
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 #include "config.h"
 
 cfg_entry_t * entry_find(char * name_id, cfg_entry_t * structure)
