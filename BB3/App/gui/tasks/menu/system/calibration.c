@@ -42,7 +42,7 @@ REGISTER_TASK_IL(calibration,
 #define GYRO_WAIT_SAMPLES       10
 #define GYRO_MEAS_SAMPLES       10
 
-#define ACC_ALLOWED_MOVEMENT    80
+#define ACC_ALLOWED_MOVEMENT    205  //0.1g
 #define ACC_WAIT_SAMPLES        10
 #define ACC_MEAS_SAMPLES        10
 #define ACC_RATIO               2        //measured axis must be > 2x bugger than others

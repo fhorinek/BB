@@ -15,7 +15,8 @@
 #include "drivers/tft/tft.h"
 #include "drivers/power/led.h"
 #include "drivers/esp/esp.h"
-#include "drivers/gnss/gnss_thread.h"
+#include "drivers/gnss/gnss_ublox_m8.h"
+#include "drivers/gnss/fanet.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -75,8 +76,17 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 	if (huart == gnss_uart)
 	{
 		//Frame error can be triggered by baudrate change
-		gnss_start_ublox_dma();
-
+		ublox_start_dma();
+	}
+	else if (huart == fanet_uart)
+	{
+		//Frame error can be triggered by baudrate change
+		fanet_start_dma();
+	}
+	else if (huart == esp_uart)
+	{
+		//Frame error can be triggered by baudrate change
+		esp_start_dma();
 	}
 }
 

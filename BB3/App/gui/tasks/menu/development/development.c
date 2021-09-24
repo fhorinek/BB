@@ -54,7 +54,9 @@ void development_trigger()
 //    sound_start("/data/test.wav");
 
 //    local->slot = esp_http_get("https://strato.skybean.eu/update/devel/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
-    local->slot = esp_http_get("http://192.168.10.32/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
+//    local->slot = esp_http_get("http://192.168.10.32/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
+
+    esp_device_reset();
 }
 
 static void development_loop()
@@ -126,10 +128,12 @@ static lv_obj_t * development_init(lv_obj_t * par)
 	bool ext_active = fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual;
 
     local->trigger = gui_list_text_add_entry(list, "Trigger");
-    gui_list_auto_entry(list, "Sensors", NEXT_TASK, &gui_sensors);
-    gui_list_auto_entry(list, "Fake", NEXT_TASK, &gui_fake);
 
-    gui_list_auto_entry(list, "Disable ESP32", &config.debug.esp_off, NULL);
+    gui_list_auto_entry(list, "Sensors", NEXT_TASK, &gui_sensors);
+    //gui_list_auto_entry(list, "Fake", NEXT_TASK, &gui_fake);
+
+    gui_list_auto_entry(list, "ESP Disable", &config.debug.esp_off, NULL);
+    gui_list_auto_entry(list, "ESP Watchdog", &config.debug.esp_wdt, NULL);
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
     local->esp_boot0 = gui_list_switch_add_entry(list, "ESP boot0", false);
     local->usb_otg_pin = gui_list_switch_add_entry(list, "USB OTG pin", GpioRead(BQ_OTG));

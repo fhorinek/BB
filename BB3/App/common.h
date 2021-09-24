@@ -186,6 +186,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_MAP_DIR        "map"
 #define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
 #define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
+#define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
@@ -220,7 +221,7 @@ int16_t complement2_16bit(uint16_t in);
 
 bool file_exists(char * path);
 bool file_isdir(char * path);
-bool touch(char * path);
+void touch(char * path);
 
 char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);

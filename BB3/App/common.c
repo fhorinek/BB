@@ -419,7 +419,7 @@ bool file_exists(char * path)
     return (f_stat(path, &fno) == FR_OK);
 }
 
-bool touch(char * path)
+void touch(char * path)
 {
 	FIL f;
     f_open(&f, path, FA_CREATE_ALWAYS);

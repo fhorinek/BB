@@ -53,7 +53,8 @@ void esp_state_reset()
     fc.esp.mode = esp_starting;
     fc.esp.state = 0;
     fc.esp.wifi_list_cb = NULL;
-    fc.esp.tone_ready = false;
+    fc.esp.tone_next_tx = HAL_GetTick() + 4000;
+    fc.esp.last_ping = HAL_GetTick() + 5000;
 
     memset(fc.esp.mac_ap, 0, 6);
     memset(fc.esp.mac_sta, 0, 6);
@@ -67,6 +68,11 @@ void esp_state_reset()
     download_slot_reset();
 }
 
+void esp_start_dma()
+{
+	HAL_UART_Receive_DMA(esp_uart, esp_rx_buffer, ESP_DMA_BUFFER_SIZE);
+}
+
 void esp_init()
 {
     if (config_get_bool(&config.debug.esp_off))
@@ -75,8 +81,14 @@ void esp_init()
     	return;
     }
 
+    fc.esp.mode = esp_starting;
+
     stream_init(&esp_stream, esp_stream_buffer, ESP_STREAM_BUFFER_SIZE, esp_parser);
+
+	HAL_UART_Init(esp_uart);
     HAL_UART_Receive_DMA(esp_uart, esp_rx_buffer, ESP_DMA_BUFFER_SIZE);
+
+    esp_read_index = ESP_DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(esp_uart->hdmarx);
 
     esp_scan_init();
     download_slot_init();
@@ -106,12 +118,15 @@ void esp_enable_external_programmer(esp_mode_t prog_mode)
 	esp_external_prog_timer = HAL_GetTick() + ESP_EXT_PROG_TIMEOUT;
 }
 
+void esp_reboot()
+{
+	esp_init();
+}
+
 void esp_disable_external_programmer()
 {
     INFO("Disabling external programmer for ESP32");
-    esp_read_index = ESP_DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(esp_uart->hdmarx);
-	HAL_UART_Init(esp_uart);
-	esp_init();
+    esp_reboot();
 }
 
 void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
@@ -124,7 +139,7 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
         case(stream_res_dirty): //dirty string is ending with 0
         {
            INFO((char *)data);
-           if (strstr(data, "DOWNLOAD_BOOT") != NULL)
+           if (strstr((char *)data, "DOWNLOAD_BOOT") != NULL)
            {
                esp_enable_external_programmer(esp_external_auto);
            }
@@ -192,6 +207,21 @@ void esp_step()
 
         esp_scan_step();
         download_slot_step();
+
+
+        if (config_get_bool(&config.debug.esp_wdt))
+        {
+			if (fc.esp.last_ping + 200 < HAL_GetTick())
+			{
+				protocol_send(PROTO_PING, NULL, 0);
+			}
+
+        if (fc.esp.last_ping + 1000 < HAL_GetTick())
+			{
+				ERR("esp watchdog timed out!");
+				esp_reboot();
+			}
+        }
     }
 
     if (fc.esp.mode == esp_external_auto)

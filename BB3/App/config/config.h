@@ -27,6 +27,9 @@
 #define GNSS_DDMMmmm	1
 #define GNSS_DDMMSS		2
 
+#define GALT_ELLIPSOID   0
+#define GALT_MSL      	1
+
 #define EARTH_WGS84		0
 #define EARTH_FAI		1
 
@@ -42,7 +45,7 @@
 #define PILOT_NAME_LEN		64
 
 #define BLUETOOTH_NAME_LEN      16
-#define BLUETOOTH_PIN_LEN       4
+#define BLUETOOTH_PIN_LEN       8
 
 #define WIFI_PASS_LEN           64
 #define UPDATE_URL_LEN          128
@@ -151,9 +154,11 @@ typedef struct
 
     struct
     {
+        cfg_entry_t enabled;
         cfg_entry_t a2dp;
+        cfg_entry_t spp;
+        cfg_entry_t ble;
         cfg_entry_t volume;
-        cfg_entry_t name;
         cfg_entry_t pin;
     } bluetooth;
 
@@ -188,6 +193,7 @@ typedef struct
         cfg_entry_t distance;
         cfg_entry_t geo_datum;
         cfg_entry_t earth_model;
+        cfg_entry_t galt;
         cfg_entry_t time24;
         cfg_entry_t date;
         cfg_entry_t vario;
@@ -204,6 +210,7 @@ typedef struct
 		cfg_entry_t use_serial;
 		cfg_entry_t use_file;
 		cfg_entry_t esp_off;
+		cfg_entry_t esp_wdt;
 		cfg_entry_t vario_random;
 	} debug;
 } config_t;

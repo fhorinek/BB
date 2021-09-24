@@ -16,6 +16,7 @@ idf_component_register(SRCS
 	"server/ob.c"
 	"server/render.c"
 	"server/server.c"
+	"bluetooth.c"
 	"common.c"
 	"debug.c"
 	"download.c"

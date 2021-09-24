@@ -36,7 +36,7 @@ void thread_map_start(void *argument)
     INFO("Started");
     map_init();
 
-    osDelay(1000);
+//    osDelay(1000);
 
     while(!system_power_off)
     {
@@ -148,7 +148,9 @@ void thread_map_start(void *argument)
     	}
 
 		if (gui.map.magic == old_magic)
+		{
 			osDelay(1000);
+		}
 
     }
 

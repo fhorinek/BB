@@ -15,6 +15,13 @@ static uint8_t fanet_rx_buffer[FANET_BUFFER_SIZE];
 
 static uint8_t fanet_bootloader_state;
 
+void fanet_start_dma()
+{
+	//WARN("GNSS Uart error");
+	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
+}
+
+
 void fanet_init()
 {
 	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);

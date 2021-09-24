@@ -31,11 +31,6 @@ void gnss_uart_rx_irq_idle()
 	DBG("GNSS RX IDLE");
 }
 
-void gnss_start_ublox_dma()
-{
-	ublox_start_dma();
-}
-
 void thread_gnss_start(void *argument)
 {
 	INFO("Started");

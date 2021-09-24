@@ -133,27 +133,30 @@ void thread_system_start(void *argument)
     //wait for debug thread
     while (!debug_thread_ready) taskYIELD();
 
-    INFO("Strato");
-    INFO("HW rev: %02X", rev_get_hw());
-    INFO("FW stm: %08X", rew_get_sw());
-    INFO("\n\n");
-
     osDelay(100);
 	pwr_init();
-
-	//i2c_scan();
 
 	//init sd card
 	sd_init();
 
-	//load config
-	config_load_all();
-
     //rtc init
     rtc_init();
 
+	//load config
+	config_load_all();
+
 	//init PSRAM
 	PSRAM_init();
+
+	uint8_t sec, min, hour, day, wday, month;
+	uint16_t year;
+	datetime_from_epoch(rtc_get_epoch(), &sec, &min, &hour, &day, &wday, &month, &year);
+
+	INFO("\n\n --------------- %02u.%02u.%04u | %02u:%02u.%02u ---------------", day, month, year, hour, min, sec);
+
+    INFO("SkyBean Strato");
+    INFO("HW rev: %02X", rev_get_hw());
+    INFO("FW stm: %08X\n\n", rew_get_sw());
 
 	//start tasks
 	INFO("Starting tasks...");
