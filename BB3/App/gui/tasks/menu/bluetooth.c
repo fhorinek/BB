@@ -52,7 +52,9 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "A2DP Audio", &config.bluetooth.a2dp, NULL);
 	gui_list_auto_entry(list, "SPP Telemetry", &config.bluetooth.spp, NULL);
 	gui_list_auto_entry(list, "BLE Telemetry", &config.bluetooth.ble, NULL);
-	gui_list_auto_entry(list, "Telemetry protocol", &config.bluetooth.protocol, NULL);
+    gui_list_auto_entry(list, "Telemetry protocol", &config.bluetooth.protocol, NULL);
+    gui_list_auto_entry(list, "Forward GNSS", &config.bluetooth.forward_gnss, NULL);
+
 	gui_list_auto_entry(list, "Device name", &config.device_name, NULL);
 	gui_list_auto_entry(list, "PIN code", &config.bluetooth.pin, NULL);
 

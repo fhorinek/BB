@@ -39,7 +39,8 @@ void statusbar_hide()
 #define 	I_SHOW		1
 #define 	I_GRAY		2
 #define 	I_YELLOW	3
-#define 	I_RED		4
+#define     I_RED       4
+#define     I_GREEN     5
 
 #define 	I_BLINK		0b10000000
 #define 	I_FAST		0b01000000
@@ -88,6 +89,11 @@ static void set_icon(uint8_t index, uint8_t state)
 				lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
 				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
 			break;
+            case(I_GREEN):
+                lv_obj_set_hidden(icon, false);
+                lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+                lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+            break;
 		}
 	}
 }
@@ -161,7 +167,6 @@ void statusbar_add_msg(statusbar_msg_type_t type, char * text)
     gui_lock_acquire();
 
 	lv_color_t colors[] = {LV_COLOR_GREEN, LV_COLOR_YELLOW, LV_COLOR_RED};
-
 	lv_obj_t * msg = lv_cont_create(gui.statusbar.mbox, NULL);
 	lv_cont_set_fit2(msg, LV_FIT_NONE, LV_FIT_TIGHT);
 	lv_obj_set_size(msg, LV_HOR_RES, 0);
@@ -304,6 +309,9 @@ void statusbar_step()
 	if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
 	{
 		set_icon(BAR_ICON_CHARGE, I_RED | I_FAST | I_BLINK);
+	} if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
+	{
+	    set_icon(BAR_ICON_CHARGE, I_GREEN);
 	}
 
 

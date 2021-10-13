@@ -152,7 +152,6 @@ static void ble_gatts_profile_cb(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
         {
             INFO("%s %d", __func__, __LINE__);
             esp_ble_gap_set_device_name(bt_name);
-//            esp_ble_gap_config_local_privacy(true);
             uint8_t mac[6];
             esp_read_mac(mac, ESP_MAC_ETH);
             esp_ble_gap_set_rand_addr(mac);

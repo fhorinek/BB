@@ -44,7 +44,7 @@ typedef struct
 } imu_calibration_t;
 
 #define NVM_SIZE        512
-#define NVM_RESERVED    (NVM_SIZE - sizeof(app_header_t) - sizeof(imu_calibration_t))
+#define NVM_RESERVED    (NVM_SIZE - sizeof(app_header_t) - sizeof(imu_calibration_t) - sizeof(uint32_t))
 
 //NVM total size 512
 //muse be divideable by 16 bytes (128 bits)!
@@ -55,6 +55,9 @@ typedef struct
 
     //calibration data      (64b)
     imu_calibration_t imu_calibration;
+
+    //bootloader version	(4b)
+    uint32_t bootloader;
 
     uint8_t reserved[NVM_RESERVED];
 } nvm_data_t;

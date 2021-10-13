@@ -81,7 +81,7 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
             dialog_stop(dialog_res_none, NULL);
     }
 
-    if (gui.dialog.type == dialog_bootloader)
+    if (gui.dialog.type == dialog_dfu)
     {
         if (key == LV_KEY_ESC)
             dialog_stop(dialog_res_no, NULL);
@@ -265,7 +265,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
         }
         break;
 
-        case (dialog_bootloader):
+        case (dialog_dfu):
         {
             lv_obj_t * yes = lv_label_create(gui.dialog.window, NULL);
             lv_obj_set_style_local_text_font(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
