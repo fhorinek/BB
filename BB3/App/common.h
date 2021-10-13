@@ -69,6 +69,7 @@ typedef struct
     int16_t x;
     int16_t y;
     int16_t z;
+    uint8_t _pad[2];
 } vector_i16_t;
 
 typedef struct
@@ -246,6 +247,8 @@ float table_cos(uint16_t angle);
 
 void system_reboot();
 void system_reboot_bl();
+
+uint8_t nmea_checksum(char *s);
 
 #include <system/debug_thread.h>
 

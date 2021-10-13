@@ -10,7 +10,7 @@
 #include "gui/gui_list.h"
 
 #include "datetime/datetime.h"
-#include "calibration.h"
+#include "advanced/advanced.h"
 #include "display.h"
 #include "info.h"
 #include "units.h"
@@ -70,7 +70,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
     gui_list_auto_entry(list, "Display", NEXT_TASK, &gui_display);
     gui_list_auto_entry(list, "Units", NEXT_TASK, &gui_units);
-    gui_list_auto_entry(list, "Calibration", NEXT_TASK, &gui_calibration);
+    gui_list_auto_entry(list, "Advanced", NEXT_TASK, &gui_advanced);
 
     char rev_str[10];
     rev_get_sw_string(rev_str);

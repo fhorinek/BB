@@ -24,9 +24,6 @@ void imu_init()
     fc.imu.quat.q2 = 0.0;
     fc.imu.quat.q3 = 0.0;
 
-    if (fc.imu.status != fc_device_not_calibrated)
-        return;
-
     if (nvm_load_imu_calibration(&fc.imu.calibration))
     {
         fc.imu.status = fc_dev_ready;
@@ -34,6 +31,7 @@ void imu_init()
     }
     else
     {
+        fc.imu.status = fc_device_not_calibrated;
         WARN("IMU is not calibrated!");
     }
 

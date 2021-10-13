@@ -44,6 +44,15 @@ bool pwr_step()
 	bool ret = max17260_step();
 	opt3004_step();
 
+	if (pwr.charger.charge_port > PWR_CHARGE_NONE)
+	{
+		GpioWrite(ALT_CH_EN, HIGH);
+	}
+	else
+	{
+		GpioWrite(ALT_CH_EN, LOW);
+	}
+
 	return ret;
 }
 

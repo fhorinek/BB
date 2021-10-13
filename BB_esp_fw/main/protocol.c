@@ -16,7 +16,7 @@
 #include "pipeline/sound.h"
 #include "pipeline/vario.h"
 #include "download.h"
-#include "bluetooth.h"
+#include "bluetooth/bluetooth.h"
 
 #include "linked_list.h"
 
@@ -223,6 +223,18 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         {
             proto_bt_pair_res_t * packet = (proto_bt_pair_res_t *)data;
             bt_confirm_pair(packet);
+        }
+        break;
+
+        case (PROTO_BT_UNPAIR):
+        {
+            bt_unpair();
+        }
+        break;
+
+        case (PROTO_TELE_SEND):
+        {
+            bt_tele_send((proto_tele_send_t *)data);
         }
         break;
 

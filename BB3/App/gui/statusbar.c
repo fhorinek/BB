@@ -34,53 +34,61 @@ void statusbar_hide()
 	lv_anim_start(&a);
 }
 
+#define 	I_MASK		0b00111111
 #define 	I_HIDE		0
 #define 	I_SHOW		1
-#define 	I_BLINK		2
-#define 	I_GRAY		3
-#define 	I_YELLOW	4
-#define 	I_RED		5
+#define 	I_GRAY		2
+#define 	I_YELLOW	3
+#define 	I_RED		4
+
+#define 	I_BLINK		0b10000000
+#define 	I_FAST		0b01000000
+
 
 static void set_icon(uint8_t index, uint8_t state)
 {
 	lv_obj_t * icon = gui.statusbar.icons[index];
-	switch(state)
-	{
-		case(I_HIDE):
-			lv_obj_set_hidden(icon, true);
-			lv_label_set_long_mode(icon, LV_LABEL_LONG_CROP);
-			lv_obj_set_width(icon, 0);
-			return;
-		break;
-		case(I_SHOW):
-			lv_obj_set_hidden(icon, false);
-			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
-			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-		break;
-		case(I_BLINK):
-			if (BLINK(2000))
-				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-			else
-				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 
-			lv_obj_set_hidden(icon, false);
-			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
-		break;
-		case(I_GRAY):
-			lv_obj_set_hidden(icon, false);
-			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
-			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
-		break;
-		case(I_YELLOW):
-			lv_obj_set_hidden(icon, false);
-			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
-			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
-		break;
-		case(I_RED):
-			lv_obj_set_hidden(icon, false);
-			lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
-			lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-		break;
+	uint16_t blink_dura = (state & I_FAST) ? 500 : 2000;
+
+	if (state & I_BLINK && BLINK(blink_dura))
+	{
+		lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+		lv_obj_set_hidden(icon, false);
+		lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+	}
+	else
+	{
+		switch(state & I_MASK)
+		{
+			case(I_HIDE):
+				lv_obj_set_hidden(icon, true);
+				lv_label_set_long_mode(icon, LV_LABEL_LONG_CROP);
+				lv_obj_set_width(icon, 0);
+				return;
+			break;
+			case(I_SHOW):
+				lv_obj_set_hidden(icon, false);
+				lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+			break;
+
+			case(I_GRAY):
+				lv_obj_set_hidden(icon, false);
+				lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+			break;
+			case(I_YELLOW):
+				lv_obj_set_hidden(icon, false);
+				lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
+			break;
+			case(I_RED):
+				lv_obj_set_hidden(icon, false);
+				lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
+				lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+			break;
+		}
 	}
 }
 
@@ -163,6 +171,9 @@ void statusbar_add_msg(statusbar_msg_type_t type, char * text)
 	lv_obj_set_style_local_bg_color(msg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, colors[type]);
 
 	lv_obj_t * label = lv_label_create(msg, NULL);
+	lv_label_set_long_mode(label, LV_LABEL_LONG_BREAK);
+	lv_label_set_align(label, LV_LABEL_ALIGN_CENTER);
+	lv_obj_set_width(label, LV_HOR_RES - 10);
 	lv_label_set_text(label, text);
 
 	lv_cont_set_fit(msg, LV_FIT_NONE);
@@ -209,9 +220,9 @@ void statusbar_step()
 		}
 	}
 
-    if (fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_auto)
+    if (fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual)
     {
-    	set_icon(BAR_ICON_SYS, I_BLINK);
+    	set_icon(BAR_ICON_SYS, I_SHOW | I_FAST | I_BLINK);
     	set_icon(BAR_ICON_WIFI, I_HIDE);
     	set_icon(BAR_ICON_AP, I_HIDE);
     	set_icon(BAR_ICON_BT, I_HIDE);
@@ -270,7 +281,7 @@ void statusbar_step()
     }
     else
     {
-    	set_icon(BAR_ICON_GNSS, I_BLINK);
+    	set_icon(BAR_ICON_GNSS, I_SHOW | I_BLINK);
     }
 
     fc_logger_status_t logger = logger_state();
@@ -280,7 +291,7 @@ void statusbar_step()
     }
     else if (logger == fc_logger_wait)
     {
-    	set_icon(BAR_ICON_LOG, I_BLINK);
+    	set_icon(BAR_ICON_LOG, I_SHOW | I_BLINK);
     }
     else
     {
@@ -289,7 +300,11 @@ void statusbar_step()
 
 
 	set_icon(BAR_ICON_USB, (pwr.data_port != PWR_DATA_NONE) ? I_SHOW : I_HIDE);
-	set_icon(BAR_ICON_CHARGE, (pwr.charger.charge_port != PWR_CHARGE_NONE) ? I_SHOW : I_HIDE);
+	set_icon(BAR_ICON_CHARGE, (pwr.charger.charge_port > PWR_CHARGE_WEAK) ? I_SHOW : I_HIDE);
+	if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
+	{
+		set_icon(BAR_ICON_CHARGE, I_RED | I_FAST | I_BLINK);
+	}
 
 
 	char bat_icon[4];
@@ -311,7 +326,7 @@ void statusbar_step()
     else
     	set_icon(BAR_ICON_BAT, I_RED);
 
-    if (config_get_bool(&config.display.bat_per))
+    if (config_get_bool(&config.display.bat_per) && pwr.fuel_gauge.status == fc_dev_ready)
     {
     	lv_label_set_text_fmt(gui.statusbar.icons[BAR_ICON_BAT], "%u%%%s", pwr.fuel_gauge.battery_percentage, bat_icon);
     }

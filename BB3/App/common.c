@@ -435,3 +435,13 @@ bool file_isdir(char * path)
     }
     return false;
 }
+
+uint8_t nmea_checksum(char *s)
+{
+	uint8_t c = 0;
+
+    while(*s)
+        c ^= *s++;
+
+    return c;
+}

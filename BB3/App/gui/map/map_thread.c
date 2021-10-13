@@ -33,6 +33,7 @@ void map_init()
 
 void thread_map_start(void *argument)
 {
+	osThreadSuspend(thread_map);
     INFO("Started");
     map_init();
 

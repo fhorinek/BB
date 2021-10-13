@@ -57,9 +57,15 @@ void nvm_update_imu_calibration(imu_calibration_t * calib)
     nvm_data_t * new_nvm = (nvm_data_t *) malloc(sizeof(nvm_data_t));
 
     memcpy(new_nvm, nvm, sizeof(nvm_data_t));
-    memcpy(&new_nvm->imu_calibration, calib, sizeof(imu_calibration_t));
-
-    new_nvm->imu_calibration.crc = calc_crc32((uint32_t *)&new_nvm->imu_calibration, sizeof(imu_calibration_t) - 4);
+    if (calib != NULL)
+    {
+    	memcpy(&new_nvm->imu_calibration, calib, sizeof(imu_calibration_t));
+    	new_nvm->imu_calibration.crc = calc_crc32((uint32_t *)&new_nvm->imu_calibration, sizeof(imu_calibration_t) - 4);
+    }
+    else
+    {
+    	memset(&new_nvm->imu_calibration, 0, sizeof(imu_calibration_t));
+    }
 
     nvm_update(new_nvm);
 

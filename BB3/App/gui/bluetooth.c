@@ -13,8 +13,11 @@
 #include "etc/format.h"
 #include "gui/statusbar.h"
 #include "gui/bluetooth.h"
+#include "fc/telemetry/telemetry.h"
 
 static proto_mac_t dev_mac;
+static bool dev_ble;
+
 static bool dialog_on = false;
 
 void bluetooth_pair_dialog_cb(uint8_t res, void * param)
@@ -23,6 +26,7 @@ void bluetooth_pair_dialog_cb(uint8_t res, void * param)
 
 	memcpy(data.dev, dev_mac, sizeof(dev_mac));
 	data.pair = false;
+	data.ble = dev_ble;
 	dialog_on = false;
 
 	if (res == dialog_res_yes)
@@ -52,6 +56,13 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 	char * tag[] = {"A2DP", "SPP", "BLE"};
 	uint8_t index;
 
+	if (strlen(packet->dev_name) != 0)
+	{
+		char key[18];
+		format_mac(key, packet->dev);
+		db_insert(PATH_BT_NAMES, key, packet->dev_name);
+	}
+
 	if (packet->mode & PROTO_BT_MODE_CONNECTED)
 	{
 		if (packet->mode & PROTO_BT_MODE_A2DP)
@@ -71,6 +82,9 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 			fc.esp.state |= ESP_STATE_BT_BLE;
 			index = 2;
 		}
+
+		if (fc.esp.state & (ESP_STATE_BT_BLE | ESP_STATE_BT_SPP))
+			telemetry_start();
 
 		snprintf(msg, sizeof(msg), "%s connected (%s)", get_dev_name(packet->dev, name), tag[index]);
 	}
@@ -95,17 +109,17 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 			index = 2;
 		}
 
+		if ((fc.esp.state & (ESP_STATE_BT_BLE | ESP_STATE_BT_SPP)) == 0)
+			telemetry_stop();
+
 		snprintf(msg, sizeof(msg), "%s disconnected (%s)",  get_dev_name(packet->dev, name), tag[index]);
 	}
 
 	if (packet->mode & PROTO_BT_MODE_PAIRED)
 	{
-		snprintf(msg, sizeof(msg), "%s paired", packet->dev_name);
-
-		char key[18];
-		format_mac(key, packet->dev);
-		db_insert(PATH_BT_NAMES, key, packet->dev_name);
+		snprintf(msg, sizeof(msg), "%s paired", get_dev_name(packet->dev, name));
 	}
+
 	statusbar_add_msg(STATUSBAR_MSG_INFO, msg);
 }
 
@@ -126,6 +140,7 @@ void bluetooth_pari_req(proto_bt_pair_req_t * packet)
 	}
 
 	memcpy(dev_mac, packet->dev, sizeof(dev_mac));
+	dev_ble = packet->ble;
 	dialog_on = true;
 
 	snprintf(msg, sizeof(msg), "Confirm that passcode\n\n%lu\n\nis the same on other the device.", packet->value);

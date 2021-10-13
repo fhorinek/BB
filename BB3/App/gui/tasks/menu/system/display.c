@@ -7,6 +7,7 @@
 
 #include "fc/fc.h"
 #include "etc/format.h"
+#include "drivers/power/pwr_mng.h"
 
 REGISTER_TASK_I(display);
 
@@ -23,8 +24,9 @@ lv_obj_t * display_init(lv_obj_t * par)
 
 	gui_list_auto_entry(list, "Brightness", &config.display.backlight, &back_param);
 	gui_list_auto_entry(list, "Page animation", &config.display.page_anim, NULL);
-	gui_list_auto_entry(list, "Battery percent", &config.display.bat_per, NULL);
-	gui_list_auto_entry(list, "Welcome message", &config.display.show_msg, NULL);
+
+	if (pwr.fuel_gauge.status == fc_dev_ready)
+		gui_list_auto_entry(list, "Battery percent", &config.display.bat_per, NULL);
 
 	return list;
 }

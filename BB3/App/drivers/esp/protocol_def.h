@@ -279,12 +279,14 @@ typedef struct {
     proto_mac_t dev;
     uint32_t value;
     bool cancel;
+    bool ble;
 } proto_bt_pair_req_t;
 
 #define PROTO_BT_PAIR_RES       0x52
 typedef struct {
     proto_mac_t dev;
     bool pair;
+    bool ble;
 } proto_bt_pair_res_t;
 
 #define PROTO_BT_NOTIFY         0x53
@@ -297,11 +299,32 @@ typedef struct {
 #define PROTO_BT_MODE_SPP           0b00010000
 #define PROTO_BT_MODE_BLE           0b00100000
 
+#define PROTO_BT_UNPAIR         0x54
+
+
 typedef struct {
     proto_mac_t dev;
     char dev_name[PROTO_BT_DEV_NAME_LEN];
     uint8_t mode;
 } proto_bt_notify_t;
+
+#define PROTO_TELE_SEND			0x60
+#define PROTO_TELE_RECV			0x60
+#define PROTO_TELE_BUFF_LEN		128
+
+typedef struct {
+    char message[PROTO_TELE_BUFF_LEN];
+    uint8_t len;
+} proto_tele_send_t;
+
+typedef struct {
+    char message[PROTO_TELE_BUFF_LEN];
+    uint8_t len;
+} proto_tele_recv_t;
+
+#define PROTO_TELE_SEND_ACK		0x61
+
+
 
 //------------------------------------------
 
