@@ -31,21 +31,25 @@ typedef struct
         fc_device_status_t status;
 
         uint8_t charge_port;
+
+        uint8_t _pad[1];
 	} charger;
 
 	struct
 	{
-        fc_device_status_t status;
         uint16_t bat_voltage;       //in 10mV
-
         int16_t bat_current;        //in mA
+
+        int16_t bat_current_avg_calc;//in mA
         int16_t bat_current_avg;    //in mA
 
         uint16_t bat_cap;           //in mAh
         uint16_t bat_cap_full;      //in mAh
-        uint8_t	battery_percentage;	//in %
 
-        uint16_t bat_time_to_full;  //in s
+        uint8_t	battery_percentage;	//in %
+        fc_device_status_t status;
+
+        uint8_t _pad[2];
 	} fuel_gauge;
 
 	struct

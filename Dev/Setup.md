@@ -57,6 +57,7 @@ microcontrollers and also give you access to the tespoint on the pcb.
  12. If the build fail on */home/horinek/esp/esp-adf/components/audio_hal/driver/es7243/es7243.c*
      go to */home/horinek/esp/esp-adf/components/audio_hal/CMakeLists.txt* and remove or comment line
      with `./driver/es7243/es7243.c`
+ 13. Copy files from *BB_esp_fw/patch* to *esp-idf/components* to store audio pipeline stack to the PSRAM
  
  
  

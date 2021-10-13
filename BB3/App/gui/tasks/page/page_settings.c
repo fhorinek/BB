@@ -45,7 +45,7 @@ void page_settings_delete_cb(uint8_t res, void * data)
 	}
 }
 
-static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CANCEL)
 	{

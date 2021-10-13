@@ -45,8 +45,10 @@ void app_deinit()
 	FATFS_UnLinkDriver(SDPath);
 
 	//MX_TIM2_Init();
-    HAL_TIM_PWM_DeInit(disp_timer);
-    HAL_TIM_Base_DeInit(disp_timer);
+//    HAL_TIM_PWM_DeInit(disp_timer);
+//    HAL_TIM_Base_DeInit(disp_timer);
+    HAL_NVIC_DisableIRQ(TIM2_IRQn);
+
     HAL_TIM_PWM_DeInit(led_timer);
     HAL_TIM_Base_DeInit(led_timer);
 
@@ -66,17 +68,19 @@ void app_deinit()
 	HAL_SuspendTick();
 }
 
-#define POWER_ON_USB    0
-#define POWER_ON_BUTTON 1
-#define POWER_ON_TORCH  2
-#define POWER_ON_BOOST  3
-#define POWER_ON_REBOOT 4
+#define POWER_ON_USB    		0
+#define POWER_ON_BUTTON			1
+#define POWER_ON_TORCH  		2
+#define POWER_ON_BOOST  		3
+#define POWER_ON_REBOOT 		4
+
 
 uint8_t app_poweroff()
 {
+	uint8_t boot_type = BOOT_NORMAL;
 	if (no_init_check())
     {
-        uint8_t boot_type = no_init->boot_type;
+        boot_type = no_init->boot_type;
         no_init->boot_type = BOOT_NORMAL;
         no_init_update();
 
@@ -89,19 +93,28 @@ uint8_t app_poweroff()
 
     HAL_Delay(100);
 
-    bq25895_init();
+    pwr_init();
     bq25895_batfet_off();
     bq25895_step();
 
-    if (pwr.charge_port > PWR_CHARGE_NONE)
+    //charge port connected, but charging is not done
+    if (pwr.charge_port > PWR_CHARGE_NONE
+    		&& !(pwr.charge_port == PWR_CHARGE_DONE && boot_type == BOOT_CHARGE))
         return POWER_ON_USB;
 
     bool bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
 
     while (1)
     {
-        //usb connected
-        if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH)
+        //usb connected, but charging is not done
+        if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH
+        		&& !(pwr.data_port == PWR_DATA_CHARGE_DONE && boot_type == BOOT_CHARGE))
+            return POWER_ON_USB;
+
+        //usb disconnected, but charging was done
+        if (HAL_GPIO_ReadPin(USB_VBUS) == LOW
+        		&& pwr.data_port == PWR_DATA_CHARGE_DONE
+				&& boot_type == BOOT_CHARGE)
             return POWER_ON_USB;
 
         if (bq_irq)
@@ -126,11 +139,13 @@ uint8_t app_poweroff()
 
         HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
-        //check right after wake up INR is only 256us long
+        //check right after wake up IRQ is only 256us long
         bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
 
         //restore system clock
         SystemClock_Config();
+
+        //PeriphCommonClock not used in this clock configuration
 //        PeriphCommonClock_Config();
     }
 }
@@ -140,26 +155,92 @@ void app_reset()
     gfx_clear();
 
     //prevent to go to factory OTG bootloader
-    button_wait(BT2);
+    button_wait(BT4);
 
     NVIC_SystemReset();
 }
 
 void app_sleep()
 {
-    led_set_backlight(0);
-    led_set_torch(0);
-
-    HAL_Delay(1000);
-
+	led_dim();
     app_reset();
+}
+
+#define BUTTON_TIME	50
+#define HINT_TIME	1000
+#define TIMEOUT		3000
+
+void key_combo(uint8_t status, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+{
+	gfx_draw_status(status, "");
+
+	uint32_t timer = HAL_GetTick();
+	while(1)
+	{
+		if (!button_pressed(GPIOx, GPIO_Pin))
+		{
+			if (timer + BUTTON_TIME > HAL_GetTick())
+				app_sleep();
+			else
+				break;
+		}
+
+		if (timer + HINT_TIME < HAL_GetTick())
+			gfx_draw_status(status, "Release button");
+
+		if (timer + TIMEOUT < HAL_GetTick())
+			app_sleep();
+	}
+
+	gfx_draw_status(status | GFX_COLOR_MOD, "");
+
+	timer = HAL_GetTick();
+	while(1)
+	{
+		if (button_pressed(GPIOx, GPIO_Pin))
+		{
+			if (timer + BUTTON_TIME < HAL_GetTick())
+				break;
+			else
+				app_sleep();
+		}
+
+		if (timer + HINT_TIME < HAL_GetTick())
+			gfx_draw_status(status | GFX_COLOR_MOD, "Press now");
+
+		if (timer + TIMEOUT < HAL_GetTick())
+			app_sleep();
+	}
+
+	gfx_draw_status(status | GFX_COLOR_MOD, "");
+
+	timer = HAL_GetTick();
+	while(1)
+	{
+		if (!button_pressed(GPIOx, GPIO_Pin))
+		{
+			if (timer + BUTTON_TIME < HAL_GetTick())
+				break;
+			else
+				app_sleep();
+		}
+
+		if (timer + HINT_TIME < HAL_GetTick())
+			gfx_draw_status(status| GFX_COLOR_MOD, "Release button");
+
+		if (timer + TIMEOUT < HAL_GetTick())
+			app_sleep();
+	}
 }
 
 void torch_loop()
 {
     gfx_draw_status(GFX_STATUS_TORCH, NULL);
 
-    led_set_torch(100);
+	led_set_backlight(GFX_BACKLIGHT);
+	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
+
+	led_set_torch(100);
 
     //wait for buttons to be released
     button_wait(BT1);
@@ -180,6 +261,12 @@ void torch_loop()
 
         if (button_hold(BT3))
             break;
+
+        if (button_pressed(BT1) ||button_pressed(BT2) || button_pressed(BT3) || button_pressed(BT4) || button_pressed(BT5))
+        {
+        	led_set_backlight(GFX_BACKLIGHT);
+        	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
+        }
     }
 }
 
@@ -276,21 +363,29 @@ void app_main(uint8_t power_on_mode)
     	bat_check_step();
     }
 
+    if (button_pressed(BT2) && button_pressed(BT5))
+    {
+    	format_loop();
+    	app_sleep();
+    }
+
     if (power_on_mode == POWER_ON_TORCH)
     {
+    	key_combo(GFX_STARTUP_TORCH, BT1);
     	torch_loop();
         app_sleep();
     }
 
     if (power_on_mode == POWER_ON_BOOST)
     {
+    	key_combo(GFX_STARTUP_BAT, BT4);
         pwr_data_mode(dm_host_boost);
         power_on_mode = POWER_ON_USB;
     }
 
-    if (button_pressed(BT2) && button_pressed(BT5))
+    if (power_on_mode == POWER_ON_BUTTON)
     {
-    	format_loop();
+    	key_combo(GFX_STARTUP_APP, BT3);
     }
 
     //check for FORMAT file

@@ -159,10 +159,7 @@ void pages_splash_show()
 	{
 		f_unlink(PATH_NEW_FW);
 
-		if (config_get_bool(&config.display.show_msg))
-		{
-			gui_show_release_note();
-		}
+		gui_show_release_note();
 	}
 }
 

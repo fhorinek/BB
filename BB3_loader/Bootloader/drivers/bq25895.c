@@ -27,7 +27,7 @@
 #define Charger_ICHG_val 		0b10100000    // 0xA4 -> Pulse control active
 
 #define Charger_ICHG2_Reg 		0x05  // [7:4] Precharge Current Limit: IPRECHG = 64 + VALUE[7:4] × 64 [mA] // default 128mA  [3:0] Termination Current Limit: ITERM = 64 + VALUE[3:0] × 64 [mA] // default 256mA
-#define Charger_ICHG2_val 		0x22  // Iprech = 192mA; Iterm = 192mA         § revise with new battery §
+#define Charger_ICHG2_val 		0x23  // Iprech = 192mA; Iterm = 192mA         § revise with new battery §
 
 #define Charger_BatChV_Reg 		0x06 // for 4,2V [7:2] Charge Voltage Limit: VREG = 3840 + VALUE[7:2] × 16 [mV] // default undefined              § revise with new battery §
 #define Charger_BatChV_val 		0b01011110 // Charge to 4,208V, start Fast charge @ 3V
@@ -91,7 +91,7 @@ void bq25895_init()
     if (!system_i2c_test_device(BQ_ADR))
     {
         pwr.charger.status = fc_dev_error;
-        pwr.charge_port = PWR_CHARGE_UNKNOWN;
+        pwr.charge_port = PWR_CHARGE_NONE;
         ERR("bq25895 not responding!");
     }
     else
@@ -131,7 +131,8 @@ void bq25895_step()
     next_period = HAL_GetTick() + 100;
 
     uint8_t reg_0B = system_i2c_read8(BQ_ADR, 0x0B);
-    uint8_t charger_status = (reg_0B & 0b11100000) >> 5;
+    uint8_t vbus_status = (reg_0B & 0b11100000) >> 5;
+    uint8_t chrg_status = (reg_0B & 0b00011000) >> 3;
 
     uint8_t reg_11 = system_i2c_read8(BQ_ADR, 0x11);
     uint16_t vbus_volt = 2600 + (0b01111111 & reg_11) * 100;
@@ -139,50 +140,57 @@ void bq25895_step()
     uint8_t reg_12 = system_i2c_read8(BQ_ADR, 0x12);
     uint16_t vbus_mamps = reg_12 * 50;
 
-    switch (charger_status)
+    if (chrg_status == 0b11)
     {
-        case 0b000:
-            //DBG("No Input");
-            if (vbus_volt > 2600)
-                pwr.charge_port = PWR_CHARGE_WEAK;
-            else
-                pwr.charge_port = PWR_CHARGE_NONE;
-            break;
+    	pwr.charge_port = PWR_CHARGE_DONE;
+    }
+    else
+    {
+		switch (vbus_status)
+		{
+			case 0b000:
+				//DBG("No Input");
+				if (vbus_volt > 2600)
+					pwr.charge_port = PWR_CHARGE_WEAK;
+				else
+					pwr.charge_port = PWR_CHARGE_NONE;
+				break;
 
-        case 0b001:
-            //DBG("USB Host SDP");
-            pwr.charge_port = PWR_CHARGE_SLOW;
-            break;
+			case 0b001:
+				//DBG("USB Host SDP");
+				pwr.charge_port = PWR_CHARGE_SLOW;
+				break;
 
-        case 0b010:
-            //DBG("USB CDP (1,5A)");
-            pwr.charge_port = PWR_CHARGE_FAST;
-            break;
+			case 0b010:
+				//DBG("USB CDP (1,5A)");
+				pwr.charge_port = PWR_CHARGE_FAST;
+				break;
 
-        case 0b011:
-            //DBG("USB DCP (3,25A)");
-            pwr.charge_port = PWR_CHARGE_FAST;
-            break;
+			case 0b011:
+				//DBG("USB DCP (3,25A)");
+				pwr.charge_port = PWR_CHARGE_FAST;
+				break;
 
-        case 0b100:
-            //DBG("Adjustable High Voltage DCP (MaxCharge) (1,5A)");
-            pwr.charge_port = PWR_CHARGE_QUICK;
-            break;
+			case 0b100:
+				//DBG("Adjustable High Voltage DCP (MaxCharge) (1,5A)");
+				pwr.charge_port = PWR_CHARGE_QUICK;
+				break;
 
-        case 0b101:
-            //DBG("Unknown Adapter (500mA)");
-            pwr.charge_port = PWR_CHARGE_SLOW;
-            break;
+			case 0b101:
+				//DBG("Unknown Adapter (500mA)");
+				pwr.charge_port = PWR_CHARGE_SLOW;
+				break;
 
-        case 0b110:
-            //DBG("Non-Standard Adapter (1A/2A/2,1A/2,4A)");
-            pwr.charge_port = PWR_CHARGE_FAST;
-            break;
+			case 0b110:
+				//DBG("Non-Standard Adapter (1A/2A/2,1A/2,4A)");
+				pwr.charge_port = PWR_CHARGE_FAST;
+				break;
 
-        case 0b111:
-            //DBG("OTG");
-            pwr.charge_port = PWR_CHARGE_NONE;
-            break;
+			case 0b111:
+				//DBG("OTG");
+				pwr.charge_port = PWR_CHARGE_NONE;
+				break;
+		}
     }
 
 }

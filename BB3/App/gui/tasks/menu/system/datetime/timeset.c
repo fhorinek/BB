@@ -18,7 +18,7 @@ REGISTER_TASK_I(timeset,
     lv_style_t style;
 );
 
-static bool timeset_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool timeset_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
     if (event == LV_EVENT_CANCEL)
     {

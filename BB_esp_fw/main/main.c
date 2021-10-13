@@ -6,7 +6,7 @@
 #include "drivers/spi.h"
 #include "wifi.h"
 #include "protocol.h"
-#include "bluetooth.h"
+#include "bluetooth/bluetooth.h"
 
 #include "nvs.h"
 #include "nvs_flash.h"

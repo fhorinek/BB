@@ -23,7 +23,7 @@ void pipeline_loop(void *pvParameters)
 
 		if (ret != ESP_OK)
 		{
-			INFO("[ * ] Event interface error : %d", ret);
+			INFO("Event interface error : %d", ret);
 			continue;
 		}
 
@@ -34,6 +34,9 @@ void pipeline_loop(void *pvParameters)
 //
 //			continue;
 //		}
+
+		INFO("Action command: src_type:%d, source:%p cmd:%d, data:%p, data_len:%d",
+		                   msg.source_type, msg.source, msg.cmd, msg.data, msg.data_len);
 
 		if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT)
 		{
@@ -90,6 +93,6 @@ void pipeline_init()
 	pipe_vario_init();
 	print_free_memory("pipe_vario_init");
 
-	xTaskCreate(pipeline_loop, "pipeline_loop", 512 * 3, NULL, 15, NULL);
+	xTaskCreate(pipeline_loop, "pipeline_loop", 2048, NULL, 15, NULL);
 }
 

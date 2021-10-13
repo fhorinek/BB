@@ -173,12 +173,12 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 
 	gui.task.last = gui.task.actual;
 	gui.task.last_memory = *gui.task.last->local_vars;
-	gui.task.actual = next;
 
 	gui_set_loop_speed(GUI_DEFAULT_LOOP_SPEED);
 
 	//init new screen
-	lv_obj_t * screen = gui_task_create(gui.task.actual);
+	lv_obj_t * screen = gui_task_create(next);
+	gui.task.actual = next;
 
 	//switch screens
 	lv_scr_load_anim(screen, anim, GUI_TASK_SW_ANIMATION, 0, true);
@@ -201,6 +201,10 @@ void gui_init_styles()
 	lv_style_init(&gui.styles.list_select);
 	lv_style_set_radius(&gui.styles.list_select, LV_STATE_FOCUSED, 5);
 	lv_style_set_radius(&gui.styles.list_select, LV_STATE_EDITED, 5);
+
+	lv_style_init(&gui.styles.note);
+	lv_style_set_radius(&gui.styles.note, LV_STATE_DEFAULT, 5);
+	lv_style_set_margin_bottom(&gui.styles.note, LV_STATE_DEFAULT, 5);
 
 	gui.styles.widget_fonts[0] = &lv_font_montserrat_44;
 	gui.styles.widget_fonts[1] = &lv_font_montserrat_34;

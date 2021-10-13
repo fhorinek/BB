@@ -17,6 +17,8 @@
 
 #include "fc/fc.h"
 
+#include "gui/tasks/menu/system/advanced/calibration.h"
+
 //Mems
 //1E - acc + mag
 //6B - gyro
@@ -58,6 +60,10 @@ void thread_mems_start(void *argument)
 	    osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
 	    imu_step();
 	    vario_step();
+
+	    if (gui.task.actual == &gui_calibration)
+	    	calibration_imu_cb();
+
 //        DBG("Mems irq %u", GpioRead(ACC_INT));
 //        DBG("Pres");
 //        DBG(" %0.2fPa", fc.vario.pressure);

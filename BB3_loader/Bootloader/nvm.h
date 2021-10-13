@@ -63,13 +63,14 @@ typedef struct
 
 #define BOOT_NORMAL 0
 #define BOOT_REBOOT 1
+#define BOOT_CHARGE 2
 
 typedef struct {
     uint8_t boot_type;
 
     uint8_t reserved[14];
     uint8_t crc;
-} no_init_t;
+} no_init_t; //16b
 
 #define NO_INIT_ADDR                0x24000000
 #define no_init ((no_init_t *)NO_INIT_ADDR)

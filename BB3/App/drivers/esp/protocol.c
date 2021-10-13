@@ -400,6 +400,10 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 		}
         break;
 
+        case(PROTO_TELE_SEND_ACK):
+			//telemety packet was send3
+        break;
+
         case(PROTO_FAKE_GNSS):
 		{
         	proto_fake_gnss_t * packet = (proto_fake_gnss_t *)data;

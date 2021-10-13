@@ -5,6 +5,7 @@
  *      Author: horinek
  */
 
+#include <fc/telemetry/telemetry.h>
 #include "config.h"
 #include "entry.h"
 #include "etc/timezone.h"
@@ -128,6 +129,14 @@ cfg_entry_param_select_t logger_mode_select[] =
     {LOGGER_OFF, "off"},
     {LOGGER_FLIGHT, "flight"},
     {LOGGER_ALWAYS, "always"},
+    SELECT_END
+};
+
+cfg_entry_param_select_t protocol_type_select[] =
+{
+	{tele_lk8ex1, "LK8EX1"},
+    {tele_openvario, "OpenVario"},
+	{tele_none, "No telemetry"},
     SELECT_END
 };
 
@@ -333,6 +342,10 @@ config_t config =
 		entry_bool("bt_spp", true),
 		//ble
 		entry_bool("bt_ble", true),
+		//protocol
+		entry_select("bt_proto", tele_lk8ex1, protocol_type_select),
+		//forward_gnss
+		entry_bool("bt_fw_gnss", true),
         //volume
         entry_int("bt_volume", 75, 0, 100),
         //bt_pass
@@ -357,9 +370,7 @@ config_t config =
         entry_int("disp_bckl", 20, 0, 100),
         //backlight_timeout
         entry_int("disp_bckl_time", 30, 10, 120),
-		//show_msg
-        entry_bool("show_msg", true),
-		//show_msg
+		//bat_per
         entry_bool("bat_per", false),
 		//page_anim
         entry_bool("page_anim", true),

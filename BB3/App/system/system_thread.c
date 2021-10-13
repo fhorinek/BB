@@ -27,6 +27,8 @@
 #include "drivers/sensors/mems_thread.h"
 #include "gui/gui_thread.h"
 
+#include "etc/epoch.h"
+
 //RTOS Tasks
 define_thread("Debug", thread_debug, 1024, osPriorityHigh);
 define_thread("GUI", thread_gui, 2048, osPriorityNormal);
@@ -177,8 +179,16 @@ void thread_system_start(void *argument)
 
 		bool gauge_updated = pwr_step();
 
+		static meas_next = 0;
+		if (meas_next < HAL_GetTick())
+		{
+			INFO("PWR %0.2fV, %dma", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current);
+			meas_next = HAL_GetTick() + 60 * 1000;
+		}
+
 		if (gauge_updated)
 		{
+
 			if ((pwr.fuel_gauge.bat_voltage < CRITICAL_VOLTAGE || pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
 				&& pwr.data_port == PWR_DATA_NONE
 				&& pwr.charger.charge_port == PWR_CHARGE_NONE)

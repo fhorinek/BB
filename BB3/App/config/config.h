@@ -158,6 +158,8 @@ typedef struct
         cfg_entry_t a2dp;
         cfg_entry_t spp;
         cfg_entry_t ble;
+        cfg_entry_t protocol;
+        cfg_entry_t forward_gnss;
         cfg_entry_t volume;
         cfg_entry_t pin;
     } bluetooth;
@@ -174,7 +176,6 @@ typedef struct
     {
         cfg_entry_t backlight;
         cfg_entry_t backlight_timeout;
-        cfg_entry_t show_msg;
         cfg_entry_t bat_per;
         cfg_entry_t page_anim;
     } display;
