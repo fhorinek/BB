@@ -17,6 +17,7 @@
 #define PWR_CHARGE_FAST	    3
 #define PWR_CHARGE_QUICK    4
 #define PWR_CHARGE_UNKNOWN  5
+#define PWR_CHARGE_DONE  	6
 
 #define PWR_DATA_NONE	    0
 #define PWR_DATA_CHARGE     1

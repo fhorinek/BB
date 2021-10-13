@@ -13,6 +13,8 @@
 
 void nvm_update(nvm_data_t * data);
 
+void nvm_update_bootloader(uint32_t build_number);
+
 void nvm_update_imu_calibration(imu_calibration_t * calib);
 bool nvm_load_imu_calibration(imu_calibration_t * calib);
 

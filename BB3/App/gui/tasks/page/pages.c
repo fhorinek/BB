@@ -21,6 +21,8 @@
 
 #include "drivers/power/led.h"
 
+#include "etc/bootloader.h"
+
 extern const lv_img_dsc_t tile;
 
 #define MENU_TIMEOUT	2000
@@ -160,6 +162,11 @@ void pages_splash_show()
 		f_unlink(PATH_NEW_FW);
 
 		gui_show_release_note();
+
+	    if (bootloader_update() == bl_update_ok)
+	    {
+	        statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
+	    }
 	}
 }
 

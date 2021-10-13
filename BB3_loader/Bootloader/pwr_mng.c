@@ -125,10 +125,14 @@ void pwr_step()
 				pwr.data_port = PWR_DATA_CHARGE;
             }
 
-            if (pwr.data_port == PWR_DATA_CHARGE)
+            //I am main charger!
+            if (pwr.data_port == PWR_DATA_CHARGE
+            		&& pwr.charge_port == PWR_CHARGE_NONE)
             {
 				if (pwr.fuel_gauge.battery_percentage == 100)
+				{
             		pwr.data_port = PWR_DATA_CHARGE_DONE;
+				}
             	else
             	{
             		pwr.data_port = PWR_DATA_CHARGE;

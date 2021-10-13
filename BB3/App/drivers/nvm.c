@@ -72,6 +72,18 @@ void nvm_update_imu_calibration(imu_calibration_t * calib)
     free(new_nvm);
 }
 
+void nvm_update_bootloader(uint32_t build_number)
+{
+    nvm_data_t * new_nvm = (nvm_data_t *) malloc(sizeof(nvm_data_t));
+
+    memcpy(new_nvm, nvm, sizeof(nvm_data_t));
+    new_nvm->bootloader = build_number;
+
+    nvm_update(new_nvm);
+
+    free(new_nvm);
+}
+
 bool nvm_load_imu_calibration(imu_calibration_t * calib)
 {
     uint32_t crc = calc_crc32((uint32_t *)&nvm->imu_calibration, sizeof(imu_calibration_t) - 4);
