@@ -10,15 +10,21 @@
 
 #include "system.h"
 
+#include "fc/fc.h"
+
 #include "drivers/rev.h"
 #include "drivers/esp/download/slot.h"
 #include "drivers/esp/protocol.h"
-#include "fc/fc.h"
+#include "drivers/power/pwr_mng.h"
 
 #include "gui/dialog.h"
 #include "gui/tasks/filemanager.h"
-#include "etc/format.h"
 #include "gui/statusbar.h"
+#include "gui/statusbar.h"
+
+#include "etc/format.h"
+#include "etc/bootloader.h"
+
 
 REGISTER_TASK_I(info,
     char new_fw[32];
@@ -214,6 +220,54 @@ static bool info_serial_release_note_cb(lv_obj_t * obj, lv_event_t event)
     }
     return true;
 }
+
+
+static void update_bl_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        bootloader_res_t res = bootloader_update(PATH_BL_FW_MANUAL);
+        switch (res)
+        {
+            case(bl_update_ok):
+                statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
+            break;
+            case(bl_same_version):
+                statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader already up-to-date");
+            break;
+            case(bl_file_invalid):
+                statusbar_add_msg(STATUSBAR_MSG_ERROR, "Update file is corrupted!");
+            break;
+            case(bl_file_not_found):
+                statusbar_add_msg(STATUSBAR_MSG_ERROR, "Update file not found!");
+            break;
+        }
+    }
+}
+
+static bool reboot_dfu_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        if (pwr.charger.charge_port == PWR_CHARGE_NONE)
+        {
+            dialog_show("DFU", "Connect left (power) usb to the charger or computer", dialog_confirm, NULL);
+            return true;
+        }
+
+        if (pwr.data_port == PWR_DATA_NONE)
+        {
+            dialog_show("DFU", "Connect right (data) usb to the computer", dialog_confirm, NULL);
+            return true;
+        }
+
+        dialog_show("DFU", "Go to:\nstrato.skybean.eu/dfu/\n\nPress Connect Strato\n\nThen press and hold the bottom right (option) button", dialog_dfu, NULL);
+    }
+
+    return true;
+}
+
+
 lv_obj_t * info_init(lv_obj_t * par)
 {
 	local->click_cnt = 0;
@@ -222,26 +276,35 @@ lv_obj_t * info_init(lv_obj_t * par)
 
     char rev_str[10];
     char value[32];
+    lv_obj_t * obj;
+
+    gui_list_auto_entry(list, "Check for OTA updates", CUSTOM_CB, info_update_cb);
+    gui_list_auto_entry(list, "Release note", CUSTOM_CB, info_serial_release_note_cb);
 
     rev_get_sw_string(rev_str);
-    snprintf(value, sizeof(value), "Firmware %s", rev_str);
-    lv_obj_t * obj = gui_list_info_add_entry(list, "Check for updates", value);
-    gui_config_entry_add(obj, CUSTOM_CB, info_update_cb);
+    snprintf(value, sizeof(value), "Firmware ver. %s", rev_str);
+    obj = gui_list_info_add_entry(list, "Manual firmware update", value);
+    gui_config_entry_add(obj, CUSTOM_CB, manual_install_cb);
 
-    obj = gui_list_text_add_entry(list, "Release note");
-    gui_config_entry_add(obj, CUSTOM_CB, info_serial_release_note_cb);
-
-    gui_list_auto_entry(list, "Install update", CUSTOM_CB, manual_install_cb);
+    snprintf(value, sizeof(value), "Bootloader ver. %lu", nvm->bootloader);
+    obj = gui_list_info_add_entry(list, "Manual bootloader update", value);
+    gui_config_entry_add(obj, CUSTOM_CB, update_bl_cb);
 
     snprintf(value, sizeof(value), "%08lX", rev_get_short_id());
     obj = gui_list_info_add_entry(list, "Serial number", value);
     gui_config_entry_add(obj, CUSTOM_CB, info_serial_cb);
 
-    snprintf(value, sizeof(value), "%02X%04X", fc.fanet.addr.manufacturer_id, fc.fanet.addr.user_id);
+    if (fc.fanet.status == fc_dev_ready)
+        snprintf(value, sizeof(value), "%02X%04X", fc.fanet.addr.manufacturer_id, fc.fanet.addr.user_id);
+    else
+        fc_device_status(value, fc.fanet.status);
+
     gui_list_info_add_entry(list, "FANET ID", value);
 
     snprintf(value, sizeof(value), "%02X", rev_get_hw());
     gui_list_info_add_entry(list, "Hardware revision", value);
+
+    gui_list_auto_entry(list, "Reboot to DFU", CUSTOM_CB, reboot_dfu_cb);
 
 
     return list;

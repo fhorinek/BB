@@ -163,10 +163,11 @@ void pages_splash_show()
 
 		gui_show_release_note();
 
-	    if (bootloader_update() == bl_update_ok)
+	    if (bootloader_update(PATH_BL_FW_AUTO) == bl_update_ok)
 	    {
 	        statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
 	    }
+	    f_unlink(PATH_BL_FW_AUTO);
 	}
 }
 

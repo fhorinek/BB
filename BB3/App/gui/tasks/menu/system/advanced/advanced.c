@@ -12,14 +12,11 @@
 
 #include "gui/gui_list.h"
 #include "gui/dialog.h"
-#include "etc/bootloader.h"
 
 #include "fc/fc.h"
 #include "drivers/nvm.h"
 #include "fc/imu.h"
-#include "gui/statusbar.h"
 
-#include "drivers/power/pwr_mng.h"
 
 REGISTER_TASK_I(advanced);
 
@@ -92,52 +89,6 @@ static bool advanced_calib_clear(lv_obj_t * obj, lv_event_t event)
 	return true;
 }
 
-static void update_bl_cb(lv_obj_t * obj, lv_event_t event)
-{
-	if (event == LV_EVENT_CLICKED)
-	{
-		bootloader_res_t res = bootloader_update();
-		switch (res)
-		{
-			case(bl_update_ok):
-				statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
-			break;
-			case(bl_same_version):
-				statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader already up-to-date");
-			break;
-			case(bl_file_invalid):
-				statusbar_add_msg(STATUSBAR_MSG_ERROR, "Update file is corrupted!");
-			break;
-			case(bl_file_not_found):
-				statusbar_add_msg(STATUSBAR_MSG_ERROR, "Update file not found!");
-			break;
-		}
-	}
-}
-
-static bool reboot_dfu_cb(lv_obj_t * obj, lv_event_t event)
-{
-    if (event == LV_EVENT_CLICKED)
-    {
-    	if (pwr.charger.charge_port == PWR_CHARGE_NONE)
-    	{
-    		dialog_show("DFU", "Connect left (power) usb to the charger or computer", dialog_confirm, NULL);
-    		return true;
-    	}
-
-    	if (pwr.data_port == PWR_DATA_NONE)
-    	{
-    		dialog_show("DFU", "Connect right (data) usb to the computer", dialog_confirm, NULL);
-    		return true;
-    	}
-
-        dialog_show("DFU", "Go to:\nstrato.skybean.eu/dfu/\n\nPress Connect Strato\n\nThen press and hold the bottom right (option) button", dialog_dfu, NULL);
-    }
-
-    return true;
-}
-
-
 lv_obj_t * advanced_init(lv_obj_t * par)
 {
     lv_obj_t * list = gui_list_create(par, "Advanced settings", &gui_system, NULL);
@@ -156,14 +107,6 @@ lv_obj_t * advanced_init(lv_obj_t * par)
 		gui_list_auto_entry(list, "Recalibrate Magnetometer", CUSTOM_CB, advanced_calib_mag);
 		gui_list_auto_entry(list, "Reset calibration", CUSTOM_CB, advanced_calib_clear);
 	}
-
-
-    char value[16];
-    snprintf(value, sizeof(value), "Current build %u", nvm->bootloader);
-    lv_obj_t * obj = gui_list_info_add_entry(list, "Update bootloader", value);
-    gui_config_entry_add(obj, CUSTOM_CB, update_bl_cb);
-
-    gui_list_auto_entry(list, "Reboot to DFU", CUSTOM_CB, reboot_dfu_cb);
 
     return list;
 }

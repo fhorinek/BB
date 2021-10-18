@@ -85,7 +85,7 @@ void max17260_step()
 
     pwr.fuel_gauge.battery_percentage = min(100, MAX_to_percent(system_i2c_read16(MAX_ADR, MAX_SoC)));
 
-    if (pwr.fuel_gauge.bat_cap_full > CALIBRATED_CAP)
+    if (pwr.fuel_gauge.bat_cap_full > CALIBRATED_CAP || pwr.fuel_gauge.battery_percentage == 100)
     	pwr.fuel_gauge.status = fc_dev_ready;
     else
     	pwr.fuel_gauge.status = fc_device_not_calibrated;
