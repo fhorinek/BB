@@ -181,7 +181,8 @@ extern osThreadId_t SystemHandle;
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 #define PATH_LOGS_DIR       "logs"
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
-#define PATH_BOOTLODER_FW   PATH_ASSET_DIR "/bootloader.fw"
+#define PATH_BL_FW_AUTO     PATH_ASSET_DIR "/bootloader.fw"
+#define PATH_BL_FW_MANUAL   "bootloader.fw"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
 
 #define PATH_TOPO_DIR       "agl"

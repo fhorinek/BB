@@ -29,16 +29,16 @@ void bl_clean()
 	}
 }
 
-bootloader_res_t bootloader_update()
+bootloader_res_t bootloader_update(char * path)
 {
 	f = (FIL *)malloc(sizeof(FIL));
 	UINT br;
 
-	INFO("Checking the bootloader file %s", PATH_BOOTLODER_FW);
+	INFO("Checking the bootloader file %s", path);
 
-	if (file_exists(PATH_BOOTLODER_FW))
+	if (file_exists(path))
 	{
-		if (f_open(f, PATH_BOOTLODER_FW, FA_READ) != FR_OK)
+		if (f_open(f, path, FA_READ) != FR_OK)
 		{
 			ERR("Unable to open update file");
 			bl_clean();

@@ -25,7 +25,7 @@ void keyboard_obj_event_cb(lv_obj_t * obj, lv_event_t event)
 	    {
             if (!lv_group_get_editing(lv_obj_get_group(gui.keyboard.area)))
             {
-                keyboard_hide();
+                //keyboard_hide();
             }
 	    }
 	}

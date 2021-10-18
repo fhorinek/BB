@@ -18,6 +18,6 @@ typedef enum
 	bl_same_version,
 } bootloader_res_t;
 
-bootloader_res_t bootloader_update();
+bootloader_res_t bootloader_update(char * path);
 
 #endif /* GUI_BOOTLOADER_H_ */

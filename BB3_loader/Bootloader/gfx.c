@@ -359,7 +359,8 @@ void gfx_draw_status(uint8_t status, const char * message)
 
         uint16_t val;
 
-        if (pwr.fuel_gauge.status == fc_dev_ready || gfx_status < GFX_STATUS_CHARGING)
+        if (pwr.fuel_gauge.status == fc_dev_ready
+                || gfx_status < GFX_STATUS_CHARGING)
         {
         	val = BAT_Y1 + BAT_H - (BAT_H * pwr.fuel_gauge.battery_percentage) / 100;
         }
