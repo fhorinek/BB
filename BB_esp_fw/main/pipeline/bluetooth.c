@@ -10,17 +10,6 @@
 void pipe_bluetooth_init()
 {
     INFO("pipe_bluetooth_init");
-    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
-    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_bt_controller_init(&bt_cfg));
-    ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BTDM));
-    ESP_ERROR_CHECK(esp_bluedroid_init());
-    ESP_ERROR_CHECK(esp_bluedroid_enable());
-
-    esp_bt_dev_set_device_name("Strato");
-    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
-
-    print_free_memory("esp_bt_controller_init");
 
     audio_pipeline_cfg_t pipeline_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();
     pipes.bluetooth.pipe = audio_pipeline_init(&pipeline_cfg);
@@ -29,7 +18,9 @@ void pipe_bluetooth_init()
         .type = AUDIO_STREAM_READER,
         .user_callback = {0},
     };
-    pipes.bluetooth.a2dp = a2dp_stream_init(&a2dp_config);
+    pipes.bluetooth.bt = a2dp_stream_init(&a2dp_config);
+//    bluetooth_service_start
+//    pipes.bluetooth.bt = bluetooth_service_create_stream();
 
 
     rsp_filter_cfg_t rsp_cfg = DEFAULT_RESAMPLE_FILTER_CONFIG();
@@ -47,7 +38,7 @@ void pipe_bluetooth_init()
     raw_cfg.type = AUDIO_STREAM_WRITER;
     pipes.bluetooth.raw = raw_stream_init(&raw_cfg);
 
-    audio_pipeline_register(pipes.bluetooth.pipe, pipes.bluetooth.a2dp, "bt");
+    audio_pipeline_register(pipes.bluetooth.pipe, pipes.bluetooth.bt, "bt");
     audio_pipeline_register(pipes.bluetooth.pipe, pipes.bluetooth.filter, "filter");
     audio_pipeline_register(pipes.bluetooth.pipe, pipes.bluetooth.raw, "raw");
 
@@ -66,7 +57,7 @@ void pipe_bluetooth_event(audio_event_iface_msg_t * msg)
 	if (msg->cmd == AEL_MSG_CMD_REPORT_MUSIC_INFO)
 	{
 		audio_element_info_t music_info = {0};
-		audio_element_getinfo(pipes.bluetooth.a2dp, &music_info);
+		audio_element_getinfo(pipes.bluetooth.bt, &music_info);
 
 		INFO("Receive music info from Bluetooth, sample_rates=%d, bits=%d, ch=%d", music_info.sample_rates, music_info.bits, music_info.channels);
 

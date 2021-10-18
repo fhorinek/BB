@@ -32,28 +32,35 @@ static void Acc_update(widget_slot_t * slot)
 {
     char value[16];
 
-    bool found = false;
-    int16_t accel = 0;
-    uint16_t size = min(fc.history.size, (config_get_int(&profile.flight.acc_duration) * 1000) / FC_HISTORY_PERIOD);
+	if (fc.imu.status == fc_device_not_calibrated)
+	{
+		strcpy(value, "Need\nCalib.");
+	}
+	else
+	{
+		bool found = false;
+		int16_t accel = 0;
+		uint16_t size = min(fc.history.size, (config_get_int(&profile.flight.acc_duration) * 1000) / FC_HISTORY_PERIOD);
 
-    for (uint16_t i = 0; i < size; i++)
-    {
-    	uint16_t index = (fc.history.index + FC_HISTORY_SIZE - i) % FC_HISTORY_SIZE;
-    	if (fc.history.positions[index].flags & FC_POS_HAVE_ACC)
-    	{
-    		accel = max(accel, fc.history.positions[index].accel);
-    		found = true;
-    	}
-    }
+		for (uint16_t i = 0; i < size; i++)
+		{
+			uint16_t index = (fc.history.index + FC_HISTORY_SIZE - i) % FC_HISTORY_SIZE;
+			if (fc.history.positions[index].flags & FC_POS_HAVE_ACC)
+			{
+				accel = max(accel, fc.history.positions[index].accel);
+				found = true;
+			}
+		}
 
-    if (found)
-    {
-    	snprintf(value, sizeof(value), "%0.1f", accel / 1000.0);
-    }
-    else
-    {
-    	strcpy(value, "---");
-    }
+		if (found)
+		{
+			snprintf(value, sizeof(value), "%0.1f", accel / 1000.0);
+		}
+		else
+		{
+			strcpy(value, "---");
+		}
+	}
 
     lv_label_set_text(local->value, value);
     widget_update_font_size(local->value, slot->obj);

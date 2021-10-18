@@ -247,21 +247,84 @@ typedef struct {
 
 //response trought SPI
 
-//
-//#define PROTO_BT_SET_MODE       0xff
-//
-//#define PROTO_BT_NAME_LEN		16
-//#define PROTO_BT_PIN_LEN		8
-//
-//typedef struct {
-//    char name[PROTO_BT_NAME_LEN];
-//    char pin[PROTO_BT_PIN_LEN];
-//
-//    bool a2dp;
-//    bool spp;
-//    bool ble;
-//
-//} proto_set_bt_mode_t;
+
+#define PROTO_BT_SET_MODE       	0x50
+
+#define PROTO_BT_NAME_LEN		16
+#define PROTO_BT_PIN_LEN		8
+
+typedef struct {
+    char name[PROTO_BT_NAME_LEN];
+    char pin[PROTO_BT_PIN_LEN];
+
+    bool enabled;
+    bool a2dp;
+    bool spp;
+    bool ble;
+
+} proto_set_bt_mode_t;
+
+#define PROTO_BT_MODE       	0x50
+typedef struct {
+	bool enabled;
+} proto_bt_mode_t;
+
+#define PROTO_BT_DISCOVERABLE  	0x51
+typedef struct {
+	bool enabled;
+} proto_bt_discoverable_t;
+
+#define PROTO_BT_PAIR_REQ       0x52
+typedef struct {
+    proto_mac_t dev;
+    uint32_t value;
+    bool cancel;
+    bool ble;
+} proto_bt_pair_req_t;
+
+#define PROTO_BT_PAIR_RES       0x52
+typedef struct {
+    proto_mac_t dev;
+    bool pair;
+    bool ble;
+} proto_bt_pair_res_t;
+
+#define PROTO_BT_NOTIFY         0x53
+
+#define PROTO_BT_DEV_NAME_LEN       32
+#define PROTO_BT_MODE_PAIRED        0b00000001
+#define PROTO_BT_MODE_CONNECTED     0b00000010
+#define PROTO_BT_MODE_DISCONNECTED  0b00000100
+#define PROTO_BT_MODE_A2DP          0b00001000
+#define PROTO_BT_MODE_SPP           0b00010000
+#define PROTO_BT_MODE_BLE           0b00100000
+
+#define PROTO_BT_UNPAIR         0x54
+
+
+typedef struct {
+    proto_mac_t dev;
+    char dev_name[PROTO_BT_DEV_NAME_LEN];
+    uint8_t mode;
+} proto_bt_notify_t;
+
+#define PROTO_TELE_SEND			0x60
+#define PROTO_TELE_RECV			0x60
+#define PROTO_TELE_BUFF_LEN		128
+
+typedef struct {
+    char message[PROTO_TELE_BUFF_LEN];
+    uint8_t len;
+} proto_tele_send_t;
+
+typedef struct {
+    char message[PROTO_TELE_BUFF_LEN];
+    uint8_t len;
+} proto_tele_recv_t;
+
+#define PROTO_TELE_SEND_ACK		0x61
+
+
 
 //------------------------------------------
 

@@ -25,14 +25,9 @@
 #define MAX_DesignCap              0x18
 #define MAX_DesignCap_default      MAX_Capacity_from_mAh(5000)
 
-//voltage for declaring 0% SoC
-#define MAX_VEmpty                  0x3A
-                                    //Vempty [mV]     | Vready [mV]
-#define MAX_VEmpty_default          ((3000 / 10) << 7 | (3000 / 40))
-
 //The IChgTerm register allows the device to detect when charge termination has occurred.
 #define MAX_IChgTerm               0x1E
-#define MAX_IChgTerm_default       MAX_Capacity_from_mAh(150)
+#define MAX_IChgTerm_default       MAX_Current_from_mA(200)
 
 #define MAX_RepCap                 0x05    //Reported remaining capacity of battery
 #define MAX_SoC                    0x06    //Remaining State of Charge in [%]. upper byte value is SoC with 1% resolution
@@ -45,7 +40,10 @@
 #define MAX_Power                  0xB1    //Instant power calculation from immediate current and voltage. The LSB is (8μV2) / Rsense.
 #define MAX_AvgPower               0xB3    //Filtered average power from the Power register. The LSB is (8μV2) / Rsense
 #define MAX_AvgTA                  0x34    //The AvgTA register reports an average of the readings of the measured temperature
+#define MAX_VFSOC				   0xFF		//calculated present SOC of the battery according to the voltage
 
+#define MAX_FullSOCThr			   0x13		//The FullSOCThr register gates detection of end-of-charge.
+#define MAX_FullSOCThr_value	   0x5005	//recommendation for EZ performance applications is 80%
 
 void max17260_init()
 {
@@ -56,17 +54,15 @@ void max17260_init()
     }
     else
     {
-        if (system_i2c_read16(MAX_ADR, MAX_DesignCap) != MAX_DesignCap_default)
-        {
-            system_i2c_write16(MAX_ADR, MAX_DesignCap, MAX_DesignCap_default);
-            system_i2c_write16(MAX_ADR, MAX_VEmpty, MAX_VEmpty_default);
-            system_i2c_write16(MAX_ADR, MAX_IChgTerm, MAX_IChgTerm_default);
-            INFO("max17260 re-inicialized");
-        }
+		system_i2c_write16(MAX_ADR, MAX_DesignCap, MAX_DesignCap_default);
+		system_i2c_write16(MAX_ADR, MAX_IChgTerm, MAX_IChgTerm_default);
+		system_i2c_write16(MAX_ADR, MAX_FullSOCThr, MAX_FullSOCThr_value);
 
         pwr.fuel_gauge.status = fc_dev_ready;
     }
 }
+
+#define CALIBRATED_CAP	4000 //mAh
 
 bool max17260_step()
 {
@@ -77,7 +73,7 @@ bool max17260_step()
 
 	next_time = HAL_GetTick() + 180;
 
-    if (pwr.fuel_gauge.status != fc_dev_ready)
+	if (pwr.fuel_gauge.status == fc_dev_error)
         return false;
 
     pwr.fuel_gauge.bat_voltage = MAX_Voltage_to_mV(system_i2c_read16(MAX_ADR, MAX_VCell));
@@ -85,12 +81,18 @@ bool max17260_step()
     pwr.fuel_gauge.bat_current = MAX_Current_to_mA(complement2_16bit(system_i2c_read16(MAX_ADR, MAX_Current)));
     pwr.fuel_gauge.bat_current_avg = MAX_Current_to_mA(complement2_16bit(system_i2c_read16(MAX_ADR, MAX_AvgCurrent)));
 
+    pwr.fuel_gauge.bat_current_avg_calc += (pwr.fuel_gauge.bat_current - pwr.fuel_gauge.bat_current_avg_calc) / 20;
+
     pwr.fuel_gauge.bat_cap = MAX_Capacity_to_mAh(system_i2c_read16(MAX_ADR, MAX_RepCap));
     pwr.fuel_gauge.bat_cap_full = MAX_Capacity_to_mAh(system_i2c_read16(MAX_ADR, MAX_FullCapRep));
 
-    pwr.fuel_gauge.battery_percentage = MAX_to_percent(system_i2c_read16(MAX_ADR, MAX_SoC));
+    pwr.fuel_gauge.battery_percentage = min(100, MAX_to_percent(system_i2c_read16(MAX_ADR, MAX_SoC)));
 
-    pwr.fuel_gauge.bat_time_to_full = MAX_Time_to_seconds(system_i2c_read16(MAX_ADR, MAX_TTF));
+    if (pwr.fuel_gauge.bat_cap_full > CALIBRATED_CAP)
+    	pwr.fuel_gauge.status = fc_dev_ready;
+    else
+    	pwr.fuel_gauge.status = fc_device_not_calibrated;
+
 
     return true;
 }

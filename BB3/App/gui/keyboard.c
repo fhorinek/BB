@@ -25,7 +25,7 @@ void keyboard_obj_event_cb(lv_obj_t * obj, lv_event_t event)
 	    {
             if (!lv_group_get_editing(lv_obj_get_group(gui.keyboard.area)))
             {
-                keyboard_hide();
+                //keyboard_hide();
             }
 	    }
 	}
@@ -86,6 +86,15 @@ void keyboard_anim_cb(void * obj, lv_anim_value_t val)
 {
 	lv_obj_set_y(gui.keyboard.obj, LV_VER_RES - val);
 	lv_obj_set_height(lv_scr_act(), LV_VER_RES - val);
+
+	if (gui.input.focus != NULL)
+	{
+		lv_obj_t * par = lv_obj_get_parent(gui.input.focus);
+	    lv_obj_set_size(par, LV_HOR_RES, LV_VER_RES - GUI_STATUSBAR_HEIGHT - val);
+
+	    if (gui.keyboard.area != NULL)
+	    	lv_page_focus(gui.input.focus, gui.keyboard.area, LV_ANIM_OFF);
+	}
 }
 
 void keyboard_show(lv_obj_t * area)
@@ -97,7 +106,6 @@ void keyboard_show(lv_obj_t * area)
 	lv_anim_init(&a);
 	lv_anim_set_values(&a, 0, GUI_KEYBOARD_SIZE);
 	lv_anim_set_exec_cb(&a, keyboard_anim_cb);
-	lv_anim_start(&a);
 
 	lv_group_add_obj(lv_obj_get_group(area), gui.keyboard.obj);
 	lv_group_focus_obj(gui.keyboard.obj);
@@ -106,9 +114,11 @@ void keyboard_show(lv_obj_t * area)
 
 	lv_keyboard_set_cursor_manage(gui.keyboard.obj, true);
 	lv_keyboard_set_textarea(gui.keyboard.obj, area);
-	gui.keyboard.area = area;
 
+	gui.keyboard.area = area;
 	gui.keyboard.showed = true;
+
+	lv_anim_start(&a);
 }
 
 void keyboard_hide()
@@ -130,4 +140,6 @@ void keyboard_hide()
 
 	gui.keyboard.area = NULL;
 	gui.keyboard.showed = false;
+
+	lv_anim_start(&a);
 }

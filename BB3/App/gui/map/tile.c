@@ -321,7 +321,8 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lat, int32_t step_x, int32_t 
     lv_canvas_ext_t * ext = lv_obj_get_ext_attr(canvas);
     uint16_t * image_buff = (uint16_t *)ext->dsc.data;
 
-    int16_t step_x_m = step_x * 111000 / GPS_COORD_MUL / lat_mult[lat / GPS_COORD_MUL];
+	uint8_t lat_i = min(60, abs(lat / GPS_COORD_MUL));
+    int16_t step_x_m = step_x * 111000 / GPS_COORD_MUL / lat_mult[lat_i];
     int16_t step_y_m = step_y * 111000 / GPS_COORD_MUL;
 
     for (uint16_t y = 0; y < MAP_H; y++)
@@ -399,7 +400,8 @@ void tile_get_steps(int32_t lat, uint8_t zoom, int32_t * step_x, int32_t * step_
 {
 	zoom += 1;
 	*step_x = (zoom * GPS_COORD_MUL) / MAP_DIV_CONST;
-	*step_y = (zoom * GPS_COORD_MUL / lat_mult[lat / GPS_COORD_MUL]) / MAP_DIV_CONST;
+	uint8_t lat_i = min(61, abs(lat / GPS_COORD_MUL));
+	*step_y = (zoom * GPS_COORD_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
 
 uint8_t tile_find_inside(int32_t lon, int32_t lat, uint8_t zoom)

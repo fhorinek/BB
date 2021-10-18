@@ -16,7 +16,7 @@ REGISTER_TASK_IL(gnss,
 	lv_obj_t * label_lon;
 );
 
-static bool gnss_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool gnss_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CLICKED)
 	{

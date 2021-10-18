@@ -6,6 +6,7 @@
  */
 
 #include "rtc.h"
+#include "etc/epoch.h"
 
 #define RTC_TAMP_SET    0xDEADBEE1
 #define RTC_TAMP_WAIT   0x0C0FFEE1
@@ -120,6 +121,14 @@ uint64_t rtc_get_epoch()
 
     HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 
-    return datetime_to_epoch(sTime.Seconds, sTime.Minutes, sTime.Hours, sDate.Date, sDate.Month, sDate.Year + RTC_START_YEAR);
+    uint64_t epoch = datetime_to_epoch(sTime.Seconds, sTime.Minutes, sTime.Hours, sDate.Date, sDate.Month, sDate.Year + RTC_START_YEAR);
+
+    if (epoch > 7258118400)
+    {
+    	WARN("RTC is in distant future!");
+    	epoch = 1609459200;
+    }
+
+    return epoch;
 }
 

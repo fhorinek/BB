@@ -16,6 +16,7 @@ lv_obj_t * units_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Use 24h time", &config.units.time24, NULL);
     gui_list_auto_entry(list, "Position", &config.units.geo_datum, NULL);
     gui_list_auto_entry(list, "Earth model", &config.units.earth_model, NULL);
+    gui_list_auto_entry(list, "GNSS Altitude", &config.units.galt, NULL);
 
     return list;
 }

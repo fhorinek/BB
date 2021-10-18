@@ -179,6 +179,7 @@ bool get_between(vario_tone_t * tone, int16_t climb, int16_t * freq, int16_t * d
 }
 
 static bool vario_is_silent = true;
+#define TONE_PROCESS_TIMEOUT 250
 
 void vario_play_tone(float vario)
 {
@@ -190,12 +191,15 @@ void vario_play_tone(float vario)
     if (current_profile == NULL)
         return;
 
-    if (!fc.esp.tone_ready)
+    if (fc.esp.tone_next_tx > HAL_GetTick())
         return;
+
+    if (fc.esp.tone_next_tx != 0)
+    	WARN("Vario tone ready signal timeout!");
 
     if (vario_int != last_value || vario_is_silent)
     {
-    	fc.esp.tone_ready = false;
+    	fc.esp.tone_next_tx = HAL_GetTick() + TONE_PROCESS_TIMEOUT;
 
     	last_value = vario_int;
         vario_is_silent = false;
@@ -227,13 +231,15 @@ void vario_silent()
 	if (vario_is_silent)
 		return;
 
-    if (!fc.esp.tone_ready)
+    if (fc.esp.tone_next_tx > HAL_GetTick())
         return;
 
-    fc.esp.tone_ready = false;
+    if (fc.esp.tone_next_tx != 0)
+    	WARN("Vario tone ready signal timeout!");
+
+	fc.esp.tone_next_tx = HAL_GetTick() + TONE_PROCESS_TIMEOUT;
 
 	vario_is_silent = true;
-
 
     proto_tone_play_t data;
     data.size = 0;

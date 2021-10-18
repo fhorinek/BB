@@ -11,7 +11,7 @@ REGISTER_TASK_IL(wifi,
     lv_obj_t * network;
 );
 
-static bool wifi_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool wifi_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CLICKED)
 	{

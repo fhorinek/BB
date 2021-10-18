@@ -72,7 +72,7 @@ void time_from_epoch(uint64_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * p
 
 void datetime_from_epoch(uint64_t epoch, uint8_t *psec, uint8_t *pmin, uint8_t *phour, uint8_t *pday, uint8_t *pwday, uint8_t *pmonth, uint16_t *pyear)
 {
-    uint8_t year;
+    uint32_t year;
     uint8_t month, monthLength;
     uint64_t days;
 

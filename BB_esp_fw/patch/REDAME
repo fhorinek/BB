@@ -1,0 +1,6 @@
+STRATO development note
+
+This folder containts files that enable esp-adf to allocate task memory from PSRAM.
+For our use it is essential since there is not much space left in internal memory.
+Every pipeline element will create its own freeRTOS task. 
+

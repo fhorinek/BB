@@ -129,7 +129,9 @@ anim_t * gfx_get_anim(uint8_t gfx_status)
     switch (gfx_status)
     {
         case(GFX_STATUS_CHARGE_NONE):
-            if (pwr.fuel_gauge.battery_percentage == 100)
+            if (pwr.fuel_gauge.battery_percentage == 100
+            		|| pwr.charge_port == PWR_CHARGE_DONE
+					|| pwr.charge_port == PWR_CHARGE_WEAK)
                 return NULL;
             else
                 return &charger_to_bat;
@@ -143,7 +145,9 @@ anim_t * gfx_get_anim(uint8_t gfx_status)
             }
             else
             {
-                if (pwr.fuel_gauge.battery_percentage == 100)
+                if (pwr.fuel_gauge.battery_percentage == 100
+                		|| pwr.charge_port == PWR_CHARGE_DONE
+    					|| pwr.charge_port == PWR_CHARGE_WEAK)
                     return NULL;
                 else
                     return &charger_to_bat;
@@ -161,7 +165,13 @@ anim_t * gfx_get_anim(uint8_t gfx_status)
 
         case(GFX_STATUS_NONE_DATA):
         case(GFX_STATUS_NONE_CHARGE):
+		{
+            if (pwr.fuel_gauge.battery_percentage == 100
+            		|| pwr.data_port == PWR_DATA_CHARGE_DONE)
+                return NULL;
+            else
             return &data_to_bat;
+        }
     }
 
     return NULL;
