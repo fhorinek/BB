@@ -45,7 +45,7 @@ class Feature(object):
             if "name" in dict_data["properties"]:
                 self.name = dict_data["properties"]["name"]
             if "ele" in dict_data["properties"]:
-                ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".")
+                ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","")
                 self.elevation = int(float(ele))
             
             

@@ -15,6 +15,7 @@ def pipeline_step3():
         "lon2": common.lon + common.step,
         "lat2": common.lat + common.step,
         "split": common.split,
+        "assets": common.assets_dir,
     }
 
     print("Processing tile %s" % common.tile_name)

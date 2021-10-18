@@ -136,6 +136,10 @@ storage_path = "/media/horinek/topo_data/OSM/data/"
 
 lon, lat = get_lonlat()
 tile_name = tile_filename(lon, lat)
+target_countries = os.path.join(storage_path, "countries.list")
+target_dir_borders_raw = os.path.join(storage_path, "borders", "raw")
+target_dir_borders_geo = os.path.join(storage_path, "borders", "geo")
+target_dir_borders_opti = os.path.join(storage_path, "borders", "opti")
 target_dir_step1 = os.path.join(storage_path, "step1", tile_name)
 target_dir_step2 = os.path.join(storage_path, "step2", tile_name)
 target_dir_step3 = os.path.join(storage_path, "step3", tile_name)
@@ -156,5 +160,6 @@ GPS_COORD_MUL = 10000000
 overpass_read_chunk_size = 4096
 #overpass_url = "http://overpass-api.de/api/interpreter"
 #overpass_url = "https://lz4.overpass-api.de/api/interpreter"
-overpass_url = "https://overpass.kumi.systems/api/interpreter"
+#overpass_url = "https://overpass.kumi.systems/api/interpreter"
+overpass_url = "http://localhost:12346/api/interpreter"
 
