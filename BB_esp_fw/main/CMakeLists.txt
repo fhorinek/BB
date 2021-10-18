@@ -1,6 +1,10 @@
 # Edit following two lines to set component requirements (see docs)
 
 idf_component_register(SRCS
+	"bluetooth/a2dp.c"
+	"bluetooth/ble.c"
+	"bluetooth/bluetooth.c"
+	"bluetooth/spp.c"
 	"drivers/i2c.c"
 	"drivers/spi.c"
 	"drivers/tas5720.c"

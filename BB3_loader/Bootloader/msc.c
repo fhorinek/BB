@@ -16,6 +16,8 @@
 #include "usbd_msc.h"
 
 #include "pwr_mng.h"
+#include "nvm.h"
+#include "drivers/led.h"
 
 volatile bool msc_locked = false;
 volatile bool msc_ejected = false;
@@ -24,6 +26,7 @@ volatile uint32_t msc_activity = 0;
 bool msc_loop()
 {
     INFO("USB mode on");
+	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
 
     uint8_t start_up = false;
 
@@ -39,6 +42,12 @@ bool msc_loop()
     while (1)
     {
         pwr_step();
+
+        if (button_pressed(BT1) ||button_pressed(BT2) || button_pressed(BT3) || button_pressed(BT4) || button_pressed(BT5))
+        {
+        	led_set_backlight(GFX_BACKLIGHT);
+        	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
+        }
 
         if (pwr.data_port == PWR_DATA_CHARGE && !usb_init)
         {
@@ -67,6 +76,7 @@ bool msc_loop()
             if (pwr.data_port == PWR_DATA_NONE)
             {
                 usb_init = false;
+                msc_locked = false;
                 USBD_DeInit(&hUsbDeviceHS);
             }
 
@@ -77,6 +87,7 @@ bool msc_loop()
                 pwr.data_port = PWR_DATA_NONE;
 				usb_init = false;
 				USBD_DeInit(&hUsbDeviceHS);
+				msc_locked = false;
             }
         }
         else
@@ -86,17 +97,35 @@ bool msc_loop()
                 pwr.data_port = PWR_DATA_NONE;
 				usb_init = false;
 				USBD_DeInit(&hUsbDeviceHS);
+				msc_locked = false;
         	}
         }
+
+        bool timer_update = next_update < HAL_GetTick();
 
         //change gfx status if needed
         if (old_charge != pwr.charge_port
         		|| old_data != pwr.data_port
 				|| old_data_mode != pwr.data_usb_mode
-				|| next_update < HAL_GetTick())
+				|| timer_update)
         {
+        	if (!timer_update)
+        	{
+				led_set_backlight(GFX_BACKLIGHT);
+				led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
+        	}
+
+
             //to update battery percentage
-            next_update = HAL_GetTick() + 2000;
+            next_update = HAL_GetTick() + 1000;
+
+            //add timeout so sudden power disconnect will not trigger weak charger warning
+            if (old_charge != pwr.charge_port
+            		&& old_charge > PWR_CHARGE_WEAK
+            		&& pwr.charge_port == PWR_CHARGE_WEAK)
+            	pwr_delay = HAL_GetTick() + 2000;
+
+            INFO("PWR %u %u %u %d", pwr.fuel_gauge.bat_cap, pwr.fuel_gauge.bat_cap_full, pwr.fuel_gauge.bat_voltage, pwr.fuel_gauge.bat_current);
 
             old_charge = pwr.charge_port;
             old_data = pwr.data_port;
@@ -124,7 +153,7 @@ bool msc_loop()
                 if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_ACTIVE)
                     gfx_draw_status(GFX_STATUS_NONE_DATA, NULL);
 
-                if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_CHARGE)
+                if (pwr.charge_port == PWR_CHARGE_NONE && (pwr.data_port == PWR_DATA_CHARGE || pwr.data_port == PWR_DATA_CHARGE_DONE))
                     gfx_draw_status(GFX_STATUS_NONE_CHARGE, NULL);
             }
 
@@ -137,28 +166,57 @@ bool msc_loop()
         }
 
         bool anim_done = gfx_draw_anim();
+        bool wait_anim_to_end = false;
 
-        //usb active but device unlocked
-        if (pwr.data_port == PWR_DATA_ACTIVE && !msc_locked && button_hold(BT3))
+        //no cable connected, wait for animation
+        if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_NONE)
         {
-            start_up = true;
-            break;
+        	wait_anim_to_end = true;
         }
 
-        //no usb comunication and power button pressed
-        if (pwr.data_port != PWR_DATA_ACTIVE && button_hold(BT3))
-        {
-            start_up = true;
-            break;
-        }
+		//charge done by alt charger
+		if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_CHARGE_DONE)
+		{
+			no_init->boot_type = BOOT_CHARGE;
+			no_init_update();
 
-        //no cable connected, animatin is done
-        if (pwr.charge_port == PWR_CHARGE_NONE
-        		&& pwr.data_port == PWR_DATA_NONE
-				&& anim_done
+			wait_anim_to_end = true;
+		}
+
+		//charge done by bq charger
+		if (pwr.charge_port == PWR_CHARGE_DONE && !msc_locked)
+		{
+			no_init->boot_type = BOOT_CHARGE;
+			no_init_update();
+
+			wait_anim_to_end = true;
+		}
+
+		//usb charging or active but msc unlocked
+		if (button_hold(BT3) && !msc_locked)
+		{
+			//start right now!
+			start_up = true;
+			break;
+		}
+
+		//weak charger connected
+		if (pwr.charge_port == PWR_CHARGE_WEAK
+				&& !msc_locked
 				&& pwr_delay < HAL_GetTick())
+		{
+			gfx_draw_status(GFX_STATUS_ERROR, "Weak charger!");
+			button_confirm(BT3);
+			start_up = false;
+			break;
+		}
+
+    	if (wait_anim_to_end)
         {
-            break;
+        	if (anim_done && pwr_delay < HAL_GetTick())
+        	{
+        		break;
+        	}
         }
 
         if (pwr_delay < HAL_GetTick() && anim_done)
@@ -173,6 +231,9 @@ bool msc_loop()
     }
 
     INFO("USB mode off");
+
+	led_set_backlight(GFX_BACKLIGHT);
+	led_set_backlight_timeout(0);
 
     return start_up;
 }

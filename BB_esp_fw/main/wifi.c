@@ -153,6 +153,10 @@ void wifi_wifi_events(void * null, esp_event_base_t event_base, int32_t event_id
 			}
 		break;
 
+		case(WIFI_EVENT_STA_BEACON_TIMEOUT):
+			WARN("WIFI station beacon timeout!");
+		break;
+
 		default:
 			INFO("unhandled WIFI EVENT: %s %d", event_base, event_id);
 	}
@@ -300,7 +304,7 @@ void wifi_connect(proto_wifi_connect_t * packet)
 
 	if (wifi_mode == WIFI_MODE_STA || wifi_mode == WIFI_MODE_APSTA)
 	{
-		INFO("Connect to '%s' pw '%s' ch %u", packet->ssid, packet->pass, packet->ch);
+		INFO("Connect to '%s' ch %u", packet->ssid, packet->ch);
 		DUMP(packet->mac, 6);
 		wifi_config_t * wifi_config = (wifi_config_t * )ps_malloc(sizeof(wifi_config_t));
 

@@ -27,6 +27,8 @@
 #include "drivers/sensors/mems_thread.h"
 #include "gui/gui_thread.h"
 
+#include "etc/epoch.h"
+
 //RTOS Tasks
 define_thread("Debug", thread_debug, 1024, osPriorityHigh);
 define_thread("GUI", thread_gui, 2048, osPriorityNormal);
@@ -133,27 +135,30 @@ void thread_system_start(void *argument)
     //wait for debug thread
     while (!debug_thread_ready) taskYIELD();
 
-    INFO("Strato");
-    INFO("HW rev: %02X", rev_get_hw());
-    INFO("FW stm: %08X", rew_get_sw());
-    INFO("\n\n");
-
     osDelay(100);
 	pwr_init();
-
-	//i2c_scan();
 
 	//init sd card
 	sd_init();
 
-	//load config
-	config_load_all();
-
     //rtc init
     rtc_init();
 
+	//load config
+	config_load_all();
+
 	//init PSRAM
 	PSRAM_init();
+
+	uint8_t sec, min, hour, day, wday, month;
+	uint16_t year;
+	datetime_from_epoch(rtc_get_epoch(), &sec, &min, &hour, &day, &wday, &month, &year);
+
+	INFO("\n\n --------------- %02u.%02u.%04u | %02u:%02u.%02u ---------------", day, month, year, hour, min, sec);
+
+    INFO("SkyBean Strato");
+    INFO("HW rev: %02X", rev_get_hw());
+    INFO("FW stm: %08X\n\n", rew_get_sw());
 
 	//start tasks
 	INFO("Starting tasks...");
@@ -174,8 +179,16 @@ void thread_system_start(void *argument)
 
 		bool gauge_updated = pwr_step();
 
+		static meas_next = 0;
+		if (meas_next < HAL_GetTick())
+		{
+			INFO("PWR %0.2fV, %dma", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current);
+			meas_next = HAL_GetTick() + 60 * 1000;
+		}
+
 		if (gauge_updated)
 		{
+
 			if ((pwr.fuel_gauge.bat_voltage < CRITICAL_VOLTAGE || pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
 				&& pwr.data_port == PWR_DATA_NONE
 				&& pwr.charger.charge_port == PWR_CHARGE_NONE)

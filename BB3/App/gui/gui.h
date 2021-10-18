@@ -31,7 +31,7 @@ typedef enum
     dialog_textarea,
     dialog_confirm,
     dialog_release_note,
-    dialog_bootloader,
+    dialog_dfu,
 } dialog_type_t;
 
 typedef enum
@@ -160,6 +160,7 @@ typedef struct
         lv_style_t widget_unit;
 		lv_style_t widget_box;
 		lv_style_t list_select;
+		lv_style_t note;
 		lv_style_t ctx_menu;
 		const lv_font_t * widget_fonts[NUMBER_OF_WIDGET_FONTS];
 	} styles;

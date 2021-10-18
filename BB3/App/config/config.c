@@ -275,7 +275,6 @@ void config_load(cfg_entry_t * structure, char * path)
 	{
 		WARN("Unable to open");
 	}
-	INFO("Reading configuration done.");
 }
 
 

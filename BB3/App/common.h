@@ -69,6 +69,7 @@ typedef struct
     int16_t x;
     int16_t y;
     int16_t z;
+    uint8_t _pad[2];
 } vector_i16_t;
 
 typedef struct
@@ -180,12 +181,15 @@ extern osThreadId_t SystemHandle;
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 #define PATH_LOGS_DIR       "logs"
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
+#define PATH_BL_FW_AUTO     PATH_ASSET_DIR "/bootloader.fw"
+#define PATH_BL_FW_MANUAL   "bootloader.fw"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
 
 #define PATH_TOPO_DIR       "agl"
 #define PATH_MAP_DIR        "map"
 #define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
 #define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
+#define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
 
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
@@ -220,7 +224,7 @@ int16_t complement2_16bit(uint16_t in);
 
 bool file_exists(char * path);
 bool file_isdir(char * path);
-bool touch(char * path);
+void touch(char * path);
 
 char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);
@@ -245,6 +249,8 @@ float table_cos(uint16_t angle);
 
 void system_reboot();
 void system_reboot_bl();
+
+uint8_t nmea_checksum(char *s);
 
 #include <system/debug_thread.h>
 

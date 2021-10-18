@@ -15,6 +15,8 @@
 #include "etc/format.h"
 
 #include "gui/statusbar.h"
+#include "gui/bluetooth.h"
+#include "gui/tasks/menu/bluetooth.h"
 
 #include "fc/fc.h"
 
@@ -125,7 +127,22 @@ void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch)
 
 void esp_set_bt_mode()
 {
+    proto_set_bt_mode_t data;
 
+    data.enabled = config_get_bool(&config.bluetooth.enabled);
+    data.a2dp = config_get_bool(&config.bluetooth.a2dp);
+    data.spp = config_get_bool(&config.bluetooth.spp);
+    data.ble = config_get_bool(&config.bluetooth.ble);
+    strncpy(data.name, config_get_text(&config.device_name), PROTO_BT_NAME_LEN);
+    strncpy(data.pin, config_get_text(&config.bluetooth.pin), PROTO_BT_PIN_LEN);
+
+    protocol_send(PROTO_BT_SET_MODE, (void *) &data, sizeof(data));
+
+    //if inside bluetooth menu, make bt discoverable
+    if (config_get_bool(&config.bluetooth.enabled) && gui.task.actual == &gui_bluetooth)
+    {
+    	bluetooth_discoverable(true);
+    }
 }
 
 void esp_configure()
@@ -190,6 +207,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 //    if (type != PROTO_DEBUG)
 //        DBG("protocol_handle %u", type);
 
+	fc.esp.last_ping = HAL_GetTick();
+
     switch(type)
     {
         case(PROTO_DEBUG): //Debug output
@@ -209,7 +228,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_PONG):
         {
-            DBG("Pong rx");
+        	//ping - pong
         }
         break;
 
@@ -234,7 +253,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             memcpy(fc.esp.mac_sta, packet->wifi_sta_mac, 6);
             memcpy(fc.esp.mac_bt, packet->bluetooth_mac, 6);
 
-            fc.esp.tone_ready = true;
+            //enable tone
+            fc.esp.tone_next_tx = 0;
         }
         break;
 
@@ -264,8 +284,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_TONE_ACK):
 		{
-			//DBG("Tone ready");
-			fc.esp.tone_ready = true;
+//			DBG("Tone ready");
+        	fc.esp.tone_next_tx = 0;
 		}
         break;
 
@@ -291,7 +311,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
             proto_wifi_connected_t * packet = (proto_wifi_connected_t *)data;
             db_insert(PATH_NETWORK_DB, packet->ssid, packet->pass);
-            sprintf(msg, "Connected to '%s'", packet->ssid);
+            sprintf(msg, "Connected to %s", packet->ssid);
             statusbar_add_msg(STATUSBAR_MSG_INFO, msg);
             strncpy(fc.esp.ssid, packet->ssid, PROTO_WIFI_SSID_LEN);
             fc.esp.state |= ESP_STATE_WIFI_CONNECTED;
@@ -357,6 +377,32 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         case(PROTO_FS_SAVE_FILE_REQ):
 			file_get_file_info((proto_fs_save_file_req_t *) data);
 		break;
+
+        case(PROTO_BT_MODE):
+		{
+        	proto_bt_mode_t * packet = (proto_bt_mode_t *)data;
+        	if (packet->enabled)
+        		fc.esp.state |= ESP_STATE_BT_ON;
+        	else
+        		fc.esp.state &= ~ESP_STATE_BT_ON;
+		}
+		break;
+
+        case(PROTO_BT_PAIR_REQ):
+		{
+        	bluetooth_pari_req((proto_bt_pair_req_t *)data);
+		}
+        break;
+
+        case(PROTO_BT_NOTIFY):
+		{
+        	bluetooth_notify((proto_bt_notify_t *)data);
+		}
+        break;
+
+        case(PROTO_TELE_SEND_ACK):
+			//telemety packet was send3
+        break;
 
         case(PROTO_FAKE_GNSS):
 		{

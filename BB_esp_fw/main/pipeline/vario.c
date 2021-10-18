@@ -168,7 +168,10 @@ tone_part_t * vario_create_part_fade(uint16_t freq, uint16_t duration, bool down
 void pipe_vario_replace(tone_part_t ** new_tones, uint8_t cnt)
 {
 	//if tone replacement is pending wait
-	while(to_remove != NULL);
+	while(to_remove != NULL)
+	{
+		taskYIELD();
+	}
 
 	xSemaphoreTake(pipes.vario.lock, WAIT_INF);
 

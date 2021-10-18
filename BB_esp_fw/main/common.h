@@ -53,7 +53,8 @@
 #define FANET_BOOT0         GPIO_NUM_26 //ACTIVE HIGH
 
 
-#define UART_BAUDRATE	115200
+//#define UART_BAUDRATE       921600
+#define UART_BAUDRATE       115200
 
 #define WAIT_INF    portMAX_DELAY
 

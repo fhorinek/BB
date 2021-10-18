@@ -20,7 +20,7 @@ void filemanager_ctx_cb(uint8_t index, lv_obj_t * obj)
 
 #define DIR_ICON	 LV_SYMBOL_DIRECTORY " "
 
-void filemanager_back()
+bool filemanager_back()
 {
 	if (local->level == 0)
 	{
@@ -46,10 +46,10 @@ void filemanager_back()
 		gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 		filemanager_open(new_path, old->level - 1, old->back, old->cb);
 	}
-
+	return true;
 }
 
-static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CANCEL)
 	{

@@ -42,7 +42,7 @@ typedef struct
 {
 	audio_pipeline_handle_t pipe;
 
-	audio_element_handle_t a2dp;
+	audio_element_handle_t bt;
 	audio_element_handle_t filter;
 	audio_element_handle_t raw;
 

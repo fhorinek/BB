@@ -322,23 +322,6 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 	return entry;
 }
 
-lv_obj_t * gui_list_checkbox_add_entry(lv_obj_t * list, const char * text)
-{
-	lv_obj_t * entry = lv_cont_create(list, NULL);
-	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
-	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
-	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	lv_page_glue_obj(entry, true);
-
-	lv_obj_t * checkbox = lv_checkbox_create(entry,  NULL);
-	lv_group_add_obj(gui.input.group, checkbox);
-	lv_checkbox_set_text(checkbox, text);
-	lv_obj_set_focus_parent(checkbox, true);
-
-	lv_obj_set_event_cb(checkbox, gui_list_event_cb);
-
-	return entry;
-}
 
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value)
 {
@@ -396,24 +379,6 @@ char * gui_list_info_get_name(lv_obj_t * obj)
     //switch widget is second last added child
     lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
     return lv_label_get_text(label);
-}
-
-
-
-lv_obj_t * gui_list_add_etc_entry(lv_obj_t * list, const char * text)
-{
-	lv_obj_t * entry = lv_cont_create(list, NULL);
-	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
-
-	lv_obj_t * label = lv_label_create(entry, NULL);
-	lv_label_set_text(label, text);
-
-	lv_obj_t * sw = lv_spinbox_create(entry,  NULL);
-	lv_group_add_obj(gui.input.group, sw);
-
-	lv_page_glue_obj(entry, true);
-
-	return sw;
 }
 
 lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height)
@@ -475,6 +440,21 @@ void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 	lv_textarea_set_text(textbox, value);
 }
 
+lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_t color)
+{
+	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.note);
+	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
+	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
+	lv_page_glue_obj(entry, true);
+	lv_obj_set_style_local_bg_color(entry, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, color);
+
+	lv_obj_t * label = lv_label_create(entry, NULL);
+	lv_label_set_text(label, text);
+	lv_obj_set_style_local_text_color(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+
+	return entry;
+}
 
 
 void gui_config_entry_clear()

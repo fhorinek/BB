@@ -5,6 +5,7 @@
  *      Author: horinek
  */
 
+#include <fc/telemetry/telemetry.h>
 #include "config.h"
 #include "entry.h"
 #include "etc/timezone.h"
@@ -65,6 +66,13 @@ cfg_entry_param_select_t vario_format_select[] =
     SELECT_END
 };
 
+cfg_entry_param_select_t galt_select[] =
+{
+    {GALT_ELLIPSOID, "Above ellipsoid"},
+    {GALT_MSL, "Above MSL"},
+    SELECT_END
+};
+
 cfg_entry_param_select_t timezone_select[] =
 {
 	{UTC_n1200, "-1200"},
@@ -121,6 +129,14 @@ cfg_entry_param_select_t logger_mode_select[] =
     {LOGGER_OFF, "off"},
     {LOGGER_FLIGHT, "flight"},
     {LOGGER_ALWAYS, "always"},
+    SELECT_END
+};
+
+cfg_entry_param_select_t protocol_type_select[] =
+{
+	{tele_lk8ex1, "LK8EX1"},
+    {tele_openvario, "OpenVario"},
+	{tele_none, "No telemetry"},
     SELECT_END
 };
 
@@ -318,13 +334,21 @@ config_t config =
 
     //bluetooth
     {
-        //a2dp
-        entry_bool("bt_a2dp", true),
+		//enabed
+		entry_bool("bt", true),
+		//a2dp
+		entry_bool("bt_a2dp", true),
+		//spp
+		entry_bool("bt_spp", true),
+		//ble
+		entry_bool("bt_ble", true),
+		//protocol
+		entry_select("bt_proto", tele_lk8ex1, protocol_type_select),
+		//forward_gnss
+		entry_bool("bt_fw_gnss", true),
         //volume
         entry_int("bt_volume", 75, 0, 100),
-        //name
-        entry_text("bt_name", "Strato", BLUETOOTH_NAME_LEN, 0),
-        //pin
+        //bt_pass
         entry_text("bt_pin", "1234", BLUETOOTH_PIN_LEN, 0),
     },
 
@@ -346,9 +370,7 @@ config_t config =
         entry_int("disp_bckl", 20, 0, 100),
         //backlight_timeout
         entry_int("disp_bckl_time", 30, 10, 120),
-		//show_msg
-        entry_bool("show_msg", true),
-		//show_msg
+		//bat_per
         entry_bool("bat_per", false),
 		//page_anim
         entry_bool("page_anim", true),
@@ -376,12 +398,14 @@ config_t config =
         entry_select("unit_geo_dat", GNSS_DDdddddd, gdatum_select),
         //earth_model
         entry_select("unit_earth", EARTH_WGS84, earth_model_select),
+        //galt
+        entry_select("unit_galt", GALT_ELLIPSOID, galt_select),
         //time24
         entry_bool("unit_time24", true),
         //date
         entry_select("unit_date", DATE_DDMMYYYY, date_format_select),
         //vario
-        entry_select("unit_vario", VARIO_MPS, vario_format_select)
+        entry_select("unit_vario", VARIO_MPS, vario_format_select),
     },
 
     //system
@@ -400,6 +424,8 @@ config_t config =
 		entry_bool("dbg_file", false),
 		//esp_off
 		entry_bool("dbg_esp_off", false),
+		//esp_off
+		entry_bool("dbg_esp_wdt", true),
 		//vario_random
 		entry_bool("dbg_vario_rnd", false),
 	},

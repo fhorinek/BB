@@ -26,7 +26,7 @@ static uint32_t ublox_start_time;
 
 void ublox_start_dma()
 {
-	WARN("GNSS Uart error");
+	//WARN("GNSS Uart error");
 	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 }
 
@@ -641,8 +641,10 @@ void ublox_step()
 		if (HAL_GetTick() - ublox_last_command_time > UBLOX_CMD_TIMEOUT)
 		{
 			WARN("Command %u timeouted, retry", ublox_last_command);
-			ublox_start_dma();
-			ublox_command(ublox_last_command);
+//			ublox_start_dma();
+//			osDelay(1);
+//			ublox_command(ublox_last_command);
+			ublox_init();
 		}
 	}
 

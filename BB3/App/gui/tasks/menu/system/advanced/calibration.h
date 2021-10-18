@@ -19,9 +19,13 @@ typedef enum
     calib_acc_py,
     calib_acc_pz,
     calib_acc_nz,
-    calib_mag
+    calib_mag_xy,
+	calib_mag_z
 } calib_state_t;
 
 DECLARE_TASK(calibration);
+
+void calibration_set_range(calib_state_t start, calib_state_t end);
+void calibration_imu_cb();
 
 #endif /* GUI_TASKS_MENU_CALIBRATION_H_ */

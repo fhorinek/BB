@@ -1,16 +1,12 @@
-Topic: Widget Bundle
+Topic: Connectivity
 
-Added widgets:
-- Glide ratio
-- Height AGL
-- Compass 
-- Ground heading
-- Battery
-- Odometer
-- Height above take-off
-- G-meter
+Added:
+- Bluetooth device management
+- BLE + SPP telemetry
+- Automatic bootloader update
 
 Fixes:
-- Power off batt. drain
+- Audio freeze during flight
+- Bluetooth playback quality
 
 

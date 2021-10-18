@@ -65,7 +65,7 @@ void widget_list_show_widget(uint8_t index)
     widget_init(&local->prev_ws, local->prev_obj);
 }
 
-static bool widget_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool widget_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CANCEL)
 	{

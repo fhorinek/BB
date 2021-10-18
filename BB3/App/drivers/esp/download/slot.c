@@ -111,7 +111,7 @@ void download_slot_reset()
     download_slot_unlock();
 }
 
-uint8_t download_slot_cancel(uint8_t data_id)
+void download_slot_cancel(uint8_t data_id)
 {
     if (download_slot[data_id] != NULL)
     {

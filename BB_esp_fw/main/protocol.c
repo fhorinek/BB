@@ -16,6 +16,8 @@
 #include "pipeline/sound.h"
 #include "pipeline/vario.h"
 #include "download.h"
+#include "bluetooth/bluetooth.h"
+
 #include "linked_list.h"
 
 static bool protocol_enable_processing = false;
@@ -23,6 +25,11 @@ static bool protocol_enable_processing = false;
 void protocol_enable()
 {
 	protocol_enable_processing = true;
+}
+
+void protocol_send_heartbeat()
+{
+	protocol_send(PROTO_PING, NULL, 0);
 }
 
 void protocol_send_info()
@@ -194,6 +201,41 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         		xSemaphoreGive(handle->read);
         	}
 		}
+        break;
+
+        case (PROTO_BT_SET_MODE):
+		{
+			proto_set_bt_mode_t * packet = (proto_set_bt_mode_t *) ps_malloc(sizeof(proto_set_bt_mode_t));
+			memcpy(packet, data, sizeof(proto_set_bt_mode_t));
+
+			xTaskCreate((TaskFunction_t)bt_set_mode, "bt_set_mode", 1024 * 3, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
+		}
+		break;
+
+        case (PROTO_BT_DISCOVERABLE):
+		{
+        	proto_bt_discoverable_t * packet = (proto_bt_discoverable_t *)data;
+        	bt_set_discoverable(packet);
+		}
+        break;
+
+        case (PROTO_BT_PAIR_RES):
+        {
+            proto_bt_pair_res_t * packet = (proto_bt_pair_res_t *)data;
+            bt_confirm_pair(packet);
+        }
+        break;
+
+        case (PROTO_BT_UNPAIR):
+        {
+            bt_unpair();
+        }
+        break;
+
+        case (PROTO_TELE_SEND):
+        {
+            bt_tele_send((proto_tele_send_t *)data);
+        }
         break;
 
         case (PROTO_FANET_BOOT0_CTRL):

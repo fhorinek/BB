@@ -34,13 +34,14 @@ static void GSpeed_update(widget_slot_t * slot)
     char value[8];
     if (fc.gnss.fix == 0)
     {
-    	strcpy(value, "No GNSS");
+    	strcpy(value, "No\nGNSS");
     }
     else
     {
 		format_speed(value, fc.gnss.ground_speed);
-		lv_label_set_text(local->value, value);
     }
+
+    lv_label_set_text(local->value, value);
     widget_update_font_size(local->value, slot->obj);
 }
 

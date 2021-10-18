@@ -25,7 +25,8 @@ const struct mf_font_s * gfx_desc;
 #define GFX_GREEN	2
 #define GFX_WHITE	3
 #define GFX_BLACK   4
-#define GFX_INVERT  5
+#define GFX_GRAY    5
+#define GFX_INVERT  6
 
 uint8_t gfx_color;
 uint8_t gfx_status;
@@ -67,6 +68,13 @@ static void pixel_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, v
             uint8_t r = (0b1111100000000000 & value) >> 8;
             uint8_t g = (0b0000011111100000 & value) >> 3;
             uint8_t b = (0b0000000000011111 & value) << 3;
+
+            alpha = min(0b11111100, alpha);
+
+            if (gfx_color == GFX_GRAY)
+            {
+           		alpha = 100;
+            }
 
             if (gfx_color != GFX_RED)
                 r = r > alpha ? r - alpha : 0;
@@ -144,7 +152,7 @@ void gfx_get_charge_type(char * text)
             strcpy(text, "");
         break;
         case(PWR_CHARGE_WEAK):
-            strcpy(text, "Weak source!");
+            strcpy(text, "Weak charger!");
         break;
         case(PWR_CHARGE_SLOW):
             strcpy(text, "Charging slow");
@@ -155,24 +163,31 @@ void gfx_get_charge_type(char * text)
         case(PWR_CHARGE_QUICK):
             strcpy(text, "Quick charge");
         break;
+        case(PWR_CHARGE_DONE):
+            strcpy(text, "Done");
+        break;
     }
 }
 
+void gfx_init()
+{
+	tft_init();
 
+	gfx_text = mf_find_font("Roboto_Bold28");
+	gfx_desc = mf_find_font("Roboto_Light28");
+	gfx_icons = mf_find_font("icons2");
+
+	gfx_anim_init();
+
+	gfx_bg_init = GFX_WHITE;
+}
 
 void gfx_draw_status(uint8_t status, const char * message)
 {
 	if (gfx_bg_init == GFX_NONE)
 	{
-		tft_init();
-	    led_set_backlight(10);
-
-		gfx_text = mf_find_font("Roboto_Bold28");
-		gfx_desc = mf_find_font("Roboto_Light28");
-		gfx_icons = mf_find_font("icons");
-
-		gfx_anim_init();
-
+		gfx_init();
+		led_set_backlight(GFX_BACKLIGHT);
 		srandom(0);
 	}
 
@@ -191,11 +206,11 @@ void gfx_draw_status(uint8_t status, const char * message)
     sub_text[0] = 0;
 
 	uint8_t color = GFX_BLACK;
-	gfx_status = status;
+	gfx_status = status & GFX_STATUS_MASK;
 
 	switch (gfx_status)
 	{
-        case(GFX_STATUS_CHARGE_NONE):
+		case(GFX_STATUS_CHARGE_NONE):
             {
                 strcpy(title, "Charging");
                 gfx_get_charge_type(text);
@@ -238,8 +253,16 @@ void gfx_draw_status(uint8_t status, const char * message)
         case(GFX_STATUS_NONE_CHARGE):
             {
                 strcpy(title, "Charging");
-                strcpy(text, "Slow charging");
-                strcpy(sub_text, "Switch ports!");
+                if (pwr.data_port == PWR_DATA_CHARGE)
+                {
+					strcpy(text, "Slow charging");
+					strcpy(sub_text, "Switch ports!");
+                }
+                else
+                {
+					strcpy(text, "Done");
+					strcpy(sub_text, "");
+                }
             }
         break;
         case(GFX_STATUS_NONE_NONE):
@@ -295,6 +318,32 @@ void gfx_draw_status(uint8_t status, const char * message)
             }
         break;
 
+        case(GFX_STARTUP_APP):
+            {
+        		color = (status & GFX_COLOR_MOD) ? GFX_BLACK : GFX_GRAY;
+                strcpy(icon, "8");
+                strcpy(title, "");
+                strcpy(text, message);
+            }
+        break;
+
+        case(GFX_STARTUP_TORCH):
+            {
+        		color = (status & GFX_COLOR_MOD) ? GFX_BLACK : GFX_GRAY;
+                strcpy(icon, "5");
+                strcpy(title, "");
+                strcpy(text, message);
+            }
+        break;
+
+        case(GFX_STARTUP_BAT):
+            {
+        		color = (status & GFX_COLOR_MOD) ? GFX_BLACK : GFX_GRAY;
+                strcpy(icon, "6");
+                strcpy(title, "");
+                strcpy(text, message);
+            }
+        break;
 	}
 
 //	INFO("%s: %s", title, text);
@@ -308,18 +357,34 @@ void gfx_draw_status(uint8_t status, const char * message)
 
         gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2, "6", MF_ALIGN_CENTER, gfx_icons);
 
-        uint16_t val = BAT_Y1 + BAT_H - (BAT_H * pwr.fuel_gauge.battery_percentage) / 100;
+        uint16_t val;
+
+        if (pwr.fuel_gauge.status == fc_dev_ready
+                || gfx_status < GFX_STATUS_CHARGING)
+        {
+        	val = BAT_Y1 + BAT_H - (BAT_H * pwr.fuel_gauge.battery_percentage) / 100;
+        }
+        else
+        {
+        	static uint8_t s = 0;
+        	s = (s + 1) % 4;
+
+        	val = BAT_Y1 + BAT_H - (BAT_H * s) / 3;
+        }
 
         gfx_rect(BAT_X1, BAT_Y1, BAT_X2, val, COLOR_WHITE);
         gfx_rect(BAT_X1, val, BAT_X2, BAT_Y2, COLOR_GREEN);
 
-        if (pwr.fuel_gauge.battery_percentage < 100)
-            sprintf(text, "%u%%", pwr.fuel_gauge.battery_percentage);
-        else
-            strcpy(text, "Full");
+        if (pwr.fuel_gauge.status == fc_dev_ready)
+        {
+			if (pwr.fuel_gauge.battery_percentage >= 100)
+				strcpy(text, "Full");
+			else
+				sprintf(text, "%u%%", pwr.fuel_gauge.battery_percentage);
 
-        gfx_color = GFX_BLACK;
-        gfx_draw_text(TFT_WIDTH / 2, BAT_Y1 + BAT_H / 2 - gfx_desc->height / 2, text, MF_ALIGN_CENTER, gfx_desc);
+	        gfx_color = GFX_BLACK;
+	        gfx_draw_text(TFT_WIDTH / 2, BAT_Y1 + BAT_H / 2 - gfx_desc->height / 2, text, MF_ALIGN_CENTER, gfx_desc);
+        }
 
         tft_refresh_buffer(0, 0, 239, GFX_ANIM_TOP);
 	}
@@ -332,14 +397,36 @@ void gfx_draw_status(uint8_t status, const char * message)
         	gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2, "6", MF_ALIGN_CENTER, gfx_icons);
         	gfx_rect(BAT_X1, BAT_Y1, BAT_X2, BAT_Y2, COLOR_WHITE);
         }
+        else if (gfx_status == GFX_STARTUP_BAT)
+        {
+        	gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2, "6", MF_ALIGN_CENTER, gfx_icons);
+        }
         else
         {
             gfx_draw_text(TFT_WIDTH / 2, (TFT_HEIGHT / 2) - gfx_icons->height / 2 - 50, icon, MF_ALIGN_CENTER, gfx_icons);
         }
 
         gfx_color = GFX_BLACK;
+
+        if (gfx_status >= GFX_STARTUP)
+        {
+        	char tmp[2];
+
+        	if (status & GFX_COLOR_MOD)
+        	{
+        		strcpy(tmp, "A");
+        	}
+        	else
+        	{
+        		strcpy(tmp, "9");
+        	}
+
+			gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 2 - gfx_icons->height - 10, tmp, MF_ALIGN_CENTER, gfx_icons);
+        }
+
         gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 3, title, MF_ALIGN_CENTER, gfx_text);
         gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - gfx_text->height * 2, text, MF_ALIGN_CENTER, gfx_desc);
+
         if (gfx_status == GFX_STATUS_UPDATE)
             tft_refresh_buffer(0, 0, 239, GFX_PROGRESS_TOP - 1);
         else
@@ -432,14 +519,25 @@ bool gfx_draw_anim()
 
 			sprintf(cc, "%s %u%u", mode, (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
 			gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48, cc, MF_ALIGN_RIGHT, gfx_desc);
+
+			if (gfx_status == GFX_STATUS_NONE_BOOST)
+			{
+				char boost[8];
+				sprintf(boost, "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
+				gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 25, boost, MF_ALIGN_RIGHT, gfx_desc);
+			}
 		}
 
-		if (gfx_status == GFX_STATUS_NONE_BOOST)
-		{
-			char boost[8];
-			sprintf(boost, "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
-			gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 22, boost, MF_ALIGN_RIGHT, gfx_desc);
-		}
+		char tmp[16];
+		sprintf(tmp, "%+d mA", pwr.fuel_gauge.bat_current);
+		gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 50, tmp, MF_ALIGN_RIGHT, gfx_desc);
+
+		sprintf(tmp, "%0.2fV", pwr.fuel_gauge.bat_voltage / 100.0);
+		gfx_draw_text(10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 50, tmp, MF_ALIGN_LEFT, gfx_desc);
+		sprintf(tmp, "%u%%", pwr.fuel_gauge.battery_percentage);
+		gfx_draw_text(10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 25, tmp, MF_ALIGN_LEFT, gfx_desc);
+		sprintf(tmp, "%u/%u", pwr.fuel_gauge.bat_cap, pwr.fuel_gauge.bat_cap_full);
+		gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 + 50, tmp, MF_ALIGN_CENTER, gfx_desc);
     }
 
     tft_refresh_buffer(0, GFX_ANIM_TOP, 239, GFX_ANIM_BOTTOM - 1);
@@ -447,8 +545,3 @@ bool gfx_draw_anim()
     return done;
 }
 
-void gfx_anim_wait()
-{
-    gfx_draw_status(GFX_STATUS_NONE_NONE, NULL);
-    while(!gfx_draw_anim());
-}

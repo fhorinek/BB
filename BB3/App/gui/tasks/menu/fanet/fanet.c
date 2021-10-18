@@ -12,7 +12,7 @@ REGISTER_TASK_IL(fanet,
 	uint8_t magic;
 );
 
-static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 
 	return true;

@@ -17,4 +17,36 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>com.espressif.idf.core.idfNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>esp-adf</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/esp/esp-adf</locationURI>
+		</link>
+		<link>
+			<name>esp-idf</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/esp/esp-idf</locationURI>
+		</link>
+	</linkedResources>
+	<filteredResources>
+		<filter>
+			<id>1632300567904</id>
+			<name>esp-adf</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-esp-idf</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1632900247401</id>
+			<name>esp-idf</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-examples</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>

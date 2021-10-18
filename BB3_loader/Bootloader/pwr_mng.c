@@ -9,6 +9,7 @@
 #include "pwr_mng.h"
 #include "drivers/bq25895.h"
 #include "drivers/max17260.h"
+#include "gfx.h"
 
 volatile power_mng_t pwr;
 
@@ -61,6 +62,8 @@ void pwr_data_mode(pwr_data_mode_t mode)
     switch (mode)
     {
         case(dm_client):
+			pwr.data_port = PWR_DATA_NONE;
+
         	//NG Client mode
             GpioWrite(NG_CDP_CLM_1, LOW);
             GpioWrite(NG_CDP_CLM_2, HIGH);
@@ -100,9 +103,12 @@ void pwr_data_mode(pwr_data_mode_t mode)
     }
 }
 
-#define DEVICE_DRAW		600ul
-#define MAX_BOOST_DRAW	8000ul
-#define MAX_BOOST_GAP	500ul
+#define DEVICE_IDLE_DRAW		700ul	//mW
+#define MAX_BOOST_DRAW			8000ul	//mW
+#define MAX_BOOST_GAP			500ul	//mW
+
+//#define ALT_CHARGER_DONE_CURR	50 //mA
+#define ALT_CHARGER_DONE_CURR	150 //mA
 
 void pwr_step()
 {
@@ -116,7 +122,29 @@ void pwr_step()
         {
             if (pwr.data_port == PWR_DATA_NONE)
             {
-                pwr.data_port = PWR_DATA_CHARGE;
+				pwr.data_port = PWR_DATA_CHARGE;
+            }
+
+            //I am main charger!
+            if (pwr.data_port == PWR_DATA_CHARGE
+            		&& pwr.charge_port == PWR_CHARGE_NONE)
+            {
+				if (pwr.fuel_gauge.battery_percentage == 100)
+				{
+            		pwr.data_port = PWR_DATA_CHARGE_DONE;
+				}
+            	else
+            	{
+            		pwr.data_port = PWR_DATA_CHARGE;
+
+					if (pwr.fuel_gauge.bat_current < 0)
+					{
+						INFO("Resetting ALT charger");
+						GpioWrite(ALT_CH_EN, HIGH);
+						HAL_Delay(10);
+						GpioWrite(ALT_CH_EN, LOW);
+					}
+            	}
             }
 
             //charge port present
@@ -161,29 +189,53 @@ void pwr_step()
 
     if (pwr.data_usb_mode == dm_host_boost)
     {
-        uint32_t output = (abs(pwr.fuel_gauge.bat_current_avg_calc) * pwr.fuel_gauge.bat_voltage * 10) / 1000;
-//        if (output < DEVICE_DRAW)
-//        {
-//            pwr.boost_output = 0;
-//        }
-//        else
-//        {
-//            pwr.boost_output = output - DEVICE_DRAW;
-//        }
+        uint32_t avg_output = (abs(pwr.fuel_gauge.bat_current_avg_calc) * pwr.fuel_gauge.bat_voltage * 10) / 1000;
+        uint32_t fast_output = (abs(pwr.fuel_gauge.bat_current) * pwr.fuel_gauge.bat_voltage * 10) / 1000;
 
-        pwr.boost_output = output;
+        if (avg_output < DEVICE_IDLE_DRAW)
+            pwr.boost_output = 0;
+        else
+            pwr.boost_output = avg_output - DEVICE_IDLE_DRAW;
 
-        if (output > MAX_BOOST_DRAW)
+        static uint32_t overdraw_timer = 0;
+
+        if (fast_output > MAX_BOOST_DRAW || (fast_output < DEVICE_IDLE_DRAW))
         {
         	if (pwr.boost_volt > 0b0000)
+        	{
         		pwr.boost_volt -= 1;
-        	bq25895_boost_voltage(pwr.boost_volt);
+        		bq25895_boost_voltage(pwr.boost_volt);
+        	}
+        	else if (fast_output > MAX_BOOST_DRAW )
+        	{
+        		if (overdraw_timer == 0)
+        		{
+        			overdraw_timer = HAL_GetTick() + 500;
+        		}
+
+				if (overdraw_timer < HAL_GetTick())
+				{
+					pwr_data_mode(dm_client);
+					gfx_draw_status(GFX_STATUS_ERROR, "High power draw");
+					button_confirm(BT3);
+				}
+        	}
+
         }
-        else if (output < (MAX_BOOST_DRAW - MAX_BOOST_GAP))
+        else if (fast_output < (MAX_BOOST_DRAW - MAX_BOOST_GAP) && (fast_output > DEVICE_IDLE_DRAW))
         {
-        	if (pwr.boost_volt < 0b1111)
-        		pwr.boost_volt += 1;
-        	bq25895_boost_voltage(pwr.boost_volt);
+        	overdraw_timer = 0;
+
+        	static uint32_t inc_timer = 0;
+
+        	if (inc_timer < HAL_GetTick())
+        	{
+				if (pwr.boost_volt < 0b1111)
+					pwr.boost_volt += 1;
+				bq25895_boost_voltage(pwr.boost_volt);
+
+				inc_timer = HAL_GetTick() + 100;
+        	}
         }
 
 

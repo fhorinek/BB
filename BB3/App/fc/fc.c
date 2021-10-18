@@ -113,6 +113,7 @@ void fc_init()
 
 	fc_reset();
 	logger_init();
+	telemetry_init();
 
 	fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
 	osTimerStart(fc_timer, FC_STEP_PERIOD);
@@ -122,6 +123,7 @@ void fc_deinit()
 {
 	INFO("Flight computer deinit");
 	logger_stop();
+	telemetry_stop();
 	osTimerStop(fc.history.timer);
 	osTimerStop(fc_timer);
 }

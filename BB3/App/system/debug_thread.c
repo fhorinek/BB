@@ -13,6 +13,9 @@
 #include <sys/_stdint.h>
 #include <task.h>
 
+#include "etc/epoch.h"
+#include "drivers/rtc.h"
+
 #include "fatfs.h"
 
 void debug_dump(uint8_t * data, uint16_t len)
@@ -108,7 +111,7 @@ void debug_send(uint8_t type, const char *format, ...)
         name = "BOOT";
     }
 
-    uint16_t head_lenght = snprintf(msg, sizeof(msg), "\n[%s][%c] ", name, debug_label[type]);
+    uint16_t head_lenght = snprintf(msg, sizeof(msg), "\n[%lu][%s][%c] ", HAL_GetTick(), name, debug_label[type]);
 
     //Message boddy
     va_start(arp, format);
@@ -212,7 +215,6 @@ void thread_debug_start(void *argument)
 	bool debug_file_open = false;
 
     debug_thread_ready = true;
-	INFO("\n\n\n-----------------------------------------------------------------------------");
 
 	for(;;)
 	{
@@ -238,6 +240,8 @@ void thread_debug_start(void *argument)
 
             if (config_get_bool(&config.debug.use_file))
             {
+            	UINT bw;
+
             	//open
             	if (!debug_file_open)
             	{
@@ -246,7 +250,6 @@ void thread_debug_start(void *argument)
             	}
 
             	//write
-            	UINT bw;
             	f_write(&debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit, &bw);
             	//sync
             	f_sync(&debug_file);

@@ -419,7 +419,7 @@ bool file_exists(char * path)
     return (f_stat(path, &fno) == FR_OK);
 }
 
-bool touch(char * path)
+void touch(char * path)
 {
 	FIL f;
     f_open(&f, path, FA_CREATE_ALWAYS);
@@ -434,4 +434,14 @@ bool file_isdir(char * path)
     	return fno.fattrib & AM_DIR;
     }
     return false;
+}
+
+uint8_t nmea_checksum(char *s)
+{
+	uint8_t c = 0;
+
+    while(*s)
+        c ^= *s++;
+
+    return c;
 }

@@ -23,7 +23,7 @@ void pipeline_loop(void *pvParameters)
 
 		if (ret != ESP_OK)
 		{
-			INFO("[ * ] Event interface error : %d", ret);
+			INFO("Event interface error : %d", ret);
 			continue;
 		}
 
@@ -35,9 +35,12 @@ void pipeline_loop(void *pvParameters)
 //			continue;
 //		}
 
+		INFO("Action command: src_type:%d, source:%p cmd:%d, data:%p, data_len:%d",
+		                   msg.source_type, msg.source, msg.cmd, msg.data, msg.data_len);
+
 		if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT)
 		{
-			if (msg.source == (void *) pipes.bluetooth.a2dp)
+			if (msg.source == (void *) pipes.bluetooth.bt)
 			{
 				pipe_bluetooth_event(&msg);
 				continue;
@@ -61,7 +64,7 @@ void pipeline_loop(void *pvParameters)
 
 void pipeline_monitor()
 {
-	uint16_t a2dp = rb_bytes_available(audio_element_get_output_ringbuf(pipes.bluetooth.a2dp));
+	uint16_t a2dp = rb_bytes_available(audio_element_get_output_ringbuf(pipes.bluetooth.bt));
 	uint16_t filter = rb_bytes_available(audio_element_get_output_ringbuf(pipes.bluetooth.filter));
 
 	uint16_t vario = rb_bytes_available(audio_element_get_output_ringbuf(pipes.vario.stream));
@@ -84,12 +87,12 @@ void pipeline_init()
 	pipe_sound_init();
 	print_free_memory("pipe_sound_init");
 
-	pipe_bluetooth_init();
-	print_free_memory("pipe_bluetooth_init");
+//	pipe_bluetooth_init();
+//	print_free_memory("pipe_bluetooth_init");
 
 	pipe_vario_init();
 	print_free_memory("pipe_vario_init");
 
-	xTaskCreate(pipeline_loop, "pipeline_loop", 1024, NULL, 15, NULL);
+	xTaskCreate(pipeline_loop, "pipeline_loop", 2048, NULL, 15, NULL);
 }
 
