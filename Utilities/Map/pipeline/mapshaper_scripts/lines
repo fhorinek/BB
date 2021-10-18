@@ -1,5 +1,7 @@
 #DROP_POLYGONS
 
+i %assets%/fake_lines.geojson
+
 #simplify
 simplify 45%
 
