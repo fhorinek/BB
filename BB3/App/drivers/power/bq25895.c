@@ -163,8 +163,9 @@ void bq25895_step()
             break;
 
             case 0b111:
-                //DBG("OTG");
-                WARN("BQ in unexpected state OTG");
+                //providing power of powering up the negotiator
+            	pwr.charger.charge_port = PWR_CHARGE_NONE;
+                //WARN("BQ in unexpected state OTG");
                 //Error_Handler();
             break;
         }

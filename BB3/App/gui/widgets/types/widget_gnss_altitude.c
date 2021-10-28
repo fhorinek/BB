@@ -39,9 +39,13 @@ static void GAlt_update(widget_slot_t * slot)
     else
     {
     	if (config_get_select(&config.units.galt) == GALT_ELLIPSOID)
+    	{
     		format_altitude(value, fc.gnss.altitude_above_ellipsiod);
+    	}
     	else
+    	{
     		format_altitude(value, fc.gnss.altitude_above_msl);
+    	}
 
 		lv_label_set_text(local->value, value);
     }

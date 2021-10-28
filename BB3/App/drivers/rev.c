@@ -27,10 +27,10 @@ uint32_t rev_get_short_id()
 
 void rev_get_sw_string(char * str)
 {
-    sprintf(str, "%c%07lu", (char)((rew_get_sw() & 0xFF000000) >> 24), rew_get_sw() & 0x00FFFFFF);
+    sprintf(str, "%c%07lu", (char)((rev_get_sw() & 0xFF000000) >> 24), rev_get_sw() & 0x00FFFFFF);
 }
 
-uint32_t rew_get_sw()
+uint32_t rev_get_sw()
 {
     return nvm->app.build_number;
 }

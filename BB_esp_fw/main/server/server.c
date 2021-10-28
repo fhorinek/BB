@@ -17,23 +17,37 @@ static httpd_handle_t server = NULL;
 
 static const char * TAG = "Server";
 
+static uint16_t req_id = 0;
+
 esp_err_t index_get_handler(httpd_req_t *req)
 {
+	uint32_t start = get_ms();
+	uint16_t id = req_id++;
+
+	INFO("[%u] index_get_handler", id);
 	render_page(req, "/index.htm");
+	INFO("[%u] done %lu ms", id, get_ms() - start);
 
     return ESP_OK;
 }
 
 esp_err_t page_get_handler(httpd_req_t *req)
 {
-	render_page(req, (char *)req->uri);
+	uint32_t start = get_ms();
+	uint16_t id = req_id++;
 
-    return ESP_OK;
-}
+	INFO("[%u] page_get_handler '%s'", id, (char *)req->uri);
 
-esp_err_t file_get_handler(httpd_req_t *req)
-{
-	send_file(req, (char *)req->uri);
+	char * ext = strrchr((char *)req->uri, '.');
+	if (ext != NULL)
+		ext++;
+
+	if (ext == NULL || strcmp(ext, "htm") == 0)
+		render_page(req, (char *)req->uri);
+	else
+		send_file(req, (char *)req->uri);
+
+	INFO("[%u] done %lu ms", id, get_ms() - start);
 
     return ESP_OK;
 }
@@ -42,13 +56,6 @@ static const httpd_uri_t index_handler = {
     .uri       = "/",
     .method    = HTTP_GET,
     .handler   = index_get_handler,
-    .user_ctx  = NULL,
-};
-
-static const httpd_uri_t page_handler = {
-    .uri       = "*.htm",
-    .method    = HTTP_GET,
-    .handler   = page_get_handler,
     .user_ctx  = NULL,
 };
 
@@ -88,10 +95,10 @@ static const httpd_uri_t api_fake_gnss_h = {
 };
 
 
-static const httpd_uri_t file_handler = {
+static const httpd_uri_t page_handler = {
     .uri       = "*",
     .method    = HTTP_GET,
-    .handler   = file_get_handler,
+    .handler   = page_get_handler,
     .user_ctx  = NULL,
 };
 
@@ -131,12 +138,11 @@ void server_init()
     {
         httpd_register_uri_handler(server, &index_handler);
         httpd_register_uri_handler(server, &api_handler);
-        httpd_register_uri_handler(server, &page_handler);
         httpd_register_uri_handler(server, &api_fs_list);
         httpd_register_uri_handler(server, &api_fs_get_file);
         httpd_register_uri_handler(server, &api_fs_save_file);
         httpd_register_uri_handler(server, &api_fake_gnss_h);
-        httpd_register_uri_handler(server, &file_handler);
+        httpd_register_uri_handler(server, &page_handler);
 
 //        httpd_register_basic_auth(server);
     }

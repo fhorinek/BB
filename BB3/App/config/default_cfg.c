@@ -399,7 +399,7 @@ config_t config =
         //earth_model
         entry_select("unit_earth", EARTH_WGS84, earth_model_select),
         //galt
-        entry_select("unit_galt", GALT_ELLIPSOID, galt_select),
+        entry_select("unit_galt", GALT_MSL, galt_select),
         //time24
         entry_bool("unit_time24", true),
         //date
@@ -411,7 +411,7 @@ config_t config =
     //system
     {
         //server url
-        entry_text("server_url", "https://strato.skybean.eu/update", UPDATE_URL_LEN, 0),
+        entry_text("update_url", "https://strato.skybean.eu/update", UPDATE_URL_LEN, 0),
         //firmware_channel
         entry_select("fw_channel", FW_DEVEL, firmware_channel_select),
     },
@@ -419,9 +419,11 @@ config_t config =
 	//debug
 	{
 		//use_serial
-		entry_bool("dbg_serial", true),
+		entry_bool("dbg_serial", false),
 		//use_file
 		entry_bool("dbg_file", false),
+		//use_usb
+		entry_bool("dbg_usb", false),
 		//esp_off
 		entry_bool("dbg_esp_off", false),
 		//esp_off

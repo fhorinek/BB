@@ -11,17 +11,18 @@
 #include "common.h"
 #include "fc/fc.h"
 
-#define PWR_CHARGE_NONE	    0
-#define PWR_CHARGE_WEAK     1
-#define PWR_CHARGE_SLOW     2
-#define PWR_CHARGE_FAST	    3
-#define PWR_CHARGE_QUICK    4
-#define PWR_CHARGE_UNKNOWN  5
-#define PWR_CHARGE_DONE  	6
+#define PWR_CHARGE_NONE	    	0
+#define PWR_CHARGE_WEAK     	1
+#define PWR_CHARGE_SLOW     	2
+#define PWR_CHARGE_FAST	    	3
+#define PWR_CHARGE_QUICK    	4
+#define PWR_CHARGE_UNKNOWN  	5
+#define PWR_CHARGE_DONE  		6
 
-#define PWR_DATA_NONE	    0
-#define PWR_DATA_CHARGE     1
-#define PWR_DATA_ACTIVE     2
+#define PWR_DATA_NONE	    	0
+#define PWR_DATA_CHARGE     	1
+#define PWR_DATA_ACTIVE     	2
+#define PWR_DATA_CHARGE_DONE	3
 
 typedef struct
 {

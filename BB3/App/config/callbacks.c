@@ -111,6 +111,13 @@ void disp_bck_cb(cfg_entry_t * entry)
 	led_set_backlight(val);
 }
 
+void dbg_usb_cb(cfg_entry_t * entry)
+{
+	bool val = config_get_bool(entry);
+	INFO("USB debug is now %sabled", val ? "en" : "dis");
+}
+
+
 cfg_callback_pair_t config_callbacks[] =
 {
     {&config.device_name, dev_name_cb},
@@ -124,6 +131,7 @@ cfg_callback_pair_t config_callbacks[] =
     {&config.wifi.ap, wifi_mode_cb},
 	{&config.display.backlight, disp_bck_cb},
 	{&config.debug.esp_off, dbg_esp_off_cb},
+	{&config.debug.use_usb, dbg_usb_cb},
     {&profile.fanet.enabled, fanet_enable_cb},
     {&profile.fanet.flarm, flarm_enable_cb},
     {&profile.fanet.air_type, flarm_config_cb},
