@@ -16,6 +16,11 @@
 #include "etc/epoch.h"
 #include "drivers/rtc.h"
 
+#include "usb_device.h"
+#include "usbd_cdc_if.h"
+
+extern USBD_HandleTypeDef hUsbDeviceHS;
+
 #include "fatfs.h"
 
 void debug_dump(uint8_t * data, uint16_t len)
@@ -211,6 +216,8 @@ void thread_debug_start(void *argument)
     osSemaphoreRelease(debug_dma_done);
     osSemaphoreRelease(debug_data);
 
+    bool usb_init = false;
+
 	FIL debug_file;
 	bool debug_file_open = false;
 
@@ -254,6 +261,26 @@ void thread_debug_start(void *argument)
             	//sync
             	f_sync(&debug_file);
             }
+
+            if (config_get_bool(&config.debug.use_usb))
+            {
+            	if (!usb_init)
+            	{
+            		MX_USB_DEVICE_Init();
+            		usb_init = true;
+            	}
+
+            	CDC_Transmit_HS((uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+            }
+            else
+            {
+            	if (usb_init)
+            	{
+            		USBD_DeInit(&hUsbDeviceHS);
+            		usb_init = false;
+            	}
+            }
+
 
             debug_tx_buffer_lenght -= to_transmit;
             debug_tx_buffer_read_index = (debug_tx_buffer_read_index + to_transmit) % DEBUG_TX_BUFFER;

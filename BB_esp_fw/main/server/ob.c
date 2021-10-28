@@ -74,5 +74,7 @@ output_buffer_t * ob_create(httpd_req_t * req, uint32_t size)
 	ob->size = size;
 	ob->send = 0;
 
+	httpd_resp_set_hdr(req, "Connection", "close");
+
 	return ob;
 }

@@ -9,6 +9,11 @@
 
 esp_system_status_t system_status = {0};
 
+uint32_t get_ms()
+{
+	return esp_timer_get_time() / 1000;
+}
+
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data)
 {
     uint8_t i;

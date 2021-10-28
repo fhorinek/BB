@@ -71,6 +71,7 @@ void send_file(httpd_req_t * req, char * path)
 	uint32_t readed;
 
 	set_mime_type(req, path);
+	httpd_resp_set_hdr(req, "Connection", "close");
 
 	do
 	{

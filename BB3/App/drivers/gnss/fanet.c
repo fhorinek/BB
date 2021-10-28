@@ -17,7 +17,7 @@ static uint8_t fanet_bootloader_state;
 
 void fanet_start_dma()
 {
-	//WARN("GNSS Uart error");
+	//WARN("FANET Uart error");
 	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
 }
 
@@ -414,7 +414,7 @@ void fanet_transmit_pos()
 
 	float lat = fc.gnss.latitude / (float)GNSS_MUL;
 	float lon = fc.gnss.longtitude / (float)GNSS_MUL;
-	float alt = fc.gnss.altitude_above_ellipsiod;
+	float alt = fc.gnss.altitude_above_msl;
 
 	uint16_t year;
 	uint8_t month;
@@ -430,7 +430,7 @@ void fanet_transmit_pos()
 	month -= 1;
 
 	float speed = 0;
-	float climb = 0;
+	float climb = fc.fused.vario;
 	int16_t hdg = fc.gnss.heading;
 	float deg_s = 0;
 

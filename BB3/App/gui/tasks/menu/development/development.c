@@ -11,7 +11,6 @@
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
     lv_obj_t * esp_boot0;
-    lv_obj_t * usb_otg_pin;
     lv_obj_t * trigger;
 
     uint8_t slot;
@@ -96,11 +95,6 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
             esp_boot0_ctrl(val);
         }
 
-		if (obj == local->usb_otg_pin)
-        {
-            bool val = gui_list_switch_get_value(local->usb_otg_pin);
-            GpioWrite(BQ_OTG, val);
-        }
 	}
 
 	if (event == LV_EVENT_CLICKED)
@@ -136,9 +130,9 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "ESP Watchdog", &config.debug.esp_wdt, NULL);
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
     local->esp_boot0 = gui_list_switch_add_entry(list, "ESP boot0", false);
-    local->usb_otg_pin = gui_list_switch_add_entry(list, "USB OTG pin", GpioRead(BQ_OTG));
     gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
     gui_list_auto_entry(list, "Debug to file", &config.debug.use_file, NULL);
+    gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
 
 	return list;

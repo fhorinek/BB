@@ -276,17 +276,24 @@ void statusbar_step()
 
     }
 
-    if (fc.gnss.fix == 3)
+    if (fc.gnss.status == fc_dev_init)
     {
-    	set_icon(BAR_ICON_GNSS, I_SHOW);
-    }
-    else if (fc.gnss.fix == 2)
-    {
-    	set_icon(BAR_ICON_GNSS, I_YELLOW);
+		set_icon(BAR_ICON_GNSS, I_RED | I_BLINK | I_FAST);
     }
     else
     {
-    	set_icon(BAR_ICON_GNSS, I_SHOW | I_BLINK);
+		if (fc.gnss.fix == 3)
+		{
+			set_icon(BAR_ICON_GNSS, I_SHOW);
+		}
+		else if (fc.gnss.fix == 2)
+		{
+			set_icon(BAR_ICON_GNSS, I_YELLOW);
+		}
+		else
+		{
+			set_icon(BAR_ICON_GNSS, I_SHOW | I_BLINK);
+		}
     }
 
     fc_logger_status_t logger = logger_state();

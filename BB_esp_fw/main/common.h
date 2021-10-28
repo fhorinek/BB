@@ -83,5 +83,7 @@ typedef struct
 extern esp_system_status_t system_status;
 
 void print_free_memory(char * label);
+uint32_t get_ms();
+
 
 #endif /* MAIN_COMMON_H_ */

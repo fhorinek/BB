@@ -156,9 +156,12 @@ void thread_system_start(void *argument)
 
 	INFO("\n\n --------------- %02u.%02u.%04u | %02u:%02u.%02u ---------------", day, month, year, hour, min, sec);
 
+	char tmp[16];
+
     INFO("SkyBean Strato");
     INFO("HW rev: %02X", rev_get_hw());
-    INFO("FW stm: %08X\n\n", rew_get_sw());
+    rev_get_sw_string(tmp);
+    INFO("FW stm: %s\n\n", tmp);
 
 	//start tasks
 	INFO("Starting tasks...");
@@ -179,7 +182,7 @@ void thread_system_start(void *argument)
 
 		bool gauge_updated = pwr_step();
 
-		static meas_next = 0;
+		static uint32_t meas_next = 0;
 		if (meas_next < HAL_GetTick())
 		{
 			INFO("PWR %0.2fV, %dma", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current);
