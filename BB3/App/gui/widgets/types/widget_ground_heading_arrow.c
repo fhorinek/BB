@@ -14,6 +14,7 @@ REGISTER_WIDGET_IU
     "Ground heading arrow",
     WIDGET_VAL_MIN_W,
     WIDGET_VAL_MIN_H,
+	_b(wf_label_hide),
 
     lv_obj_t * arrow;
 	lv_obj_t * text;
@@ -25,7 +26,8 @@ REGISTER_WIDGET_IU
 static void GHdgArrow_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
-    widget_add_title(base, slot, "GHdg");
+    if (!widget_flag_is_set(slot, wf_label_hide))
+    	widget_add_title(base, slot, "GHdg");
 
     local->text = widget_add_value(base, slot, NULL, NULL);
     local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);

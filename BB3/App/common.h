@@ -35,6 +35,7 @@
 #include "task.h"
 #include "cmsis_os2.h"
 #include "fatfs.h"
+#include "queue.h"
 
 
 #include "drivers/psram.h"
@@ -209,6 +210,8 @@ bool start_with(char * s1, const char * s2);
 char * find_comma(char * str);
 
 #define ISDIGIT(c) ((c) - '0' + 0U <= 9U)
+#define ISALPHA(c) (((c) | 32) - 'a' + 0U <= 'z' - 'a' + 0U)
+
 uint16_t atoi_c(char * str);
 float atoi_f(char * str);
 uint32_t atoi_n(char * str, uint8_t n);

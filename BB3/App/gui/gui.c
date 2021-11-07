@@ -206,11 +206,12 @@ void gui_init_styles()
 	lv_style_set_radius(&gui.styles.note, LV_STATE_DEFAULT, 5);
 	lv_style_set_margin_bottom(&gui.styles.note, LV_STATE_DEFAULT, 5);
 
-	gui.styles.widget_fonts[0] = &lv_font_montserrat_44;
-	gui.styles.widget_fonts[1] = &lv_font_montserrat_34;
-	gui.styles.widget_fonts[2] = &lv_font_montserrat_28;
-	gui.styles.widget_fonts[3] = &lv_font_montserrat_16;
-	gui.styles.widget_fonts[4] = &lv_font_montserrat_12;
+	gui.styles.widget_fonts[0] = &lv_font_montserrat_48;
+	gui.styles.widget_fonts[1] = &lv_font_montserrat_44;
+	gui.styles.widget_fonts[2] = &lv_font_montserrat_34;
+	gui.styles.widget_fonts[3] = &lv_font_montserrat_28;
+	gui.styles.widget_fonts[4] = &lv_font_montserrat_16;
+	gui.styles.widget_fonts[5] = &lv_font_montserrat_12;
 }
 
 void gui_stop()

@@ -40,6 +40,7 @@ void ublox_init()
 		fc.gnss.fake = false;
 	}
 
+	HAL_DMA_Abort(gnss_uart->hdmarx);
 	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
 	GpioWrite(GNSS_RST, LOW);
@@ -635,6 +636,12 @@ void ublox_step()
 	taskYIELD();
 
 	//INFO("gnss waiting %u", ublox_gnss_waiting);
+
+	if (HAL_DMA_GetState(gnss_uart->hdmarx) == HAL_DMA_STATE_ABORT)
+	{
+		WARN("GNSS RX DMA Abort!");
+		ublox_init();
+	}
 
 	if (ublox_last_command_time != false)
 	{

@@ -15,6 +15,9 @@ REGISTER_WIDGET_ISU(Bar,
     "Vario bar",
     24,
     128,
+	0,
+
+
     lv_obj_t * bar_vario;
     lv_obj_t * bar_avg;
     lv_obj_t * lines[SEGMENTS_CNT - 1];

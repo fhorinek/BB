@@ -5,10 +5,10 @@
  *      Author: tilmann@bubecks.de
  */
 
+#include <etc/geo_calc.h>
 #include "navigation.h"
 
 #include "fc.h"
-#include "etc/gnss_calc.h"
 
 #define FC_ODO_MAX_SPEED_DIFF	(3) 	//10.8km/h
 #define FC_ODO_MIN_SPEED		(0.277) //1km/h
@@ -35,7 +35,7 @@ void navigation_step()
 		if (last_lat != NO_LAT_DATA)
 		{
 			bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
-			uint32_t dist = gnss_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);
+			uint32_t dist = geo_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);
 
 			uint32_t delta = fc.gnss.itow - last_time;
 			float speed = dist * (1000.0 / delta);

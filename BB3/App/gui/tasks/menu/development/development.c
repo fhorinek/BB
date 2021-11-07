@@ -106,12 +106,24 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	return true;
 }
 
-gui_list_slider_options_t opt =
+void development_clear_debug_file_dialog_cb(uint8_t res, void * data)
 {
-	.disp_multi = 1,
-	.step = 1,
-	.format = format_int
-};
+	if (res == dialog_res_yes)
+	{
+		f_unlink(DEBUG_FILE);
+	}
+}
+
+static bool development_clear_debug_file_cb(lv_obj_t * obj, lv_event_t event)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		dialog_show("Confirm", "Clear debug file", dialog_yes_no, development_clear_debug_file_dialog_cb);
+	}
+
+	return false;
+}
+
 
 static lv_obj_t * development_init(lv_obj_t * par)
 {
@@ -132,6 +144,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
     local->esp_boot0 = gui_list_switch_add_entry(list, "ESP boot0", false);
     gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
     gui_list_auto_entry(list, "Debug to file", &config.debug.use_file, NULL);
+    gui_list_auto_entry(list, "Clear debug.log", CUSTOM_CB, development_clear_debug_file_cb);
     gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
 

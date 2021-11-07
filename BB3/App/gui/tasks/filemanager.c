@@ -98,10 +98,10 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		{
 			ctx_show();
 			ctx_clear();
-			ctx_add_option("asdf", 0);
-			ctx_add_option("asdf", 1);
-			ctx_add_option("asdf", 2);
-			ctx_add_option("asdf", 3);
+//			ctx_add_option("asdf", 0);
+//			ctx_add_option("asdf", 1);
+//			ctx_add_option("asdf", 2);
+//			ctx_add_option("asdf", 3);
 		}
 		else
 		{
@@ -113,7 +113,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	{
 		uint32_t key = *((uint32_t *) lv_event_get_data());
 		if (key == LV_KEY_HOME)
-			ctx_open();
+			ctx_open(0);
 	}
 
 	return false;

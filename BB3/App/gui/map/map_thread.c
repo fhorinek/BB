@@ -10,6 +10,9 @@
 #include "tile.h"
 
 #include "fc/fc.h"
+#include "etc/geo_calc.h"
+
+#define MAP_BUFFER_SIZE	(MAP_W * MAP_H * sizeof(lv_color_t))
 
 void map_init()
 {
@@ -61,7 +64,7 @@ void thread_map_start(void *argument)
 
     	int32_t step_x;
     	int32_t step_y;
-    	tile_get_steps(disp_lat, zoom, &step_x, &step_y);
+    	geo_get_steps(disp_lat, zoom, &step_x, &step_y);
 
     	//get vectors
     	uint32_t step_lon = MAP_W * step_x;

@@ -11,71 +11,12 @@
 #include "linked_list.h"
 #include "map_thread.h"
 
+#include "fc/fc.h"
 #include "fc/agl.h"
+#include "etc/geo_calc.h"
 
-float lat_mult[] = {
-	1.00001269263410,
-	1.00016503034732,
-	1.00062227564598,
-	1.00138512587137,
-	1.00245474614468,
-	1.00383277371586,
-	1.00552132409524,
-	1.00752299900955,
-	1.00984089623881,
-	1.01247862140355,
-	1.01544030178698,
-	1.01873060229028,
-	1.02235474363937,
-	1.02631852297526,
-	1.03062833698348,
-	1.03529120773669,
-	1.04031481145009,
-	1.04570751037551,
-	1.05147838808628,
-	1.05763728844289,
-	1.06419485855898,
-	1.07116259613477,
-	1.07855290156473,
-	1.08637913528301,
-	1.09465568086611,
-	1.10339801447867,
-	1.11262278132588,
-	1.12234787986046,
-	1.13259255459192,
-	1.14337749845791,
-	1.15472496584871,
-	1.16665889752463,
-	1.17920505883836,
-	1.19239119287568,
-	1.20624719035817,
-	1.22080527842164,
-	1.23610023069989,
-	1.25216960150919,
-	1.26905398736196,
-	1.28679731954458,
-	1.30544719209465,
-	1.32505523022013,
-	1.34567750504505,
-	1.36737500157145,
-	1.39021414794172,
-	1.41426741553005,
-	1.43961400112117,
-	1.46634060453179,
-	1.49454231757694,
-	1.52432364338688,
-	1.55579966888401,
-	1.58909741791146,
-	1.62435741829468,
-	1.66173552331931,
-	1.70140503710806,
-	1.74355920469978,
-	1.78841414194345,
-	1.83621229854950,
-	1.88722657098226,
-	1.94176521201939,
-	2.00017772298141,
-};
+#define MAP_BUFFER_SIZE	(MAP_W * MAP_H * sizeof(lv_color_t))
+
 
 // Some HGT files contain 1201 x 1201 points (3 arc/90m resolution)
 #define HGT_DATA_WIDTH_3		1201ul
@@ -85,9 +26,6 @@ float lat_mult[] = {
 
 // Some HGT files contain 3601 x 1801 points (1 arc/30m resolution)
 #define HGT_DATA_WIDTH_1_HALF	1801ul
-
-#define GPS_COORD_MUL 10000000
-#define GNSS_MUL	GPS_COORD_MUL
 
 #define POS_FLAG_NOT_FOUND	0b00000001
 #define POS_INVALID	0x00, -128, -32768
@@ -321,9 +259,8 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lat, int32_t step_x, int32_t 
     lv_canvas_ext_t * ext = lv_obj_get_ext_attr(canvas);
     uint16_t * image_buff = (uint16_t *)ext->dsc.data;
 
-	uint8_t lat_i = min(60, abs(lat / GPS_COORD_MUL));
-    int16_t step_x_m = step_x * 111000 / GPS_COORD_MUL / lat_mult[lat_i];
-    int16_t step_y_m = step_y * 111000 / GPS_COORD_MUL;
+    int16_t step_x_m, step_y_m;
+    geo_get_topo_steps(lat, step_x, step_y, &step_x_m, &step_y_m);
 
     for (uint16_t y = 0; y < MAP_H; y++)
     {
@@ -365,7 +302,6 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lat, int32_t step_x, int32_t 
 
     }
 }
-#define MAP_DIV_CONST	80000
 
 void tile_get_filename(char * fn, int32_t lat, int32_t lon)
 {
@@ -396,13 +332,6 @@ void tile_get_filename(char * fn, int32_t lat, int32_t lon)
     sprintf(fn, "%c%02lu%c%03lu", lat_c, lat, lon_c, lon);
 }
 
-void tile_get_steps(int32_t lat, uint8_t zoom, int32_t * step_x, int32_t * step_y)
-{
-	zoom += 1;
-	*step_x = (zoom * GPS_COORD_MUL) / MAP_DIV_CONST;
-	uint8_t lat_i = min(61, abs(lat / GPS_COORD_MUL));
-	*step_y = (zoom * GPS_COORD_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
-}
 
 uint8_t tile_find_inside(int32_t lon, int32_t lat, uint8_t zoom)
 {
@@ -434,28 +363,14 @@ void tile_geo_to_pix(uint8_t index, int32_t g_lon, int32_t g_lat, int16_t * x, i
     int32_t lat = gui.map.chunks[index].center_lat;
     uint8_t zoom = gui.map.chunks[index].zoom;
 
-	int32_t step_x;
-	int32_t step_y;
-	tile_get_steps(lat, zoom, &step_x, &step_y);
-
-	//get bbox
-	uint32_t map_w = MAP_W * step_x;
-	uint32_t map_h = (MAP_H * step_y);
-	int32_t lon1 = lon - map_w / 2;
-	int32_t lat1 = lat + map_h / 2;
-
-    int32_t d_lat = lat1 - g_lat;
-    int32_t d_lon = g_lon - lon1;
-
-    *x = d_lon / step_x;
-    *y = d_lat / step_y;
+    geo_to_pix(lon, lat, zoom, g_lon, g_lat, x, y);
 }
 
 void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint8_t zoom, int32_t * c_lon, int32_t * c_lat)
 {
 	int32_t step_x;
 	int32_t step_y;
-	tile_get_steps(lat, zoom, &step_x, &step_y);
+	geo_get_steps(lat, zoom, &step_x, &step_y);
 
 	//get bbox
 	uint32_t map_w = (MAP_W * step_x) / 1;
@@ -481,7 +396,7 @@ void tile_create(uint8_t index, int32_t lon, int32_t lat, uint8_t zoom,  bool sk
 	//biggest zoom 1px = ~11,1m
 	int32_t step_x;
 	int32_t step_y;
-	tile_get_steps(lat, zoom, &step_x, &step_y);
+	geo_get_steps(lat, zoom, &step_x, &step_y);
 
 	//get bbox
 	uint32_t map_w = MAP_W * step_x;
@@ -553,8 +468,8 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 
 	DBG("file grid is %u x %u", mh->grid_w, mh->grid_h);
 
-	int32_t flon = (lon / GPS_COORD_MUL) * GPS_COORD_MUL;
-	int32_t flat = (lat / GPS_COORD_MUL) * GPS_COORD_MUL;
+	int32_t flon = (lon / GNSS_MUL) * GNSS_MUL;
+	int32_t flat = (lat / GNSS_MUL) * GNSS_MUL;
 
 	uint32_t grid_start_addr = sizeof(map_header_t);
 
@@ -563,10 +478,10 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 	int32_t glon2;
 	int32_t glat2;
 
-	int32_t gstep_x = GPS_COORD_MUL / mh->grid_w;
-	int32_t gstep_y = GPS_COORD_MUL / mh->grid_h;
+	int32_t gstep_x = GNSS_MUL / mh->grid_w;
+	int32_t gstep_y = GNSS_MUL / mh->grid_h;
 
-	//INFO("mapshaper -rectangle name=disp bbox=%f,%f,%f,%f \\", lon1 / (float)GPS_COORD_MUL, lat1 / (float)GPS_COORD_MUL, lon2 / (float)GPS_COORD_MUL, lat2 / (float)GPS_COORD_MUL);
+	//INFO("mapshaper -rectangle name=disp bbox=%f,%f,%f,%f \\", lon1 / (float)GNSS_MUL, lat1 / (float)GNSS_MUL, lon2 / (float)GNSS_MUL, lat2 / (float)GNSS_MUL);
 
 	ll_item_t * start = NULL;
 	ll_item_t * end = NULL;
@@ -589,7 +504,7 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 						|| (glon1 <= lon2 && lon2 <= glon2)
 						|| (lon1 <= glon1 && glon2 <= lon2))
 				{
-					//INFO("-rectangle bbox=%f,%f,%f,%f \\", glon1 / (float)GPS_COORD_MUL, glat1 / (float)GPS_COORD_MUL, glon2 / (float)GPS_COORD_MUL, glat2 / (float)GPS_COORD_MUL);
+					//INFO("-rectangle bbox=%f,%f,%f,%f \\", glon1 / (float)GNSS_MUL, glat1 / (float)GNSS_MUL, glon2 / (float)GNSS_MUL, glat2 / (float)GNSS_MUL);
 
 				    //TODO: select only boxes in grid
 				    uint32_t grid_addr = grid_start_addr + (y * mh->grid_h + x) * 8;

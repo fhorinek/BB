@@ -11,12 +11,12 @@
 #include "gui.h"
 
 void ctx_close();
-void ctx_open();
+void ctx_open(uint8_t index);
 void ctx_init();
 
 void ctx_set_cb(gui_ctx_cb_t cb);
 void ctx_clear();
-void ctx_add_option(char * option, uint8_t pos);
+void ctx_add_option(char * option);
 void ctx_show();
 void ctx_hide();
 

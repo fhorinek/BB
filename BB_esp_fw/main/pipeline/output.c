@@ -65,7 +65,7 @@ void pipe_output_init()
             .task_stack = I2S_STREAM_TASK_STACK,
             .task_core = I2S_STREAM_TASK_CORE,
             .task_prio = I2S_STREAM_TASK_PRIO,
-            .stack_in_ext = false,
+            .stack_in_ext = true,
             .multi_out_num = 0,
             .uninstall_drv = true,
         };

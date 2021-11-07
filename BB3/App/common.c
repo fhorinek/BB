@@ -212,7 +212,7 @@ uint32_t calc_crc32(uint32_t * data, uint32_t size)
 
 void get_tmp_path(char * fname, uint32_t id)
 {
-    sprintf(fname, "%s/%08X", PATH_TEMP_DIR, id);
+    sprintf(fname, "%s/%08lX", PATH_TEMP_DIR, id);
 }
 
 uint32_t get_tmp_filename(char * fname)

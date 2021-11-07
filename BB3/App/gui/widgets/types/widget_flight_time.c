@@ -15,6 +15,7 @@ REGISTER_WIDGET_IUE
     "Flight time",
     WIDGET_VAL_MIN_W,
     WIDGET_VAL_MIN_H,
+	_b(wf_label_hide) | _b(wf_units_hide),
 
     lv_obj_t * value;
     lv_obj_t * sub;
@@ -23,7 +24,8 @@ REGISTER_WIDGET_IUE
 static void FTime_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
-    widget_add_title(base, slot, "Flight time");
+    if (!widget_flag_is_set(slot, wf_label_hide))
+    	widget_add_title(base, slot, "Flight time");
 
     local->value = widget_add_value(base, slot, "", &local->sub);
 }
