@@ -315,6 +315,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_FONT_MONTSERRAT_28    1
 #define LV_FONT_MONTSERRAT_34    1
 #define LV_FONT_MONTSERRAT_44	 1
+#define LV_FONT_MONTSERRAT_48	 1
 
 
 #define LV_THEME_DEFAULT_INCLUDE            <stdint.h>      /*Include a header for the init. function*/

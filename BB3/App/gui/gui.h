@@ -13,7 +13,7 @@
 
 typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint16_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
-typedef void (* gui_ctx_cb_t)(uint8_t, lv_obj_t *);
+typedef bool (* gui_ctx_cb_t)(uint8_t, lv_obj_t *);
 
 typedef struct _config_entry_ll_t
 {
@@ -43,13 +43,14 @@ typedef enum
 } dialog_result_t;
 
 
-#define NUMBER_OF_WIDGET_FONTS	5
+#define NUMBER_OF_WIDGET_FONTS	6
 
-#define FONT_XL	0
-#define FONT_L	1
-#define FONT_M	2
-#define FONT_S	3
-#define FONT_XS	4
+#define FONT_XXL	0
+#define FONT_XL		1
+#define FONT_L		2
+#define FONT_M		3
+#define FONT_S		4
+#define FONT_XS		5
 
 
 #define BAR_ICON_DL		9
@@ -183,6 +184,14 @@ typedef struct
 		lv_obj_t * dropdown;
 		lv_obj_t * last_focus;
 		gui_ctx_cb_t cb;
+		enum
+		{
+			ctx_disabled,
+			ctx_active,
+			ctx_opened
+		} mode;
+		bool last_editing;
+		uint8_t _pad[2];
 
 	} ctx;
 

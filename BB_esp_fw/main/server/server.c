@@ -43,9 +43,13 @@ esp_err_t page_get_handler(httpd_req_t *req)
 		ext++;
 
 	if (ext == NULL || strcmp(ext, "htm") == 0)
+	{
 		render_page(req, (char *)req->uri);
+	}
 	else
+	{
 		send_file(req, (char *)req->uri);
+	}
 
 	INFO("[%u] done %lu ms", id, get_ms() - start);
 
@@ -133,6 +137,9 @@ void server_init()
 
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 	config.uri_match_fn = httpd_uri_match_wildcard;
+	config.task_priority = 17;
+	config.lru_purge_enable = true;
+//	config.max_open_sockets = 12;
 
     if (httpd_start(&server, &config) == ESP_OK)
     {

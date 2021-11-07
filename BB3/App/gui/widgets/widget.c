@@ -9,6 +9,12 @@
 
 #include "gui/tasks/page/pages.h"
 
+widget_flag_def_t widgets_flags[] = {
+	{'L', LV_SYMBOL_EYE_CLOSE " Label hidden", LV_SYMBOL_EYE_OPEN " Label visible", NULL},
+	{'U', LV_SYMBOL_EYE_CLOSE " Units hidden", LV_SYMBOL_EYE_OPEN " Units visible", NULL},
+};
+
+
 void widget_create_base(lv_obj_t * base, widget_slot_t * slot)
 {
     slot->obj = lv_obj_create(base, NULL);
@@ -54,6 +60,11 @@ lv_obj_t * widget_add_value(lv_obj_t * base, widget_slot_t * slot, char * unit, 
 
         if (unit_obj != NULL)
             *unit_obj = unit_label;
+    }
+    else
+    {
+    	if (unit_obj != NULL)
+    		*unit_obj = NULL;
     }
 
     return value_obj;
@@ -130,13 +141,16 @@ lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * 
 
 void widget_update_font_size(lv_obj_t * label, lv_obj_t * area)
 {
-	static uint8_t font_size_cache_x[NUMBER_OF_WIDGET_FONTS] = {0};
+	static uint8_t font_size_cache_x_number[NUMBER_OF_WIDGET_FONTS] = {0};
+	static uint8_t font_size_cache_x_char[NUMBER_OF_WIDGET_FONTS] = {0};
+	static uint8_t font_size_cache_x_sign[NUMBER_OF_WIDGET_FONTS] = {0};
+	static uint8_t font_size_cache_x_symbol[NUMBER_OF_WIDGET_FONTS] = {0};
 	static uint8_t font_size_cache_y[NUMBER_OF_WIDGET_FONTS] = {0};
 
 	lv_style_int_t line_space = lv_obj_get_style_text_line_space(label, LV_LABEL_PART_MAIN);
 	lv_style_int_t letter_space = lv_obj_get_style_text_letter_space(label, LV_LABEL_PART_MAIN);
-	lv_coord_t w = lv_obj_get_width_fit(area);
-	lv_coord_t h = lv_obj_get_height_fit(area);
+	lv_coord_t w = lv_obj_get_width(area);
+	lv_coord_t h = lv_obj_get_height(area);
 	lv_point_t size;
 
 	lv_label_ext_t * ext = lv_obj_get_ext_attr(label);
@@ -145,17 +159,36 @@ void widget_update_font_size(lv_obj_t * label, lv_obj_t * area)
 		return;
 
 	uint8_t i;
-	uint8_t len = strlen(ext->text) - 1;
 	for (i = 0; i < NUMBER_OF_WIDGET_FONTS - 1; i++)
 	{
-		if (font_size_cache_x[i] == 0)
+		if (font_size_cache_x_number[i] == 0)
 		{
+			_lv_txt_get_size(&size, "0", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+			font_size_cache_x_number[i] = size.x;
+			_lv_txt_get_size(&size, "-", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+			font_size_cache_x_sign[i] = size.x;
 			_lv_txt_get_size(&size, "%", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
-			font_size_cache_x[i] = size.x;
+			font_size_cache_x_symbol[i] = size.x;
+			_lv_txt_get_size(&size, "X", gui.styles.widget_fonts[i], letter_space, line_space, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+			font_size_cache_x_char[i] = size.x;
 			font_size_cache_y[i] = size.y;
 		}
 
-		uint16_t x = font_size_cache_x[i] * len;
+		uint8_t len = strlen(ext->text);
+		uint16_t x = 0;
+		for (uint8_t j = 0; j < len; j++)
+		{
+			char c = ext->text[j];
+			if (ISDIGIT(c))
+				x += font_size_cache_x_number[i];
+			else if (ISALPHA(c))
+				x += font_size_cache_x_char[i];
+			else if (c == '.' || c == '-')
+				x += font_size_cache_x_sign[i];
+			else
+				x += font_size_cache_x_symbol[i];
+		}
+
 		uint16_t y = font_size_cache_y[i];
 
 		if (x <= w && y <= h)
@@ -236,3 +269,4 @@ void widget_destroy_edit_overlay(lv_obj_t * base)
 
     pages_unlock_widget();
 }
+

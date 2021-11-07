@@ -11,6 +11,7 @@
 #include "../../common.h"
 #include "gui/gui.h"
 #include "../../lib/lvgl/lvgl.h"
+#include "widget_flags.h"
 
 #define DECLARE_WIDGET(name)	extern widget_t widget_ ## name
 #define LIST_WIDGET(name)       &widget_ ## name
@@ -22,6 +23,8 @@
 #define WIDGET_ACTION_DEFOCUS   4
 #define WIDGET_ACTION_CLOSE     5
 #define WIDGET_ACTION_MIDDLE    6
+
+
 
 typedef struct _widget_slot_t widget_slot_t;
 
@@ -46,9 +49,10 @@ typedef struct _widget_t
 	void (* edit)(widget_slot_t *, uint8_t);
 
 	uint16_t vars_size;
+	uint16_t flags;
 } widget_t;
 
-#define REGISTER_WIDGET_ISUE(short_name, name, w_min, h_min, ...) \
+#define REGISTER_WIDGET_ISUE(short_name, name, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -67,10 +71,11 @@ typedef struct _widget_t
         short_name ## _stop, \
         short_name ## _update, \
         short_name ## _edit, \
-        sizeof(widget_local_vars_t) \
+        sizeof(widget_local_vars_t), \
+		flags \
     };
 
-#define REGISTER_WIDGET_IUE(short_name, name, w_min, h_min, ...) \
+#define REGISTER_WIDGET_IUE(short_name, name, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -88,10 +93,11 @@ typedef struct _widget_t
         NULL, \
         short_name ## _update, \
         short_name ## _edit, \
-        sizeof(widget_local_vars_t) \
+        sizeof(widget_local_vars_t), \
+		flags \
     };
 
-#define REGISTER_WIDGET_I(short_name, name, w_min, h_min, ...) \
+#define REGISTER_WIDGET_I(short_name, name, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -107,10 +113,11 @@ typedef struct _widget_t
         NULL, \
         NULL, \
         NULL, \
-        sizeof(widget_local_vars_t) \
+        sizeof(widget_local_vars_t), \
+		flags \
     };
 
-#define REGISTER_WIDGET_IU(short_name, name, w_min, h_min, ...) \
+#define REGISTER_WIDGET_IU(short_name, name, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -127,10 +134,11 @@ typedef struct _widget_t
         NULL, \
         short_name ## _update, \
         NULL, \
-        sizeof(widget_local_vars_t) \
+        sizeof(widget_local_vars_t), \
+		flags \
     };
 
-#define REGISTER_WIDGET_ISU(short_name, name, w_min, h_min, ...) \
+#define REGISTER_WIDGET_ISU(short_name, name, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -148,9 +156,11 @@ typedef struct _widget_t
         short_name ## _stop, \
         short_name ## _update, \
         NULL, \
-        sizeof(widget_local_vars_t) \
+        sizeof(widget_local_vars_t), \
+		flags \
     };
 
+#define WIDGET_FLAGS_LEN	8
 
 typedef struct _widget_slot_t
 {
@@ -162,6 +172,9 @@ typedef struct _widget_slot_t
     uint16_t y;
     uint16_t w;
     uint16_t h;
+
+    //flags
+    char flags[WIDGET_FLAGS_LEN];
 
     //gui object handle
 	lv_obj_t * obj;
@@ -188,6 +201,7 @@ uint8_t number_of_widgets();
 
 bool widgets_load_from_file(page_layout_t * page, char * layout_name);
 bool widgets_save_to_file(page_layout_t * page, char * layout_name);
+void widgets_sort_page(page_layout_t * page);
 
 void widgets_create_base(page_layout_t * page, lv_obj_t * par);
 void widgets_init_page(page_layout_t * page, lv_obj_t * par);
@@ -205,6 +219,9 @@ bool widgets_editable(page_layout_t * page);
 void widgets_edit(widget_slot_t * ws, uint8_t action);
 widget_slot_t * widgets_editable_select_next(page_layout_t * page, widget_slot_t * last);
 
+bool widget_flag_is_set(widget_slot_t * slot, widget_flags_id_t flag_id);
+void widget_flag_set(widget_slot_t * slot, widget_flags_id_t flag_id);
+void widget_flag_unset(widget_slot_t * slot, widget_flags_id_t flag_id);
 
 void widgets_add(page_layout_t * page, widget_t * w);
 void widgets_remove(page_layout_t * page, uint8_t index);

@@ -14,6 +14,7 @@ REGISTER_WIDGET_ISUE
     "Altitude QNH1",
     WIDGET_VAL_MIN_W,
     WIDGET_VAL_MIN_H,
+	_b(wf_label_hide) | _b(wf_units_hide),
 
     lv_obj_t * value;
 	lv_obj_t * edit;

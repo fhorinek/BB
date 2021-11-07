@@ -80,6 +80,8 @@ void send_file(httpd_req_t * req, char * path)
 	} while(readed > 0);
 
 	fclose(f);
+
+//	httpd_sess_trigger_close(req->handle, httpd_req_to_sockfd(req));
 }
 
 

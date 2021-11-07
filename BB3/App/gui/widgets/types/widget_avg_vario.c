@@ -14,6 +14,7 @@ REGISTER_WIDGET_IU
     "Average vario",
     WIDGET_VAL_MIN_W,
     WIDGET_VAL_MIN_H,
+	_b(wf_label_hide) | _b(wf_units_hide),
 
     lv_obj_t * value;
 );
@@ -22,12 +23,20 @@ REGISTER_WIDGET_IU
 static void Avg_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
-    char title[16];
-    sprintf(title, "Avg (%us)", config_get_int(&profile.vario.avg_duration));
-    widget_add_title(base, slot, title);
+    if (!widget_flag_is_set(slot, wf_label_hide))
+    {
+		char title[16];
+		sprintf(title, "Avg (%us)", config_get_int(&profile.vario.avg_duration));
+		widget_add_title(base, slot, title);
+    }
 
-    char units[8];
-    format_vario_units(units);
+    char tmp[8];
+    char * units = tmp;
+    if (widget_flag_is_set(slot, wf_units_hide))
+    	units = NULL;
+    else
+		format_vario_units(tmp);
+
     local->value = widget_add_value(base, slot, units, NULL);
 
 }

@@ -7,6 +7,7 @@ REGISTER_WIDGET_IU
     "Glide ratio",
     WIDGET_VAL_MIN_W,
     WIDGET_VAL_MIN_H,
+	_b(wf_label_hide),
 
     lv_obj_t * value;
 );
@@ -15,10 +16,15 @@ REGISTER_WIDGET_IU
 static void Glide_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
-    widget_add_title(base, slot, NULL);
+
+    if (!widget_flag_is_set(slot, wf_label_hide))
+    {
+		char tmp[16];
+		snprintf(tmp, sizeof(tmp), "Glide (%us)", config_get_int(&profile.flight.gr_duration));
+		widget_add_title(base, slot, tmp);
+    }
 
     local->value = widget_add_value(base, slot, NULL, NULL);
-
 }
 
 static void Glide_update(widget_slot_t * slot)

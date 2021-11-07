@@ -1,8 +1,8 @@
 
+#include <etc/geo_calc.h>
 #include "neighbors.h"
 
 #include "fc.h"
-#include "etc/gnss_calc.h"
 
 void neighbors_reset()
 {
@@ -56,7 +56,7 @@ void neighbors_update_distance(neighbor_t * nb)
 		return;
 
 	bool FAI = config_get_select(&config.units.earth_model) == EARTH_FAI;
-	uint32_t dist = gnss_distance(nb->latitude, nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, FAI, NULL);
+	uint32_t dist = geo_distance(nb->latitude, nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, FAI, NULL);
 
 	nb->dist = min(NB_TOO_FAR, dist);
 

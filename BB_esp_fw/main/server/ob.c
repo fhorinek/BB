@@ -55,6 +55,7 @@ void ob_flush(output_buffer_t * ob)
 		httpd_resp_send(ob->req, ob->buffer, ob->index);
 	}
 
+//	httpd_sess_trigger_close(ob->req->handle, httpd_req_to_sockfd(ob->req));
 	ob_free(ob);
 }
 

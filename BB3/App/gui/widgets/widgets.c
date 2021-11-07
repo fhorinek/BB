@@ -43,6 +43,8 @@ bool widgets_save_to_file(page_layout_t * page, char * layout_name)
         f_write(&f, buff, strlen(buff), &bw);
         snprintf(buff, sizeof(buff), "w%u_h=%u\n", i, ws->h);
         f_write(&f, buff, strlen(buff), &bw);
+        snprintf(buff, sizeof(buff), "w%u_f=%s\n", i, ws->flags);
+        f_write(&f, buff, strlen(buff), &bw);
     }
 
     f_close(&f);
@@ -113,6 +115,14 @@ bool widgets_load_from_file(page_layout_t * page, char * layout_name)
 			snprintf(key, sizeof(key), "w%u_h", i);
 			ws->h = atoi(find_in_file(&f, key, "0", buff, sizeof(buff)));
 
+			snprintf(key, sizeof(key), "w%u_f", i);
+			char * flags = find_in_file(&f, key, "", buff, sizeof(buff));
+
+			if (strlen(flags) != 0)
+				strncpy(ws->flags, flags, WIDGET_FLAGS_LEN - 1);
+			else
+				ws->flags[0] = 0;
+
 			widget_dimension_check(ws);
 
             ws->vars = NULL;
@@ -124,6 +134,36 @@ bool widgets_load_from_file(page_layout_t * page, char * layout_name)
 
 	return true;
 }
+
+void widgets_sort_page(page_layout_t * page)
+{
+	if (page->number_of_widgets <= 1)
+		return;
+
+	bool swaped = false;
+    do
+    {
+    	swaped = false;
+    	for (uint8_t i = 0; i < page->number_of_widgets - 1; i++)
+    	{
+    		widget_slot_t * left = &page->widget_slots[i];
+    		widget_slot_t * right = &page->widget_slots[i + 1];
+
+    		uint32_t left_val = left->x + left->y * LV_HOR_RES;
+    		uint32_t right_val = right->x + right->y * LV_HOR_RES;
+
+    		if (left_val > right_val)
+    		{
+    			swaped = true;
+    			widget_slot_t tmp;
+    			memcpy(&tmp, left, sizeof(widget_slot_t));
+    			memcpy(left, right, sizeof(widget_slot_t));
+    			memcpy(right, &tmp, sizeof(widget_slot_t));
+    		}
+    	}
+    } while (swaped);
+}
+
 
 widget_t * widget_find_by_name(char * widget_short_name)
 {
@@ -201,6 +241,7 @@ void widgets_init_page(page_layout_t * page, lv_obj_t * par)
         widgets_add_page_empty_label(page);
     }
 }
+
 
 void widget_deinit(widget_slot_t * ws)
 {
@@ -290,6 +331,7 @@ void widgets_add(page_layout_t * page, widget_t * w)
     page->widget_slots[page->number_of_widgets].y = 0;
     page->widget_slots[page->number_of_widgets].w = w->w_min;
     page->widget_slots[page->number_of_widgets].h = w->h_min;
+    page->widget_slots[page->number_of_widgets].flags[0] = 0;
 
     widget_init(&page->widget_slots[page->number_of_widgets], page->base);
 
@@ -331,3 +373,41 @@ void widgets_remove(page_layout_t * page, uint8_t index)
 
 
 }
+
+bool widget_flag_is_set(widget_slot_t * slot, widget_flags_id_t flag_id)
+{
+	char flag = widgets_flags[flag_id].flag;
+	return strchr(slot->flags, flag) != 0;
+}
+
+void widget_flag_set(widget_slot_t * slot, widget_flags_id_t flag_id)
+{
+	char flag = widgets_flags[flag_id].flag;
+	if (!widget_flag_is_set(slot, flag))
+	{
+		uint8_t len = strlen(slot->flags);
+		if (len < WIDGET_FLAGS_LEN - 1)
+		{
+			slot->flags[len] = flag;
+			slot->flags[len + 1] = 0;
+		}
+	}
+}
+
+void widget_flag_unset(widget_slot_t * slot, widget_flags_id_t flag_id)
+{
+	char flag = widgets_flags[flag_id].flag;
+	if (!widget_flag_is_set(slot, flag))
+	{
+		for (uint8_t i = 0; i < WIDGET_FLAGS_LEN - 1; i++)
+		{
+			if (slot->flags[i] == flag)
+			{
+				for (uint8_t j = i; j < WIDGET_FLAGS_LEN - 1; j++)
+					slot->flags[i] = slot->flags[i + 1];
+				break;
+			}
+		}
+	}
+}
+
