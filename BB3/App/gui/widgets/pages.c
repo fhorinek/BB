@@ -48,8 +48,8 @@ bool page_rename(char * old_name, char * new_name)
 	char path_old[PATH_LEN];
 	char path_new[PATH_LEN];
 
-	snprintf(path_new, sizeof(path_new), "%s/%s.pag", PATH_PAGES_DIR, new_name);
-	snprintf(path_old, sizeof(path_old), "%s/%s.pag", PATH_PAGES_DIR, old_name);
+	snprintf(path_new, sizeof(path_new), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), new_name);
+	snprintf(path_old, sizeof(path_old), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile),old_name);
 
 	return f_rename(path_old, path_new) == FR_OK;
 }
@@ -58,7 +58,7 @@ bool page_create(char * new_name)
 {
 	char path_new[PATH_LEN];
 
-	snprintf(path_new, sizeof(path_new), "%s/%s.pag", PATH_PAGES_DIR, new_name);
+	snprintf(path_new, sizeof(path_new), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), new_name);
 
 	if (!file_exists(path_new))
 	{
@@ -81,7 +81,7 @@ void page_delete(char * name)
 {
 	char path[64];
 
-	snprintf(path, sizeof(path), "%s/%s.pag", PATH_PAGES_DIR, name);
+	snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), name);
 
 	f_unlink(path);
 }

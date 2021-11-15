@@ -58,14 +58,14 @@ void telemetry_cb()
 
 			if (gnss_rmc_msg(data.message, sizeof(data.message)))
 			{
-				//INFO(">>%s<<", data.message);
+				INFO(">>%s<<", data.message);
 				data.len = strlen(data.message);
 				protocol_send(PROTO_TELE_SEND, (void *)&data, sizeof(data));
 			}
 
 			if (gnss_gga_msg(data.message, sizeof(data.message)))
 			{
-				//INFO(">>%s<<", data.message);
+				INFO(">>%s<<", data.message);
 				data.len = strlen(data.message);
 				protocol_send(PROTO_TELE_SEND, (void *)&data, sizeof(data));
 			}

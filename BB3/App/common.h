@@ -243,17 +243,22 @@ void get_tmp_path(char * fname, uint32_t id);
 uint32_t get_tmp_filename(char * fname);
 
 void clear_dir(char * path);
+void remove_dir(char * path);
 bool copy_file(char * src, char * dst);
+void copy_dir(char * src, char * dst);
 
 bool read_value(char * data, char * key, char * value, uint16_t value_len);
 
 float table_sin(uint16_t angle);
 float table_cos(uint16_t angle);
 
+void system_poweroff();
 void system_reboot();
 void system_reboot_bl();
 
 uint8_t nmea_checksum(char *s);
+
+void str_join(char * dst, uint8_t cnt, ...);
 
 #include <system/debug_thread.h>
 

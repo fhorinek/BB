@@ -57,8 +57,8 @@ void widget_list_show_widget(uint8_t index)
 
     local->prev_ws.x = 0;
     local->prev_ws.y = 0;
-    local->prev_ws.w = 0;
-    local->prev_ws.h = 0;
+    local->prev_ws.w = WIDGET_DEFAULT_W;
+    local->prev_ws.h = WIDGET_DEFAULT_H;
 
     local->prev_ws.widget = widgets[index];
 

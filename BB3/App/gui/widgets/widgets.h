@@ -24,7 +24,12 @@
 #define WIDGET_ACTION_CLOSE     5
 #define WIDGET_ACTION_MIDDLE    6
 
+#define WIDGET_MIN_W        24
+#define WIDGET_MIN_H        16
+#define WIDGET_DEFAULT_W    80
+#define WIDGET_DEFAULT_H    64
 
+#define WIDGET_ARROW_POINTS 5
 
 typedef struct _widget_slot_t widget_slot_t;
 
@@ -167,6 +172,13 @@ typedef struct _widget_slot_t
     //widget type description
 	widget_t * widget;
 
+    //gui object handle
+    lv_obj_t * obj;
+    lv_obj_t * title;
+
+    //private data
+    void * vars;
+
 	//widget size and position
     uint16_t x;
     uint16_t y;
@@ -175,12 +187,6 @@ typedef struct _widget_slot_t
 
     //flags
     char flags[WIDGET_FLAGS_LEN];
-
-    //gui object handle
-	lv_obj_t * obj;
-
-	//private data
-	void * vars;
 } widget_slot_t;
 
 typedef struct

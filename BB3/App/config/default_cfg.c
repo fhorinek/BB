@@ -208,7 +208,7 @@ flight_profile_t profile =
     {
         //page
         {
-            entry_text("page[0]", "default", PAGE_NAME_LEN, 0),
+            entry_text("page[0]", "", PAGE_NAME_LEN, 0),
             entry_text("page[1]", "", PAGE_NAME_LEN, 0),
             entry_text("page[2]", "", PAGE_NAME_LEN, 0),
             entry_text("page[3]", "", PAGE_NAME_LEN, 0),

@@ -19,6 +19,7 @@ void ctx_clear();
 void ctx_add_option(char * option);
 void ctx_show();
 void ctx_hide();
+bool ctx_is_active();
 
 #define CTX_CANCEL	0xFF
 

@@ -157,19 +157,21 @@ static bool info_update_cb(lv_obj_t * obj, lv_event_t event)
     return true;
 }
 
-bool manual_install_fm_cb(char * path)
+bool manual_install_fm_cb(uint8_t event, char * path)
 {
-	char text[64];
-	path = strrchr(path, '/');
+    if (event == FM_CB_SELECT)
+    {
+        char text[64];
+        path = strrchr(path, '/');
 
-	if (path == NULL)
-		return true;
-	path++;
+        if (path == NULL)
+            return true;
+        path++;
 
-	snprintf(text, sizeof(text), "Install version %s", path);
-	strncpy(local->new_fw, path, sizeof(local->new_fw));
-	dialog_show("Start update?", text, dialog_yes_no, info_update_apply_cb);
-
+        snprintf(text, sizeof(text), "Install version %s", path);
+        strncpy(local->new_fw, path, sizeof(local->new_fw));
+        dialog_show("Start update?", text, dialog_yes_no, info_update_apply_cb);
+    }
 	return true;
 }
 
@@ -178,7 +180,7 @@ static bool manual_install_cb(lv_obj_t * obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
 		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-		filemanager_open(PATH_FW_DIR, 0, &gui_info, manual_install_fm_cb);
+		filemanager_open(PATH_FW_DIR, 0, &gui_info, FM_FLAG_HIDE_DIR, manual_install_fm_cb);
 
 		//supress default handler
 		return false;

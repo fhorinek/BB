@@ -7,7 +7,7 @@
 
 #include <gui/tasks/menu/settings.h>
 
-#include <gui/tasks/menu/pilot.h>
+#include <gui/tasks/menu/profiles/profiles.h>
 #include <gui/tasks/menu/vario.h>
 #include <gui/tasks/menu/bluetooth.h>
 #include <gui/tasks/menu/development/development.h>
@@ -21,13 +21,13 @@
 
 #include "gui/gui_list.h"
 
-REGISTER_TASK_IS(settings);
+REGISTER_TASK_I(settings);
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Device settings", &gui_pages, NULL);
+	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
 
-	gui_list_auto_entry(list, "Pilot", NEXT_TASK, &gui_pilot);
+	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
 //	gui_list_auto_entry(list, "Map", NEXT_TASK, &gui_map);
@@ -43,10 +43,3 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	return list;
 }
 
-void settings_stop()
-{
-	if (gui.task.actual == &gui_pages)
-	{
-		config_store_all();
-	}
-}

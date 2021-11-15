@@ -162,9 +162,8 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
 
-	lv_group_add_obj(gui.input.group, entry);
-
 	lv_obj_set_event_cb(entry, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, entry);
 
 	return entry;
 }
@@ -197,7 +196,6 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 	lv_obj_set_width(label, w);
 
 	lv_obj_t * slider = lv_slider_create(entry,  NULL);
-	lv_group_add_obj(gui.input.group, slider);
 	lv_obj_set_size(slider, w / 2, 14);
 	lv_obj_set_focus_parent(slider, true);
 
@@ -211,6 +209,7 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 	lv_obj_set_size(val, w / 2, 14);
 
 	lv_obj_set_event_cb(slider, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, slider);
 
 	return entry;
 }
@@ -253,11 +252,11 @@ lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const
 	lv_obj_t * dropdown = lv_dropdown_create(cont,  NULL);
 	lv_dropdown_set_options(dropdown, options);
 	lv_dropdown_set_selected(dropdown, selected);
-	lv_group_add_obj(gui.input.group, dropdown);
 	lv_obj_set_width(dropdown, 140);
 	lv_obj_set_focus_parent(dropdown, true);
 
 	lv_obj_set_event_cb(dropdown, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, dropdown);
 
 	return entry;
 }
@@ -306,7 +305,6 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 	lv_obj_set_auto_realign(label, true);
 
 	lv_obj_t * sw = lv_switch_create(entry, NULL);
-	lv_group_add_obj(gui.input.group, sw);
 	lv_obj_align(sw, entry, LV_ALIGN_IN_RIGHT_MID, -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN), 0);
 	lv_obj_set_auto_realign(sw, true);
 
@@ -318,6 +316,7 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 		lv_switch_off(sw, LV_ANIM_OFF);
 
 	lv_obj_set_event_cb(sw, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, sw);
 
 	return entry;
 }
@@ -329,7 +328,6 @@ lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * va
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
 	lv_page_glue_obj(entry, true);
-	lv_group_add_obj(gui.input.group, entry);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -349,6 +347,7 @@ lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * va
 	lv_obj_set_height(entry, height);
 
 	lv_obj_set_event_cb(entry, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, entry);
 
 	return entry;
 }
@@ -412,7 +411,6 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 	lv_obj_align(textbox, entry, LV_ALIGN_IN_BOTTOM_RIGHT, -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN), -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN));
 	lv_obj_set_auto_realign(textbox, true);
 	lv_obj_set_focus_parent(textbox, true);
-	lv_group_add_obj(gui.input.group, textbox);
 
 	uint8_t height = lv_obj_get_height(label) + lv_obj_get_height(textbox);
 	height += lv_obj_get_style_pad_top(entry, LV_CONT_PART_MAIN);
@@ -422,23 +420,32 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 	lv_obj_set_height(entry, height);
 
 	lv_obj_set_event_cb(textbox, keyboard_event_cb);
+    lv_group_add_obj(gui.input.group, textbox);
 
 	return entry;
 }
 
 const char * gui_list_textbox_get_value(lv_obj_t * obj)
 {
-	//switch widget is last added child
+	//textarea widget is last added child
 	lv_obj_t * textbox = lv_obj_get_child(obj, NULL);
 	return lv_textarea_get_text(textbox);
 }
 
 void gui_list_textbox_set_value(lv_obj_t * obj, const char * value)
 {
-	//switch widget is last added child
+	//textarea widget is last added child
 	lv_obj_t * textbox = lv_obj_get_child(obj, NULL);
 	lv_textarea_set_text(textbox, value);
 }
+
+void gui_list_textbox_set_name(lv_obj_t * obj, const char * value)
+{
+    //label widget is first child
+    lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
+    lv_label_set_text(label, value);
+}
+
 
 lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_t color)
 {
@@ -632,13 +639,13 @@ void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params
 {
 	gui_update_entry_origin = entry;
 
-	if (entry > SPECIAL_HANDLING)
+	if (entry > (cfg_entry_t *)SPECIAL_HANDLING)
 	{
 		if (entry->type == ENTRY_TEXT)
 		{
 			keyboard_hide();
 
-			config_set_text(entry, gui_list_textbox_get_value(obj));
+			config_set_text(entry, (char *)gui_list_textbox_get_value(obj));
 		}
 	}
 
@@ -649,7 +656,7 @@ void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
 	gui_update_entry_origin = entry;
 
-	if (entry > SPECIAL_HANDLING)
+	if (entry > (cfg_entry_t *)SPECIAL_HANDLING)
 	{
 		switch (entry->type)
 		{
@@ -693,7 +700,7 @@ void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 
 void gui_config_entry_refresh(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	if (entry > SPECIAL_HANDLING)
+	if (entry > (cfg_entry_t *)SPECIAL_HANDLING)
 	{
 		switch (entry->type)
 		{

@@ -281,6 +281,43 @@ bool copy_file(char * src, char * dst)
     return ret;
 }
 
+void copy_dir(char * src, char * dst)
+{
+    FRESULT res;
+    DIR dir;
+    FILINFO fno;
+
+    f_mkdir(dst);
+
+    res = f_opendir(&dir, src);
+    if (res == FR_OK)
+    {
+        while (true)
+        {
+            res = f_readdir(&dir, &fno);
+            if (res != FR_OK || fno.fname[0] == 0)
+                break;
+
+            char src_path[PATH_LEN] = {0};
+            str_join(src_path, 3, src, "/", fno.fname);
+            char dst_path[PATH_LEN] = {0};
+            str_join(dst_path, 3, dst, "/", fno.fname);
+
+            if (fno.fattrib & AM_DIR)
+            {
+                copy_dir(src_path, dst_path);
+            }
+            else
+            {
+                copy_file(src_path, dst_path);
+            }
+        }
+
+        f_closedir(&dir);
+    }
+
+}
+
 FRESULT f_delete_node (
     TCHAR* path,    /* Path name buffer with the sub-directory to delete */
     UINT sz_buff,  /* Size of path name buffer (items) */
@@ -329,6 +366,13 @@ void clear_dir(char * path)
     char path_buff[PATH_LEN];
     strcpy(path_buff, path);
     f_delete_node(path_buff, sizeof(path_buff), true);
+}
+
+void remove_dir(char * path)
+{
+    char path_buff[PATH_LEN];
+    strcpy(path_buff, path);
+    f_delete_node(path_buff, sizeof(path_buff), false);
 }
 
 bool read_value(char * data, char * key, char * value, uint16_t value_len)
@@ -444,4 +488,27 @@ uint8_t nmea_checksum(char *s)
         c ^= *s++;
 
     return c;
+}
+
+//not using memcpy to prevent unaligned access
+void str_join(char * dst, uint8_t cnt, ...)
+{
+    va_list vl;
+    va_start(vl, cnt);
+
+    //move to end
+    char * ptr = dst + strlen(dst);
+
+    for (uint8_t i=0; i < cnt; i++)
+    {
+        char * val = va_arg(vl, char *);
+        while(*val != 0)
+        {
+            *ptr = *val;
+            ptr++;
+            val++;
+        }
+    }
+    va_end(vl);
+    *ptr = 0;
 }

@@ -11,23 +11,23 @@
 #define SEGMENTS_CNT  6
 
 
-REGISTER_WIDGET_ISU(Bar,
+REGISTER_WIDGET_IU(Bar,
     "Vario bar",
-    24,
-    128,
+    16,
+    80,
 	0,
-
 
     lv_obj_t * bar_vario;
     lv_obj_t * bar_avg;
     lv_obj_t * lines[SEGMENTS_CNT - 1];
     lv_obj_t * labels[SEGMENTS_CNT - 1];
 
-    lv_style_t line;
-    lv_style_t label;
-
     int8_t offset;
 );
+
+static bool static_init = false;
+static lv_style_t static_line = {0};
+static lv_style_t static_label = {0};
 
 static void Bar_update_range(widget_slot_t * slot)
 {
@@ -70,14 +70,18 @@ static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
 
     widget_create_base(base, slot);
 
-    lv_style_init(&local->line);
-    lv_style_set_bg_color(&local->line, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    lv_style_set_border_color(&local->line, LV_STATE_DEFAULT, LV_COLOR_BLACK);
-    lv_style_set_border_width(&local->line, LV_STATE_DEFAULT, 1);
+    if (!static_init)
+    {
+        lv_style_init(&static_line);
+        lv_style_set_bg_color(&static_line, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+        lv_style_set_border_color(&static_line, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+        lv_style_set_border_width(&static_line, LV_STATE_DEFAULT, 1);
 
-    lv_style_init(&local->label);
-    lv_style_set_text_font(&local->label, LV_STATE_DEFAULT, &lv_font_montserrat_12);
-    lv_style_set_text_color(&local->label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+        lv_style_init(&static_label);
+        lv_style_set_text_font(&static_label, LV_STATE_DEFAULT, &lv_font_montserrat_12);
+        lv_style_set_text_color(&static_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+        static_init = true;
+    }
 
     local->bar_vario = lv_obj_create(slot->obj, NULL);
     lv_obj_set_x(local->bar_vario, 1);
@@ -90,10 +94,10 @@ static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
     for (uint8_t i = 0; i < SEGMENTS_CNT - 1; i++)
     {
         local->lines[i] = lv_obj_create(slot->obj, NULL);
-        lv_obj_add_style(local->lines[i], LV_OBJ_PART_MAIN, &local->line);
+        lv_obj_add_style(local->lines[i], LV_OBJ_PART_MAIN, &static_line);
 
         local->labels[i] = lv_label_create(slot->obj, NULL);
-        lv_obj_add_style(local->labels[i], LV_LABEL_PART_MAIN, &local->label);
+        lv_obj_add_style(local->labels[i], LV_LABEL_PART_MAIN, &static_label);
         lv_obj_align(local->labels[i], local->lines[i], LV_ALIGN_IN_BOTTOM_RIGHT, -3, -3);
     }
 
@@ -165,14 +169,3 @@ static void Bar_update(widget_slot_t * slot)
     }
 }
 
-static void Bar_stop(widget_slot_t * slot)
-{
-    for (uint8_t i = 0; i < SEGMENTS_CNT - 1; i++)
-    {
-        lv_obj_remove_style(local->lines[i], LV_OBJ_PART_MAIN, &local->line);
-        lv_obj_remove_style(local->labels[i], LV_LABEL_PART_MAIN, &local->label);
-    }
-
-    lv_style_reset(&local->line);
-    lv_style_reset(&local->label);
-}

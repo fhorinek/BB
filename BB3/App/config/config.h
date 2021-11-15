@@ -273,6 +273,10 @@ void config_load_all();
 void config_store_all();
 void config_restore_factory();
 
+void config_change_pilot(char * pilot_name);
+void config_change_profile(char * profile_name);
+
+
 extern bool config_changed;
 
 #endif /* CONFIG_CONFIG_H_ */

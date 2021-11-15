@@ -28,22 +28,24 @@ static gui_list_slider_options_t avg_opt = {
 	.format = format_duration,
 };
 
-bool vario_profile_fm_cb(char * path)
+bool vario_profile_fm_cb(uint8_t event, char * path)
 {
-	path = strrchr(path, '/');
+    if (event == FM_CB_SELECT)
+    {
+        path = strrchr(path, '/');
 
-	if (path == NULL)
-		return true;
-	path++;
-	char * dot = strrchr(path, '.');
+        if (path == NULL)
+            return true;
+        path++;
+        char * dot = strrchr(path, '.');
 
-	if (dot == NULL)
-		return true;
-	*dot = 0;
+        if (dot == NULL)
+            return true;
+        *dot = 0;
 
-	config_set_text(&profile.vario.profile, path);
-	vario_profile_load(path);
-
+        config_set_text(&profile.vario.profile, path);
+        vario_profile_load(path);
+    }
 	return true;
 }
 
@@ -52,7 +54,7 @@ static bool vario_profile_cb(lv_obj_t * obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
 		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-		filemanager_open(PATH_VARIO_DIR, 0, &gui_vario_settings, vario_profile_fm_cb);
+		filemanager_open(PATH_VARIO_DIR, 0, &gui_vario_settings, FM_FLAG_HIDE_DIR, vario_profile_fm_cb);
 
 		//supress default handler
 		return false;

@@ -12,6 +12,9 @@
 
 #include "drivers/esp/download/slot.h"
 
+static void * dialog_opt_data  = NULL;
+static void * dialog_opt_param  = NULL;
+
 void dialog_downloads_error(uint8_t res)
 {
     if (res == DOWNLOAD_SLOT_NOT_FOUND)
@@ -70,21 +73,21 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
     if (gui.dialog.type == dialog_yes_no)
     {
         if (key == LV_KEY_ESC)
-            dialog_stop(dialog_res_no, NULL);
+            dialog_stop(dialog_res_no, dialog_opt_data);
         if (key == LV_KEY_ENTER)
-            dialog_stop(dialog_res_yes, NULL);
+            dialog_stop(dialog_res_yes, dialog_opt_data);
     }
 
     if (gui.dialog.type == dialog_confirm || gui.dialog.type == dialog_release_note)
     {
         if (key == LV_KEY_ESC || key == LV_KEY_ENTER)
-            dialog_stop(dialog_res_none, NULL);
+            dialog_stop(dialog_res_none, dialog_opt_data);
     }
 
     if (gui.dialog.type == dialog_dfu)
     {
         if (key == LV_KEY_ESC)
-            dialog_stop(dialog_res_no, NULL);
+            dialog_stop(dialog_res_no, dialog_opt_data);
 
         if (key == LV_KEY_HOME)
         {
@@ -95,22 +98,23 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
     if (gui.dialog.type == dialog_progress)
     {
         if (key == LV_KEY_ESC)
-            dialog_stop(dialog_res_cancel, NULL);
+            dialog_stop(dialog_res_cancel, dialog_opt_data);
     }
 
     if (gui.dialog.type == dialog_textarea)
     {
+
         if(event == LV_EVENT_APPLY || event == LV_EVENT_CANCEL)
         {
             keyboard_hide();
             if (event == LV_EVENT_APPLY)
                 dialog_stop(dialog_res_yes, (void *)lv_textarea_get_text(obj));
             else
-                dialog_stop(dialog_res_no, NULL);
+                dialog_stop(dialog_res_no, dialog_opt_data);
         }
 
         if (event == LV_EVENT_LEAVE)
-            dialog_stop(dialog_res_no, NULL);
+            dialog_stop(dialog_res_no, dialog_opt_data);
     }
 }
 
@@ -178,13 +182,28 @@ void dialog_close()
     dialog_stop(dialog_res_none, NULL);
 }
 
+void dialog_add_opt_data(void * opt_data)
+{
+    dialog_opt_data = opt_data;
+}
+
+void * dialog_get_opt_data()
+{
+    return dialog_opt_data;
+}
+
+void dialog_add_opt_param(void * opt_param)
+{
+    dialog_opt_param = opt_param;
+}
+
 void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb_t cb)
 {
     if (gui.dialog.active)
         dialog_stop(dialog_res_none, NULL);
 
     gui.dialog.active = true;
-
+    dialog_opt_data = NULL;
     //switch group
     lv_indev_set_group(gui.input.indev, gui.dialog.group);
 
@@ -307,7 +326,12 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
         case (dialog_textarea):
         {
             lv_obj_t * textbox = lv_textarea_create(cont, NULL);
-            lv_textarea_set_text(textbox, "");
+
+            if (dialog_opt_param != NULL)
+                lv_textarea_set_text(textbox, dialog_opt_param);
+            else
+                lv_textarea_set_text(textbox, "");
+
 //            lv_textarea_set_max_length(textbox, max_len);
             lv_textarea_set_one_line(textbox, true);
             lv_textarea_set_cursor_hidden(textbox, true);
@@ -326,5 +350,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
 
         break;
     }
+
+    dialog_opt_param = NULL;
 }
 

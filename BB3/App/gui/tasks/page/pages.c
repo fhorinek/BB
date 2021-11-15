@@ -71,6 +71,8 @@ REGISTER_TASK_ILS(pages,
 	lv_obj_t * butt_short2;
 	lv_obj_t * butt_settings;
 
+	lv_obj_t * selector;
+
 	//indicator
 	lv_obj_t * indicator;
 
@@ -126,6 +128,33 @@ void pages_splash_anim_cb(void * obj, lv_anim_value_t val)
 	lv_draw_mask_radius_param_t mask_param;
 	lv_draw_mask_radius_init(&mask_param, &a, val, false);
 	local->mask_param = lv_objmask_add_mask(local->mask, &mask_param);
+}
+
+void page_focus_widget(lv_obj_t * obj)
+{
+    if (local->selector != NULL)
+    {
+        lv_obj_del(local->selector);
+        local->selector = NULL;
+    }
+
+    if (obj != NULL)
+    {
+        local->selector = lv_obj_create(obj, NULL);
+
+        lv_coord_t w = lv_obj_get_width(obj);
+        lv_coord_t h = lv_obj_get_height(obj);
+
+        lv_obj_set_pos(local->selector, 0, 0);
+        lv_obj_set_size(local->selector, w, h);
+
+        lv_obj_set_style_local_bg_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+        lv_obj_set_style_local_border_width(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
+        lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLUE);
+        lv_obj_set_style_local_border_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
+
+        lv_obj_move_foreground(obj);
+    }
 }
 
 void pages_menu_show()
@@ -398,7 +427,8 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                         //defocus old
                         if (local->active_widget != NULL)
                         {
-                        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+//                        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+                        	page_focus_widget(NULL);
                         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
                         }
 
@@ -406,7 +436,8 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 
                         //focus new
                         if (local->active_widget != NULL)
-                            local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_FOCUS, NULL);
+                            page_focus_widget(local->active_widget->obj);
+//                            local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_FOCUS, NULL);
                         else
                         	local->state = MENU_IDLE;
                     }
@@ -487,7 +518,8 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 							if (local->active_widget != NULL)
 							{
 								widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
-								local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+								page_focus_widget(NULL);
+//								local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
 							}
 							local->active_widget = NULL;
 						}
@@ -574,6 +606,11 @@ void pages_load(char * filename, int8_t anim)
 
 static lv_obj_t * pages_init(lv_obj_t * par)
 {
+    if (gui.task.last != NULL || gui.task.last == &gui_pages)
+        config_store_all();
+
+    local->selector = NULL;
+
 	lv_obj_set_style_local_bg_color(par, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
 	gui_set_dummy_event_cb(par, pages_event_cb);
@@ -586,19 +623,19 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->page_old = NULL;
 
 	local->pages_cnt = pages_get_count();
-	if (local->pages_cnt == 0)
-	{
-		config_set_text(&profile.ui.page[0], "default");
-		local->pages_cnt = 1;
-	}
 
 	char path[PATH_LEN];
-	snprintf(path, sizeof(path), "%s/default.pag", PATH_PAGES_DIR);
-	if (!file_exists(path))
+	snprintf(path, sizeof(path), "%s/%s", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
+	if (!file_exists(path) || local->pages_cnt == 0)
 	{
+	    //copy default layouts
 		char def[PATH_LEN];
-		snprintf(def, sizeof(def), "%s/defaults/pages/default.pag", PATH_ASSET_DIR);
-		copy_file(def, path);
+		snprintf(def, sizeof(def), "%s/defaults/pages", PATH_ASSET_DIR);
+		copy_dir(def, path);
+
+		//set default pages
+        config_set_text(&profile.ui.page[0], "default");
+        local->pages_cnt = 1;
 	}
 
 	local->actual_page = config_get_int(&profile.ui.page_last);
@@ -632,7 +669,8 @@ static void pages_loop()
         //defocus old
         if (local->active_widget != NULL)
         {
-        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+//        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+        	page_focus_widget(NULL);
         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
         	local->active_widget = NULL;
         }
@@ -645,7 +683,8 @@ static void pages_loop()
         //defocus old
         if (local->active_widget != NULL)
         {
-        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+//        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
+        	page_focus_widget(NULL);
         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
 
         	//close overlay

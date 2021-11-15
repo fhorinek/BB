@@ -12,8 +12,8 @@ REGISTER_WIDGET_IU
 (
 	CompHdg,
     "Compass heading",
-    WIDGET_VAL_MIN_W,
-    WIDGET_VAL_MIN_H,
+    WIDGET_MIN_W,
+    WIDGET_MIN_H,
 	_b(wf_label_hide),
 
     lv_obj_t * value;
@@ -39,7 +39,7 @@ static void CompHdg_update(widget_slot_t * slot)
     {
 		lv_label_set_text_fmt(local->value, "%0.0f", fc.fused.azimuth_filtered);
     }
-    widget_update_font_size(local->value, slot->obj);
+    widget_update_font_size(local->value);
 }
 
 

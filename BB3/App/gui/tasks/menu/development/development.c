@@ -7,6 +7,7 @@
 #include "drivers/esp/protocol.h"
 #include "drivers/psram.h"
 #include "etc/format.h"
+#include "gui/dialog.h"
 
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;

@@ -12,8 +12,8 @@ REGISTER_WIDGET_ISUE
 (
     Alt2,
     "Altitude QNH2",
-    WIDGET_VAL_MIN_W,
-    WIDGET_VAL_MIN_H,
+    WIDGET_MIN_W,
+    WIDGET_MIN_H,
 	_b(wf_label_hide) | _b(wf_units_hide),
 
     lv_obj_t * value;

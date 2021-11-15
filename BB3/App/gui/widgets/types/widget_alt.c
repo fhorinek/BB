@@ -74,9 +74,9 @@ void Alt_edit(void * local_ptr, widget_slot_t * slot, uint8_t action, char * tit
 			local->edit = widget_create_edit_overlay(title, "Set QNH");
 			lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
 			lv_obj_t * qnh = lv_label_create(base, NULL);
-			lv_obj_set_style_local_text_font(qnh, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[1]);
+			lv_obj_set_style_local_text_font(qnh, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[FONT_XL]);
 			lv_obj_t * alt = lv_label_create(base, NULL);
-			lv_obj_set_style_local_text_font(alt, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[1]);
+			lv_obj_set_style_local_text_font(alt, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[FONT_XL]);
 
 			//update values
 			Alt_update(local_ptr, slot, *alt_ptr, config_get_big_int(qnh_cfg));
@@ -134,7 +134,7 @@ void Alt_update(void * local_ptr, widget_slot_t * slot, float alt_val, int32_t q
     {
         lv_label_set_text(local->value, "---");
     }
-    widget_update_font_size(local->value, slot->obj);
+    widget_update_font_size(local->value);
 
     if (local->edit != NULL)
     {

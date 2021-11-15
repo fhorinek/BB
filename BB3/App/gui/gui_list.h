@@ -42,6 +42,7 @@ void gui_list_slider_set_value(lv_obj_t * obj, int16_t value);
 lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const char * value, uint8_t max_len);
 void gui_list_textbox_set_value(lv_obj_t * obj, const char * value);
 const char * gui_list_textbox_get_value(lv_obj_t * obj);
+void gui_list_textbox_set_name(lv_obj_t * obj, const char * value);
 
 lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const char * options, uint16_t selected);
 uint16_t gui_list_dropdown_get_value(lv_obj_t * obj);
@@ -74,6 +75,8 @@ void gui_config_config_cb(cfg_entry_t * entry);
 
 void gui_list_store_pos(gui_task_t * task);
 void gui_list_retrive_pos(gui_task_t * task);
+
+#define LIST_NOTE_COLOR LV_COLOR_ORANGE
 
 //last created list
 extern lv_obj_t * gui_list;
