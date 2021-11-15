@@ -1,4 +1,3 @@
-#include "pilot.h"
 
 #include "gui/tasks/menu/settings.h"
 

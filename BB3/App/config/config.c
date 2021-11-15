@@ -321,20 +321,31 @@ void config_show(cfg_entry_t * structure)
 
 void config_load_all()
 {
-	config_disable_callbacks();
+    char path[PATH_LEN] = {0};
+
+    config_disable_callbacks();
 
     config_init((cfg_entry_t *)&config);
+    config_init((cfg_entry_t *)&profile);
+    config_init((cfg_entry_t *)&pilot);
+
+    str_join(path, 3, PATH_ASSET_DIR, "/", "profile.cfg");
+    if (!file_exists(path))
+        config_store((cfg_entry_t *)&profile, path);
+
+    path[0] = 0;
+    str_join(path, 3, PATH_ASSET_DIR, "/", "pilot.cfg");
+    if (!file_exists(path))
+        config_store((cfg_entry_t *)&profile, path);
+
     config_load((cfg_entry_t *)&config, PATH_DEVICE_CFG);
     pages_defragment();
 
-    char path[64];
 
     sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
-    config_init((cfg_entry_t *)&profile);
     config_load((cfg_entry_t *)&profile, path);
 
     sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
-    config_init((cfg_entry_t *)&pilot);
     config_load((cfg_entry_t *)&pilot, path);
 
 	config_enable_callbacks();
@@ -343,6 +354,33 @@ void config_load_all()
     config_process_cb(&config.device_name);
 }
 
+void config_change_pilot(char * pilot_name)
+{
+    char path[PATH_LEN];
+
+    sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
+    config_store((cfg_entry_t * )&pilot, path);
+
+    config_set_text(&config.pilot_profile, pilot_name);
+
+    sprintf(path, "%s/%s.cfg", PATH_PILOT_DIR, config_get_text(&config.pilot_profile));
+    config_init((cfg_entry_t *)&pilot);
+    config_load((cfg_entry_t *)&pilot, path);
+}
+
+void config_change_profile(char * profile_name)
+{
+    char path[PATH_LEN];
+
+    sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
+    config_store((cfg_entry_t * )&profile, path);
+
+    config_set_text(&config.flight_profile, profile_name);
+
+    sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
+    config_init((cfg_entry_t *)&profile);
+    config_load((cfg_entry_t *)&profile, path);
+}
 
 void config_store_all()
 {
@@ -362,6 +400,6 @@ void config_store_all()
 
 void config_restore_factory()
 {
-	clear_dir(PATH_CONFIG_DIR);
+	remove_dir(PATH_CONFIG_DIR);
 	system_reboot();
 }

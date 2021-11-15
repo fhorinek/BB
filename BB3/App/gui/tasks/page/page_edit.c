@@ -61,9 +61,9 @@ void page_edit_set_selector_mode()
 		return;
 
     if (local->mode == mode_select)
-    	lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-    else if(local->mode == mode_move_x || local->mode == mode_move_y)
     	lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLUE);
+    else if(local->mode == mode_move_x || local->mode == mode_move_y)
+    	lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
     else
     	lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
 
@@ -135,43 +135,61 @@ void page_edit_move_widget(widget_slot_t * ws, int8_t dir)
     uint16_t old_x = ws->x;
     uint16_t old_y = ws->y;
 
+    bool scale = false;
     switch(local->mode)
     {
         case(mode_move_x):
             ws->x = max(ws->x + inc, 0);
-            ws->x = min(ws->x, w - ws->w);
-
-            lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_x);
-            lv_anim_set_values(&a, old_x, ws->x);
+            if (ws->x > w - ws->w)
+            {
+                ws->w = max(w - ws->x, ws->widget->w_min);
+                ws->x = w - ws->w;
+                scale = true;
+            }
+            else
+            {
+                lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_x);
+                lv_anim_set_values(&a, old_x, ws->x);
+                lv_anim_start(&a);
+            }
         break;
         case(mode_move_y):
             ws->y = max(ws->y + inc, 0);
-            ws->y = min(ws->y, h - ws->h);
-
-            lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_y);
-            lv_anim_set_values(&a, old_y, ws->y);
+            if (ws->y > h - ws->h)
+            {
+                ws->h = max(h - ws->y, ws->widget->h_min);
+                ws->y = h - ws->h;
+                scale = true;
+            }
+            else
+            {
+                lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_y);
+                lv_anim_set_values(&a, old_y, ws->y);
+                lv_anim_start(&a);
+            }
         break;
         case(mode_size_x):
+            scale = true;
             ws->w = max(ws->w + inc, ws->widget->w_min);
-            ws->w = min(ws->w, w - ws->x);
+            ws->w = min(ws->w, w);
+            if (ws->w + ws->x > w)
+                ws->x = w - ws->w;
+
         break;
         case(mode_size_y):
+            scale = true;
             ws->h = max(ws->h + inc, ws->widget->h_min);
-            ws->h = min(ws->h, h - ws->y);
+            ws->h = min(ws->h, h);
+            if (ws->h + ws->h > h)
+                ws->y = h - ws->h;
+
         break;
         default:
 		break;
     }
 
-    if (local->mode == mode_size_x || local->mode == mode_size_y)
-    {
-        //to resize the widget it need to be re initilised
+    if (scale)
     	page_edit_recreate_widget(ws);
-    }
-    else
-    {
-        lv_anim_start(&a);
-    }
 }
 
 void page_edit_remove_cb(dialog_result_t res, void * data)
@@ -235,7 +253,8 @@ void page_edit_set_focus(uint8_t index)
 	lv_obj_set_size(local->selector, w, h);
 
 	lv_obj_set_style_local_bg_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
-	lv_obj_set_style_local_border_width(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
+    lv_obj_set_style_local_border_width(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
+    lv_obj_set_style_local_border_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
 	page_edit_set_selector_mode();
 
 	lv_obj_move_foreground(obj);
@@ -246,7 +265,7 @@ void page_edit_ctx_open(uint8_t index)
 	ctx_clear();
 	ctx_add_option(LV_SYMBOL_PLUS " Add widget");
 	ctx_add_option(LV_SYMBOL_REFRESH " Change widget");
-	ctx_add_option(LV_SYMBOL_CLOSE " Remove widget");
+	ctx_add_option(LV_SYMBOL_TRASH " Remove widget");
 
 	bool widget_flags_title = false;
 	//add flag options
@@ -388,8 +407,8 @@ bool page_edit_ctx_cb(uint8_t option, lv_obj_t * last_focus)
     else
     {
         //refocus old widget
-        page_edit_set_mode(mode_select);
-        lv_group_focus_obj(local->page.widget_slots[local->focus_index].obj);
+//        page_edit_set_mode(mode_select);
+//        lv_group_focus_obj(local->page.widget_slots[local->focus_index].obj);
     }
 
     return true;
@@ -409,8 +428,6 @@ void page_edit_set_page_name(char * filename, uint8_t index)
 
     local->page_index = index;
 
-//    lv_obj_move_background(local->grid);
-
 	page_edit_set_focus(0);
     page_edit_set_mode(mode_select);
 }
@@ -429,6 +446,28 @@ void page_edit_modify_widget(widget_t * w, uint8_t widget_index)
 
         widgets_add(&local->page, w);
         page_edit_set_focus(local->page.number_of_widgets - 1);
+
+        int16_t w = lv_obj_get_width(local->par);
+        int16_t h = lv_obj_get_height(local->par);
+
+        widget_slot_t * new_ws = &local->page.widget_slots[local->page.number_of_widgets - 1];
+
+        if (local->page.number_of_widgets > 1)
+        {
+            widget_slot_t * last_ws = &local->page.widget_slots[local->page.number_of_widgets - 2];
+            if (w - last_ws->x - last_ws->w >= new_ws->w)
+            {
+                new_ws->x = last_ws->x + last_ws->w;
+                new_ws->y = last_ws->y;
+                lv_obj_set_pos(new_ws->obj, new_ws->x, new_ws->y);
+            }
+            else if (h - last_ws->y - last_ws->h >= new_ws->h)
+            {
+                new_ws->x = 0;
+                new_ws->y = last_ws->y + last_ws->h;
+                lv_obj_set_pos(new_ws->obj, new_ws->x, new_ws->y);
+            }
+        }
     }
     else
     {

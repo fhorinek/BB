@@ -12,8 +12,8 @@ REGISTER_WIDGET_IU
 (
     Avg,
     "Average vario",
-    WIDGET_VAL_MIN_W,
-    WIDGET_VAL_MIN_H,
+    WIDGET_MIN_W,
+    WIDGET_MIN_H,
 	_b(wf_label_hide) | _b(wf_units_hide),
 
     lv_obj_t * value;
@@ -51,7 +51,7 @@ static void Avg_update(widget_slot_t * slot)
         format_vario(value, fc.fused.avg_vario);
 
     lv_label_set_text(local->value, value);
-    widget_update_font_size(local->value, slot->obj);
+    widget_update_font_size(local->value);
 }
 
 

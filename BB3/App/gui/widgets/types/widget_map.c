@@ -14,8 +14,8 @@
 
 REGISTER_WIDGET_IU(Map,
     "Map",
-    WIDGET_VAL_MIN_W,
-    WIDGET_VAL_MIN_H,
+    WIDGET_MIN_W,
+    WIDGET_MIN_H,
 	0,
 
     lv_obj_t * image[9];

@@ -13,8 +13,8 @@ REGISTER_WIDGET_IUE
 (
     FTime,
     "Flight time",
-    WIDGET_VAL_MIN_W,
-    WIDGET_VAL_MIN_H,
+    WIDGET_MIN_W,
+    WIDGET_MIN_H,
 	_b(wf_label_hide) | _b(wf_units_hide),
 
     lv_obj_t * value;
@@ -27,7 +27,11 @@ static void FTime_init(lv_obj_t * base, widget_slot_t * slot)
     if (!widget_flag_is_set(slot, wf_label_hide))
     	widget_add_title(base, slot, "Flight time");
 
-    local->value = widget_add_value(base, slot, "", &local->sub);
+    char * sub_text = "";
+    if (widget_flag_is_set(slot, wf_units_hide))
+        sub_text = NULL;
+
+    local->value = widget_add_value(base, slot, sub_text, &local->sub);
 }
 
 static void FTime_edit(widget_slot_t * slot, uint8_t action)
@@ -48,12 +52,14 @@ static void FTime_update(widget_slot_t * slot)
     if (fc.flight.mode == flight_not_ready)
     {
         lv_label_set_text(local->value, "---");
-        lv_label_set_text(local->sub, "wait");
+        if (local->sub != NULL)
+            lv_label_set_text(local->sub, "wait");
     }
     else if (fc.flight.mode == flight_wait_to_takeoff)
     {
         lv_label_set_text(local->value, "Start");
-        lv_label_set_text(local->sub, "ready");
+        if (local->sub != NULL)
+            lv_label_set_text(local->sub, "ready");
     }
     else if (fc.flight.mode == flight_flight)
     {
@@ -71,7 +77,8 @@ static void FTime_update(widget_slot_t * slot)
             snprintf(value, sizeof(value), "%02u:%02u", hour, min);
 
         lv_label_set_text(local->value, value);
-        lv_label_set_text(local->sub, "in flight");
+        if (local->sub != NULL)
+            lv_label_set_text(local->sub, "in flight");
     }
     else if (fc.flight.mode == flight_landed)
     {
@@ -89,10 +96,11 @@ static void FTime_update(widget_slot_t * slot)
             snprintf(value, sizeof(value), "%02u:%02u", hour, min);
 
         lv_label_set_text(local->value, value);
-        lv_label_set_text(local->sub, "landed");
+        if (local->sub != NULL)
+            lv_label_set_text(local->sub, "landed");
     }
 
-    widget_update_font_size(local->value, slot->obj);
+    widget_update_font_size(local->value);
 }
 
 

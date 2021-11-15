@@ -95,7 +95,7 @@ lv_obj_t * advanced_init(lv_obj_t * par)
 
     if (fc.imu.status != fc_dev_ready)
     {
-    	gui_list_note_add_entry(list, "Calibration data not valid", LV_COLOR_YELLOW);
+    	gui_list_note_add_entry(list, "Calibration data not valid", LIST_NOTE_COLOR);
     }
 
     gui_list_auto_entry(list, "Calibrate sensors", NEXT_TASK, &gui_calibration);

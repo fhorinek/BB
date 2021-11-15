@@ -40,17 +40,30 @@ typedef enum
     dialog_res_yes,
     dialog_res_no,
     dialog_res_cancel,
+
 } dialog_result_t;
 
 
-#define NUMBER_OF_WIDGET_FONTS	6
 
-#define FONT_XXL	0
-#define FONT_XL		1
-#define FONT_L		2
-#define FONT_M		3
-#define FONT_S		4
-#define FONT_XS		5
+typedef enum
+{
+    FONT_8XL = 0,
+    FONT_7XL,
+    FONT_6XL,
+    FONT_5XL,
+    FONT_4XL,
+    FONT_3XL,
+    FONT_2XL,
+    FONT_XL,
+    FONT_L,
+    FONT_M,
+    FONT_S,
+    FONT_XS,
+
+    NUMBER_OF_WIDGET_FONTS,
+};
+
+#define FONT_WITH_TEXTS  FONT_XL
 
 
 #define BAR_ICON_DL		9

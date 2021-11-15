@@ -23,6 +23,15 @@
 
 gui_t gui;
 
+LV_FONT_DECLARE(lv_font_montserrat_14);
+LV_FONT_DECLARE(lv_font_montserrat_50);
+LV_FONT_DECLARE(lv_font_montserrat_60);
+LV_FONT_DECLARE(lv_font_montserrat_70);
+LV_FONT_DECLARE(lv_font_montserrat_85);
+LV_FONT_DECLARE(lv_font_montserrat_100);
+LV_FONT_DECLARE(lv_font_montserrat_120);
+LV_FONT_DECLARE(lv_font_montserrat_140);
+
 void gui_show_release_note()
 {
 	#define RELEASE_NOTE_BUFF_SIZE (1024 * 8)
@@ -84,6 +93,7 @@ void end_last_task()
 		{
 			if (gui.task.last == gui.task.actual)
 			{
+			    //handles problem when the last and actual task are the same (eg: Filemanager)
 				void * actual_memory = *gui.task.actual->local_vars;
 				*gui.task.last->local_vars = gui.task.last_memory;
 				gui.task.last->stop();
@@ -206,12 +216,21 @@ void gui_init_styles()
 	lv_style_set_radius(&gui.styles.note, LV_STATE_DEFAULT, 5);
 	lv_style_set_margin_bottom(&gui.styles.note, LV_STATE_DEFAULT, 5);
 
-	gui.styles.widget_fonts[0] = &lv_font_montserrat_48;
-	gui.styles.widget_fonts[1] = &lv_font_montserrat_44;
-	gui.styles.widget_fonts[2] = &lv_font_montserrat_34;
-	gui.styles.widget_fonts[3] = &lv_font_montserrat_28;
-	gui.styles.widget_fonts[4] = &lv_font_montserrat_16;
-	gui.styles.widget_fonts[5] = &lv_font_montserrat_12;
+	//numbers only
+    gui.styles.widget_fonts[FONT_8XL] = &lv_font_montserrat_140;
+    gui.styles.widget_fonts[FONT_7XL] = &lv_font_montserrat_120;
+    gui.styles.widget_fonts[FONT_6XL] = &lv_font_montserrat_100;
+    gui.styles.widget_fonts[FONT_5XL] = &lv_font_montserrat_85;
+    gui.styles.widget_fonts[FONT_4XL] = &lv_font_montserrat_70;
+    gui.styles.widget_fonts[FONT_3XL] = &lv_font_montserrat_60;
+    gui.styles.widget_fonts[FONT_2XL] = &lv_font_montserrat_50;
+
+    //full fonts
+	gui.styles.widget_fonts[FONT_XL] = &lv_font_montserrat_44;
+	gui.styles.widget_fonts[FONT_L] = &lv_font_montserrat_34; //10
+	gui.styles.widget_fonts[FONT_M] = &lv_font_montserrat_28; //6
+	gui.styles.widget_fonts[FONT_S] = &lv_font_montserrat_22; //6
+    gui.styles.widget_fonts[FONT_XS] = &lv_font_montserrat_16; //6
 }
 
 void gui_stop()

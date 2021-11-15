@@ -38,13 +38,21 @@ void ctx_close()
 	}
 }
 
+bool ctx_is_active()
+{
+    return gui.ctx.mode != ctx_disabled;
+}
+
 void ctx_open(uint8_t index)
 {
 	lv_dropdown_set_selected(gui.ctx.dropdown, index);
 
-	//save last
-	gui.ctx.last_focus = lv_group_get_focused(gui.input.group);
-	gui.ctx.last_editing = lv_group_get_editing(gui.input.group);
+	if (gui.ctx.mode != ctx_opened)
+	{
+        //save last
+        gui.ctx.last_focus = lv_group_get_focused(gui.input.group);
+        gui.ctx.last_editing = lv_group_get_editing(gui.input.group);
+	}
 
     //temoprary add to group
     lv_group_add_obj(gui.input.group, gui.ctx.dropdown);

@@ -17,6 +17,13 @@ void dialog_progress_spin();
 void dialog_progress_set_progress(uint8_t progress);
 void dialog_progress_set_subtitle(char * text);
 
+//data for cb
+void dialog_add_opt_data(void * opt_data);
+void * dialog_get_opt_data();
+
+//param for creation
+void dialog_add_opt_param(void * opt_param);
+
 void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb_t cb);
 void dialog_close();
 

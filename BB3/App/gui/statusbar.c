@@ -166,7 +166,7 @@ void statusbar_add_msg(statusbar_msg_type_t type, char * text)
 {
     gui_lock_acquire();
 
-	lv_color_t colors[] = {LV_COLOR_GREEN, LV_COLOR_YELLOW, LV_COLOR_RED};
+	lv_color_t colors[] = {LV_COLOR_GREEN, LV_COLOR_ORANGE, LV_COLOR_RED};
 	lv_obj_t * msg = lv_cont_create(gui.statusbar.mbox, NULL);
 	lv_cont_set_fit2(msg, LV_FIT_NONE, LV_FIT_TIGHT);
 	lv_obj_set_size(msg, LV_HOR_RES, 0);

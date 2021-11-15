@@ -14,7 +14,7 @@ bool widgets_save_to_file(page_layout_t * page, char * layout_name)
     char path[64];
     uint8_t ret;
 
-    snprintf(path, sizeof(path), "%s/%s.pag", PATH_PAGES_DIR, layout_name);
+    snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
     if ((ret = f_open(&f, path, FA_WRITE | FA_CREATE_ALWAYS)) != FR_OK)
     {
         ERR("Unable to open %s Error:%u", path, ret);
@@ -66,7 +66,7 @@ bool widgets_load_from_file(page_layout_t * page, char * layout_name)
 	char path[64];
 	uint8_t ret;
 
-	snprintf(path, sizeof(path), "%s/%s.pag", PATH_PAGES_DIR, layout_name);
+	snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
 	if ((ret = f_open(&f, path, FA_READ)) != FR_OK)
 	{
 		ERR("Unable to open %s Error:%u", path, ret);
@@ -180,6 +180,7 @@ widget_t * widget_find_by_name(char * widget_short_name)
 
 void widget_init(widget_slot_t * ws, lv_obj_t * par)
 {
+    ws->title = NULL;
     widget_dimension_check(ws);
 
     //allocate memory for widget
@@ -329,8 +330,8 @@ void widgets_add(page_layout_t * page, widget_t * w)
     page->widget_slots[page->number_of_widgets].widget = w;
     page->widget_slots[page->number_of_widgets].x = 0;
     page->widget_slots[page->number_of_widgets].y = 0;
-    page->widget_slots[page->number_of_widgets].w = w->w_min;
-    page->widget_slots[page->number_of_widgets].h = w->h_min;
+    page->widget_slots[page->number_of_widgets].w = WIDGET_DEFAULT_W;
+    page->widget_slots[page->number_of_widgets].h = WIDGET_DEFAULT_H;
     page->widget_slots[page->number_of_widgets].flags[0] = 0;
 
     widget_init(&page->widget_slots[page->number_of_widgets], page->base);
@@ -377,14 +378,15 @@ void widgets_remove(page_layout_t * page, uint8_t index)
 bool widget_flag_is_set(widget_slot_t * slot, widget_flags_id_t flag_id)
 {
 	char flag = widgets_flags[flag_id].flag;
-	return strchr(slot->flags, flag) != 0;
+	char * pos = strchr(slot->flags, flag);
+	return pos != 0;
 }
 
 void widget_flag_set(widget_slot_t * slot, widget_flags_id_t flag_id)
 {
-	char flag = widgets_flags[flag_id].flag;
-	if (!widget_flag_is_set(slot, flag))
+	if (!widget_flag_is_set(slot, flag_id))
 	{
+	    char flag = widgets_flags[flag_id].flag;
 		uint8_t len = strlen(slot->flags);
 		if (len < WIDGET_FLAGS_LEN - 1)
 		{
@@ -396,16 +398,16 @@ void widget_flag_set(widget_slot_t * slot, widget_flags_id_t flag_id)
 
 void widget_flag_unset(widget_slot_t * slot, widget_flags_id_t flag_id)
 {
-	char flag = widgets_flags[flag_id].flag;
-	if (!widget_flag_is_set(slot, flag))
+	if (widget_flag_is_set(slot, flag_id))
 	{
+	    char flag = widgets_flags[flag_id].flag;
 		for (uint8_t i = 0; i < WIDGET_FLAGS_LEN - 1; i++)
 		{
 			if (slot->flags[i] == flag)
 			{
 				for (uint8_t j = i; j < WIDGET_FLAGS_LEN - 1; j++)
-					slot->flags[i] = slot->flags[i + 1];
-				break;
+					slot->flags[j] = slot->flags[j + 1];
+				slot->flags[WIDGET_FLAGS_LEN - 1] = 0;
 			}
 		}
 	}
