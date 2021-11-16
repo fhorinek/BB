@@ -37,7 +37,7 @@ bool msc_loop()
     pwr_data_mode_t old_data_mode = 0xFF;
     uint32_t next_update = 0;
 
-    uint32_t pwr_delay = HAL_GetTick() + 4000;
+    uint32_t pwr_delay = HAL_GetTick() + 40000;
 
     while (1)
     {
@@ -49,7 +49,7 @@ bool msc_loop()
         	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
         }
 
-        if (pwr.data_port == PWR_DATA_CHARGE && !usb_init)
+        if ((pwr.data_port == PWR_DATA_CHARGE  || pwr.data_port == PWR_DATA_CHARGE_DONE) && !usb_init)
         {
             usb_init = true;
             msc_locked = false;
@@ -68,7 +68,7 @@ bool msc_loop()
         //are class data avalible (usb init ok)
         if (hmsc > 0)
         {
-            if (pwr.data_port == PWR_DATA_CHARGE)
+            if (pwr.data_port == PWR_DATA_CHARGE || pwr.data_port == PWR_DATA_CHARGE_DONE)
             {
                 pwr.data_port = PWR_DATA_ACTIVE;
             }
@@ -175,7 +175,9 @@ bool msc_loop()
         }
 
 		//charge done by alt charger
-		if (pwr.charge_port == PWR_CHARGE_NONE && pwr.data_port == PWR_DATA_CHARGE_DONE)
+		if (pwr.charge_port == PWR_CHARGE_NONE
+				&& pwr.data_port == PWR_DATA_CHARGE_DONE
+				&& pwr_delay < HAL_GetTick())
 		{
 			no_init->boot_type = BOOT_CHARGE;
 			no_init_update();

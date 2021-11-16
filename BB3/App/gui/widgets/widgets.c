@@ -60,13 +60,11 @@ void widget_dimension_check(widget_slot_t * ws)
     ws->y = min(ws->y, LV_VER_RES - GUI_STATUSBAR_HEIGHT - ws->h);
 }
 
-bool widgets_load_from_file(page_layout_t * page, char * layout_name)
+bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 {
 	FIL f;
-	char path[64];
 	uint8_t ret;
 
-	snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
 	if ((ret = f_open(&f, path, FA_READ)) != FR_OK)
 	{
 		ERR("Unable to open %s Error:%u", path, ret);
@@ -133,6 +131,14 @@ bool widgets_load_from_file(page_layout_t * page, char * layout_name)
 	f_close(&f);
 
 	return true;
+}
+
+bool widgets_load_from_file(page_layout_t * page, char * layout_name)
+{
+	char path[PATH_LEN];
+
+	snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
+	return widgets_load_from_file_abs(page, path);
 }
 
 void widgets_sort_page(page_layout_t * page)

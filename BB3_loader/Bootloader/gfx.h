@@ -26,7 +26,6 @@
 
 #define GFX_STATUS_ANIMATED     20
 #define GFX_STATUS_NONE_BOOST   20   //_ 4
-#define GFX_STATUS_NONE_DATA    21   //_ 40
 #define GFX_STATUS_NONE_NONE    22   //_ _
 
 #define GFX_STATUS_CHARGING		30
@@ -34,6 +33,7 @@
 #define GFX_STATUS_CHARGE_PASS  31   //4 4
 #define GFX_STATUS_CHARGE_DATA  32   //4 0
 #define GFX_STATUS_NONE_CHARGE  33   //0 4
+#define GFX_STATUS_NONE_DATA    34   //_ 40
 
 
 #define GFX_COLOR_MOD			0b10000000

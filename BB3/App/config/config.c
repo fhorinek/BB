@@ -319,6 +319,31 @@ void config_show(cfg_entry_t * structure)
 	}
 }
 
+uint8_t config_move_pages()
+{
+	FRESULT res;
+	DIR dir;
+	FILINFO fno;
+
+	res = f_opendir(&dir, PATH_PAGES_DIR);
+	while (true)
+	{
+		res = f_readdir(&dir, &fno);
+		if (res != FR_OK || fno.fname[0] == 0)
+			break;
+
+		if (!(fno.fattrib & AM_DIR))
+		{
+			char path_old[PATH_LEN] = {0};
+			char path_new[PATH_LEN] = {0};
+			str_join(path_old, 3, PATH_PAGES_DIR, "/", fno.fname);
+			str_join(path_new, 5, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile), "/", fno.fname);
+			f_rename(path_old, path_new);
+		}
+	}
+	f_closedir(&dir);
+}
+
 void config_load_all()
 {
     char path[PATH_LEN] = {0};
@@ -352,6 +377,11 @@ void config_load_all()
 
     //make sure to process
     config_process_cb(&config.device_name);
+
+    //move any pages to active profile
+    config_move_pages();
+
+//    config_apply_new_defaults
 }
 
 void config_change_pilot(char * pilot_name)
@@ -381,6 +411,32 @@ void config_change_profile(char * profile_name)
     config_init((cfg_entry_t *)&profile);
     config_load((cfg_entry_t *)&profile, path);
 }
+
+uint8_t config_profiles_cnt()
+{
+	FRESULT res;
+	DIR dir;
+	FILINFO fno;
+
+	res = f_opendir(&dir, PATH_PAGES_DIR);
+	uint16_t cnt = 0;
+	while (true)
+	{
+		res = f_readdir(&dir, &fno);
+		if (res != FR_OK || fno.fname[0] == 0)
+			break;
+
+		if (fno.fattrib & AM_DIR)
+			cnt++;
+	}
+
+	f_closedir(&dir);
+	return cnt;
+}
+
+
+
+
 
 void config_store_all()
 {

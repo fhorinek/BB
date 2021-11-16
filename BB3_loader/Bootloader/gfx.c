@@ -247,7 +247,11 @@ void gfx_draw_status(uint8_t status, const char * message)
             {
                 strcpy(title, "USB mode");
 				strcpy(text, "Eject to start");
-				strcpy(sub_text, "Charging slow");
+
+				if (pwr.fuel_gauge.battery_percentage == 100)
+					strcpy(sub_text, "Charging done");
+				else
+					strcpy(sub_text, "Charging slow");
             }
         break;
         case(GFX_STATUS_NONE_CHARGE):

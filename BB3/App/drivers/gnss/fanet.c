@@ -24,6 +24,7 @@ void fanet_start_dma()
 
 void fanet_init()
 {
+	MX_UART8_Init();
 	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
 
 	if (config_get_bool(&profile.fanet.enabled))
@@ -386,6 +387,7 @@ void fanet_parse(uint8_t c)
 		else
 		{
 			parser_buffer[parser_buffer_index] = 0;
+			DBG(" >>> %s", parser_buffer);
 
 			if (start_with(parser_buffer, "FN"))
 			{

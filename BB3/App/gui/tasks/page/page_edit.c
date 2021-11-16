@@ -128,12 +128,6 @@ void page_edit_move_widget(widget_slot_t * ws, int8_t dir)
 
     local->changed = true;
 
-    lv_anim_t a;
-    lv_anim_init(&a);
-    lv_anim_set_var(&a, ws->obj);
-
-    uint16_t old_x = ws->x;
-    uint16_t old_y = ws->y;
 
     bool scale = false;
     switch(local->mode)
@@ -148,9 +142,7 @@ void page_edit_move_widget(widget_slot_t * ws, int8_t dir)
             }
             else
             {
-                lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_x);
-                lv_anim_set_values(&a, old_x, ws->x);
-                lv_anim_start(&a);
+            	lv_obj_set_pos(ws->obj, ws->x, ws->y);
             }
         break;
         case(mode_move_y):
@@ -163,9 +155,7 @@ void page_edit_move_widget(widget_slot_t * ws, int8_t dir)
             }
             else
             {
-                lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_y);
-                lv_anim_set_values(&a, old_y, ws->y);
-                lv_anim_start(&a);
+            	lv_obj_set_pos(ws->obj, ws->x, ws->y);
             }
         break;
         case(mode_size_x):

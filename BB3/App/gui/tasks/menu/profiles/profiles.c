@@ -21,7 +21,7 @@ void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
     {
         f_unlink(path);
 
-        char name[32];
+        char name[PATH_LEN];
         filemanager_get_filename_no_ext(name, path);
 
         char text[64];
@@ -194,7 +194,7 @@ void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
     {
         f_unlink(path);
 
-        char name[32];
+        char name[PATH_LEN];
         filemanager_get_filename_no_ext(name, path);
 
         path[0] = 0;
@@ -237,7 +237,7 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
 
             f_rename(old_path, new_path);
 
-            char old_name[16];
+            char old_name[PATH_LEN];
             filemanager_get_filename_no_ext(old_name, old_path);
             old_path[0] = 0;
             str_join(old_path, 3, PATH_PROFILE_DIR, "/", old_name);
@@ -304,7 +304,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
                 config_change_profile(new_name);
                 config_store_all();
 
-                filemanager_back();
+                gui_switch_task(&gui_profiles, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
                 break;
             }
             break;
@@ -388,7 +388,7 @@ static lv_obj_t * profiles_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Pilot & Flight profile", &gui_settings, NULL);
 
-	gui_list_auto_entry(list, "Ask on startup", &config.ask_on_start, NULL);
+//	gui_list_auto_entry(list, "Ask on startup", &config.ask_on_start, NULL);
 
 	char name[64];
 	snprintf(name, sizeof(name), "%s (%s)", config_get_text(&pilot.name), config_get_text(&config.pilot_profile));

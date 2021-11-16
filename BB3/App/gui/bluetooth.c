@@ -15,7 +15,7 @@
 #include "gui/bluetooth.h"
 #include "fc/telemetry/telemetry.h"
 
-static proto_mac_t dev_mac;
+__align static proto_mac_t dev_mac;
 static bool dev_ble;
 
 static bool dialog_on = false;

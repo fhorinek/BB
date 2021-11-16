@@ -22,12 +22,33 @@ static uint8_t ublox_last_command;
 static uint32_t ublox_last_command_time;
 static uint32_t ublox_start_time;
 
-#define UBLOX_CMD_TIMEOUT 1500
+#define UBLOX_INIT_TIMEOUT 1500
 
 void ublox_start_dma()
 {
 	//WARN("GNSS Uart error");
 	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
+}
+
+
+static enum {
+	PM_INIT,
+	PM_IDLE,
+	PM_SYNC,
+	PM_CLASS,
+	PM_ID,
+	PM_LEN_LO,
+	PM_LEN_HI,
+	PM_PAYLOAD,
+	PM_CK_A,
+	PM_CK_B,
+	PM_RESET
+} ublox_parse_mode;
+
+void ublox_deinit()
+{
+	HAL_UART_DeInit(gnss_uart);
+	ublox_parse_mode = PM_RESET;
 }
 
 void ublox_init()
@@ -40,7 +61,12 @@ void ublox_init()
 		fc.gnss.fake = false;
 	}
 
-	HAL_DMA_Abort(gnss_uart->hdmarx);
+	if (ublox_parse_mode != PM_INIT)
+	{
+		ublox_deinit();
+	}
+
+	MX_UART5_Init();
 	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
 
 	GpioWrite(GNSS_RST, LOW);
@@ -49,11 +75,6 @@ void ublox_init()
 
 	ublox_start_time = HAL_GetTick();
 	ublox_last_command_time = false;
-}
-
-void ublox_deinit()
-{
-
 }
 
 static void gnss_set_baudrate(uint32_t baud)
@@ -449,22 +470,10 @@ bool ublox_handle_ack(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 static char ublox_start_word[] = "$GNRMC";
 
+
 void ublox_parse(uint8_t b)
 {
 	DBG(">> %c %u", b, b);
-
-	static enum {
-		PM_INIT,
-		PM_IDLE,
-		PM_SYNC,
-		PM_CLASS,
-		PM_ID,
-		PM_LEN_LO,
-		PM_LEN_HI,
-		PM_PAYLOAD,
-		PM_CK_A,
-		PM_CK_B
-	} mode;
 
 	static __align uint8_t msg_payload[1024];
 
@@ -476,14 +485,19 @@ void ublox_parse(uint8_t b)
 	static uint8_t msg_ck_a;
 	static uint8_t msg_ck_b;
 
-	if (mode > PM_SYNC && mode < PM_CK_A)
+	if (ublox_parse_mode > PM_SYNC && ublox_parse_mode < PM_CK_A)
 	{
 		msg_ck_a += b;
 		msg_ck_b += msg_ck_a;
 	}
 
-	switch (mode)
+	switch (ublox_parse_mode)
 	{
+		case(PM_RESET):
+			index = 0;
+			ublox_parse_mode = PM_INIT;
+		break;
+
 		case(PM_INIT):
 			{
 
@@ -493,7 +507,7 @@ void ublox_parse(uint8_t b)
 					if (index == strlen(ublox_start_word))
 					{
 						ublox_command(0);
-						mode = PM_IDLE;
+						ublox_parse_mode = PM_IDLE;
 					}
 				}
 				else
@@ -507,50 +521,50 @@ void ublox_parse(uint8_t b)
 		case(PM_IDLE):
 			if (b == 0xB5)
 			{
-				mode = PM_SYNC;
+				ublox_parse_mode = PM_SYNC;
 			}
 			break;
 
 		case(PM_SYNC):
 			if (b == 0x62)
 			{
-				mode = PM_CLASS;
+				ublox_parse_mode = PM_CLASS;
 				msg_ck_a = 0;
 				msg_ck_b = 0;
 			}
 			else
 			{
-				mode = PM_IDLE;
+				ublox_parse_mode = PM_IDLE;
 			}
 			break;
 
 		case(PM_CLASS):
 			msg_class = b;
-			mode = PM_ID;
+			ublox_parse_mode = PM_ID;
 			break;
 
 		case(PM_ID):
 			msg_id = b;
-			mode = PM_LEN_LO;
+			ublox_parse_mode = PM_LEN_LO;
 			break;
 
 		case(PM_LEN_LO):
 			msg_len = b;
-			mode = PM_LEN_HI;
+			ublox_parse_mode = PM_LEN_HI;
 			break;
 
 		case(PM_LEN_HI):
 			msg_len |= (b << 8);
 			index = 0;
 			if (msg_len > 0)
-				mode = PM_PAYLOAD;
+				ublox_parse_mode = PM_PAYLOAD;
 			else
-				mode = PM_CK_A;
+				ublox_parse_mode = PM_CK_A;
 
 			if (msg_len > sizeof(msg_payload))
 			{
 				ERR("payload too long");
-				mode = PM_IDLE;
+				ublox_parse_mode = PM_IDLE;
 			}
 
 			break;
@@ -559,18 +573,18 @@ void ublox_parse(uint8_t b)
 			msg_payload[index] = b;
 			index++;
 			if (index == msg_len)
-				mode = PM_CK_A;
+				ublox_parse_mode = PM_CK_A;
 			break;
 			
 		case(PM_CK_A):
 			if (msg_ck_a == b)
 			{
-				mode = PM_CK_B;
+				ublox_parse_mode = PM_CK_B;
 			}
 			else
 			{
 				ERR("Checksum A failed");
-				mode = PM_IDLE;
+				ublox_parse_mode = PM_IDLE;
 			}
 			break;
 			
@@ -608,7 +622,7 @@ void ublox_parse(uint8_t b)
 			{
 				ERR("Checksum B failed");
 			}
-			mode = PM_IDLE;
+			ublox_parse_mode = PM_IDLE;
 
 			break;
 	}
@@ -632,27 +646,13 @@ void ublox_step()
 		ublox_gnss_waiting = write_index - read_index;
 	}
 
-	//this is necessary to proper function
-	taskYIELD();
+//	//this is necessary to proper function
+//	taskYIELD();
 
-	//INFO("gnss waiting %u", ublox_gnss_waiting);
-
-	if (HAL_DMA_GetState(gnss_uart->hdmarx) == HAL_DMA_STATE_ABORT)
+	if (fc.gnss.status == fc_dev_init && HAL_GetTick() - ublox_start_time > UBLOX_INIT_TIMEOUT)
 	{
-		WARN("GNSS RX DMA Abort!");
+		WARN("GNSS still in init state");
 		ublox_init();
-	}
-
-	if (ublox_last_command_time != false)
-	{
-		if (HAL_GetTick() - ublox_last_command_time > UBLOX_CMD_TIMEOUT)
-		{
-			WARN("Command %u timeouted, retry", ublox_last_command);
-//			ublox_start_dma();
-//			osDelay(1);
-//			ublox_command(ublox_last_command);
-			ublox_init();
-		}
 	}
 
 	//parse the data
