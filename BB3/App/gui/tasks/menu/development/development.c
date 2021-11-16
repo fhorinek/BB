@@ -8,6 +8,7 @@
 #include "drivers/psram.h"
 #include "etc/format.h"
 #include "gui/dialog.h"
+#include "drivers/gnss/gnss_ublox_m8.h"
 
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
@@ -51,12 +52,14 @@ void development_trigger()
     INFO("Development fake trigger");
     INFO("-----------------------------------------------------");
 
+    ublox_init();
+
 //    sound_start("/data/test.wav");
 
 //    local->slot = esp_http_get("https://strato.skybean.eu/update/devel/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
 //    local->slot = esp_http_get("http://192.168.10.32/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
 
-    esp_device_reset();
+//    esp_device_reset();
 }
 
 static void development_loop()
@@ -128,7 +131,7 @@ static bool development_clear_debug_file_cb(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * development_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Development", &gui_settings, development_cb);
+	lv_obj_t * list = gui_list_create(par, "Reset GNSS", &gui_settings, development_cb);
 
 	local->slot = 0xFF;
 

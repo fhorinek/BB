@@ -339,7 +339,7 @@ config_t config =
 		//a2dp
 		entry_bool("bt_a2dp", true),
 		//spp
-		entry_bool("bt_spp", true),
+		entry_bool("bt_spp", false),
 		//ble
 		entry_bool("bt_ble", true),
 		//protocol

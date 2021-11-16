@@ -275,7 +275,7 @@ void config_restore_factory();
 
 void config_change_pilot(char * pilot_name);
 void config_change_profile(char * profile_name);
-
+uint8_t config_profiles_cnt();
 
 extern bool config_changed;
 

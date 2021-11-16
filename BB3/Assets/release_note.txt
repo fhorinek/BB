@@ -1,12 +1,13 @@
-Topic: Connectivity
+Topic: Better UX
 
 Added:
-- Bluetooth device management
-- BLE + SPP telemetry
-- Automatic bootloader update
+- New layout editor
+- Widget options
+- Bigger fonts 
+- Flight profiles
+- Pilot profile
 
 Fixes:
-- Audio freeze during flight
-- Bluetooth playback quality
-
+- GNSS not starting
+- USB mode not working when full
 

@@ -16,6 +16,7 @@ REGISTER_TASK_I(filemanager,
 
 static char filemanager_active_fname[32];
 
+//dst should point to valid space in memory with size at least as path
 bool filemanager_get_filename_no_ext(char * dst, char * path)
 {
     char * start = dst;
@@ -35,6 +36,7 @@ bool filemanager_get_filename_no_ext(char * dst, char * path)
     return true;
 }
 
+//dst should point to valid space in memory with size at least as path
 bool filemanager_get_path(char * dst, char * path)
 {
     strcpy(dst, path);
@@ -48,6 +50,7 @@ bool filemanager_get_path(char * dst, char * path)
 }
 
 
+//dst should point to valid space in memory with size at least as path
 bool filemanager_get_filename(char * dst, char * path)
 {
     char * start = dst;
@@ -82,7 +85,12 @@ bool filemanager_back()
 {
 	if (local->level == 0)
 	{
-		gui_switch_task(local->back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+	    bool ret = true;
+        if (local->cb != NULL)
+            ret = local->cb(FM_CB_BACK, "");
+
+        if (ret)
+        	gui_switch_task(local->back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 	}
 	else
 	{
@@ -111,12 +119,12 @@ static void filemanager_dummy_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CANCEL)
     {
-        bool ret = true;
+	    bool ret = true;
         if (local->cb != NULL)
             ret = local->cb(FM_CB_CANCEL, "");
 
         if (ret)
-            filemanager_back();
+        	filemanager_back();
     }
 }
 
@@ -129,7 +137,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
             ret = local->cb(FM_CB_CANCEL, "");
 
         if (ret)
-            filemanager_back();
+        	filemanager_back();
 	}
 
 	if (event == LV_EVENT_CLICKED)
@@ -164,6 +172,8 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 	if (event == LV_EVENT_FOCUSED)
 	{
+		ctx_hide();
+
 		char * fname = (char *)gui_list_text_get_value(obj);
 		if (strstr(fname, DIR_ICON) != NULL)
 			fname += strlen(DIR_ICON);

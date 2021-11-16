@@ -249,7 +249,7 @@ void page_settings_fm_remove_cb(uint8_t res, void * opt_data)
     {
         f_unlink(path);
 
-        char name[32];
+        char name[PATH_LEN];
         filemanager_get_filename_no_ext(name, path);
 
         char text[64];
@@ -272,7 +272,7 @@ void page_settings_close_preview()
     }
 }
 
-void page_settings_open_preview(char * page_name)
+void page_settings_open_preview(char * path)
 {
     page_settings_close_preview();
 
@@ -282,9 +282,12 @@ void page_settings_open_preview(char * page_name)
     lv_obj_move_foreground(static_prev_par);
 
     page_layout_t page;
-    widgets_load_from_file(&page, page_name);
+    widgets_load_from_file_abs(&page, path);
     widgets_init_page(&page, static_prev_par);
     widgets_deinit_page(&page);
+
+    char page_name[PATH_LEN];
+    filemanager_get_filename_no_ext(page_name, path);
 
     lv_obj_t * label = lv_label_create(static_prev_par, NULL);
     lv_label_set_text_fmt(label, LV_SYMBOL_LEFT " %s " LV_SYMBOL_RIGHT, page_name);
@@ -304,7 +307,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
 
     switch (event)
     {
-        case FM_CB_CANCEL:
+        case FM_CB_BACK:
         {
             static_prev_mode = false;
             page_settings_close_preview();
@@ -350,7 +353,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
         {
             if (static_prev_mode)
             {
-                page_settings_open_preview(name);
+                page_settings_open_preview(path);
             }
 
             ctx_clear();
@@ -425,7 +428,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
     }
 
 
-    return false;
+    return true;
 }
 
 static bool page_settings_load_cb(lv_obj_t * obj, lv_event_t event)
@@ -438,6 +441,131 @@ static bool page_settings_load_cb(lv_obj_t * obj, lv_event_t event)
     }
     return true;
 }
+
+void page_settings_open_copy_fm(bool anim);
+
+bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
+{
+    char name[strlen(path) + 1];
+    filemanager_get_filename_no_ext(name, path);
+
+    switch (event)
+    {
+		case FM_CB_CANCEL:
+		{
+			if (static_prev_mode)
+			{
+				static_prev_mode = false;
+				page_settings_close_preview();
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+        case FM_CB_BACK:
+        {
+            static_prev_mode = false;
+            page_settings_close_preview();
+
+            gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+            uint8_t page_index = config_get_int(&profile.ui.page_last);
+            char * page_name = config_get_text(&profile.ui.page[page_index]);
+            page_settings_set_page_name(page_name, page_index);
+
+            return false;
+        }
+
+        case FM_CB_SELECT:
+        {
+            uint8_t page_cnt = pages_get_count();
+
+            char dst[PATH_LEN];
+            char new_name[PAGE_NAME_LEN];
+            strcpy(new_name, name);
+            str_join(dst, 4, PATH_PAGES_DIR, "/", new_name, ".pag");
+            uint8_t i = 0;
+            while (file_exists(dst) && i < 100)
+            {
+            	i++;
+            	snprintf(new_name, sizeof(new_name), "%s_%u", name, i);
+            	str_join(dst, 4, PATH_PAGES_DIR, "/", new_name, ".pag");
+            }
+            copy_file(path, dst);
+
+            config_set_text(&profile.ui.page[page_cnt], new_name);
+            config_set_int(&profile.ui.page_last, page_cnt);
+
+            gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+
+            char text[64];
+            snprintf(text, sizeof(text), "Page '%s' copied to position %u", new_name, page_cnt + 1);
+            statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+
+            page_settings_close_preview();
+
+            return false;
+        }
+
+        case FM_CB_FOCUS_FILE:
+        {
+            if (static_prev_mode)
+            {
+                page_settings_open_preview(path);
+            }
+
+            ctx_clear();
+            if (static_prev_mode)
+                ctx_add_option(LV_SYMBOL_LIST " List");
+            else
+                ctx_add_option(LV_SYMBOL_EYE_OPEN " Preview");
+
+            ctx_show();
+            break;
+        }
+
+        case 0: //Preview
+        {
+            if (static_prev_mode)
+            {
+                page_settings_close_preview();
+                static_prev_mode = false;
+            }
+            else
+            {
+                static_prev_mode = true;
+            }
+            break;
+        }
+    }
+
+
+    return true;
+}
+
+void page_settings_open_copy_fm(bool anim)
+{
+    page_settings_close_preview();
+
+    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
+    char path[PATH_LEN] = {0};
+    strcpy(path, PATH_PAGES_DIR);
+    filemanager_open(path, 0, &gui_pages, FM_FLAG_FOCUS, page_settings_load_page_copy_fm_cb);
+}
+
+static bool page_settings_copy_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        page_settings_open_copy_fm(true);
+
+        return false;
+    }
+    return true;
+}
+
 
 
 static lv_obj_t * page_settings_init(lv_obj_t * par)
@@ -462,6 +590,11 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 	{
         gui_list_auto_entry(list, "Add new page", CUSTOM_CB, page_settings_add_cb);
         gui_list_auto_entry(list, "Load stored page", CUSTOM_CB, page_settings_load_cb);
+
+        if (config_profiles_cnt() > 1)
+        {
+        	gui_list_auto_entry(list, "Copy from another profile", CUSTOM_CB, page_settings_copy_cb);
+        }
 	}
 
     if (page_cnt > 1)

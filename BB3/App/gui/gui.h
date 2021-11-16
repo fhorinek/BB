@@ -66,18 +66,23 @@ typedef enum
 #define FONT_WITH_TEXTS  FONT_XL
 
 
-#define BAR_ICON_DL		9
-#define BAR_ICON_SYS	8
-#define BAR_ICON_WIFI	7
-#define BAR_ICON_AP		6
-#define BAR_ICON_BT		5
-#define BAR_ICON_LOG	4
-#define BAR_ICON_GNSS	3
-#define BAR_ICON_USB	2
-#define BAR_ICON_CHARGE	1
-#define BAR_ICON_BAT	0
+typedef enum
+{
+	BAR_ICON_BAT = 0,
+	BAR_ICON_CHARGE,
+	BAR_ICON_USB,
+	BAR_ICON_GNSS,
+	BAR_ICON_FANET,
+	BAR_ICON_LOG,
+	BAR_ICON_BT,
+	BAR_ICON_AP,
+	BAR_ICON_WIFI,
+	BAR_ICON_SYS,
+	BAR_ICON_DL,
 
-#define BAR_ICON_CNT	10
+	BAR_ICON_CNT
+} status_bar_icon_t;
+
 
 typedef struct
 {

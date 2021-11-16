@@ -35,7 +35,7 @@ static lv_obj_t * fanet_settings_init(lv_obj_t * par)
     	format_date_epoch(tmp, fc.fanet.flarm_expires);
     	int64_t delta = (fc.fanet.flarm_expires - fc_get_utc_time()) / (24 * 3600);
     	if (delta > 0)
-    		snprintf(value, sizeof(value), "%s in %u days", tmp, delta);
+    		snprintf(value, sizeof(value), "%s in %ld days", tmp, delta);
     	else
     		snprintf(value, sizeof(value), "%s EXPIRED!", tmp);
     }

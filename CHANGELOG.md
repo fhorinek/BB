@@ -1,3 +1,27 @@
+# 16.11.2021 - Build 
+## Added
+ * New layout editor
+ * Widget options
+ * Bigger fonts 
+ * Flight profiles
+ * Pilot profile
+
+## Fixes
+ * GNSS not starting
+ * USB mode not working when full
+
+
+# 13.10.2021 - Build 171
+## Added
+ * Bluetooth device management
+ * BLE + SPP telemetry
+ * Automatic bootloader update
+
+## Fixes
+ * Audio freeze during flight
+ * Bluetooth playback quality
+
+
 # 09.09.2021 - Build 154
 
 ## Fixed

@@ -259,7 +259,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * The behavior of asserts can be overwritten by redefining them here.
  * E.g. #define LV_ASSERT_MEM(p)  <my_assert_code>
  */
-#define LV_USE_DEBUG        0
+#define LV_USE_DEBUG        1
 #if LV_USE_DEBUG
 
 /*Check if the parameter is NULL. (Quite fast) */

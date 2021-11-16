@@ -125,6 +125,7 @@ void statusbar_create()
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_CHARGE], LV_SYMBOL_CHARGE " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_USB], LV_SYMBOL_USB " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_GNSS], LV_SYMBOL_GPS " ");
+	lv_label_set_text(gui.statusbar.icons[BAR_ICON_FANET], "F+ ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_LOG], LV_SYMBOL_FILE " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BT], LV_SYMBOL_BLUETOOTH " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_AP], "AP ");
@@ -295,6 +296,24 @@ void statusbar_step()
 			set_icon(BAR_ICON_GNSS, I_SHOW | I_BLINK);
 		}
     }
+
+    if (fc.fanet.status == fc_dev_off)
+    {
+    	set_icon(BAR_ICON_FANET, I_HIDE);
+    }
+    else
+    {
+    	if (config_get_bool(&profile.fanet.flarm))
+    		lv_label_set_text(gui.statusbar.icons[BAR_ICON_FANET], "F+ ");
+    	else
+			lv_label_set_text(gui.statusbar.icons[BAR_ICON_FANET], "F ");
+
+    	if (fc.fanet.status == fc_dev_init)
+    		set_icon(BAR_ICON_FANET, I_RED | I_BLINK | I_FAST);
+    	else
+    		set_icon(BAR_ICON_FANET, I_SHOW);
+    }
+
 
     fc_logger_status_t logger = logger_state();
     if (logger == fc_logger_record)

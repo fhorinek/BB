@@ -205,6 +205,7 @@ extern widget_t * widgets[];
 
 uint8_t number_of_widgets();
 
+bool widgets_load_from_file_abs(page_layout_t * page, char * path);
 bool widgets_load_from_file(page_layout_t * page, char * layout_name);
 bool widgets_save_to_file(page_layout_t * page, char * layout_name);
 void widgets_sort_page(page_layout_t * page);
