@@ -7,6 +7,7 @@
 #include "drivers/power/led.h"
 
 #include "gui/gui_list.h"
+#include "gui/dbg_overlay.h"
 
  void dev_name_cb(cfg_entry_t * entry)
 {
@@ -72,6 +73,14 @@ void dbg_esp_off_cb(cfg_entry_t * entry)
 		esp_init();
 }
 
+void dbg_esp_tasks_cb(cfg_entry_t * entry)
+{
+    if (config_get_select(entry) != DBG_TASK_NONE)
+        dbg_overlay_create();
+    else
+        dbg_overlay_remove();
+}
+
 void wifi_mode_cb(cfg_entry_t * entry)
 {
 	esp_set_wifi_mode();
@@ -130,7 +139,8 @@ cfg_callback_pair_t config_callbacks[] =
     {&config.wifi.enabled, wifi_mode_cb},
     {&config.wifi.ap, wifi_mode_cb},
 	{&config.display.backlight, disp_bck_cb},
-	{&config.debug.esp_off, dbg_esp_off_cb},
+    {&config.debug.esp_off, dbg_esp_off_cb},
+    {&config.debug.tasks, dbg_esp_tasks_cb},
 	{&config.debug.use_usb, dbg_usb_cb},
     {&profile.fanet.enabled, fanet_enable_cb},
     {&profile.fanet.flarm, flarm_enable_cb},

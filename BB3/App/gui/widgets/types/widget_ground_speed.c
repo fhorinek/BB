@@ -14,7 +14,7 @@ REGISTER_WIDGET_IU
     "Ground speed",
     WIDGET_MIN_W,
     WIDGET_MIN_H,
-	_b(wf_label_hide) | _b(wf_units_hide),
+	_b(wf_label_hide) | _b(wf_units_hide) | _b(wf_decimal_precision),
 
     lv_obj_t * value;
 );
@@ -45,7 +45,8 @@ static void GSpeed_update(widget_slot_t * slot)
     }
     else
     {
-		format_speed(value, fc.gnss.ground_speed);
+        char * format = widget_flag_is_set(slot, wf_decimal_precision) ? "%0.1f" : "%0.0f";
+        format_speed_2(value, fc.gnss.ground_speed, format);
     }
 
     lv_label_set_text(local->value, value);

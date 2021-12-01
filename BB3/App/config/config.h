@@ -58,6 +58,10 @@
 #define LOGGER_FLIGHT   1
 #define LOGGER_ALWAYS   2
 
+#define DBG_TASK_NONE   0
+#define DBG_TASK_ESP    1
+#define DBG_TASK_STM    2
+
 typedef struct
 {
     cfg_entry_t name;
@@ -113,6 +117,7 @@ typedef struct
 
         cfg_entry_t acc_duration;
         cfg_entry_t gr_duration;
+        cfg_entry_t circle_timeout;
     }
     flight;
 
@@ -212,7 +217,8 @@ typedef struct
 		cfg_entry_t use_file;
 		cfg_entry_t use_usb;
 		cfg_entry_t esp_off;
-		cfg_entry_t esp_wdt;
+        cfg_entry_t esp_wdt;
+        cfg_entry_t tasks;
 		cfg_entry_t vario_random;
 	} debug;
 } config_t;

@@ -84,6 +84,6 @@ extern esp_system_status_t system_status;
 
 void print_free_memory(char * label);
 uint32_t get_ms();
-
+void task_sleep(uint32_t ms);
 
 #endif /* MAIN_COMMON_H_ */

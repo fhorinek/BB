@@ -71,7 +71,7 @@ void imu_loop()
         uint16_t x = abs(fc.imu.raw.acc.x - local->acc_old.x);
         uint16_t y = abs(fc.imu.raw.acc.y - local->acc_old.y);
         uint16_t z = abs(fc.imu.raw.acc.z - local->acc_old.z);
-        memcpy(&local->acc_old, &fc.imu.raw.acc, sizeof(vector_i16_t));
+        safe_memcpy(&local->acc_old, &fc.imu.raw.acc, sizeof(vector_i16_t));
 
         local->acc_noise_val.x += (x - local->acc_noise_val.x) / NOISE_SMOOTH;
         local->acc_noise_val.y += (y - local->acc_noise_val.y) / NOISE_SMOOTH;
@@ -88,7 +88,7 @@ void imu_loop()
         x = abs(fc.imu.raw.gyro.x - local->gyro_old.x);
         y = abs(fc.imu.raw.gyro.y - local->gyro_old.y);
         z = abs(fc.imu.raw.gyro.z - local->gyro_old.z);
-        memcpy(&local->gyro_old, &fc.imu.raw.gyro, sizeof(vector_i16_t));
+        safe_memcpy(&local->gyro_old, &fc.imu.raw.gyro, sizeof(vector_i16_t));
 
         local->gyro_noise_val.x += (x - local->gyro_noise_val.x) / NOISE_SMOOTH;
         local->gyro_noise_val.y += (y - local->gyro_noise_val.y) / NOISE_SMOOTH;
@@ -104,7 +104,7 @@ void imu_loop()
         x = abs(fc.imu.raw.mag.x - local->mag_old.x);
         y = abs(fc.imu.raw.mag.y - local->mag_old.y);
         z = abs(fc.imu.raw.mag.z - local->mag_old.z);
-        memcpy(&local->mag_old, &fc.imu.raw.mag, sizeof(vector_i16_t));
+        safe_memcpy(&local->mag_old, &fc.imu.raw.mag, sizeof(vector_i16_t));
 
         local->mag_noise_val.x += (x - local->mag_noise_val.x) / NOISE_SMOOTH;
         local->mag_noise_val.y += (y - local->mag_noise_val.y) / NOISE_SMOOTH;

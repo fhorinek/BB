@@ -10,7 +10,7 @@
 #include <gui/tasks/menu/development/fake.h>
 #include "gui/statusbar.h"
 #include "drivers/psram.h"
-
+#include "drivers/power/led.h"
 
 REGISTER_TASK_IS(fake,
     uint8_t index;

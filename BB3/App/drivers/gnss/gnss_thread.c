@@ -19,6 +19,7 @@ void gnss_uart_rx_irq_ht()
 	osThreadFlagsSet(thread_gnss, 0x01);
 	DBG("GNSS RX HT");
 }
+
 void gnss_uart_rx_irq_tc()
 {
 	osThreadFlagsSet(thread_gnss, 0x01);

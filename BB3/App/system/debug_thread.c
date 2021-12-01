@@ -38,7 +38,7 @@ void debug_dump(uint8_t * data, uint16_t len)
 }
 
 #define DEBUG_TX_BUFFER    (1024 * 4)
-#define DEBUG_RX_BUFFER     32
+#define DEBUG_RX_BUFFER     64
 static char debug_tx_buffer[DEBUG_TX_BUFFER];
 static uint16_t debug_tx_buffer_write_index = 0;
 static uint16_t debug_tx_buffer_read_index = 0;
@@ -50,6 +50,9 @@ static uint16_t debug_rx_read_index = 0;
 osSemaphoreId_t debug_data;
 osSemaphoreId_t debug_dma_done;
 osSemaphoreId_t debug_new_message;
+
+static FIL debug_file;
+static bool debug_file_open = false;
 
 bool debug_thread_ready = false;
 
@@ -91,6 +94,24 @@ void debug_fault(const char *format, ...)
     uint16_t total_lenght = head_lenght + body_lenght;
 
     HAL_UART_Transmit(debug_uart, (uint8_t *)debug_tx_buffer, total_lenght, 100);
+
+    if (config_get_bool(&config.debug.use_file))
+    {
+        UINT bw;
+
+        //open
+        if (!debug_file_open)
+        {
+            f_open(&debug_file, DEBUG_FILE, FA_OPEN_APPEND | FA_WRITE);
+            debug_file_open = true;
+        }
+
+        //write
+        f_write(&debug_file, (uint8_t *)debug_tx_buffer, total_lenght, &bw);
+        //sync
+        f_sync(&debug_file);
+    }
+
     osSemaphoreRelease(debug_dma_done);
 }
 
@@ -200,6 +221,18 @@ uint8_t debug_read_byte()
     return byte;
 }
 
+void debug_read_bytes(uint8_t * buff, uint16_t len)
+{
+    for (uint16_t i = 0; i < len; i++)
+    {
+        while(debug_get_waiting() == 0)
+            taskYIELD();
+
+        buff[i] = debug_read_byte();
+    }
+}
+
+
 
 void thread_debug_start(void *argument)
 {
@@ -217,9 +250,6 @@ void thread_debug_start(void *argument)
     osSemaphoreRelease(debug_data);
 
     bool usb_init = false;
-
-	FIL debug_file;
-	bool debug_file_open = false;
 
     debug_thread_ready = true;
 
@@ -245,6 +275,25 @@ void thread_debug_start(void *argument)
             	dma_used = true;
             }
 
+            if (config_get_bool(&config.debug.use_usb))
+            {
+                if (!usb_init)
+                {
+                    MX_USB_DEVICE_Init();
+                    usb_init = true;
+                }
+
+                CDC_Transmit_HS((uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+            }
+            else
+            {
+                if (usb_init)
+                {
+                    USBD_DeInit(&hUsbDeviceHS);
+                    usb_init = false;
+                }
+            }
+
             if (config_get_bool(&config.debug.use_file))
             {
             	UINT bw;
@@ -262,24 +311,6 @@ void thread_debug_start(void *argument)
             	f_sync(&debug_file);
             }
 
-            if (config_get_bool(&config.debug.use_usb))
-            {
-            	if (!usb_init)
-            	{
-            		MX_USB_DEVICE_Init();
-            		usb_init = true;
-            	}
-
-            	CDC_Transmit_HS((uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
-            }
-            else
-            {
-            	if (usb_init)
-            	{
-            		USBD_DeInit(&hUsbDeviceHS);
-            		usb_init = false;
-            	}
-            }
 
 
             debug_tx_buffer_lenght -= to_transmit;

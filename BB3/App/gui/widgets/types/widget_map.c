@@ -106,7 +106,7 @@ static void Map_update(widget_slot_t * slot)
     {
     	if (fc.gnss.ground_speed > 2)
 		{
-			widget_arrow_rotate_size(local->arrow, local->points, -fc.gnss.heading, 40);
+			widget_arrow_rotate_size(local->arrow, local->points, fc.gnss.heading, 40);
 			lv_obj_set_hidden(local->arrow, false);
 			lv_obj_set_hidden(local->dot, true);
     	}

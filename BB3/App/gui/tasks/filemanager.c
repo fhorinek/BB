@@ -23,9 +23,10 @@ bool filemanager_get_filename_no_ext(char * dst, char * path)
     strcpy(dst, path);
     dst = strrchr(dst, '/');
 
-    if (dst == NULL)
-        return false;
-    dst++;
+    if (dst != NULL)
+        dst++;
+    else
+        dst = start;
 
     char * dot = strchr(dst, '.');
     if (dot == NULL)
@@ -57,9 +58,10 @@ bool filemanager_get_filename(char * dst, char * path)
     strcpy(dst, path);
     dst = strrchr(dst, '/');
 
-    if (dst == NULL)
-        return false;
-    dst++;
+    if (dst != NULL)
+        dst++;
+    else
+        dst = start;
 
     strncpy(start, dst, strlen(dst) + 1);
     return true;

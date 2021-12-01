@@ -22,9 +22,9 @@ static bool dialog_on = false;
 
 void bluetooth_pair_dialog_cb(uint8_t res, void * param)
 {
-	proto_bt_pair_res_t data;
+	__align proto_bt_pair_res_t data;
 
-	memcpy(data.dev, dev_mac, sizeof(dev_mac));
+	safe_memcpy(data.dev, dev_mac, sizeof(dev_mac));
 	data.pair = false;
 	data.ble = dev_ble;
 	dialog_on = false;
@@ -120,7 +120,7 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 		snprintf(msg, sizeof(msg), "%s paired", get_dev_name(packet->dev, name));
 	}
 
-	statusbar_add_msg(STATUSBAR_MSG_INFO, msg);
+	statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
 }
 
 void bluetooth_pari_req(proto_bt_pair_req_t * packet)
@@ -139,7 +139,7 @@ void bluetooth_pari_req(proto_bt_pair_req_t * packet)
 		return;
 	}
 
-	memcpy(dev_mac, packet->dev, sizeof(dev_mac));
+	safe_memcpy(dev_mac, packet->dev, sizeof(dev_mac));
 	dev_ble = packet->ble;
 	dialog_on = true;
 

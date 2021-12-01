@@ -117,12 +117,15 @@ void Error_Handler(void);
 #define FANET_SW_GPIO_Port GPIOD
 #define BT1_Pin GPIO_PIN_6
 #define BT1_GPIO_Port GPIOD
+#define BT1_EXTI_IRQn EXTI9_5_IRQn
 #define BT4_Pin GPIO_PIN_7
 #define BT4_GPIO_Port GPIOD
+#define BT4_EXTI_IRQn EXTI9_5_IRQn
 #define BT2_Pin GPIO_PIN_5
 #define BT2_GPIO_Port GPIOB
 #define BT5_Pin GPIO_PIN_9
 #define BT5_GPIO_Port GPIOB
+#define BT5_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
 #define ALT_CH_EN           ALT_CH_EN_GPIO_Port, ALT_CH_EN_Pin

@@ -71,11 +71,11 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 
 			UINT br;
 			f_read(&f, buf + sizeof(proto_spi_header_t), packet->chunk_size, &br);
-	        proto_spi_header_t hdr;
+	        __align proto_spi_header_t hdr;
 	        hdr.packet_type = SPI_EP_FILE;
 	        hdr.data_id = packet->req_id;
 	        hdr.data_len = br;
-	        memcpy(buf, &hdr, sizeof(proto_spi_header_t));
+	        safe_memcpy(buf, &hdr, sizeof(proto_spi_header_t));
 
 	        //release buffer
 	        esp_spi_release_buffer(br + sizeof(proto_spi_header_t));
@@ -96,8 +96,8 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 	}
 
 
-	vTaskDelete(NULL);
 	free(packet);
+    vTaskDelete(NULL);
 }
 
 typedef struct _file_slot_t

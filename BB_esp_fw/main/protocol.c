@@ -73,6 +73,49 @@ void protocol_send(uint8_t type, uint8_t *data, uint16_t data_len)
     uart_send(buf_out, sizeof(buf_out));
 }
 
+void protocol_task_info(void * param)
+{
+    uint8_t cnt = uxTaskGetNumberOfTasks();
+    uint32_t total_time;
+
+    TaskStatus_t * task_status = (TaskStatus_t *) ps_malloc(cnt * sizeof(TaskStatus_t));
+
+    cnt = uxTaskGetSystemState(task_status, cnt, &total_time);
+
+    uint16_t buff_size = sizeof(proto_tasks_head_t) + sizeof(proto_tasks_item_t) * cnt;
+    uint8_t * proto_buff = ps_malloc(buff_size);
+
+    proto_tasks_head_t * head = (proto_tasks_head_t *)proto_buff;
+    head->number_of_tasks = cnt;
+
+    if( total_time > 0UL )
+    {
+        for(uint8_t i = 0; i < cnt; i++ )
+        {
+            TaskStatus_t * ts = task_status + i;
+            proto_tasks_item_t * item = (proto_tasks_item_t *)(proto_buff + sizeof(proto_tasks_head_t) + sizeof(proto_tasks_item_t) * i);
+            item->run_time = ts->ulRunTimeCounter * 2;
+            strncpy(item->name, ts->pcTaskName, PROTO_TASK_NAME_LEN);
+            item->watermark = ts->usStackHighWaterMark;
+            item->number = ts->xTaskNumber;
+            item->priority = ts->uxCurrentPriority;
+
+            if (ts->xCoreID == 0)
+                item->core = 0;
+            else if (ts->xCoreID == 1)
+                item->core = 1;
+            else
+                item->core = 2;
+        }
+    }
+
+    protocol_send(PROTO_TASKS_RES, proto_buff, buff_size);
+
+    free(proto_buff);
+    free(task_status);
+    vTaskDelete(NULL);
+}
+
 #define PROTOCOL_SUBPROCESS_PRIORITY	11
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
@@ -245,6 +288,11 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 		}
         break;
 
+        case (PROTO_GET_TASKS):
+        {
+            xTaskCreate((TaskFunction_t)protocol_task_info, "protocol_task_info", 1024 * 3, NULL, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
+        }
+        break;
 
         default:
             DBG("Unknown packet");

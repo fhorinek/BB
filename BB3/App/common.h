@@ -107,8 +107,17 @@ typedef struct
   uint32_t xpsr;
 } context_frame_t;
 
-#define SWAP_UINT24(x) ((((x) & 0xFF0000) >> 16) | ((x) & 0x00FF00) | (((x) & 0x0000FF) << 16))
-#define SWAP_UINT16(x) ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
+#define BLINK(A)                (HAL_GetTick() % A > (A / 2))
+#define min(a,b)                ((a)<(b)?(a):(b))
+#define max(a,b)                ((a)>(b)?(a):(b))
+#define abs(x)                  ((x)>0?(x):-(x))
+#define to_radians(degree)      ((degree) / 180.0 * M_PI)
+#define to_degrees(radians)     ((radians) * (180.0 / M_PI))
+#define ISDIGIT(c)              ((c) - '0' + 0U <= 9U)
+#define ISALPHA(c)              (((c) | 32) - 'a' + 0U <= 'z' - 'a' + 0U)
+#define CLAMP(val, min, max)    ((val < min) ? (min) : ((val > max) ? max : val))
+#define SWAP_UINT24(x)          ((((x) & 0xFF0000) >> 16) | ((x) & 0x00FF00) | (((x) & 0x0000FF) << 16))
+#define SWAP_UINT16(x)          ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
 
 #define __align __attribute__ ((aligned (4)))
 
@@ -131,8 +140,6 @@ const osThreadAttr_t FUNC ## _attr = {  \
 #define start_thread(FUNC)  \
     FUNC = osThreadNew(FUNC ## _start, NULL, &FUNC ## _attr);
 
-#define BLINK(A)	(HAL_GetTick() % A > (A / 2))
-
 //RTOS Threads
 extern osThreadId_t thread_debug;
 extern osThreadId_t thread_mems;
@@ -143,10 +150,11 @@ extern osThreadId_t thread_esp;
 extern osThreadId_t thread_esp_spi;
 extern osThreadId_t thread_usb;
 
-//extern StaticTask_t thread_gui_cb;
-
 extern const osThreadAttr_t thread_esp_spi_attr;
 extern const osThreadAttr_t thread_map_attr;
+extern const osThreadAttr_t thread_esp_attr;
+extern const osThreadAttr_t thread_gnss_attr;
+extern const osThreadAttr_t thread_mems_attr;
 
 extern osThreadId_t SystemHandle;
 #define thread_system   (osThreadId_t)SystemHandle
@@ -184,6 +192,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
 #define PATH_BL_FW_AUTO     PATH_ASSET_DIR "/bootloader.fw"
 #define PATH_BL_FW_MANUAL   "bootloader.fw"
+#define PATH_FANET_FW       PATH_ASSET_DIR "/fanet.xlb"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
 
 #define PATH_TOPO_DIR       "agl"
@@ -202,15 +211,11 @@ extern osThreadId_t SystemHandle;
 #define KEEP_FW_FILE    "KEEP_FW"
 
 
-#define TEMP_NAME_LEN       21
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);
 bool start_with(char * s1, const char * s2);
 char * find_comma(char * str);
-
-#define ISDIGIT(c) ((c) - '0' + 0U <= 9U)
-#define ISALPHA(c) (((c) | 32) - 'a' + 0U <= 'z' - 'a' + 0U)
 
 uint16_t atoi_c(char * str);
 float atoi_f(char * str);
@@ -218,9 +223,6 @@ uint32_t atoi_n(char * str, uint8_t n);
 uint8_t atoi_hex8(char * buffer);
 uint32_t atoi_hex32(char * buffer);
 
-#define min(a,b) 	((a)<(b)?(a):(b))
-#define max(a,b) 	((a)>(b)?(a):(b))
-#define abs(x) 		((x)>0?(x):-(x))
 
 int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
@@ -228,17 +230,15 @@ int16_t complement2_16bit(uint16_t in);
 bool file_exists(char * path);
 bool file_isdir(char * path);
 void touch(char * path);
-
 char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
 char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);
-#define to_radians(degree) (degree / 180.0 * M_PI)
-#define to_degrees(radians) (radians * (180.0 / M_PI))
 
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
 uint32_t calc_crc32(uint32_t * data, uint32_t size);
 
 void rtos_timer_elapsed();
 
+#define TEMP_NAME_LEN       21
 void get_tmp_path(char * fname, uint32_t id);
 uint32_t get_tmp_filename(char * fname);
 
@@ -259,6 +259,31 @@ void system_reboot_bl();
 uint8_t nmea_checksum(char *s);
 
 void str_join(char * dst, uint8_t cnt, ...);
+
+#define simple_memcpy(dst, src, len) \
+do { \
+    for (size_t __simple_memcpy_i = 0; __simple_memcpy_i < len; __simple_memcpy_i++) \
+        ((uint8_t *)dst)[__simple_memcpy_i] = ((uint8_t *)src)[__simple_memcpy_i]; \
+} while(0);
+
+#define safe_memcpy(dst, src, len) \
+do { \
+    if ((uint32_t)dst % 4 == 0 && (uint32_t)src % 4 == 0) \
+    { \
+        memcpy(dst, src, len); \
+    } \
+    else \
+    { \
+        ASSERT(0); \
+        if ((uint32_t)dst % 4 != 0) \
+            ERR("safe_memcpy dst is %08X", dst); \
+        if ((uint32_t)src % 4 != 0) \
+            ERR("safe_memcpy src is %08X", src); \
+        \
+        simple_memcpy(dst, src, len);\
+    } \
+} while(0);
+
 
 #include <system/debug_thread.h>
 

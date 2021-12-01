@@ -61,7 +61,7 @@ typedef enum
     FONT_XS,
 
     NUMBER_OF_WIDGET_FONTS,
-};
+} gui_font_size_t;
 
 #define FONT_WITH_TEXTS  FONT_XL
 
@@ -212,6 +212,8 @@ typedef struct
 		uint8_t _pad[2];
 
 	} ctx;
+
+	lv_obj_t * dbg;
 
 	osSemaphoreId_t lock;
 

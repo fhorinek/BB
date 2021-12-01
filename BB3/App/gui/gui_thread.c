@@ -9,6 +9,9 @@
 #include "gui.h"
 
 #include "map/map_thread.h"
+#include "drivers/sensors/mems_thread.h"
+#include "drivers/esp/esp.h"
+#include "drivers/gnss/gnss_thread.h"
 
 #include "lib/lvgl/lvgl.h"
 #include "lib/lvgl/src/lv_gpu/lv_gpu_stm32_dma2d.h"
@@ -59,12 +62,23 @@ void gui_disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * colo
 	lv_disp_flush_ready(drv);
 }
 
+static bool gui_pin_set[5] = {0};
+
+
+void gui_set_pin(uint8_t i)
+{
+    gui_pin_set[i] = 1;
+}
+
 bool gui_get_button_state(uint8_t index)
 {
 	GPIO_TypeDef* button_port[] = {BT1_GPIO_Port, BT2_GPIO_Port, BT3_GPIO_Port, BT4_GPIO_Port, BT5_GPIO_Port};
 	uint16_t button_pin[] = {BT1_Pin, BT2_Pin, BT3_Pin, BT4_Pin, BT5_Pin};
 
-	return (HAL_GPIO_ReadPin(button_port[index], button_pin[index]) == LOW);
+	bool ret = (HAL_GPIO_ReadPin(button_port[index], button_pin[index]) == LOW) || gui_pin_set[index];
+	gui_pin_set[index] = 0;
+
+	return ret;
 }
 
 bool gui_input_cb(lv_indev_drv_t * drv, lv_indev_data_t * data)
@@ -103,6 +117,7 @@ bool gui_input_cb(lv_indev_drv_t * drv, lv_indev_data_t * data)
  */
 void lv_debug_cb(lv_log_level_t level, const char * path, uint32_t line, const char * function, const char * desc)
 {
+    gui_print_memory();
 	debug_send(level, "[LVGL] %s:%lu (%s) %s", path, line, function, desc);
 }
 
@@ -116,6 +131,20 @@ void gui_take_screenshot()
     gui.take_screenshot = 1;
 }
 
+void gui_print_memory()
+{
+    lv_mem_monitor_t mem;
+    lv_mem_monitor(&mem);
+
+    INFO("=== LVGL memory ===");
+    INFO("%u %% used  %lu/%lu (free/total)", mem.used_pct, mem.free_size, mem.total_size);
+    INFO("slots %lu/%lu", mem.used_cnt, mem.free_cnt);
+    INFO("watermark %lu", mem.max_used);
+    INFO("biggest free %lu", mem.free_biggest_size);
+    INFO("fragmentation %u%%", mem.frag_pct);
+    INFO("mem test %u", lv_mem_test());
+    INFO("");
+}
 
 void gui_lock_acquire()
 {
@@ -131,6 +160,14 @@ void gui_lock_release()
 	{
 		osSemaphoreRelease(gui.lock);
 	}
+}
+
+void gui_create_lock()
+{
+    //Create lock for lvgl
+    gui.lock = osSemaphoreNew(1, 0, NULL);
+    vQueueAddToRegistry(gui.lock, "gui.lock");
+    //lock is active on create
 }
 
 void thread_gui_start(void *argument)
@@ -179,14 +216,11 @@ void thread_gui_start(void *argument)
     //Input group for modal dialog
     gui.dialog.group = lv_group_create();
 
-    //Create lock for lvgl
-    gui.lock = osSemaphoreNew(1, 0, NULL);
-    vQueueAddToRegistry(gui.lock, "gui.lock");
-    osSemaphoreRelease(gui.lock);
-
-    start_thread(thread_map);
-
     gui_init();
+
+    INFO("GUI ready");
+
+    osSemaphoreRelease(gui.lock);
 
     uint32_t delay;
 

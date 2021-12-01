@@ -27,13 +27,26 @@ void Alt_init(void * local_ptr, lv_obj_t * base, widget_slot_t * slot, char * ti
     	widget_add_title(base, slot, title);
 
     char tmp[8];
-    char * units = tmp;
+    char * uni = tmp;
     if (widget_flag_is_set(slot, wf_units_hide))
-    	units = NULL;
+    {
+    	uni = NULL;
+    }
     else
-    	format_altitude_units(tmp);
+    {
+        uint8_t units = config_get_select(&config.units.altitude);
+        if (widget_flag_is_set(slot, wf_alt_unit))
+        {
+            if (units == ALTITUDE_M)
+                units = ALTITUDE_FT;
+            else if (units == ALTITUDE_FT)
+                units = ALTITUDE_M;
+        }
 
-    local->value = widget_add_value(base, slot, units, NULL);
+    	format_altitude_units_2(tmp, units);
+    }
+
+    local->value = widget_add_value(base, slot, uni, NULL);
 
     local->edit = NULL;
 
@@ -123,11 +136,20 @@ void Alt_edit(void * local_ptr, widget_slot_t * slot, uint8_t action, char * tit
 
 void Alt_update(void * local_ptr, widget_slot_t * slot, float alt_val, int32_t qnh_val)
 {
+    uint8_t units = config_get_select(&config.units.altitude);
+    if (widget_flag_is_set(slot, wf_alt_unit))
+    {
+        if (units == ALTITUDE_M)
+            units = ALTITUDE_FT;
+        else if (units == ALTITUDE_FT)
+            units = ALTITUDE_M;
+    }
+
     if (fc.fused.status == fc_dev_ready)
     {
         char value[10];
 
-        format_altitude(value, alt_val);
+        format_altitude_2(value, alt_val, units);
         lv_label_set_text(local->value, value);
     }
     else
@@ -144,7 +166,7 @@ void Alt_update(void * local_ptr, widget_slot_t * slot, float alt_val, int32_t q
 
 		char buff[32];
 
-		format_altitude_with_units(buff, alt_val);
+		format_altitude_with_units_2(buff, alt_val, units);
 		lv_label_set_text(alt, buff);
 
 		snprintf(buff, sizeof(buff), "%lu Pa", qnh_val);

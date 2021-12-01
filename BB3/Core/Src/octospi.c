@@ -37,7 +37,7 @@ void MX_OCTOSPI1_Init(void)
   OSPIM_CfgTypeDef sOspiManagerCfg = {0};
 
   /* USER CODE BEGIN OCTOSPI1_Init 1 */
-
+  sOspiManagerCfg.Req2AckTime = 1;
   /* USER CODE END OCTOSPI1_Init 1 */
   hospi1.Instance = OCTOSPI1;
   hospi1.Init.FifoThreshold = 1;

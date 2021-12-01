@@ -26,8 +26,10 @@
 #include "drivers/gnss/gnss_thread.h"
 #include "drivers/sensors/mems_thread.h"
 #include "gui/gui_thread.h"
+#include "gui/map/map_thread.h"
 
 #include "etc/epoch.h"
+#include "lvgl/lvgl.h"
 
 //RTOS Tasks
 define_thread("Debug", thread_debug, 1024, osPriorityHigh);
@@ -61,16 +63,19 @@ bool start_power_off = false;
 void system_poweroff()
 {
     DBG("Start power off");
+
     start_power_off = true;
 }
 
 void system_reboot()
 {
+    DBG("Rebooting");
+
     no_init_check();
     no_init->boot_type = BOOT_REBOOT;
     no_init_update();
 
-    system_poweroff();
+    start_power_off = true;
 }
 
 void system_reboot_bl()
@@ -101,6 +106,18 @@ void i2c_scan()
     DBG("done");
 }
 
+typedef struct
+{
+    uint32_t time;
+    uint32_t lat;
+    uint32_t lon;
+    float speed;
+    float heading;
+    float vario;
+    float altitude;
+    uint32_t crc;
+} fake_serial_gnss_t;
+
 
 void cmd_step()
 {
@@ -108,9 +125,77 @@ void cmd_step()
     {
         uint8_t c = debug_read_byte();
 
+        if (c == 'h')
+        {
+            INFO("=== Help ===");
+            INFO(" s - screenshot");
+            INFO(" m - LVGL memory status");
+            INFO(" d - LVGL defragment");
+            INFO(" f - Fake gnss data");
+            INFO("");
+        }
+
+
         if (c == 's')
         {
+            INFO("=== Screenshot ===");
             gui_take_screenshot();
+        }
+
+        if (c == 'm')
+        {
+            gui_print_memory();
+        }
+
+        if (c == 'd')
+        {
+            INFO("=== LVGL memory defrag ===");
+            lv_mem_defrag();
+        }
+
+        if (c == 'f')
+        {
+            fake_serial_gnss_t data;
+            debug_read_bytes((uint8_t *)&data, sizeof(data));
+
+            __HAL_CRC_DR_RESET(&hcrc);
+            uint32_t crc = HAL_CRC_Accumulate(&hcrc, (uint32_t *)&data, sizeof(data) - sizeof(data.crc));
+            crc ^= 0xFFFFFFFF;
+
+            if (data.crc == crc)
+            {
+                INFO("=== Fake GNNS via serial ===");
+                DBG("time %lu", data.time);
+                DBG("lat %ld", data.lat);
+                DBG("lon %ld", data.lon);
+                DBG("spd %0.1f", data.speed);
+                DBG("hdg %0.1f", data.heading);
+                DBG("var %0.1f", data.vario);
+                DBG("alt %0.1f", data.altitude);
+
+                FC_ATOMIC_ACCESS
+                {
+                    fc.gnss.itow = HAL_GetTick();
+                    fc.gnss.fake = true;
+                    fc.gnss.latitude = data.lat;
+                    fc.gnss.longtitude = data.lon;
+                    fc.gnss.heading = data.heading;
+                    fc.gnss.ground_speed = data.speed;
+                    fc.gnss.fix = 3;
+                    fc.gnss.new_sample = 0xFF;
+
+                    fc.fused.fake = true;
+                    fc.fused.vario = data.vario;
+                    fc.fused.altitude1 = data.altitude;
+                }
+
+                config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
+                config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+            }
+            else
+            {
+                WARN("Invalid message crc");
+            }
         }
 
     }
@@ -163,12 +248,15 @@ void thread_system_start(void *argument)
     rev_get_sw_string(tmp);
     INFO("FW stm: %s\n\n", tmp);
 
+    gui_create_lock();
+
 	//start tasks
 	INFO("Starting tasks...");
 	start_thread(thread_gui);
+    start_thread(thread_map);
     start_thread(thread_mems);
-	start_thread(thread_gnss);
-	start_thread(thread_esp);
+    start_thread(thread_gnss);
+    start_thread(thread_esp);
 
 	//init FC
 	fc_init();
@@ -271,6 +359,9 @@ void thread_system_start(void *argument)
 
 	//store configuration
 	config_store_all();
+
+	//Announce proper shut down
+    INFO("Power down complete.\n-------------------------------\n");
 
 	//unmount storage
 	sd_deinit();

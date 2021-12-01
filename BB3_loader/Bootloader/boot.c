@@ -74,28 +74,40 @@ void app_deinit()
 #define POWER_ON_BOOST  		3
 #define POWER_ON_REBOOT 		4
 
-
 uint8_t app_poweroff()
 {
-	uint8_t boot_type = BOOT_NORMAL;
+	uint8_t boot_type = BOOT_SHOW;
 	if (no_init_check())
     {
         boot_type = no_init->boot_type;
-        no_init->boot_type = BOOT_NORMAL;
+        no_init->boot_type = BOOT_SLEEP;
         no_init_update();
 
         if (boot_type == BOOT_REBOOT)
             return POWER_ON_REBOOT;
     }
+    if (boot_type == BOOT_SHOW)
+        return POWER_ON_USB;
 
     //main power on
     GpioWrite(VCC_MAIN_EN, HIGH);
 
     HAL_Delay(100);
 
+//    bq25895_init();
+//    max17260_init();
+//
+////    //enable boost for negotiator
+////    GpioWrite(BQ_OTG, HIGH);
+////    //enable alt charger
+////    GpioWrite(ALT_CH_EN, LOW);
+
     pwr_init();
+    GpioWrite(BQ_OTG, LOW);
     bq25895_batfet_off();
-    bq25895_step();
+
+
+    HAL_I2C_DeInit(&hi2c2);
 
     //charge port connected, but charging is not done
     if (pwr.charge_port > PWR_CHARGE_NONE
@@ -133,7 +145,8 @@ uint8_t app_poweroff()
         if (button_pressed(BT1) || button_pressed(BT3) || button_pressed(BT4))
             continue;
 
-        //main power off, backlight off
+        //alt ch on, main power off, backlight off
+        GpioWrite(ALT_CH_EN, LOW);
         GpioWrite(VCC_MAIN_EN, LOW);
         GpioWrite(DISP_BCKL, LOW);
 
@@ -162,7 +175,32 @@ void app_reset()
 
 void app_sleep()
 {
+    //set next boot to sleep, except when the charging is done
+    if (!no_init_check())
+    {
+        no_init->boot_type = BOOT_SLEEP;
+        no_init_update();
+    }
+    else
+    {
+        if (no_init->boot_type != BOOT_CHARGE)
+        {
+            no_init->boot_type = BOOT_SLEEP;
+            no_init_update();
+        }
+    }
+
 	led_dim();
+    app_reset();
+}
+
+void app_sleep_show()
+{
+    //set next boot to sleep, except when the charging is done
+    no_init->boot_type = BOOT_SHOW;
+    no_init_update();
+
+    led_dim();
     app_reset();
 }
 
@@ -180,7 +218,7 @@ void key_combo(uint8_t status, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 		if (!button_pressed(GPIOx, GPIO_Pin))
 		{
 			if (timer + BUTTON_TIME > HAL_GetTick())
-				app_sleep();
+			    app_sleep_show();
 			else
 				break;
 		}
@@ -189,7 +227,7 @@ void key_combo(uint8_t status, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 			gfx_draw_status(status, "Release button");
 
 		if (timer + TIMEOUT < HAL_GetTick())
-			app_sleep();
+		    app_sleep_show();
 	}
 
 	gfx_draw_status(status | GFX_COLOR_MOD, "");
@@ -202,14 +240,14 @@ void key_combo(uint8_t status, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 			if (timer + BUTTON_TIME < HAL_GetTick())
 				break;
 			else
-				app_sleep();
+			    app_sleep_show();
 		}
 
 		if (timer + HINT_TIME < HAL_GetTick())
 			gfx_draw_status(status | GFX_COLOR_MOD, "Press now");
 
 		if (timer + TIMEOUT < HAL_GetTick())
-			app_sleep();
+		    app_sleep_show();
 	}
 
 	gfx_draw_status(status | GFX_COLOR_MOD, "");
@@ -222,14 +260,14 @@ void key_combo(uint8_t status, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 			if (timer + BUTTON_TIME < HAL_GetTick())
 				break;
 			else
-				app_sleep();
+			    app_sleep_show();
 		}
 
 		if (timer + HINT_TIME < HAL_GetTick())
 			gfx_draw_status(status| GFX_COLOR_MOD, "Release button");
 
 		if (timer + TIMEOUT < HAL_GetTick())
-			app_sleep();
+		    app_sleep_show();
 	}
 }
 
@@ -445,6 +483,11 @@ void app_main(uint8_t power_on_mode)
         else
         {
 			app_deinit();
+
+		    no_init_check();
+		    no_init->boot_type = BOOT_SHOW;
+		    no_init_update();
+
 			Bootloader_JumpToApplication();
         }
     }

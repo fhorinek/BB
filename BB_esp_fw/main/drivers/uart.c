@@ -18,7 +18,7 @@
 #define UART_TX_PIN		GPIO_NUM_1
 #define UART_RX_PIN		GPIO_NUM_3
 
-#define UART_RX_BUFF	512
+#define UART_RX_BUFF	1024
 #define UART_TX_BUFF	512
 
 #define STREAM_RX_BUFFER_SIZE	256

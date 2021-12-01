@@ -30,6 +30,11 @@ void tft_irq_display_te();
 
 void tft_refresh_buffer_force(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
+void tft_write_register(uint16_t command, uint16_t data);
+void tft_write_command(uint16_t command);
+void tft_write_data(uint16_t data);
+void tft_delay(uint16_t delay);
+
 #define TFT_CONTROLLER_HX8352       0
 #define TFT_CONTROLLER_ILI9327      1
 #define TFT_CONTROLLER_NOT_INIT		0xFF

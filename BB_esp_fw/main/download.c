@@ -135,7 +135,7 @@ void download_url(proto_download_url_t * packet)
 					break;
 			}
 
-			vTaskDelay(10);
+			task_sleep(10);
 
 			//to sync spi thread
 			uint32_t free_space;

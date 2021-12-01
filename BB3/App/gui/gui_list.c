@@ -85,7 +85,10 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 					return;
 			}
 
-			if (event == LV_EVENT_LEAVE || event == LV_EVENT_APPLY || event == LV_EVENT_FOCUSED)
+			if (event == LV_EVENT_LEAVE)
+                gui_config_entry_textbox_cancel(child, entry->entry, entry->params);
+
+			if (event == LV_EVENT_APPLY)
 				gui_config_entry_textbox(child, entry->entry, entry->params);
 
 			if (event == LV_EVENT_VALUE_CHANGED)
@@ -464,6 +467,17 @@ lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_
 }
 
 
+lv_obj_t * gui_list_spacer_add_entry(lv_obj_t * list, uint16_t height)
+{
+    lv_obj_t * entry = lv_obj_create(list, NULL);
+    lv_obj_set_size(entry, 100, height);
+    lv_page_glue_obj(entry, true);
+
+    return entry;
+}
+
+
+
 void gui_config_entry_clear()
 {
 	config_entry_ll_t * next = gui.list.entry_list;
@@ -634,6 +648,21 @@ void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params
 }
 
 static cfg_entry_t * gui_update_entry_origin = NULL;
+
+void gui_config_entry_textbox_cancel(lv_obj_t * obj, cfg_entry_t * entry, void * params)
+{
+    gui_update_entry_origin = entry;
+
+    if (entry > (cfg_entry_t *)SPECIAL_HANDLING)
+    {
+        if (entry->type == ENTRY_TEXT)
+        {
+            keyboard_hide();
+        }
+    }
+
+    gui_update_entry_origin = NULL;
+}
 
 void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {

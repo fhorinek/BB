@@ -20,6 +20,9 @@ typedef enum
 {
 	wf_label_hide = 0,
 	wf_units_hide,
+	wf_decimal_precision,
+    wf_alt_unit,
+    wf_glide_show_avg_vario,
 
 	wf_def_size
 }  widget_flags_id_t;

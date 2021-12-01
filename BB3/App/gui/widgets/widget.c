@@ -11,7 +11,10 @@
 
 widget_flag_def_t widgets_flags[] = {
 	{'L', LV_SYMBOL_EYE_CLOSE " Label hidden", LV_SYMBOL_EYE_OPEN " Label visible", NULL},
-	{'U', LV_SYMBOL_EYE_CLOSE " Units hidden", LV_SYMBOL_EYE_OPEN " Units visible", NULL},
+    {'U', LV_SYMBOL_EYE_CLOSE " Units hidden", LV_SYMBOL_EYE_OPEN " Units visible", NULL},
+    {'D', LV_SYMBOL_EYE_CLOSE " Decimals hidden", LV_SYMBOL_EYE_OPEN " Decimals visible", NULL},
+    {'A', "Alternative units", "Default units", NULL},
+    {'V', "Avg. vario on climb", "Empty on climb", NULL},
 };
 
 
@@ -111,19 +114,19 @@ void widget_arrow_rotate_size(lv_obj_t * arrow, lv_point_t * points, int16_t ang
      float fsin = table_sin(angle);
      float fcos = table_cos(angle);
 
-     points[0].x = mx - fsin * s / 3;
+     points[0].x = mx + fsin * s / 3;
      points[0].y = my + fcos * s / 3;
-     points[2].x = mx + fsin * s / 5;
+     points[2].x = mx - fsin * s / 5;
      points[2].y = my - fcos * s / 5;
 
      fsin = table_sin(angle + 25);
      fcos = table_cos(angle + 25);
-     points[1].x = mx + fsin * s / 3;
+     points[1].x = mx - fsin * s / 3;
      points[1].y = my - fcos * s / 3;
 
      fsin = table_sin(angle + 335);
      fcos = table_cos(angle + 335);
-     points[3].x = mx + fsin * s / 3;
+     points[3].x = mx - fsin * s / 3;
      points[3].y = my - fcos * s / 3;
 
      points[4].x = points[0].x;
@@ -196,24 +199,14 @@ lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * 
     return arrow_obj;
 }
 
-void debug_font_size(uint8_t index)
-{
-
-
-}
-
-void widget_update_font_size(lv_obj_t * label)
+void widget_update_font_size_box(lv_obj_t * label, lv_coord_t w, lv_coord_t h)
 {
 	static uint8_t font_size_cache_x_number[NUMBER_OF_WIDGET_FONTS] = {0};
 	static uint8_t font_size_cache_x_char[NUMBER_OF_WIDGET_FONTS] = {0};
-	static uint8_t font_size_cache_x_sign[NUMBER_OF_WIDGET_FONTS] = {0};
+    static uint8_t font_size_cache_x_sign[NUMBER_OF_WIDGET_FONTS] = {0};
+    static uint8_t font_size_cache_x_dot[NUMBER_OF_WIDGET_FONTS] = {0};
 	static uint8_t font_size_cache_x_symbol[NUMBER_OF_WIDGET_FONTS] = {0};
 	static uint8_t font_size_cache_y[NUMBER_OF_WIDGET_FONTS] = {0};
-
-	lv_obj_t * area = lv_obj_get_parent(label);
-	lv_coord_t w = lv_obj_get_width(area);
-	lv_coord_t h = lv_obj_get_height(area);
-	lv_point_t size;
 
 	lv_label_ext_t * ext = lv_obj_get_ext_attr(label);
 
@@ -223,9 +216,11 @@ void widget_update_font_size(lv_obj_t * label)
     uint8_t len = strlen(ext->text);
     uint8_t nums = 0;
     uint8_t signs = 0;
+    uint8_t dots = 0;
     uint8_t chars = 0;
     uint8_t symbol = 0;
     uint8_t lines = 1;
+
     for (uint8_t j = 0; j < len; j++)
     {
         char c = ext->text[j];
@@ -233,7 +228,9 @@ void widget_update_font_size(lv_obj_t * label)
             lines++;
         else if (ISDIGIT(c))
             nums++;
-        else if (c == '.' || c == '-' || c == '+' || c == ':'  || c == ' ')
+        else if (c == '.' || c == ',' || c == ':'  || c == ' ')
+            dots++;
+        else if (c == '-' || c == '+')
             signs++;
         else if (ISALPHA(c))
             chars++;
@@ -249,16 +246,20 @@ void widget_update_font_size(lv_obj_t * label)
 	{
 		if (font_size_cache_x_number[i] == 0)
 		{
+		    lv_point_t size;
+
 			_lv_txt_get_size(&size, "0", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
 			font_size_cache_x_number[i] = size.x;
-			_lv_txt_get_size(&size, ".", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
-			font_size_cache_x_sign[i] = size.x;
+            _lv_txt_get_size(&size, "-", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+            font_size_cache_x_sign[i] = size.x;
+            _lv_txt_get_size(&size, ".", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+            font_size_cache_x_dot[i] = size.x;
 			_lv_txt_get_size(&size, "%", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
 			font_size_cache_x_symbol[i] = size.x;
 			_lv_txt_get_size(&size, "X", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
 			font_size_cache_x_char[i] = size.x;
-            _lv_txt_get_size(&size, "0\n0", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
-			font_size_cache_y[i] = (size.y / 2) - gui.styles.widget_fonts[i]->base_line * 2;
+            _lv_txt_get_size(&size, "0", gui.styles.widget_fonts[i], 0, 0, LV_COORD_MAX, LV_TXT_FLAG_EXPAND);
+			font_size_cache_y[i] = size.y - gui.styles.widget_fonts[i]->base_line;
 
 //		    static uint16_t y_start = 20;
 //		    static uint16_t x_start = 20;
@@ -285,10 +286,11 @@ void widget_update_font_size(lv_obj_t * label)
 		uint16_t x = 0;
         x += nums * font_size_cache_x_number[i];
         x += signs * font_size_cache_x_sign[i];
+        x += dots * font_size_cache_x_dot[i];
         x += symbol * font_size_cache_x_symbol[i];
         x += chars * font_size_cache_x_char[i];
 
-		uint16_t y = lines * font_size_cache_y[i];
+		uint16_t y = lines * font_size_cache_y[i] + (gui.styles.widget_fonts[i]->base_line * (lines - 1));
 
 		if (x < w && y < h)
 			break;
@@ -300,6 +302,15 @@ void widget_update_font_size(lv_obj_t * label)
 	{
 		lv_obj_set_style_local_text_font(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[i]);
 	}
+}
+
+void widget_update_font_size(lv_obj_t * label)
+{
+    lv_obj_t * area = lv_obj_get_parent(label);
+    lv_coord_t w = lv_obj_get_width(area);
+    lv_coord_t h = lv_obj_get_height(area);
+
+    widget_update_font_size_box(label, w, h);
 }
 
 static void widget_opa_anim(lv_obj_t * obj, lv_anim_value_t v)

@@ -89,7 +89,7 @@ void page_settings_delete_cb(uint8_t res, void * data)
 
         char text[64];
         snprintf(text, sizeof(text), "Page '%s' removed", local->page_name);
-        statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+        statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 	}
 }
 
@@ -100,9 +100,9 @@ static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
-	if (event == LV_EVENT_LEAVE || event == LV_EVENT_APPLY || event == LV_EVENT_FOCUSED)
+    if (obj == local->name_entry)
 	{
-		if (obj == local->name_entry)
+        if (event == LV_EVENT_APPLY)
 		{
 			keyboard_hide();
 
@@ -120,13 +120,21 @@ static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 			if (!page_rename(local->page_name, text))
 			{
 				gui_list_textbox_set_value(local->name_entry, local->page_name);
-				statusbar_add_msg(STATUSBAR_MSG_ERROR, "Already exists!");
+				statusbar_msg_add(STATUSBAR_MSG_ERROR, "Already exists!");
 			}
 			else
 			{
 				config_set_text(&profile.ui.page[local->page_index], text);
+				strcpy(local->page_name, text);
 			}
 		}
+
+        if (event == LV_EVENT_LEAVE)
+        {
+            keyboard_hide();
+            gui_list_textbox_set_value(local->name_entry, local->page_name);
+            return false;
+        }
 	}
 
 	return true;
@@ -162,7 +170,7 @@ static bool page_settings_add_cb(lv_obj_t * obj, lv_event_t event)
 
                 char text[64];
                 snprintf(text, sizeof(text), "Page '%s' created at position %u", new_name, index + 1);
-                statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+                statusbar_msg_add(STATUSBAR_MSG_INFO, text);
                 break;
             }
         }
@@ -254,7 +262,7 @@ void page_settings_fm_remove_cb(uint8_t res, void * opt_data)
 
         char text[64];
         snprintf(text, sizeof(text), "Page '%s' deleted", name);
-        statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+        statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
         page_settings_open_fm(false);
@@ -342,7 +350,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
 
             char text[64];
             snprintf(text, sizeof(text), "Page '%s' loaded to position %u", name, page_cnt + 1);
-            statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+            statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
             page_settings_close_preview();
 
@@ -502,7 +510,7 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
 
             char text[64];
             snprintf(text, sizeof(text), "Page '%s' copied to position %u", new_name, page_cnt + 1);
-            statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+            statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
             page_settings_close_preview();
 
@@ -541,7 +549,6 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
         }
     }
 
-
     return true;
 }
 
@@ -567,6 +574,46 @@ static bool page_settings_copy_cb(lv_obj_t * obj, lv_event_t event)
 }
 
 
+static uint16_t hidden_pages_cnt()
+{
+    FRESULT res;
+    DIR dir;
+    FILINFO fno;
+
+    char path[PATH_LEN] = {0};
+    str_join(path, 3, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile));
+
+    res = f_opendir(&dir, path);
+    uint16_t cnt = 0;
+    while (true)
+    {
+        res = f_readdir(&dir, &fno);
+        if (res != FR_OK || fno.fname[0] == 0)
+            break;
+
+        char name[64];
+        filemanager_get_filename_no_ext(name, fno.fname);
+
+        bool page_used = false;
+        for (uint8_t i = 0; i < PAGE_MAX_COUNT; i++)
+        {
+            if (strcmp(config_get_text(&profile.ui.page[i]), name) == 0)
+            {
+                page_used = true;
+                break;
+            }
+        }
+
+        if (fno.fattrib & AM_DIR || page_used)
+            continue;
+
+        cnt++;
+    }
+
+    f_closedir(&dir);
+    return cnt;
+}
+
 
 static lv_obj_t * page_settings_init(lv_obj_t * par)
 {
@@ -578,29 +625,31 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 
     local->name_entry = gui_list_textbox_add_entry(list, "", "", PAGE_NAME_LEN);
 
-	gui_list_auto_entry(list, "Edit layout", CUSTOM_CB, page_settings_edit_layout_cb);
+	gui_list_auto_entry(list, LV_SYMBOL_EDIT " Edit page", CUSTOM_CB, page_settings_edit_layout_cb);
 
 	if (page_cnt > 1)
 	{
-        gui_list_auto_entry(list, "Move left", CUSTOM_CB, page_settings_move_left_cb);
-        gui_list_auto_entry(list, "Move right", CUSTOM_CB, page_settings_move_right_cb);
-	}
-
-	if (page_cnt < PAGE_MAX_COUNT)
-	{
-        gui_list_auto_entry(list, "Add new page", CUSTOM_CB, page_settings_add_cb);
-        gui_list_auto_entry(list, "Load stored page", CUSTOM_CB, page_settings_load_cb);
-
-        if (config_profiles_cnt() > 1)
-        {
-        	gui_list_auto_entry(list, "Copy from another profile", CUSTOM_CB, page_settings_copy_cb);
-        }
+        gui_list_auto_entry(list, LV_SYMBOL_LEFT " Move left", CUSTOM_CB, page_settings_move_left_cb);
+        gui_list_auto_entry(list, LV_SYMBOL_RIGHT " Move right", CUSTOM_CB, page_settings_move_right_cb);
 	}
 
     if (page_cnt > 1)
     {
-        gui_list_auto_entry(list, "Unload page", CUSTOM_CB, page_settings_unload_cb);
-        gui_list_auto_entry(list, "Remove page", CUSTOM_CB, page_settings_remove_cb);
+        gui_list_auto_entry(list, LV_SYMBOL_EYE_CLOSE " Hide page", CUSTOM_CB, page_settings_unload_cb);
+        gui_list_auto_entry(list, LV_SYMBOL_TRASH " Remove page", CUSTOM_CB, page_settings_remove_cb);
+    }
+
+    if (page_cnt < PAGE_MAX_COUNT)
+    {
+        gui_list_spacer_add_entry(list, 14);
+
+        if (hidden_pages_cnt() > 0)
+        {
+            gui_list_auto_entry(list, LV_SYMBOL_PLUS " Show hidden page", CUSTOM_CB, page_settings_load_cb);
+        }
+
+        gui_list_auto_entry(list, LV_SYMBOL_PLUS " Add empty page", CUSTOM_CB, page_settings_add_cb);
+        gui_list_auto_entry(list, LV_SYMBOL_PLUS " Duplicate existing", CUSTOM_CB, page_settings_copy_cb);
     }
 
 	return list;

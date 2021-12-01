@@ -21,7 +21,7 @@
 #define ESP_DMA_BUFFER_SIZE   512
 static uint8_t esp_rx_buffer[ESP_DMA_BUFFER_SIZE];
 
-#define ESP_STREAM_BUFFER_SIZE   256
+#define ESP_STREAM_BUFFER_SIZE   (1024 * 2)
 static uint8_t esp_stream_buffer[ESP_STREAM_BUFFER_SIZE];
 static stream_t esp_stream;
 
@@ -148,7 +148,8 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
         case(stream_res_error):
            DUMP(data, len);
         break;
-
+        default:
+        break;
     }
 }
 

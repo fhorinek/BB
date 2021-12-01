@@ -64,9 +64,10 @@ typedef struct
 
 //--------------- No init ---------------------
 
-#define BOOT_NORMAL 0
+#define BOOT_SLEEP  0
 #define BOOT_REBOOT 1
 #define BOOT_CHARGE 2
+#define BOOT_SHOW   3
 
 typedef struct {
     uint8_t boot_type;
@@ -92,7 +93,7 @@ static inline uint8_t no_init_crc()
 }
 
 
-static inline  void no_init_update()
+static inline void no_init_update()
 {
     no_init->crc = no_init_crc();
 }

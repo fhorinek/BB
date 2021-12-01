@@ -23,6 +23,7 @@ void pipe_output_init()
     downmix_cfg.downmix_info.source_num = NUMBER_OF_SOURCES;
     downmix_cfg.downmix_info.mode = ESP_DOWNMIX_WORK_MODE_SWITCH_ON;
     downmix_cfg.task_prio = 22;
+    downmix_cfg.task_core = 1;
 
     pipes.output.mix = downmix_init(&downmix_cfg);
     print_free_memory("downmix_init");
@@ -51,7 +52,7 @@ void pipe_output_init()
                 .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
                 .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
                 .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-                .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2, // | ESP_INTR_FLAG_IRAM,
+                .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
                 .dma_buf_count = 9,
                 .dma_buf_len = 300,
                 .use_apll = false,
@@ -63,7 +64,7 @@ void pipe_output_init()
             .volume = 0,
             .out_rb_size = I2S_STREAM_RINGBUFFER_SIZE,
             .task_stack = I2S_STREAM_TASK_STACK,
-            .task_core = I2S_STREAM_TASK_CORE,
+            .task_core = 0,
             .task_prio = I2S_STREAM_TASK_PRIO,
             .stack_in_ext = true,
             .multi_out_num = 0,

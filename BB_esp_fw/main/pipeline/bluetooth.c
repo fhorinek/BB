@@ -19,9 +19,6 @@ void pipe_bluetooth_init()
         .user_callback = {0},
     };
     pipes.bluetooth.bt = a2dp_stream_init(&a2dp_config);
-//    bluetooth_service_start
-//    pipes.bluetooth.bt = bluetooth_service_create_stream();
-
 
     rsp_filter_cfg_t rsp_cfg = DEFAULT_RESAMPLE_FILTER_CONFIG();
 	rsp_cfg.src_rate = 44100;

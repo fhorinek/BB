@@ -83,8 +83,9 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 	gui_config_entry_add(obj, NEXT_TASK, &gui_landing);
 
 
-	gui_list_auto_entry(list, "Glide ratio time", &profile.flight.gr_duration, &dura_opt);
-	gui_list_auto_entry(list, "G-meter time", &profile.flight.acc_duration, &dura_opt);
+    gui_list_auto_entry(list, "Glide ratio time", &profile.flight.gr_duration, &dura_opt);
+    gui_list_auto_entry(list, "G-meter time", &profile.flight.acc_duration, &dura_opt);
+    gui_list_auto_entry(list, "Circling timeout", &profile.flight.circle_timeout, &dura_opt);
 
 
 	return list;

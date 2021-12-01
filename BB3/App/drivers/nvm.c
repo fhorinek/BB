@@ -43,12 +43,12 @@ void nvm_update(nvm_data_t * data)
 
     for (uint16_t i = start_addr; i < SECTOR_SIZE; i += 16)
     {
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, LAST_SECTOR_ADDR + i, last_sector - start_addr + i);
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, LAST_SECTOR_ADDR + i, (uint32_t)last_sector - start_addr + i);
     }
 
     HAL_FLASH_Lock();
 
-    if (last_sector != data)
+    if (last_sector != (uint8_t *)data)
         free(last_sector);
 }
 

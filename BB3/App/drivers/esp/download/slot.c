@@ -252,12 +252,12 @@ void download_slot_process_data(uint8_t data_id, uint8_t * data, uint16_t len)
             		uint8_t * new_buff = ps_malloc(new_size);
             		if (ds->data != NULL)
             		{
-            			memcpy(new_buff, ds->data, ds->pos);
+            			safe_memcpy(new_buff, ds->data, ds->pos);
             			ps_free(ds->data);
             		}
             		ds->data = new_buff;
             	}
-                memcpy(ds->data + ds->pos, data, len);
+                safe_memcpy(ds->data + ds->pos, data, len);
             break;
 
             case(DOWNLOAD_SLOT_TYPE_FILE):

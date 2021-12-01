@@ -88,7 +88,7 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
             else
             {
                 //new have better signal
-                memcpy(local->nets[i].mac, network->mac, 6);
+                safe_memcpy(local->nets[i].mac, network->mac, 6);
                 local->nets[i].rssi = network->rssi;
                 local->nets[i].ch = network->ch;
                 entry = item;
@@ -109,7 +109,7 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
         entry = gui_list_info_add_entry(gui.list.object, network->name, params);
 
         //new
-        memcpy(local->nets[local->size].mac, network->mac, 6);
+        safe_memcpy(local->nets[local->size].mac, network->mac, 6);
         local->nets[local->size].rssi = network->rssi;
         local->nets[local->size].security = network->security;
         local->nets[local->size].ch = network->ch;
@@ -168,7 +168,7 @@ void wifi_list_connect_cb(uint8_t res, void * data)
     }
 }
 
-static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint8_t index)
+static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CLICKED)
 	{

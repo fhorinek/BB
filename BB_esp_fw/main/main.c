@@ -17,30 +17,7 @@
 
 #include "server/server.h"
 
-void print_task_info()
-{
-	uint8_t uxArraySize = uxTaskGetNumberOfTasks();
-	uint32_t ulTotalTime;
 
-	TaskStatus_t * StatusArray = (TaskStatus_t *) ps_malloc(uxArraySize * sizeof(TaskStatus_t));
-
-	uxArraySize = uxTaskGetSystemState(StatusArray, uxArraySize, &ulTotalTime );
-	if( ulTotalTime > 0UL )
-	{
-		ulTotalTime /= 100UL;
-
-		/* Create a human readable table from the binary data. */
-		for(uint8_t x = 0; x < uxArraySize; x++ )
-		{
-			TaskStatus_t * ts = StatusArray + x;
-			float ulStatsAsPercentage = ts->ulRunTimeCounter / (float)ulTotalTime;
-
-			INFO("%-32s\t%u\t%0.0f", ts->pcTaskName, ts->usStackHighWaterMark, ulStatsAsPercentage);
-		}
-	}
-	INFO("\n");
-	free(StatusArray);
-}
 
 //memory layout
 //3F8034A0	3FBFFFFF	4180831	4082,84 SPI

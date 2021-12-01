@@ -16,6 +16,7 @@
 
 #include "gui/statusbar.h"
 #include "gui/bluetooth.h"
+#include "gui/dbg_overlay.h"
 #include "gui/tasks/menu/bluetooth.h"
 
 #include "fc/fc.h"
@@ -115,7 +116,7 @@ void esp_wifi_stop_scan()
 
 void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch)
 {
-    proto_wifi_connect_t data;
+    __align proto_wifi_connect_t data;
 
     memcpy(data.mac, mac, 6);
     data.ch = ch;
@@ -249,9 +250,9 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
             esp_configure();
 
-            memcpy(fc.esp.mac_ap, packet->wifi_ap_mac, 6);
-            memcpy(fc.esp.mac_sta, packet->wifi_sta_mac, 6);
-            memcpy(fc.esp.mac_bt, packet->bluetooth_mac, 6);
+            safe_memcpy(fc.esp.mac_ap, packet->wifi_ap_mac, 6);
+            safe_memcpy(fc.esp.mac_sta, packet->wifi_sta_mac, 6);
+            safe_memcpy(fc.esp.mac_bt, packet->bluetooth_mac, 6);
 
             //enable tone
             fc.esp.tone_next_tx = 0;
@@ -311,8 +312,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
             proto_wifi_connected_t * packet = (proto_wifi_connected_t *)data;
             db_insert(PATH_NETWORK_DB, packet->ssid, packet->pass);
-            sprintf(msg, "Connected to %s", packet->ssid);
-            statusbar_add_msg(STATUSBAR_MSG_INFO, msg);
+            sprintf(msg, "Connected to '%s'", packet->ssid);
+            statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
             strncpy(fc.esp.ssid, packet->ssid, PROTO_WIFI_SSID_LEN);
             fc.esp.state |= ESP_STATE_WIFI_CONNECTED;
         }
@@ -320,20 +321,31 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_WIFI_DISCONNECTED):
             memset(fc.esp.ip_sta, 0, 4);
+
+            if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
+            {
+                statusbar_msg_add(STATUSBAR_MSG_INFO, "Wi-Fi disconnected");
+            }
+            else
+            {
+                statusbar_msg_add(STATUSBAR_MSG_ERROR, "Unable to connect");
+            }
+
             fc.esp.state &= ~ESP_STATE_WIFI_CONNECTED;
+
         break;
 
         case(PROTO_WIFI_GOT_IP):
         {
             proto_wifi_got_ip_t * packet = (proto_wifi_got_ip_t *)data;
-            memcpy(fc.esp.ip_sta, packet->ip, 4);
+            safe_memcpy(fc.esp.ip_sta, packet->ip, 4);
         }
         break;
 
         case(PROTO_WIFI_AP_ENABLED):
         {
             proto_wifi_ap_enabled_t * packet = (proto_wifi_ap_enabled_t *)data;
-            memcpy(fc.esp.ip_ap, packet->ip, 4);
+            safe_memcpy(fc.esp.ip_ap, packet->ip, 4);
             fc.esp.state |= ESP_STATE_WIFI_AP;
         }
         break;
@@ -347,7 +359,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         case(PROTO_WIFI_AP_CONNETED):
         {
             char * msg = "Device connected to AP";
-            statusbar_add_msg(STATUSBAR_MSG_INFO, msg);
+            statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
             fc.esp.state |= ESP_STATE_WIFI_AP_CONNECTED;
         }
         break;
@@ -368,7 +380,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 		{
 			//create new thread
 			proto_fs_get_file_req_t * packet = (proto_fs_get_file_req_t *) malloc(sizeof(proto_fs_get_file_req_t));
-			memcpy(packet, data, sizeof(proto_fs_get_file_req_t));
+			safe_memcpy(packet, data, sizeof(proto_fs_get_file_req_t));
 
 			xTaskCreate((TaskFunction_t)file_send_file, "file_send_file", 1024 * 4, (void *)packet, 24, NULL);
 		}
@@ -428,11 +440,20 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 				fc.gnss.heading = packet->heading;
 				fc.gnss.ground_speed = packet->speed;
 				fc.gnss.fix = packet->fix;
+				fc.gnss.new_sample = 0xFF;
 			}
 
     		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
     		config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
 		}
+        break;
+
+        case(PROTO_TASKS_RES):
+        {
+            uint8_t * packet = (uint8_t *) malloc(len);
+            safe_memcpy(packet, data, len);
+            xTaskCreate((TaskFunction_t)dbg_overlay_update, "dbg_overlay_update", 1024 * 2, (void *)packet, 24, NULL);
+        }
         break;
 
         default:

@@ -169,3 +169,8 @@ bool read_post_int16(char * data, char * key, int16_t * value)
 
 	return false;
 }
+
+void task_sleep(uint32_t ms)
+{
+    vTaskDelay(ms / portTICK_PERIOD_MS);
+}

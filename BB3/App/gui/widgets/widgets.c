@@ -161,10 +161,10 @@ void widgets_sort_page(page_layout_t * page)
     		if (left_val > right_val)
     		{
     			swaped = true;
-    			widget_slot_t tmp;
-    			memcpy(&tmp, left, sizeof(widget_slot_t));
-    			memcpy(left, right, sizeof(widget_slot_t));
-    			memcpy(right, &tmp, sizeof(widget_slot_t));
+    			__align widget_slot_t tmp;
+    			safe_memcpy(&tmp, left, sizeof(widget_slot_t));
+    			safe_memcpy(left, right, sizeof(widget_slot_t));
+    			safe_memcpy(right, &tmp, sizeof(widget_slot_t));
     		}
     	}
     } while (swaped);
@@ -362,7 +362,7 @@ void widgets_remove(page_layout_t * page, uint8_t index)
 
         for (uint8_t i = index; i < page->number_of_widgets - 1; i++)
         {
-            memcpy(&page->widget_slots[i], &page->widget_slots[i + 1], sizeof(widget_slot_t));
+            safe_memcpy(&page->widget_slots[i], &page->widget_slots[i + 1], sizeof(widget_slot_t));
         }
 
         page->number_of_widgets--;
@@ -371,7 +371,7 @@ void widgets_remove(page_layout_t * page, uint8_t index)
         if (page->number_of_widgets > 0)
         {
             new_widget_slots = (widget_slot_t *) malloc(sizeof(widget_slot_t) * page->number_of_widgets);
-            memcpy(new_widget_slots, page->widget_slots, sizeof(widget_slot_t) * page->number_of_widgets);
+            safe_memcpy(new_widget_slots, page->widget_slots, sizeof(widget_slot_t) * page->number_of_widgets);
         }
 
         free(page->widget_slots);

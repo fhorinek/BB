@@ -56,6 +56,9 @@ const char * gui_list_text_get_value(lv_obj_t * obj);
 
 lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_t color);
 
+lv_obj_t * gui_list_spacer_add_entry(lv_obj_t * list, uint16_t height);
+
+
 lv_obj_t * gui_list_get_entry(uint16_t index);
 
 void gui_config_entry_clear();
