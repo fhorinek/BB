@@ -170,6 +170,12 @@ typedef enum
 #define FC_GLIDE_MIN_SPEED		(0.55) //2km/h
 #define FC_GLIDE_MIN_SINK		(-0.01)
 
+#define FC_GNSS_NEW_SAMPLE_CIRCLE   0b00000001
+
+#define VARIO_CIRCLING_HISTORY_SCALE    12 // == 1m/s
+#define PAGE_AUTOSET_CIRCLING_THOLD     6
+#define PAGE_AUTOSET_CIRCLING_AVG       10
+
 typedef struct
 {
 	osSemaphoreId_t lock;
@@ -178,12 +184,27 @@ typedef struct
     {
         uint32_t start_time;
         uint32_t duration;
-
-        int16_t start_alt;
       	uint32_t odometer;              // in m
 
+        float avg_heading_change;
+
+      	int16_t last_heading;
+        int16_t total_heading_change;
+
+        uint32_t circling_stop;
+        uint32_t circling_start;
+        float circling_start_altitude;
+        float circling_gain; //in m
+
+        int8_t circling_history[8];
+
+        uint16_t circling_time; //in sec
+        int16_t start_alt;
+
+        bool circling;
         fc_flight_mode mode;
-        uint8_t _pad[1];
+        uint8_t _pad[2];
+
     } flight;
 
     struct
@@ -214,6 +235,9 @@ typedef struct
 		uint8_t fix; //2 - 2D, 3 - 3D
 		bool time_synced;
 		bool fake;
+
+		uint8_t new_sample;
+		uint8_t _pad[3];
 
 		struct
 		{
@@ -326,8 +350,8 @@ typedef struct
         float azimuth_filtered;
 
         fc_device_status_t status;
-
-        uint8_t _pad[3];
+        bool fake;
+        uint8_t _pad[2];
 	} fused;
 
 	struct

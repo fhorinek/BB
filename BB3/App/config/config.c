@@ -237,7 +237,7 @@ void config_load(cfg_entry_t * structure, char * path)
 
 	if (ret == FR_OK)
 	{
-		char buff[256];
+		__align char buff[256];
 		uint16_t line = 0;
 
 		while (f_gets(buff, sizeof(buff), &f) != NULL)
@@ -254,7 +254,7 @@ void config_load(cfg_entry_t * structure, char * path)
 				continue;
 			}
 
-			char key[64];
+			__align char key[64];
 			memcpy(key, buff, pos - buff);
 			key[pos - buff] = 0;
 

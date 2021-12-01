@@ -66,11 +66,11 @@ void sound_read_next(uint8_t id, uint32_t requested_size)
     if (br > 0)
     {
         //add header
-        proto_spi_header_t hdr;
+        __align proto_spi_header_t hdr;
         hdr.packet_type = SPI_EP_SOUND;
         hdr.data_id = id;
         hdr.data_len = br;
-        memcpy(buf, &hdr,  + sizeof(proto_spi_header_t));
+        safe_memcpy(buf, &hdr,  + sizeof(proto_spi_header_t));
 
         //release buffer
         esp_spi_release_buffer(br + sizeof(proto_spi_header_t));

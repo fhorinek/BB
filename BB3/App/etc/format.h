@@ -28,6 +28,13 @@ void format_altitude(char * buff, float in);
 void format_altitude_units(char * buff);
 void format_altitude_with_units(char * buff, float in);
 
+void format_altitude_2(char * buff, float in, uint8_t units);
+void format_altitude_units_2(char * buff, uint8_t units);
+void format_altitude_with_units_2(char * buff, float in, uint8_t units);
+
+void format_altitude_gain_2(char * buff, float in, uint8_t units);
+void format_altitude_gain(char * buff, float in);
+
 void format_vario(char * val, float in);
 void format_vario_units(char * units);
 void format_vario_with_units(char * buff, float in);
@@ -38,6 +45,8 @@ void format_ip(char * buf, uint8_t * ip);
 void format_speed(char * val, float in);
 void format_speed_units(char * units);
 void format_speed_with_units(char * buff, float in);
+
+void format_speed_2(char * val, float in, char * format);
 
 void format_percent(char * buff, float in);
 void format_duration(char * buff, float in);

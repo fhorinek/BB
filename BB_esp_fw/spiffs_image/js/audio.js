@@ -528,9 +528,7 @@ $(function() {
         if (!$('#prev_sound').prop('checked'))
         {
             var post_data = {};
-            post_data["tone_0"] = 0;
-            post_data["dura_0"] = 10;    
-            post_data["cnt"] = 1;
+            post_data["cnt"] = 0;
             send_ajax("api/sound", post_data);
         }
     });

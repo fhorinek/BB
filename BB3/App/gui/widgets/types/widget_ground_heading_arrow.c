@@ -44,7 +44,7 @@ static void GHdgArrow_update(widget_slot_t * slot)
 	}
 	else
 	{
-		widget_arrow_rotate(local->arrow, local->points, -fc.gnss.heading);
+		widget_arrow_rotate(local->arrow, local->points, fc.gnss.heading);
 		lv_obj_set_hidden(local->arrow, false);
 		lv_obj_set_hidden(local->text, true);
 	}

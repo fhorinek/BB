@@ -28,13 +28,19 @@ bool gnss_rmc_msg(char * buff, uint16_t len)
 
 	char slat[16], clat, slon[16], clon;
 
-	uint32_t alat = abs(fc.gnss.latitude);
-	uint32_t alon = abs(fc.gnss.longtitude);
+    uint32_t alat = abs(fc.gnss.latitude);
+    uint32_t alon = abs(fc.gnss.longtitude);
+    uint32_t mlat = ((alat % GNSS_MUL) * 60);
+    uint32_t mlon = ((alon % GNSS_MUL) * 60);
+    uint32_t mlat1 = mlat / GNSS_MUL;
+    uint32_t mlon1 = mlon / GNSS_MUL;
+    uint32_t mlat2 = (mlat % GNSS_MUL) / 10000;
+    uint32_t mlon2 = (mlon % GNSS_MUL) / 10000;
 
-	sprintf(slat, "%lu%05.2f", alat / GNSS_MUL, ((alat % GNSS_MUL) * 60) / (float)GNSS_MUL);
-	clat = fc.gnss.latitude > 0 ? 'N' : 'S';
-	sprintf(slon, "%lu%05.2f", alon / GNSS_MUL, ((alon % GNSS_MUL) * 60) / (float)GNSS_MUL);
-	clon = fc.gnss.longtitude > 0 ? 'E' : 'W';
+    snprintf(slat, sizeof(slat), "%02lu%02lu%03lu", alat / GNSS_MUL, mlat1, mlat2);
+    snprintf(slon, sizeof(slon), "%03lu%02lu%03lu", alon / GNSS_MUL, mlon1, mlon2);
+    clat = fc.gnss.latitude > 0 ? 'N' : 'S';
+    clon = fc.gnss.longtitude > 0 ? 'E' : 'W';
 
 	snprintf(tmp, sizeof(tmp), "GPRMC,%02u%02u%02u,A,%s,%c,%s,%c,%0.1f,%0.1f,%02u%02u%02u,0.0,E,A",
 			hour, min, sec,
@@ -61,12 +67,18 @@ bool gnss_gga_msg(char * buff, uint16_t len)
 
 	char slat[16], clat, slon[16], clon;
 
-	uint32_t alat = abs(fc.gnss.latitude);
-	uint32_t alon = abs(fc.gnss.longtitude);
+    uint32_t alat = abs(fc.gnss.latitude);
+    uint32_t alon = abs(fc.gnss.longtitude);
+    uint32_t mlat = ((alat % GNSS_MUL) * 60);
+    uint32_t mlon = ((alon % GNSS_MUL) * 60);
+    uint32_t mlat1 = mlat / GNSS_MUL;
+    uint32_t mlon1 = mlon / GNSS_MUL;
+    uint32_t mlat2 = (mlat % GNSS_MUL) / 10000;
+    uint32_t mlon2 = (mlon % GNSS_MUL) / 10000;
 
-	sprintf(slat, "%lu%05.2f", alat / GNSS_MUL, ((alat % GNSS_MUL) * 60) / (float)GNSS_MUL);
+    snprintf(slat, sizeof(slat), "%02lu%02lu%03lu", alat / GNSS_MUL, mlat1, mlat2);
+    snprintf(slon, sizeof(slon), "%03lu%02lu%03lu", alon / GNSS_MUL, mlon1, mlon2);
 	clat = fc.gnss.latitude > 0 ? 'N' : 'S';
-	sprintf(slon, "%lu%05.2f", alon / GNSS_MUL, ((alon % GNSS_MUL) * 60) / (float)GNSS_MUL);
 	clon = fc.gnss.longtitude > 0 ? 'E' : 'W';
 
 	snprintf(tmp, sizeof(tmp), "GPGGA,%02u%02u%02u,%s,%c,%s,%c,1,%u,1.5,%0.1f,M,%0.1f,M,,,",

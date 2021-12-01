@@ -30,7 +30,6 @@ static void CompArrow_init(lv_obj_t * base, widget_slot_t * slot)
 
     local->text = widget_add_value(base, slot, NULL, NULL);
     local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
-    widget_arrow_rotate(local->arrow, local->points, 0);
 }
 
 static void CompArrow_update(widget_slot_t * slot)
@@ -44,7 +43,7 @@ static void CompArrow_update(widget_slot_t * slot)
 	}
 	else
 	{
-		widget_arrow_rotate(local->arrow, local->points, fc.fused.azimuth);
+		widget_arrow_rotate(local->arrow, local->points, -fc.fused.azimuth);
 		lv_obj_set_hidden(local->arrow, false);
 		lv_obj_set_hidden(local->text, true);
 	}

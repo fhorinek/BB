@@ -84,11 +84,11 @@ static void calibration_end()
 
     FC_ATOMIC_ACCESS
     {
-        memcpy(&fc.imu.calibration, &local->calib, sizeof(imu_calibration_t));
+        safe_memcpy(&fc.imu.calibration, &local->calib, sizeof(imu_calibration_t));
     }
 
     nvm_update_imu_calibration(&local->calib);
-    statusbar_add_msg(STATUSBAR_MSG_INFO, "Calibration values stored");
+    statusbar_msg_add(STATUSBAR_MSG_INFO, "Calibration values stored");
     imu_init();
 
     gui_switch_task(&gui_advanced, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
@@ -512,7 +512,7 @@ static lv_obj_t * calibration_init(lv_obj_t * par)
 
     gui_set_loop_speed(10);
 
-    memcpy(&local->calib, &fc.imu.calibration, sizeof(imu_calibration_t));
+    safe_memcpy(&local->calib, &fc.imu.calibration, sizeof(imu_calibration_t));
 
     local->mag_max.x = INT16_MIN;
     local->mag_max.y = INT16_MIN;

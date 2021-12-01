@@ -26,7 +26,7 @@ void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
 
         char text[64];
         snprintf(text, sizeof(text), "Pilot profile '%s' deleted", name);
-        statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+        statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
         profile_pilot_open_fm(false);
@@ -81,7 +81,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
             config_change_pilot(name);
             char text[64];
             snprintf(text, sizeof(text), "Pilot profile changed to '%s'", name);
-            statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+            statusbar_msg_add(STATUSBAR_MSG_INFO, text);
             return true;
         }
 
@@ -203,7 +203,7 @@ void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
 
         char text[64];
         snprintf(text, sizeof(text), "Flight profile '%s' deleted", name);
-        statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+        statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
         profile_profile_open_fm(false);
@@ -266,7 +266,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
             config_change_profile(name);
             char text[64];
             snprintf(text, sizeof(text), "Flight profile changed to '%s'", name);
-            statusbar_add_msg(STATUSBAR_MSG_INFO, text);
+            statusbar_msg_add(STATUSBAR_MSG_INFO, text);
             return true;
         }
 

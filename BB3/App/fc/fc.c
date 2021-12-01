@@ -16,11 +16,12 @@
 #include "drivers/rtc.h"
 #include "drivers/gnss/fanet.h"
 
+#include "fc/telemetry/telemetry.h"
 #include "fc/vario.h"
 #include "fc/logger/logger.h"
 #include "fc/agl.h"
 #include "fc/navigation.h"
-
+#include "fc/circling.h"
 
 fc_t fc;
 
@@ -28,7 +29,7 @@ void fc_history_record_cb(void * arg)
 {
 //	DBG("fc_history_record_cb");
 
-	fc_pos_history_t pos;
+	__align fc_pos_history_t pos;
 	memset(&pos, 0, sizeof(pos));
 
 	if (fc.fused.status == fc_dev_ready)
@@ -63,7 +64,7 @@ void fc_history_record_cb(void * arg)
 
 	FC_ATOMIC_ACCESS
 	{
-		memcpy(&fc.history.positions[fc.history.index], &pos, sizeof(pos));
+	    safe_memcpy(&fc.history.positions[fc.history.index], &pos, sizeof(pos));
 		fc.history.index = (fc.history.index + 1) % FC_HISTORY_SIZE;
 
 		if (fc.history.size < FC_HISTORY_SIZE)
@@ -87,10 +88,13 @@ void fc_reset()
     fc.history.index = 0;
     fc.history.size = 0;
 
+    fc.fused.glide_ratio = NAN;
 	fc.agl.ground_height = AGL_INVALID;
 	fc.agl.agl = AGL_INVALID;
 
 	fc.flight.odometer = 0;
+
+    circling_reset();
 }
 
 static osTimerId fc_timer;
@@ -246,7 +250,7 @@ void fc_step()
 	}
 
 	navigation_step();
-
+	circling_step();
 	agl_step();
 }
 
@@ -272,6 +276,9 @@ void fc_device_status(char * buff, fc_device_status_t status)
 
         case(fc_dev_off):
             strcpy(buff, "Device disabled");
+        break;
+
+        default:
         break;
     }
 }

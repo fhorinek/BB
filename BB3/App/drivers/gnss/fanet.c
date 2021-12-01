@@ -5,27 +5,59 @@
 #include "fc/fc.h"
 #include "etc/epoch.h"
 #include "fc/neighbors.h"
+#include "etc/fanet_update.h"
 
 //DMA buffer
 #define FANET_BUFFER_SIZE	512
 static uint8_t fanet_rx_buffer[FANET_BUFFER_SIZE];
 
-#define FANET_BL_RESET	0
-#define FANET_BL_OFF	1
+#define FANET_BL_RESET	        0 //module is after reset
+#define FANET_BL_CONTINUE       1 //module asked to bood
+#define FANET_BL_DONE           2 //module booted
+
 
 static uint8_t fanet_bootloader_state;
+#define FANET_INIT_TIMEOUT 1500
+
+static uint32_t fanet_start_time = 0;
+static uint32_t fanet_next_transmit_tracking = 0;
+static uint32_t fanet_next_transmit_name = 0;
+static uint16_t fanet_read_index = 0;
+static bool fanet_need_update = false;
+osSemaphoreId fanet_tx_lock = NULL;
 
 void fanet_start_dma()
 {
 	//WARN("FANET Uart error");
 	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
+	fanet_read_index = 0;
 }
 
 
+void fanet_reinit_uart()
+{
+    if (fanet_uart->Instance != NULL)
+        HAL_UART_DeInit(fanet_uart);
+
+    MX_UART8_Init();
+    HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
+    fanet_read_index = 0;
+}
+
+void fanet_tx_done()
+{
+    osSemaphoreRelease(fanet_tx_lock);
+}
+
 void fanet_init()
 {
-	MX_UART8_Init();
-	HAL_UART_Receive_DMA(fanet_uart, fanet_rx_buffer, FANET_BUFFER_SIZE);
+    if (fanet_tx_lock == NULL)
+    {
+        fanet_tx_lock = osSemaphoreNew(1, 0, NULL);
+        osSemaphoreRelease(fanet_tx_lock);
+    }
+
+    fanet_reinit_uart();
 
 	if (config_get_bool(&profile.fanet.enabled))
 	{
@@ -40,14 +72,18 @@ void fanet_init()
 void fanet_enable()
 {
 	fanet_bootloader_state = FANET_BL_RESET;
-	fc.fanet.status = fc_dev_init;
-	fc.fanet.flags = 0;
+    fc.fanet.status = fc_dev_init;
+    fc.fanet.flags = 0;
+    fanet_start_time = HAL_GetTick();
 	neighbors_reset();
 
 	GpioWrite(FANET_RST, LOW);
 	GpioWrite(FANET_SW, HIGH);
 	osDelay(10);
 	GpioWrite(FANET_RST, HIGH);
+
+    fanet_next_transmit_tracking = 0;
+    fanet_next_transmit_name = 0;
 }
 
 void fanet_disable()
@@ -55,17 +91,56 @@ void fanet_disable()
 	neighbors_reset();
 	fc.fanet.status = fc_dev_off;
 	GpioWrite(FANET_SW, LOW);
+	HAL_UART_DeInit(fanet_uart);
 }
 
 void fanet_send(const char * msg)
 {
 	char fmsg[128];
 
-	DBG(">>> %s", msg);
+	DBG("<<< %s", msg);
 	sprintf(fmsg, "#%s\n", msg);
 
 	HAL_UART_Transmit(fanet_uart, (uint8_t *)fmsg, strlen(fmsg), 100);
 }
+
+void fanet_transmit(uint8_t * data, uint16_t len)
+{
+    if (osSemaphoreAcquire(fanet_tx_lock, 200) == osErrorTimeout)
+        osSemaphoreRelease(fanet_tx_lock);
+
+    uint8_t res = HAL_UART_Transmit_DMA(fanet_uart, data, len);
+    ASSERT(res == HAL_OK);
+}
+
+uint16_t fanet_get_waiting()
+{
+    uint16_t write_index = FANET_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(fanet_uart->hdmarx);
+
+    //Get number of bytes waiting in buffer
+    if (fanet_read_index > write_index)
+    {
+        return FANET_BUFFER_SIZE - fanet_read_index + write_index;
+    }
+    else
+    {
+        return write_index - fanet_read_index;
+    }
+}
+
+uint8_t fanet_read_byte()
+{
+    uint8_t byte = fanet_rx_buffer[fanet_read_index];
+    fanet_read_index = (fanet_read_index + 1) % FANET_BUFFER_SIZE;
+    return byte;
+}
+
+uint8_t fanet_peak_byte()
+{
+    uint8_t byte = fanet_rx_buffer[fanet_read_index];
+    return byte;
+}
+
 
 void fanet_configure_flarm(bool init)
 {
@@ -79,6 +154,7 @@ void fanet_configure_flarm(bool init)
 		return;
 	}
 
+	INFO("FANET Set Flarm");
 	char cmd[8];
 	snprintf(cmd, sizeof(cmd), "FAP %u", config_get_bool(&profile.fanet.flarm));
 	fanet_send(cmd);
@@ -100,6 +176,7 @@ void fanet_configure_type(bool init)
 	uint8_t track = config_get_select(&pilot.online_track);
 	uint8_t ground = config_get_select(&profile.fanet.ground_type);
 
+	INFO("FANET Set type");
 	char cmd[16];
 	snprintf(cmd, sizeof(cmd), "FNC %u,%u,%u", air, track, ground);
 	fanet_send(cmd);
@@ -118,9 +195,54 @@ void fanet_set_mode()
 
 	bool air_mode = fc.flight.mode == flight_flight;
 
+	INFO("FANET Set mode");
 	char cmd[16];
 	snprintf(cmd, sizeof(cmd), "FNM %u", air_mode ? 0 : 1);
 	fanet_send(cmd);
+}
+
+bool fanet_is_actual_version(char * module)
+{
+    FIL f;
+    if (f_open(&f, PATH_FANET_FW, FA_READ) == FR_OK)
+    {
+        //version start
+        f_lseek(&f, 0x18);
+
+        char version[13];
+        UINT br;
+        f_read(&f, version, 12, &br);
+        f_close(&f);
+
+        version[12] = 0;
+        if (br == 12)
+        {
+            DBG("FANET FW file version is '%s'", version);
+            DBG("FANET module version is '%s'", module);
+            if (strcmp(module, version) < 0)
+            {
+                INFO("FANET FW in module is older than file!");
+                return false;
+            }
+            else
+            {
+                INFO("FANET FW is up to date!");
+                return true;
+            }
+        }
+        else
+        {
+            WARN("FANET FW file version read failed!");
+            return true;
+        }
+
+    }
+    else
+    {
+        WARN("FANET FW file not found!");
+    }
+
+    return true;
 }
 
 void fanet_parse_dg(char * buffer)
@@ -129,16 +251,35 @@ void fanet_parse_dg(char * buffer)
 
 	if (start_with(buffer, "V "))
 	{
-		strcpy(fc.fanet.version, buffer + 2);
+	    if (start_with(buffer + 2, "build-"))
+	    {
+	        strcpy(fc.fanet.version, buffer + 2 + 6);
+	    }
+	    else
+	    {
+	        strcpy(fc.fanet.version, buffer + 2);
+	    }
 
+        if (!fanet_is_actual_version(fc.fanet.version))
+	    {
+	        fanet_need_update = true;
+	        fc.fanet.status = fc_dev_init;
+
+	        //reset module
+	        fanet_enable();
+	    }
 		//get module address
-		if (fc.fanet.status == fc_dev_init)
+	    else if (fc.fanet.status == fc_dev_init)
+	    {
 			fanet_send("FNA");
+	    }
 	}
+	//RX enabled
 	else if (start_with(buffer, "R OK"))
 	{
-		if (fc.fanet.status == fc_dev_init)
-			fanet_configure_flarm(true);
+	    fc.fanet.flags |= FANET_TYPE_CHANGE_REG | FANET_FLARM_CHANGE_REG | FANET_MODE_CHANGE_REG;
+	    fc.fanet.status = fc_dev_ready;
+	    INFO("FANET module ready");
 	}
 }
 
@@ -268,6 +409,8 @@ void fanet_parse_fn(char * buffer)
 
 	if (start_with(buffer, "R MSG,1,initialized"))
 	{
+	    fc.fanet.status = fc_dev_init;
+	    //get version
 		fanet_send("DGV");
 	}
 	else if (start_with(buffer, "A "))
@@ -281,14 +424,9 @@ void fanet_parse_fn(char * buffer)
 		if (fc.fanet.status == fc_dev_init)
 			fanet_send("FAX");
 	}
-	else if (start_with(buffer, "R OK"))
-	{
-		//enable RX
-		if (fc.fanet.status == fc_dev_init)
-			fanet_send("DGP 1");
-	}
 	else if (start_with(buffer, "F "))
 	{
+	    //incoming message
 		buffer = buffer + 2;
 
 		//address
@@ -336,15 +474,13 @@ void fanet_parse_fa(char * buffer)
 		sscanf(buffer + 2, "%u,%u,%u", &year, &month, &day);
 		fc.fanet.flarm_expires = datetime_to_epoch(0, 0, 0, day, month + 1, year + 1900);
 
-		if (fc.fanet.status == fc_dev_init)
-			fanet_configure_type(true);
-	}
-	else if (start_with(buffer, "R OK"))
-	{
-		if (fc.fanet.status == fc_dev_init)
-			fc.fanet.status = fc_dev_ready;
+        //enable RX
+        if (fc.fanet.status == fc_dev_init)
+            fanet_send("DGP 1");
 	}
 }
+
+
 
 void fanet_parse(uint8_t c)
 {
@@ -358,6 +494,8 @@ void fanet_parse(uint8_t c)
 	static uint8_t parser_buffer_index;
 	static uint8_t parser_state = FANET_IDLE;
 
+//	DBG("fanet_parse %u %c %02X", parser_state, c, c);
+
 	switch (parser_state)
 	{
 	case(FANET_IDLE):
@@ -365,17 +503,36 @@ void fanet_parse(uint8_t c)
 		{
 			parser_buffer_index = 0;
 			parser_state = FANET_DATA;
+			fanet_bootloader_state = FANET_BL_DONE;
 		}
-		if (c == 'C' && fanet_bootloader_state == FANET_BL_RESET)
+		else if (c == 'C')
 		{
-			char msg[] = "\n";
+		    //After reset
+		    if (fanet_bootloader_state == FANET_BL_RESET)
+		    {
+                if (fanet_need_update)
+                {
+                    //update bootloade
+                    if (!fanet_update_firmware())
+                        fanet_enable();
 
-			//if need to go to bootloader
-			// ...
-			//else
-			HAL_UART_Transmit(fanet_uart, (uint8_t *)msg, strlen(msg), 100);
-			fanet_bootloader_state = FANET_BL_OFF;
+                    fanet_need_update = false;
+
+                    //restart start timer
+                    fanet_start_time = HAL_GetTick();
+                }
+                else
+                {
+                    //continue
+                    char msg[] = "\n";
+                    HAL_UART_Transmit(fanet_uart, (uint8_t *)msg, strlen(msg), 100);
+                    fanet_bootloader_state = FANET_BL_CONTINUE;
+                    fanet_start_time = HAL_GetTick();
+                }
+		    }
 		}
+
+
 	break;
 
 	case(FANET_DATA):
@@ -383,11 +540,17 @@ void fanet_parse(uint8_t c)
 		{
 			parser_buffer[parser_buffer_index] = c;
 			parser_buffer_index++;
+
+			//message too long!
+			if (parser_buffer_index > FANET_MAX_LEN)
+			{
+			    parser_state = FANET_IDLE;
+			}
 		}
 		else
 		{
 			parser_buffer[parser_buffer_index] = 0;
-			DBG(" >>> %s", parser_buffer);
+			DBG(">>> %s", parser_buffer);
 
 			if (start_with(parser_buffer, "FN"))
 			{
@@ -459,32 +622,60 @@ void fanet_step()
 	if (!config_get_bool(&profile.fanet.enabled))
 		return;
 
-	static uint16_t read_index = 0;
-	static uint32_t next_transmit_tracking = 0;
-	static uint32_t next_transmit_name = 0;
+	uint16_t waiting = 0;
 
-	uint16_t write_index = FANET_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(fanet_uart->hdmarx);
-	uint16_t waiting;
+    if (fanet_uart->hdmarx->State == HAL_DMA_STATE_RESET)
+    {
+        WARN("FANET uart DMA in RESET");
+        fc.fanet.status = fc_dev_error;
+        fanet_init();
+    }
+    else
+    {
+        uint16_t write_index = FANET_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(fanet_uart->hdmarx);
 
-	//Get number of bytes waiting in buffer
-	if (read_index > write_index)
-	{
-		waiting = FANET_BUFFER_SIZE - read_index + write_index;
-	}
-	else
-	{
-		waiting = write_index - read_index;
-	}
+        //Get number of bytes waiting in buffer
+        if (fanet_read_index > write_index)
+        {
+            waiting = FANET_BUFFER_SIZE - fanet_read_index + write_index;
+        }
+        else
+        {
+            waiting = write_index - fanet_read_index;
+        }
 
-	//parse the data
-	for (uint16_t i = 0; i < waiting; i++)
-	{
-		fanet_parse(fanet_rx_buffer[read_index]);
-		read_index = (read_index + 1) % FANET_BUFFER_SIZE;
-	}
+        //parse the data
+        for (uint16_t i = 0; i < waiting; i++)
+        {
+            fanet_parse(fanet_rx_buffer[fanet_read_index]);
+            fanet_read_index = (fanet_read_index + 1) % FANET_BUFFER_SIZE;
+        }
+    }
+
+    if (fc.fanet.status == fc_dev_init)
+    {
+        if(HAL_GetTick() - fanet_start_time > FANET_INIT_TIMEOUT)
+        {
+            if (fanet_bootloader_state == FANET_BL_CONTINUE)
+            {
+                WARN("FANET still in bootloader");
+                fc.fanet.status = fc_dev_error;
+                fanet_enable();
+                fanet_need_update = true;
+            }
+
+            if (fanet_bootloader_state == FANET_BL_DONE)
+            {
+                WARN("FANET still in init state");
+                fc.fanet.status = fc_dev_error;
+                fanet_init();
+            }
+        }
 
 
-	if (fc.fanet.status == fc_dev_ready)
+    }
+
+    if (fc.fanet.status == fc_dev_ready)
 	{
 		if (fc.fanet.flags & FANET_TYPE_CHANGE_REG)
 		{
@@ -508,16 +699,16 @@ void fanet_step()
 		}
 
         //if enabled tracking etc...
-        if (next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix == 3)
+        if (fanet_next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix == 3)
         {
-            next_transmit_tracking = HAL_GetTick() + FANET_TX_TRACKING_PERIOD;
+            fanet_next_transmit_tracking = HAL_GetTick() + FANET_TX_TRACKING_PERIOD;
 
             fanet_transmit_pos();
         }
 
-        if (next_transmit_name <= HAL_GetTick() && config_get_bool(&pilot.broadcast_name))
+        if (fanet_next_transmit_name <= HAL_GetTick() && config_get_bool(&pilot.broadcast_name))
         {
-            next_transmit_name = HAL_GetTick() + FANET_TX_NAME_PERIOD;
+            fanet_next_transmit_name = HAL_GetTick() + FANET_TX_NAME_PERIOD;
 
             fanet_addr_t dest;
             dest.manufacturer_id = FANET_ADDR_MULTICAST;

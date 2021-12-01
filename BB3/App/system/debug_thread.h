@@ -66,6 +66,7 @@ void debug_uart_done();
 
 uint16_t debug_get_waiting();
 uint8_t debug_read_byte();
+void debug_read_bytes(uint8_t * buff, uint16_t len);
 
 void thread_debug_start(void *argument);
 

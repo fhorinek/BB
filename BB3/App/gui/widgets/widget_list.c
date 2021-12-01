@@ -28,6 +28,9 @@ DECLARE_WIDGET(Battery);
 DECLARE_WIDGET(Agl);
 DECLARE_WIDGET(Odo);
 DECLARE_WIDGET(Acc);
+DECLARE_WIDGET(TAss);
+DECLARE_WIDGET(TTime);
+DECLARE_WIDGET(TGain);
 
 widget_t * widgets[] =
 {
@@ -51,6 +54,10 @@ widget_t * widgets[] =
 	LIST_WIDGET(Battery),
 	LIST_WIDGET(Odo),
 	LIST_WIDGET(Acc),
+    LIST_WIDGET(TAss),
+    LIST_WIDGET(TTime),
+    LIST_WIDGET(TGain),
+
 //    LIST_WIDGET(Map),
 };
 

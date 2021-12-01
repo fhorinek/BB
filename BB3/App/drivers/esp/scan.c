@@ -47,7 +47,7 @@ void esp_scan_cb(proto_wifi_scan_res_t * network)
         return;
 
     esp_scan_list[scan_index].ch = network->ch;
-    memcpy(esp_scan_list[scan_index].mac, network->mac, 6);
+    safe_memcpy(esp_scan_list[scan_index].mac, network->mac, 6);
     esp_scan_list[scan_index].rssi = network->rssi;
     esp_scan_list[scan_index].security = network->security;
     strncpy(esp_scan_list[scan_index].ssid, network->name, PROTO_WIFI_SSID_LEN);

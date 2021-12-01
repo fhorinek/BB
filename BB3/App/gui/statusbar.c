@@ -11,6 +11,7 @@
 
 #include "etc/format.h"
 #include "fc/logger/logger.h"
+#include "gui/anim.h"
 
 void statusbar_show()
 {
@@ -163,11 +164,11 @@ void statusbar_msg_anim_show_cb(lv_anim_t * a)
 	lv_anim_start(&new_a);
 }
 
-void statusbar_add_msg(statusbar_msg_type_t type, char * text)
+lv_obj_t * statusbar_msg_add(statusbar_msg_type_t type, char * text)
 {
     gui_lock_acquire();
 
-	lv_color_t colors[] = {LV_COLOR_GREEN, LV_COLOR_ORANGE, LV_COLOR_RED};
+	lv_color_t colors[] = {LV_COLOR_GREEN, LV_COLOR_ORANGE, LV_COLOR_RED, LV_COLOR_GREEN};
 	lv_obj_t * msg = lv_cont_create(gui.statusbar.mbox, NULL);
 	lv_cont_set_fit2(msg, LV_FIT_NONE, LV_FIT_TIGHT);
 	lv_obj_set_size(msg, LV_HOR_RES, 0);
@@ -182,24 +183,64 @@ void statusbar_add_msg(statusbar_msg_type_t type, char * text)
 	lv_obj_set_width(label, LV_HOR_RES - 10);
 	lv_label_set_text(label, text);
 
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, msg);
+    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_height);
+
+	if (type != STATUSBAR_MSG_PROGRESS)
+	{
+        lv_anim_set_ready_cb(&a, statusbar_msg_anim_show_cb);
+	}
+	else
+	{
+	    lv_obj_t * bar = lv_bar_create(msg, NULL);
+	    lv_obj_set_size(bar, LV_HOR_RES - 10, 10);
+	    lv_bar_set_range(bar, 0, 100);
+	    lv_bar_set_value(bar, 0, LV_ANIM_OFF);
+	    lv_obj_set_style_local_margin_top(bar, LV_BAR_PART_BG, LV_STATE_DEFAULT, 10);
+	}
+
 	lv_cont_set_fit(msg, LV_FIT_NONE);
 
-	lv_anim_t a;
-	lv_anim_init(&a);
-	lv_anim_set_var(&a, msg);
-    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_height);
     lv_anim_set_values(&a, 0, lv_obj_get_height(msg));
-    lv_anim_set_ready_cb(&a, statusbar_msg_anim_show_cb);
-	lv_anim_start(&a);
+    lv_anim_start(&a);
+
+	lv_obj_move_foreground(gui.statusbar.mbox);
 
 	gui_lock_release();
+
+	return msg;
 }
 
+void statusbar_msg_update_progress(lv_obj_t * msg, uint8_t val)
+{
+    gui_lock_acquire();
+    lv_obj_t * bar = lv_obj_get_child(msg, NULL);
+    if (bar != NULL)
+    {
+        lv_bar_set_value(bar, val, LV_ANIM_ON);
+    }
+    gui_lock_release();
+}
 
+void statusbar_msg_close(lv_obj_t * msg)
+{
+    gui_lock_acquire();
+
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, msg);
+    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t) lv_obj_set_height);
+    lv_anim_set_values(&a, lv_obj_get_height(msg), 0);
+    lv_anim_set_ready_cb(&a, statusbar_msg_anim_hide_cb);
+    lv_anim_start(&a);
+
+    gui_lock_release();
+}
 
 void statusbar_step()
 {
-
 	if (rtc_is_valid())
 	{
 		uint8_t h;
@@ -277,7 +318,7 @@ void statusbar_step()
 
     }
 
-    if (fc.gnss.status == fc_dev_init)
+    if (fc.gnss.status == fc_dev_init || fc.gnss.status == fc_dev_error)
     {
 		set_icon(BAR_ICON_GNSS, I_RED | I_BLINK | I_FAST);
     }
@@ -308,7 +349,7 @@ void statusbar_step()
     	else
 			lv_label_set_text(gui.statusbar.icons[BAR_ICON_FANET], "F ");
 
-    	if (fc.fanet.status == fc_dev_init)
+    	if (fc.fanet.status == fc_dev_init || fc.fanet.status == fc_dev_error)
     		set_icon(BAR_ICON_FANET, I_RED | I_BLINK | I_FAST);
     	else
     		set_icon(BAR_ICON_FANET, I_SHOW);

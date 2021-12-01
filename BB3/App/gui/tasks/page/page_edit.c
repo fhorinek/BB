@@ -170,7 +170,7 @@ void page_edit_move_widget(widget_slot_t * ws, int8_t dir)
             scale = true;
             ws->h = max(ws->h + inc, ws->widget->h_min);
             ws->h = min(ws->h, h);
-            if (ws->h + ws->h > h)
+            if (ws->h + ws->y > h)
                 ws->y = h - ws->h;
 
         break;
@@ -384,6 +384,7 @@ bool page_edit_ctx_cb(uint8_t option, lv_obj_t * last_focus)
 
 						//update widget
 						page_edit_recreate_widget(&local->page.widget_slots[local->focus_index]);
+                        local->changed = true;
 						break;
 					}
 					f_index++;

@@ -66,10 +66,6 @@ static void Bar_update_range(widget_slot_t * slot)
 
 static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
 {
-    local->offset = 0;
-
-    widget_create_base(base, slot);
-
     if (!static_init)
     {
         lv_style_init(&static_line);
@@ -82,6 +78,10 @@ static void Bar_init(lv_obj_t * base, widget_slot_t * slot)
         lv_style_set_text_color(&static_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
         static_init = true;
     }
+
+    local->offset = 0;
+
+    widget_create_base(base, slot);
 
     local->bar_vario = lv_obj_create(slot->obj, NULL);
     lv_obj_set_x(local->bar_vario, 1);

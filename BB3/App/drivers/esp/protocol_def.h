@@ -343,6 +343,28 @@ typedef struct {
 	uint8_t fix; //0: No signal, 2: 2D, 3: 3D, 0xFF turn off fake gnss
 } proto_fake_gnss_t;
 
+#define PROTO_GET_TASKS                 0xF2
+#define PROTO_TASKS_RES                 0xF2
+
+typedef struct {
+    uint32_t total_time;
+    uint8_t number_of_tasks;
+    uint8_t _pad[3];
+} proto_tasks_head_t;
+
+#define PROTO_TASK_NAME_LEN     32
+
+typedef struct {
+    uint32_t run_time;
+    char name[PROTO_TASK_NAME_LEN];
+
+    uint16_t watermark;
+    uint8_t number;
+    uint8_t priority: 6;
+    uint8_t core: 2;
+} proto_tasks_item_t;
+
+
 //-------------------------------------------
 
 

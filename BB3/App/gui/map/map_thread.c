@@ -16,6 +16,7 @@
 
 void map_init()
 {
+    gui_lock_acquire();
 	gui.map.magic = 0;
 
     for (uint8_t i = 0; i < 9; i++)
@@ -32,6 +33,7 @@ void map_init()
     }
 
     lv_obj_set_hidden(gui.map.canvas, true);
+    gui_lock_release();
 }
 
 void thread_map_start(void *argument)

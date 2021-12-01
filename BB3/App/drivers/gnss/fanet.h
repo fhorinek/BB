@@ -19,8 +19,17 @@ void fanet_set_mode();
 
 void fanet_start_dma();
 
+void fanet_tx_done();
+void fanet_transmit(uint8_t * data, uint16_t len);
+
+
 void fanet_configure_flarm(bool init);
 void fanet_configure_type(bool init);
+
+void fanet_reinit_uart();
+uint16_t fanet_get_waiting();
+uint8_t fanet_read_byte();
+uint8_t fanet_peak_byte();
 
 #define FANET_AIRCRAFT_TYPE_OTHER				0
 #define FANET_AIRCRAFT_TYPE_PARAGLIDER			1	//with FLARM

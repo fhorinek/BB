@@ -1,0 +1,10 @@
+Changes made to LVGL library
+
+lv_btnmatrix.c
+	around line 1009:
+		cyclic button selecting
+		skiping disabled or hidden buttons
+		
+lv_indev.c
+	line 670
+		we have cancel button, disable editing toggle with long press

@@ -8,6 +8,7 @@
 
 #include "esp.h"
 #include "drivers/esp/protocol.h"
+#include "drivers/esp/file.h"
 
 osSemaphoreId_t spi_buffer_access;
 osSemaphoreId_t spi_start_semaphore;
@@ -43,7 +44,7 @@ uint16_t esp_spi_send(uint8_t * data, uint16_t len)
 
     if (to_write > 0)
     {
-        memcpy((void *)&spi_tx_buffer[spi_tx_buffer_index], data, to_write);
+        safe_memcpy((void *)&spi_tx_buffer[spi_tx_buffer_index], data, to_write);
         spi_tx_buffer_index += to_write;
     }
 

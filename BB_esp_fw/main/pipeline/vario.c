@@ -286,11 +286,11 @@ void pipe_vario_loop()
 
 	tones = malloc(sizeof(tone_part_t *) * 1);
 
-	tones[0] = vario_create_part(0, 1);
+//	tones[0] = vario_create_part(0, 1);
 
-	tone_active = tones[0];
+	tone_active = NULL;//tones[0];
 	tone_index = 0;
-	tone_cnt = 1;
+	tone_cnt = 0;
 
 	tone_position = 0;
 	tone_repeates = 0;
@@ -298,7 +298,7 @@ void pipe_vario_loop()
 	while (1)
 	{
 		pipe_vario_step();
-		vTaskDelay(50 / portTICK_PERIOD_MS);
+		task_sleep(50);
 	}
 }
 

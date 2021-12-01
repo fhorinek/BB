@@ -37,7 +37,7 @@ const uint8_t sha256InitState[] =
 
 void sha256_init(sha_internal_state_t * this)
 {
-	memcpy(this->state.b, sha256InitState, 32);
+    safe_memcpy(this->state.b, sha256InitState, 32);
 	this->byteCount = 0;
 	this->bufferOffset = 0;
 }
@@ -172,12 +172,12 @@ void sha256_initHmac(sha_internal_state_t * this, const uint8_t *key, int keyLen
 		sha256_init(this);
 		for (; keyLength--;)
 			sha256_write(this, *key++);
-		memcpy(this->keyBuffer, sha256_result(this), HASH_LENGTH);
+		safe_memcpy(this->keyBuffer, sha256_result(this), HASH_LENGTH);
 	}
 	else
 	{
 		// Block length keys are used as is
-		memcpy(this->keyBuffer, key, keyLength);
+	    safe_memcpy(this->keyBuffer, key, keyLength);
 	}
 	//for (i=0; i<BLOCK_LENGTH; i++) debugHH(keyBuffer[i]);
 	// Start inner hash
@@ -192,7 +192,7 @@ uint8_t* sha256_resultHmac(sha_internal_state_t * this)
 {
 	uint8_t i;
 	// Complete inner hash
-	memcpy(this->innerHash, sha256_result(this), HASH_LENGTH);
+	safe_memcpy(this->innerHash, sha256_result(this), HASH_LENGTH);
 	// now innerHash[] contains H((K0 xor ipad)||text)
 
 	// Calculate outer hash

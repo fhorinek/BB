@@ -246,7 +246,7 @@ void gui_init()
 {
     gui.take_screenshot = false;
     gui.dialog.active = false;
-
+    gui.dbg = NULL;
 	gui_init_styles();
 
 	//create statusbar
@@ -257,6 +257,8 @@ void gui_init()
 
 	//init ctx menu
 	ctx_init();
+
+    config_process_cb(&config.debug.tasks);
 
 	//set group focus callback
 	gui.input.focus = NULL;

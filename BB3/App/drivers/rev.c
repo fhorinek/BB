@@ -13,11 +13,11 @@ static uint8_t rev_id = 0xFF;
 void rev_get_uuid(uint8_t * buff)
 {
 	uint32_t tmp = HAL_GetUIDw0();
-	memcpy(buff + 0, &tmp, 4);
+	safe_memcpy(buff + 0, &tmp, 4);
 	tmp = HAL_GetUIDw1();
-	memcpy(buff + 4, &tmp, 4);
+	safe_memcpy(buff + 4, &tmp, 4);
 	tmp = HAL_GetUIDw2();
-	memcpy(buff + 8, &tmp, 4);
+	safe_memcpy(buff + 8, &tmp, 4);
 }
 
 uint32_t rev_get_short_id()

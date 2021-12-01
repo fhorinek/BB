@@ -15,6 +15,8 @@
 void widget_create_base(lv_obj_t * base, widget_slot_t * slot);
 void widget_add_title(lv_obj_t * base, widget_slot_t * slot, char * title);
 lv_obj_t * widget_add_value(lv_obj_t * base, widget_slot_t * slot, char * unit, lv_obj_t ** unit_obj);
+
+void widget_update_font_size_box(lv_obj_t * label, lv_coord_t w, lv_coord_t h);
 void widget_update_font_size(lv_obj_t * label);
 
 void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle);

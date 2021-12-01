@@ -201,6 +201,14 @@ pilot_profile_t pilot =
     entry_bool("online_track", true),
 };
 
+cfg_entry_param_select_t dbg_task_select[] =
+{
+    {DBG_TASK_NONE, "none"},
+    {DBG_TASK_ESP, "esp"},
+    {DBG_TASK_STM, "stm"},
+    SELECT_END
+};
+
 
 flight_profile_t profile =
 {
@@ -276,8 +284,10 @@ flight_profile_t profile =
         },
         //acc_duration
 		entry_int("acc_dura", 5, 1, 30),
-		//gr_duration
-		entry_int("gr_dura", 20, 5, 120),
+        //gr_duration
+        entry_int("gr_dura", 20, 5, 120),
+        //circle_timeout
+        entry_int("circle_timeout", 15, 5, 120),
     },
 
     //vario
@@ -426,8 +436,10 @@ config_t config =
 		entry_bool("dbg_usb", false),
 		//esp_off
 		entry_bool("dbg_esp_off", false),
-		//esp_off
-		entry_bool("dbg_esp_wdt", true),
+        //esp_wdt
+        entry_bool("dbg_esp_wdt", true),
+        //tasks
+        entry_select("dbg_tasks", DBG_TASK_NONE, dbg_task_select),
 		//vario_random
 		entry_bool("dbg_vario_rnd", false),
 	},

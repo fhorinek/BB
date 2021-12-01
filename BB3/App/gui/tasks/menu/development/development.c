@@ -52,7 +52,7 @@ void development_trigger()
     INFO("Development fake trigger");
     INFO("-----------------------------------------------------");
 
-    ublox_init();
+//    ublox_init();
 
 //    sound_start("/data/test.wav");
 
@@ -60,6 +60,8 @@ void development_trigger()
 //    local->slot = esp_http_get("http://192.168.10.32/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
 
 //    esp_device_reset();
+
+    protocol_send(PROTO_GET_TASKS, NULL, 0);
 }
 
 static void development_loop()
@@ -93,12 +95,6 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
             }
         }
 
-		if (obj == local->esp_boot0)
-        {
-            bool val = gui_list_switch_get_value(local->esp_boot0);
-            esp_boot0_ctrl(val);
-        }
-
 	}
 
 	if (event == LV_EVENT_CLICKED)
@@ -125,7 +121,7 @@ static bool development_clear_debug_file_cb(lv_obj_t * obj, lv_event_t event)
 		dialog_show("Confirm", "Clear debug file", dialog_yes_no, development_clear_debug_file_dialog_cb);
 	}
 
-	return false;
+	return true;
 }
 
 
@@ -144,8 +140,8 @@ static lv_obj_t * development_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, "ESP Disable", &config.debug.esp_off, NULL);
     gui_list_auto_entry(list, "ESP Watchdog", &config.debug.esp_wdt, NULL);
+    gui_list_auto_entry(list, "Show tasks", &config.debug.tasks, NULL);
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
-    local->esp_boot0 = gui_list_switch_add_entry(list, "ESP boot0", false);
     gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
     gui_list_auto_entry(list, "Debug to file", &config.debug.use_file, NULL);
     gui_list_auto_entry(list, "Clear debug.log", CUSTOM_CB, development_clear_debug_file_cb);

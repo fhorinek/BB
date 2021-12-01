@@ -201,12 +201,12 @@ static bool info_serial_cb(lv_obj_t * obj, lv_event_t event)
     		if (file_exists(DEV_MODE_FILE))
     		{
     			f_unlink(DEV_MODE_FILE);
-    			statusbar_add_msg(STATUSBAR_MSG_INFO, "Developer mode disabled");
+    			statusbar_msg_add(STATUSBAR_MSG_INFO, "Developer mode disabled");
     		}
     		else
     		{
     			touch(DEV_MODE_FILE);
-    			statusbar_add_msg(STATUSBAR_MSG_INFO, "Developer mode enabled");
+    			statusbar_msg_add(STATUSBAR_MSG_INFO, "Developer mode enabled");
     		}
 
     	}
@@ -232,16 +232,16 @@ static void update_bl_cb(lv_obj_t * obj, lv_event_t event)
         switch (res)
         {
             case(bl_update_ok):
-                statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
+                statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
             break;
             case(bl_same_version):
-                statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader already up-to-date");
+                statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader already up-to-date");
             break;
             case(bl_file_invalid):
-                statusbar_add_msg(STATUSBAR_MSG_ERROR, "Update file is corrupted!");
+                statusbar_msg_add(STATUSBAR_MSG_ERROR, "Update file is corrupted!");
             break;
             case(bl_file_not_found):
-                statusbar_add_msg(STATUSBAR_MSG_ERROR, "Update file not found!");
+                statusbar_msg_add(STATUSBAR_MSG_ERROR, "Update file not found!");
             break;
         }
     }
@@ -280,33 +280,36 @@ lv_obj_t * info_init(lv_obj_t * par)
     char value[32];
     lv_obj_t * obj;
 
-    gui_list_auto_entry(list, "Check for OTA updates", CUSTOM_CB, info_update_cb);
-    gui_list_auto_entry(list, "Release note", CUSTOM_CB, info_serial_release_note_cb);
+    gui_list_auto_entry(list, "Check for updates", CUSTOM_CB, info_update_cb);
 
     rev_get_sw_string(rev_str);
     snprintf(value, sizeof(value), "Firmware ver. %s", rev_str);
-    obj = gui_list_info_add_entry(list, "Manual firmware update", value);
-    gui_config_entry_add(obj, CUSTOM_CB, manual_install_cb);
+    obj = gui_list_info_add_entry(list, "Release note", value);
+    gui_config_entry_add(obj, CUSTOM_CB, info_serial_release_note_cb);
 
-    snprintf(value, sizeof(value), "Bootloader ver. %lu", nvm->bootloader);
-    obj = gui_list_info_add_entry(list, "Manual bootloader update", value);
-    gui_config_entry_add(obj, CUSTOM_CB, update_bl_cb);
+    gui_list_auto_entry(list, "Manual firmware install", CUSTOM_CB, manual_install_cb);
 
     snprintf(value, sizeof(value), "%08lX", rev_get_short_id());
     obj = gui_list_info_add_entry(list, "Serial number", value);
     gui_config_entry_add(obj, CUSTOM_CB, info_serial_cb);
 
-    if (fc.fanet.status == fc_dev_ready)
-        snprintf(value, sizeof(value), "%02X%04X", fc.fanet.addr.manufacturer_id, fc.fanet.addr.user_id);
-    else
-        fc_device_status(value, fc.fanet.status);
-
-    gui_list_info_add_entry(list, "FANET ID", value);
-
     snprintf(value, sizeof(value), "%02X", rev_get_hw());
     gui_list_info_add_entry(list, "Hardware revision", value);
 
-    gui_list_auto_entry(list, "Reboot to DFU", CUSTOM_CB, reboot_dfu_cb);
+    snprintf(value, sizeof(value), "%lu", nvm->bootloader);
+    gui_list_info_add_entry(list, "Bootloader version", value);
+
+    if (file_exists(DEV_MODE_FILE))
+    {
+        gui_list_auto_entry(list, "Reboot to DFU", CUSTOM_CB, reboot_dfu_cb);
+
+        if (file_exists(PATH_BL_FW_MANUAL))
+        {
+            snprintf(value, sizeof(value), "from /%s", PATH_BL_FW_MANUAL);
+            obj = gui_list_info_add_entry(list, "Manual bootloader install", value);
+            gui_config_entry_add(obj, CUSTOM_CB, update_bl_cb);
+        }
+    }
 
 
     return list;

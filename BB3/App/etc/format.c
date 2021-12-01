@@ -2,6 +2,7 @@
 
 #include "fc/fc.h"
 #include "etc/epoch.h"
+#include "drivers/rev.h"
 
 void format_date_epoch(char * buff, uint64_t epoch)
 {
@@ -118,6 +119,24 @@ void format_vario_with_units(char * buff, float in)
 	sprintf(buff, "%s %s", val, units);
 }
 
+void format_altitude_2(char * buff, float in, uint8_t units)
+{
+    int16_t val;
+
+    switch (units)
+    {
+        case(ALTITUDE_M):
+            val = in;
+        break;
+        case(ALTITUDE_FT):
+            val = FC_METER_TO_FEET * in;
+        break;
+    }
+
+    sprintf(buff, "%d", val);
+}
+
+
 void format_altitude(char * buff, float in)
 {
     int16_t val;
@@ -135,9 +154,57 @@ void format_altitude(char * buff, float in)
     sprintf(buff, "%d", val);
 }
 
+void format_altitude_gain_2(char * buff, float in, uint8_t units)
+{
+    int16_t val;
+
+    switch (units)
+    {
+        case(ALTITUDE_M):
+            val = in;
+        break;
+        case(ALTITUDE_FT):
+            val = FC_METER_TO_FEET * in;
+        break;
+    }
+
+    sprintf(buff, "%+d", val);
+}
+
+
+void format_altitude_gain(char * buff, float in)
+{
+    int16_t val;
+
+    switch (config_get_select(&config.units.altitude))
+    {
+        case(ALTITUDE_M):
+            val = in;
+        break;
+        case(ALTITUDE_FT):
+            val = FC_METER_TO_FEET * in;
+        break;
+    }
+
+    sprintf(buff, "%+d", val);
+}
+
 void format_altitude_units(char * buff)
 {
     switch (config_get_select(&config.units.altitude))
+    {
+        case(ALTITUDE_M):
+            strcpy(buff, "m");
+        break;
+        case(ALTITUDE_FT):
+            strcpy(buff, "ft");
+        break;
+    }
+}
+
+void format_altitude_units_2(char * buff, uint8_t units)
+{
+    switch (units)
     {
         case(ALTITUDE_M):
             strcpy(buff, "m");
@@ -156,6 +223,16 @@ void format_altitude_with_units(char * buff, float in)
 	format_altitude_units(units);
 	sprintf(buff, "%s %s", val, units);
 }
+
+void format_altitude_with_units_2(char * buff, float in, uint8_t units)
+{
+    char val[16];
+    char uni[16];
+    format_altitude_2(val, in, units);
+    format_altitude_units_2(uni, units);
+    sprintf(buff, "%s %s", val, uni);
+}
+
 
 void format_distance_with_units(char * buf, float in)
 {
@@ -255,6 +332,29 @@ void format_mac(char * buf, uint8_t * mac)
 void format_ip(char * buf, uint8_t * ip)
 {
     sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
+}
+
+void format_speed_2(char * val, float in, char * format)
+{
+    float value;
+
+    switch (config_get_select(&config.units.speed))
+    {
+        case(SPEED_KMH):
+            value = in * FC_MPS_TO_KPH;
+        break;
+        case(SPEED_MPH):
+            value = in * FC_MPS_TO_MPH;
+        break;
+        case(SPEED_MPS):
+            value = in;
+        break;
+        case(SPEED_KNOTS):
+            value = in * FC_MPS_TO_KNOTS;
+        break;
+    }
+
+    sprintf(val, format, value);
 }
 
 void format_speed(char * val, float in)

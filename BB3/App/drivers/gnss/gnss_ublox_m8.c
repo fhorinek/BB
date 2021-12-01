@@ -21,6 +21,7 @@ static uint8_t gnss_rx_buffer[GNSS_BUFFER_SIZE];
 static uint8_t ublox_last_command;
 static uint32_t ublox_last_command_time;
 static uint32_t ublox_start_time;
+static uint16_t ublox_read_index = 0;
 
 #define UBLOX_INIT_TIMEOUT 1500
 
@@ -68,6 +69,7 @@ void ublox_init()
 
 	MX_UART5_Init();
 	HAL_UART_Receive_DMA(gnss_uart, gnss_rx_buffer, GNSS_BUFFER_SIZE);
+	ublox_read_index = 0;
 
 	GpioWrite(GNSS_RST, LOW);
 	osDelay(100);
@@ -107,7 +109,7 @@ static void ublox_send(uint8_t class, uint8_t id, uint8_t len, uint8_t * payload
 	buff[5] = blen.uint8[1];
 
 	//payload
-	memcpy(buff + 6, payload, len);
+	simple_memcpy(buff + 6, payload, len);
 
 	//checksum
 	uint8_t ck_a = 0;
@@ -258,6 +260,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
 			fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
 			fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
+			fc.gnss.new_sample = 0xFF;
 		}
 
 		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
@@ -632,37 +635,44 @@ uint16_t ublox_gnss_waiting;
 
 void ublox_step()
 {
-	static uint16_t read_index = 0;
 
-	uint16_t write_index = GNSS_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(gnss_uart->hdmarx);
+    if (gnss_uart->hdmarx->State == HAL_DMA_STATE_RESET)
+    {
+        WARN("GNSS uart DMA in RESET");
+        fc.gnss.status = fc_dev_error;
+        ublox_init();
+    }
+    else
+    {
+        uint16_t write_index = GNSS_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(gnss_uart->hdmarx);
 
-	//Get number of bytes waiting in buffer
-	if (read_index > write_index)
-	{
-		ublox_gnss_waiting = GNSS_BUFFER_SIZE - read_index + write_index;
-	}
-	else
-	{
-		ublox_gnss_waiting = write_index - read_index;
-	}
+        //Get number of bytes waiting in buffer
+        if (ublox_read_index > write_index)
+        {
+            ublox_gnss_waiting = GNSS_BUFFER_SIZE - ublox_read_index + write_index;
+        }
+        else
+        {
+            ublox_gnss_waiting = write_index - ublox_read_index;
+        }
 
-//	//this is necessary to proper function
-//	taskYIELD();
+        //parse the data
+        if (fc.gnss.fake == false)
+        {
+            for (uint16_t i = 0; i < ublox_gnss_waiting; i++)
+            {
+                ublox_parse(gnss_rx_buffer[ublox_read_index]);
+                ublox_read_index = (ublox_read_index + 1) % GNSS_BUFFER_SIZE;
+            }
+        }
+    }
 
 	if (fc.gnss.status == fc_dev_init && HAL_GetTick() - ublox_start_time > UBLOX_INIT_TIMEOUT)
 	{
 		WARN("GNSS still in init state");
+		fc.gnss.status = fc_dev_error;
 		ublox_init();
 	}
 
-	//parse the data
-	for (uint16_t i = 0; i < ublox_gnss_waiting; i++)
-	{
-		if (fc.gnss.fake == false)
-		{
-			ublox_parse(gnss_rx_buffer[read_index]);
-		}
 
-		read_index = (read_index + 1) % GNSS_BUFFER_SIZE;
-	}
 }

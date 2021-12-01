@@ -93,7 +93,6 @@ int main(void)
   /* USER CODE BEGIN SysInit */
   MX_GPIO_Init();
   MX_DMA_Init();
-  //MX_UART7_Init();
   MX_I2C2_Init();
 
   uint8_t power_on_mode = app_poweroff();

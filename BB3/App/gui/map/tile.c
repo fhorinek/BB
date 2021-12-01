@@ -117,7 +117,7 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
 
 				if (edge_value > tmp_value || edge_cnt == j)
 				{
-					polygon_edge_t move;
+					__align polygon_edge_t move;
 					memcpy((void *)&move, (void *)&edges[j], sizeof(polygon_edge_t));
 					memcpy((void *)&edges[j], (void *)&tmp, sizeof(polygon_edge_t));
 

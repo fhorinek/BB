@@ -92,6 +92,8 @@ REGISTER_TASK_ILS(pages,
 	uint8_t pages_cnt;
 	uint8_t actual_page;
 
+	uint8_t pwr_off_button_cnt;
+
 	char page_name[PAGE_NAME_LEN + 1];
 );
 
@@ -159,6 +161,7 @@ void page_focus_widget(lv_obj_t * obj)
 
 void pages_menu_show()
 {
+    lv_obj_set_hidden(local->butt_power, false);
 	lv_anim_set_time(&local->anim, MENU_ANIM_TIME);
 	lv_anim_set_exec_cb(&local->anim, pages_menu_anim_cb);
 	lv_anim_set_values(&local->anim, 0, MENU_WIDTH);
@@ -194,7 +197,7 @@ void pages_splash_show()
 
 	    if (bootloader_update(PATH_BL_FW_AUTO) == bl_update_ok)
 	    {
-	        statusbar_add_msg(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
+	        statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
 	    }
 	    f_unlink(PATH_BL_FW_AUTO);
 	}
@@ -389,11 +392,35 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 {
     switch(event)
     {
+        case LV_EVENT_LONG_PRESSED_REPEAT:
+        {
+            if (local->state == MENU_SHOW)
+            {
+                local->timer = HAL_GetTick() + MENU_TIMEOUT;
+                local->pwr_off_button_cnt++;
+                if (local->pwr_off_button_cnt > 2)
+                    lv_obj_set_hidden(local->butt_power, local->pwr_off_button_cnt % 2);
+                if (local->pwr_off_button_cnt > 20)
+                    pages_power_off();
+            }
+        }
+        break;
+
+        case LV_EVENT_RELEASED:
+        {
+            if (local->state == MENU_SHOW)
+            {
+                lv_obj_set_hidden(local->butt_power, false);
+            }
+            break;
+        }
+
         case LV_EVENT_LONG_PRESSED:
         {
         	if (local->state == MENU_IDLE)
         	{
         		pages_menu_show();
+                local->pwr_off_button_cnt = 0;
         	}
         	else if (local->state == MENU_EDIT_WIDGET)
         	{
@@ -404,12 +431,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
         		widgets_edit(local->active_widget, WIDGET_ACTION_CLOSE);
         	}
 
-            lv_indev_wait_release(gui.input.indev);
-
         }
         break;
 
-        case LV_EVENT_CLICKED:
+        case LV_EVENT_SHORT_CLICKED:
             if (local->state == MENU_SHOW)
             {
                 pages_power_off();
@@ -427,7 +452,6 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                         //defocus old
                         if (local->active_widget != NULL)
                         {
-//                        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
                         	page_focus_widget(NULL);
                         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
                         }
@@ -437,7 +461,6 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                         //focus new
                         if (local->active_widget != NULL)
                             page_focus_widget(local->active_widget->obj);
-//                            local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_FOCUS, NULL);
                         else
                         	local->state = MENU_IDLE;
                     }
@@ -519,7 +542,6 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 							{
 								widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
 								page_focus_widget(NULL);
-//								local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
 							}
 							local->active_widget = NULL;
 						}

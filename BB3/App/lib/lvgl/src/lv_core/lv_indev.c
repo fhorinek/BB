@@ -663,23 +663,23 @@ static void indev_encoder_proc(lv_indev_t * i, lv_indev_data_t * data)
             i->proc.longpr_rep_timestamp = lv_tick_get();
 
             if(data->key == LV_KEY_ENTER) {
-                bool editable = false;
-                indev_obj_act->signal_cb(indev_obj_act, LV_SIGNAL_GET_EDITABLE, &editable);
-
-                /*On enter long press toggle edit mode.*/
-                if(editable) {
-                    /*Don't leave edit mode if there is only one object (nowhere to navigate)*/
-                    if(_lv_ll_is_empty(&g->obj_ll) == false) {
-                        lv_group_set_editing(g, lv_group_get_editing(g) ? false : true); /*Toggle edit mode on long press*/
-                    }
-                }
-                /*If not editable then just send a long press signal*/
-                else {
+//                bool editable = false;
+//                indev_obj_act->signal_cb(indev_obj_act, LV_SIGNAL_GET_EDITABLE, &editable);
+//
+//                /*On enter long press toggle edit mode.*/
+//                if(editable) {
+//                    /*Don't leave edit mode if there is only one object (nowhere to navigate)*/
+//                    if(_lv_ll_is_empty(&g->obj_ll) == false) {
+//                        lv_group_set_editing(g, lv_group_get_editing(g) ? false : true); /*Toggle edit mode on long press*/
+//                    }
+//                }
+//                /*If not editable then just send a long press signal*/
+//                else {
                     indev_obj_act->signal_cb(indev_obj_act, LV_SIGNAL_LONG_PRESS, NULL);
                     if(indev_reset_check(&i->proc)) return;
                     lv_event_send(indev_obj_act, LV_EVENT_LONG_PRESSED, NULL);
                     if(indev_reset_check(&i->proc)) return;
-                }
+//                }
             }
 
             i->proc.long_pr_sent = 1;

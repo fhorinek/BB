@@ -37,7 +37,7 @@ bool msc_loop()
     pwr_data_mode_t old_data_mode = 0xFF;
     uint32_t next_update = 0;
 
-    uint32_t pwr_delay = HAL_GetTick() + 40000;
+    uint32_t pwr_delay = HAL_GetTick() + 4000;
 
     while (1)
     {

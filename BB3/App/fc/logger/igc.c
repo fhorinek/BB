@@ -63,8 +63,8 @@ void igc_write_grecord()
 
 	char line[79];
 
-	sha_internal_state_t tmp_sha;
-	memcpy(&tmp_sha, &sha_state, sizeof(sha_state));
+	__align sha_internal_state_t tmp_sha;
+	safe_memcpy(&tmp_sha, &sha_state, sizeof(sha_state));
 
 	//G record
 	uint8_t * res = sha256_result(&tmp_sha);

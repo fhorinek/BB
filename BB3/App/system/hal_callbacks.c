@@ -15,14 +15,38 @@
 #include "drivers/tft/tft.h"
 #include "drivers/power/led.h"
 #include "drivers/esp/esp.h"
+#include "drivers/gnss/gnss_thread.h"
 #include "drivers/gnss/gnss_ublox_m8.h"
 #include "drivers/gnss/fanet.h"
+#include "gui/gui_thread.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if (GPIO_Pin == DISP_TE_Pin)
+	switch(GPIO_Pin)
 	{
-		tft_irq_display_te();
+        case DISP_TE_Pin:
+            tft_irq_display_te();
+        break;
+
+        case BT1_Pin:
+            gui_set_pin(0);
+        break;
+
+//        case BT2_Pin:
+//            gui_set_pin(1);
+//        break;
+
+        case BT3_Pin:
+            gui_set_pin(2);
+        break;
+
+        case BT4_Pin:
+            gui_set_pin(3);
+        break;
+
+        case BT5_Pin:
+            gui_set_pin(4);
+        break;
 	}
 }
 
@@ -32,6 +56,11 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		debug_uart_done();
 	}
+
+    if (huart == fanet_uart)
+    {
+        fanet_tx_done();
+    }
 }
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
@@ -145,6 +174,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 //			case(HAL_TIM_ACTIVE_CHANNEL_4):
 //				mems_phase4();
 //			break;
+			default:
+            break;
 		}
 
 	}
