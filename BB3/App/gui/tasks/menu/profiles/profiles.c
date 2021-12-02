@@ -78,6 +78,9 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
     {
         case FM_CB_SELECT:
         {
+        	if (strcmp(name, config_get_text(&config.pilot_profile)) == 0)
+        		return true;
+
             config_change_pilot(name);
             char text[64];
             snprintf(text, sizeof(text), "Pilot profile changed to '%s'", name);
@@ -263,6 +266,9 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
     {
         case FM_CB_SELECT:
         {
+        	if (strcmp(name, config_get_text(&config.flight_profile)) == 0)
+        		return true;
+
             config_change_profile(name);
             char text[64];
             snprintf(text, sizeof(text), "Flight profile changed to '%s'", name);
@@ -324,9 +330,9 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
             for (uint8_t i = 1; i < 100; i++)
             {
                 char new_name[32];
-                snprintf(new_name, sizeof(new_name), "%s_%u.cfg", name, i);
+                snprintf(new_name, sizeof(new_name), "%s_%u", name, i);
                 char new_path[PATH_LEN] = {0};
-                str_join(new_path, 3, PATH_PROFILE_DIR, "/", new_name);
+                str_join(new_path, 4, PATH_PROFILE_DIR, "/", new_name, ".cfg");
 
                 if (file_exists(new_path))
                     continue;
