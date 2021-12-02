@@ -62,7 +62,7 @@ void page_settings_update_pos(int8_t dir)
         config_set_int(&profile.ui.page_last, new_index);
     }
 
-    char value[20];
+    char value[30];
     snprintf(value, sizeof(value), "Page name (%u / %u)", local->page_index + 1, cnt);
     gui_list_textbox_set_name(local->name_entry, value);
 }
@@ -490,16 +490,17 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
         {
             uint8_t page_cnt = pages_get_count();
 
-            char dst[PATH_LEN];
+            char dst[PATH_LEN] = {0};
             char new_name[PAGE_NAME_LEN];
             strcpy(new_name, name);
-            str_join(dst, 4, PATH_PAGES_DIR, "/", new_name, ".pag");
+            str_join(dst, 6, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile), "/", new_name, ".pag");
             uint8_t i = 0;
             while (file_exists(dst) && i < 100)
             {
             	i++;
             	snprintf(new_name, sizeof(new_name), "%s_%u", name, i);
-            	str_join(dst, 4, PATH_PAGES_DIR, "/", new_name, ".pag");
+            	dst[0] = 0;
+            	str_join(dst, 6, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile), "/", new_name, ".pag");
             }
             copy_file(path, dst);
 
