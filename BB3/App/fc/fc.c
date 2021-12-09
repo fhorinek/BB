@@ -23,6 +23,8 @@
 #include "fc/navigation.h"
 #include "fc/circling.h"
 
+#include "gui/tasks/page/pages.h"
+
 fc_t fc;
 
 void fc_history_record_cb(void * arg)
@@ -121,6 +123,7 @@ void fc_init()
 
 	fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
 	osTimerStart(fc_timer, FC_STEP_PERIOD);
+
 }
 
 void fc_deinit()
@@ -145,6 +148,8 @@ void fc_takeoff()
 
     fanet_set_mode();
     logger_start();
+
+    gui_page_set_mode(&profile.ui.autoset.take_off);
 }
 
 void fc_landing()
@@ -157,6 +162,8 @@ void fc_landing()
 
     fanet_set_mode();
     logger_stop();
+
+    gui_page_set_mode(&profile.ui.autoset.land);
 }
 
 //run via timer every 250ms

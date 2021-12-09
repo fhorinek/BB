@@ -149,6 +149,7 @@ void bluetooth_pari_req(proto_bt_pair_req_t * packet)
 
 void bluetooth_discoverable(bool en)
 {
+	INFO("bluetooth_discoverable");
 	proto_bt_discoverable_t data;
 	data.enabled = en;
 	protocol_send(PROTO_BT_DISCOVERABLE, (void *)&data, sizeof(data));

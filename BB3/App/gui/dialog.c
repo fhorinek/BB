@@ -179,9 +179,13 @@ void dialog_progress_set_subtitle(char * text)
 
 void dialog_close()
 {
+	gui_lock_acquire();
     dialog_stop(dialog_res_none, NULL);
+    gui_lock_release();
 }
 
+
+//set opt data after you called dialog show
 void dialog_add_opt_data(void * opt_data)
 {
     dialog_opt_data = opt_data;
@@ -199,6 +203,8 @@ void dialog_add_opt_param(void * opt_param)
 
 void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb_t cb)
 {
+	gui_lock_acquire();
+
     if (gui.dialog.active)
         dialog_stop(dialog_res_none, NULL);
 
@@ -352,5 +358,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
     }
 
     dialog_opt_param = NULL;
+
+    gui_lock_release();
 }
 

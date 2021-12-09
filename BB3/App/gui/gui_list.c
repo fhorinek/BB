@@ -143,7 +143,7 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back
 	lv_obj_set_size(win, LV_HOR_RES, LV_VER_RES - GUI_STATUSBAR_HEIGHT);
 
 	gui_set_group_focus(lv_win_get_content(win));
-	lv_win_set_layout(win, LV_LAYOUT_COLUMN_MID);
+	lv_win_set_layout(win, LV_LAYOUT_PRETTY_MID);
 
 	//object that hold list entries
 	gui.list.object = lv_obj_get_child(lv_win_get_content(win), NULL);
@@ -160,7 +160,6 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
 	lv_page_glue_obj(entry, true);
-
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -324,6 +323,12 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 	return entry;
 }
 
+char * gui_list_switch_get_title(lv_obj_t * obj)
+{
+	lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
+	return lv_label_get_text(label);
+}
+
 
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value)
 {
@@ -459,13 +464,24 @@ lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_
 	lv_page_glue_obj(entry, true);
 	lv_obj_set_style_local_bg_color(entry, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, color);
 
+
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
-	lv_obj_set_style_local_text_color(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+
+	if (color.full == LV_COLOR_BLACK.full)
+		lv_obj_set_style_local_text_color(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	else
+		lv_obj_set_style_local_text_color(label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 
 	return entry;
 }
 
+
+void gui_list_note_set_text(lv_obj_t * obj, char * text)
+{
+	lv_obj_t * label = lv_obj_get_child(obj, NULL);
+	lv_label_set_text(label, text);
+}
 
 lv_obj_t * gui_list_spacer_add_entry(lv_obj_t * list, uint16_t height)
 {

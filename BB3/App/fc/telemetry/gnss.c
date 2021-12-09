@@ -34,11 +34,11 @@ bool gnss_rmc_msg(char * buff, uint16_t len)
     uint32_t mlon = ((alon % GNSS_MUL) * 60);
     uint32_t mlat1 = mlat / GNSS_MUL;
     uint32_t mlon1 = mlon / GNSS_MUL;
-    uint32_t mlat2 = (mlat % GNSS_MUL) / 10000;
-    uint32_t mlon2 = (mlon % GNSS_MUL) / 10000;
+    uint32_t mlat2 = (mlat % GNSS_MUL) / 1000;
+    uint32_t mlon2 = (mlon % GNSS_MUL) / 1000;
 
-    snprintf(slat, sizeof(slat), "%02lu%02lu%03lu", alat / GNSS_MUL, mlat1, mlat2);
-    snprintf(slon, sizeof(slon), "%03lu%02lu%03lu", alon / GNSS_MUL, mlon1, mlon2);
+    snprintf(slat, sizeof(slat), "%02lu%02lu.%04lu", alat / GNSS_MUL, mlat1, mlat2);
+    snprintf(slon, sizeof(slon), "%03lu%02lu.%04lu", alon / GNSS_MUL, mlon1, mlon2);
     clat = fc.gnss.latitude > 0 ? 'N' : 'S';
     clon = fc.gnss.longtitude > 0 ? 'E' : 'W';
 
@@ -73,11 +73,11 @@ bool gnss_gga_msg(char * buff, uint16_t len)
     uint32_t mlon = ((alon % GNSS_MUL) * 60);
     uint32_t mlat1 = mlat / GNSS_MUL;
     uint32_t mlon1 = mlon / GNSS_MUL;
-    uint32_t mlat2 = (mlat % GNSS_MUL) / 10000;
-    uint32_t mlon2 = (mlon % GNSS_MUL) / 10000;
+    uint32_t mlat2 = (mlat % GNSS_MUL) / 1000;
+    uint32_t mlon2 = (mlon % GNSS_MUL) / 1000;
 
-    snprintf(slat, sizeof(slat), "%02lu%02lu%03lu", alat / GNSS_MUL, mlat1, mlat2);
-    snprintf(slon, sizeof(slon), "%03lu%02lu%03lu", alon / GNSS_MUL, mlon1, mlon2);
+    snprintf(slat, sizeof(slat), "%02lu%02lu.%04lu", alat / GNSS_MUL, mlat1, mlat2);
+    snprintf(slon, sizeof(slon), "%03lu%02lu.%04lu", alon / GNSS_MUL, mlon1, mlon2);
 	clat = fc.gnss.latitude > 0 ? 'N' : 'S';
 	clon = fc.gnss.longtitude > 0 ? 'E' : 'W';
 

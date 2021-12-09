@@ -275,6 +275,8 @@ void gui_init()
 
 	//load the screen
 	lv_obj_t * screen = gui_task_create(gui.task.actual);
+    gui_page_set_mode(&profile.ui.autoset.power_on);
+
 
 	if (gui.task.actual == &gui_pages)
 		pages_splash_show();

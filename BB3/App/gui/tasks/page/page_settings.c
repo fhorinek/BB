@@ -10,6 +10,7 @@
 #include "pages.h"
 #include "widget_list.h"
 #include "page_edit.h"
+#include "page_autoset.h"
 
 #include "gui/gui_list.h"
 #include "gui/statusbar.h"
@@ -150,6 +151,16 @@ static bool page_settings_edit_layout_cb(lv_obj_t * obj, lv_event_t event)
     return true;
 }
 
+
+static bool page_settings_autoset_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        gui_switch_task(&gui_page_autoset, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+        page_autoset_set_page_name(local->page_name, local->page_index);
+    }
+    return true;
+}
 static bool page_settings_add_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
@@ -627,11 +638,16 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
     local->name_entry = gui_list_textbox_add_entry(list, "", "", PAGE_NAME_LEN);
 
 	gui_list_auto_entry(list, LV_SYMBOL_EDIT " Edit page", CUSTOM_CB, page_settings_edit_layout_cb);
+	gui_list_auto_entry(list, LV_SYMBOL_SETTINGS " Autoset", CUSTOM_CB, page_settings_autoset_cb);
 
 	if (page_cnt > 1)
 	{
-        gui_list_auto_entry(list, LV_SYMBOL_LEFT " Move left", CUSTOM_CB, page_settings_move_left_cb);
-        gui_list_auto_entry(list, LV_SYMBOL_RIGHT " Move right", CUSTOM_CB, page_settings_move_right_cb);
+		lv_obj_t * obj = gui_list_auto_entry(list, LV_SYMBOL_LEFT " Move left", CUSTOM_CB, page_settings_move_left_cb);
+		lv_cont_set_fit2(obj, LV_FIT_NONE, LV_FIT_TIGHT);
+		lv_obj_set_width(obj, lv_obj_get_width(obj) / 2);
+        obj = gui_list_auto_entry(list, "Move right " LV_SYMBOL_RIGHT, CUSTOM_CB, page_settings_move_right_cb);
+		lv_cont_set_fit2(obj, LV_FIT_NONE, LV_FIT_TIGHT);
+		lv_obj_set_width(obj, lv_obj_get_width(obj) / 2);
 	}
 
     if (page_cnt > 1)

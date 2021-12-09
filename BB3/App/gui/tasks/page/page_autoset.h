@@ -11,9 +11,8 @@
 #include "gui/gui.h"
 #include "gui/widgets/widgets.h"
 
-DECLARE_TASK(page_edit);
+DECLARE_TASK(page_autoset);
 
-void page_edit_set_page_name(char * filename, uint8_t index);
-void page_edit_modify_widget(widget_t * w, uint8_t widget_index);
+void page_autoset_set_page_name(char * filename, uint8_t index);
 
 #endif /* GUI_PAGE_EDIT_H_ */

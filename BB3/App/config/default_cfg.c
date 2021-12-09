@@ -233,6 +233,20 @@ flight_profile_t profile =
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
 		entry_big_int("last_lon", 0, big_int_max_range),
+
+		//autoset
+		{
+			//power_on
+			entry_text("page_power", "", PAGE_NAME_LEN, 0),
+			//take_off
+			entry_text("page_takeoff", "", PAGE_NAME_LEN, 0),
+			//circle
+			entry_text("page_circle", "", PAGE_NAME_LEN, 0),
+			//glide
+			entry_text("page_glide", "", PAGE_NAME_LEN, 0),
+			//land
+			entry_text("page_land", "", PAGE_NAME_LEN, 0),
+		},
     },
 
     //fanet
