@@ -2,6 +2,8 @@
 #include "circling.h"
 #include "fc.h"
 
+#include "gui/tasks/page/pages.h"
+
 void circling_reset()
 {
     fc.flight.total_heading_change = 0;
@@ -41,7 +43,7 @@ void circling_step()
         {
             if (!fc.flight.circling)
             {
-//                gui_page_set_mode(PAGE_MODE_CIRCLING);
+                gui_page_set_mode(&profile.ui.autoset.circle);
                 fc.flight.circling = true;
                 fc.flight.circling_start = HAL_GetTick();
                 fc.flight.circling_start_altitude = fc.fused.altitude1;
@@ -62,7 +64,7 @@ void circling_step()
                 {
                     fc.flight.circling = false;
                     fc.flight.total_heading_change = 0;
-//                    gui_page_set_mode(PAGE_MODE_NORMAL);
+                    gui_page_set_mode(&profile.ui.autoset.glide);
                 }
             }
         }

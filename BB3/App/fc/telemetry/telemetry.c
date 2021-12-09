@@ -23,7 +23,7 @@ static osTimerId_t telemetry_timer;
 void telemetry_cb()
 {
 	proto_tele_send_t data;
-	bool xmit;
+	bool xmit = false;
 
 	if (fc.esp.mode != esp_normal)
 		osTimerStop(telemetry_timer);
@@ -50,11 +50,10 @@ void telemetry_cb()
 
 	if (config_get_bool(&config.bluetooth.forward_gnss))
 	{
-		static uint8_t cnt = 0;
-		cnt++;
-		if (cnt > 1000 / PROTOCOL_PERIOD)
+
+		if (fc.gnss.new_sample & FC_GNSS_NEW_SAMPLE_TELEMETRY)
 		{
-			cnt = 0;
+			fc.gnss.new_sample &= ~FC_GNSS_NEW_SAMPLE_TELEMETRY;
 
 			if (gnss_rmc_msg(data.message, sizeof(data.message)))
 			{

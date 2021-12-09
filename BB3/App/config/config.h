@@ -79,6 +79,15 @@ typedef struct
         cfg_entry_t page_last;
         cfg_entry_t last_lon;
         cfg_entry_t last_lat;
+
+        struct
+        {
+        	cfg_entry_t power_on;
+        	cfg_entry_t take_off;
+        	cfg_entry_t circle;
+        	cfg_entry_t glide;
+        	cfg_entry_t land;
+        } autoset;
     } ui;
 
     struct

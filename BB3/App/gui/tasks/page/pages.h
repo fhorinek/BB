@@ -17,5 +17,6 @@ void pages_splash_show();
 void pages_lock_widget();
 void pages_unlock_widget();
 void pages_lock_reset();
+void gui_page_set_mode(cfg_entry_t * cfg);
 
 #endif /* GUI_PAGES_H_ */

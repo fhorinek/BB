@@ -513,8 +513,8 @@ void fanet_parse(uint8_t c)
                 if (fanet_need_update)
                 {
                     //update bootloade
-                    if (!fanet_update_firmware())
-                        fanet_enable();
+                    fanet_update_firmware();
+					fanet_enable();
 
                     fanet_need_update = false;
 

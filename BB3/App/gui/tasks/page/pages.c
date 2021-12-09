@@ -99,6 +99,49 @@ REGISTER_TASK_ILS(pages,
 
 void pages_load(char * filename, int8_t anim);
 
+void gui_page_set_mode(cfg_entry_t * cfg)
+{
+	char * name = config_get_text(cfg);
+
+	if (strlen(name) == 0)
+		return;
+
+	uint8_t i;
+	for (i = 0; i < PAGE_MAX_COUNT; i++)
+	{
+		if (strcmp(name, config_get_text(&profile.ui.page[i])) == 0)
+			break;
+	}
+	if (i == PAGE_MAX_COUNT)
+		return;
+
+	if (gui.task.actual == &gui_pages)
+	{
+		gui_lock_acquire();
+
+		if (i == local->actual_page)
+			return;
+
+
+		uint8_t last_page = local->actual_page;
+		local->actual_page = i;
+
+		uint8_t anim = PAGE_ANIM_NONE;
+		if (config_get_bool(&config.display.page_anim))
+		{
+			anim = (last_page >local->actual_page) ? PAGE_ANIM_FROM_LEFT : PAGE_ANIM_FROM_RIGHT;
+		}
+
+		pages_load((char *)pages_get_name(local->actual_page), anim);
+
+		gui_lock_release();
+	}
+	else
+	{
+		config_set_int(&profile.ui.page_last, i);
+	}
+}
+
 void pages_menu_anim_cb(void * obj, lv_anim_value_t val)
 {
 	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, val * 5);

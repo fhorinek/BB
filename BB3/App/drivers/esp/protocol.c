@@ -129,7 +129,7 @@ void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch)
 void esp_set_bt_mode()
 {
     proto_set_bt_mode_t data;
-
+    INFO("esp_set_bt_mode");
     data.enabled = config_get_bool(&config.bluetooth.enabled);
     data.a2dp = config_get_bool(&config.bluetooth.a2dp);
     data.spp = config_get_bool(&config.bluetooth.spp);
@@ -138,12 +138,6 @@ void esp_set_bt_mode()
     strncpy(data.pin, config_get_text(&config.bluetooth.pin), PROTO_BT_PIN_LEN);
 
     protocol_send(PROTO_BT_SET_MODE, (void *) &data, sizeof(data));
-
-    //if inside bluetooth menu, make bt discoverable
-    if (config_get_bool(&config.bluetooth.enabled) && gui.task.actual == &gui_bluetooth)
-    {
-    	bluetooth_discoverable(true);
-    }
 }
 
 void esp_configure()
@@ -394,9 +388,19 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 		{
         	proto_bt_mode_t * packet = (proto_bt_mode_t *)data;
         	if (packet->enabled)
+        	{
         		fc.esp.state |= ESP_STATE_BT_ON;
+
+        	    //if inside bluetooth menu, make bt discoverable
+        	    if (config_get_bool(&config.bluetooth.enabled) && gui.task.actual == &gui_bluetooth)
+        	    {
+        	    	bluetooth_discoverable(true);
+        	    }
+        	}
         	else
+        	{
         		fc.esp.state &= ~ESP_STATE_BT_ON;
+        	}
 		}
 		break;
 

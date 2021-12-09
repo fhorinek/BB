@@ -183,6 +183,7 @@ void cmd_step()
                     fc.gnss.ground_speed = data.speed;
                     fc.gnss.fix = 3;
                     fc.gnss.new_sample = 0xFF;
+                    fc.gnss.utc_time = data.time;
 
                     fc.fused.fake = true;
                     fc.fused.vario = data.vario;

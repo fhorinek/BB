@@ -101,29 +101,43 @@ void bt_unapir_all(void)
 
 void bt_unpair()
 {
+	xSemaphoreTake(bt_lock, WAIT_INF);
     bt_unapir_all();
     ble_unpair_all();
+    xSemaphoreGive(bt_lock);
 }
 
 void bt_tele_send(proto_tele_send_t * packet)
 {
+	xSemaphoreTake(bt_lock, WAIT_INF);
     bt_spp_send(packet->message, packet->len);
     ble_spp_send(packet->message, packet->len);
 
     protocol_send(PROTO_TELE_SEND_ACK, NULL, 0);
+    xSemaphoreGive(bt_lock);
 }
 
 static esp_bt_mode_t req_bt_mode = ESP_BT_MODE_IDLE;
 
 void bt_set_discoverable(proto_bt_discoverable_t * packet)
 {
+	xSemaphoreTake(bt_lock, WAIT_INF);
+
+	INFO("bt_set_discoverable");
+
     if (req_bt_mode & ESP_BT_MODE_CLASSIC_BT)
-        esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, (packet->enabled) ? ESP_BT_GENERAL_DISCOVERABLE : ESP_BT_NON_DISCOVERABLE);
-//    esp_ble_gap_set_scan_params(scan_params)
+    {
+    	ESP_ERROR_CHECK(esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, (packet->enabled) ? ESP_BT_GENERAL_DISCOVERABLE : ESP_BT_NON_DISCOVERABLE));
+    }
+    xSemaphoreGive(bt_lock);
 }
 
 void bt_confirm_pair(proto_bt_pair_res_t * packet)
 {
+	xSemaphoreTake(bt_lock, WAIT_INF);
+
+	INFO("bt_confirm_pair");
+
     if (packet->ble)
     {
         ble_confirm(packet->dev, packet->pair);
@@ -132,11 +146,14 @@ void bt_confirm_pair(proto_bt_pair_res_t * packet)
     {
         esp_bt_gap_ssp_confirm_reply(packet->dev, packet->pair);
     }
+    xSemaphoreGive(bt_lock);
 }
 
 void bt_set_mode(proto_set_bt_mode_t *packet)
 {
     xSemaphoreTake(bt_lock, WAIT_INF);
+
+    INFO("bt_set_mode");
 
     if (packet->enabled)
     {
@@ -211,11 +228,6 @@ void bt_set_mode(proto_set_bt_mode_t *packet)
 
     free(packet);
     vTaskDelete(NULL);
-}
-
-void bt_reset_devices()
-{
-    //TODO remove all paired/bonded devices
 }
 
 void bt_init()

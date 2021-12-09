@@ -60,6 +60,7 @@ void bt_spp_send(char * message, uint16_t len)
 {
     if (spp_handle)
     {
+    	INFO("%s (%u)", message, len);
         esp_spp_write(spp_handle, len, (uint8_t *)message);
     }
 }
