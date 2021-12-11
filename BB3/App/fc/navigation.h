@@ -14,5 +14,6 @@ void navigation_init();
 
 void navigation_step();
 
+void navigation_toff_dist_bearing();
 
 #endif /* FC_NAVIGATION_H_ */
