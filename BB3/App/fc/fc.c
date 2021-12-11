@@ -140,6 +140,9 @@ void fc_takeoff()
     INFO("Take-off");
     fc.flight.start_alt = fc.fused.altitude1;
     fc.flight.start_time = HAL_GetTick();
+    fc.flight.start_lat = fc.gnss.latitude;
+    fc.flight.start_lon = fc.gnss.longtitude;
+	fc.flight.toff_dist = 0;
 
     fc.autostart.timestamp = HAL_GetTick();
     fc.autostart.altitude = fc.fused.altitude1;

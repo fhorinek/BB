@@ -186,6 +186,8 @@ typedef struct
         uint32_t start_time;
         uint32_t duration;
       	uint32_t odometer;              // in m
+      	uint32_t toff_dist;				// in m
+      	int16_t toff_bearing;
 
         float avg_heading_change;
 
@@ -201,6 +203,8 @@ typedef struct
 
         uint16_t circling_time; //in sec
         int16_t start_alt;
+    	int32_t start_lat;
+    	int32_t start_lon;
 
         bool circling;
         fc_flight_mode mode;
