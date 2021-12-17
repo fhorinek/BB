@@ -59,6 +59,7 @@ typedef enum
     FONT_M,
     FONT_S,
     FONT_XS,
+    FONT_2XS,
 
     NUMBER_OF_WIDGET_FONTS,
 } gui_font_size_t;
@@ -245,6 +246,7 @@ void gui_show_release_note();
 #define GUI_INDICATOR_Y_POS		280
 #define GUI_INDICATOR_DOT_SIZE	16
 #define GUI_INDICATOR_DELAY		2000
+#define GUI_LABEL_DELAY			5000
 #define GUI_INDICATOR_ANIM		200
 
 #define GUI_MSG_TIMEOUT			5000

@@ -361,7 +361,7 @@ void config_load_all()
     path[0] = 0;
     str_join(path, 3, PATH_ASSET_DIR, "/", "pilot.cfg");
     if (!file_exists(path))
-        config_store((cfg_entry_t *)&profile, path);
+        config_store((cfg_entry_t *)&pilot, path);
 
     config_load((cfg_entry_t *)&config, PATH_DEVICE_CFG);
     pages_defragment();
