@@ -164,14 +164,14 @@ void cmd_step()
 
             if (data.crc == crc)
             {
-                INFO("=== Fake GNNS via serial ===");
-                DBG("time %lu", data.time);
-                DBG("lat %ld", data.lat);
-                DBG("lon %ld", data.lon);
-                DBG("spd %0.1f", data.speed);
-                DBG("hdg %0.1f", data.heading);
-                DBG("var %0.1f", data.vario);
-                DBG("alt %0.1f", data.altitude);
+//                INFO("=== Fake GNNS via serial ===");
+//                DBG("time %lu", data.time);
+//                DBG("lat %ld", data.lat);
+//                DBG("lon %ld", data.lon);
+//                DBG("spd %0.1f", data.speed);
+//                DBG("hdg %0.1f", data.heading);
+//                DBG("var %0.1f", data.vario);
+//                DBG("alt %0.1f", data.altitude);
 
                 FC_ATOMIC_ACCESS
                 {

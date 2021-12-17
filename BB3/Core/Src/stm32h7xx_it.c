@@ -100,7 +100,7 @@ extern TIM_HandleTypeDef htim1;
     \
     FAULT("");                                      \
     FAULT("------------------------------------");  \
-    FAULT("SP: 0x%08X", frame->sp);                 \
+    FAULT("PC: 0x%08X", frame->pc);                 \
     FAULT("R0: 0x%08X", frame->r0);                 \
     FAULT("R1: 0x%08X", frame->r1);                 \
     FAULT("R2: 0x%08X", frame->r2);                 \

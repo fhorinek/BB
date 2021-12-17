@@ -1,0 +1,80 @@
+From 24018e2b25a8504c4145a2718691604af7adee86 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Franti=C5=A1ek=20Hor=C3=ADnek?= <frantisekhorinek@gmail.com>
+Date: Wed, 15 Dec 2021 12:03:22 +0100
+Subject: [PATCH] Update task.h and tasks.c
+
+---
+ .../FreeRTOS-Kernel/include/freertos/task.h   |  3 ++
+ components/freertos/FreeRTOS-Kernel/tasks.c   | 42 +++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+
+diff --git a/components/freertos/FreeRTOS-Kernel/include/freertos/task.h b/components/freertos/FreeRTOS-Kernel/include/freertos/task.h
+index 5e4aced193..b173d4ebaa 100644
+--- a/components/freertos/FreeRTOS-Kernel/include/freertos/task.h
++++ b/components/freertos/FreeRTOS-Kernel/include/freertos/task.h
+@@ -698,6 +698,9 @@ typedef enum
+ #if ( portUSING_MPU_WRAPPERS == 1 )
+     BaseType_t xTaskCreateRestricted( const TaskParameters_t * const pxTaskDefinition,
+                                       TaskHandle_t * pxCreatedTask ) PRIVILEGED_FUNCTION;
++
++	BaseType_t xTaskCreateRestrictedPinnedToCore( const TaskParameters_t * const pxTaskDefinition, TaskHandle_t *pxCreatedTask, const BaseType_t xCoreID) PRIVILEGED_FUNCTION;
++
+ #endif
+ 
+ /**
+diff --git a/components/freertos/FreeRTOS-Kernel/tasks.c b/components/freertos/FreeRTOS-Kernel/tasks.c
+index de1e80feb9..fbda74c6e3 100644
+--- a/components/freertos/FreeRTOS-Kernel/tasks.c
++++ b/components/freertos/FreeRTOS-Kernel/tasks.c
+@@ -814,6 +814,48 @@ void taskYIELD_OTHER_CORE( BaseType_t xCoreID, UBaseType_t uxPriority )
+         return xReturn;
+     }
+ 
+	BaseType_t xTaskCreateRestrictedPinnedToCore( const TaskParameters_t * const pxTaskDefinition, TaskHandle_t *pxCreatedTask, const BaseType_t xCoreID)
+	{
+	TCB_t *pxNewTCB;
+	BaseType_t xReturn = errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY;
+
+		configASSERT( pxTaskDefinition->puxStackBuffer );
+
+		if( pxTaskDefinition->puxStackBuffer != NULL )
+		{
+			/* Allocate space for the TCB.  Where the memory comes from depends
+			on the implementation of the port malloc function and whether or
+			not static allocation is being used. */
+			pxNewTCB = ( TCB_t * ) pvPortMallocTcbMem( sizeof( TCB_t ) );
+
+			if( pxNewTCB != NULL )
+			{
+				/* Store the stack location in the TCB. */
+				pxNewTCB->pxStack = pxTaskDefinition->puxStackBuffer;
+
+				/* Tasks can be created statically or dynamically, so note
+				this task had a statically allocated stack in case it is
+				later deleted.  The TCB was allocated dynamically. */
+				pxNewTCB->ucStaticallyAllocated = tskSTATICALLY_ALLOCATED_STACK_ONLY;
+
+				prvInitialiseNewTask(	pxTaskDefinition->pvTaskCode,
+										pxTaskDefinition->pcName,
+										pxTaskDefinition->usStackDepth,
+										pxTaskDefinition->pvParameters,
+										pxTaskDefinition->uxPriority,
+										pxCreatedTask, pxNewTCB,
+										pxTaskDefinition->xRegions,
+										xCoreID );
+
+				prvAddNewTaskToReadyList( pxNewTCB, pxTaskDefinition->pvTaskCode, xCoreID );
+				xReturn = pdPASS;
+			}
+		}
+
+		return xReturn;
+	}
+
+
+ #endif /* portUSING_MPU_WRAPPERS */
+ /*-----------------------------------------------------------*/
+ 
+-- 
+2.25.1
+

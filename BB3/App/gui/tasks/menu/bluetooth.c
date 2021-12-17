@@ -12,11 +12,6 @@ REGISTER_TASK_ILS(bluetooth,
 	lv_obj_t * info;
 );
 
-gui_list_slider_options_t vol_opt = {
-	.disp_multi = 1,
-	.step = 1,
-	.format = format_percent,
-};
 
 
 static void bluetooth_unpair_cb(dialog_result_t res, void * data)
@@ -60,7 +55,7 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
 
 	gui_list_auto_entry(list, "Unpair all", CUSTOM_CB, bluetooth_unpair);
 
-	gui_list_auto_entry(list, "Volume", &config.bluetooth.volume, &vol_opt);
+
 
 	bluetooth_discoverable(true);
 	return list;

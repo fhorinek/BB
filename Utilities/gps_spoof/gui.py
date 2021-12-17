@@ -10,6 +10,7 @@ from datetime import datetime
 from time import time
 import struct
 import zlib
+import random
 
 GPS_MUL = 10000000
 
@@ -27,7 +28,7 @@ class GPS_Spoof(object):
     point_color = 0, 100, 255
     point_color_used = 200, 200, 200
     point_timer = 0
-    point_period = 100
+    point_period = 1000
     #point_min_dist = 15
     point_min_time = 0.05
     point_index = 0
@@ -53,6 +54,8 @@ class GPS_Spoof(object):
     thermal_color = 100, 0, 0
     
     need_redraw = True
+    rnd = False
+    rnd_timer = 0
     
     def add_waypoints(self, filename):
         print("Loading file", filename)
@@ -229,11 +232,23 @@ class GPS_Spoof(object):
         
 
     def event(self):
+        if self.rnd and self.rnd_timer < time():
+            self.rnd_timer = time() + 1
+            x = int(random.random() * self.win_size[0])
+            y = int(random.random() * self.win_size[1])
+            
+            self.add_point((x, y), self.altitiude)
+            self.need_redraw = True
+    
         for e in pygame.event.get():
             
             if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                 self.done = True
                 break
+                
+            if e.type == KEYUP and e.key == ord('r'):
+                self.rnd = not self.rnd
+                self.need_redraw = True
 
             elif e.type == MOUSEBUTTONDOWN and e.button == 1:
                 self.add_point(e.pos, self.altitiude)
@@ -267,14 +282,18 @@ class GPS_Spoof(object):
                 
             elif e.type == pygame.VIDEORESIZE:
                 self.screen = pygame.display.set_mode((e.w, e.h), RESIZABLE)
+                self.win_size = (e.w, e.h)
                 self.need_redraw = True
                 
             
           
-        if len(self.points) > 0 and pygame.time.get_ticks() > self.point_timer and self.point_index < len(self.points):
+        if len(self.points) > 0 and pygame.time.get_ticks() > self.point_timer:
             self.point_timer = pygame.time.get_ticks() + self.point_period
             self.send_point(self.points[self.point_index])
+            
             self.point_index += 1
+            if (self.point_index >= len(self.points)):
+                self.point_index = len(self.points) - 1 
             
             self.need_redraw = True
                     
@@ -286,6 +305,7 @@ class GPS_Spoof(object):
         self.screen.fill(self.black)
         
         last_point = None
+
 
         for t in self.thermals:
             tx, ty, tr, ts = t
@@ -320,6 +340,9 @@ class GPS_Spoof(object):
             ox, oy = self.mouse_point
             self.draw_text("x: %u" % ox, 0, 140)
             self.draw_text("y: %u" % oy, 0, 160)
+
+        if self.rnd:
+            self.draw_text("rnd active", 0, 180)
         
         pygame.display.update()     
         

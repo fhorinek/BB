@@ -364,6 +364,9 @@ function load_from_string(input)
     
     profile_tones = new_tones;
     
+    //clear points        
+    $("[id^=poly_]").remove();
+    $("[id^=tone_prev_]").remove();    
     $("[id^=poly_outline_]").remove();
     select_tone(0);
 }
