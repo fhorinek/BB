@@ -17,8 +17,8 @@ osSemaphoreId_t spi_dma_done;
 static uint16_t spi_data_to_read;
 
 static uint16_t spi_tx_buffer_index;
-static uint8_t spi_rx_buffer[SPI_BUFFER_SIZE];
-static uint8_t spi_tx_buffer[SPI_BUFFER_SIZE];
+static __align uint8_t spi_rx_buffer[SPI_BUFFER_SIZE];
+static __align uint8_t spi_tx_buffer[SPI_BUFFER_SIZE];
 
 void spi_start_transfer(uint16_t size_to_read)
 {

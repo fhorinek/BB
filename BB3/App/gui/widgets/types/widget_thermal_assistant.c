@@ -31,7 +31,6 @@ static void TAss_init(lv_obj_t * base, widget_slot_t * slot)
     	widget_add_title(base, slot, "Thermal assistant");
 
     local->text = widget_add_value(base, slot, NULL, NULL);
-    local->arrow = widget_add_arrow(base, slot, local->arrow_points, NULL, NULL);
 
     int16_t s = min(slot->w, slot->h);
 
@@ -47,6 +46,8 @@ static void TAss_init(lv_obj_t * base, widget_slot_t * slot)
         lv_obj_align(local->circle[i], local->text, LV_ALIGN_CENTER, x, y);
         lv_obj_set_auto_realign(local->circle[i], true);
     }
+
+    local->arrow = widget_add_arrow(base, slot, local->arrow_points, NULL, NULL);
 }
 
 #define MIN_DOT_SIZE    5

@@ -70,7 +70,7 @@ void vario_profile_load(char * name)
     	if (!file_exists(path))
     	{
 			char def[PATH_LEN];
-			snprintf(def, sizeof(def), "%s/defaults/vario/default.cfg", PATH_ASSET_DIR);
+			snprintf(def, sizeof(def), "%s/vario/default.cfg", PATH_DEFAULTS_DIR);
 			copy_file(def, path);
     	}
     }

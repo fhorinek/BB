@@ -40,7 +40,7 @@ void pipe_output_init()
         source_information[i] = source_info;
 
     source_info_init(pipes.output.mix, source_information);
-    downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_ONE_CHANNEL);
+    downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_TWO_CHANNEL);
     downmix_set_work_mode(pipes.output.mix, ESP_DOWNMIX_WORK_MODE_SWITCH_ON);
 
     //Create i2s output
@@ -49,8 +49,9 @@ void pipe_output_init()
             .i2s_config = {
                 .mode = I2S_MODE_MASTER | I2S_MODE_TX,
                 .sample_rate = OUTPUT_SAMPLERATE,
+//                .bits_per_sample = I2S_BITS_PER_SAMPLE_8BIT,
                 .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-                .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+                .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
                 .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                 .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
                 .dma_buf_count = 9,
