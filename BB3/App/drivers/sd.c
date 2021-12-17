@@ -105,27 +105,54 @@ void sd_init()
 		return;
 	}
 
+	//create file system structure
+
+	//logs
     f_mkdir(PATH_LOGS_DIR);
 
-	f_mkdir(PATH_CONFIG_DIR);
-	f_mkdir(PATH_PAGES_DIR);
-    f_mkdir(PATH_PILOT_DIR);
-    f_mkdir(PATH_PROFILE_DIR);
-    f_mkdir(PATH_VARIO_DIR);
+    //agl
+    f_mkdir(PATH_TOPO_DIR);
 
+    //map
+    f_mkdir(PATH_MAP_DIR);
+
+
+    //config
+	f_mkdir(PATH_CONFIG_DIR);
+
+	//configs are in flash memory default will be available
+	//config/pilots
+    f_mkdir(PATH_PILOT_DIR);
+    //config/profiles
+    f_mkdir(PATH_PROFILE_DIR);
+
+    //config/pages
+	if (f_mkdir(PATH_PAGES_DIR) == FR_OK)
+	{
+		f_mkdir(PATH_PAGES_DIR "/default");
+		copy_dir(PATH_DEFAULTS_DIR "/pages", PATH_PAGES_DIR "/default");
+	}
+
+    //config/vario
+    if (f_mkdir(PATH_VARIO_DIR) == FR_OK)
+    {
+    	copy_dir(PATH_DEFAULTS_DIR "/vario", PATH_VARIO_DIR);
+    }
+
+    //system
     f_mkdir(PATH_SYSTEM_DIR);
+    //system/fw
     f_mkdir(PATH_FW_DIR);
+    //system/temp
     if (f_mkdir(PATH_TEMP_DIR) == FR_EXIST)
         clear_dir(PATH_TEMP_DIR);
-    else
-    	f_mkdir(PATH_TEMP_DIR);
 
+    //system/cache
     f_mkdir(PATH_CACHE_DIR);
+    //system/cache/map
     f_mkdir(PATH_MAP_CACHE_DIR);
 
 
-    f_mkdir(PATH_TOPO_DIR);
-    f_mkdir(PATH_MAP_DIR);
 
 }
 

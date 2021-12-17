@@ -28,7 +28,8 @@
 #define	SOURCE_VARIO_INDEX		2
 
 #define OUTPUT_SAMPLERATE		48000
-#define OUTPUT_CHANNELS			1
+//#define OUTPUT_SAMPLERATE		44100
+#define OUTPUT_CHANNELS			2
 
 typedef struct
 {

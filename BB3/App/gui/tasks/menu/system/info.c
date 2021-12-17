@@ -57,8 +57,6 @@ void info_update_apply_cb(uint8_t res, void * data)
 
 void info_update_get_file_cb(uint8_t res, download_slot_t * ds)
 {
-    gui_lock_acquire();
-
     INFO("info_update_get_file_cb cb %u", res);
 
     if (res == DOWNLOAD_SLOT_PROGRESS)
@@ -86,8 +84,6 @@ void info_update_get_file_cb(uint8_t res, download_slot_t * ds)
     {
         dialog_downloads_error(res);
     }
-
-    gui_lock_release();
 }
 
 void info_update_question_cb(uint8_t res, void * data)
@@ -107,7 +103,8 @@ void info_update_question_cb(uint8_t res, void * data)
 
 void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
 {
-    gui_lock_acquire();
+	if (res == DOWNLOAD_SLOT_PROGRESS)
+		return;
 
     if (res == DOWNLOAD_SLOT_COMPLETE)
     {
@@ -138,8 +135,6 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
     {
         dialog_downloads_error(res);
     }
-
-    gui_lock_release();
 }
 
 static bool info_update_cb(lv_obj_t * obj, lv_event_t event)

@@ -6,4 +6,3 @@ include($ENV{ADF_PATH}/CMakeLists.txt)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 project(BB_esp_fw)
-
