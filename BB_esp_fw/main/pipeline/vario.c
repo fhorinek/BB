@@ -5,7 +5,7 @@
 
 uint32_t * vario_buffer;
 //100 ms buffer
-#define VARIO_BUFFER_SIZE	((OUTPUT_SAMPLERATE / 10) * sizeof(int16_t))
+#define VARIO_BUFFER_SIZE	((OUTPUT_SAMPLERATE / 10) * 2 * sizeof(int16_t))
 
 static tone_part_t * to_remove = NULL;
 
@@ -100,7 +100,7 @@ void pipe_vario_step()
 
 uint16_t vario_tone_lenght(uint16_t freq)
 {
-	return OUTPUT_SAMPLERATE / freq;
+	return (OUTPUT_SAMPLERATE / freq) * 2;
 }
 
 tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
@@ -117,10 +117,14 @@ tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 	{
 		tone->size = vario_tone_lenght(freq);
 		tone->buffer = ps_malloc(tone->size * sizeof(int16_t));
-		for (uint16_t i = 0; i < tone->size; i++)
-			tone->buffer[i] = (int16_t)(sin((M_TWOPI * i) / tone->size) * HALF_AMP);
+		uint16_t one_ch_len = tone->size / 2;
 
-		tone->repeat = max(1, (duration * ONE_MS) / tone->size);
+		for (uint16_t i = 0; i < one_ch_len; i++)
+		{
+			tone->buffer[i*2] = (int16_t)(sin((M_TWOPI * i) / one_ch_len) * HALF_AMP);
+		}
+
+		tone->repeat = max(1, (duration * ONE_MS) / one_ch_len);
 	}
 
 	return tone;
@@ -143,20 +147,21 @@ tone_part_t * vario_create_part_fade(uint16_t freq, uint16_t duration, bool down
 		tone->size = wave_len * wave_cnt;
 
 		tone->buffer = ps_malloc(tone->size * sizeof(int16_t));
-		for (uint16_t i = 0; i < tone->size; i++)
+		uint16_t one_ch_len = tone->size / 2;
+		for (uint16_t i = 0; i < one_ch_len; i++)
 		{
 			int16_t amp = HALF_AMP;
 
 			if (down)
 			{
-				amp = (amp * (tone->size - i - 1)) / tone->size;
+				amp = (amp * (one_ch_len - i - 1)) / one_ch_len;
 			}
 			else
 			{
-				amp = (amp * i) / tone->size;
+				amp = (amp * i) / one_ch_len;
 			}
 
-			tone->buffer[i] = (int16_t)(sin((M_TWOPI * (i % wave_len)) / wave_len) * amp);
+			tone->buffer[i*2] = (int16_t)(sin((M_TWOPI * (i % wave_len)) / wave_len) * amp);
 		}
 
 		tone->repeat = 1;

@@ -20,8 +20,11 @@
 #include "gui/tasks/menu/map.h"
 
 #include "gui/gui_list.h"
+#include "etc/format.h"
 
 REGISTER_TASK_I(settings);
+
+
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
