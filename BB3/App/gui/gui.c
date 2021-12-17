@@ -231,6 +231,7 @@ void gui_init_styles()
 	gui.styles.widget_fonts[FONT_M] = &lv_font_montserrat_28; //6
 	gui.styles.widget_fonts[FONT_S] = &lv_font_montserrat_22; //6
     gui.styles.widget_fonts[FONT_XS] = &lv_font_montserrat_16; //6
+    gui.styles.widget_fonts[FONT_2XS] = &lv_font_montserrat_12; //6
 }
 
 void gui_stop()

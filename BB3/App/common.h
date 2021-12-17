@@ -103,7 +103,7 @@ typedef struct
   uint32_t r3;
   uint32_t r12;
   uint32_t lr;
-  uint32_t sp;
+  uint32_t pc;
   uint32_t xpsr;
 } context_frame_t;
 
@@ -188,6 +188,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
 
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
+#define PATH_DEFAULTS_DIR   PATH_ASSET_DIR "/defaults"
 #define PATH_LOGS_DIR       "logs"
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
 #define PATH_BL_FW_AUTO     PATH_ASSET_DIR "/bootloader.fw"
