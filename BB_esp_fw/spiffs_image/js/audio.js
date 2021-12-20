@@ -603,14 +603,33 @@ $(function() {
         });
     });    
     
+    
     $("#load_default").click(function()
     {
-        if (!confirm("Load default system profile"))
-            return;
-
-        load_profile_from_device("system/assets/defaults/vario/default.cfg");
-        $("#profile-name").val("default");
-    });       
+        var data = {};
+        var path = "system/assets/defaults/vario";
+        data["path"] = path;
+        data["filter"] = 1;
+        
+         $.post({
+            url: "api/list_fs", 
+            data: data,
+            complete: function(res){
+                var data = JSON.parse(res.responseText);
+                
+                var link_list = [];
+                for (var key in data)
+                {
+                    var name = data[key][0];
+                    var label = name.slice(0, name.indexOf(".cfg"));
+                    link_list.push([label, path + "/" + name]);
+                }
+                
+                create_modal("Select default profile", "select default vario profile from strato", link_list, load_profile_from_device);
+            }
+        });
+    });    
+    
     
     load_profile_from_device("config/vario/default.cfg");
     $("#profile-name").val("default");
