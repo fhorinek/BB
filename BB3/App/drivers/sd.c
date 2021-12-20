@@ -134,10 +134,8 @@ void sd_init()
 	}
 
     //config/vario
-    if (f_mkdir(PATH_VARIO_DIR) == FR_OK)
-    {
-    	copy_dir(PATH_DEFAULTS_DIR "/vario", PATH_VARIO_DIR);
-    }
+    f_mkdir(PATH_VARIO_DIR);
+	copy_dir_when_absent(PATH_DEFAULTS_DIR "/vario", PATH_VARIO_DIR);
 
     //system
     f_mkdir(PATH_SYSTEM_DIR);

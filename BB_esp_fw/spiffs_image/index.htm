@@ -2,10 +2,6 @@
 
 <div id="profile_editor" class="row">
     <div class="col-lg-6 col-sm-12">
-        <div class="input-group">
-           <label for="profile-name">Profile name</label>
-           <input name="profile-name" id="profile-name" maxlength="15" />
-        </div>
         <svg height="500" width="100%" id="profile_dura" >
             <defs id="svg-defs"></defs>
             
@@ -22,6 +18,15 @@
             <defs id="svg-defs"></defs>
             
         </svg>    
+        
+        <div class="col-lg-6 col-sm-12">
+            <div class="input-group">
+               <label for="profile-name">Profile name</label>
+               <input name="profile-name" id="profile-name" maxlength="15" />
+            </div>
+        </div>
+        
+        
         <input type="button" value="Load profile" id="load_device"/>
         <input type="button" value="Save profile" id="save_device"/>
         <input type="button" value="Load default" id="load_default"/>

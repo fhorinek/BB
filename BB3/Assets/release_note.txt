@@ -1,13 +1,14 @@
-Topic: Better UX
+Topic: Thermal assistant
 
 Added:
-- New layout editor
-- Widget options
-- Bigger fonts 
-- Flight profiles
-- Pilot profile
+- Thermal assistant
+- Smart page switching
+- Glide can display Avg 
+- FANET+ auto update
+- SkyDrop audio profile
 
 Fixes:
-- GNSS not starting
-- USB mode not working when full
+- BLE not turning on
+- More usable keyboard
+- Better wifi performance
 

@@ -749,7 +749,8 @@ static lv_obj_t * pages_init(lv_obj_t * par)
         config_set_text(&profile.ui.autoset.take_off, "basic");
         config_set_text(&profile.ui.autoset.circle, "thermal");
         config_set_text(&profile.ui.autoset.glide, "basic");
-        local->pages_cnt = 3;
+
+        local->pages_cnt = pages_get_count();
 	}
 
 	local->actual_page = config_get_int(&profile.ui.page_last);

@@ -38,14 +38,14 @@ def read_chunk(bin_path, addr):
     f = False
     #dir
     if addr & 0x80000000:
-        addr &= ~0x80000000
-        level = (addr & (0xFFFF << 16)) >> 16
+        taddr = addr & ~0x80000000
+        level = (taddr & (0xFFFF << 16)) >> 16
         d = True
     
     #file
     elif addr & 0x40000000:
-        addr &= ~0x40000000
-        level = (addr & (0xFFFF << 16)) >> 16
+        taddr = addr & ~0x40000000
+        level = (taddr & (0xFFFF << 16)) >> 16
     else:
         level = 0
         f = True
