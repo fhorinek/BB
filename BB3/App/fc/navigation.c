@@ -18,6 +18,8 @@
 void navigation_init()
 {
 	fc.flight.odometer = 0;
+	fc.flight.toff_dist = 0;
+	fc.flight.toff_bearing = 0;
 }
 
 /**
@@ -51,5 +53,21 @@ void navigation_step()
 		last_lat = fc.gnss.latitude;
 		last_lon = fc.gnss.longtitude;
 		last_time = fc.gnss.itow;
+
+		navigation_toff_dist_bearing();
+	}
+}
+
+/**
+ * Calculate distance & bearing to take off
+ */
+void navigation_toff_dist_bearing()
+{
+	if (fc.flight.start_lat != 0) {
+		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
+		int16_t bearing = 0;
+		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing);
+		fc.flight.toff_dist = dist;
+		fc.flight.toff_bearing = bearing;
 	}
 }
