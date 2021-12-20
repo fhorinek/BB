@@ -247,6 +247,7 @@ void clear_dir(char * path);
 void remove_dir(char * path);
 bool copy_file(char * src, char * dst);
 void copy_dir(char * src, char * dst);
+void copy_dir_when_absent(char * src, char * dst);
 
 bool read_value(char * data, char * key, char * value, uint16_t value_len);
 
