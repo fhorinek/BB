@@ -245,12 +245,10 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
 
             f_rename(old_path, new_path);
 
-            char old_name[PATH_LEN];
-            filemanager_get_filename_no_ext(old_name, old_path);
             old_path[0] = 0;
-            str_join(old_path, 3, PATH_PROFILE_DIR, "/", old_name);
+            str_join(old_path, 3, PATH_PAGES_DIR, "/", old_name);
             new_path[0] = 0;
-            str_join(new_path, 3, PATH_PROFILE_DIR, "/", new_name);
+            str_join(new_path, 3, PATH_PAGES_DIR, "/", new_name);
             f_rename(old_path, new_path);
 
             //refresh

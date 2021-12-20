@@ -75,7 +75,7 @@ bool filemanager_ctx_cb(uint8_t index, lv_obj_t * obj)
         char new_path[PATH_LEN];
         snprintf(new_path, sizeof(new_path), "%s/%s", local->path, filemanager_active_fname);
 
-        local->cb(index, new_path);
+        return local->cb(index, new_path);
     }
 
     return true;
