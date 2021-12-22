@@ -185,6 +185,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
+#define PATH_COREDUMP       PATH_SYSTEM_DIR "/coredump_stm.bin"
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
 
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"

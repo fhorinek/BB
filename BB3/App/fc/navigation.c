@@ -18,8 +18,23 @@
 void navigation_init()
 {
 	fc.flight.odometer = 0;
-	fc.flight.toff_dist = 0;
-	fc.flight.toff_bearing = 0;
+	fc.flight.takeoff_distance = 0;
+	fc.flight.takeoff_bearing = 0;
+}
+
+/**
+ * Calculate distance & bearing to take off
+ */
+void navigation_takeoff_distance_and_bearing()
+{
+	if (fc.flight.start_lat != INVALID_INT32)
+	{
+		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
+		int16_t bearing = 0;
+		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing);
+		fc.flight.takeoff_distance = dist;
+		fc.flight.takeoff_bearing = bearing;
+	}
 }
 
 /**
@@ -31,8 +46,10 @@ void navigation_step()
 	static int32_t last_lon;
 	static uint32_t last_time;
 
-	if (fc.gnss.fix > 0 && last_time != fc.gnss.itow)
+	if (fc.gnss.new_sample & FC_GNSS_NEW_SAMPLE_NAVIGATION)
 	{
+		fc.gnss.new_sample &= ~FC_GNSS_NEW_SAMPLE_NAVIGATION;
+
 		// Do we already have a previous GPS point?
 		if (last_lat != NO_LAT_DATA)
 		{
@@ -54,20 +71,8 @@ void navigation_step()
 		last_lon = fc.gnss.longtitude;
 		last_time = fc.gnss.itow;
 
-		navigation_toff_dist_bearing();
+		navigation_takeoff_distance_and_bearing();
 	}
 }
 
-/**
- * Calculate distance & bearing to take off
- */
-void navigation_toff_dist_bearing()
-{
-	if (fc.flight.start_lat != 0) {
-		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
-		int16_t bearing = 0;
-		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing);
-		fc.flight.toff_dist = dist;
-		fc.flight.toff_bearing = bearing;
-	}
-}
+
