@@ -26,7 +26,7 @@ static void DToff_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Dist TO");
+    	widget_add_title(base, slot, "TO distance");
 
     if (widget_flag_is_set(slot, wf_units_hide))
     {
@@ -42,13 +42,24 @@ static void DToff_update(widget_slot_t * slot)
 {
     char value[16];
 
-    format_distance(value, fc.flight.toff_dist);
+    if (fc.flight.takeoff_distance != INVALID_UINT32)
+    {
+		format_distance(value, fc.flight.takeoff_distance);
+
+		if (local->units != NULL)
+		{
+			format_distance_units(value, fc.flight.takeoff_bearing);
+			lv_label_set_text(local->units, value);
+		}
+    }
+    else
+    {
+    	strcpy(value, "No\nstart");
+
+    	if (local->units != NULL)
+    		lv_label_set_text(local->units, "");
+    }
+
     lv_label_set_text(local->value, value);
     widget_update_font_size(local->value);
-
-    if (local->units != NULL)
-    {
-		format_distance_units(value, fc.flight.toff_dist);
-		lv_label_set_text(local->units, value);
-    }
 }

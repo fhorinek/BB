@@ -26,7 +26,7 @@ static void HdgToff_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Dir TO");
+    	widget_add_title(base, slot, "TO direction");
 
     local->text = widget_add_value(base, slot, NULL, NULL);
     local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
@@ -43,7 +43,7 @@ static void HdgToff_update(widget_slot_t * slot)
 	}
 	else
 	{
-		widget_arrow_rotate(local->arrow, local->points, (fc.flight.toff_bearing - fc.gnss.heading));
+		widget_arrow_rotate(local->arrow, local->points, (fc.flight.takeoff_bearing - fc.gnss.heading));
 		lv_obj_set_hidden(local->arrow, false);
 		lv_obj_set_hidden(local->text, true);
 	}
