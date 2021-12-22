@@ -119,6 +119,7 @@ typedef struct
 } fake_serial_gnss_t;
 
 
+
 void cmd_step()
 {
     while (debug_get_waiting() > 0)
@@ -201,6 +202,7 @@ void cmd_step()
 
     }
 }
+
 
 #define CRITICAL_VOLTAGE	300
 #define CRITICAL_CURRENT	2500

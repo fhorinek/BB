@@ -24,8 +24,8 @@ unsigned long getRunTimeCounterValue(void)
     return cnt;
 }
 
-void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
-{
-    FAULT("RTOS Task '%s' stack overflow!", pcTaskName);
-    Error_Handler();
-}
+//void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
+//{
+//    FAULT("RTOS Task '%s' stack overflow!", pcTaskName);
+//    Error_Handler();
+//}
