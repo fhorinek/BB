@@ -2,7 +2,7 @@ Topic: Thermal assistant
 
 Added:
 - Thermal assistant
-- Smart page switching
+- Smart page switching [fix]
 - Glide can display Avg 
 - FANET+ auto update
 - SkyDrop audio profile

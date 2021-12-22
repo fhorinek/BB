@@ -140,9 +140,19 @@ void fc_takeoff()
     INFO("Take-off");
     fc.flight.start_alt = fc.fused.altitude1;
     fc.flight.start_time = HAL_GetTick();
-    fc.flight.start_lat = fc.gnss.latitude;
-    fc.flight.start_lon = fc.gnss.longtitude;
-	fc.flight.toff_dist = 0;
+
+    if (fc.gnss.fix == 3)
+    {
+		fc.flight.start_lat = fc.gnss.latitude;
+		fc.flight.start_lon = fc.gnss.longtitude;
+		fc.flight.takeoff_distance = 0;
+    }
+    else
+    {
+    	fc.flight.start_lat = INVALID_INT32;
+    	fc.flight.start_lon = INVALID_INT32;
+    	fc.flight.takeoff_distance = INVALID_UINT32;
+    }
 
     fc.autostart.timestamp = HAL_GetTick();
     fc.autostart.altitude = fc.fused.altitude1;
