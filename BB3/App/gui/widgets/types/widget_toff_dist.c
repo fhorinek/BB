@@ -44,17 +44,17 @@ static void DToff_update(widget_slot_t * slot)
 
     if (fc.flight.takeoff_distance != INVALID_UINT32)
     {
-		format_distance(value, fc.flight.takeoff_distance);
-
 		if (local->units != NULL)
 		{
 			format_distance_units(value, fc.flight.takeoff_bearing);
 			lv_label_set_text(local->units, value);
 		}
+
+		format_distance(value, fc.flight.takeoff_distance);
     }
     else
     {
-    	strcpy(value, "No\nstart");
+    	strcpy(value, "No\nstart\npos");
 
     	if (local->units != NULL)
     		lv_label_set_text(local->units, "");
