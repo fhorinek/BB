@@ -87,6 +87,12 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 			telemetry_start();
 
 		snprintf(msg, sizeof(msg), "%s connected (%s)", get_dev_name(packet->dev, name), tag[index]);
+
+        if (dialog_on)
+        {
+            dialog_close();
+            dialog_on = false;
+        }
 	}
 
 	if (packet->mode & PROTO_BT_MODE_DISCONNECTED)
@@ -125,26 +131,34 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 
 void bluetooth_pari_req(proto_bt_pair_req_t * packet)
 {
-	char msg[256];
+    char msg[256];
 
-	if (packet->cancel)
-	{
-		if (dialog_on)
-		{
-			dialog_close();
-			dialog_on = false;
-			dialog_show("Bluetooth pairing request", "pairing failed", dialog_confirm, NULL);
-		}
+    if (packet->cancel)
+    {
+        if (dialog_on)
+        {
+            dialog_close();
+            dialog_on = false;
+            dialog_show("Bluetooth pairing request", "pairing failed", dialog_confirm, NULL);
+        }
 
-		return;
-	}
+        return;
+    }
 
-	safe_memcpy(dev_mac, packet->dev, sizeof(dev_mac));
-	dev_ble = packet->ble;
-	dialog_on = true;
+    safe_memcpy(dev_mac, packet->dev, sizeof(dev_mac));
+    dev_ble = packet->ble;
+    dialog_on = true;
 
-	snprintf(msg, sizeof(msg), "Confirm that passcode\n\n%lu\n\nis the same on other the device.", packet->value);
-	dialog_show("Bluetooth pairing request", msg, dialog_yes_no, bluetooth_pair_dialog_cb);
+    if (packet->only_show)
+    {
+        snprintf(msg, sizeof(msg), "Type this passcode\n\n%lu\n\non the other device.", packet->value);
+        dialog_show("Bluetooth pairing request", msg, dialog_confirm, NULL);
+    }
+    else
+    {
+        snprintf(msg, sizeof(msg), "Confirm that passcode\n\n%lu\n\nis the same on other the device.", packet->value);
+        dialog_show("Bluetooth pairing request", msg, dialog_yes_no, bluetooth_pair_dialog_cb);
+    }
 }
 
 void bluetooth_discoverable(bool en)

@@ -121,7 +121,7 @@ tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 
 		for (uint16_t i = 0; i < one_ch_len; i++)
 		{
-			tone->buffer[i*2] = (int16_t)(sin((M_TWOPI * i) / one_ch_len) * HALF_AMP);
+			tone->buffer[i * 2] = (int16_t)(sin((M_TWOPI * i) / one_ch_len) * HALF_AMP);
 		}
 
 		tone->repeat = max(1, (duration * ONE_MS) / one_ch_len);
@@ -145,6 +145,7 @@ tone_part_t * vario_create_part_fade(uint16_t freq, uint16_t duration, bool down
 		uint16_t wave_len = vario_tone_lenght(freq);
 		uint16_t wave_cnt = (duration * ONE_MS) / wave_len;
 		tone->size = wave_len * wave_cnt;
+		uint16_t wave_one_ch = wave_len / 2;
 
 		tone->buffer = ps_malloc(tone->size * sizeof(int16_t));
 		uint16_t one_ch_len = tone->size / 2;
@@ -161,7 +162,7 @@ tone_part_t * vario_create_part_fade(uint16_t freq, uint16_t duration, bool down
 				amp = (amp * i) / one_ch_len;
 			}
 
-			tone->buffer[i*2] = (int16_t)(sin((M_TWOPI * (i % wave_len)) / wave_len) * amp);
+			tone->buffer[i * 2] = (int16_t)(sin((M_TWOPI * (i % wave_one_ch)) / wave_one_ch) * amp);
 		}
 
 		tone->repeat = 1;
