@@ -116,7 +116,7 @@ cfg_entry_param_select_t timezone_select[] =
 	SELECT_END
 };
 
-cfg_entry_param_select_t firmware_channel_select[] =
+cfg_entry_param_select_t fw_channel_select[] =
 {
     {FW_RELEASE, "release"},
     {FW_TESTING, "testing"},
@@ -437,7 +437,7 @@ config_t config =
         //server url
         entry_text("update_url", "https://strato.skybean.eu/update", UPDATE_URL_LEN, 0),
         //firmware_channel
-        entry_select("fw_channel", FW_DEVEL, firmware_channel_select),
+        entry_select("firmware", FW_RELEASE, fw_channel_select),
     },
 
 	//debug

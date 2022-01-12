@@ -301,18 +301,7 @@ void pages_splash_show()
 	lv_anim_start(&a);
 	local->state = SPLASH_IN;
 
-	if (file_exists(PATH_NEW_FW))
-	{
-		f_unlink(PATH_NEW_FW);
-
-		gui_show_release_note();
-
-	    if (bootloader_update(PATH_BL_FW_AUTO) == bl_update_ok)
-	    {
-	        statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
-	    }
-	    f_unlink(PATH_BL_FW_AUTO);
-	}
+	config_new_version_cb();
 }
 
 void pages_anim_splash_out_cb(lv_anim_t * a)

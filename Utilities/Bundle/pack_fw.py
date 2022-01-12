@@ -104,11 +104,18 @@ add_files(stm_assets_path, 0)
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
 esp_chunks_path = os.path.join(esp_fw_base_path, "flash_args")
 
+esp_chunks = []
+
 for line in open(esp_chunks_path, "r").readlines()[1:]:
     addr, bin_path = line.split()
     addr = int(addr, base = 16)
     bin_path = os.path.join(esp_fw_base_path, bin_path)
+    esp_chunks.append((addr, bin_path))
     
+esp_chunks.sort(key = lambda a: a[0])    
+
+for record in esp_chunks:
+    addr, bin_path = record
     chunks.append(read_chunk(bin_path, addr))
 
 try:
