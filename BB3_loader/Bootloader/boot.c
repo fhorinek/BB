@@ -196,7 +196,7 @@ void app_sleep()
 
 void app_sleep_show()
 {
-    //set next boot to sleep, except when the charging is done
+    //set next boot to show battery status
     no_init->boot_type = BOOT_SHOW;
     no_init_update();
 

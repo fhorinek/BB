@@ -326,5 +326,19 @@ void ps_free(void * ptr)
 
 bool PSRAM_test()
 {
+	char * test_buf = (char *)(PSRAM_ADDR + 1024 * 1024 * 14);
+
+	test_buf[126-64] = 0;
+
+	INFO("1 '%32s'", test_buf);
+
+	for (uint8_t i = 0; i < 126 - 64; i++)
+	{
+		test_buf[i] = 64 + i;
+	}
+	test_buf[126-64] = 0;
+
+	INFO("2 '%32s'", test_buf);
+
     return true;
 }
