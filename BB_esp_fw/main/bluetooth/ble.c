@@ -345,14 +345,30 @@ static void ble_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
         break;
 
         case ESP_GAP_BLE_NC_REQ_EVT:
+        {
             INFO( "ESP_GAP_BLE_NC_REQ_EVT Please compare the numeric value: %d", param->ble_security.key_notif.passkey);
             proto_bt_pair_req_t data;
             memcpy(data.dev, param->ble_security.ble_req.bd_addr, 6);
             data.value = param->ble_security.key_notif.passkey;
             data.cancel = false;
             data.ble = true;
+            data.only_show = false;
             protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
+        }
         break;
+
+        case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:
+        {
+            INFO( "ESP_GAP_BLE_PASSKEY_NOTIF_EVT Please enter the numeric value on second device: %d", param->ble_security.key_notif.passkey);
+            proto_bt_pair_req_t data;
+            memcpy(data.dev, param->ble_security.ble_req.bd_addr, 6);
+            data.value = param->ble_security.key_notif.passkey;
+            data.cancel = false;
+            data.ble = true;
+            data.only_show = true;
+            protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
+        }
+		break;
 
         case ESP_GAP_BLE_AUTH_CMPL_EVT:
         {

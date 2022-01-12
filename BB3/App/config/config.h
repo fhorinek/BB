@@ -217,7 +217,7 @@ typedef struct
     struct
     {
         cfg_entry_t server_url;
-        cfg_entry_t firmware_channel;
+        cfg_entry_t fw_channel;
     } system;
 
 	struct
@@ -291,6 +291,8 @@ void config_restore_factory();
 void config_change_pilot(char * pilot_name);
 void config_change_profile(char * profile_name);
 uint8_t config_profiles_cnt();
+
+void config_new_version_cb();
 
 extern bool config_changed;
 

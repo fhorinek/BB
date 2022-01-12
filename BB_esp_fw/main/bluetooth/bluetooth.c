@@ -53,6 +53,7 @@ void bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
                 memcpy(data.dev, param->auth_cmpl.bda, 6);
                 data.cancel = true;
                 data.ble = true;
+                data.only_show = false;
                 protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
             }
             break;
@@ -71,6 +72,20 @@ void bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
             data.value = param->cfm_req.num_val;
             data.cancel = false;
             data.ble = false;
+            data.only_show = false;
+            protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
+        }
+        break;
+
+        case ESP_BT_GAP_KEY_NOTIF_EVT:
+        {
+            INFO( "ESP_BT_GAP_KEY_NOTIF_EVT  Please enter the numeric value on second device: %d", param->key_notif.passkey);
+            proto_bt_pair_req_t data;
+            memcpy(data.dev, param->key_notif.bda, 6);
+            data.value = param->key_notif.passkey;
+            data.cancel = false;
+            data.ble = false;
+            data.only_show = true;
             protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
         }
         break;

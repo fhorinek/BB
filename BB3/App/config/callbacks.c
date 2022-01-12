@@ -8,8 +8,29 @@
 
 #include "gui/gui_list.h"
 #include "gui/dbg_overlay.h"
+#include "gui/statusbar.h"
 
- void dev_name_cb(cfg_entry_t * entry)
+#include "etc/bootloader.h"
+
+//trigger when new version is available, from gui pages
+void config_new_version_cb()
+{
+    if (file_exists(PATH_NEW_FW))
+    {
+        f_unlink(PATH_NEW_FW);
+
+        gui_show_release_note();
+
+        if (bootloader_update(PATH_BL_FW_AUTO) == bl_update_ok)
+        {
+            statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
+        }
+
+        f_unlink(PATH_BL_FW_AUTO);
+    }
+}
+
+static void dev_name_cb(cfg_entry_t * entry)
 {
     if (strlen(config_get_text(entry)) == 0)
     {
@@ -19,7 +40,7 @@
     }
 }
 
-void wifi_pass_cb(cfg_entry_t * entry)
+static void wifi_pass_cb(cfg_entry_t * entry)
 {
     if (strlen(config_get_text(entry)) < 8)
     {
@@ -27,7 +48,7 @@ void wifi_pass_cb(cfg_entry_t * entry)
     }
 }
 
-void fanet_enable_cb(cfg_entry_t * entry)
+static void fanet_enable_cb(cfg_entry_t * entry)
 {
 	if (config_get_bool(entry))
 	{
@@ -39,7 +60,7 @@ void fanet_enable_cb(cfg_entry_t * entry)
 	}
 }
 
-void flarm_enable_cb(cfg_entry_t * entry)
+static void flarm_enable_cb(cfg_entry_t * entry)
 {
 	if (config_get_select(&profile.fanet.air_type) != FANET_AIRCRAFT_TYPE_PARAGLIDER
 		&& config_get_select(&profile.fanet.air_type) != FANET_AIRCRAFT_TYPE_HANGGLIDER)
@@ -52,7 +73,7 @@ void flarm_enable_cb(cfg_entry_t * entry)
 	fanet_configure_flarm(false);
 }
 
-void flarm_config_cb(cfg_entry_t * entry)
+static void flarm_config_cb(cfg_entry_t * entry)
 {
 	if (config_get_select(&profile.fanet.air_type) != FANET_AIRCRAFT_TYPE_PARAGLIDER
 		&& config_get_select(&profile.fanet.air_type) != FANET_AIRCRAFT_TYPE_HANGGLIDER)
@@ -65,7 +86,7 @@ void flarm_config_cb(cfg_entry_t * entry)
 	fanet_configure_type(false);
 }
 
-void dbg_esp_off_cb(cfg_entry_t * entry)
+static void dbg_esp_off_cb(cfg_entry_t * entry)
 {
 	if (config_get_bool(entry))
 		esp_deinit();
@@ -73,7 +94,7 @@ void dbg_esp_off_cb(cfg_entry_t * entry)
 		esp_init();
 }
 
-void dbg_esp_tasks_cb(cfg_entry_t * entry)
+static void dbg_esp_tasks_cb(cfg_entry_t * entry)
 {
     if (config_get_select(entry) != DBG_TASK_NONE)
         dbg_overlay_create();
@@ -81,18 +102,18 @@ void dbg_esp_tasks_cb(cfg_entry_t * entry)
         dbg_overlay_remove();
 }
 
-void wifi_mode_cb(cfg_entry_t * entry)
+static void wifi_mode_cb(cfg_entry_t * entry)
 {
 	esp_set_wifi_mode();
 }
 
-void bt_volume_cb(cfg_entry_t * entry)
+static void bt_volume_cb(cfg_entry_t * entry)
 {
 	uint8_t vol = config_get_int(entry);
 	esp_set_volume(vol);
 }
 
-void bt_mode_cb(cfg_entry_t * entry)
+static void bt_mode_cb(cfg_entry_t * entry)
 {
 	if (entry != &config.bluetooth.enabled)
 	{
@@ -114,13 +135,13 @@ void bt_mode_cb(cfg_entry_t * entry)
 	esp_reboot();
 }
 
-void disp_bck_cb(cfg_entry_t * entry)
+static void disp_bck_cb(cfg_entry_t * entry)
 {
 	uint8_t val = config_get_int(entry);
 	led_set_backlight(val);
 }
 
-void dbg_usb_cb(cfg_entry_t * entry)
+static void dbg_usb_cb(cfg_entry_t * entry)
 {
 	bool val = config_get_bool(entry);
 	INFO("USB debug is now %sabled", val ? "en" : "dis");
