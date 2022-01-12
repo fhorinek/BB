@@ -57,7 +57,7 @@ static void TDots_init(lv_obj_t * base, widget_slot_t * slot)
 		 lv_obj_set_style_local_radius(local->thermals[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, THERMAL_DOT_SIZE);
 		 lv_obj_set_size(local->thermals[i], THERMAL_DOT_SIZE, THERMAL_DOT_SIZE);
 		 lv_obj_set_auto_realign(local->thermals[i], true);
-		 lv_obj_align(local->thermals[i], slot->obj, LV_ALIGN_CENTER, -1, -1);
+		 lv_obj_align(local->thermals[i], slot->obj, LV_ALIGN_IN_TOP_LEFT, -1, -1);
 		 lv_obj_set_style_local_bg_color(local->thermals[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	 }
 }
