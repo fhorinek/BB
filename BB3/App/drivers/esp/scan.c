@@ -69,7 +69,7 @@ void esp_scan_init()
 
 void esp_scan_step()
 {
-    if (!config_get_bool(&config.wifi.autoconnect))
+    if (!config_get_bool(&profile.wifi.autoconnect))
         return;
 
     if (!(fc.esp.state & ESP_STATE_WIFI_CLIENT))

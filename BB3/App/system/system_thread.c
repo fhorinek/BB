@@ -294,10 +294,10 @@ void thread_system_start(void *argument)
 						&& pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
 				{
 					WARN("Emergency volume down!");
-					uint8_t vol = config_get_int(&config.bluetooth.volume);
+					uint8_t vol = config_get_int(&profile.audio.master_volume);
 					if (vol > 0)
 						vol--;
-					config_set_int(&config.bluetooth.volume, vol);
+					config_set_int(&profile.audio.master_volume, vol);
 				}
 
 				//for more than CRITICAL_TIME_OFF

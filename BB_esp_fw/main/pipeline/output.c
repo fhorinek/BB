@@ -88,3 +88,13 @@ void pipe_output_init()
     audio_pipeline_run(pipes.output.pipe);
 }
 
+void pipe_output_set_volume(uint8_t ch, uint8_t volume)
+{
+	float gain[2];
+
+	gain[0] = (volume / 2) - 50;
+	gain[1] = gain[0];
+
+	downmix_set_gain_info(pipes.output.mix, gain, ch);
+}
+

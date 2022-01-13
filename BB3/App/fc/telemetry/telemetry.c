@@ -28,7 +28,7 @@ void telemetry_cb()
 	if (fc.esp.mode != esp_normal)
 		osTimerStop(telemetry_timer);
 
-	switch (config_get_select(&config.bluetooth.protocol))
+	switch (config_get_select(&profile.bluetooth.protocol))
 	{
 		case(tele_lk8ex1):
 			xmit = lk8ex1_msg(data.message, sizeof(data.message));
@@ -48,7 +48,7 @@ void telemetry_cb()
 		protocol_send(PROTO_TELE_SEND, (void *)&data, sizeof(data));
 	}
 
-	if (config_get_bool(&config.bluetooth.forward_gnss))
+	if (config_get_bool(&profile.bluetooth.forward_gnss))
 	{
 
 		if (fc.gnss.new_sample & FC_GNSS_NEW_SAMPLE_TELEMETRY)
@@ -84,7 +84,7 @@ void telemetry_init()
 //start
 void telemetry_start()
 {
-	if (config_get_bool(&config.bluetooth.spp) || config_get_bool(&config.bluetooth.ble))
+	if (config_get_bool(&profile.bluetooth.spp) || config_get_bool(&profile.bluetooth.ble))
 		osTimerStart(telemetry_timer, PROTOCOL_PERIOD);
 }
 

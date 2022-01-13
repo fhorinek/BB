@@ -35,10 +35,10 @@ void esp_get_version()
     protocol_send(PROTO_PING, NULL, 0);
 }
 
-void esp_set_volume(uint8_t vol)
+void esp_set_volume(uint8_t ch, uint8_t vol)
 {
     proto_volume_t data;
-    data.type = PROTO_VOLUME_MASTER;
+    data.type = ch;
     data.val = vol;
 
     protocol_send(PROTO_SET_VOLUME, (void *) &data, sizeof(data));
@@ -80,8 +80,8 @@ void esp_sound_stop()
 void esp_set_wifi_mode()
 {
     proto_wifi_mode_t data;
-    data.client = config_get_bool(&config.wifi.enabled) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
-    data.ap = config_get_bool(&config.wifi.ap) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
+    data.client = config_get_bool(&profile.wifi.enabled) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
+    data.ap = config_get_bool(&profile.wifi.ap) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
 
     if (data.ap)
     {
@@ -130,10 +130,10 @@ void esp_set_bt_mode()
 {
     proto_set_bt_mode_t data;
     INFO("esp_set_bt_mode");
-    data.enabled = config_get_bool(&config.bluetooth.enabled);
-    data.a2dp = config_get_bool(&config.bluetooth.a2dp);
-    data.spp = config_get_bool(&config.bluetooth.spp);
-    data.ble = config_get_bool(&config.bluetooth.ble);
+    data.enabled = config_get_bool(&profile.bluetooth.enabled);
+    data.a2dp = config_get_bool(&profile.bluetooth.a2dp);
+    data.spp = config_get_bool(&profile.bluetooth.spp);
+    data.ble = config_get_bool(&profile.bluetooth.ble);
     strncpy(data.name, config_get_text(&config.device_name), PROTO_BT_NAME_LEN);
     strncpy(data.pin, config_get_text(&config.bluetooth.pin), PROTO_BT_PIN_LEN);
 
@@ -146,7 +146,10 @@ void esp_configure()
     esp_state_reset();
 
     //set volume
-    esp_set_volume(config_get_int(&config.bluetooth.volume));
+    esp_set_volume(PROTO_VOLUME_MASTER, config_get_int(&profile.audio.master_volume));
+    esp_set_volume(PROTO_VOLUME_VARIO, config_get_int(&profile.audio.vario_volume));
+    esp_set_volume(PROTO_VOLUME_A2DP, config_get_int(&profile.audio.a2dp_volume));
+    esp_set_volume(PROTO_VOLUME_SOUND, config_get_int(&profile.audio.sound_volume));
 
     //set wifi mode
     esp_set_wifi_mode();
@@ -392,7 +395,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         		fc.esp.state |= ESP_STATE_BT_ON;
 
         	    //if inside bluetooth menu, make bt discoverable
-        	    if (config_get_bool(&config.bluetooth.enabled) && gui.task.actual == &gui_bluetooth)
+        	    if (config_get_bool(&profile.bluetooth.enabled) && gui.task.actual == &gui_bluetooth)
         	    {
         	    	bluetooth_discoverable(true);
         	    }
