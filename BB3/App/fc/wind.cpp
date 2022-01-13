@@ -9,16 +9,14 @@
 #include "fc.h"
 #include "../common.h"
 
-//#include "../debug_on.h"
 
-void wind_new_gps_fix()
+void wind_new_fix()
 {
-    DEBUG("Wind step #1\n");
-    /*	GPS speed,heading input		*/
-    float speed = fc.gps_data.ground_speed * FC_KNOTS_TO_MPS; // m/s
-    float angle = fc.gps_data.heading;
+    /*	speed,heading input		*/
+    float speed = fc.gnss.ground_speed;
+    float angle = fc.gnss.heading;
 
-    uint8_t sector = int(angle + (360 / WIND_NUM_OF_SECTORS / 2)) % 360 / (360 / WIND_NUM_OF_SECTORS);
+    uint8_t sector = (angle + (360 / WIND_NUM_OF_SECTORS / 2)) % 360 / (360 / WIND_NUM_OF_SECTORS);
 
     fc.wind.dir[sector] = angle;
     fc.wind.spd[sector] = speed;
@@ -49,12 +47,16 @@ void wind_new_gps_fix()
                 fc.wind.sectors_cnt = 0;
         }
         else
+        {
             if (fc.wind.old_sector == sector)
             {	//same sector
             }
             else
-                //more than (360 / number_of_sectors), discart data
+            {
+                //more than (360 / number_of_sectors), discard data
                 fc.wind.sectors_cnt = 0;
+            }
+        }
     }
 
     fc.wind.old_sector = sector;
@@ -75,7 +77,7 @@ void wind_new_gps_fix()
 
         int8_t sectorDiff = abs(max - min);
         DEBUG(" min=%d max=%d diff=%d\n",min, max, sectorDiff);
-        if ((sectorDiff >= ( WIND_NUM_OF_SECTORS / 2 - 1)) and (sectorDiff <= ( WIND_NUM_OF_SECTORS / 2 + 1)))
+        if ((sectorDiff >= ( WIND_NUM_OF_SECTORS / 2 - 1)) && (sectorDiff <= ( WIND_NUM_OF_SECTORS / 2 + 1)))
         {
             fc.wind.speed = (fc.wind.spd[max] - fc.wind.spd[min]) / 2;
             fc.wind.direction = fc.wind.dir[min];

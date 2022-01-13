@@ -1,14 +1,9 @@
-Topic: Thermal assistant
+Topic: Minor fixes
 
 Added:
-- Thermal assistant
-- Smart page switching [fix]
-- Glide can display Avg 
-- FANET+ auto update
-- SkyDrop audio profile
+- Firmware channels
 
 Fixes:
-- BLE not turning on
-- More usable keyboard
-- Better wifi performance
+- Bluetooth pairing
+
 

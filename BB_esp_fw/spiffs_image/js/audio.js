@@ -312,9 +312,10 @@ function create_modal(title, text, link_list, cb)
         var a = document.createElement("a");
         a.textContent = name;
         a.href = "#";
+        a.link = link;
         $(a).click(function(){
-            console.log(link);
-            cb(link);
+            console.log(a.link);
+            cb(a.link);
         });
         li.append(a);
         
