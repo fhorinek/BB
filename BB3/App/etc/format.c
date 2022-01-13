@@ -301,7 +301,7 @@ void format_distance_units(char * buf, float in)
 		case(DISTANCE_METERS):
 			if (in < 1000) //1km
 				strcpy(buf, "m");
-			else if (in < 10000) //10km
+			else
 				strcpy(buf, "km");
 		break;
 
@@ -310,7 +310,7 @@ void format_distance_units(char * buf, float in)
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (mi < 1.0) //1mi
 				strcpy(buf, "ft");
-			if (mi < 10.0) //10mi
+			else
 				strcpy(buf, "mi");
 		}
 		break;
