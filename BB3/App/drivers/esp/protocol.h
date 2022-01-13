@@ -16,7 +16,6 @@
 
 void esp_send_ping();
 
-void esp_set_volume(uint8_t vol);
 
 void esp_sound_start(uint8_t id, uint8_t type, uint32_t size);
 void esp_sound_stop();
@@ -36,7 +35,7 @@ void esp_wifi_start_scan(wifi_list_update_cb cb);
 bool esp_wifi_scanning();
 void esp_wifi_stop_scan();
 
-void esp_set_volume(uint8_t val);
+void esp_set_volume(uint8_t ch, uint8_t val);
 void esp_boot0_ctrl(bool val);
 
 void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch);

@@ -607,7 +607,7 @@ void create_tile(uint32_t lon, uint32_t lat, uint8_t zoom, lv_obj_t * canvas)
 	lv_draw_line_dsc_init(&line_draw);
 
 	ll_item_t * actual = start;
-//	list_dbg(start);
+	list_dbg(start);
 
 	while(actual != NULL)
 	{

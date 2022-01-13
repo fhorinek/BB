@@ -110,26 +110,37 @@ static void wifi_mode_cb(cfg_entry_t * entry)
 static void bt_volume_cb(cfg_entry_t * entry)
 {
 	uint8_t vol = config_get_int(entry);
-	esp_set_volume(vol);
+
+	uint8_t ch;
+	if (entry == &profile.audio.master_volume)
+		ch = PROTO_VOLUME_MASTER;
+	if (entry == &profile.audio.a2dp_volume)
+		ch = PROTO_VOLUME_A2DP;
+	if (entry == &profile.audio.vario_volume)
+		ch = PROTO_VOLUME_VARIO;
+	if (entry == &profile.audio.sound_volume)
+		ch = PROTO_VOLUME_SOUND;
+
+	esp_set_volume(ch, vol);
 }
 
 static void bt_mode_cb(cfg_entry_t * entry)
 {
-	if (entry != &config.bluetooth.enabled)
+	if (entry != &profile.bluetooth.enabled)
 	{
-		if (config_get_bool(&config.bluetooth.a2dp) != false
-				|| config_get_bool(&config.bluetooth.spp) != false
-				|| config_get_bool(&config.bluetooth.ble) != false)
+		if (config_get_bool(&profile.bluetooth.a2dp) != false
+				|| config_get_bool(&profile.bluetooth.spp) != false
+				|| config_get_bool(&profile.bluetooth.ble) != false)
 		{
-			config_set_bool(&config.bluetooth.enabled, true);
+			config_set_bool(&profile.bluetooth.enabled, true);
 		}
 	}
 
-	if (config_get_bool(&config.bluetooth.a2dp) == false
-			&& config_get_bool(&config.bluetooth.spp) == false
-			&& config_get_bool(&config.bluetooth.ble) == false)
+	if (config_get_bool(&profile.bluetooth.a2dp) == false
+			&& config_get_bool(&profile.bluetooth.spp) == false
+			&& config_get_bool(&profile.bluetooth.ble) == false)
 	{
-		config_set_bool(&config.bluetooth.enabled, false);
+		config_set_bool(&profile.bluetooth.enabled, false);
 	}
 
 	esp_reboot();
@@ -151,14 +162,17 @@ static void dbg_usb_cb(cfg_entry_t * entry)
 cfg_callback_pair_t config_callbacks[] =
 {
     {&config.device_name, dev_name_cb},
-	{&config.bluetooth.volume, bt_volume_cb},
-	{&config.bluetooth.enabled, bt_mode_cb},
-	{&config.bluetooth.a2dp, bt_mode_cb},
-	{&config.bluetooth.spp, bt_mode_cb},
-	{&config.bluetooth.ble, bt_mode_cb},
+	{&profile.audio.master_volume, bt_volume_cb},
+	{&profile.audio.a2dp_volume, bt_volume_cb},
+	{&profile.audio.vario_volume, bt_volume_cb},
+	{&profile.audio.sound_volume, bt_volume_cb},
+	{&profile.bluetooth.enabled, bt_mode_cb},
+	{&profile.bluetooth.a2dp, bt_mode_cb},
+	{&profile.bluetooth.spp, bt_mode_cb},
+	{&profile.bluetooth.ble, bt_mode_cb},
     {&config.wifi.ap_pass, wifi_pass_cb},
-    {&config.wifi.enabled, wifi_mode_cb},
-    {&config.wifi.ap, wifi_mode_cb},
+    {&profile.wifi.enabled, wifi_mode_cb},
+    {&profile.wifi.ap, wifi_mode_cb},
 	{&config.display.backlight, disp_bck_cb},
     {&config.debug.esp_off, dbg_esp_off_cb},
     {&config.debug.tasks, dbg_esp_tasks_cb},

@@ -322,9 +322,49 @@ flight_profile_t profile =
 
 	//map
 	{
-	        //zoom_flight
-	        entry_int("zoom_flight", 25, 5, 50),
+		//zoom_flight
+		entry_int("zoom_flight", 25, 5, 50),
 	},
+
+	//audio
+	{
+		//a2dp_volume
+		entry_int("a2dp_volume", 75, 0, 100),
+		//sound_volume
+		entry_int("sound_volume", 75, 0, 100),
+		//vario_volume
+		entry_int("vario_volume", 75, 0, 100),
+		//master_volume
+		entry_int("master_volume", 75, 0, 100),
+		//tts_alerts
+		entry_bool("tts_alerts", false),
+	},
+
+    //bluetooth
+    {
+		//enabed
+		entry_bool("bt", true),
+		//a2dp
+		entry_bool("bt_a2dp", true),
+		//spp
+		entry_bool("bt_spp", false),
+		//ble
+		entry_bool("bt_ble", true),
+		//protocol
+		entry_select("bt_proto", tele_lk8ex1, protocol_type_select),
+		//forward_gnss
+		entry_bool("bt_fw_gnss", true),
+    },
+
+    //wifi
+    {
+        //enabled
+        entry_bool("wifi", true),
+        //autoconnect
+        entry_bool("wifi_auto", true),
+        //ap
+        entry_bool("wifi_ap", false),
+    },
 };
 
 config_t config =
@@ -346,44 +386,14 @@ config_t config =
         entry_big_int("qnh2", 101325, qnh_range),
 	},
 
-    //gnss
-    {
-        //use_gps
-        entry_bool("gnss_gps", true),
-        //use_glonass
-        entry_bool("gnss_glonass", true),
-        //use_galileo
-        entry_bool("gnss_galileo", true),
-    },
-
     //bluetooth
     {
-		//enabed
-		entry_bool("bt", true),
-		//a2dp
-		entry_bool("bt_a2dp", true),
-		//spp
-		entry_bool("bt_spp", false),
-		//ble
-		entry_bool("bt_ble", true),
-		//protocol
-		entry_select("bt_proto", tele_lk8ex1, protocol_type_select),
-		//forward_gnss
-		entry_bool("bt_fw_gnss", true),
-        //volume
-        entry_int("bt_volume", 75, 0, 100),
         //bt_pass
         entry_text("bt_pin", "1234", BLUETOOTH_PIN_LEN, 0),
     },
 
     //wifi
     {
-        //enabled
-        entry_bool("wifi", true),
-        //autoconnect
-        entry_bool("wifi_auto", true),
-        //ap
-        entry_bool("wifi_ap", false),
         //ap_pass
         entry_text("wifi_ap_pass", "12345678", WIFI_PASS_LEN, 0),
     },

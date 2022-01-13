@@ -28,12 +28,6 @@ static gui_list_slider_options_t avg_opt = {
 	.format = format_duration,
 };
 
-gui_list_slider_options_t vol_opt = {
-	.disp_multi = 1,
-	.step = 1,
-	.format = format_percent,
-};
-
 bool vario_profile_fm_cb(uint8_t event, char * path)
 {
     if (event == FM_CB_SELECT)
@@ -77,8 +71,6 @@ static lv_obj_t * vario_settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Lift threshold", &profile.vario.lift, &sink_lift_opt);
 	gui_list_auto_entry(list, "Sink threshold", &profile.vario.sink, &sink_lift_opt);
 	gui_list_auto_entry(list, "Average time", &profile.vario.avg_duration, &avg_opt);
-
-	gui_list_auto_entry(list, "Volume", &config.bluetooth.volume, &vol_opt);
 
 	lv_obj_t * obj = gui_list_info_add_entry(list, "Vario profile", config_get_text(&profile.vario.profile));
 	gui_config_entry_add(obj, CUSTOM_CB, vario_profile_cb);
