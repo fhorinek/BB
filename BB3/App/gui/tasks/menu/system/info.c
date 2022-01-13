@@ -116,7 +116,7 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
         {
             char rev_str[10];
             rev_get_sw_string(rev_str);
-            if (strncmp(rev_str, local->new_fw, strlen(rev_str)) == 0)
+            if (strncmp(rev_str, local->new_fw, strlen(rev_str)) == 0 || strlen(rev_str) == 0)
             {
                 dialog_show("Up to date", "You are using the latest firmware", dialog_confirm, NULL);
             }
