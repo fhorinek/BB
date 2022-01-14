@@ -1,5 +1,8 @@
 #remove unnecesery data fields
-filter-fields fields=name,ele,natural
+filter-fields fields=name,ele
 
 #remove peaks without elevation
 filter 'this.properties.ele != undefined'
+
+#tag features
+each 'this.properties["type"] = "peak"'

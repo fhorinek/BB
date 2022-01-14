@@ -1,8 +1,21 @@
-#simplify
-simplify 30%
+#USE_GRID
+#DROP_POLYGONS
 
-#remove tags
-filter-fields fields=railway
+rename-layers lines,grid
+
+#simplify
+simplify 30% target=lines
+
+#join
+dissolve target=lines
+
+#slice by grid
+slice grid target=lines
+merge-layers target=slice-* name=lines
+explode name=lines
 
 #clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines
+
+#tag
+each 'this.properties = {type:"rail"}'

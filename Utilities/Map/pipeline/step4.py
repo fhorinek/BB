@@ -48,24 +48,17 @@ class Feature(object):
                 ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","")
                 self.elevation = int(float(ele))
             
-            
-            if "natural" in dict_data["properties"]:
-                # 0 - peak
-                if dict_data["properties"]["natural"] == "peak":
-                    self.type = 0
+            if dict_data["properties"]["type"] == "peak":
+                self.type = 0
                 
-            if "place" in dict_data["properties"]:
-                # 10 - city
-                # 11 - towen
-                # 12 - vilage
-                # 13 - hamlet, isolated_dwelling
+            if dict_data["properties"]["type"] == "city":
+                self.type = 10
+            if dict_data["properties"]["type"] == "town":
+                self.type = 11
+            if dict_data["properties"]["type"] == "village":
+                self.type = 12
+            if dict_data["properties"]["type"] in ["hamlet", "isolated_dwelling"]:
                 self.type = 13
-                if dict_data["properties"]["place"] == "city":
-                    self.type = 10
-                if dict_data["properties"]["place"] == "town":
-                    self.type = 11
-                if dict_data["properties"]["place"] == "vilage":
-                    self.type = 12
             
             name_lenght = len(self.name.encode("UTF-8"))
             assert(name_lenght <= 0xFF)
@@ -87,32 +80,24 @@ class Feature(object):
                 self.geometry = Point(lon, lat)
 
         if dict_data["geometry"]["type"] == "LineString":
-            if "highway" in dict_data["properties"]:
-                #   100 - motorway, trunk
-                #   101 - primary
-                #   102 - secondary, tertiary                
+            if dict_data["properties"]["type"] == "highway":
+                self.type = 100
+            if dict_data["properties"]["type"] == "primary":
+                self.type = 101
+            if dict_data["properties"]["type"] == "secondary":
                 self.type = 102
-                if dict_data["properties"]["highway"] in ["motorway", "trunk"]:
-                    self.type = 100
-                if dict_data["properties"]["highway"] == "primary":
-                    self.type = 101
 
-            if "railway" in dict_data["properties"]:
-                #   110 - rail
-                if dict_data["properties"]["railway"] == "rail":
-                    self.type = 110
+            if dict_data["properties"]["type"] == "rail":
+                self.type = 110
 
-            if "type" in dict_data["properties"]:
-                if dict_data["properties"]["type"] == "river":
-                #   120 - river
-                    self.type = 120
+            if dict_data["properties"]["type"] == "river":
+                self.type = 120
             
-            if "power" in dict_data["properties"]:
-                #   130 - powerline
-                self.type = 130
-            if "aerialway" in dict_data["properties"]:
-                #   131 - aerialway
-                self.type = 131
+            if dict_data["properties"]["type"] == "power":
+               self.type = 130
+               
+            if dict_data["properties"]["type"] == "aerialway":
+               self.type = 131
                 
             number_of_points = len(dict_data["geometry"]['coordinates'])
             assert(number_of_points > 0)

@@ -1,9 +1,25 @@
+#USE_GRID
 #DROP_POLYGONS
+
+rename-layers lines,grid
+
+each 'this.properties = {type:"highway"}' where='["motorway", "trunk"].indexOf(this.properties.highway) != -1' target=lines
+each 'this.properties = {type:"primary"}' where='["primary", "motorway_link"].indexOf(this.properties.highway) != -1' target=lines
+each 'this.properties = {type:"secondary"}' where='this.properties.type == undefined' target=lines
+
 #simplify
-simplify 25%
+simplify 25% target=lines
 
 #remove tags
-filter-fields fields=highway
+filter-fields fields=type target=lines
 
 #clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2%  target=lines
+
+dissolve type where="this.properties.type=='highway'" target=lines
+dissolve type where="this.properties.type=='primary'" target=lines
+dissolve type where="this.properties.type=='secondary'" target=lines
+
+slice grid target=lines
+merge-layers target=slice-* name=lines
+explode name=lines

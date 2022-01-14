@@ -36,6 +36,6 @@ merge-layers target=slice-* name=lines
 explode name=lines
 
 #tag features
-each 'this.properties = {type:"water", "sliced": true}' target=polygons
-each 'this.properties = {type:"river", "sliced": true}' target=lines
+each 'this.properties["type"] = "water"' target=polygons
+each 'this.properties["type"] = "river"' target=lines
 

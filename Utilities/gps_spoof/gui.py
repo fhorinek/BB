@@ -57,6 +57,14 @@ class GPS_Spoof(object):
     rnd = False
     rnd_timer = 0
     
+    wind = [0,0]
+
+    wind_color = 100, 200, 100
+    wind_radius = 5
+    wind_mul = 10
+    wind_acc = [0, 0]
+    
+    
     def add_waypoints(self, filename):
         print("Loading file", filename)
         f = open(filename, "r")
@@ -155,7 +163,10 @@ class GPS_Spoof(object):
 
         self.last_time = time()
         
-        a = pos[0], pos[1], alt
+        self.wind_acc[0] += self.wind[0]
+        self.wind_acc[1] += self.wind[1]
+        
+        a = int(pos[0] + self.wind_acc[0]), int(pos[1] + self.wind_acc[1]), alt
         
         self.points.append(a)
         
@@ -261,6 +272,15 @@ class GPS_Spoof(object):
                 self.point_index = 0   
                 self.need_redraw = True             
 
+            elif e.type == MOUSEBUTTONDOWN and e.button == 2:
+                mx, my = self.win_size
+                mx /= 2
+                my /= 2
+            
+                self.wind = [(e.pos[0] - mx) / self.wind_mul, (e.pos[1] - my) / self.wind_mul]
+                self.need_redraw = True
+
+
             elif e.type == MOUSEBUTTONDOWN and e.button == 4:
                 self.altitiude += 10
                 self.need_redraw = True
@@ -271,6 +291,7 @@ class GPS_Spoof(object):
 
             elif e.type == MOUSEBUTTONUP and e.button == 1:
                 self.click = False
+                self.wind_acc = [0, 0]
                 
             elif e.type == MOUSEMOTION and self.click:
                 self.add_point(e.pos, self.altitiude)
@@ -306,7 +327,6 @@ class GPS_Spoof(object):
         
         last_point = None
 
-
         for t in self.thermals:
             tx, ty, tr, ts = t
             pygame.draw.circle(self.screen, self.thermal_color, (tx, ty), tr)
@@ -328,6 +348,17 @@ class GPS_Spoof(object):
             self.draw_text(wpt[2], point[0] - 40, point[1] + 8)
 
             
+        mx, my = self.win_size
+        mx /= 2
+        my /= 2
+        
+        wstart = (int(mx), int(my))
+        wend = (int(mx + self.wind[0] * self.wind_mul), int(my + self.wind[1] * self.wind_mul))
+
+        pygame.draw.line(self.screen, self.wind_color, wstart, wend)
+        pygame.draw.circle(self.screen, self.wind_color, wend, self.wind_radius)
+            
+            
         self.draw_text("Alt: %d" % self.altitiude, 0, 0)
         self.draw_text("Hdg: %d" % self.heading, 0, 20)
         self.draw_text("Spd: %0.1f" % (self.speed * 1.852), 0, 40)
@@ -343,6 +374,8 @@ class GPS_Spoof(object):
 
         if self.rnd:
             self.draw_text("rnd active", 0, 180)
+
+        self.draw_text("wind: [%u, %u]" % (self.wind[0], self.wind[1]), 0, 200)
         
         pygame.display.update()     
         
