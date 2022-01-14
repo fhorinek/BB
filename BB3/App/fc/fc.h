@@ -172,7 +172,8 @@ typedef enum
 
 #define FC_GNSS_NEW_SAMPLE_CIRCLE   	0b00000001
 #define FC_GNSS_NEW_SAMPLE_TELEMETRY	0b00000010
-#define FC_GNSS_NEW_SAMPLE_NAVIGATION	0b00000100
+#define FC_GNSS_NEW_SAMPLE_NAVIGATION   0b00000100
+#define FC_GNSS_NEW_SAMPLE_WIND         0b00001000
 
 #define VARIO_CIRCLING_HISTORY_SCALE    12 // == 1m/s
 #define PAGE_AUTOSET_CIRCLING_THOLD     6
@@ -182,6 +183,8 @@ typedef enum
 
 #define INVALID_INT32		0x7FFFFFFF
 #define INVALID_UINT32		0xFFFFFFFF
+
+#define WIND_NUM_OF_SECTORS 8
 
 typedef struct
 {
@@ -386,6 +389,23 @@ typedef struct
 		int16_t ground_height;
 		int16_t agl;
 	} agl;
+
+	struct
+	{
+        float dir[WIND_NUM_OF_SECTORS];
+        float spd[WIND_NUM_OF_SECTORS];
+
+        float speed;      // m/s
+        float direction;  // degrees
+
+        uint32_t valid_from;
+
+        uint8_t old_sector;
+        int8_t sectors_cnt;
+        bool valid;
+        uint8_t _pad[1];
+
+	} wind;
 } fc_t;
 
 extern fc_t fc;

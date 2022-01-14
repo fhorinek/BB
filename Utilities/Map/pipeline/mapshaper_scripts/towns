@@ -1,3 +1,7 @@
 #remove unnecesery data fields
 filter-fields fields=name,place
 
+#tag
+each 'this.properties["type"] = this.properties["place"]'
+filter-fields fields=name,type
+

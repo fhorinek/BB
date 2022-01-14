@@ -1,24 +1,33 @@
+#USE_GRID
 #DROP_POINTS
 #DROP_LINES
 
+#rename layers
+rename-layers polygons,grid
+
 #clean geometry
-clean snap-interval=0.0001 gap-fill-area=10km2
+clean snap-interval=0.0001 gap-fill-area=10km2 target=polygons
 
 #dissolve features
-dissolve2
+dissolve2 target=polygons
 
 #simplify geometry
-simplify 10%
+simplify 10% target=polygons
 
 #remove small polygons
-filter-islands remove-empty min-area=0.1km2
+filter-islands remove-empty min-area=0.1km2 target=polygons
 
 #clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
+
+#slice
+slice grid target=polygons
+merge-layers target=slice-* name=polygons
+explode name=polygons
 
 #explode
-explode
-clean
+explode target=polygons
+clean target=polygons
 
 #tag features
 each 'this.properties = {type:"resident"}'

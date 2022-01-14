@@ -120,6 +120,7 @@ void fc_init()
 	fc_reset();
 	logger_init();
 	telemetry_init();
+	wind_init();
 
 	fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
 	osTimerStart(fc_timer, FC_STEP_PERIOD);
@@ -272,6 +273,7 @@ void fc_step()
 	navigation_step();
 	circling_step();
 	agl_step();
+	wind_step();
 }
 
 void fc_device_status(char * buff, fc_device_status_t status)
