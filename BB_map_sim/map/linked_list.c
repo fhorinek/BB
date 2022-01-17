@@ -8,7 +8,6 @@
 
 #include "linked_list.h"
 
-//return last element
 void list_add_sorted_unique(uint32_t addr, ll_item_t ** list_start, ll_item_t ** list_end)
 {
 	ll_item_t * add_item(ll_item_t * actual, ll_item_t * last, ll_item_t ** list_end)
@@ -44,7 +43,7 @@ void list_add_sorted_unique(uint32_t addr, ll_item_t ** list_start, ll_item_t **
 			return;
 		}
 
-		//the addr is allready in the list, return
+		//the addr is already in the list, return
 		if (actual->feature_addr == addr)
 		{
 			return;

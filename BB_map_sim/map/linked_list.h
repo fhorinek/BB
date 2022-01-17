@@ -8,9 +8,7 @@
 #ifndef LINKED_LIST_H_
 #define LINKED_LIST_H_
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include "common.h"
 
 typedef struct _ll_item_t
 {
