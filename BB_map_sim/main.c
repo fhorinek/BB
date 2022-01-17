@@ -50,8 +50,7 @@ lv_indev_t *kb_indev;
 #include "tile.h"
 
 
-//int32_t map_lon = 171411260;
-//int32_t map_lat = 481413630;
+
 int32_t map_lon = 172348385;
 int32_t map_lat = 480288198;
 uint8_t map_zoom = 16;
@@ -97,7 +96,7 @@ static void my_event_cb(lv_obj_t * obj, lv_event_t event)
         	return;
     }
 
-    create_tile(map_lon, map_lat, map_zoom, canvas);
+//    create_tile(map_lon, map_lat, map_zoom, canvas);
 
        /*Etc.*/
 }
@@ -114,8 +113,6 @@ int main(int argc, char **argv)
   /*Initialize the HAL (display, input devices, tick) for LVGL*/
   hal_init();
 
- //lv_demo_widgets();
-//  lv_demo_printer();
 
   uint16_t w = 800;
   uint16_t h = 800;
@@ -126,7 +123,7 @@ int main(int argc, char **argv)
   lv_obj_set_event_cb(canvas, my_event_cb);
   lv_obj_set_click(canvas, true);
 
-  create_tile(map_lon, map_lat, map_zoom, canvas);
+  map_init();
 
   lv_group_add_obj(g, canvas);
 
@@ -134,7 +131,8 @@ int main(int argc, char **argv)
     /* Periodically call the lv_task handler.
      * It could be done in a timer interrupt or an OS task too.*/
     lv_task_handler();
-    usleep(5 * 1000);
+    usleep(500);
+    map_step();
   }
 
   return 0;
