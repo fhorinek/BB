@@ -43,9 +43,8 @@ microcontrollers and also give you access to the tespoint on the pcb.
  1. Install Eclipse for ESP32 via **IDF-eclipse-plugin**
  2. [Install Prerequisites](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#Prerequisites)
  3. [Install IDF Plugin](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-idf-plugin-using-update-site-url)
- 4. [Install ESP-IDF](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-esp-idf)
+ 4. [Install ESP-IDF](https://strato.skybean.eu/dev/esp.zip) copy this modified version this to ~/esp/
  5. [Install ESP-IDF Tools](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-esp-idf-tools)
- 6. [Get ESP-ADF](https://docs.espressif.com/projects/esp-adf/en/latest/get-started/index.html#step-2-get-esp-adf)
  7. [Set path to ESP-ADF](https://docs.espressif.com/projects/esp-adf/en/latest/get-started/index.html#step-3-set-up-path-to-esp-adf)
  8. Select **Import projects**. Select **Espressif** / **Existing IDF Project**
  9. Set **Existing project Location** to the ESP fw prooject path *(eg. ~/git/BB/BB_esp_fw)*
@@ -54,10 +53,7 @@ microcontrollers and also give you access to the tespoint on the pcb.
      **Window** / **Prefrences** / **C / C++** / **Build** / **Enviroment**
      Add Variabile **ADF_PATH** to **~/esp/esp-adf** and make sure that you select 
      **Replace native enviroment with speciefied one**
- 12. If the build fail on */home/horinek/esp/esp-adf/components/audio_hal/driver/es7243/es7243.c*
-     go to */home/horinek/esp/esp-adf/components/audio_hal/CMakeLists.txt* and remove or comment line
-     with `./driver/es7243/es7243.c`
- 13. Copy files from *BB_esp_fw/patch* to *esp-idf/components* to store audio pipeline stack to the PSRAM
+
  
  
  
