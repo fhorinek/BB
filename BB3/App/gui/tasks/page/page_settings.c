@@ -476,6 +476,10 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
 			{
 				static_prev_mode = false;
 				page_settings_close_preview();
+
+	            ctx_clear();
+				ctx_add_option(LV_SYMBOL_EYE_OPEN " Preview");
+
 				return false;
 			}
 			else

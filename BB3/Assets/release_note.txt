@@ -1,13 +1,9 @@
-Topic: Better UX
+Topic: Minor fixes
 
 Added:
-- New layout editor
-- Widget options
-- Bigger fonts 
-- Flight profiles
-- Pilot profile
+- Firmware channels
 
 Fixes:
-- GNSS not starting
-- USB mode not working when full
+- Bluetooth pairing
+
 

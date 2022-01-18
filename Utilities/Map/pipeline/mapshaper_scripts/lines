@@ -1,12 +1,29 @@
+#USE_GRID
 #DROP_POLYGONS
 
 i %assets%/fake_lines.geojson
 
-#simplify
-simplify 45%
+rename-layers lines,grid,lines_fake
 
 #remove tags
-filter-fields fields=aerialway,power
+filter-fields fields=aerialway,power target=lines
+
+merge-layers target=lines* name=lines
+
+#simplify
+simplify 45% target=lines
+
+each 'this.properties = {type:"aerialway"}' where='this.properties.aerialway != undefined' target=lines
+each 'this.properties = {type:"power"}' where='this.properties.power != undefined' target=lines
+
+#join
+dissolve type where="this.properties.type=='aerialway'" target=lines
+dissolve type where="this.properties.type=='power'" target=lines
+
+#slice by grid
+slice grid target=lines
+merge-layers target=slice-* name=lines
+explode name=lines
 
 #clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines

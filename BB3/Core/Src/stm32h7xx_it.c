@@ -100,7 +100,7 @@ extern TIM_HandleTypeDef htim1;
     \
     FAULT("");                                      \
     FAULT("------------------------------------");  \
-    FAULT("SP: 0x%08X", frame->sp);                 \
+    FAULT("PC: 0x%08X", frame->pc);                 \
     FAULT("R0: 0x%08X", frame->r0);                 \
     FAULT("R1: 0x%08X", frame->r1);                 \
     FAULT("R2: 0x%08X", frame->r2);                 \
@@ -109,6 +109,11 @@ extern TIM_HandleTypeDef htim1;
     FAULT("LR: 0x%08X", frame->lr);                 \
     FAULT("XPSR: 0x%08X", frame->xpsr);             \
     FAULT("------------------------------------");  \
+
+void backtrace(uint32_t SP)
+{
+
+}
 
 #define HANDLER_ATTR    __attribute__ ((optimize("O0"), naked))
 
@@ -138,6 +143,7 @@ HANDLER_ATTR void UsageFault_Handler(void)
 HANDLER_ATTR void BusFault_Handler(void)
 {
     DUMP_REGISTERS
+	backtrace(frame->lr);
 
     FAULT("Program stopped in BusFault_Handler");
     uint32_t CFSR = SCB->CFSR;

@@ -215,7 +215,7 @@ flasher_ret_t esp_flash_write_file(FIL * file)
             return flasher_unexpected_eof;
         }
 
-        //
+        //skip stm fw and assets
         if (chunk.addr == CHUNK_STM_ADDR || chunk.addr & CHUNK_FS_MASK)
         {
             f_lseek(file, f_tell(file) + flasher_aligned(chunk.size));
@@ -238,7 +238,7 @@ flasher_ret_t esp_flash_write_file(FIL * file)
             return flasher_unable_to_program;
         }
 
-        char text[32];
+        char text[64];
         sprintf(text, "ESP %s", chunk.name);
         gfx_draw_status(GFX_STATUS_UPDATE, text);
 

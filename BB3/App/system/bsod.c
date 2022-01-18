@@ -127,8 +127,6 @@ void bsod_show(context_frame_t * frame)
     	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "UNSTKERR", MF_ALIGN_LEFT);
     if (CFSR & SCB_CFSR_IMPRECISERR_Msk)
     	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IMPRECISERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_INVSTATE_Msk)
-    	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "INVSTATE", MF_ALIGN_LEFT);
     if (CFSR & SCB_CFSR_PRECISERR_Msk)
     	bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "PRECISERR", MF_ALIGN_LEFT);
     if (CFSR & SCB_CFSR_IBUSERR_Msk)
@@ -155,7 +153,7 @@ void bsod_show(context_frame_t * frame)
 
     line++;
 
-    snprintf(buff, sizeof(buff), "SP: 0x%08lX", frame->sp);
+    snprintf(buff, sizeof(buff), "PC: 0x%08lX", frame->pc);
     bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
     snprintf(buff, sizeof(buff), "R1: 0x%08lX", frame->r1);
     bosd_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);

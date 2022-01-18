@@ -172,10 +172,19 @@ typedef enum
 
 #define FC_GNSS_NEW_SAMPLE_CIRCLE   	0b00000001
 #define FC_GNSS_NEW_SAMPLE_TELEMETRY	0b00000010
+#define FC_GNSS_NEW_SAMPLE_NAVIGATION   0b00000100
+#define FC_GNSS_NEW_SAMPLE_WIND         0b00001000
 
 #define VARIO_CIRCLING_HISTORY_SCALE    12 // == 1m/s
 #define PAGE_AUTOSET_CIRCLING_THOLD     6
 #define PAGE_AUTOSET_CIRCLING_AVG       10
+
+//all variables in the structure need to be aligned by 4
+
+#define INVALID_INT32		0x7FFFFFFF
+#define INVALID_UINT32		0xFFFFFFFF
+
+#define WIND_NUM_OF_SECTORS 8
 
 typedef struct
 {
@@ -186,8 +195,7 @@ typedef struct
         uint32_t start_time;
         uint32_t duration;
       	uint32_t odometer;              // in m
-      	uint32_t toff_dist;				// in m
-      	int16_t toff_bearing;
+
 
         float avg_heading_change;
 
@@ -206,10 +214,10 @@ typedef struct
     	int32_t start_lat;
     	int32_t start_lon;
 
+      	uint32_t takeoff_distance;				// in m
+      	int16_t takeoff_bearing;
         bool circling;
         fc_flight_mode mode;
-        uint8_t _pad[2];
-
     } flight;
 
     struct
@@ -381,6 +389,12 @@ typedef struct
 		int16_t ground_height;
 		int16_t agl;
 	} agl;
+
+	struct
+	{
+        float speed;      // m/s
+        float direction;  // degrees
+	} wind;
 } fc_t;
 
 extern fc_t fc;

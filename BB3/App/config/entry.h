@@ -79,6 +79,7 @@ typedef union
 		ENTRY_BOOL, \
 		0 \
 	}
+
 //params
 // s16[0] min
 // s16[1] max

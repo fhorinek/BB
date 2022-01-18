@@ -18,10 +18,14 @@
 #include "gui/tasks/page/pages.h"
 #include "gui/tasks/menu/flight/flight.h"
 #include "gui/tasks/menu/map.h"
+#include "gui/tasks/menu/audio.h"
 
 #include "gui/gui_list.h"
+#include "etc/format.h"
 
 REGISTER_TASK_I(settings);
+
+
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
@@ -30,6 +34,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
+	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_audio);
 //	gui_list_auto_entry(list, "Map", NEXT_TASK, &gui_map);
 	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
 	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);

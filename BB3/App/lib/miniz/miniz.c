@@ -3356,6 +3356,7 @@ static mz_bool mz_zip_get_file_modified_time(const char *pFilename, MZ_TIME_T *p
 }
 #endif /* #ifndef MINIZ_NO_ARCHIVE_WRITING_APIS*/
 
+#define utime(a,b) 0
 static mz_bool mz_zip_set_file_times(const char *pFilename, MZ_TIME_T access_time, MZ_TIME_T modified_time)
 {
     struct utimbuf t;

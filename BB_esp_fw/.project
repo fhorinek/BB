@@ -31,21 +31,21 @@
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1632300567904</id>
+			<id>1639582077479</id>
 			<name>esp-adf</name>
-			<type>30</type>
+			<type>13</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-esp-idf</arguments>
+				<arguments>1.0-name-matches-false-false-components</arguments>
 			</matcher>
 		</filter>
 		<filter>
-			<id>1632900247401</id>
+			<id>1639582069037</id>
 			<name>esp-idf</name>
-			<type>10</type>
+			<type>13</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-examples</arguments>
+				<arguments>1.0-name-matches-false-false-components</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

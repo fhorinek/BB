@@ -34,7 +34,26 @@ def read_chunk(bin_path, addr):
         meta = name + struct.pack("<LL", addr, size) 
         crc = zlib.crc32(data + meta)
 
-    print("  0x%08X\t%10u bytes\tcrc %08X\t%s" % (addr, size, crc, str(name, encoding='ascii')))
+    d = False
+    f = False
+    #dir
+    if addr & 0x80000000:
+        taddr = addr & ~0x80000000
+        level = (taddr & (0xFFFF << 16)) >> 16
+        d = True
+    
+    #file
+    elif addr & 0x40000000:
+        taddr = addr & ~0x40000000
+        level = (taddr & (0xFFFF << 16)) >> 16
+    else:
+        level = 0
+        f = True
+
+    pad = "*" if f else (("  " * level) + ("[" if d else ""))
+    
+
+    print("  0x%08X\t%10u bytes\tcrc %08X\t%s%s%s" % (addr, size, crc, pad, str(name, encoding='ascii'), "]" if d else ""))
     
     chunk = {
         "name": name,
@@ -104,11 +123,18 @@ add_files(stm_assets_path, 0)
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
 esp_chunks_path = os.path.join(esp_fw_base_path, "flash_args")
 
+esp_chunks = []
+
 for line in open(esp_chunks_path, "r").readlines()[1:]:
     addr, bin_path = line.split()
     addr = int(addr, base = 16)
     bin_path = os.path.join(esp_fw_base_path, bin_path)
+    esp_chunks.append((addr, bin_path))
     
+esp_chunks.sort(key = lambda a: a[0])    
+
+for record in esp_chunks:
+    addr, bin_path = record
     chunks.append(read_chunk(bin_path, addr))
 
 try:
@@ -154,7 +180,13 @@ f.close()
 
 build = "%c%07u" % (ch, build_number)
 folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
-    
+
+os.mkdir(folder)
+shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
+shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
+shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
+shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
+
 print("Done")
 
 

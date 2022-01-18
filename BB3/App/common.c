@@ -315,7 +315,44 @@ void copy_dir(char * src, char * dst)
 
         f_closedir(&dir);
     }
+}
 
+void copy_dir_when_absent(char * src, char * dst)
+{
+    FRESULT res;
+    DIR dir;
+    FILINFO fno;
+
+    f_mkdir(dst);
+
+    res = f_opendir(&dir, src);
+    if (res == FR_OK)
+    {
+        while (true)
+        {
+            res = f_readdir(&dir, &fno);
+            if (res != FR_OK || fno.fname[0] == 0)
+                break;
+
+            char src_path[PATH_LEN] = {0};
+            str_join(src_path, 3, src, "/", fno.fname);
+            char dst_path[PATH_LEN] = {0};
+            str_join(dst_path, 3, dst, "/", fno.fname);
+
+            if (fno.fattrib & AM_DIR)
+            {
+            	if (!file_exists(dst_path))
+            		copy_dir(src_path, dst_path);
+            }
+            else
+            {
+            	if (!file_exists(dst_path))
+            		copy_file(src_path, dst_path);
+            }
+        }
+
+        f_closedir(&dir);
+    }
 }
 
 FRESULT f_delete_node (

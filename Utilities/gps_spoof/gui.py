@@ -10,6 +10,7 @@ from datetime import datetime
 from time import time
 import struct
 import zlib
+import random
 
 GPS_MUL = 10000000
 
@@ -17,7 +18,7 @@ class GPS_Spoof(object):
     
     black = 0, 0, 0
     
-    win_size = (800, 600)
+    win_size = (1028, 768)
     done = False
     click = False
     last_point = 0
@@ -27,7 +28,7 @@ class GPS_Spoof(object):
     point_color = 0, 100, 255
     point_color_used = 200, 200, 200
     point_timer = 0
-    point_period = 100
+    point_period = 1000
     #point_min_dist = 15
     point_min_time = 0.05
     point_index = 0
@@ -53,9 +54,19 @@ class GPS_Spoof(object):
     thermal_color = 100, 0, 0
     
     need_redraw = True
+    rnd = False
+    rnd_timer = 0
+    
+    wind = [0,0]
+
+    wind_color = 100, 200, 100
+    wind_radius = 5
+    wind_mul = 10
+    wind_acc = [0, 0]
+    
     
     def add_waypoints(self, filename):
-        print("Loading file", filename)
+        print("Loading CUP file", filename)
         f = open(filename, "r")
         lines = f.readlines()[1:]
         f.close()
@@ -91,8 +102,8 @@ class GPS_Spoof(object):
             
             lat_min = min(lat_min, lat)
             lat_max = max(lat_max, lat)
-            lon_min = min(lon_min, lon)
-            lon_max = max(lon_max, lon)
+            lon_min = max(lon_min, lon)
+            lon_max = min(lon_max, lon)
             
             self.waypoints.append([lat, lon, name])
         
@@ -110,13 +121,12 @@ class GPS_Spoof(object):
         self.gain = delta / max(self.win_size)
         
         print(len(self.waypoints), "points loaded")
-    
    
     def main(self, port):
         pygame.init()
         self.screen = pygame.display.set_mode(self.win_size, RESIZABLE)
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption('Strato GPS simulator')
+        pygame.display.set_caption('Strato GNSS simulator')
         
         pygame.font.init()
         self.font = pygame.font.Font(pygame.font.get_default_font(), 20)
@@ -139,20 +149,23 @@ class GPS_Spoof(object):
         self.screen.blit(tmp,  [x, y])
     
                     
-    def add_point(self, pos, alt):
+    def add_point(self, pos, alt, prog = False):
 #         if len(self.points):
 #             last_point = self.points[-1]
 #             dist = math.sqrt((last_point[0] - pos[0]) ** 2 + (last_point[1] - pos[1]) ** 2)
 #             if dist < self.point_min_dist:
 #                 return
 
-        if self.last_time:
+        if self.last_time and prog == False:
             if time() - self.last_time < self.point_min_time:
                 return
 
         self.last_time = time()
         
-        a = pos[0], pos[1], alt
+        self.wind_acc[0] += self.wind[0]
+        self.wind_acc[1] += self.wind[1]
+        
+        a = int(pos[0] + self.wind_acc[0]), int(pos[1] + self.wind_acc[1]), alt
         
         self.points.append(a)
         
@@ -229,11 +242,23 @@ class GPS_Spoof(object):
         
 
     def event(self):
+        if self.rnd and self.rnd_timer < time():
+            self.rnd_timer = time() + 1
+            x = int(random.random() * self.win_size[0])
+            y = int(random.random() * self.win_size[1])
+            
+            self.add_point((x, y), self.altitiude)
+            self.need_redraw = True
+    
         for e in pygame.event.get():
             
             if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                 self.done = True
                 break
+                
+            if e.type == KEYUP and e.key == ord('r'):
+                self.rnd = not self.rnd
+                self.need_redraw = True
 
             elif e.type == MOUSEBUTTONDOWN and e.button == 1:
                 self.add_point(e.pos, self.altitiude)
@@ -246,6 +271,15 @@ class GPS_Spoof(object):
                 self.point_index = 0   
                 self.need_redraw = True             
 
+            elif e.type == MOUSEBUTTONDOWN and e.button == 2:
+                mx, my = self.win_size
+                mx /= 2
+                my /= 2
+            
+                self.wind = [(e.pos[0] - mx) / self.wind_mul, (e.pos[1] - my) / self.wind_mul]
+                self.need_redraw = True
+
+
             elif e.type == MOUSEBUTTONDOWN and e.button == 4:
                 self.altitiude += 10
                 self.need_redraw = True
@@ -256,6 +290,7 @@ class GPS_Spoof(object):
 
             elif e.type == MOUSEBUTTONUP and e.button == 1:
                 self.click = False
+                self.wind_acc = [0, 0]
                 
             elif e.type == MOUSEMOTION and self.click:
                 self.add_point(e.pos, self.altitiude)
@@ -267,14 +302,18 @@ class GPS_Spoof(object):
                 
             elif e.type == pygame.VIDEORESIZE:
                 self.screen = pygame.display.set_mode((e.w, e.h), RESIZABLE)
+                self.win_size = (e.w, e.h)
                 self.need_redraw = True
                 
             
           
-        if len(self.points) > 0 and pygame.time.get_ticks() > self.point_timer and self.point_index < len(self.points):
+        if len(self.points) > 0 and pygame.time.get_ticks() > self.point_timer:
             self.point_timer = pygame.time.get_ticks() + self.point_period
             self.send_point(self.points[self.point_index])
+            
             self.point_index += 1
+            if (self.point_index >= len(self.points)):
+                self.point_index = len(self.points) - 1 
             
             self.need_redraw = True
                     
@@ -308,6 +347,17 @@ class GPS_Spoof(object):
             self.draw_text(wpt[2], point[0] - 40, point[1] + 8)
 
             
+        mx, my = self.win_size
+        mx /= 2
+        my /= 2
+        
+        wstart = (int(mx), int(my))
+        wend = (int(mx + self.wind[0] * self.wind_mul), int(my + self.wind[1] * self.wind_mul))
+
+        pygame.draw.line(self.screen, self.wind_color, wstart, wend)
+        pygame.draw.circle(self.screen, self.wind_color, wend, self.wind_radius)
+            
+            
         self.draw_text("Alt: %d" % self.altitiude, 0, 0)
         self.draw_text("Hdg: %d" % self.heading, 0, 20)
         self.draw_text("Spd: %0.1f" % (self.speed * 1.852), 0, 40)
@@ -320,6 +370,11 @@ class GPS_Spoof(object):
             ox, oy = self.mouse_point
             self.draw_text("x: %u" % ox, 0, 140)
             self.draw_text("y: %u" % oy, 0, 160)
+
+        if self.rnd:
+            self.draw_text("rnd active", 0, 180)
+
+        self.draw_text("wind: [%u, %u]" % (self.wind[0], self.wind[1]), 0, 200)
         
         pygame.display.update()     
         
@@ -329,7 +384,7 @@ if __name__ == '__main__':
 
     o.main("/dev/ttyACM0")
     #o.add_waypoints("route.cup")
-    o.thermals = [[400,200, 150, 3]]
+    #o.thermals = [[400,200, 150, 3]]
     
     o.run()
     

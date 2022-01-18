@@ -11,6 +11,6 @@
 #include "pipeline.h"
 
 void pipe_output_init();
-
+void pipe_output_set_volume(uint8_t ch, uint8_t volume);
 
 #endif /* MAIN_PIPELINE_OUTPUT_H_ */

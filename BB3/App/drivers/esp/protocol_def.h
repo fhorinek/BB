@@ -280,6 +280,7 @@ typedef struct {
     uint32_t value;
     bool cancel;
     bool ble;
+    bool only_show;
 } proto_bt_pair_req_t;
 
 #define PROTO_BT_PAIR_RES       0x52

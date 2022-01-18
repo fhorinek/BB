@@ -57,8 +57,6 @@ void info_update_apply_cb(uint8_t res, void * data)
 
 void info_update_get_file_cb(uint8_t res, download_slot_t * ds)
 {
-    gui_lock_acquire();
-
     INFO("info_update_get_file_cb cb %u", res);
 
     if (res == DOWNLOAD_SLOT_PROGRESS)
@@ -86,8 +84,6 @@ void info_update_get_file_cb(uint8_t res, download_slot_t * ds)
     {
         dialog_downloads_error(res);
     }
-
-    gui_lock_release();
 }
 
 void info_update_question_cb(uint8_t res, void * data)
@@ -96,7 +92,7 @@ void info_update_question_cb(uint8_t res, void * data)
     {
         char url[128];
 
-        snprintf(url, sizeof(url), "%s/%s/fw/%s", config_get_text(&config.system.server_url), config_get_select_text(&config.system.firmware_channel), local->new_fw);
+        snprintf(url, sizeof(url), "%s/%s/fw/%s", config_get_text(&config.system.server_url), config_get_select_text(&config.system.fw_channel), local->new_fw);
 
         local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, info_update_get_file_cb);
         dialog_show("Downloading firmware", "", dialog_progress, info_update_progress_cb);
@@ -107,7 +103,8 @@ void info_update_question_cb(uint8_t res, void * data)
 
 void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
 {
-    gui_lock_acquire();
+	if (res == DOWNLOAD_SLOT_PROGRESS)
+		return;
 
     if (res == DOWNLOAD_SLOT_COMPLETE)
     {
@@ -119,7 +116,7 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
         {
             char rev_str[10];
             rev_get_sw_string(rev_str);
-            if (strncmp(rev_str, local->new_fw, strlen(rev_str)) == 0)
+            if (strncmp(rev_str, local->new_fw, strlen(rev_str)) == 0 || strlen(rev_str) == 0)
             {
                 dialog_show("Up to date", "You are using the latest firmware", dialog_confirm, NULL);
             }
@@ -138,8 +135,6 @@ void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
     {
         dialog_downloads_error(res);
     }
-
-    gui_lock_release();
 }
 
 static bool info_update_cb(lv_obj_t * obj, lv_event_t event)
@@ -148,7 +143,7 @@ static bool info_update_cb(lv_obj_t * obj, lv_event_t event)
     {
 		char url[128];
 
-		snprintf(url, sizeof(url), "%s/%s/", config_get_text(&config.system.server_url), config_get_select_text(&config.system.firmware_channel));
+		snprintf(url, sizeof(url), "%s/%s/", config_get_text(&config.system.server_url), config_get_select_text(&config.system.fw_channel));
 
 		local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_PSRAM, info_update_get_info_cb);
 		dialog_show("Checking for updates", "", dialog_progress, info_update_progress_cb);
@@ -286,6 +281,8 @@ lv_obj_t * info_init(lv_obj_t * par)
     snprintf(value, sizeof(value), "Firmware ver. %s", rev_str);
     obj = gui_list_info_add_entry(list, "Release note", value);
     gui_config_entry_add(obj, CUSTOM_CB, info_serial_release_note_cb);
+
+    gui_list_auto_entry(list, "Firmware channel", &config.system.fw_channel, NULL);
 
     gui_list_auto_entry(list, "Manual firmware install", CUSTOM_CB, manual_install_cb);
 

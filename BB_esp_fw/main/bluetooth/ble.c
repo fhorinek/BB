@@ -154,6 +154,7 @@ static void ble_gatts_profile_cb(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
             esp_ble_gap_set_device_name(bt_name);
             uint8_t mac[6];
             esp_read_mac(mac, ESP_MAC_ETH);
+            mac[0] |= 0xC0;
             esp_ble_gap_set_rand_addr(mac);
             esp_ble_gap_config_local_icon(ESP_BLE_APPEARANCE_OUTDOOR_SPORTS_LOCATION_AND_NAV);
 
@@ -345,14 +346,30 @@ static void ble_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
         break;
 
         case ESP_GAP_BLE_NC_REQ_EVT:
+        {
             INFO( "ESP_GAP_BLE_NC_REQ_EVT Please compare the numeric value: %d", param->ble_security.key_notif.passkey);
             proto_bt_pair_req_t data;
             memcpy(data.dev, param->ble_security.ble_req.bd_addr, 6);
             data.value = param->ble_security.key_notif.passkey;
             data.cancel = false;
             data.ble = true;
+            data.only_show = false;
             protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
+        }
         break;
+
+        case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:
+        {
+            INFO( "ESP_GAP_BLE_PASSKEY_NOTIF_EVT Please enter the numeric value on second device: %d", param->ble_security.key_notif.passkey);
+            proto_bt_pair_req_t data;
+            memcpy(data.dev, param->ble_security.ble_req.bd_addr, 6);
+            data.value = param->ble_security.key_notif.passkey;
+            data.cancel = false;
+            data.ble = true;
+            data.only_show = true;
+            protocol_send(PROTO_BT_PAIR_REQ, (void *)&data, sizeof(data));
+        }
+		break;
 
         case ESP_GAP_BLE_AUTH_CMPL_EVT:
         {
@@ -407,8 +424,9 @@ void ble_init(char * name)
     uint8_t key_size = 8;      //the key size should be 7~16 bytes
     esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &key_size, sizeof(uint8_t));
 
-    uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
-    uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
+    uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK | ESP_BLE_CSR_KEY_MASK;
+    uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK | ESP_BLE_CSR_KEY_MASK;
+
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
 //

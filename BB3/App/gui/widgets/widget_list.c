@@ -32,6 +32,9 @@ DECLARE_WIDGET(TAss);
 DECLARE_WIDGET(TTime);
 DECLARE_WIDGET(TGain);
 DECLARE_WIDGET(DToff);
+DECLARE_WIDGET(HdgToff);
+DECLARE_WIDGET(WindDir);
+DECLARE_WIDGET(WindSpd);
 DECLARE_WIDGET(TDots);
 
 widget_t * widgets[] =
@@ -59,8 +62,11 @@ widget_t * widgets[] =
     LIST_WIDGET(TAss),
     LIST_WIDGET(TTime),
     LIST_WIDGET(TGain),
-	LIST_WIDGET(DToff),
-	LIST_WIDGET(TDots),
+    LIST_WIDGET(DToff),
+	LIST_WIDGET(HdgToff),
+	LIST_WIDGET(WindDir),
+    LIST_WIDGET(WindSpd),
+  	LIST_WIDGET(TDots),
 
 //    LIST_WIDGET(Map),
 };

@@ -31,7 +31,7 @@
 
 #include "../audio_board/include/board.h"
 
-static const char *TAG = "KALUGA_V1_2";
+static const char *TAG = "Strato";
 
 esp_err_t get_i2c_pins(i2c_port_t port, i2c_config_t *i2c_config)
 {
@@ -79,5 +79,4 @@ esp_err_t i2s_mclk_gpio_select(i2s_port_t i2s_num, gpio_num_t gpio_num)
     WRITE_PERI_REG(PIN_CTRL, 0xFFF0);
     return ESP_OK;
 }
-
 
