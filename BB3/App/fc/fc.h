@@ -392,19 +392,8 @@ typedef struct
 
 	struct
 	{
-        float dir[WIND_NUM_OF_SECTORS];
-        float spd[WIND_NUM_OF_SECTORS];
-
         float speed;      // m/s
         float direction;  // degrees
-
-        uint32_t valid_from;
-
-        uint8_t old_sector;
-        int8_t sectors_cnt;
-        bool valid;
-        uint8_t _pad[1];
-
 	} wind;
 } fc_t;
 

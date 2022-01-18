@@ -98,7 +98,7 @@ void geo_to_pix(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32_t g
 
 	//get bbox
 	uint32_t map_w = MAP_W * step_x;
-	uint32_t map_h = (MAP_H * step_y);
+	uint32_t map_h = MAP_H * step_y;
 	int32_t lon1 = lon - map_w / 2;
 	int32_t lat1 = lat + map_h / 2;
 
