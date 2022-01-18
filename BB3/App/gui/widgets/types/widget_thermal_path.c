@@ -22,7 +22,6 @@ REGISTER_WIDGET_IU
     120,
 	_b(wf_label_hide),
 
-    lv_obj_t * text;
     lv_obj_t * thermals[THERMAL_DOTS_POSITIONS];
 
     lv_obj_t * arrow;
@@ -48,12 +47,7 @@ static void TDots_init(lv_obj_t * base, widget_slot_t * slot)
 		 lv_obj_set_style_local_bg_color(local->thermals[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	 }
 
-
     local->arrow = widget_add_arrow(base, slot, local->arrow_points, NULL, NULL);
-
-    local->text = lv_label_create(slot->obj, NULL);
-    lv_obj_align(local->text, local->arrow, LV_ALIGN_IN_LEFT_MID, 5, 0);
-	lv_obj_set_style_local_bg_color(local->text, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
 	local->dot = lv_obj_create(slot->obj, NULL);
 	lv_obj_set_size(local->dot, 10, 10);
@@ -65,8 +59,6 @@ static void TDots_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void TDots_update(widget_slot_t * slot)
 {
-	uint32_t start = HAL_GetTick();
-
 	// render dots only if in flight & with enough data to display
 	if (fc.flight.mode == flight_flight && fc.gnss.fix > 0) {
 		//&& ((fc.history.size / THERMAL_HISTORY_STEP) >= THERMAL_DOTS_POSITIONS)
@@ -92,11 +84,6 @@ static void TDots_update(widget_slot_t * slot)
 
 			lv_color_t c = LV_COLOR_SILVER;
 
-//			if (h_pos.vario < -250) {
-//				c = LV_COLOR_BLUE;
-//			} else if (h_pos.vario < -120) {
-//				c = LV_COLOR_AQUA;
-//			} else
 			if (h_pos.vario < -60) {
 				c = LV_COLOR_GRAY;
 			} else if (h_pos.vario < 0) {
@@ -140,9 +127,4 @@ static void TDots_update(widget_slot_t * slot)
 			lv_obj_set_hidden(local->dot, false);
 		}
 	}
-	// DEBUG
-	uint32_t end = HAL_GetTick();
-	char value[16];
-	sprintf(value, "%u ms",  (unsigned int) end-start);
-	lv_label_set_text(local->text, value);
 }

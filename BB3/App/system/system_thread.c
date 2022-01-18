@@ -119,7 +119,6 @@ typedef struct
 } fake_serial_gnss_t;
 
 
-
 void cmd_step()
 {
     while (debug_get_waiting() > 0)
@@ -165,14 +164,14 @@ void cmd_step()
 
             if (data.crc == crc)
             {
-//                INFO("=== Fake GNNS via serial ===");
-//                DBG("time %lu", data.time);
-//                DBG("lat %ld", data.lat);
-//                DBG("lon %ld", data.lon);
-//                DBG("spd %0.1f", data.speed);
-//                DBG("hdg %0.1f", data.heading);
-//                DBG("var %0.1f", data.vario);
-//                DBG("alt %0.1f", data.altitude);
+                INFO("=== Fake GNNS via serial ===");
+                DBG("time %lu", data.time);
+                DBG("lat %ld", data.lat);
+                DBG("lon %ld", data.lon);
+                DBG("spd %0.1f", data.speed);
+                DBG("hdg %0.1f", data.heading);
+                DBG("var %0.1f", data.vario);
+                DBG("alt %0.1f", data.altitude);
 
                 FC_ATOMIC_ACCESS
                 {
@@ -203,170 +202,12 @@ void cmd_step()
     }
 }
 
-
 #define CRITICAL_VOLTAGE	300
 #define CRITICAL_CURRENT	2500
 #define CRITICAL_CNT_VOL	1
 #define CRITICAL_CNT_OFF	4
 
 #define POWER_OFF_TIMEOUT   500
-
-#define FAKE_GNSS_FILE "sample.bin"
-
-static FIL f;
-static bool fo = false;
-
-static bool fake_gnss_file_open = false;
-static FIL gnss_file;
-static uint8_t ret;
-
-
-void read_gnss_fake_data() {
-	  if (file_exists("sample.bin") && !fake_gnss_file_open)
-	  {
-//	  INFO("try to open GNSS FILE");
-		  ret = f_open(&gnss_file, "sample.bin", FA_READ);
- 		  fake_gnss_file_open = true;
-	  }
-
-	  if (ret == FR_OK)
-	  	{
-          fake_serial_gnss_t data;
-  		   UINT br;
-
-  		   f_read(&gnss_file, &data, sizeof(data), &br);
-
-          if (br == sizeof(data)) {
-//INFO("read chunk of data");
-
-              __HAL_CRC_DR_RESET(&hcrc);
-              uint32_t crc = HAL_CRC_Accumulate(&hcrc, (uint32_t *)&data, sizeof(data) - sizeof(data.crc));
-              crc ^= 0xFFFFFFFF;
-
-              if (data.crc == crc)
-              {
-                  INFO("=== Fake GNNS via serial ===");
-                  DBG("time %lu", data.time);
-                  DBG("lat %ld", data.lat);
-                  DBG("lon %ld", data.lon);
-                  DBG("spd %0.1f", data.speed);
-                  DBG("hdg %0.1f", data.heading);
-                  DBG("var %0.1f", data.vario);
-                  DBG("alt %0.1f", data.altitude);
-
-                  FC_ATOMIC_ACCESS
-                  {
-                      fc.gnss.itow = HAL_GetTick();
-                      fc.gnss.fake = true;
-                      fc.gnss.latitude = data.lat;
-                      fc.gnss.longtitude = data.lon;
-                      fc.gnss.heading = data.heading;
-                      fc.gnss.ground_speed = data.speed;
-                      fc.gnss.fix = 3;
-                      fc.gnss.new_sample = 0xFF;
-                      fc.gnss.utc_time = data.time;
-
-                      fc.fused.fake = true;
-                      fc.fused.vario = data.vario;
-                      fc.fused.altitude1 = data.altitude;
-                  }
-
-                  config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-                  config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
-              }
-              else
-              {
-                  WARN("Invalid message crc");
-              }
-          } else {
-        	  f_close(&gnss_file);
-        	  fake_gnss_file_open = false;
-          }
-	  	}
-}
-
-
-void file_debug_read_bytes(uint8_t *data, UINT size)
-{
-
-	if (file_exists(FAKE_GNSS_FILE)) {
-		INFO("fake GNSS file exists try to open %s", FAKE_GNSS_FILE);
-		FRESULT res;
-
-
-		if (fo == false) {
-			DBG("Opening the file!");
-			res = f_open(&f, FAKE_GNSS_FILE, FA_OPEN_ALWAYS | FA_READ);
-		    if (res != FR_OK)
-		    {
-		    	fo = false;
-		    	DBG("file open failed!");
-		    	return;
-		    } else {
-		    	DBG("file OPEN OK");
-		    }
-		} else {
-			DBG("file already open!");
-		}
-
-		UINT br = 0;
-
-	    res = f_read(&f, &data, size, &br);
-	    if (res != FR_OK)
-	    {
-	    	DBG("data read failed, read %d bytes of required %d", br, size);
-	    	fo = false;
-	    	f_close(&f);
-	    }
-	} else {
-		INFO("fake GNSS does not exist", FAKE_GNSS_FILE);
-	}
-}
-
-void read_fake_data_from_file_step()
-{
-    fake_serial_gnss_t data;
-
-    file_debug_read_bytes((uint8_t *)&data, sizeof(data));
-
-    __HAL_CRC_DR_RESET(&hcrc);
-    uint32_t crc = HAL_CRC_Accumulate(&hcrc, (uint32_t *)&data, sizeof(data) - sizeof(data.crc));
-    crc ^= 0xFFFFFFFF;
-
-    if (data.crc == crc)
-    {
-        INFO("=== Fake GNNS via file ===");
-        DBG("time %lu", data.time);
-        DBG("lat %ld", data.lat);
-        DBG("lon %ld", data.lon);
-        DBG("spd %0.1f", data.speed);
-        DBG("hdg %0.1f", data.heading);
-        DBG("var %0.1f", data.vario);
-        DBG("alt %0.1f", data.altitude);
-
-        FC_ATOMIC_ACCESS
-        {
-            fc.gnss.itow = HAL_GetTick();
-            fc.gnss.fake = true;
-            fc.gnss.latitude = data.lat;
-            fc.gnss.longtitude = data.lon;
-            fc.gnss.heading = data.heading;
-            fc.gnss.ground_speed = data.speed;
-            fc.gnss.fix = 3;
-            fc.gnss.new_sample = 0xFF;
-            fc.gnss.utc_time = data.time;
-
-            fc.fused.fake = true;
-            fc.fused.vario = data.vario;
-            fc.fused.altitude1 = data.altitude;
-        }
-
-        config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-        config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
-    } else {
-    	INFO("crc failed.");
-    }
-}
 
 void thread_system_start(void *argument)
 {
@@ -473,13 +314,6 @@ void thread_system_start(void *argument)
 		}
 
 		cmd_step();
-
-		static uint32_t gnss_next = 0;
-		if (gnss_next < HAL_GetTick())
-		{
-			read_gnss_fake_data();
-			gnss_next = HAL_GetTick() + 1 * 1000;
-		}
 
 		if (start_power_off)
 		{
