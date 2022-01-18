@@ -11,100 +11,52 @@
 #include "fc.h"
 #include "../common.h"
 
+#define SECTOR_CNT  8
 
 void wind_new_fix()
 {
-    /*	speed,heading input		*/
-    float speed = fc.gnss.ground_speed;
-    float angle = fc.gnss.heading;
-
-    uint8_t sector = ((int16_t)angle + (360 / WIND_NUM_OF_SECTORS / 2)) % 360 / (360 / WIND_NUM_OF_SECTORS);
-
-    fc.wind.dir[sector] = angle;
-    fc.wind.spd[sector] = speed;
-
-    DBG("angles:");
-    for (uint8_t i = 0; i < WIND_NUM_OF_SECTORS; i++)
-        DBG("  %.1f", fc.wind.dir[i]);
-
-    DBG("speeds:");
-    for (uint8_t i = 0; i < WIND_NUM_OF_SECTORS; i++)
-        DBG("  %.1f", fc.wind.spd[i]);
-
-    if (sector == (fc.wind.old_sector + 1) % WIND_NUM_OF_SECTORS)
+    struct
     {
-        //clockwise move
-        if (fc.wind.sectors_cnt >= 0)
-            fc.wind.sectors_cnt += 1;
-        else
-            fc.wind.sectors_cnt = 0;
-    }
-    else
+        int32_t spd_acc;
+        int32_t hdg_acc;
+        float spd;
+        float hdg;
+
+        uint16_t cnt;
+        uint8_t _pad[2];
+    } sectors [SECTOR_CNT] = {0};
+
+    for (uint16_t i = 0; i < FC_HISTORY_SIZE; i++)
     {
-        if (fc.wind.old_sector == (sector + 1) % WIND_NUM_OF_SECTORS)
+        uint16_t index = (fc.history.index + FC_HISTORY_SIZE - i) % FC_HISTORY_SIZE;
+
+        if (fc.history.positions[index].flags & (FC_POS_GNSS_2D | FC_POS_GNSS_3D))
         {
-            //counterclockwise move
-            if (fc.wind.sectors_cnt <= 0)
-                fc.wind.sectors_cnt -= 1;
-            else
-                fc.wind.sectors_cnt = 0;
-        }
-        else
-        {
-            if (fc.wind.old_sector == sector)
-            {	//same sector
-            }
-            else
-            {
-                //more than (360 / number_of_sectors), discard data
-                fc.wind.sectors_cnt = 0;
-            }
+            uint8_t sector = fc.history.positions[index].ground_hdg / (360 / SECTOR_CNT);
+
+            sectors[sector].spd_acc += fc.history.positions[index].ground_spd;
+            sectors[sector].hdg_acc += fc.history.positions[index].ground_hdg;
+            sectors[sector].cnt++;
         }
     }
 
-    fc.wind.old_sector = sector;
-
-    DBG("#3 cnt=%d sec=%d\n", fc.wind.sectors_cnt, sector);
-
-    int8_t min = 0;
-    int8_t max = 0;
-    if (abs(fc.wind.sectors_cnt) >= WIND_NUM_OF_SECTORS)
+    DBG("---wind---");
+    for (uint8_t i = 0; i < SECTOR_CNT; i++)
     {
-        //DBG(" #4");
-        for (uint8_t i = 1; i < WIND_NUM_OF_SECTORS; i++)
+        if (sectors[i].cnt != 0)
         {
-            if (fc.wind.spd[i] > fc.wind.spd[max])
-                max = i;
-            if (fc.wind.spd[i] < fc.wind.spd[min])
-                min = i;
+            sectors[i].spd = sectors[i].spd_acc / (100 * sectors[i].cnt);
+            sectors[i].hdg = sectors[i].hdg_acc / sectors[i].cnt;
         }
 
-        int8_t sectorDiff = abs(max - min);
-        DBG(" min=%d max=%d diff=%d\n",min, max, sectorDiff);
-        if ((sectorDiff >= ( WIND_NUM_OF_SECTORS / 2 - 1)) && (sectorDiff <= ( WIND_NUM_OF_SECTORS / 2 + 1)))
-        {
-            fc.wind.speed = (fc.wind.spd[max] - fc.wind.spd[min]) / 2;
-            fc.wind.direction = fc.wind.dir[min];
-            fc.wind.valid = true;
-            fc.wind.valid_from = HAL_GetTick();
-            DBG(" #5 wspd=%0.1f wdir=%0.1f\n", fc.wind.speed, fc.wind.direction);
-        }
+        DBG(" %u %0.1f %0.1f %u", i, sectors[i].spd, sectors[i].hdg, sectors[i].cnt);
     }
 
-    DBG(" end\n");
 }
 
 void wind_init()
 {
-    for (int i = 0; i < WIND_NUM_OF_SECTORS; i++)
-    {
-        fc.wind.spd[i] = 0;
-        fc.wind.dir[i] = 0;
-    }
-
-    fc.wind.sectors_cnt = 0;
-    fc.wind.old_sector = 0;
-    fc.wind.valid = false;
+//    fc.wind.valid = false;
 
     DBG("wind_init\n");
 }

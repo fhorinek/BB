@@ -18,7 +18,7 @@ class GPS_Spoof(object):
     
     black = 0, 0, 0
     
-    win_size = (800, 600)
+    win_size = (1028, 768)
     done = False
     click = False
     last_point = 0
@@ -66,7 +66,7 @@ class GPS_Spoof(object):
     
     
     def add_waypoints(self, filename):
-        print("Loading file", filename)
+        print("Loading CUP file", filename)
         f = open(filename, "r")
         lines = f.readlines()[1:]
         f.close()
@@ -102,8 +102,8 @@ class GPS_Spoof(object):
             
             lat_min = min(lat_min, lat)
             lat_max = max(lat_max, lat)
-            lon_min = min(lon_min, lon)
-            lon_max = max(lon_max, lon)
+            lon_min = max(lon_min, lon)
+            lon_max = min(lon_max, lon)
             
             self.waypoints.append([lat, lon, name])
         
@@ -121,13 +121,12 @@ class GPS_Spoof(object):
         self.gain = delta / max(self.win_size)
         
         print(len(self.waypoints), "points loaded")
-    
    
     def main(self, port):
         pygame.init()
         self.screen = pygame.display.set_mode(self.win_size, RESIZABLE)
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption('Strato GPS simulator')
+        pygame.display.set_caption('Strato GNSS simulator')
         
         pygame.font.init()
         self.font = pygame.font.Font(pygame.font.get_default_font(), 20)
@@ -150,14 +149,14 @@ class GPS_Spoof(object):
         self.screen.blit(tmp,  [x, y])
     
                     
-    def add_point(self, pos, alt):
+    def add_point(self, pos, alt, prog = False):
 #         if len(self.points):
 #             last_point = self.points[-1]
 #             dist = math.sqrt((last_point[0] - pos[0]) ** 2 + (last_point[1] - pos[1]) ** 2)
 #             if dist < self.point_min_dist:
 #                 return
 
-        if self.last_time:
+        if self.last_time and prog == False:
             if time() - self.last_time < self.point_min_time:
                 return
 
@@ -385,7 +384,7 @@ if __name__ == '__main__':
 
     o.main("/dev/ttyACM0")
     #o.add_waypoints("route.cup")
-    o.thermals = [[400,200, 150, 3]]
+    #o.thermals = [[400,200, 150, 3]]
     
     o.run()
     

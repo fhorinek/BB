@@ -40,7 +40,7 @@ static void WindSpd_update(widget_slot_t * slot)
     char value[16];
     if (fc.gnss.fix == 0)
         strcpy(value, "No\nGNSS");
-    else if (fc.wind.valid == false)
+    else if (1)
         strcpy(value, "Need\ncircle");
     else
         format_speed(value, fc.wind.speed);

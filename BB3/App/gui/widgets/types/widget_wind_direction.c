@@ -42,7 +42,7 @@ static void WindDir_update(widget_slot_t * slot)
 		lv_obj_set_hidden(local->arrow, true);
 		lv_obj_set_hidden(local->text, false);
 	}
-	else if (fc.wind.valid == false)
+	else if (1)
 	{
         lv_label_set_text(local->text, "Need\ncircle");
         widget_update_font_size(local->text);
