@@ -144,6 +144,33 @@ typedef struct
 	{
     	cfg_entry_t zoom_flight;
 	} map;
+
+	struct
+	{
+        cfg_entry_t a2dp_volume;
+        cfg_entry_t sound_volume;
+        cfg_entry_t vario_volume;
+        cfg_entry_t master_volume;
+        cfg_entry_t tts_alerts;
+	} audio;
+
+    struct
+    {
+        cfg_entry_t enabled;
+        cfg_entry_t a2dp;
+        cfg_entry_t spp;
+        cfg_entry_t ble;
+        cfg_entry_t protocol;
+        cfg_entry_t forward_gnss;
+    } bluetooth;
+
+    struct
+    {
+        cfg_entry_t enabled;
+        cfg_entry_t autoconnect;
+        cfg_entry_t ap;
+    } wifi;
+
 } flight_profile_t;
 
 typedef struct
@@ -161,28 +188,11 @@ typedef struct
 
     struct
     {
-        cfg_entry_t use_gps;
-        cfg_entry_t use_glonass;
-        cfg_entry_t use_galileo;
-    } gnss;
-
-    struct
-    {
-        cfg_entry_t enabled;
-        cfg_entry_t a2dp;
-        cfg_entry_t spp;
-        cfg_entry_t ble;
-        cfg_entry_t protocol;
-        cfg_entry_t forward_gnss;
-        cfg_entry_t volume;
         cfg_entry_t pin;
     } bluetooth;
 
     struct
     {
-        cfg_entry_t enabled;
-        cfg_entry_t autoconnect;
-        cfg_entry_t ap;
         cfg_entry_t ap_pass;
     } wifi;
 
@@ -217,7 +227,7 @@ typedef struct
     struct
     {
         cfg_entry_t server_url;
-        cfg_entry_t firmware_channel;
+        cfg_entry_t fw_channel;
     } system;
 
 	struct
@@ -291,6 +301,8 @@ void config_restore_factory();
 void config_change_pilot(char * pilot_name);
 void config_change_profile(char * profile_name);
 uint8_t config_profiles_cnt();
+
+void config_new_version_cb();
 
 extern bool config_changed;
 

@@ -17,6 +17,8 @@
 #include "pipeline/vario.h"
 #include "download.h"
 #include "bluetooth/bluetooth.h"
+#include "pipeline/pipeline.h"
+#include "pipeline/output.h"
 
 #include "linked_list.h"
 
@@ -145,6 +147,15 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
             if (packet->type == PROTO_VOLUME_MASTER)
                 tas_volume(packet->val);
+
+            if (packet->type == PROTO_VOLUME_VARIO)
+                pipe_output_set_volume(SOURCE_VARIO_INDEX, packet->val);
+
+            if (packet->type == PROTO_VOLUME_SOUND)
+                pipe_output_set_volume(SOURCE_SOUND_INDEX, packet->val);
+
+            if (packet->type == PROTO_VOLUME_A2DP)
+                pipe_output_set_volume(SOURCE_BT_INDEX, packet->val);
         }
         break;
 

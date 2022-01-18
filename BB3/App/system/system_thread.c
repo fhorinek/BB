@@ -119,6 +119,7 @@ typedef struct
 } fake_serial_gnss_t;
 
 
+
 void cmd_step()
 {
     while (debug_get_waiting() > 0)
@@ -164,14 +165,14 @@ void cmd_step()
 
             if (data.crc == crc)
             {
-                INFO("=== Fake GNNS via serial ===");
-                DBG("time %lu", data.time);
-                DBG("lat %ld", data.lat);
-                DBG("lon %ld", data.lon);
-                DBG("spd %0.1f", data.speed);
-                DBG("hdg %0.1f", data.heading);
-                DBG("var %0.1f", data.vario);
-                DBG("alt %0.1f", data.altitude);
+//                INFO("=== Fake GNNS via serial ===");
+//                DBG("time %lu", data.time);
+//                DBG("lat %ld", data.lat);
+//                DBG("lon %ld", data.lon);
+//                DBG("spd %0.1f", data.speed);
+//                DBG("hdg %0.1f", data.heading);
+//                DBG("var %0.1f", data.vario);
+//                DBG("alt %0.1f", data.altitude);
 
                 FC_ATOMIC_ACCESS
                 {
@@ -201,6 +202,7 @@ void cmd_step()
 
     }
 }
+
 
 #define CRITICAL_VOLTAGE	300
 #define CRITICAL_CURRENT	2500
@@ -292,10 +294,10 @@ void thread_system_start(void *argument)
 						&& pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
 				{
 					WARN("Emergency volume down!");
-					uint8_t vol = config_get_int(&config.bluetooth.volume);
+					uint8_t vol = config_get_int(&profile.audio.master_volume);
 					if (vol > 0)
 						vol--;
-					config_set_int(&config.bluetooth.volume, vol);
+					config_set_int(&profile.audio.master_volume, vol);
 				}
 
 				//for more than CRITICAL_TIME_OFF

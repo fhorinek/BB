@@ -75,6 +75,7 @@ REGISTER_TASK_ILS(pages,
 
 	//indicator
 	lv_obj_t * indicator;
+	lv_obj_t * label;
 
 	lv_style_t menu_style;
 
@@ -82,7 +83,6 @@ REGISTER_TASK_ILS(pages,
 
 	//animation
 	uint8_t state;
-	lv_anim_t anim;
 	uint32_t timer;
 
 	//pages
@@ -99,6 +99,34 @@ REGISTER_TASK_ILS(pages,
 
 void pages_load(char * filename, int8_t anim);
 
+
+void page_focus_widget(lv_obj_t * obj)
+{
+    if (local->selector != NULL)
+    {
+        lv_obj_del(local->selector);
+        local->selector = NULL;
+    }
+
+    if (obj != NULL)
+    {
+        local->selector = lv_obj_create(obj, NULL);
+
+        lv_coord_t w = lv_obj_get_width(obj);
+        lv_coord_t h = lv_obj_get_height(obj);
+
+        lv_obj_set_pos(local->selector, 0, 0);
+        lv_obj_set_size(local->selector, w, h);
+
+        lv_obj_set_style_local_bg_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+        lv_obj_set_style_local_border_width(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
+        lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLUE);
+        lv_obj_set_style_local_border_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
+
+        lv_obj_move_foreground(obj);
+    }
+}
+
 void gui_page_set_mode(cfg_entry_t * cfg)
 {
 	char * name = config_get_text(cfg);
@@ -112,16 +140,21 @@ void gui_page_set_mode(cfg_entry_t * cfg)
 		if (strcmp(name, config_get_text(&profile.ui.page[i])) == 0)
 			break;
 	}
+
 	if (i == PAGE_MAX_COUNT)
+	{
+		INFO("Unable to switch to '%s'", name);
 		return;
+	}
 
 	if (gui.task.actual == &gui_pages)
 	{
-		gui_lock_acquire();
+		INFO("Switching to page '%s' active", name);
 
 		if (i == local->actual_page)
 			return;
 
+		gui_lock_acquire();
 
 		uint8_t last_page = local->actual_page;
 		local->actual_page = i;
@@ -132,12 +165,39 @@ void gui_page_set_mode(cfg_entry_t * cfg)
 			anim = (last_page >local->actual_page) ? PAGE_ANIM_FROM_LEFT : PAGE_ANIM_FROM_RIGHT;
 		}
 
+		local->state = MENU_IDLE;
+		local->active_widget = NULL;
+		page_focus_widget(NULL);
+
 		pages_load((char *)pages_get_name(local->actual_page), anim);
+
+
+		char * label = NULL;
+		if (cfg == &profile.ui.autoset.take_off)
+			label = "Take off";
+		else if (cfg == &profile.ui.autoset.circle)
+			label = "Circling";
+		else if (cfg == &profile.ui.autoset.glide)
+			label = "Glide";
+		else if (cfg == &profile.ui.autoset.land)
+			label = "Landing";
+		else if (cfg == &profile.ui.autoset.power_on)
+			label = "Power on";
+
+
+		if (label != NULL)
+		{
+			lv_label_set_text(local->label, label);
+			lv_obj_fade_in(local->label, GUI_INDICATOR_ANIM, 0);
+			lv_obj_fade_out(local->label, GUI_INDICATOR_ANIM, GUI_LABEL_DELAY);
+		}
 
 		gui_lock_release();
 	}
 	else
 	{
+		INFO("Switching to page '%s' pasive", name);
+
 		config_set_int(&profile.ui.page_last, i);
 	}
 }
@@ -175,86 +235,101 @@ void pages_splash_anim_cb(void * obj, lv_anim_value_t val)
 	local->mask_param = lv_objmask_add_mask(local->mask, &mask_param);
 }
 
-void page_focus_widget(lv_obj_t * obj)
+void pages_anim_menu_in_cb(lv_anim_t * a)
 {
-    if (local->selector != NULL)
-    {
-        lv_obj_del(local->selector);
-        local->selector = NULL;
-    }
-
-    if (obj != NULL)
-    {
-        local->selector = lv_obj_create(obj, NULL);
-
-        lv_coord_t w = lv_obj_get_width(obj);
-        lv_coord_t h = lv_obj_get_height(obj);
-
-        lv_obj_set_pos(local->selector, 0, 0);
-        lv_obj_set_size(local->selector, w, h);
-
-        lv_obj_set_style_local_bg_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
-        lv_obj_set_style_local_border_width(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
-        lv_obj_set_style_local_border_color(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLUE);
-        lv_obj_set_style_local_border_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
-
-        lv_obj_move_foreground(obj);
-    }
+	local->state = MENU_SHOW;
+	local->timer = HAL_GetTick() + MENU_TIMEOUT;
+	return;
 }
 
 void pages_menu_show()
 {
-    lv_obj_set_hidden(local->butt_power, false);
-	lv_anim_set_time(&local->anim, MENU_ANIM_TIME);
-	lv_anim_set_exec_cb(&local->anim, pages_menu_anim_cb);
-	lv_anim_set_values(&local->anim, 0, MENU_WIDTH);
-	lv_anim_start(&local->anim);
+	lv_anim_t a;
+	lv_anim_init(&a);
+	lv_anim_set_ready_cb(&a, pages_anim_menu_in_cb);
+
+	lv_obj_set_hidden(local->butt_power, false);
+	lv_anim_set_time(&a, MENU_ANIM_TIME);
+	lv_anim_set_exec_cb(&a, pages_menu_anim_cb);
+	lv_anim_set_values(&a, 0, MENU_WIDTH);
+	lv_anim_start(&a);
 	local->state = MENU_IN;
+}
+
+void pages_anim_menu_out_cb(lv_anim_t * a)
+{
+	local->state = MENU_IDLE;
 }
 
 void pages_menu_hide()
 {
-	lv_anim_set_time(&local->anim, MENU_ANIM_TIME);
-	lv_anim_set_exec_cb(&local->anim, pages_menu_anim_cb);
-	lv_anim_set_values(&local->anim, MENU_WIDTH, 0);
-	lv_anim_start(&local->anim);
+	lv_anim_t a;
+	lv_anim_init(&a);
+	lv_anim_set_ready_cb(&a, pages_anim_menu_out_cb);
+
+	lv_anim_set_time(&a, MENU_ANIM_TIME);
+	lv_anim_set_exec_cb(&a, pages_menu_anim_cb);
+	lv_anim_set_values(&a, MENU_WIDTH, 0);
+	lv_anim_start(&a);
 	local->state = MENU_OUT;
 }
 
+void pages_anim_splash_in_cb(lv_anim_t * a)
+{
+	if (local->mask_param != NULL)
+	{
+		lv_objmask_remove_mask(local->mask, local->mask_param);
+		local->mask_param = NULL;
+	}
+
+	local->state = MENU_IDLE;
+}
+
+
 void pages_splash_show()
 {
-	lv_anim_set_time(&local->anim, SPLASH_ANIM_TIME);
-	lv_anim_set_exec_cb(&local->anim, pages_splash_anim_cb);
+	lv_anim_t a;
+	lv_anim_init(&a);
+	lv_anim_set_ready_cb(&a, pages_anim_splash_in_cb);
 
-	lv_anim_set_values(&local->anim, lv_obj_get_height(local->mask) / 2, 0);
+	lv_anim_set_time(&a, SPLASH_ANIM_TIME);
+	lv_anim_set_exec_cb(&a, pages_splash_anim_cb);
+
+	lv_anim_set_values(&a, lv_obj_get_height(local->mask) / 2, 0);
 	local->mask_param = NULL;
 
-	lv_anim_start(&local->anim);
+	lv_anim_start(&a);
 	local->state = SPLASH_IN;
 
-	if (file_exists(PATH_NEW_FW))
+	config_new_version_cb();
+}
+
+void pages_anim_splash_out_cb(lv_anim_t * a)
+{
+	if (local->mask_param != NULL)
 	{
-		f_unlink(PATH_NEW_FW);
-
-		gui_show_release_note();
-
-	    if (bootloader_update(PATH_BL_FW_AUTO) == bl_update_ok)
-	    {
-	        statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
-	    }
-	    f_unlink(PATH_BL_FW_AUTO);
+		lv_objmask_remove_mask(local->mask, local->mask_param);
+		local->mask_param = NULL;
 	}
+
+	pages_stop();
+	gui_stop();
+	system_poweroff();
 }
 
 void pages_splash_hide()
 {
-	lv_anim_set_time(&local->anim, SPLASH_ANIM_TIME);
-	lv_anim_set_exec_cb(&local->anim, pages_splash_anim_cb);
+	lv_anim_t a;
+	lv_anim_init(&a);
+	lv_anim_set_ready_cb(&a, pages_anim_splash_out_cb);
 
-	lv_anim_set_values(&local->anim, 0, lv_obj_get_height(local->mask) / 2);
+	lv_anim_set_time(&a, SPLASH_ANIM_TIME);
+	lv_anim_set_exec_cb(&a, pages_splash_anim_cb);
+
+	lv_anim_set_values(&a, 0, lv_obj_get_height(local->mask) / 2);
 	local->mask_param = NULL;
 
-	lv_anim_start(&local->anim);
+	lv_anim_start(&a);
 	local->state = SPLASH_OUT;
 
 	led_set_backlight(0);
@@ -278,59 +353,20 @@ void pages_indicator_show()
 	lv_obj_fade_out(local->indicator, GUI_INDICATOR_ANIM, GUI_INDICATOR_DELAY);
 }
 
-void pages_anim_ready_cb(lv_anim_t * a)
+
+void pages_anim_page_switch_cb(lv_anim_t * a)
 {
-	(void)a;
-
-	if (local->state == MENU_IN)
+	if (local->page_old != NULL)
 	{
-		local->state = MENU_SHOW;
-		local->timer = HAL_GetTick() + MENU_TIMEOUT;
-		return;
+		widgets_deinit_page(local->page_old);
+
+		lv_obj_del(local->page_old->base);
+		free(local->page_old);
+		local->page_old = NULL;
 	}
-
-	if (local->state == SPLASH_IN)
-	{
-		if (local->mask_param != NULL)
-			lv_objmask_remove_mask(local->mask, local->mask_param);
-
-		local->state = MENU_IDLE;
-		return;
-	}
-
-	if (local->state == SPLASH_OUT)
-	{
-		if (local->mask_param != NULL)
-			lv_objmask_remove_mask(local->mask, local->mask_param);
-
-		pages_stop();
-		gui_stop();
-		system_poweroff();
-
-		return;
-	}
-
-	if (local->state == MENU_OUT)
-	{
-		local->state = MENU_IDLE;
-		return;
-	}
-
-	if (local->state == PAGE_SWITCH_LEFT || local->state == PAGE_SWITCH_RIGHT)
-	{
-		if (local->page_old != NULL)
-		{
-			widgets_deinit_page(local->page_old);
-
-			lv_obj_del(local->page_old->base);
-			free(local->page_old);
-			local->page_old = NULL;
-		}
-		local->state = MENU_IDLE;
-
-		return;
-	}
+	local->state = MENU_IDLE;
 }
+
 
 void pages_power_off()
 {
@@ -386,9 +422,6 @@ void pages_create_menu(lv_obj_t * base)
 	local->butt_power = lv_label_create(local->center_menu, NULL);
 	lv_label_set_text(local->butt_power, LV_SYMBOL_POWER);
 
-	lv_anim_init(&local->anim);
-	lv_anim_set_ready_cb(&local->anim, pages_anim_ready_cb);
-
 	local->indicator = lv_cont_create(base, NULL);
 	lv_obj_set_style_local_bg_opa(local->indicator, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
 	lv_obj_set_style_local_pad_hor(local->indicator, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, GUI_INDICATOR_HEIGHT);
@@ -410,8 +443,17 @@ void pages_create_menu(lv_obj_t * base)
 
 	lv_obj_align(local->indicator, NULL, LV_ALIGN_OUT_TOP_MID, 0, GUI_INDICATOR_Y_POS);
 
-	local->state = MENU_IDLE;
+	local->label = lv_label_create(base, NULL);
+	lv_obj_align(local->label, local->indicator, LV_ALIGN_OUT_BOTTOM_MID, 0, 20);
+	lv_obj_set_style_local_bg_color(local->label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	lv_obj_set_style_local_bg_opa(local->label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_80);
+	lv_obj_set_style_local_text_color(local->label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_obj_set_style_local_radius(local->label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 10);
+	lv_obj_set_style_local_pad_all(local->label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 10);
+	lv_obj_set_auto_realign(local->label, true);
+	lv_obj_set_style_local_opa_scale(local->label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
 
+	local->state = MENU_IDLE;
 }
 
 void pages_lock_reset()
@@ -443,7 +485,7 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
                 local->pwr_off_button_cnt++;
                 if (local->pwr_off_button_cnt > 2)
                     lv_obj_set_hidden(local->butt_power, local->pwr_off_button_cnt % 2);
-                if (local->pwr_off_button_cnt > 20)
+                if (local->pwr_off_button_cnt > 15)
                     pages_power_off();
             }
         }
@@ -625,9 +667,13 @@ void pages_load(char * filename, int8_t anim)
 	if (anim != PAGE_ANIM_NONE)
 	{
 		//create anim
-		lv_anim_set_values(&local->anim, LV_HOR_RES * anim, 0);
-		lv_anim_set_exec_cb(&local->anim, pages_switch_anim_cb);
-		lv_anim_start(&local->anim);
+		lv_anim_t a;
+		lv_anim_init(&a);
+		lv_anim_set_ready_cb(&a, pages_anim_page_switch_cb);
+
+		lv_anim_set_values(&a, LV_HOR_RES * anim, 0);
+		lv_anim_set_exec_cb(&a, pages_switch_anim_cb);
+		lv_anim_start(&a);
 		if (anim == PAGE_ANIM_FROM_LEFT)
 			local->state = PAGE_SWITCH_LEFT;
 		else
@@ -699,8 +745,14 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 		copy_dir(def, path);
 
 		//set default pages
-        config_set_text(&profile.ui.page[0], "default");
-        local->pages_cnt = 1;
+        config_set_text(&profile.ui.page[0], "basic");
+        config_set_text(&profile.ui.page[1], "thermal");
+
+        config_set_text(&profile.ui.autoset.take_off, "basic");
+        config_set_text(&profile.ui.autoset.circle, "thermal");
+        config_set_text(&profile.ui.autoset.glide, "basic");
+
+        local->pages_cnt = pages_get_count();
 	}
 
 	local->actual_page = config_get_int(&profile.ui.page_last);

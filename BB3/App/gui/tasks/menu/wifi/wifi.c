@@ -46,9 +46,9 @@ static lv_obj_t * wifi_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "WiFi settings", &gui_settings, wifi_cb);
 
-	gui_list_auto_entry(list, "Enable",	&config.wifi.enabled, NULL);
+	gui_list_auto_entry(list, "Enable",	&profile.wifi.enabled, NULL);
     local->network = gui_list_info_add_entry(list, "WiFi network", "");
-	gui_list_auto_entry(list, "Access point", &config.wifi.ap, NULL);
+	gui_list_auto_entry(list, "Access point", &profile.wifi.ap, NULL);
 	gui_list_auto_entry(list, "Device name", &config.device_name, NULL);
 	gui_list_auto_entry(list, "AP password", &config.wifi.ap_pass, NULL);
     gui_list_auto_entry(list, "Network info", NEXT_TASK, &gui_wifi_info);

@@ -154,7 +154,7 @@ assets_dir = os.path.join(local_dir, "assets")
 
 #constants
 step = 1
-split = 8
+split = 16
 GPS_COORD_MUL = 10000000
 
 overpass_read_chunk_size = 4096

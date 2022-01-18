@@ -30,6 +30,7 @@ void led_init()
 
     HAL_TIM_Base_Start_IT(disp_timer);
     HAL_TIM_PWM_Start(disp_timer, led_bclk);
+    __HAL_TIM_SET_COMPARE(disp_timer, led_bclk, led_bckl_actual / 128);
 }
 
 void led_set_backlight(uint8_t val)

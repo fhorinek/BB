@@ -16,6 +16,7 @@
 
 static SemaphoreHandle_t spi_buffer_access;
 static SemaphoreHandle_t spi_prepare_semaphore;
+static SemaphoreHandle_t spi_ready_semaphore;
 
 static uint16_t spi_data_to_send;
 
@@ -48,7 +49,8 @@ void spi_setup_cb(spi_slave_transaction_t *trans)
 {
 //    DBG("spi_setup_cb: Buffer ready");
 
-    protocol_send_spi_ready(spi_data_to_send);
+	xSemaphoreGive(spi_ready_semaphore);
+//    protocol_send_spi_ready(spi_data_to_send);
 }
 
 void spi_trans_cb(spi_slave_transaction_t *trans)
@@ -121,6 +123,17 @@ void spi_parse(uint8_t * data, uint16_t len)
 	}
 }
 
+
+void spi_task_proto(void *pvParameters)
+{
+	while(1)
+	{
+		xSemaphoreTake(spi_ready_semaphore, WAIT_INF);
+		protocol_send_spi_ready(spi_data_to_send);
+		DBG("spi_task_proto: spi ready");
+	}
+}
+
 void spi_task(void *pvParameters)
 {
     while(1)
@@ -159,6 +172,7 @@ void spi_init()
 {
     spi_buffer_access = xSemaphoreCreateBinary();
     spi_prepare_semaphore = xSemaphoreCreateBinary();
+    spi_ready_semaphore = xSemaphoreCreateBinary();
 
     xSemaphoreGive(spi_buffer_access);
 
@@ -183,11 +197,13 @@ void spi_init()
     };
 
     //Initialize SPI slave interface
+
     uint8_t ret = spi_slave_initialize(SPI_PORT, &buscfg, &slvcfg, SPI_DMA_CHAN);
     assert(ret == ESP_OK);
 
     //create spi task
     xTaskCreate(spi_task, "spi_task", 512 * 4, NULL, 17, NULL);
+    xTaskCreate(spi_task_proto, "spi_task_proto", 512 * 4, NULL, 17, NULL);
 }
 
 

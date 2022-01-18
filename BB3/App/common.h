@@ -82,6 +82,12 @@ typedef struct
 
 typedef struct
 {
+    float X;
+    float Y;
+} vector_2d_float_t;
+
+typedef struct
+{
     float x;
     float y;
     float z;
@@ -103,7 +109,7 @@ typedef struct
   uint32_t r3;
   uint32_t r12;
   uint32_t lr;
-  uint32_t sp;
+  uint32_t pc;
   uint32_t xpsr;
 } context_frame_t;
 
@@ -185,9 +191,11 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
+#define PATH_COREDUMP       PATH_SYSTEM_DIR "/coredump_stm.bin"
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
 
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
+#define PATH_DEFAULTS_DIR   PATH_ASSET_DIR "/defaults"
 #define PATH_LOGS_DIR       "logs"
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
 #define PATH_BL_FW_AUTO     PATH_ASSET_DIR "/bootloader.fw"
@@ -246,6 +254,7 @@ void clear_dir(char * path);
 void remove_dir(char * path);
 bool copy_file(char * src, char * dst);
 void copy_dir(char * src, char * dst);
+void copy_dir_when_absent(char * src, char * dst);
 
 bool read_value(char * data, char * key, char * value, uint16_t value_len);
 

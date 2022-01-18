@@ -40,7 +40,7 @@ void pipe_output_init()
         source_information[i] = source_info;
 
     source_info_init(pipes.output.mix, source_information);
-    downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_ONE_CHANNEL);
+    downmix_set_output_type(pipes.output.mix, ESP_DOWNMIX_OUTPUT_TYPE_TWO_CHANNEL);
     downmix_set_work_mode(pipes.output.mix, ESP_DOWNMIX_WORK_MODE_SWITCH_ON);
 
     //Create i2s output
@@ -49,12 +49,13 @@ void pipe_output_init()
             .i2s_config = {
                 .mode = I2S_MODE_MASTER | I2S_MODE_TX,
                 .sample_rate = OUTPUT_SAMPLERATE,
+//                .bits_per_sample = I2S_BITS_PER_SAMPLE_8BIT,
                 .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-                .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+                .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
                 .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                 .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
-                .dma_buf_count = 9,
-                .dma_buf_len = 300,
+                .dma_buf_count = 3,
+                .dma_buf_len = 1024,
                 .use_apll = false,
                 .tx_desc_auto_clear = true,
                 .fixed_mclk = 0
@@ -85,5 +86,15 @@ void pipe_output_init()
 
     print_free_memory("audio_pipeline_link");
     audio_pipeline_run(pipes.output.pipe);
+}
+
+void pipe_output_set_volume(uint8_t ch, uint8_t volume)
+{
+	float gain[2];
+
+	gain[0] = (volume / 2) - 50;
+	gain[1] = gain[0];
+
+	downmix_set_gain_info(pipes.output.mix, gain, ch);
 }
 

@@ -44,10 +44,10 @@ uint8_t rev_get_hw()
         uint8_t val_up, val_down;
 
         GpioSetDirection(REV_0, INPUT, GPIO_PULLUP);
-        osDelay(10);
+        HAL_Delay(10);
         val_up = GpioRead(REV_0);
         GpioSetDirection(REV_0, INPUT, GPIO_PULLDOWN);
-        osDelay(10);
+        HAL_Delay(10);
         val_down = GpioRead(REV_0);
 
         if (val_up != val_down)
@@ -60,10 +60,10 @@ uint8_t rev_get_hw()
         }
 
         GpioSetDirection(REV_1, INPUT, GPIO_PULLUP);
-        osDelay(10);
+        HAL_Delay(10);
         val_up = GpioRead(REV_1);
         GpioSetDirection(REV_1, INPUT, GPIO_PULLDOWN);
-        osDelay(10);
+        HAL_Delay(10);
         val_down = GpioRead(REV_1);
 
         if (val_up != val_down)

@@ -24,7 +24,7 @@ bool gnss_rmc_msg(char * buff, uint16_t len)
 	datetime_from_epoch(fc.gnss.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 	year = min(year - 2000, 99);
 
-	char tmp[80];
+	char tmp[128];
 
 	char slat[16], clat, slon[16], clon;
 
@@ -63,7 +63,7 @@ bool gnss_gga_msg(char * buff, uint16_t len)
 
 	time_from_epoch(fc.gnss.utc_time, &sec, &min, &hour);
 
-	char tmp[80];
+	char tmp[128];
 
 	char slat[16], clat, slon[16], clon;
 

@@ -1,4 +1,27 @@
-# 16.11.2021 - Build 
+# 17.12.2021 - Build 207
+##Added
+ * Thermal assistant, Thermal gain, Thermal time
+ * Smart page switching (power on, take off, glide, circle, land)
+ * Glide widget can displey Avg vario in climb
+ * FANET+ auto update
+ * SkyDrop audio profile
+ * Long press to power off, irq driven button events
+ * Debug via usb
+ * LVGL memory monitor, GNSS spoofing via internal UART
+
+##Fixes
+ * BLE not turning on
+ * Better keyboard
+ * bugs in profiles
+ * 10% backlight issue #132
+ * Unaligned fault error when connecting to the strato web server on V177 #125
+ * Audio pipeline changed from mono to stereo to enhance performance of ESP
+ * Task debug for esp and stm
+ * Added link key when pairing BLE
+ * GNSS forwarding
+
+
+# 16.11.2021 - Build 177
 ## Added
  * New layout editor
  * Widget options
