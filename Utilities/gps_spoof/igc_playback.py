@@ -286,7 +286,10 @@ class GPS_Spoof(object):
         self.speed = 0
         self.vario = 0
         
-        self.port = serial.Serial(port, 921600)
+        try:
+            self.port = serial.Serial(port, 921600)
+        except:
+            self.port = False
         
     def run(self):
         while not self.done:
@@ -317,14 +320,13 @@ class GPS_Spoof(object):
         
         self.last_point = point
         
-        data = struct.pack("<lllffff", int(time), int(latitude * GNSS_MUL), int(longitude * GNSS_MUL),
-                                                self.speed, self.heading, self.vario, self.altitiude)
-
-        data += struct.pack("<L", zlib.crc32(data))
-        #for c in data:
-        #    print("%02X " % c, end="")
-        #print()
-        self.port.write(b'f' + data)
+        if self.port is not False:
+    
+            data = struct.pack("<lllffff", int(time), int(latitude * GNSS_MUL), int(longitude * GNSS_MUL),
+                                                    self.speed, self.heading, self.vario, self.altitiude)
+    
+            data += struct.pack("<L", zlib.crc32(data))
+            self.port.write(b'f' + data)
         
 
     def event(self):
