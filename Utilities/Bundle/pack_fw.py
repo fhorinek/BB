@@ -1,4 +1,17 @@
 #!/usr/bin/python3
+#
+# This program combines all parts of the Strato firmware into
+# "strato.fw" and copies it to Utilities/Bundle/bundle/ into a
+# directory with the build number.
+#
+# This script is used after compiling the parts to create the final
+# firmware file.
+#
+# Use the option "--release" to create an official release. This will 
+# use "git add" and "git commit" to create a git release entry.
+#
+# Use the option "--ch" to specify prefix ("R", "T", or "D").
+#
 
 import sys
 import random
@@ -6,7 +19,7 @@ import struct
 import zlib
 import os
 import shutil
-
+import argparse
 
 name_max_len = 32
 
@@ -110,7 +123,12 @@ def add_files(path, level):
         add_files(chunk, level + 1)
 
             
-
+parser = argparse.ArgumentParser(description='Pack parts to create a Strato firmware.')
+parser.add_argument("-r", "--release",
+                    help="Create an official firmware release",
+                    action="store_true")
+parser.add_argument("--ch", default="D", choices=['R', 'T', 'D'])
+args = parser.parse_args()
 
 #STM firmware
 chunks.append(read_chunk(stm_bin_file, 0x0))
@@ -146,14 +164,7 @@ build_number += 1
 
 open("build_number", "w").write("%u" % build_number)
 
-if len(sys.argv) == 2:
-    ch = sys.argv[1]
-    if ch not in ["R", "T", "D"]:
-        ch = "D"
-else:
-    ch = "D"
-    
-build = build_number | ord(ch) << 24
+build = build_number | ord(args.ch) << 24
 
 number_of_records = len(chunks)
 
@@ -178,7 +189,7 @@ for c in chunks:
 
 f.close()
 
-build = "%c%07u" % (ch, build_number)
+build = "%c%07u" % (args.ch, build_number)
 folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
     
 os.mkdir(folder)
@@ -187,8 +198,10 @@ shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
 shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
 shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
 
-os.system("git add -A")
-os.system("git commit -m \"Snapshot build %s\"" % build)
+if args.release:
+    print("Creating Snapshot Build %s" % build)
+    os.system("git add -A")
+    os.system("git commit -m \"Snapshot build %s\"" % build)
 
 print("Done")
 
