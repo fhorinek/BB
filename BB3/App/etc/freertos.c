@@ -5,6 +5,7 @@
  *      Author: horinek
  */
 #include "common.h"
+#include "system/bsod.h"
 
 uint16_t rtos_counter = 0;
 
@@ -24,8 +25,7 @@ unsigned long getRunTimeCounterValue(void)
     return cnt;
 }
 
-//void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
-//{
-//    FAULT("RTOS Task '%s' stack overflow!", pcTaskName);
-//    Error_Handler();
-//}
+void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
+{
+    bsod_msg("RTOS Task '%s' stack overflow!", pcTaskName);
+}
