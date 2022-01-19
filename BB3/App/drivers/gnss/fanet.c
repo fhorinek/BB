@@ -23,7 +23,7 @@ static uint32_t fanet_start_time = 0;
 static uint32_t fanet_next_transmit_tracking = 0;
 static uint32_t fanet_next_transmit_name = 0;
 static uint16_t fanet_read_index = 0;
-static bool fanet_need_update = false;
+bool fanet_need_update = false;
 osSemaphoreId fanet_tx_lock = NULL;
 
 void fanet_start_dma()
