@@ -89,9 +89,7 @@ Use "Build" on the project using the associated IDE to build the
 changed parts.
 
 Finally go to "Utilities/Bundle/" and execute `./pack_fw.py` which
-will take the above two parts and merge them into "strato.fw". Please
-note, that this will also call `git add -A` and `git commit` which may
-not be wanted. This will probably be changed in a future release.
+will take the above two parts and merge them into "strato.fw".
 
 Follow instructions in manual on copying this to strato and do the
 final update.
