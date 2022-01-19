@@ -1,3 +1,28 @@
+# 19.1.2021 - Build 230
+##Added
+ * New wind estimation calculation
+ * New thermal assistant by Igor Popik
+ * Firmware channels separation (release, testing, devel)
+ * Individual volume control for Vario, A2DP and sounds
+ * FANET+ firmware update to 20220113174
+
+##Fixes
+ * Strato will show passphrase if the phone wrongly interpret strato I/O cap
+
+## Known Issues
+ * GNSS forwarding can crash the device (INVSTATE) in flight, it is recomended to turn it off
+ 
+## Development
+ * ESP-IDF switched to stable branch v4.3
+ * ESP-ADF switched to stable branch v2.3
+ * both provided with patched code from https://strato.skybean.eu/dev/esp.zip
+ * New igc simulator for strato
+
+
+# 22.12.2021 - Build 208
+##Fixes
+ * In some cases Page switching caused crash at boot
+
 # 17.12.2021 - Build 207
 ##Added
  * Thermal assistant, Thermal gain, Thermal time

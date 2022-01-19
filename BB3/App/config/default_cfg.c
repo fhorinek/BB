@@ -329,11 +329,11 @@ flight_profile_t profile =
 	//audio
 	{
 		//a2dp_volume
-		entry_int("a2dp_volume", 75, 0, 100),
+		entry_int("a2dp_volume", 100, 0, 100),
 		//sound_volume
-		entry_int("sound_volume", 75, 0, 100),
+		entry_int("sound_volume", 100, 0, 100),
 		//vario_volume
-		entry_int("vario_volume", 75, 0, 100),
+		entry_int("vario_volume", 100, 0, 100),
 		//master_volume
 		entry_int("master_volume", 75, 0, 100),
 		//tts_alerts

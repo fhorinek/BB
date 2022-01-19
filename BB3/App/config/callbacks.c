@@ -201,9 +201,7 @@ void config_process_cb(cfg_entry_t * entry)
     }
 
     //update gui
-    gui_lock_acquire();
     gui_config_config_cb(entry);
-    gui_lock_release();
 
     config_changed = true;
 }

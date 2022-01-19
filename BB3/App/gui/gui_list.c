@@ -796,6 +796,11 @@ void gui_config_config_cb(cfg_entry_t * entry)
 		return;
 
 	config_entry_ll_t * e = gui_config_entry_find_by_entry(entry);
+
 	if (e != NULL)
+	{
+	    gui_lock_acquire();
 		gui_config_entry_refresh(e->obj, entry, e->params);
+	    gui_lock_release();
+	}
 }

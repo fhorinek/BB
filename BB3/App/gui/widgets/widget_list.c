@@ -35,7 +35,8 @@ DECLARE_WIDGET(DToff);
 DECLARE_WIDGET(HdgToff);
 DECLARE_WIDGET(WindDir);
 DECLARE_WIDGET(WindSpd);
-DECLARE_WIDGET(TDots);
+DECLARE_WIDGET(TTrace);
+DECLARE_WIDGET(WindDirPoints);
 
 widget_t * widgets[] =
 {
@@ -59,6 +60,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(Battery),
 	LIST_WIDGET(Odo),
 	LIST_WIDGET(Acc),
+    LIST_WIDGET(TTrace),
     LIST_WIDGET(TAss),
     LIST_WIDGET(TTime),
     LIST_WIDGET(TGain),
@@ -66,7 +68,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(HdgToff),
 	LIST_WIDGET(WindDir),
     LIST_WIDGET(WindSpd),
-  	LIST_WIDGET(TDots),
+    LIST_WIDGET(WindDirPoints),
 
 //    LIST_WIDGET(Map),
 };

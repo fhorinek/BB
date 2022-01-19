@@ -185,6 +185,7 @@ void cmd_step()
                     fc.gnss.fix = 3;
                     fc.gnss.new_sample = 0xFF;
                     fc.gnss.utc_time = data.time;
+                    fc.gnss.altitude_above_ellipsiod = data.altitude;
 
                     fc.fused.fake = true;
                     fc.fused.vario = data.vario;
