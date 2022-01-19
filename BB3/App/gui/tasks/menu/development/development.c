@@ -124,6 +124,21 @@ static bool development_clear_debug_file_cb(lv_obj_t * obj, lv_event_t event)
 	return true;
 }
 
+extern bool fanet_need_update;
+static bool fanet_force_update_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        INFO("FANET force update");
+        fanet_need_update = true;
+        fc.fanet.status = fc_dev_init;
+
+        //reset module
+        fanet_enable();
+    }
+
+    return true;
+}
 
 static lv_obj_t * development_init(lv_obj_t * par)
 {
@@ -147,6 +162,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Clear debug.log", CUSTOM_CB, development_clear_debug_file_cb);
     gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
+    gui_list_auto_entry(list, "FANET force update", CUSTOM_CB, fanet_force_update_cb);
 
 	return list;
 }

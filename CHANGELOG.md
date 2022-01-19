@@ -5,6 +5,7 @@
  * Firmware channels separation (release, testing, devel)
  * Individual volume control for Vario, A2DP and sounds
  * FANET+ firmware update to 20220113174
+ * Direction and distance from Take off
 
 ##Fixes
  * Strato will show passphrase if the phone wrongly interpret strato I/O cap
