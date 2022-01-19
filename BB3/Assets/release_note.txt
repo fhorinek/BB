@@ -1,9 +1,14 @@
-Topic: Minor fixes
-
 Added:
-- Firmware channels
+- Wind estimation
+- New thermal assistant
+- Volume control
+- FANET/FLARM update
+- Firmware channels 
 
 Fixes:
 - Bluetooth pairing
 
+Known Issues:
+- BT GNSS forwarding
 
+PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT

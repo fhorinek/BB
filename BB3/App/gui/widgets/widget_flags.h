@@ -23,6 +23,7 @@ typedef enum
 	wf_decimal_precision,
     wf_alt_unit,
     wf_glide_show_avg_vario,
+    wf_no_rotate,
 
 	wf_def_size
 }  widget_flags_id_t;

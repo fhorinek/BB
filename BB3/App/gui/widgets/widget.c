@@ -15,6 +15,7 @@ widget_flag_def_t widgets_flags[] = {
     {'D', LV_SYMBOL_EYE_CLOSE " Decimals hidden", LV_SYMBOL_EYE_OPEN " Decimals visible", NULL},
     {'A', "Alternative units", "Default units", NULL},
     {'V', "Avg. vario on climb", "Empty on climb", NULL},
+    {'R', "North is up", "Adjust to heading", NULL},
 };
 
 
@@ -221,21 +222,28 @@ void widget_update_font_size_box(lv_obj_t * label, lv_coord_t w, lv_coord_t h)
     uint8_t symbol = 0;
     uint8_t lines = 1;
 
-    for (uint8_t j = 0; j < len; j++)
+    if (strcmp(ext->text, "---") == 0)
     {
-        char c = ext->text[j];
-        if (c == '\n')
-            lines++;
-        else if (ISDIGIT(c))
-            nums++;
-        else if (c == '.' || c == ',' || c == ':'  || c == ' ')
-            dots++;
-        else if (c == '-' || c == '+')
-            signs++;
-        else if (ISALPHA(c))
-            chars++;
-        else
-            symbol++;
+        signs = 6;
+    }
+    else
+    {
+        for (uint8_t j = 0; j < len; j++)
+        {
+            char c = ext->text[j];
+            if (c == '\n')
+                lines++;
+            else if (ISDIGIT(c))
+                nums++;
+            else if (c == '.' || c == ',' || c == ':'  || c == ' ')
+                dots++;
+            else if (c == '-' || c == '+')
+                signs++;
+            else if (ISALPHA(c))
+                chars++;
+            else
+                symbol++;
+        }
     }
 
 	uint8_t i = 0;

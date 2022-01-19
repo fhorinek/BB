@@ -132,7 +132,7 @@ void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * s
     *step_y_m = step_y * 111000 / GNSS_MUL;
 }
 
-void geo_destination(float lat1, float lon1, float angle, float distance_km, float * lat2, float * lon2)
+void geo_destination_f(float lat1, float lon1, float angle, float distance_km, float * lat2, float * lon2)
 {
 	angle = to_radians(angle);
 	float dx = sin(angle) * distance_km;
@@ -144,6 +144,20 @@ void geo_destination(float lat1, float lon1, float angle, float distance_km, flo
 	*lon2 = lon1 + dx / kx;
 	*lat2 = lat1 + dy / ky;
 }
+
+void geo_destination(int32_t lat1, int32_t lon1, float angle, float distance_km, int32_t * lat2, int32_t * lon2)
+{
+    angle = to_radians(angle);
+    float dx = sin(angle) * distance_km;
+    float dy = cos(angle) * distance_km;
+
+    float kx, ky;
+    get_kx_ky(lat1 / GNSS_MUL, &kx, &ky);
+
+    *lon2 = lon1 + (dx / kx) * GNSS_MUL;
+    *lat2 = lat1 + (dy / ky) * GNSS_MUL;
+}
+
 
 /**
  * Compute the distance between two GPS points in 2 dimensions

@@ -24,7 +24,7 @@ static lv_obj_t * audio_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Vario volume", &profile.audio.vario_volume, &vol_opt);
 	gui_list_auto_entry(list, "Sound volume", &profile.audio.sound_volume, &vol_opt);
 	gui_list_auto_entry(list, "Bluetooth volume", &profile.audio.a2dp_volume, &vol_opt);
-	gui_list_auto_entry(list, "TTS alerts", &profile.audio.tts_alerts, NULL);
+//	gui_list_auto_entry(list, "TTS alerts", &profile.audio.tts_alerts, NULL);
 
 	return list;
 }

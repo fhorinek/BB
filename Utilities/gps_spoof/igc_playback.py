@@ -134,22 +134,21 @@ class GPS_Spoof(object):
                 continue
             #print(f)
             
-            lon = f[7:15]
-            lat = f[15:24]
+            lat = f[7:15]
+            lon = f[15:24]
             alt = f[25:30]
             
-            lon_deg = int(lon[:2])
-            lon_m = int(lon[2:][:-1]) / 60000.0
+            lat_deg = int(lat[:2])
+            lat_m = int(lat[2:][:-1]) / 60000.0
 
-            lon = (lon_deg + lon_m) * (-1.0 if lat[-1] == 'S' else 1.0)
+            lat = (lat_deg + lat_m) * (-1.0 if lat[-1] == 'S' else 1.0)
             
-            lat_deg = int(lat[:3])
-            lat_m = float(lat[3:][:-1]) / 60000.0
+            lon_deg = int(lon[:3])
+            lon_m = float(lon[3:][:-1]) / 60000.0
             
-            lat = (lat_deg + lat_m) * (-1.0 if lat[-1] == 'W' else 1.0)
+            lon = (lon_deg + lon_m) * (-1.0 if lon[-1] == 'W' else 1.0)
 
             alt = int(alt)
-            
             
             if last_point:
                 olatitude, olongitude, oalt, __, __, __ = last_point
@@ -167,8 +166,8 @@ class GPS_Spoof(object):
                 speed = d
     
                 #hdg
-                dx = lat - olatitude
-                dy = lon - olongitude
+                dx = lon - olongitude
+                dy = lat - olatitude
                 
                 heading = math.degrees(math.atan2(dx, dy))
                 if heading < 0:
@@ -195,7 +194,7 @@ class GPS_Spoof(object):
         self.lon_center = (lon_max + lon_min) / 2
    
    
-    def fake_igc(self, circles, samples, wind_x, wind_y):
+    def fake_igc(self, circles, samples, wind_x, wind_y, vario):
         
         lat_min = 99
         lat_max = -lat_min
@@ -215,6 +214,7 @@ class GPS_Spoof(object):
         
         x_off = 0   
         y_off = 0
+        a_off = 0
                 
         for i in range(circles):
             for j in range(samples):
@@ -226,7 +226,8 @@ class GPS_Spoof(object):
                 y_off += wind_y
                 
                 lat, lon = self.pix_to_geo(x, y)
-                alt = 0
+                alt = a_off
+                a_off += vario
             
                 if last_point:
                     olatitude, olongitude, oalt, __, __, __ = last_point
@@ -244,18 +245,16 @@ class GPS_Spoof(object):
                     speed = d
         
                     #hdg
-                    dx = lat - olatitude
-                    dy = lon - olongitude
+                    dx = lon - olongitude
+                    dy = lat - olatitude
                     
                     heading = math.degrees(math.atan2(dx, dy))
                     if heading < 0:
                         heading += 360
                         
-                    vario = alt - oalt
                 else:
                     heading = 0
                     speed = 0
-                    vario = 0            
                 
                 point = (lat, lon, alt, heading, speed, vario)
                 
@@ -428,14 +427,14 @@ class GPS_Spoof(object):
 
         map_w = self.win_size[0] * step_x
         map_h = self.win_size[1] * step_y
-        lat1 = self.lat_center - map_w / 2
-        lon1 = self.lon_center + map_h / 2
+        lon1 = self.lon_center - map_w / 2
+        lat1 = self.lat_center + map_h / 2
 
-        d_lat = lat - lat1
-        d_lon = lon1 - lon
+        d_lat = lat1 - lat
+        d_lon = lon - lon1
 
-        y =	int(d_lon / step_y)
-        x = int(d_lat / step_x)
+        x =	int(d_lon / step_x)
+        y = int(d_lat / step_y)
 
         return x, y 
         
@@ -446,14 +445,14 @@ class GPS_Spoof(object):
 
         map_w = self.win_size[0] * step_x
         map_h = self.win_size[1] * step_y
-        lat1 = self.lat_center - map_w / 2
-        lon1 = self.lon_center + map_h / 2
+        lon1 = self.lon_center - map_w / 2
+        lat1 = self.lat_center + map_h / 2
 
-        d_lon = y * step_y
-        d_lat = x * step_x
+        d_lat = y * step_y
+        d_lon = x * step_x
 
-        lat = d_lat + lat1 
-        lon = lon1 - d_lon
+        lon = d_lon + lon1
+        lat = lat1 - d_lat 
 
         return lat, lon 
                 
@@ -524,9 +523,9 @@ class GPS_Spoof(object):
         spd_acc = [0] * sector_cnt
         cnt = [0] * sector_cnt
         
-        max_fix = 100
+        max_samples = 100
         
-        while index >= 0 and max_fix > 0:
+        while index >= 0 and max_samples > 0:
             lat, lon, __, hdg, spd, __ = self.points[index]
             
             point = self.geo_to_pix(lat, lon)
@@ -538,7 +537,7 @@ class GPS_Spoof(object):
             spd_acc[sector] += spd
             cnt[sector] += 1
             
-            max_fix -= 1
+            max_samples -= 1
             index -= 1
 
                     
@@ -551,14 +550,8 @@ class GPS_Spoof(object):
         spd = [0] * sector_cnt
         diff = [0] * sector_cnt
         
-        min_val = 100
+        #only for visuals
         max_val = -1
-        min_i = -1
-        max_i = -1
-        max_diff_val = -1
-        max_diff_i = -1
-        
-        max_diff_abs = 0
         
         used_cnt = 0
         
@@ -571,22 +564,13 @@ class GPS_Spoof(object):
                 
                 if spd[i] > max_val:
                     max_val = spd[i]
-                    max_i = i
 
-                if spd[i] < min_val:
-                    min_val = spd[i]
-                    min_i = i
                 
         for i in range(sector_cnt):
             if cnt[i] > 0:                 
                 diff[i] = spd[(i + int(sector_cnt / 2)) % sector_cnt] - spd[i]
-                if diff[i] > max_diff_val:
-                    max_diff_val = diff[i]
-                    max_diff_i = i
-                    
-                if abs(diff[i]) > max_diff_abs:
-                    max_diff_abs = abs(diff[i])
-            
+                 
+            #visuals   
             angle = math.radians(90 + (i + 0.5) * (360 / sector_cnt));
             x = int(-math.cos(angle) * rad);
             y = int(-math.sin(angle) * rad);
@@ -596,6 +580,7 @@ class GPS_Spoof(object):
             self.draw_text_center("%0.1f (%u)" % (spd[i], cnt[i]), cx + x, cy + y + 20)
             self.draw_text_center("d%0.1f" % (diff[0]), cx + x, cy + y + 40)
         
+        #visuals
         if max_val > 0:
             for i in range(sector_cnt):
                 angle = math.radians(90 + (i + 0.5) * (360 / sector_cnt));
@@ -608,6 +593,7 @@ class GPS_Spoof(object):
         wind_hdg = 0
         wind_spd = 0
 
+        #visuals
         wind_gain = 100 / 6.0
         
         if sector_cnt == used_cnt:
@@ -622,6 +608,7 @@ class GPS_Spoof(object):
                 x_acc += x
                 y_acc += y
                 
+                #visuals
                 tx = int(cx - x * wind_gain);
                 ty = int(cy - y * wind_gain);       
                 
@@ -640,7 +627,7 @@ class GPS_Spoof(object):
             wind_hdg = int(math.degrees(math.atan2(wind_x, -wind_y)) + 360) % 360
             wind_spd = math.sqrt(pow(wind_x, 2) + pow(wind_y, 2))
     
-
+        #visuals
         ndl = wind_spd * wind_gain
         angle = math.radians(90 + 180 + wind_hdg);
         tx = int(cx - math.cos(angle) * ndl);
@@ -670,9 +657,9 @@ if __name__ == '__main__':
     o = GPS_Spoof()
 
     o.main("/dev/ttyACM0")
-    #o.add_igc("wind.igc")
+    o.add_igc("wind.igc")
     
-    o.fake_igc(5, 60, 0.1, 0.1)
+    #o.fake_igc(5, 40, 0.1, 0.1, 1)
     
     o.run()
     

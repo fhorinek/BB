@@ -14,7 +14,7 @@ REGISTER_WIDGET_IU
     "Wind direction",
     WIDGET_MIN_W,
     WIDGET_MIN_H,
-	_b(wf_label_hide),
+	_b(wf_label_hide) | _b(wf_no_rotate),
 
     lv_obj_t * arrow;
 	lv_obj_t * text;
@@ -42,16 +42,17 @@ static void WindDir_update(widget_slot_t * slot)
 		lv_obj_set_hidden(local->arrow, true);
 		lv_obj_set_hidden(local->text, false);
 	}
-	else if (1)
+	else if (!fc.wind.valid)
 	{
-        lv_label_set_text(local->text, "Need\ncircle");
+        lv_label_set_text(local->text, "---");
         widget_update_font_size(local->text);
         lv_obj_set_hidden(local->arrow, true);
         lv_obj_set_hidden(local->text, false);
 	}
 	else
 	{
-		widget_arrow_rotate(local->arrow, local->points, fc.wind.direction + 180);
+	    int16_t angle = widget_flag_is_set(slot, wf_no_rotate) ? fc.wind.direction + 180 : fc.wind.direction + 180 - fc.gnss.heading;
+		widget_arrow_rotate(local->arrow, local->points, angle);
 		lv_obj_set_hidden(local->arrow, false);
 		lv_obj_set_hidden(local->text, true);
 	}

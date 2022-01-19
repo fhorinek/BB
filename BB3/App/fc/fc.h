@@ -132,7 +132,7 @@ typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 #define FC_POS_HAVE_BARO	0b0100
 #define FC_POS_HAVE_ACC		0b1000
 
-#define FC_HISTORY_PERIOD	250		//in ms
+#define FC_HISTORY_PERIOD	1000	//in ms
 #define FC_HISTORY_TIME		300		//in s
 #define FC_HISTORY_SIZE		((FC_HISTORY_TIME * 1000) / FC_HISTORY_PERIOD)
 
@@ -394,6 +394,9 @@ typedef struct
 	{
         float speed;      // m/s
         float direction;  // degrees
+
+        bool valid;
+        uint8_t _pad[3];
 	} wind;
 } fc_t;
 

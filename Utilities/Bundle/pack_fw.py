@@ -34,7 +34,26 @@ def read_chunk(bin_path, addr):
         meta = name + struct.pack("<LL", addr, size) 
         crc = zlib.crc32(data + meta)
 
-    print("  0x%08X\t%10u bytes\tcrc %08X\t%s" % (addr, size, crc, str(name, encoding='ascii')))
+    d = False
+    f = False
+    #dir
+    if addr & 0x80000000:
+        taddr = addr & ~0x80000000
+        level = (taddr & (0xFFFF << 16)) >> 16
+        d = True
+    
+    #file
+    elif addr & 0x40000000:
+        taddr = addr & ~0x40000000
+        level = (taddr & (0xFFFF << 16)) >> 16
+    else:
+        level = 0
+        f = True
+
+    pad = "*" if f else (("  " * level) + ("[" if d else ""))
+    
+
+    print("  0x%08X\t%10u bytes\tcrc %08X\t%s%s%s" % (addr, size, crc, pad, str(name, encoding='ascii'), "]" if d else ""))
     
     chunk = {
         "name": name,

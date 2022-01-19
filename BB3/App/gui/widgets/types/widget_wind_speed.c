@@ -23,7 +23,7 @@ static void WindSpd_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, NULL);
+    	widget_add_title(base, slot, "Wind spd");
 
     char tmp[8];
     char * units = tmp;
@@ -40,8 +40,8 @@ static void WindSpd_update(widget_slot_t * slot)
     char value[16];
     if (fc.gnss.fix == 0)
         strcpy(value, "No\nGNSS");
-    else if (1)
-        strcpy(value, "Need\ncircle");
+    else if (!fc.wind.valid)
+        strcpy(value, "---");
     else
         format_speed(value, fc.wind.speed);
 
