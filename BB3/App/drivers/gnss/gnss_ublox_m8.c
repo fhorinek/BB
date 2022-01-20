@@ -84,7 +84,7 @@ static void gnss_set_baudrate(uint32_t baud)
 	gnss_uart->Init.BaudRate = baud;
 	if (HAL_UART_Init(gnss_uart) != HAL_OK)
 	{
-	    Error_Handler();
+	    bsod_msg("GNSS baudrate set failed");
 	}
 }
 

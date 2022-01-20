@@ -29,9 +29,18 @@ REGISTER_WIDGET_IU
     lv_point_t arrow_points[WIDGET_ARROW_POINTS];
 );
 
+static bool static_init = false;
+static lv_style_t static_dot = {0};
 
 static void TTrace_init(lv_obj_t * base, widget_slot_t * slot)
 {
+    if (!static_init)
+    {
+        lv_style_init(&static_dot);
+        lv_style_set_radius(&static_dot, LV_STATE_DEFAULT, LV_RADIUS_CIRCLE);
+        static_init = true;
+    }
+
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
     	widget_add_title(base, slot, "Thermal trace");
@@ -39,7 +48,7 @@ static void TTrace_init(lv_obj_t * base, widget_slot_t * slot)
 	 for (uint8_t i = 0; i < THERMAL_DOTS_POSITIONS; i++)
 	 {
 		 local->thermals[i] = lv_obj_create(slot->obj, NULL);
-		 lv_obj_set_style_local_radius(local->thermals[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_RADIUS_CIRCLE);
+		 lv_obj_add_style(local->thermals[i], LV_OBJ_PART_MAIN, &static_dot);
 		 lv_obj_set_hidden(local->thermals[i], true);
 	 }
 

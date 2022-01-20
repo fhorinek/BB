@@ -294,6 +294,7 @@ do { \
 } while(0);
 
 
-#include <system/debug_thread.h>
+#include "system/debug_thread.h"
+#include "system/bsod.h"
 
 #endif /* INC_COMMON_H_ */

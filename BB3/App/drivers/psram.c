@@ -259,8 +259,7 @@ void ps_free(void * ptr)
 
     if (PS_IS_FREE(hdr))
     {
-        ERR("Memory for pointer 0x%lX is not allocated", ptr);
-        Error_Handler();
+    	bsod_msg("Memory for pointer 0x%lX is not allocated", ptr);
     }
 
     PS_FREE_CHUNK(hdr);

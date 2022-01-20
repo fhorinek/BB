@@ -11,6 +11,6 @@
 #include "common.h"
 
 void bsod_show(context_frame_t * frame);
-
+void bsod_msg(const char *format, ...);
 
 #endif /* SYSTEM_BSOD_H_ */
