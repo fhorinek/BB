@@ -544,7 +544,7 @@ bool draw_map(int32_t lon, int32_t lat, int32_t lon1, int32_t lat1, int32_t lon2
 
 	lv_draw_label_dsc_t text_draw;
 	lv_draw_label_dsc_init(&text_draw);
-	text_draw.font = gui.styles.widget_fonts[4];
+	text_draw.font = &lv_font_montserrat_12;
 	text_draw.color = LV_COLOR_BLACK;
 
 	ll_item_t * actual = start;
@@ -807,7 +807,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint8_t zoom)
 	DBG("Geneating start");
 
 	//create tile
-	tile_create(index, c_lon, c_lat, zoom, false);
+	tile_create(index, c_lon, c_lat, zoom, true);
 
 	DBG("Saving tile to storage");
 
