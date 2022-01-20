@@ -13,7 +13,9 @@ struct wordlen_s
 {
     int16_t word; /* Length of the word in pixels. */
     int16_t space; /* Length of the whitespace in pixels. */
+
     uint16_t chars; /* Number of characters in word + space, combined. */
+    uint8_t _pad[2];
 };
 
 /* Take the next word from the string and compute its width.
@@ -67,11 +69,15 @@ static bool get_wordlen(const struct mf_font_s *font, mf_str *text,
 struct linelen_s
 {
     mf_str start; /* Start of the text for line. */
+
     uint16_t chars; /* Total number of characters on the line. */
     int16_t width; /* Total length of all words + whitespace on the line in pixels. */
-    bool linebreak; /* True if line ends in a linebreak */
+
     struct wordlen_s last_word; /* Last word on the line. */
     struct wordlen_s last_word_2; /* Second to last word on the line. */
+
+    bool linebreak; /* True if line ends in a linebreak */
+    uint8_t _pad[3];
 };
 
 /* Append word onto the line if it fits. If it would overflow, don't add and

@@ -10,8 +10,11 @@
 
 #include "common.h"
 
-void dbg_overlay_create();
-void dbg_overlay_remove();
-void dbg_overlay_update(uint8_t * packet);
+void dbg_overlay_init();
+void dbg_overlay_step();
+
+void dbg_overlay_tasks_create();
+void dbg_overlay_tasks_remove();
+void dbg_overlay_tasks_update(uint8_t * packet);
 
 #endif /* GUI_DBG_OVERLAY_H_ */

@@ -21,6 +21,8 @@
 #include "gui/dialog.h"
 #include "drivers/rev.h"
 
+#include "gui/dbg_overlay.h"
+
 gui_t gui;
 
 LV_FONT_DECLARE(lv_font_montserrat_14);
@@ -54,9 +56,9 @@ void gui_show_release_note()
 	ps_free(buff);
 }
 
-void gui_set_loop_speed(uint16_t speed)
+void gui_set_loop_period(uint16_t period)
 {
-    gui.task.loop_speed = speed;
+    gui.task.loop_period = period;
 }
 
 void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb)
@@ -184,7 +186,7 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 	gui.task.last = gui.task.actual;
 	gui.task.last_memory = *gui.task.last->local_vars;
 
-	gui_set_loop_speed(GUI_DEFAULT_LOOP_SPEED);
+	gui_set_loop_period(GUI_DEFAULT_LOOP_SPEED);
 
 	//init new screen
 	lv_obj_t * screen = gui_task_create(next);
@@ -238,7 +240,7 @@ void gui_stop()
 {
 	tft_wait_for_buffer();
 	tft_color_fill(0xFFFF);
-	tft_refresh_buffer(0, 0, 239, 399);
+	tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
 	tft_wait_for_buffer();
 	tft_stop();
 }
@@ -247,7 +249,7 @@ void gui_init()
 {
     gui.take_screenshot = false;
     gui.dialog.active = false;
-    gui.dbg = NULL;
+    dbg_overlay_init();
 	gui_init_styles();
 
 	//create statusbar
@@ -291,9 +293,10 @@ void gui_loop()
 
 	if (next_update < HAL_GetTick())
 	{
-		next_update = HAL_GetTick() + gui.task.loop_speed;
+		next_update = HAL_GetTick() + gui.task.loop_period;
 
 		statusbar_step();
+		dbg_overlay_step();
 
 		//execute task
 		if (gui.task.actual->loop != NULL)

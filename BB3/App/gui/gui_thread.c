@@ -48,18 +48,31 @@ void gui_save_screen()
  * You can use DMA or any hardware acceleration to do this operation in the background but
  * 'lv_flush_ready()' has to be called when finished
  * This function is required only when LV_VDB_SIZE != 0 in lv_conf.h*/
+static lv_disp_drv_t * last_dsp_drv = NULL;
 void gui_disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * color_p)
 {
+    last_dsp_drv = drv;
+
     if (gui.take_screenshot == 2)
     {
+        //broken with double buffering method
         gui_save_screen();
     }
     else
     {
-        tft_refresh_buffer(area->x1, area->y1, area->x2, area->y2);
+        tft_refresh_buffer(area->x1, area->y1, area->x2, area->y2, (uint16_t *)color_p);
     }
 
-	lv_disp_flush_ready(drv);
+	//lv_disp_flush_ready(drv);
+}
+
+void gui_disp_ready()
+{
+    if (last_dsp_drv != NULL)
+    {
+        lv_disp_flush_ready(last_dsp_drv);
+        last_dsp_drv = NULL;
+    }
 }
 
 static bool gui_pin_set[5] = {0};
@@ -117,8 +130,12 @@ bool gui_input_cb(lv_indev_drv_t * drv, lv_indev_data_t * data)
  */
 void lv_debug_cb(lv_log_level_t level, const char * path, uint32_t line, const char * function, const char * desc)
 {
-    gui_print_memory();
-	debug_send(level, "[LVGL] %s:%lu (%s) %s", path, line, function, desc);
+    //we have same level enumeration
+
+    if (level == LV_LOG_LEVEL_ERROR)
+        bsod_msg("LVGL error\n %s:%lu (%s) %s", path, line, function, desc);
+    else
+        debug_send(level, "[LVGL] %s:%lu (%s) %s", path, line, function, desc);
 }
 
 void gui_clean_dcache(struct _disp_drv_t * disp_drv)
@@ -146,11 +163,32 @@ void gui_print_memory()
     INFO("");
 }
 
+static TaskHandle_t gui_lock_owner = NULL;
+
 void gui_lock_acquire()
 {
 	if (xTaskGetCurrentTaskHandle() != thread_gui)
 	{
-		osSemaphoreAcquire(gui.lock, WAIT_INF);
+	    uint32_t start = HAL_GetTick();
+
+
+	    uint32_t wait = (gui_lock_owner == NULL) ? WAIT_INF : 3000;
+
+        TaskHandle_t prev_lock_owner = gui_lock_owner;
+
+	    osStatus_t stat = osSemaphoreAcquire(gui.lock, wait);
+	    if (stat == osErrorTimeout)
+	    {
+	        bsod_msg("Not able to acquire gui.lock in time from task '%s' blocked by task '%s'!",
+	                pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(gui_lock_owner));
+	    }
+	    uint32_t delta = HAL_GetTick() - start;
+	    if (delta > 100 && prev_lock_owner != NULL)
+	    {
+	        WARN("'%s' was unable to acquire gui lock from '%s' for %u ms!",
+                    pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(prev_lock_owner), delta);
+	    }
+        gui_lock_owner = xTaskGetCurrentTaskHandle();
 	}
 }
 
@@ -158,6 +196,8 @@ void gui_lock_release()
 {
 	if (xTaskGetCurrentTaskHandle() != thread_gui)
 	{
+
+        gui_lock_owner = NULL;
 		osSemaphoreRelease(gui.lock);
 	}
 }
@@ -189,7 +229,7 @@ void thread_gui_start(void *argument)
 	static lv_disp_buf_t disp_buf;
 	lv_disp_drv_t disp_drv;
 
-	lv_disp_buf_init(&disp_buf, tft_buffer, NULL, TFT_BUFFER_SIZE);
+	lv_disp_buf_init(&disp_buf, tft_buffer_1, tft_buffer_2, TFT_BUFFER_SIZE / 2);
 	lv_disp_drv_init(&disp_drv);
 
 	disp_drv.hor_res = TFT_WIDTH;
@@ -237,7 +277,11 @@ void thread_gui_start(void *argument)
 		}
 
 		osSemaphoreAcquire(gui.lock, WAIT_INF);
+		gui_lock_owner = xTaskGetCurrentTaskHandle();
+
 		delay = lv_task_handler();
+
+		gui_lock_owner = NULL;
 		osSemaphoreRelease(gui.lock);
 
 		osDelay(delay);

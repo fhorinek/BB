@@ -466,5 +466,9 @@ config_t config =
         entry_select("dbg_tasks", DBG_TASK_NONE, dbg_task_select),
 		//vario_random
 		entry_bool("dbg_vario_rnd", false),
+        //lvgl_mem
+        entry_bool("dbg_lvgl_info", false),
+        //fanet_update
+        entry_bool("dbg_fn_update", false),
 	},
 };

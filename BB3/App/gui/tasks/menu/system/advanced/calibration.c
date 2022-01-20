@@ -510,7 +510,7 @@ static lv_obj_t * calibration_init(lv_obj_t * par)
     lv_obj_align(local->text, local->spinner, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
     lv_obj_set_auto_realign(local->text, true);
 
-    gui_set_loop_speed(10);
+    gui_set_loop_period(10);
 
     safe_memcpy(&local->calib, &fc.imu.calibration, sizeof(imu_calibration_t));
 

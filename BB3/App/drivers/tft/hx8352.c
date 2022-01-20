@@ -49,7 +49,7 @@ void tft_init_hx8352()
 	tft_write_register(0x16, 0x08);             //INVERTED PORTRAIT
 
 	tft_color_fill(0xFFFF);
-	tft_refresh_buffer(0, 0, 239, 399);
+	tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
 	tft_wait_for_buffer();
 
 	tft_write_register(0x28, 0x3C); //display on //GON=1, DTE=1, D=3

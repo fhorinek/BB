@@ -459,7 +459,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         {
             uint8_t * packet = (uint8_t *) malloc(len);
             safe_memcpy(packet, data, len);
-            xTaskCreate((TaskFunction_t)dbg_overlay_update, "dbg_overlay_update", 1024 * 2, (void *)packet, 24, NULL);
+            xTaskCreate((TaskFunction_t)dbg_overlay_tasks_update, "dbg_overlay_update", 1024 * 2, (void *)packet, 24, NULL);
         }
         break;
 

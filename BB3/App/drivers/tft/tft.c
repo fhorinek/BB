@@ -24,6 +24,10 @@ uint16_t * tft_register = (uint16_t *)0xC0000000;
 uint16_t * tft_ram = (uint16_t *)0xC0020000;
 
 uint16_t tft_buffer[TFT_BUFFER_SIZE];
+uint16_t * tft_buffer_1 = tft_buffer;
+uint16_t * tft_buffer_2 = tft_buffer + TFT_BUFFER_SIZE / 2;
+
+uint16_t * tft_buffer_ptr;
 
 static bool tft_buffer_ready = false;
 static volatile bool tft_dma_done = false;
@@ -100,7 +104,7 @@ bool tft_buffer_copy()
     }
 
     tft_dma_done = false;
-    HAL_DMA_Start_IT(tft_dma, (uint32_t)tft_buffer, (uint32_t)tft_ram, len);
+    HAL_DMA_Start_IT(tft_dma, (uint32_t)tft_buffer_ptr, (uint32_t)tft_ram, len);
 
     return true;
 }
@@ -121,7 +125,8 @@ void tft_irq_dma_done(DMA_HandleTypeDef *DmaHandle)
 
     if (tft_normal_mode)
     {
-    	osThreadFlagsSet(thread_gui, 0x01);
+    	//osThreadFlagsSet(thread_gui, 0x01);
+        gui_disp_ready();
     }
 }
 
@@ -137,7 +142,7 @@ void tft_wait_for_buffer()
 	}
 }
 
-void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t * buffer)
 {
 	if (!tft_normal_mode)
 	{
@@ -151,11 +156,13 @@ void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
     tft_win_x2 = x2;
     tft_win_y2 = y2;
 
+    tft_buffer_ptr = buffer;
+
     tft_buffer_ready = true;
 
     if (tft_normal_mode)
     {
-    	osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
+//    	osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
     }
     else
     {

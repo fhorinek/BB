@@ -549,7 +549,7 @@ static lv_obj_t * page_edit_init(lv_obj_t * par)
     //dummy cb
     gui_set_dummy_event_cb(par, page_edit_event_cb);
 
-    gui_set_loop_speed(50);
+    gui_set_loop_period(50);
 
     local->page.number_of_widgets = 0;
 
