@@ -89,6 +89,7 @@ void bsod_init()
 	tft_color_fill(0xFFFF);
 }
 
+<<<<<<< HEAD
 #define LINE_SIZE   24
 #define LEFT_PAD    8
 
@@ -97,6 +98,11 @@ void bsod_end()
     bsod_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - LINE_SIZE, "Reset", MF_ALIGN_CENTER);
 
 	tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
+=======
+void bsod_end()
+{
+	tft_refresh_buffer(0, 0, 239, 399);
+>>>>>>> feature_stm_stack_ovf_bsod
 
 	uint32_t d = 0;
 	while(1)
@@ -116,6 +122,11 @@ void bsod_end()
 	}
 }
 
+<<<<<<< HEAD
+=======
+#define LINE_SIZE	24
+#define LEFT_PAD	8
+>>>>>>> feature_stm_stack_ovf_bsod
 
 void bsod_show(context_frame_t * frame)
 {
@@ -211,6 +222,7 @@ void bsod_show(context_frame_t * frame)
 	snprintf(buff, sizeof(buff), "HW: %02X", rev_get_hw());
 	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
 
+<<<<<<< HEAD
     bsod_end();
 }
 
@@ -220,6 +232,19 @@ static bool bsod_line_callback(const char *line, uint16_t count, void *state)
 
     mf_render_aligned(bsod_font, LEFT_PAD, *y, MF_ALIGN_LEFT, line, count, character_callback, NULL);
     *y += LINE_SIZE;
+=======
+    bsod_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - LINE_SIZE, "Reset", MF_ALIGN_CENTER);
+
+    bsod_end();
+}
+
+static bool bsod_line_callback(const char *line, uint16_t count, void *state)
+{
+	int16_t * y = (int16_t *)y;
+
+    mf_render_aligned(bsod_font, LEFT_PAD, *y, MF_ALIGN_LEFT, line, count, character_callback, NULL);
+    *y += bsod_font->line_height;
+>>>>>>> feature_stm_stack_ovf_bsod
 
     return true;
 }
@@ -228,8 +253,11 @@ void bsod_msg(const char *format, ...)
 {
 	bsod_init();
 
+<<<<<<< HEAD
 	vTaskSuspendAll();
 
+=======
+>>>>>>> feature_stm_stack_ovf_bsod
 	va_list arp;
 
 	char msg[256];
@@ -237,12 +265,17 @@ void bsod_msg(const char *format, ...)
     vsnprintf(msg, sizeof(msg), format, arp);
     va_end(arp);
 
+<<<<<<< HEAD
     int16_t y = LEFT_PAD;
 
     bsod_draw_text(TFT_WIDTH / 2, y, "ERROR", MF_ALIGN_CENTER);
     y += LINE_SIZE;
 
 	mf_wordwrap(bsod_font, TFT_WIDTH - 2 * LEFT_PAD, msg, bsod_line_callback, &y);
+=======
+	int16_t y = LEFT_PAD;
+	mf_wordwrap(bsod_font, TFT_WIDTH, msg, bsod_line_callback, &y);
+>>>>>>> feature_stm_stack_ovf_bsod
 
 	FAULT("%s", msg);
 
