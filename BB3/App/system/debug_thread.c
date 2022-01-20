@@ -121,7 +121,7 @@ void debug_send(uint8_t type, const char *format, ...)
 {
 	va_list arp;
 
-    char msg[1024];
+    char msg[256];
 
     char * name;
 

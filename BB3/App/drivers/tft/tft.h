@@ -13,7 +13,10 @@
 #define TFT_WIDTH	240
 #define TFT_HEIGHT	400
 #define TFT_BUFFER_SIZE (TFT_WIDTH * TFT_HEIGHT)
+
 extern uint16_t tft_buffer[TFT_BUFFER_SIZE];
+extern uint16_t * tft_buffer_1;
+extern uint16_t * tft_buffer_2;
 
 void tft_init();
 void tft_init_bsod();
@@ -24,11 +27,9 @@ void tft_reset();
 void tft_test_pattern();
 void tft_color_fill(uint16_t color);
 
-void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t * buffer);
 void tft_wait_for_buffer();
 void tft_irq_display_te();
-
-void tft_refresh_buffer_force(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
 void tft_write_register(uint16_t command, uint16_t data);
 void tft_write_command(uint16_t command);

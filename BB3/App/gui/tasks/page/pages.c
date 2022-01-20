@@ -769,7 +769,7 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->state = MENU_IDLE;
 	local->active_widget = NULL;
 
-	gui_set_loop_speed(50);
+	gui_set_loop_period(50);
 
 	return par;
 }

@@ -9,6 +9,7 @@
 #include "etc/format.h"
 #include "gui/dialog.h"
 #include "drivers/gnss/gnss_ublox_m8.h"
+#include "gui/statusbar.h"
 
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
@@ -47,6 +48,18 @@ void dev_get_file_cb(uint8_t res, download_slot_t * ds)
 
 }
 
+static void test_bar(void * param)
+{
+    lv_obj_t * status_bar = (lv_obj_t *)param;
+
+    uint8_t status_bar_value = 0;
+
+    while (1)
+    {
+        statusbar_msg_update_progress(status_bar, (status_bar_value++ * 100) / 255);
+    }
+}
+
 void development_trigger()
 {
     INFO("Development fake trigger");
@@ -59,9 +72,8 @@ void development_trigger()
 //    local->slot = esp_http_get("https://strato.skybean.eu/update/devel/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
 //    local->slot = esp_http_get("http://192.168.10.32/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
 
-//    esp_device_reset();
-
-    protocol_send(PROTO_GET_TASKS, NULL, 0);
+    lv_obj_t * status_bar = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, "Testing");
+    xTaskCreate((TaskFunction_t)test_bar, "test_bar", 1024 * 2, status_bar, 24, NULL);
 }
 
 static void development_loop()
@@ -124,22 +136,6 @@ static bool development_clear_debug_file_cb(lv_obj_t * obj, lv_event_t event)
 	return true;
 }
 
-extern bool fanet_need_update;
-static bool fanet_force_update_cb(lv_obj_t * obj, lv_event_t event)
-{
-    if (event == LV_EVENT_CLICKED)
-    {
-        INFO("FANET force update");
-        fanet_need_update = true;
-        fc.fanet.status = fc_dev_init;
-
-        //reset module
-        fanet_enable();
-    }
-
-    return true;
-}
-
 static lv_obj_t * development_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Reset GNSS", &gui_settings, development_cb);
@@ -162,7 +158,8 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Clear debug.log", CUSTOM_CB, development_clear_debug_file_cb);
     gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
-    gui_list_auto_entry(list, "FANET force update", CUSTOM_CB, fanet_force_update_cb);
+    gui_list_auto_entry(list, "FANET force update", &config.debug.fanet_update, NULL);
+    gui_list_auto_entry(list, "Show LVGL info", &config.debug.lvgl_info, NULL);
 
 	return list;
 }

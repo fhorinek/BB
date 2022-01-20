@@ -111,7 +111,9 @@ bool fanet_update_firmware()
             }
 
             INFO("Updating block %u (%u failures so far)", chunk.block, failures);
-            statusbar_msg_update_progress(msg, (chunk.block * 100) / total_chunks);
+
+            if (chunk.block % 2 == 0)
+                statusbar_msg_update_progress(msg, (chunk.block * 100) / total_chunks);
 
             //transmit, beware of padding!!
             fanet_transmit((uint8_t *)(&chunk) + 1, sizeof(chunk) - 1);

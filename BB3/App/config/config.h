@@ -238,7 +238,9 @@ typedef struct
 		cfg_entry_t esp_off;
         cfg_entry_t esp_wdt;
         cfg_entry_t tasks;
-		cfg_entry_t vario_random;
+        cfg_entry_t vario_random;
+        cfg_entry_t lvgl_info;
+        cfg_entry_t fanet_update;
 	} debug;
 } config_t;
 

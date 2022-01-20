@@ -97,9 +97,9 @@ static void dbg_esp_off_cb(cfg_entry_t * entry)
 static void dbg_esp_tasks_cb(cfg_entry_t * entry)
 {
     if (config_get_select(entry) != DBG_TASK_NONE)
-        dbg_overlay_create();
+        dbg_overlay_tasks_create();
     else
-        dbg_overlay_remove();
+        dbg_overlay_tasks_remove();
 }
 
 static void wifi_mode_cb(cfg_entry_t * entry)

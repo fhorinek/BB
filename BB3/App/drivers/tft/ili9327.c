@@ -80,7 +80,7 @@ void tft_init_ili9327()
 
     tft_color_fill(0xFFFF);
 //	tft_test_pattern();
-	tft_refresh_buffer(0, 0, 239, 399);
+	tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
 	tft_wait_for_buffer();
 
     tft_write_command(0x29); //set_display_on / display on

@@ -119,7 +119,7 @@ typedef struct
 		gui_task_t * actual;
 		void * last_memory;
 
-		uint16_t loop_speed;
+		uint16_t loop_period;
 		lv_scr_load_anim_t next_anim;
 		uint8_t _pad[1];
 	} task;
@@ -214,19 +214,26 @@ typedef struct
 
 	} ctx;
 
-	lv_obj_t * dbg;
+	struct
+	{
+        lv_obj_t * tasks;
+        lv_obj_t * lv_info;
+	} dbg;
 
 	osSemaphoreId_t lock;
 
 	uint8_t take_screenshot;
-    uint8_t _pad[3];
+	uint8_t fps;
+    uint8_t _pad[2];
 
 } gui_t;
+
+#define FPS_SAMPLES 5
 
 void gui_set_group_focus(lv_obj_t * obj);
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
 
-void gui_set_loop_speed(uint16_t speed);
+void gui_set_loop_period(uint16_t period);
 void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb);
 
 void gui_init();

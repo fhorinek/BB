@@ -260,8 +260,10 @@ void fanet_parse_dg(char * buffer)
 	        strcpy(fc.fanet.version, buffer + 2);
 	    }
 
-        if (!fanet_is_actual_version(fc.fanet.version))
+        if (!fanet_is_actual_version(fc.fanet.version) || config_get_bool(&config.debug.fanet_update))
 	    {
+            config_set_bool(&config.debug.fanet_update, false);
+
 	        fanet_need_update = true;
 	        fc.fanet.status = fc_dev_init;
 
