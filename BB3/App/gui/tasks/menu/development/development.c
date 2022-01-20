@@ -159,7 +159,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
     gui_list_auto_entry(list, "FANET force update", &config.debug.fanet_update, NULL);
-    gui_list_auto_entry(list, "Show LVGL memory", &config.debug.lvgl_mem, NULL);
+    gui_list_auto_entry(list, "Show LVGL info", &config.debug.lvgl_info, NULL);
 
 	return list;
 }
