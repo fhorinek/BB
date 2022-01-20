@@ -217,15 +217,18 @@ typedef struct
 	struct
 	{
         lv_obj_t * tasks;
-        lv_obj_t * label;
+        lv_obj_t * lv_info;
 	} dbg;
 
 	osSemaphoreId_t lock;
 
 	uint8_t take_screenshot;
-    uint8_t _pad[3];
+	uint8_t fps;
+    uint8_t _pad[2];
 
 } gui_t;
+
+#define FPS_SAMPLES 5
 
 void gui_set_group_focus(lv_obj_t * obj);
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);

@@ -263,6 +263,9 @@ void thread_gui_start(void *argument)
     osSemaphoreRelease(gui.lock);
 
     uint32_t delay;
+    uint32_t last_tick = 0;
+    uint32_t frame_duration = 0;
+    uint8_t frame_counter = 0;
 
     while (!system_power_off)
 	{
@@ -284,7 +287,24 @@ void thread_gui_start(void *argument)
 		gui_lock_owner = NULL;
 		osSemaphoreRelease(gui.lock);
 
-		osDelay(delay);
+		osDelay(max(10, delay));
+
+		if (config_get_bool(&config.debug.lvgl_info))
+		{
+            uint32_t now = HAL_GetTick();
+            frame_duration += now - last_tick;
+            last_tick = now;
+            frame_counter++;
+
+            if (frame_counter == FPS_SAMPLES)
+            {
+                gui.fps = 1000 / (frame_duration / FPS_SAMPLES);
+                frame_counter = 0;
+                frame_duration = 0;
+            }
+		}
+
+
 	}
 
     INFO("Done");
