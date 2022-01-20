@@ -14,6 +14,7 @@ void gui_take_screenshot();
 void gui_create_lock();
 void thread_gui_start(void *argument);
 void gui_set_pin(uint8_t i);
+void gui_disp_ready();
 
 void gui_print_memory();
 
