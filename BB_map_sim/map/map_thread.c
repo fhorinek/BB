@@ -121,6 +121,7 @@ void map_step()
 		}
 	}
 
+	/*
 	//only cache first
 	for (uint8_t i = 0; i < 9; i++)
 	{
@@ -130,6 +131,7 @@ void map_step()
 				tiles[i].reload = false;
 		}
 	}
+	*/
 
 	//last resort, regenerate
 	for (uint8_t i = 0; i < 9; i++)
