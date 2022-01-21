@@ -32,7 +32,6 @@ void widget_map_init(lv_obj_t * base)
 
 		lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 		lv_obj_set_hidden(local->image[i], true);
-
 	}
 
     local->dot = lv_obj_create(base, NULL);

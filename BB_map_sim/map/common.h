@@ -88,7 +88,7 @@ typedef union
 #define min(a,b)                ((a)<(b)?(a):(b))
 #define max(a,b)                ((a)>(b)?(a):(b))
 
-#define INFO(...)	do{ printf("[I]"); printf(__VA_ARGS__); printf("\n"); } while(0);
+#define INFO(...)	do{ printf(__VA_ARGS__); printf("\n"); } while(0);
 #define WARN(...)	do{ printf("[W]"); printf(__VA_ARGS__); printf("\n"); } while(0);
 #define DBG(...)	do{ printf("[D]"); printf(__VA_ARGS__); printf("\n"); } while(0);
 #define ERR(...)	do{ printf("[E]"); printf(__VA_ARGS__); printf("\n"); } while(0);

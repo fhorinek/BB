@@ -52,7 +52,7 @@ lv_indev_t *kb_indev;
 
 int32_t map_lon = 172348385;
 int32_t map_lat = 480288198;
-uint8_t map_zoom = 16;
+uint8_t map_zoom = 216;
 lv_obj_t * screen;
 
 static lv_group_t *g;
@@ -78,7 +78,7 @@ static void my_event_cb(lv_obj_t *obj, lv_event_t event) {
 		map_lon = lon;
 		map_lat = lat;
 
-		printf("%d %d", lon, lat);
+		printf("%d %d\n", lon, lat);
 
 		break;
 	case (LV_EVENT_KEY):
