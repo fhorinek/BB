@@ -37,6 +37,7 @@ DECLARE_WIDGET(WindDir);
 DECLARE_WIDGET(WindSpd);
 DECLARE_WIDGET(TTrace);
 DECLARE_WIDGET(WindDirPoints);
+DECLARE_WIDGET(TimeDate);
 
 widget_t * widgets[] =
 {
@@ -69,6 +70,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(WindDir),
     LIST_WIDGET(WindSpd),
     LIST_WIDGET(WindDirPoints),
+    LIST_WIDGET(TimeDate),
 
 //    LIST_WIDGET(Map),
 };
