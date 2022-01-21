@@ -344,11 +344,15 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint8_t zoom, int32_t * 
 	uint32_t map_h = (MAP_H * step_y) / 1;
 
 	int64_t steps = geo_get_steps_from_equator(lat, zoom);
-	steps += map_h * ((lat % GNSS_MUL) / (float)GNSS_MUL);
-	int32_t count = steps % MAP_H;
+	int64_t step_rounded = (steps / MAP_H) * MAP_H;
+	int64_t delta = steps - steps_rounded_rounded;
+	int64_t rest = delta + ((lat % GNSS_MUL) / (float)GNSS_MUL) * map_h;
+	rest = (delta / MAP_H) * MAP_H;
+	int64_t dist = rest - delta;
+
+	*c_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y;
 
 	*c_lon = ((lon + (map_w / 2)) / map_w) * map_w;
-	*c_lat = ((lat + (map_h / 2)) / map_h) * map_h;
 }
 
 void tile_get_cache(int32_t lon, int32_t lat, uint8_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
