@@ -1,3 +1,5 @@
+ * new TimeDate widget to display current time and date
+
 # 19.1.2021 - Build 230
 ##Added
  * New wind estimation calculation
