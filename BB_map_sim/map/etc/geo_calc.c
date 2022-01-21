@@ -125,7 +125,7 @@ int64_t geo_get_steps_from_equator(int32_t lat, uint8_t zoom)
 	int64_t steps = 0;
 	for (uint8_t i = 0; i < lat_e; i++)
 	{
-		steps += (zoom * GNSS_MUL / lat_mult[min(61, lat_i)]) / MAP_DIV_CONST;
+		steps += (zoom * GNSS_MUL / lat_mult[min(61, i)]) / MAP_DIV_CONST;
 	}
 	return steps;
 }
