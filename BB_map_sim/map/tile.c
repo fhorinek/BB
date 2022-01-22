@@ -300,7 +300,7 @@ void tile_get_filename(char * fn, int32_t lat, int32_t lon)
 }
 
 
-uint8_t tile_find_inside(int32_t lon, int32_t lat, uint8_t zoom)
+uint8_t tile_find_inside(int32_t lon, int32_t lat, uint16_t zoom)
 {
     for (uint8_t i = 0; i < 9; i++)
     {
@@ -328,34 +328,38 @@ void tile_geo_to_pix(uint8_t index, int32_t g_lon, int32_t g_lat, int16_t * x, i
 {
     int32_t lon = gui.map.chunks[index].center_lon;
     int32_t lat = gui.map.chunks[index].center_lat;
-    uint8_t zoom = gui.map.chunks[index].zoom;
+    uint16_t zoom = gui.map.chunks[index].zoom;
 
     geo_to_pix(lon, lat, zoom, g_lon, g_lat, x, y);
 }
 
-void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint8_t zoom, int32_t * c_lon, int32_t * c_lat)
+#define MAP_H_C (MAP_H - 8)
+
+void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat)
 {
+
+
 	int32_t step_x;
 	int32_t step_y;
 	geo_get_steps(lat, zoom, &step_x, &step_y);
 
 	//get bbox
 	uint32_t map_w = (MAP_W * step_x) / 1;
-	uint32_t map_h = (MAP_H * step_y) / 1;
+	uint32_t map_h = (MAP_H_C * step_y) / 1;
 
-	int64_t steps = geo_get_steps_from_equator(lat, zoom);
-	int64_t step_rounded = (steps / MAP_H) * MAP_H;
-	int64_t delta = steps - step_rounded;
-	int64_t rest = delta + ((lat % GNSS_MUL) / (float)GNSS_MUL) * map_h;
-	rest = (delta / MAP_H) * MAP_H;
+	int64_t pixels = geo_get_pixels_from_equator(lat, zoom);
+	int64_t pixels_rounded = (pixels / MAP_H_C) * MAP_H_C;
+	int64_t delta = pixels - pixels_rounded;
+	int64_t rest = delta + (lat % GNSS_MUL) / step_y;
+	rest = (rest / MAP_H_C) * MAP_H_C;
 	int64_t dist = rest - delta;
 
-	*c_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y;
+	*c_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y + map_h / 2;
 
 	*c_lon = ((lon + (map_w / 2)) / map_w) * map_w;
 }
 
-void tile_get_cache(int32_t lon, int32_t lat, uint8_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
+void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
 {
 	tile_align_to_cache_grid(lon, lat, zoom, c_lon, c_lat);
 
@@ -433,7 +437,7 @@ uint16_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_
 
 	map_header_t * mh = (map_header_t *)map_cache;
 
-	DBG("file grid is %u x %u", mh->grid_w, mh->grid_h);
+//	DBG("file grid is %u x %u", mh->grid_w, mh->grid_h);
 
 	int32_t flon = (mh->longitude / GNSS_MUL) * GNSS_MUL;
 	int32_t flat = (mh->latitude / GNSS_MUL) * GNSS_MUL;
@@ -444,7 +448,7 @@ uint16_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_
 	int32_t gstep_x = GNSS_MUL / mh->grid_w;
 	int32_t gstep_y = GNSS_MUL / mh->grid_h;
 
-	INFO("rectangle name=disp bbox=%f,%f,%f,%f", lon1 / (float)GNSS_MUL, lat1 / (float)GNSS_MUL, lon2 / (float)GNSS_MUL, lat2 / (float)GNSS_MUL);
+//	INFO("rectangle name=disp bbox=%f,%f,%f,%f", lon1 / (float)GNSS_MUL, lat1 / (float)GNSS_MUL, lon2 / (float)GNSS_MUL, lat2 / (float)GNSS_MUL);
 
 	ll_item_t * start = NULL;
 	ll_item_t * end = NULL;
@@ -467,9 +471,9 @@ uint16_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_
 						|| (glon1 <= lon2 && lon2 <= glon2)
 						|| (lon1 <= glon1 && glon2 <= lon2))
 				{
-					INFO("rectangle name=x%uy%u bbox=%f,%f,%f,%f", x, y,
-							glon1 / (float)GNSS_MUL, glat1 / (float)GNSS_MUL,
-							glon2 / (float)GNSS_MUL, glat2 / (float)GNSS_MUL);
+//					INFO("rectangle name=x%uy%u bbox=%f,%f,%f,%f", x, y,
+//							glon1 / (float)GNSS_MUL, glat1 / (float)GNSS_MUL,
+//							glon2 / (float)GNSS_MUL, glat2 / (float)GNSS_MUL);
 
 				    //load features
 				    uint32_t grid_addr = grid_start_addr + (y * mh->grid_h + x) * sizeof(map_info_entry_t);
@@ -731,7 +735,7 @@ bool tile_validate_sources(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon
 }
 
 
-bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint8_t zoom)
+bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
 	gui.map.chunks[index].ready = false;
 	gui.map.magic++;
@@ -818,7 +822,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint8_t zoom)
 }
 
 
-bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint8_t zoom)
+bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
 	//invalidate
 	gui.map.chunks[index].ready = false;

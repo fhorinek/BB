@@ -52,7 +52,7 @@ lv_indev_t *kb_indev;
 
 int32_t map_lon = 172348385;
 int32_t map_lat = 480288198;
-uint8_t map_zoom = 216;
+int16_t map_zoom = 200;
 lv_obj_t * screen;
 
 static lv_group_t *g;
@@ -84,11 +84,15 @@ static void my_event_cb(lv_obj_t *obj, lv_event_t event) {
 	case (LV_EVENT_KEY):
 		key = lv_event_get_data();
 		if (*key == 19) //+
-			if (map_zoom > 1)
-				map_zoom--;
+		{
+			map_zoom -= 10;
+			map_zoom = max(0, map_zoom);
+		}
 		if (*key == 20) //-
-			if (map_zoom < 254)
-			map_zoom++;
+		{
+			map_zoom += 10;
+			map_zoom = min(300, map_zoom);
+		}
 		break;
 
 	default:
@@ -102,6 +106,10 @@ static void my_event_cb(lv_obj_t *obj, lv_event_t event) {
 
 void widget_map_init(lv_obj_t * base);
 void widget_map_update(lv_obj_t * base, int32_t disp_lat, int32_t disp_lon);
+
+void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat);
+
+#include "map/etc/geo_calc.h"
 
 int main(int argc, char **argv) {
 	(void) argc; /*Unused*/
@@ -126,8 +134,32 @@ int main(int argc, char **argv) {
 	map_init();
 	widget_map_init(screen);
 
-
-
+//	int32_t lon = 0;
+//	uint16_t a= 0;
+//	for (int32_t lat = 0; lat < 60 * GNSS_MUL; lat += 1700000)
+//	{
+//		lon = lat;
+//
+//		int32_t c_lat, c_lon;
+//		tile_align_to_cache_grid(lon, lat, map_zoom, &c_lon, &c_lat);
+//
+//		int32_t step_x;
+//		int32_t step_y;
+//		geo_get_steps(c_lat, map_zoom, &step_x, &step_y);
+//
+//		//get bbox
+//		uint32_t map_w = MAP_W * step_x;
+//		uint32_t map_h = (MAP_H * step_y);
+//		int32_t lon1 = c_lon - map_w / 2;
+//		int32_t lon2 = c_lon + map_w / 2;
+//		int32_t lat1 = c_lat + map_h / 2;
+//		int32_t lat2 = c_lat - map_h / 2;
+//
+//		INFO("rectangle name=p%u bbox=%f,%f,%f,%f", a, lon / (float)GNSS_MUL, lat / (float)GNSS_MUL, lon / (float)GNSS_MUL + 0.01, lat / (float)GNSS_MUL + 0.01);
+//		INFO("rectangle name=t%u bbox=%f,%f,%f,%f", a++, lon1 / (float)GNSS_MUL, lat1 / (float)GNSS_MUL, lon2 / (float)GNSS_MUL, lat2 / (float)GNSS_MUL);
+//	}
+//
+//	return 0 ;
 
 	while (1) {
 		/* Periodically call the lv_task handler.
