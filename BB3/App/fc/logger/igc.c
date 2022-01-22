@@ -162,9 +162,9 @@ void igc_start_write()
 	DBG("utc_time %lu", utc_time);
 	datetime_from_epoch(utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 
-	snprintf(path, sizeof(path), "%s/%02u.%04u", PATH_LOGS_DIR, month, year);
+	snprintf(path, sizeof(path), "%s/%04u.%02u", PATH_LOGS_DIR, year, month);
 	f_mkdir(path);
-	snprintf(path, sizeof(path), "%s/%02u.%04u/%02u.%02u.%04u %02u.%02u.igc", PATH_LOGS_DIR, month, year, day, month, year, hour, min);
+	snprintf(path, sizeof(path), "%s/%04u.%02u/%04u.%02u.%02u %02u.%02u.igc", PATH_LOGS_DIR, year, month, year, month, day, hour, min);
 	uint8_t res = f_open(&igc_log_file, path, FA_WRITE | FA_CREATE_ALWAYS);
 	DBG("IGC OPEN %s, res = %u", path, res);
 	ASSERT(res == FR_OK);
