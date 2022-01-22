@@ -31,7 +31,7 @@ void navigation_takeoff_distance_and_bearing()
 	{
 		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
 		int16_t bearing = 0;
-		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing);
+		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing) / 100;    // cm to m
 		fc.flight.takeoff_distance = dist;
 		fc.flight.takeoff_bearing = bearing;
 	}
@@ -54,10 +54,17 @@ void navigation_step()
 		if (last_lat != NO_LAT_DATA)
 		{
 			bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
-			uint32_t dist = geo_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);
+			uint32_t dist = geo_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);    //cm
 
-			uint32_t delta = fc.gnss.itow - last_time;
-			float speed = dist * (1000.0 / delta);
+			uint32_t delta = fc.gnss.itow - last_time;    // ms, e.g. 2s = 2000
+
+			// speed must be in m/s. dist is in cm and delta in ms.
+			// (dist/100.0) gives dist in m.
+			// (delta/1000.0) gives delta in s.
+			// speed = (dist/100.0) / (delta/1000.0)
+			// speed = (dist/100.0) * (1000.0/delta)
+			// speed = dist/100.0 * 1000.0/delta
+			float speed = dist * 10.0 / delta;   // m/s
 			DBG("%lu %0.2f %lu", dist, speed, delta);
 
 			//do not add when gps speed is < 1 km/h
