@@ -4,6 +4,7 @@ Added:
 - Volume control
 - FANET/FLARM update
 - Firmware channels 
+- Time/Date widget
 
 Fixes:
 - Bluetooth pairing
