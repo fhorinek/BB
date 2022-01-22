@@ -345,7 +345,7 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint8_t zoom, int32_t * 
 
 	int64_t steps = geo_get_steps_from_equator(lat, zoom);
 	int64_t step_rounded = (steps / MAP_H) * MAP_H;
-	int64_t delta = steps - steps_rounded_rounded;
+	int64_t delta = steps - step_rounded;
 	int64_t rest = delta + ((lat % GNSS_MUL) / (float)GNSS_MUL) * map_h;
 	rest = (delta / MAP_H) * MAP_H;
 	int64_t dist = rest - delta;
