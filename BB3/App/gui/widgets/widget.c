@@ -12,7 +12,7 @@
 widget_flag_def_t widgets_flags[] = {
 	{'L', LV_SYMBOL_EYE_CLOSE " Label hidden", LV_SYMBOL_EYE_OPEN " Label visible", NULL},
     {'U', LV_SYMBOL_EYE_CLOSE " Units hidden", LV_SYMBOL_EYE_OPEN " Units visible", NULL},
-    {'D', LV_SYMBOL_EYE_CLOSE " Decimals hidden", LV_SYMBOL_EYE_OPEN " Decimals visible", NULL},
+    {'D', LV_SYMBOL_EYE_OPEN " Decimals visible", LV_SYMBOL_EYE_CLOSE " Decimals hidden", NULL},
     {'A', "Alternative units", "Default units", NULL},
     {'V', "Avg. vario on climb", "Empty on climb", NULL},
     {'R', "North is up", "Adjust to heading", NULL},
