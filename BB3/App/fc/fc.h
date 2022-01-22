@@ -194,7 +194,7 @@ typedef struct
     {
         uint32_t start_time;
         uint32_t duration;
-      	uint32_t odometer;              // in m
+      	uint32_t odometer;              // in cm
 
 
         float avg_heading_change;
@@ -234,7 +234,7 @@ typedef struct
         uint64_t utc_time;
         uint32_t ttf; //[ms]
 
-        uint32_t itow;
+        uint32_t itow;     //[ms]
         int32_t latitude;   //*10^7
         int32_t longtitude; //*10^7
         float ground_speed; //[m/s]

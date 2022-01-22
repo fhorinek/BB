@@ -171,7 +171,7 @@ void geo_destination(int32_t lat1, int32_t lon1, float angle, float distance_km,
  * \param FAI use FAI sphere instead of WGS ellipsoid
  * \param bearing pointer to bearing (NULL if not used)
  *
- * \return the distance in m.
+ * \return the distance in cm.
  */
 uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing)
 {
@@ -205,7 +205,7 @@ uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bo
 
 //		DEBUG("#q=%0.10f\n", q);
 
-		dist = 2 * FAI_EARTH_RADIUS * asin(sqrt(q)) * 1000.0;
+		dist = 2 * FAI_EARTH_RADIUS * asin(sqrt(q)) * 100000.0;
 	}
 	else //WGS
 	{
@@ -224,15 +224,15 @@ uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bo
 //		DEBUG("#d_lon=%0.10f\n", d_lon);
 //		DEBUG("#d_lat=%0.10f\n", d_lat);
 
-        dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 1000.0;
+        dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 100000.0;
 	}
 
     if (bearing)
     {
         if (d_lon  == 0 && d_lat == 0)
 			*bearing = 0;
-	else
-		*bearing = ((int16_t)to_degrees(atan2(d_lon, d_lat)) + 360) % 360;
+        else
+        	*bearing = ((int16_t)to_degrees(atan2(d_lon, d_lat)) + 360) % 360;
 //		DEBUG("a=%d\n", *bearing);
     }
 //	DEBUG("d=%lu\n\n", dist);
