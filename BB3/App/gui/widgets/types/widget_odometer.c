@@ -54,14 +54,15 @@ static void Odo_edit(widget_slot_t * slot, uint8_t action)
 static void Odo_update(widget_slot_t * slot)
 {
     char value[16];
+    uint32_t odometer = fc.flight.odometer / 100;    // cm to m
 
-    format_distance(value, fc.flight.odometer);
+    format_distance(value, odometer);
     lv_label_set_text(local->value, value);
     widget_update_font_size(local->value);
 
     if (local->units != NULL)
     {
-		format_distance_units(value, fc.flight.odometer);
+		format_distance_units(value, odometer);
 		lv_label_set_text(local->units, value);
     }
 }
