@@ -108,11 +108,9 @@ typedef struct
     int32_t center_lon;
     int32_t center_lat;
 
-    uint8_t zoom;
+    uint16_t zoom;
     bool ready;
     bool not_used;
-
-    uint8_t _pad[2];
 
 } map_chunk_t;
 
@@ -167,7 +165,7 @@ typedef struct
 extern gui_t gui;
 
 uint32_t HAL_GetTick();
-void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint8_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas);
+void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas);
 uint32_t get_tmp_filename(char * fname);
 bool file_exists(char * file);
 

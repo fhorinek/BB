@@ -90,7 +90,7 @@ static void get_kx_ky(float lat, float * kx, float * ky)
 }
 
 //get pixel coordinates from reference lat, lon in specified zoom
-void geo_to_pix(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32_t g_lat, int16_t * x, int16_t * y)
+void geo_to_pix(int32_t lon, int32_t lat, uint16_t zoom, int32_t g_lon, int32_t g_lat, int16_t * x, int16_t * y)
 {
 	int32_t step_x;
 	int32_t step_y;
@@ -109,8 +109,8 @@ void geo_to_pix(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32_t g
     *y = d_lat / step_y;
 }
 
-//get size in pixels for one 1 degree
-void geo_get_steps(int32_t lat, uint8_t zoom, int32_t * step_x, int32_t * step_y)
+//get degrees for one pixel
+void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_y)
 {
 	zoom += 1;
 	*step_x = (zoom * GNSS_MUL) / MAP_DIV_CONST;
@@ -118,14 +118,14 @@ void geo_get_steps(int32_t lat, uint8_t zoom, int32_t * step_x, int32_t * step_y
 	*step_y = (zoom * GNSS_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
 
-int64_t geo_get_steps_from_equator(int32_t lat, uint8_t zoom)
+int64_t geo_get_pixels_from_equator(int32_t lat, uint16_t zoom)
 {
 	zoom += 1;
 	uint8_t lat_e = abs(lat / GNSS_MUL);
 	int64_t steps = 0;
 	for (uint8_t i = 0; i < lat_e; i++)
 	{
-		steps += (zoom * GNSS_MUL / lat_mult[min(61, i)]) / MAP_DIV_CONST;
+		steps += GNSS_MUL / ((zoom * GNSS_MUL / lat_mult[min(61, i)]) / MAP_DIV_CONST);
 	}
 	return steps;
 }
@@ -234,7 +234,7 @@ uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bo
 
 
 
-void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint8_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas)
+void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas)
 {
 	uint16_t w = lv_obj_get_width(canvas);
 	uint16_t h = lv_obj_get_height(canvas);
