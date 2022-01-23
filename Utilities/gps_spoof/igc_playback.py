@@ -9,6 +9,9 @@ from pygame.locals import *
 from datetime import datetime
 import struct
 import zlib
+import sys
+import os
+import argparse
 
 GNSS_MUL = 10000000
 ZOOM_MUL = 100000
@@ -134,9 +137,17 @@ class GPS_Spoof(object):
                 continue
             #print(f)
             
+            h = int(f[1:3])
+            m = int(f[3:5])
+            s = int(f[5:7])
+
+            time = h * 3600 + m * 60 + s
+            
             lat = f[7:15]
             lon = f[15:24]
+            
             alt = f[25:30]
+            palt = f[30:36]
             
             lat_deg = int(lat[:2])
             lat_m = int(lat[2:][:-1]) / 60000.0
@@ -149,9 +160,10 @@ class GPS_Spoof(object):
             lon = (lon_deg + lon_m) * (-1.0 if lon[-1] == 'W' else 1.0)
 
             alt = int(alt)
+            palt = int(palt)
             
             if last_point:
-                olatitude, olongitude, oalt, __, __, __ = last_point
+                otime, olatitude, olongitude, __, opalt, __, __, __ = last_point
     
                 R = 6371e3 # metres
                 phi_1 = math.radians(lat)
@@ -163,8 +175,14 @@ class GPS_Spoof(object):
                 c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
                 
                 d = R * c
-                speed = d
-    
+                speed = d / 1.944
+                
+                delta = time - otime
+                if delta == 0:
+                    print(f, speed)
+                else:
+                    speed /= delta
+                
                 #hdg
                 dx = lon - olongitude
                 dy = lat - olatitude
@@ -173,13 +191,13 @@ class GPS_Spoof(object):
                 if heading < 0:
                     heading += 360
                     
-                vario = alt - oalt
+                vario = palt - opalt
             else:
                 heading = 0
                 speed = 0
                 vario = 0            
             
-            point = (lat, lon, alt, heading, speed, vario)
+            point = (time, lat, lon, alt, palt, heading, speed, vario)
             
             last_point = point 
 
@@ -215,6 +233,7 @@ class GPS_Spoof(object):
         x_off = 0   
         y_off = 0
         a_off = 0
+        time = 0
                 
         for i in range(circles):
             for j in range(samples):
@@ -227,10 +246,12 @@ class GPS_Spoof(object):
                 
                 lat, lon = self.pix_to_geo(x, y)
                 alt = a_off
+                palt = alt
                 a_off += vario
+                time += 1
             
                 if last_point:
-                    olatitude, olongitude, oalt, __, __, __ = last_point
+                    otime, olatitude, olongitude, oalt, __, __, __ = last_point
         
                     R = 6371e3 # metres
                     phi_1 = math.radians(lat)
@@ -242,7 +263,10 @@ class GPS_Spoof(object):
                     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
                     
                     d = R * c
-                    speed = d
+                    speed = d / 1.944
+        
+                    delta = time - otime
+                    speed /= delta
         
                     #hdg
                     dx = lon - olongitude
@@ -256,7 +280,7 @@ class GPS_Spoof(object):
                     heading = 0
                     speed = 0
                 
-                point = (lat, lon, alt, heading, speed, vario)
+                point = (time, lat, lon, alt, palt, heading, speed, vario)
                 
                 last_point = point 
     
@@ -306,7 +330,7 @@ class GPS_Spoof(object):
         self.screen.blit(tmp,  [int(x - w / 2), int(y - h / 2)])    
     
     def send_point(self, point):
-        latitude, longitude, alt, hdg, spd, var = point
+        __, latitude, longitude, alt, __, hdg, spd, var = point
         
         time = int(datetime.utcnow().timestamp())
 
@@ -465,7 +489,7 @@ class GPS_Spoof(object):
         self.screen.fill(self.black)
 
         if self.fix:
-            lat, lon = self.points[self.point_index][0:2]
+            lat, lon = self.points[self.point_index][1:3]
             self.lat_center = lat
             self.lon_center = lon            
         
@@ -476,7 +500,7 @@ class GPS_Spoof(object):
 
 
         for index in range(len(self.points)):
-            lat, lon = self.points[index][0:2]
+            lat, lon = self.points[index][1:3]
             color = self.point_color if index > self.point_index else self.point_color_used
             
             point = self.geo_to_pix(lat, lon)
@@ -487,9 +511,9 @@ class GPS_Spoof(object):
 
             last_point = point
 
-        self.draw_text("Alt: %d" % self.altitiude, 0, 0)
+        self.draw_text("Alt: %d m" % self.altitiude, 0, 0)
         self.draw_text("Hdg: %d" % self.heading, 0, 20)
-        self.draw_text("Spd: %0.1f" % (self.speed * 1.852), 0, 40)
+        self.draw_text("Spd: %0.1f m/s %0.1f km/h" % (self.speed, self.speed * 3.6), 0, 40)
         self.draw_text("Var: %0.1f" % (self.vario), 0, 60)
             
         self.draw_text("Lat: %0.7f" % self.lat, 0, 90)
@@ -510,6 +534,7 @@ class GPS_Spoof(object):
         
         
         self.calc_wind()
+        self.calc_autoland()
         
         
         pygame.display.update()     
@@ -526,7 +551,7 @@ class GPS_Spoof(object):
         max_samples = 100
         
         while index >= 0 and max_samples > 0:
-            lat, lon, __, hdg, spd, __ = self.points[index]
+            __, lat, lon, __, __, hdg, spd, __ = self.points[index]
             
             point = self.geo_to_pix(lat, lon)
 
@@ -622,8 +647,6 @@ class GPS_Spoof(object):
             tx = int(cx - wind_x * wind_gain)
             ty = int(cy - wind_y * wind_gain)
             
-            pygame.draw.line(self.screen, (0, 255, 255), (cx, cy), (tx, ty), 3)
-            
             wind_hdg = int(math.degrees(math.atan2(wind_x, -wind_y)) + 360) % 360
             wind_spd = math.sqrt(pow(wind_x, 2) + pow(wind_y, 2))
     
@@ -652,12 +675,58 @@ class GPS_Spoof(object):
             self.draw_text_center("%0.1f m/s" % (wind_spd), cx, cy + 40)
         else:
             self.draw_text_center("Not valid", cx, cy + 20)
+            
+    def calc_autoland(self):
+        index = self.point_index
+
+        max_samples = 60
+        max_spd = 0
+        min_alt = 999999
+        max_alt = 0
+        
+        while index >= 0 and max_samples > 0:
+            __, lat, lon, __, palt, __, spd, __ = self.points[index]
+            
+            max_spd = max(spd, max_spd)
+            min_alt = min(palt, min_alt)
+            max_alt = max(palt, max_alt)
+            
+            max_samples -= 1
+            index -= 1
+            
+            point = self.geo_to_pix(lat, lon)
+            pygame.draw.circle(self.screen, (0,255,255), point, self.point_radius) 
+
+
+        delta = max_alt - min_alt
+        self.draw_text("Max spd: %0.1f m/s %0.1f km/h" % (max_spd, max_spd * 3.6), 250, 0)            
+        self.draw_text("Min alt: %0.1f" % min_alt, 250, 20)            
+        self.draw_text("Max alt: %0.1f" % max_alt, 250, 40)            
+        self.draw_text("Delta: %0.1f" % delta, 250, 60)            
+            
+
         
 if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser(description='Playback log files and feed them to the strato')
+    parser.add_argument("-l", "--log", help="open log file", default=None)
+    parser.add_argument("-L", "--logs", help="open log files from directory", default=None)
+    parser.add_argument("-p", "--port", default="/edv/ttyACM0", help="Strato debug port")
+    args = parser.parse_args()    
+    
+    print(args)
+    
     o = GPS_Spoof()
 
-    o.main("/dev/ttyACM0")
-    o.add_igc("wind.igc")
+    o.main(args.port)
+    
+    if (args.log != None):
+        o.add_igc(args.log)
+        
+    if (args.logs != None):
+        for fi in os.listdir(args.logs):
+            path = os.path.join(args.logs, fi)
+            o.add_igc(path)
     
     #o.fake_igc(5, 40, 0.1, 0.1, 1)
     
