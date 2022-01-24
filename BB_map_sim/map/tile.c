@@ -210,6 +210,12 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
 void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y)
 {
 	//create static dest buffer for tile in psram
+	static uint16_t * topo_buffer = NULL;
+
+	if (topo_buffer == NULL)
+	{
+		topo_buffer = ps_malloc(sizeof(uint16_t) * MAP_W * MAP_H);
+	}
 
 	//load 4 agl files to psram and place values to the tile buffer
 
@@ -337,8 +343,6 @@ void tile_geo_to_pix(uint8_t index, int32_t g_lon, int32_t g_lat, int16_t * x, i
 
 void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat)
 {
-
-
 	int32_t step_x;
 	int32_t step_y;
 	geo_get_steps(lat, zoom, &step_x, &step_y);
@@ -380,12 +384,10 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 
 	for (uint8_t i = index; i > 0; i--)
 	{
-		//was this file allready processed?
+		//was this file already processed?
 		if (strcmp(name[i-1], name[index]) == 0)
 			return NULL;
 	}
-
-
 
 	bool loaded = false;
 
@@ -428,6 +430,79 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 
 	//check if this file was already used on this tile
 	return map_cache;
+}
+
+typedef struct
+{
+	int32_t lat;
+	int32_t lon;
+	uint32_t size;
+} agl_header_t;
+
+static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
+{
+	//buffer for map data
+	static uint8_t * agl_cache = NULL;
+	//name of the file in buffer
+	static char agl_cache_name[16];
+
+	//names used to generate tile
+	static char name[4][16];
+
+	tile_get_filename(name[index], lat, lon);
+
+	for (uint8_t i = index; i > 0; i--)
+	{
+		//was this file already processed?
+		if (strcmp(name[i-1], name[index]) == 0)
+			return NULL;
+	}
+
+	bool loaded = false;
+
+	if (agl_cache != NULL)
+	{
+		if (strcmp(agl_cache_name, name[index]) == 0)
+		{
+			loaded = true;
+		}
+	}
+
+	if (!loaded)
+	{
+		FIL agl_data;
+
+		char path[PATH_LEN];
+		snprintf(path, sizeof(path), "%s/%s.map", PATH_MAP_DIR, name[index]);
+		if (f_open(&map_data, path, FA_READ) != FR_OK)
+		{
+			ERR("agl file %s not found", name[index]);
+			db_insert(PATH_AGL_INDEX, name, "W"); //set want flag
+			return NULL;
+		}
+
+		if (agl_cache != NULL)
+		{
+			ps_free(agl_cache);
+			agl_cache = NULL;
+		}
+
+		UINT br;
+		agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
+
+		((agl_header_t *)agl_cache)->lat = lat / GNSS_MUL;
+		((agl_header_t *)agl_cache)->lon = lon / GNSS_MUL;
+		((agl_header_t *)agl_cache)->size = f_size(&agl_data);
+
+		f_read(&agl_data, agl_cache + sizeof(agl_header_t), f_size(&agl_data), &br);
+		f_close(&agl_data);
+
+		//mark name to cache
+		strcpy(agl_cache_name, name);
+	}
+
+	//check if this file was already used on this tile
+	return agl_cache;
 }
 
 uint16_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * map_cache)
@@ -688,7 +763,11 @@ uint16_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_
 void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * magic)
 {
     lv_canvas_fill_bg(gui.map.canvas, LV_COLOR_GREEN, LV_OPA_COVER);
-	//draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, magic);
+
+    magic[0] |= draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon1, lat1, 0));
+    magic[1] |= draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon1, lat2, 1));
+    magic[2] |= draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon2, lat2, 2));
+    magic[3] |= draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon2, lat1, 3));
 
     //draw map map
     magic[0] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, load_map_file(lon1, lat1, 0));
