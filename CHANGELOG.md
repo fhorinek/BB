@@ -1,4 +1,15 @@
+# 24.1.2021 - Build 235
+##Added
  * new TimeDate widget to display current time and date
+ * logging to csv
+ 
+#Fixes
+ * Higher ODO accuracy from m to cm
+ * Audio porofile load correct file
+
+## Development
+ * Added more error messages
+ * More memory for lvgl
 
 # 19.1.2021 - Build 230
 ##Added
