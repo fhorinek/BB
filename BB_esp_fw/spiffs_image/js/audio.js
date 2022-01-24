@@ -314,8 +314,8 @@ function create_modal(title, text, link_list, cb)
         a.href = "#";
         a.link = link;
         $(a).click(function(){
-            console.log(a.link);
-            cb(a.link);
+            console.log(this.link);
+            cb(this.link);
         });
         li.append(a);
         
