@@ -46,7 +46,7 @@ static void DToff_update(widget_slot_t * slot)
     {
 		if (local->units != NULL)
 		{
-			format_distance_units(value, fc.flight.takeoff_bearing);
+			format_distance_units(value, fc.flight.takeoff_distance);
 			lv_label_set_text(local->units, value);
 		}
 
