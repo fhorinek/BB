@@ -88,6 +88,9 @@ typedef union
 #define min(a,b)                ((a)<(b)?(a):(b))
 #define max(a,b)                ((a)>(b)?(a):(b))
 
+#define SWAP_UINT16(x)          ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
+
+
 #define INFO(...)	do{ printf(__VA_ARGS__); printf("\n"); } while(0);
 #define WARN(...)	do{ printf("[W]"); printf(__VA_ARGS__); printf("\n"); } while(0);
 #define DBG(...)	do{ printf("[D]"); printf(__VA_ARGS__); printf("\n"); } while(0);
