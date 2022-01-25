@@ -123,14 +123,14 @@ void map_step()
 
 
 	//only cache first
-	for (uint8_t i = 0; i < 9; i++)
-	{
-		if (tiles[i].reload)
-		{
-			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
-				tiles[i].reload = false;
-		}
-	}
+//	for (uint8_t i = 0; i < 9; i++)
+//	{
+//		if (tiles[i].reload)
+//		{
+//			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+//				tiles[i].reload = false;
+//		}
+//	}
 
 
 	//last resort, regenerate
