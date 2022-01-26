@@ -65,7 +65,7 @@ commands accordingly.
 
 Please follow this outline to install:
 
- 1. [Install Prerequisites](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#Prerequisites)
+ 1. [Install Prerequisites](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#Prerequisites) as this is included in the following step "Install ESP-IDF/ADF"
  2. [Install IDF Plugin](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-idf-plugin-using-update-site-url)
  3. [Install ESP-IDF/ADF](https://strato.skybean.eu/dev/esp.zip) extract this modified version to ~/esp/ so that you get ~/esp/esp-idf and ~/esp/esp-adf.
  4. [Install ESP-IDF Tools](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-esp-idf-tools)

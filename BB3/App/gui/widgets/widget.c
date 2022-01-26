@@ -158,10 +158,25 @@ void widget_arrow_rotate(lv_obj_t * arrow, lv_point_t * points, int16_t angle)
     widget_arrow_rotate_size(arrow, points, angle,s);
 }
 
-
+/**
+ * Add an arrow to the widget with a possible unit.
+ *
+ * @param base the base widget (currently unused)
+ * @param slot the widget to which this arrow is added
+ * @param points a pointer to lv_point_t[WIDGET_ARROW_POINTS]
+ *               allocated by caller. This array receives the points of the
+ *               arrow and allows the caller to modify (rotate) them.
+ * @param unit a text placed under the value, e.g. "km/h" or NULL if no label is needed.
+ * @param unit_obj receives the lv_obj_t of the unit label, so that it can
+ *                 be used later to change the unit label. If this is NULL, then
+ *                 nothing will be returned.
+ *
+ * @return the GUI lv_obj_t of the arrow object.
+ */
 lv_obj_t * widget_add_arrow(lv_obj_t * base, widget_slot_t * slot, lv_point_t * points, char * unit, lv_obj_t ** unit_obj)
 {
-    lv_obj_t * unit_label = NULL;
+	// Todo: remove base, as it seems unused?
+	lv_obj_t * unit_label = NULL;
 
     if (unit != NULL)
     {
@@ -402,3 +417,26 @@ void widget_destroy_edit_overlay(lv_obj_t * base)
     pages_unlock_widget();
 }
 
+/**
+ * Add a single straight line to the widget.
+ *
+ * @param base the base widget (currently unused)
+ * @param slot the widget to which this arrow is added
+ * @param points a pointer to lv_point_t[WIDGET_LINE_STRAIGHT_POINTS]
+ *               allocated by caller. This array receives the points of the
+ *               line and allows the caller to modify them.
+ *
+ * @return the GUI lv_obj_t of the line object.
+ */
+lv_obj_t * widget_add_line_straight(lv_obj_t * base, widget_slot_t * slot, lv_point_t * points)
+{
+	// Todo: remove base, as it seems unused?
+    lv_obj_t * line_obj = lv_line_create(slot->obj, NULL);
+    lv_obj_set_pos(line_obj, 0, 0);
+    lv_obj_set_size(line_obj, slot->w, slot->h);
+    lv_line_set_auto_size(line_obj, false);
+    memset(points, 0, sizeof(lv_point_t) * WIDGET_LINE_STRAIGHT_POINTS);
+    lv_line_set_points(line_obj, points, WIDGET_LINE_STRAIGHT_POINTS);
+
+    return line_obj;
+}

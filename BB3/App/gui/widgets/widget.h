@@ -28,6 +28,7 @@ void widget_destroy_edit_overlay(lv_obj_t * base);
 lv_obj_t * widget_edit_overlay_get_base(lv_obj_t * edit);
 void widget_reset_edit_overlay_timer();
 
+lv_obj_t * widget_add_line_straight(lv_obj_t * base, widget_slot_t * slot, lv_point_t * points);
 
 
 
