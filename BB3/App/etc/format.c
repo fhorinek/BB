@@ -294,6 +294,12 @@ void format_distance(char * buf, float in)
 	}
 }
 
+/**
+ * Select the appropriate unit for the given distance.
+ *
+ * @param buf a character buffer receiving the unit.
+ * @param in the distance in meter.
+ */
 void format_distance_units(char * buf, float in)
 {
 	switch (config_get_select(&config.units.distance))

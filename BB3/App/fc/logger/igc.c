@@ -10,15 +10,15 @@
 
 #include <private_key.h>
 
-static osTimerId timer;
+static osTimerId igc_timer;
 
 #define IGC_PERIOD	900
 #define LOG_IGC_MANUFACTURER_ID	"XSB"
 #define LOG_IGC_DEVICE_ID		"DRP"
 //#define LOG_IGC_DEVICE_ID		"STR"
 
-FIL log_file;
-static bool started = false;
+FIL igc_log_file;
+static bool igc_started = false;
 
 sha_internal_state_t sha_state;
 
@@ -33,9 +33,9 @@ void igc_writeline_2(char * line, bool sign)
 	snprintf(new_line, sizeof(new_line), "%s\r\n", line);
 	l += 2;
 
-	ASSERT(f_write(&log_file, new_line, l, &wl) == FR_OK);
+	ASSERT(f_write(&igc_log_file, new_line, l, &wl) == FR_OK);
 	ASSERT(wl == l);
-	ASSERT(f_sync(&log_file) == FR_OK);
+	ASSERT(f_sync(&igc_log_file) == FR_OK);
 
 #ifndef IGC_NO_PRIVATE_KEY
 	if (sign)
@@ -77,13 +77,13 @@ void igc_write_grecord()
 		strcat(line, tmp);
 	}
 
-	uint32_t pos = f_tell(&log_file);
+	uint32_t pos = f_tell(&igc_log_file);
 
 	igc_writeline_2(line, false);
-	f_sync(&log_file);
+	f_sync(&igc_log_file);
 
 	//rewind pointer
-	ASSERT(f_lseek(&log_file, pos) == FR_OK);
+	ASSERT(f_lseek(&igc_log_file, pos) == FR_OK);
 #endif
 }
 
@@ -162,10 +162,10 @@ void igc_start_write()
 	DBG("utc_time %lu", utc_time);
 	datetime_from_epoch(utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 
-	snprintf(path, sizeof(path), "%s/%02u.%04u", PATH_LOGS_DIR, month, year);
+	snprintf(path, sizeof(path), "%s/%04u.%02u", PATH_LOGS_DIR, year, month);
 	f_mkdir(path);
-	snprintf(path, sizeof(path), "%s/%02u.%04u/%02u.%02u.%04u %02u.%02u.igc", PATH_LOGS_DIR, month, year, day, month, year, hour, min);
-	uint8_t res = f_open(&log_file, path, FA_WRITE | FA_CREATE_ALWAYS);
+	snprintf(path, sizeof(path), "%s/%04u.%02u/%04u.%02u.%02u %02u.%02u.igc", PATH_LOGS_DIR, year, month, year, month, day, hour, min);
+	uint8_t res = f_open(&igc_log_file, path, FA_WRITE | FA_CREATE_ALWAYS);
 	DBG("IGC OPEN %s, res = %u", path, res);
 	ASSERT(res == FR_OK);
 	if (res != FR_OK)
@@ -263,7 +263,7 @@ void igc_start_write()
 
 void igc_tick_cb(void * arg)
 {
-	if (started)
+	if (igc_started)
 	{
 		//write B record
 
@@ -287,15 +287,15 @@ void igc_tick_cb(void * arg)
 		{
 			igc_start_write();
 			fc.logger.igc = fc_logger_record;
-			started = true;
+			igc_started = true;
 		}
 	}
 }
 
 void igc_init()
 {
-	started = false;
-	timer = osTimerNew(igc_tick_cb, osTimerPeriodic, NULL, NULL);
+	igc_started = false;
+	igc_timer = osTimerNew(igc_tick_cb, osTimerPeriodic, NULL, NULL);
 
 	fc.logger.igc = fc_logger_off;
 }
@@ -304,19 +304,19 @@ void igc_init()
 void igc_start()
 {
 	DBG("IGC timer start");
-    osTimerStart(timer, IGC_PERIOD);
+    osTimerStart(igc_timer, IGC_PERIOD);
     fc.logger.igc = fc_logger_wait;
 }
 
 void igc_stop()
 {
-	osTimerStop(timer);
+	osTimerStop(igc_timer);
 
-	if (started)
+	if (igc_started)
 	{
 		igc_comment("end");
-		f_close(&log_file);
-		started = false;
+		f_close(&igc_log_file);
+		igc_started = false;
 	}
 	fc.logger.igc = fc_logger_off;
 }

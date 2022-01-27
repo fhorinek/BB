@@ -22,6 +22,7 @@
 #include "fc/agl.h"
 #include "fc/navigation.h"
 #include "fc/circling.h"
+#include "fc/wind.h"
 
 #include "gui/tasks/page/pages.h"
 
@@ -85,6 +86,12 @@ void fc_reset()
     {
         fc.autostart.altitude = fc.fused.altitude1;
         fc.autostart.timestamp = HAL_GetTick();
+    }
+
+    if (fc.flight.mode != flight_landed)
+    {
+    	fc.flight.start_lat = INVALID_INT32;
+    	fc.flight.start_lon = INVALID_INT32;
     }
 
     fc.history.index = 0;

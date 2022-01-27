@@ -295,6 +295,8 @@ flight_profile_t profile =
             entry_select("log_mode", LOGGER_FLIGHT, logger_mode_select),
             //igc
             entry_bool("log_igc", true),
+			//csv
+			entry_bool("log_csv", false),
         },
         //acc_duration
 		entry_int("acc_dura", 5, 1, 30),

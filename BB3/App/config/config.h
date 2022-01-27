@@ -122,6 +122,7 @@ typedef struct
         {
             cfg_entry_t mode;
             cfg_entry_t igc;
+            cfg_entry_t csv;
         } logger;
 
         cfg_entry_t acc_duration;

@@ -87,6 +87,8 @@ static lv_obj_t * flight_init(lv_obj_t * par)
     gui_list_auto_entry(list, "G-meter time", &profile.flight.acc_duration, &dura_opt);
     gui_list_auto_entry(list, "Circling timeout", &profile.flight.circle_timeout, &dura_opt);
 
+    gui_list_auto_entry(list, "Enable IGC log", &profile.flight.logger.igc, NULL);
+    gui_list_auto_entry(list, "Enable CSV log", &profile.flight.logger.csv, NULL);
 
 	return list;
 }
