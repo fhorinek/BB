@@ -1,14 +1,13 @@
 Added:
-- Wind estimation
-- New thermal assistant
-- Volume control
-- FANET/FLARM update
-- Firmware channels 
+- Logging to csv
+- Time Date widget
 
 Fixes:
-- Bluetooth pairing
+- Higher ODO accuracy 
+- Audio porofile load
 
 Known Issues:
 - BT GNSS forwarding
 
 PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT
+

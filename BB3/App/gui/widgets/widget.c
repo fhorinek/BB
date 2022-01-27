@@ -12,7 +12,7 @@
 widget_flag_def_t widgets_flags[] = {
 	{'L', LV_SYMBOL_EYE_CLOSE " Label hidden", LV_SYMBOL_EYE_OPEN " Label visible", NULL},
     {'U', LV_SYMBOL_EYE_CLOSE " Units hidden", LV_SYMBOL_EYE_OPEN " Units visible", NULL},
-    {'D', LV_SYMBOL_EYE_CLOSE " Decimals hidden", LV_SYMBOL_EYE_OPEN " Decimals visible", NULL},
+    {'D', LV_SYMBOL_EYE_OPEN " Decimals visible", LV_SYMBOL_EYE_CLOSE " Decimals hidden", NULL},
     {'A', "Alternative units", "Default units", NULL},
     {'V', "Avg. vario on climb", "Empty on climb", NULL},
     {'R', "North is up", "Adjust to heading", NULL},
@@ -45,10 +45,23 @@ void widget_add_title(lv_obj_t * base, widget_slot_t * slot, char * title)
 
 #define WIDGET_VALUE_MIN_HEIGHT     16
 
+/*
+ * Add a value with optional unit to a widget, e.g ground speed 25 km/h.
+ *
+ * @param base the GUI lv_obj_t where the value should be put into
+ * @param slot the widget running in base where the value belongs to
+ * @param unit a text placed under the value, e.g. "km/h" or NULL if no label is needed.
+ * @param unit_obj receives the lv_obj_t of the unit label, so that it can
+ *                 be used later to change the unit label. If this is NULL, then
+ *                 nothing will be returned.
+ *
+ * @return the GUI lv_obj_t of the value object.
+ */
 lv_obj_t * widget_add_value(lv_obj_t * base, widget_slot_t * slot, char * unit, lv_obj_t ** unit_obj)
 {
     lv_obj_t * unit_label = NULL;
 
+    // Todo: parameter base seems to be unused and replaced by slot->obj. Remove "base" as parameter?
     if (unit != NULL)
     {
         unit_label = lv_label_create(slot->obj, NULL);

@@ -7,10 +7,7 @@
 # This script is used after compiling the parts to create the final
 # firmware file.
 #
-# Use the option "--release" to create an official release. This will 
-# use "git add" and "git commit" to create a git release entry.
-#
-# Use the option "--ch" to specify prefix ("R", "T", or "D").
+# Use the option "--help" for an explanation.
 #
 
 import sys
@@ -124,10 +121,11 @@ def add_files(path, level):
 
             
 parser = argparse.ArgumentParser(description='Pack parts to create a Strato firmware.')
-parser.add_argument("-r", "--release",
-                    help="Create an official firmware release",
+parser.add_argument("-p", "--publish",
+                    help="Publish the firmware (=git add,commit)",
                     action="store_true")
-parser.add_argument("--ch", default="D", choices=['R', 'T', 'D'])
+parser.add_argument("-c", "--channel", default="D", choices=['R', 'T', 'D'],
+                    help="Select the release channel for this firmware out of (Release, Test, Debug)")
 args = parser.parse_args()
 
 #STM firmware
@@ -164,7 +162,7 @@ build_number += 1
 
 open("build_number", "w").write("%u" % build_number)
 
-build = build_number | ord(args.ch) << 24
+build = build_number | ord(args.channel) << 24
 
 number_of_records = len(chunks)
 
@@ -189,20 +187,20 @@ for c in chunks:
 
 f.close()
 
-build = "%c%07u" % (args.ch, build_number)
+build = "%c%07u" % (args.channel, build_number)
 folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
     
-os.mkdir(folder)
+os.makedirs(folder, exist_ok=True)
 shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
 shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
 shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
 shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
 
-if args.release:
+if args.publish:
     print("Creating Snapshot Build %s" % build)
     os.system("git add -A")
     os.system("git commit -m \"Snapshot build %s\"" % build)
 
-print("Done")
+print("Done for build " + build)
 
 

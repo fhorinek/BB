@@ -93,3 +93,27 @@ will take the above two parts and merge them into "strato.fw".
 
 Follow instructions in manual on copying this to strato and do the
 final update.
+
+# Typical development tasks
+
+We decribe some typical tasks and how to do them.
+
+## Add a widget
+
+Create a new source file under `BB3/App/gui/widgets/types/` typically by
+copying an existing file, like `widget_battery.c`.
+
+Change values in REGISTER_WIDGET_IU especially the first value, which
+is the variable name of the new widget. For this example, we change it
+to "TimeDate". This implicitly means, that the callback functions for
+this widget must start with "TimeDate", e.g. "TimeDate_init()".
+
+Then add the new widget to `BB3/App/gui/widgets/widget_list.c` as a new
+DECLARE_WIDGET and LIST_WIDGET at the end of the existings
+declarations.
+
+## Change release notes
+
+Describe your changes in `BB3/Assets/release_note.txt` (displayed on
+device after update) and `./CHANGELOG.md` (displayed in GitHub).
+
