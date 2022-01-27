@@ -12,7 +12,7 @@
 
 #include <sys/stat.h>
 
-#define FIL FILE
+#define FIL 	FILE *
 #define FRESULT uint8_t
 #define UINT	uint32_t
 
@@ -34,7 +34,7 @@ uint32_t f_size(FIL * fp);
 FRESULT f_lseek(FIL * fp, uint32_t pos);
 bool f_eof(FIL * fp);
 uint32_t f_tell(FIL * fp);
-#define f_gets(str, size, fp) fgets(str, size, fp)
+#define f_gets(str, size, fp) fgets(str, size, *fp)
 #define f_unlink(path) remove(path)
 #define f_rename(old, new) rename(old, new)
 #define f_mkdir(path)	mkdir(path, 0777);
