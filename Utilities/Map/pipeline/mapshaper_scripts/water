@@ -10,7 +10,6 @@ clean snap-interval=0.00001 target=lines
 
 #disolve
 dissolve target=lines
-dissolve2 target=polygons
 
 #remove small islands
 filter-slivers min-area=5000sqm target=polygons
@@ -28,6 +27,7 @@ clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines
 
 #slice
 slice grid target=polygons
+#dissolve2 target=slice-*
 merge-layers target=slice-* name=polygons
 explode name=polygons
 
@@ -38,4 +38,5 @@ explode name=lines
 #tag features
 each 'this.properties["type"] = "water"' target=polygons
 each 'this.properties["type"] = "river"' target=lines
+
 
