@@ -38,7 +38,7 @@ void map_init()
 
 extern int32_t map_lon;
 extern int32_t map_lat;
-extern uint8_t map_zoom;
+extern uint16_t map_zoom;
 
 void map_step()
 {
@@ -50,7 +50,7 @@ void map_step()
 
     uint8_t old_magic = gui.map.magic;
 
-    uint8_t zoom = map_zoom;
+    uint16_t zoom = map_zoom;
 
 	int32_t step_x;
 	int32_t step_y;
@@ -121,15 +121,17 @@ void map_step()
 		}
 	}
 
+
 	//only cache first
-	for (uint8_t i = 0; i < 9; i++)
-	{
-		if (tiles[i].reload)
-		{
-			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
-				tiles[i].reload = false;
-		}
-	}
+//	for (uint8_t i = 0; i < 9; i++)
+//	{
+//		if (tiles[i].reload)
+//		{
+//			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+//				tiles[i].reload = false;
+//		}
+//	}
+
 
 	//last resort, regenerate
 	for (uint8_t i = 0; i < 9; i++)

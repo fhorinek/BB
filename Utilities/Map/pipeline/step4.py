@@ -323,14 +323,14 @@ def pipeline_step4():
     # 8b version
     # 8b grid w
     # 8b grid h
-    file_data += struct.pack("<BBBB", 0x55, 0x00, w_cnt, h_cnt)
+    magic = (0 % 127) + 1
+    file_data += struct.pack("<BBBB", 0x55, magic, w_cnt, h_cnt)
 
-    # 32b timestamp
-    timestamp = int(datetime.today().timestamp())
-    file_data += struct.pack("<I", timestamp)
+    # 32b longitude
+    file_data += struct.pack("<i", common.lon * common.GPS_COORD_MUL)
     
-    # 32b number of features
-    file_data += struct.pack("<I", index_records)
+    # 32b latitude
+    file_data += struct.pack("<i", common.lat * common.GPS_COORD_MUL)
             
         
     if debug_bin:

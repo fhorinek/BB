@@ -88,7 +88,10 @@ typedef union
 #define min(a,b)                ((a)<(b)?(a):(b))
 #define max(a,b)                ((a)>(b)?(a):(b))
 
-#define INFO(...)	do{ printf("[I]"); printf(__VA_ARGS__); printf("\n"); } while(0);
+#define SWAP_UINT16(x)          ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
+
+
+#define INFO(...)	do{ printf(__VA_ARGS__); printf("\n"); } while(0);
 #define WARN(...)	do{ printf("[W]"); printf(__VA_ARGS__); printf("\n"); } while(0);
 #define DBG(...)	do{ printf("[D]"); printf(__VA_ARGS__); printf("\n"); } while(0);
 #define ERR(...)	do{ printf("[E]"); printf(__VA_ARGS__); printf("\n"); } while(0);
@@ -108,11 +111,9 @@ typedef struct
     int32_t center_lon;
     int32_t center_lat;
 
-    uint8_t zoom;
+    uint16_t zoom;
     bool ready;
     bool not_used;
-
-    uint8_t _pad[2];
 
 } map_chunk_t;
 
@@ -167,7 +168,7 @@ typedef struct
 extern gui_t gui;
 
 uint32_t HAL_GetTick();
-void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint8_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas);
+void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas);
 uint32_t get_tmp_filename(char * fname);
 bool file_exists(char * file);
 
