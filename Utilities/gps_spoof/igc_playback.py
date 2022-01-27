@@ -311,7 +311,8 @@ class GPS_Spoof(object):
         
         try:
             self.port = serial.Serial(port, 921600)
-        except:
+        except Exception as e:
+            print(e)
             self.port = False
         
     def run(self):
@@ -711,15 +712,18 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Playback log files and feed them to the strato')
     parser.add_argument("-l", "--log", help="open log file", default=None)
     parser.add_argument("-L", "--logs", help="open log files from directory", default=None)
-    parser.add_argument("-p", "--port", default="/edv/ttyACM0", help="Strato debug port")
+    parser.add_argument("-p", "--port", default="/dev/ttyACM0", help="Strato debug port")
     args = parser.parse_args()    
     
-    print(args)
-    
+    if (args.log == None and args.logs == None):
+        parser.print_help()
+        print("You must either use '-l' or '-L'")
+        sys.exit(1)
+
     o = GPS_Spoof()
 
     o.main(args.port)
-    
+
     if (args.log != None):
         o.add_igc(args.log)
         
