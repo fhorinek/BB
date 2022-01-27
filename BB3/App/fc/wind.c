@@ -88,7 +88,7 @@ void wind_init()
 {
     fc.wind.valid = false;
 
-    DBG("wind_init\n");
+    DBG("wind_init");
 }
 
 void wind_step()

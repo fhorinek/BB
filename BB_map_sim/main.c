@@ -50,9 +50,9 @@ lv_indev_t *kb_indev;
 
 #include "tile.h"
 
-int32_t map_lon = 173319635;
-int32_t map_lat = 481635082;
-int16_t map_zoom = 40;
+int32_t map_lon = 171479510;
+int32_t map_lat = 481671349;
+int16_t map_zoom = 27;
 lv_obj_t * screen;
 
 static lv_group_t *g;
@@ -78,7 +78,7 @@ static void my_event_cb(lv_obj_t *obj, lv_event_t event) {
 		map_lon = lon;
 		map_lat = lat;
 
-		printf("%d %d\n", lon, lat);
+		printf("target %d %d\n", lon, lat);
 
 		break;
 	case (LV_EVENT_KEY):
@@ -87,11 +87,13 @@ static void my_event_cb(lv_obj_t *obj, lv_event_t event) {
 		{
 			map_zoom -= 1;
 			map_zoom = max(0, map_zoom);
+			INFO("zoom %u", map_zoom);
 		}
 		if (*key == 20) //-
 		{
 			map_zoom += 1;
 			map_zoom = min(300, map_zoom);
+			INFO("zoom %u", map_zoom);
 		}
 		break;
 
