@@ -134,8 +134,8 @@ int64_t geo_get_pixels_from_equator(int32_t lat, uint16_t zoom)
 void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * step_x_m, int16_t * step_y_m)
 {
 	uint8_t lat_i = min(60, abs(lat / GNSS_MUL));
-    *step_x_m = max(1, step_x * 111000 / GNSS_MUL / lat_mult[lat_i]);
-    *step_y_m = max(1, step_y * 111000 / GNSS_MUL);
+    *step_x_m = max(1, step_x * 111000l / GNSS_MUL / lat_mult[lat_i]);
+    *step_y_m = max(1, step_y * 111000l / GNSS_MUL);
 }
 
 void geo_destination(float lat1, float lon1, float angle, float distance_km, float * lat2, float * lon2)
