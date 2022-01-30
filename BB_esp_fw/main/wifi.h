@@ -14,5 +14,6 @@ void wifi_init();
 void wifi_enable(proto_wifi_mode_t * packet);
 void wifi_start_scan(void * parameter);
 void wifi_connect(proto_wifi_connect_t * packet);
+bool wifi_is_connected();
 
 #endif /* MAIN_WIFI_H_ */
