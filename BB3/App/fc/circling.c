@@ -43,7 +43,8 @@ void circling_step()
         {
             if (!fc.flight.circling)
             {
-                gui_page_set_mode(&profile.ui.autoset.circle);
+                gui.next_page = &profile.ui.autoset.circle;
+                gui.change_page = true;
                 fc.flight.circling = true;
                 fc.flight.circling_start = HAL_GetTick();
                 fc.flight.circling_start_altitude = fc.fused.altitude1;
@@ -64,7 +65,8 @@ void circling_step()
                 {
                     fc.flight.circling = false;
                     fc.flight.total_heading_change = 0;
-                    gui_page_set_mode(&profile.ui.autoset.glide);
+                    gui.next_page = &profile.ui.autoset.glide;
+                    gui.change_page = true;
                 }
             }
         }
