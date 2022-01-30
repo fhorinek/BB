@@ -349,3 +349,8 @@ void wifi_connect(proto_wifi_connect_t * packet)
 	vTaskDelete(NULL);
 }
 
+bool wifi_is_connected()
+{
+	return wifi_connected;
+}
+
