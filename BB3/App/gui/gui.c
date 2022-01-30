@@ -287,14 +287,6 @@ void gui_init()
 	lv_scr_load(screen);
 }
 
-void page_swithing_step()
-{
-	if (gui.change_page) {
-		gui_page_set_mode(gui.next_page);
-		gui.change_page = false;
-	}
-}
-
 void gui_loop()
 {
 	static uint32_t next_update = 0;
@@ -305,7 +297,6 @@ void gui_loop()
 
 		statusbar_step();
 		dbg_overlay_step();
-		page_swithing_step();
 
 		//execute task
 		if (gui.task.actual->loop != NULL)

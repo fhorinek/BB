@@ -127,6 +127,12 @@ void page_focus_widget(lv_obj_t * obj)
     }
 }
 
+void gui_page_set_next(cfg_entry_t * cfg)
+{
+	 gui.next_page = cfg;
+	 gui.change_page = true;
+}
+
 void gui_page_set_mode(cfg_entry_t * cfg)
 {
 	char * name = config_get_text(cfg);
@@ -811,7 +817,13 @@ static void pages_loop()
 
 		local->state = MENU_IDLE;
 	}
+
 	widgets_update(local->page);
+
+	if (gui.change_page) {
+		gui_page_set_mode(gui.next_page);
+		gui.change_page = false;
+	}
 }
 
 static void pages_stop()
