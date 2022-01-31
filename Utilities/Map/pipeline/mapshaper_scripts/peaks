@@ -1,3 +1,5 @@
+#INJECT_POINT
+
 #remove unnecesery data fields
 filter-fields fields=name,ele
 
@@ -6,3 +8,7 @@ filter 'this.properties.ele != undefined'
 
 #tag features
 each 'this.properties["type"] = "peak"'
+
+#clip excess geometry 
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
+

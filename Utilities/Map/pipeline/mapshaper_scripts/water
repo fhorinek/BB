@@ -1,15 +1,25 @@
 #USE_GRID
 #DROP_POINTS
+#INJECT_LINES
+#INJECT_POLYGONS
 
 #rename layers
 rename-layers polygons,lines,grid
+
+#tag features
+each 'this.properties["type"] = "water"' target=polygons
+each 'this.properties["type"] = "river"' target=lines
+
+#remove other data
+filter-fields type target=lines
+filter-fields type target=polygons
 
 #clean geometry
 clean snap-interval=0.00001 target=polygons
 clean snap-interval=0.00001 target=lines
 
 #disolve
-dissolve target=lines
+dissolve type target=lines
 
 #remove small islands
 filter-slivers min-area=5000sqm target=polygons
@@ -21,13 +31,8 @@ simplify 20% target=lines
 #remove rivers from water polygons
 erase source=polygons target=lines
 
-#clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines
-
 #slice
 slice grid target=polygons
-#dissolve2 target=slice-*
 merge-layers target=slice-* name=polygons
 explode name=polygons
 
@@ -35,8 +40,6 @@ slice grid target=lines
 merge-layers target=slice-* name=lines
 explode name=lines
 
-#tag features
-each 'this.properties["type"] = "water"' target=polygons
-each 'this.properties["type"] = "river"' target=lines
-
+#clip excess geometry 
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2% 
 

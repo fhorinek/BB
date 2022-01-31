@@ -16,6 +16,7 @@ def pipeline_step3():
         "lat2": common.lat + common.step,
         "split": common.split,
         "assets": common.assets_dir,
+        "tile_name": common.tile_filename
     }
 
     print("Processing tile %s" % common.tile_name)
@@ -30,23 +31,36 @@ def pipeline_step3():
 
     #list files
     files = os.listdir(source_dir)
+    files.append("borders")
 
     for filename in files:
-        source = os.path.join(source_dir, filename)
-        
-        layer = os.path.splitext(filename)[0].split("_")[1]
+        if filename == "borders":
+            source = os.path.join(common.assets_dir, "borders.json")
+            layer = "borders"
+            filename = "%s_borders.geojson" % common.tile_filename(common.lon, common.lat)
+        else:
+            source = os.path.join(source_dir, filename)
+            layer = os.path.splitext(filename)[0].split("_")[1]
+            
+        target = os.path.join(target_dir, filename)
+            
         script_path = os.path.join(common.mapshaper_scripts_dir, layer)
+
 
         if not os.path.exists(script_path):
             raise Exception("Procesing script for %s does not exists" % (filename))
         
-        target = os.path.join(target_dir, filename)
-
         if os.path.exists(target):
             print("Skipping, target file %s exists" % (filename))
             continue
 
+            
+        if common.geojson_empty(source):
+            print("Skipping, source file %s empty" % (filename))
+            continue
+
         print("Processing file %s" % filename)
+
 
         #load script
         script = open(script_path, "r").read()
@@ -60,6 +74,7 @@ def pipeline_step3():
         default_output = script.find("#CUSTOM_OUTPUT") == -1
         
         drop = []
+        add = []
         if script.find("#DROP_POLYGONS") >= 0:
             drop.append("Polygon")
         if script.find("#DROP_LINES") >= 0:
@@ -67,18 +82,28 @@ def pipeline_step3():
             drop.append("MultiLineString")
         if script.find("#DROP_POINTS") >= 0:
             drop.append("Point")
+        if script.find("#INJECT_LINES") >= 0:
+            add.append("LineString")
+        if script.find("#INJECT_POLYGONS") >= 0:
+            add.append("Polygon")
+        if script.find("#INJECT_POINT") >= 0:
+            add.append("Point")
         
         tmp_file = None
-        if len(drop) > 0:
+        if len(drop) > 0 or len(add) > 0:
             tmp_file = "%s_mapshaper_temporary_input.geojson" % common.tile_name
-            dropped = common.drop_geometry(source, tmp_file, drop)
-            if dropped > 0:
-                print("Dropping %u features %s" % (dropped, str(drop)))
+            dropped, added = common.mod_geometry(source, tmp_file, drop, add)
+            if dropped > 0 or added > 0:
+                if dropped > 0:
+                    print("Dropping %u features %s" % (dropped, str(drop)))
+                if added > 0:
+                    print("Adding %u features %s" % (added, str(add)))
                 source = tmp_file
             else:
                 tmp_file = None
+
         
-        cmd = "mapshaper -i %s \\\n" % source
+        cmd = "mapshaper-xl -i %s \\\n" % source
         
         if use_grid:
             cmd += "   -i %s \\\n" % grid
@@ -116,5 +141,6 @@ def pipeline_step3():
     print("Done")
     
 if __name__ == '__main__':  
+    common.init_vars()
     pipeline_step3()
     
