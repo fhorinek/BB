@@ -2,7 +2,7 @@
 #DROP_LINES
 
 #simplify
-simplify 2.5%
+simplify 20%
 
 #remove tags
 filter-fields fields=ISO3166-1,name:en

@@ -389,7 +389,7 @@ static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
 		FIL agl_data;
 
 		char path[PATH_LEN];
-		snprintf(path, sizeof(path), "%s/%s.hgt", PATH_TOPO_DIR, name[index]);
+		snprintf(path, sizeof(path), "%s/%s.HGT", PATH_TOPO_DIR, name[index]);
 		if (f_open(&agl_data, path, FA_READ) != FR_OK)
 		{
 			ERR("agl file %s not found", name[index]);
@@ -832,7 +832,7 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 
 
 
-uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * map_cache)
+uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache)
 {
 	if (map_cache == NULL)
 		return 0;
@@ -965,35 +965,46 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
 		if (type / 100 == 1) //lines
 		{
+			bool skip = false;
+
 			switch (type)
 			{
-			//road
+			//border
 			case(100):
-				line_draw.width = 2;
-				line_draw.color = LV_COLOR_MAROON;
+				line_draw.width = 4;
+				line_draw.color = LV_COLOR_NAVY;
 				break;
-			case(101):
-				line_draw.width = 2;
-				line_draw.color = LV_COLOR_BLACK;
-				break;
-			case(102):
-				line_draw.width = 1;
-				line_draw.color = LV_COLOR_BLACK;
-				break;
-
-			//rail
-			case(110):
-				line_draw.width = 1;
-				line_draw.color = LV_COLOR_ORANGE;
-				break;
-
 			//river
-			case(120):
+			case(110):
 				line_draw.width = 2;
 				line_draw.color = LV_COLOR_BLUE;
 				break;
+			//road
+			case(120):
+				line_draw.width = 2;
+				line_draw.color = LV_COLOR_MAROON;
+				break;
+			case(121):
+				line_draw.width = 2;
+				line_draw.color = LV_COLOR_BLACK;
+				break;
+			case(122):
+				line_draw.width = 1;
+				line_draw.color = LV_COLOR_BLACK;
+				break;
+			case(123):
+				if (zoom > 30)
+					skip = true;
 
-			//power or airline
+				line_draw.width = 1;
+				line_draw.color = LV_COLOR_BLACK;
+				break;
+			//rail
+			case(130):
+				line_draw.width = 1;
+				line_draw.color = LV_COLOR_ORANGE;
+				break;
+			//power or airway
 			default:
 				line_draw.width = 1;
 				line_draw.color = LV_COLOR_BLACK;
@@ -1002,36 +1013,39 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
 			}
 
-			uint16_t number_of_points = *((uint16_t *)(map_cache + actual->feature_addr + 2));
-
-			lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * number_of_points);
-			for (uint16_t j = 0; j < number_of_points; j++)
+			if (!skip)
 			{
-				int32_t plon, plat;
+				uint16_t number_of_points = *((uint16_t *)(map_cache + actual->feature_addr + 2));
 
-				plon = *((int32_t *)(map_cache + actual->feature_addr + 4 + 0 + 8 * j));
-				plat = *((int32_t *)(map_cache + actual->feature_addr + 4 + 4 + 8 * j));
+				lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * number_of_points);
+				for (uint16_t j = 0; j < number_of_points; j++)
+				{
+					int32_t plon, plat;
 
-				int64_t px = (int64_t)(plon - lon1) / step_x;
-				int64_t py = (int64_t)(lat1 - plat) / step_y;
+					plon = *((int32_t *)(map_cache + actual->feature_addr + 4 + 0 + 8 * j));
+					plat = *((int32_t *)(map_cache + actual->feature_addr + 4 + 4 + 8 * j));
 
-                if (px > INT16_MAX) px = INT16_MAX;
-                if (px < INT16_MIN) px = INT16_MIN;
-                if (py > INT16_MAX) py = INT16_MAX;
-                if (py < INT16_MIN) py = INT16_MIN;
+					int64_t px = (int64_t)(plon - lon1) / step_x;
+					int64_t py = (int64_t)(lat1 - plat) / step_y;
 
-				points[j].x = px;
-				points[j].y = py;
+					if (px > INT16_MAX) px = INT16_MAX;
+					if (px < INT16_MIN) px = INT16_MIN;
+					if (py > INT16_MAX) py = INT16_MAX;
+					if (py < INT16_MIN) py = INT16_MIN;
+
+					points[j].x = px;
+					points[j].y = py;
+				}
+
+				gui_lock_acquire();
+				if (draw_warning)
+					lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
+
+				lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
+				gui_lock_release();
+
+				free(points);
 			}
-
-	        gui_lock_acquire();
-			if (draw_warning)
-				lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
-
-	        lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
-	        gui_lock_release();
-
-			free(points);
 		}
 
 		if (type == 200 || type == 201) //water or resident
@@ -1087,17 +1101,17 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 	return mh->magic & CACHE_HAVE_MAP_MASK;
 }
 
-void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * magic)
+void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom,  uint8_t * magic)
 {
     lv_canvas_fill_bg(gui.map.canvas, LV_COLOR_GREEN, LV_OPA_COVER);
 
     draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, magic);
 
     //draw map map
-    magic[0] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, load_map_file(lon1, lat1, 0));
-    magic[1] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, load_map_file(lon1, lat2, 1));
-    magic[2] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, load_map_file(lon2, lat2, 2));
-    magic[3] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, load_map_file(lon2, lat1, 3));
+    magic[0] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat1, 0));
+    magic[1] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat2, 1));
+    magic[2] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon2, lat2, 2));
+    magic[3] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon2, lat1, 3));
 }
 
 //get map source files on device
@@ -1259,7 +1273,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
     lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 
-	tile_create(lon1, lat1, lon2, lat2, step_x, step_y, ch.src_files_magic);
+	tile_create(lon1, lat1, lon2, lat2, step_x, step_y, zoom, ch.src_files_magic);
 
 	DBG("Saving tile to storage");
 

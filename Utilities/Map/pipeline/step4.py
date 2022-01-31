@@ -21,9 +21,23 @@ def feature_factory(dict_data):
         
         for part in dict_data["geometry"]['coordinates']:
             base["geometry"]['coordinates'] = part
-            output.append(Feature(base))
+            f = Feature(base)
+            if f.valid:
+                output.append(f)
+    elif dict_data["geometry"]["type"] == "MultiPolygon":
+        print("Converting MultiPolygon into %u Polygons" % len(dict_data["geometry"]['coordinates']))
+        base = dict(dict_data)
+        base["geometry"]["type"] = "Polygons"
+        
+        for part in dict_data["geometry"]['coordinates']:
+            base["geometry"]['coordinates'] = part
+            f = Feature(base)
+            if f.valid:
+                output.append(f)
     else:
-        output.append(Feature(dict_data))
+        f = Feature(dict_data)
+        if f.valid:
+            output.append(f)
         
     return output
     
@@ -33,6 +47,7 @@ class Feature(object):
         self.source_data = dict_data
         self.data = bytes()
         self.type = -1
+        self.valid = True
 
         #feature was sliced with grid, it will not overlap the boundary        
         self.sliced = "sliced" in dict_data["properties"]
@@ -45,8 +60,14 @@ class Feature(object):
             if "name" in dict_data["properties"]:
                 self.name = dict_data["properties"]["name"]
             if "ele" in dict_data["properties"]:
-                ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","")
-                self.elevation = int(float(ele))
+                ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","").replace("m","")
+                try:
+                    self.elevation = int(float(ele))
+                except ValueError:
+                    print("Wrong elevation value")
+                    print(dict_data)
+                    self.valid = False
+                    return None
             
             if dict_data["properties"]["type"] == "peak":
                 self.type = 0
@@ -80,24 +101,30 @@ class Feature(object):
                 self.geometry = Point(lon, lat)
 
         if dict_data["geometry"]["type"] == "LineString":
-            if dict_data["properties"]["type"] == "highway":
-                self.type = 100
-            if dict_data["properties"]["type"] == "primary":
-                self.type = 101
-            if dict_data["properties"]["type"] == "secondary":
-                self.type = 102
-
-            if dict_data["properties"]["type"] == "rail":
-                self.type = 110
+            if dict_data["properties"]["type"] == "border":
+               self.type = 100
 
             if dict_data["properties"]["type"] == "river":
+                self.type = 110
+
+            if dict_data["properties"]["type"] == "highway":
                 self.type = 120
-            
+            if dict_data["properties"]["type"] == "primary":
+                self.type = 121
+            if dict_data["properties"]["type"] == "secondary":
+                self.type = 122
+            if dict_data["properties"]["type"] == "tertiary":
+                self.type = 123
+
+            if dict_data["properties"]["type"] == "rail":
+                self.type = 130
+
             if dict_data["properties"]["type"] == "power":
-               self.type = 130
+               self.type = 140
                
             if dict_data["properties"]["type"] == "aerialway":
-               self.type = 131
+               self.type = 141
+               
                 
             number_of_points = len(dict_data["geometry"]['coordinates'])
             assert(number_of_points > 0)
@@ -231,8 +258,9 @@ def pipeline_step4():
         print("Opening file: %s" % source)
         data = json.loads(open(source, "r").read())
 
-        for dict_data in data["features"]:
-            features.extend(feature_factory(dict_data))
+        if "features" in data:
+            for dict_data in data["features"]:
+                features.extend(feature_factory(dict_data))
 
     for f in features:
         features_data += f.get_data(len(features_data))
@@ -380,4 +408,5 @@ def pipeline_step4():
     print("total size %0.2fkB (%u b)" % (len(file_data) / 1024.0, len(file_data)))
     
 if __name__ == '__main__':  
+    common.init_vars()
     pipeline_step4()    
