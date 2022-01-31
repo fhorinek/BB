@@ -58,5 +58,6 @@ def pipeline_step1():
     print("Done")
     
 if __name__ == '__main__':  
+    common.init_vars()
     pipeline_step1()
     

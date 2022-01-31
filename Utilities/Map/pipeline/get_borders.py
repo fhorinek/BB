@@ -55,7 +55,6 @@ def pipeline_get_borders_raw():
         f.write(result)
         f.close()
 
-
     print("Done")
     
 
@@ -166,10 +165,11 @@ def pipeline_get_borders_opti():
         if tmp_file:
             os.remove(tmp_file)
         
-    print("Done")    
+    print("Done")       
     
 if __name__ == '__main__':  
     pipeline_get_borders_raw()
     pipeline_get_borders_geo()
     pipeline_get_borders_opti()
+
     
