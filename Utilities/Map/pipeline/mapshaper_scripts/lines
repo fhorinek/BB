@@ -1,9 +1,8 @@
 #USE_GRID
 #DROP_POLYGONS
+#INJECT_LINES
 
-i %assets%/fake_lines.geojson
-
-rename-layers lines,grid,lines_fake
+rename-layers lines,grid
 
 #remove tags
 filter-fields fields=aerialway,power target=lines

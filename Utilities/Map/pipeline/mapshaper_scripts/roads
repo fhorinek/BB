@@ -5,7 +5,8 @@ rename-layers lines,grid
 
 each 'this.properties = {type:"highway"}' where='["motorway", "trunk"].indexOf(this.properties.highway) != -1' target=lines
 each 'this.properties = {type:"primary"}' where='["primary", "motorway_link"].indexOf(this.properties.highway) != -1' target=lines
-each 'this.properties = {type:"secondary"}' where='this.properties.type == undefined' target=lines
+each 'this.properties = {type:"secondary"}' where='["secondary", "secondary_link"].indexOf(this.properties.highway) != -1' target=lines
+each 'this.properties = {type:"tertiary"}' where='["highway", "primary", "secondary"].indexOf(this.properties.type) == -1' target=lines
 
 #simplify
 simplify 25% target=lines
@@ -16,9 +17,7 @@ filter-fields fields=type target=lines
 #clip excess geometry 
 clip bbox=%lon1%,%lat1%,%lon2%,%lat2%  target=lines
 
-dissolve type where="this.properties.type=='highway'" target=lines
-dissolve type where="this.properties.type=='primary'" target=lines
-dissolve type where="this.properties.type=='secondary'" target=lines
+dissolve type
 
 slice grid target=lines
 merge-layers target=slice-* name=lines
