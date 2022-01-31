@@ -10,6 +10,7 @@
 
 #include "protocol.h"
 #include "drivers/spi.h"
+#include "wifi.h"
 
 #include "esp_http_client.h"
 
@@ -35,17 +36,11 @@ bool download_is_canceled(uint8_t data_id)
 	return (stop_flag & 1 << data_id) > 0;
 }
 
-
-void download_url(proto_download_url_t * packet)
+void download_process_url(proto_download_url_t * packet)
 {
 	proto_download_info_t data;
-
 	esp_http_client_config_t config = {0};
 	config.url = packet->url;
-
-	INFO("download_url start");
-
-	download_start(packet->data_id);
 
 	esp_http_client_handle_t client = esp_http_client_init(&config);
 
@@ -166,14 +161,34 @@ void download_url(proto_download_url_t * packet)
 		protocol_send(PROTO_DOWNLOAD_INFO, (void *)&data, sizeof(data));
 	}
 
-	download_stop(packet->data_id);
-
 	esp_http_client_close(client);
 	esp_http_client_cleanup(client);
 
 	INFO("download_url %s done", packet->url);
+}
+
+void download_url(proto_download_url_t * packet)
+{
+	INFO("download_url start");
+
+	download_start(packet->data_id);
+
+	if (wifi_is_connected()) {
+		download_process_url(packet);
+	} else {
+		proto_download_info_t data;
+		data.end_point = packet->data_id;
+		data.result = PROTO_DOWNLOAD_NO_CONNECTION;
+		data.size = 0;
+		protocol_send(PROTO_DOWNLOAD_INFO, (void *)&data, sizeof(data));
+
+		WARN("download_url %s failed, no WIFI connection", packet->url);
+	}
+
+	download_stop(packet->data_id);
 
 	free(packet);
+
 	vTaskDelete(NULL);
 }
 
