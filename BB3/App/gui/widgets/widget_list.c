@@ -71,8 +71,7 @@ widget_t * widgets[] =
     LIST_WIDGET(WindSpd),
     LIST_WIDGET(WindDirPoints),
     LIST_WIDGET(TimeDate),
-
-//    LIST_WIDGET(Map),
+    LIST_WIDGET(Map),
 };
 
 
