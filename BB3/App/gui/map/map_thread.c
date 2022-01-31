@@ -16,31 +16,52 @@
 
 void map_init()
 {
-    gui_lock_acquire();
-	gui.map.magic = 0;
-
-    for (uint8_t i = 0; i < 9; i++)
-    {
-		gui.map.chunks[i].buffer = NULL;
-	}
-
-    gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
-
     for (uint8_t i = 0; i < 9; i++)
     {
     	gui.map.chunks[i].buffer = ps_malloc(MAP_BUFFER_SIZE);
     	gui.map.chunks[i].ready = false;
     }
 
+	gui_lock_acquire();
+	gui.map.magic = 0;
+    gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
 }
 
+#define ALLOC_SIZE	64
+
+void alloc_bomb(uint8_t * buff_in, uint32_t level)
+{
+	INFO("alloc bomb %lu", level);
+
+	uint8_t buff[1024];
+
+	taskYIELD();
+
+	for (uint16_t i = 0; i < ALLOC_SIZE; i++)
+		buff[i] = buff_in[i];
+
+	alloc_bomb(buff, level + 1);
+
+	uint32_t sum = 0;
+	for (uint16_t i = 0; i < ALLOC_SIZE; i++)
+		sum += buff[i];
+
+	INFO("sum %lu", sum);
+}
+
 void thread_map_start(void *argument)
 {
-	osThreadSuspend(thread_map);
+//	osThreadSuspend(thread_map);
     INFO("Started");
+
     map_init();
+
+//    uint8_t buff[ALLOC_SIZE];
+//    alloc_bomb(buff, 0);
+
 
 //    osDelay(1000);
 

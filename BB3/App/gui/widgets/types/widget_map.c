@@ -39,7 +39,10 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 		local->image[i] = lv_canvas_create(slot->obj, NULL);
 		lv_obj_set_size(local->image[i], MAP_W, MAP_H);
 
-		while(gui.map.chunks[i].buffer == NULL);
+		while(gui.map.chunks[i].buffer == NULL)
+		{
+			osDelay(1);
+		}
 		lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 		lv_obj_set_hidden(local->image[i], true);
 	}
