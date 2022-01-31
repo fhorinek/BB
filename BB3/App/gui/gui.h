@@ -222,9 +222,12 @@ typedef struct
 
 	osSemaphoreId_t lock;
 
+	void * next_page;
+	
+	bool change_page;
 	uint8_t take_screenshot;
 	uint8_t fps;
-    uint8_t _pad[2];
+	uint8_t _pad[1];
 
 } gui_t;
 
