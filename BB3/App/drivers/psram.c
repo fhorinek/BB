@@ -170,7 +170,7 @@ void ps_malloc_info()
 {
     ps_malloc_header_t * act = (ps_malloc_header_t *)PSRAM_ADDR;
 
-    INFO("slot hdr prev addr size state");
+    INFO("slot: hdr prev addr size state");
     uint16_t slot = 0;
     void * last = 0;
     while (act < (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE))
@@ -179,6 +179,7 @@ void ps_malloc_info()
     	if (last != act->prev_header)
     	{
     		ERR(" ^^^ Corruption! ^^^");
+    		bsod_msg("PSRAM memory corrupted!");
     	}
     	last = act;
     	slot++;
@@ -232,18 +233,15 @@ void * ps_malloc(uint32_t requested_size)
             ps_malloc_index = ps_malloc_next_free(ps_malloc_index, 0);
         }
 
+        INFO("Clearing %08X - %08X", memory_address, memory_address + requested_size);
         memset(memory_address, 0, requested_size);
 
         ret = memory_address;
     }
 
+    ps_malloc_info();
+
     osSemaphoreRelease(psram_lock);
-
-    ps_malloc_header_t * hdr = ret - sizeof(ps_malloc_header_t);
-    DBG("PS_alloc ptr: %08X size: %lu prev %08X", ret, PS_SIZE(hdr), hdr->prev_header);
-    DBG("    next: %08X size: %lu prev %08X", PS_GET_ADDR(ps_malloc_index), PS_SIZE(ps_malloc_index), ps_malloc_index->prev_header);
-
-    //ps_malloc_info();
 
     return ret;
 }
@@ -317,7 +315,7 @@ void ps_free(void * ptr)
         ps_malloc_used_chunks -= 1;
     }
 
-    //ps_malloc_info();
+    ps_malloc_info();
 
     osSemaphoreRelease(psram_lock);
 }
