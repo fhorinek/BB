@@ -57,6 +57,7 @@ void thread_map_start(void *argument)
 //	osThreadSuspend(thread_map);
     INFO("Started");
 
+    osDelay(1000);
     map_init();
 
 //    uint8_t buff[ALLOC_SIZE];
@@ -109,6 +110,7 @@ void thread_map_start(void *argument)
 
     	tile_info_t tiles[9];
 
+    	//find usable chunks aroud us
     	static uint8_t gen_order[9] = {4, 3, 5, 1, 7, 0, 2, 6, 8};
     	for (uint8_t i = 0; i < 9; i++)
     	{
@@ -160,7 +162,9 @@ void thread_map_start(void *argument)
     		if (tiles[i].reload)
     		{
     			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+    			{
     				tiles[i].reload = false;
+    			}
     		}
     	}
 

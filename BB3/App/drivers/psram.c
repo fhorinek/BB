@@ -18,10 +18,15 @@
 
 #define PS_GET_ADDR(H) ((void *)H + sizeof(ps_malloc_header_t))
 
+#define FILE_NAME_SIZE  32
+
 typedef struct ps_malloc_header
 {
+    uint32_t canary;
     struct ps_malloc_header * prev_header;
     uint32_t chunk_size;
+    char file[FILE_NAME_SIZE];
+    uint32_t line;
 } ps_malloc_header_t;
 
 static ps_malloc_header_t * ps_malloc_index;
@@ -35,6 +40,8 @@ void ps_malloc_init()
     ps_malloc_index = (ps_malloc_header_t *)PSRAM_ADDR;
     ps_malloc_index->prev_header = NULL;
     ps_malloc_index->chunk_size = PSRAM_SIZE - sizeof(ps_malloc_header_t);
+    ps_malloc_index->canary = 0xBADC0FFE;
+
     PS_FREE_CHUNK(ps_malloc_index);
 
     ps_malloc_used_chunks = 1;
@@ -147,9 +154,9 @@ ps_malloc_header_t * ps_malloc_next_free(ps_malloc_header_t * start, uint32_t mi
     ps_malloc_header_t * act = start;
 
     bool loop = false;
-    while (!PS_IS_FREE(act) && PS_SIZE(act) < min_size)
+    while (!PS_IS_FREE(act) || PS_SIZE(act) < min_size)
     {
-        act += PS_SIZE(act) + sizeof(ps_malloc_header_t);
+        act = (void *)act + PS_SIZE(act) + sizeof(ps_malloc_header_t);
 
         if (act >= (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE - sizeof(ps_malloc_header_t)))
         {
@@ -175,7 +182,9 @@ void ps_malloc_info()
     void * last = 0;
     while (act < (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE))
     {
-    	INFO("%u: %08X %08X %08X %8lu %s", slot, act, act->prev_header, PS_GET_ADDR(act), PS_SIZE(act), (PS_IS_FREE(act) ? "free" : "used"));
+    	INFO("%u: %08X %08X %08X %8lu %s %s:%u", slot, act, act->prev_header,
+    	        PS_GET_ADDR(act), PS_SIZE(act), (PS_IS_FREE(act) ? "free" : "used"),
+    	        (PS_IS_FREE(act) ? "" : act->file), (PS_IS_FREE(act) ? 0 : act->line));
     	if (last != act->prev_header)
     	{
     		ERR(" ^^^ Corruption! ^^^");
@@ -188,7 +197,7 @@ void ps_malloc_info()
     INFO("");
 }
 
-void * ps_malloc(uint32_t requested_size)
+void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 {
 	osSemaphoreAcquire(psram_lock, WAIT_INF);
 
@@ -204,11 +213,16 @@ void * ps_malloc(uint32_t requested_size)
 
     if (ps_malloc_index != NULL)
     {
-        uint32_t size_left = PS_SIZE(ps_malloc_index) - requested_size;
+        int32_t size_left = PS_SIZE(ps_malloc_index) - requested_size;
+
+        strncpy(ps_malloc_index->file, name, FILE_NAME_SIZE);
+        ps_malloc_index->file[FILE_NAME_SIZE - 1] = 0;
+        ps_malloc_index->line = lineno;
+        ps_malloc_index->canary = 0xBADC0FFE;
 
         void * memory_address = PS_GET_ADDR(ps_malloc_index);
 
-        if (size_left > sizeof(ps_malloc_header_t))
+        if (size_left > (int32_t)sizeof(ps_malloc_header_t))
         {
             //split memory chunk
             ps_malloc_index->chunk_size = requested_size;
@@ -232,14 +246,17 @@ void * ps_malloc(uint32_t requested_size)
             //find next free block
             ps_malloc_index = ps_malloc_next_free(ps_malloc_index, 0);
         }
+        ps_malloc_index->canary = 0xBADC0FFE;
 
-        INFO("Clearing %08X - %08X", memory_address, memory_address + requested_size);
-        memset(memory_address, 0, requested_size);
+//        INFO("Clearing %08X - %08X (%lu) %u", memory_address, memory_address + requested_size, requested_size);
+
+        FASSERT(memory_address >= PSRAM_ADDR && memory_address + requested_size < PSRAM_ADDR + PSRAM_SIZE);
+        memset(memory_address, 0x00, requested_size);
 
         ret = memory_address;
     }
 
-    ps_malloc_info();
+//    ps_malloc_info();
 
     osSemaphoreRelease(psram_lock);
 
@@ -315,7 +332,7 @@ void ps_free(void * ptr)
         ps_malloc_used_chunks -= 1;
     }
 
-    ps_malloc_info();
+//    ps_malloc_info();
 
     osSemaphoreRelease(psram_lock);
 }
@@ -323,19 +340,11 @@ void ps_free(void * ptr)
 
 bool PSRAM_test()
 {
-	char * test_buf = (char *)(PSRAM_ADDR + 1024 * 1024 * 14);
-
-	test_buf[126-64] = 0;
-
-	INFO("1 '%32s'", test_buf);
-
-	for (uint8_t i = 0; i < 126 - 64; i++)
-	{
-		test_buf[i] = 64 + i;
-	}
-	test_buf[126-64] = 0;
-
-	INFO("2 '%32s'", test_buf);
+//    ps_malloc(1024 * 1024);
+//    uint8_t * a  = ps_malloc(5 * 1024 * 1024);
+//    ps_malloc(1024 * 1024);
+//    ps_free(a);
+//    ps_malloc(3 * 1024 * 1024);
 
     return true;
 }

@@ -223,12 +223,10 @@ typedef struct
 
 #define MAP_SHADE_MAG   128
 
-#define BLUR_SIZE	7
+#define BLUR_SIZE	3
 
 void write_buffer(char * path, void * buffer, uint32_t len)
 {
-	return;
-
 	FIL f;
 	UINT wb;
 
@@ -270,7 +268,7 @@ void tile_get_filename(char * fn, int32_t lat, int32_t lon)
 //TODO: optimize to 1/4 size
 float * generate_blur_kernel(uint16_t size)
 {
-	ASSERT(size % 2 == 1);
+	FASSERT(size % 2 == 1);
     // initialising standard deviation to 1.0
 
 	float * kernel = ps_malloc(sizeof(float) * size * size);
@@ -300,7 +298,6 @@ float * generate_blur_kernel(uint16_t size)
     for (int16_t i = 0; i < size * size; ++i)
     {
 		kernel[i] /= sum;
-		INFO("%0.10f ", kernel[i]);
     }
 
     write_buffer("kernel.data", kernel, sizeof(float) * size * size);
@@ -369,11 +366,16 @@ static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
 
 	tile_get_filename(name[index], lat, lon);
 
+	INFO("Loading agl for %s %ld %ld", name[index], lat, lon);
+
 	for (uint8_t i = index; i > 0; i--)
 	{
 		//was this file already processed?
 		if (strcmp(name[i-1], name[index]) == 0)
+		{
+		    INFO("Tile %s already is done", name[index]);
 			return NULL;
+		}
 	}
 
 	bool loaded = false;
@@ -382,6 +384,7 @@ static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
 	{
 		if (strcmp(agl_cache_name, name[index]) == 0)
 		{
+		    INFO("Tile %s already loaded, providing cache", name[index]);
 			loaded = true;
 		}
 	}
@@ -401,6 +404,7 @@ static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
 
 		if (agl_cache != NULL)
 		{
+		    INFO("Clearing %s", agl_cache_name);
 			ps_free(agl_cache);
 			agl_cache = NULL;
 		}
@@ -412,7 +416,14 @@ static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
 		((agl_header_t *)agl_cache)->lon = (lon / GNSS_MUL) * GNSS_MUL;
 		((agl_header_t *)agl_cache)->size = f_size(&agl_data);
 
-		f_read(&agl_data, agl_cache + sizeof(agl_header_t), f_size(&agl_data), &br);
+		INFO("Reading %s (%u)", name[index], f_size(&agl_data));
+		FRESULT ret = f_read(&agl_data, agl_cache + sizeof(agl_header_t), f_size(&agl_data), &br);
+        INFO("read %u", br);
+        if (br != f_size(&agl_data) || ret != FR_OK)
+        {
+            WARN("Not all data read ret = %u", ret);
+        }
+
 		f_close(&agl_data);
 
 		//mark name to cache
@@ -518,6 +529,9 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
 	static lv_color_t * palette = NULL;
 	static uint16_t palette_len;
 
+    lv_canvas_ext_t * ext = lv_obj_get_ext_attr(gui.map.canvas);
+    uint16_t * image_buff = (uint16_t *)ext->dsc.data;
+
 	if (topo_tmp1 == NULL)
 	{
 		//INIT MEMORY
@@ -562,16 +576,25 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
     magic[2] |= load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon2, lat2, 2), topo_tmp1);
     magic[3] |= load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon2, lat1, 3), topo_tmp1);
 
+    //no gnss data
+    if (*((uint32_t *)magic) == 0)
+    {
+        for (uint16_t y = 0; y < MAP_H; y++)
+        {
+            for (uint16_t x = 0; x < MAP_W; x++)
+            {
+                image_buff[x + MAP_W * y] = LV_COLOR_GRAY.full;
+            }
+        }
+        return;
+    }
+
     //ASSIGN COLORS
     int16_t val_min = 0000;
     int16_t val_max = 6000;
     int16_t delta = val_max - val_min;
     if (delta == 0)
         delta = 1;
-
-    lv_canvas_ext_t * ext = lv_obj_get_ext_attr(gui.map.canvas);
-    uint16_t * image_buff = (uint16_t *)ext->dsc.data;
-
 
     for (uint16_t y = 0; y < MAP_H; y++)
     {
@@ -758,6 +781,8 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t *
 	int64_t dist = rest - delta;
 
 	*c_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y + map_h / 2;
+	if (lat < 0)
+	    *c_lat *= -1;
 
 	*c_lon = ((lon + (map_w / 2)) / map_w) * map_w;
 }
@@ -1109,6 +1134,7 @@ void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
     draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, magic);
 
+    return;
     //draw map map
     magic[0] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat1, 0));
     magic[1] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat2, 1));
@@ -1253,7 +1279,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     tile_get_cache(lon, lat, zoom, &c_lon, &c_lat, tile_path);
 
 	uint32_t start = HAL_GetTick();
-	DBG("Geneating start");
+	DBG("\n\nGeneating start [%u]", index);
 
 	int32_t step_x;
 	int32_t step_y;
