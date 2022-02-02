@@ -1,13 +1,11 @@
 Added:
-- Logging to csv
-- Time Date widget
+- Altitude graph widget
 
 Fixes:
-- Higher ODO accuracy 
-- Audio porofile load
+- 
 
 Known Issues:
-- BT GNSS forwarding
+- 
 
 PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT
 
