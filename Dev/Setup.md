@@ -65,7 +65,7 @@ commands accordingly.
 
 Please follow this outline to install:
 
- 1. [Install Prerequisites](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#Prerequisites)
+ 1. [Install Prerequisites](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#Prerequisites) as this is included in the following step "Install ESP-IDF/ADF"
  2. [Install IDF Plugin](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-idf-plugin-using-update-site-url)
  3. [Install ESP-IDF/ADF](https://strato.skybean.eu/dev/esp.zip) extract this modified version to ~/esp/ so that you get ~/esp/esp-idf and ~/esp/esp-adf.
  4. [Install ESP-IDF Tools](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-esp-idf-tools)
@@ -76,8 +76,34 @@ Please follow this outline to install:
  9. If the **ADF_PATH** is not defined in the CMake go to 
      **Window** / **Preferences** / **C / C++** / **Build** / **Enviroment**
      Add Variabile **ADF_PATH** to `~/esp/esp-adf` and make sure that you select 
-     **Replace native enviroment with speciefied one**
- 
+     **Replace native enviroment with specified one**
+
+#### Workaround problems installing
+
+If you have problems following the above instructions AND you don't
+want to make changes to BB_esp_fw, then follow this workaround to
+create all needed files, that are normally build. This step is
+necessary, as "pack_fw.py" needs the ESP files to create a complete
+firmware file, and they are missing, because of your problems
+installing the above tools.
+
+Start by downloading an official firmware file (preferably latest
+version) and extract all files contained. Copy all necessary files to
+BB_esp_fw and you are done. The following instructions use version 232
+as an example. Please replace 232 by the latest version:
+
+    cd ~/git/BB3/Utilities/Bundle
+    wget "https://strato.skybean.eu/fw/232/strato.fw"
+    ./extract_fw.py strato.fw
+    cp -a D0000232/{BB_esp_fw.bin,bootloader.bin,partition-table.bin,storage.bin} ~/git/BB_esp_fw/build/
+    cat > ~/git/BB_esp_fw/build/flash_args <<EOF
+    --flash_mode dio --flash_freq 80m --flash_size 16MB
+    0x00001000 bootloader.bin
+    0x00010000 BB_esp_fw.bin
+    0x00008000 partition-table.bin
+    0x00A10000 storage.bin
+    EOF
+
 ## Typical Development Roundtrip
 
 Make changes to
