@@ -13,6 +13,7 @@ DECLARE_WIDGET(Bar);
 DECLARE_WIDGET(FTime);
 DECLARE_WIDGET(Alt1);
 DECLARE_WIDGET(Alt2);
+DECLARE_WIDGET(AltitudeGraph);
 DECLARE_WIDGET(HeightTO);
 DECLARE_WIDGET(CompHdg);
 DECLARE_WIDGET(CompArrow);
@@ -41,13 +42,16 @@ DECLARE_WIDGET(TimeDate);
 
 widget_t * widgets[] =
 {
+    // Insert new widget in a meaningfull order, 
+    // as this list is presented to user:
     LIST_WIDGET(Vario),
     LIST_WIDGET(Avg),
-	LIST_WIDGET(HeightTO),
+    LIST_WIDGET(HeightTO),
     LIST_WIDGET(Glide),
     LIST_WIDGET(Bar),
     LIST_WIDGET(Alt1),
     LIST_WIDGET(Alt2),
+    LIST_WIDGET(AltitudeGraph),
     LIST_WIDGET(Agl),
     LIST_WIDGET(FTime),
     LIST_WIDGET(CompHdg),
