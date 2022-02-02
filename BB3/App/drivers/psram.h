@@ -11,12 +11,14 @@
 #include "../common.h"
 
 #define PSRAM_ADDR		((__IO uint8_t *)OCTOSPI1_BASE)
-#define PSRAM_SIZE		(16 * 1024 * 1024)
+#define PSRAM_SIZE		(8 * 1024 * 1024)
 
 void PSRAM_init();
 bool PSRAM_test();
 
-void * ps_malloc(uint32_t requested_size);
+#define ps_malloc(size) ps_malloc_real(size, __FILE__, __LINE__)
+
+void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno);
 void ps_free(void * ptr);
 
 void ps_malloc_info();

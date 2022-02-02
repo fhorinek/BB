@@ -128,7 +128,8 @@ void cmd_step()
         {
             INFO("=== Help ===");
             INFO(" s - screenshot");
-            INFO(" m - LVGL memory status");
+            INFO(" l - LVGL memory status");
+            INFO(" p - PSRAM allocation table");
             INFO(" d - LVGL defragment");
             INFO(" f - Fake gnss data");
             INFO("");
@@ -141,9 +142,15 @@ void cmd_step()
             gui_take_screenshot();
         }
 
-        if (c == 'm')
+        if (c == 'l')
         {
             gui_print_memory();
+        }
+
+        if (c == 'p')
+        {
+            INFO("=== PSRAM memory ===");
+            ps_malloc_info();
         }
 
         if (c == 'd')
