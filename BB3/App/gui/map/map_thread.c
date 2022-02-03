@@ -23,8 +23,15 @@ void map_init()
     }
 
 	gui_lock_acquire();
-	gui.map.magic = 0;
+	gui.map.magic = 0xFF;
     gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+
+    gui.map.poi_size = 0;
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        gui.map.poi[i].chunk = 0xFF;
+        gui.map.poi[i].magic = 0xFF;
+    }
 
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
@@ -136,12 +143,15 @@ void thread_map_start(void *argument)
 
 			tiles[i].reload = true;
 
-    		for (uint8_t j = 0; j < 9; j++)
+			//assign new chunk
+    		for (uint8_t chunk = 0; chunk < 9; chunk++)
     		{
     			bool used = false;
+
+    			//is chunk used?
     			for (uint8_t k = 0; k < 9; k++)
     			{
-    				if (tiles[k].chunk == j)
+    				if (tiles[k].chunk == chunk)
     				{
     					used = true;
     					break;
@@ -150,7 +160,10 @@ void thread_map_start(void *argument)
 
     			if (!used)
     			{
-    				tiles[i].chunk = j;
+    			    //unload old chunk
+    			    tile_unload_pois(chunk);
+
+    				tiles[i].chunk = chunk;
     				break;
     			}
     		}
