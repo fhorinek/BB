@@ -35,7 +35,24 @@ function rotate_icon(deg)
     $(".map_pg_icon").css('transform', "translate(" + x + "px, " + y + "px) rotate(" + deg + "deg)")
 }
 
+var force_emit = false;
+
 function onMapClick(e) 
+{
+    if (target == false)
+    {
+        pos = L.marker(e.latlng, {icon: pg_icon}).addTo(mymap);
+        target = L.marker(e.latlng).addTo(mymap);
+        force_emit = true;
+    }
+    else
+    {
+        target.setLatLng(e.latlng);
+    }
+}
+
+
+function onMapDblClick(e) 
 {
     if (target == false)
     {
@@ -44,8 +61,10 @@ function onMapClick(e)
     }
     else
     {
+        pos.setLatLng(e.latlng);
         target.setLatLng(e.latlng);
     }
+    force_emit = true;
 }
 
 
@@ -63,6 +82,7 @@ $(function()
 
     mymap.locate({setView: true, maxZoom: 16});
     mymap.on('click', onMapClick);
+    mymap.on('dblclick', onMapDblClick);
 
 
     var period = 100;
@@ -73,8 +93,10 @@ $(function()
         {
             var dist = pos.getLatLng().distanceTo(target.getLatLng());
             
-            if (dist > 0)
+            if (dist > 0 || force_emit)
             {
+                force_emit = false;
+            
                 var lat_d = target.getLatLng().lat - pos.getLatLng().lat;
                 var lng_d = target.getLatLng().lng - pos.getLatLng().lng;
                 var lat = pos.getLatLng().lat;
