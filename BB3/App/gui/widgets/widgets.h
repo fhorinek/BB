@@ -29,6 +29,7 @@
 #define WIDGET_DEFAULT_W    80
 #define WIDGET_DEFAULT_H    64
 
+// An arrow drawn with add_widget_arrow needs this number of points to be described.
 #define WIDGET_ARROW_POINTS 5
 
 typedef struct _widget_slot_t widget_slot_t;
