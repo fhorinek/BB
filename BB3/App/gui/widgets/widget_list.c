@@ -33,6 +33,7 @@ DECLARE_WIDGET(TTime);
 DECLARE_WIDGET(TGain);
 DECLARE_WIDGET(DToff);
 DECLARE_WIDGET(HdgToff);
+DECLARE_WIDGET(TimeToTakeoff);
 DECLARE_WIDGET(WindDir);
 DECLARE_WIDGET(WindSpd);
 DECLARE_WIDGET(TTrace);
@@ -67,6 +68,7 @@ widget_t * widgets[] =
     LIST_WIDGET(TGain),
     LIST_WIDGET(DToff),
 	LIST_WIDGET(HdgToff),
+	LIST_WIDGET(TimeToTakeoff),
 	LIST_WIDGET(WindDir),
     LIST_WIDGET(WindSpd),
     LIST_WIDGET(WindDirPoints),
