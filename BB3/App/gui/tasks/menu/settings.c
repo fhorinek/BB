@@ -35,7 +35,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
 	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_audio);
-//	gui_list_auto_entry(list, "Map", NEXT_TASK, &gui_map);
+	gui_list_auto_entry(list, "Map", NEXT_TASK, &gui_map);
 	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
 	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);
 	gui_list_auto_entry(list, "Bluetooth", NEXT_TASK, &gui_bluetooth);

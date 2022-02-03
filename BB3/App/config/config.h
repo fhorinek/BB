@@ -143,7 +143,8 @@ typedef struct
 
     struct
 	{
-    	cfg_entry_t zoom_flight;
+        cfg_entry_t zoom_flight;
+        cfg_entry_t blur;
 	} map;
 
 	struct

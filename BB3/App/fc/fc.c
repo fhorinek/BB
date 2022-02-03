@@ -28,6 +28,41 @@
 
 fc_t fc;
 
+static TaskHandle_t fc_lock_owner = NULL;
+
+bool fc_lock_acquire()
+{
+    uint32_t start = HAL_GetTick();
+
+    uint32_t wait = (fc_lock_owner == NULL) ? WAIT_INF : 3000;
+
+    TaskHandle_t prev_lock_owner = fc_lock_owner;
+
+    osStatus_t stat = osSemaphoreAcquire(fc.lock, wait);
+    if (stat == osErrorTimeout)
+    {
+        bsod_msg("Not able to acquire fc.lock in time from task '%s' blocked by task '%s'!",
+                pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(fc_lock_owner));
+    }
+    uint32_t delta = HAL_GetTick() - start;
+    if (delta > 100 && prev_lock_owner != NULL)
+    {
+        WARN("'%s' was unable to acquire gui lock from '%s' for %u ms!",
+                pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(prev_lock_owner), delta);
+    }
+    fc_lock_owner = xTaskGetCurrentTaskHandle();
+
+    return true;
+}
+
+bool fc_lock_release()
+{
+    fc_lock_owner = NULL;
+    osSemaphoreRelease(fc.lock);
+
+    return false;
+}
+
 void fc_history_record_cb(void * arg)
 {
 //	DBG("fc_history_record_cb");

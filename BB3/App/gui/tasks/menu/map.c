@@ -12,6 +12,11 @@ void map_cc_dialog_cb(uint8_t res, void * data)
     if (res == dialog_res_yes)
     {
         clear_dir(PATH_MAP_CACHE_DIR);
+        for (uint8_t i = 0; i < 9; i++)
+        {
+            gui.map.chunks[i].ready = false;
+        }
+        gui.map.magic = (gui.map.magic + 1) % 0xFF;
     }
 }
 
@@ -35,6 +40,7 @@ static lv_obj_t * map_init(lv_obj_t * par)
 	lv_obj_t * list = gui_list_create(par, "Map", &gui_settings, NULL);
 
     gui_list_auto_entry(list, "Zoom", &profile.map.zoom_flight, NULL);
+    gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
     gui_list_auto_entry(list, "Clear cache", CUSTOM_CB, map_cc_cb);
 
     return list;
