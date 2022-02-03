@@ -1,11 +1,13 @@
-# 3.2.2021 - Build 
+# 3.2.2021 - Build 236
 ##Added
  * Map widget - see strato.skybean.eu/map
- * Time to take off
- * Altitude graph
+ * Time to take off widget
+ * Altitude graph widget
  
 #Fixes
  * Page switching bug
+ * Prevent update when not connected
+ * Ignore empty update
 
 
 # 24.1.2021 - Build 235
