@@ -25,7 +25,8 @@
 
 gui_t gui;
 
-LV_FONT_DECLARE(lv_font_montserrat_14);
+//LV_FONT_DECLARE(lv_font_montserrat_14);
+LV_FONT_DECLARE(lv_font_montserrat_16_ext);
 LV_FONT_DECLARE(lv_font_montserrat_50);
 LV_FONT_DECLARE(lv_font_montserrat_60);
 LV_FONT_DECLARE(lv_font_montserrat_70);
@@ -232,7 +233,7 @@ void gui_init_styles()
 	gui.styles.widget_fonts[FONT_L] = &lv_font_montserrat_34; //10
 	gui.styles.widget_fonts[FONT_M] = &lv_font_montserrat_28; //6
 	gui.styles.widget_fonts[FONT_S] = &lv_font_montserrat_22; //6
-    gui.styles.widget_fonts[FONT_XS] = &lv_font_montserrat_16; //6
+    gui.styles.widget_fonts[FONT_XS] = &lv_font_montserrat_16_ext; //6
     gui.styles.widget_fonts[FONT_2XS] = &lv_font_montserrat_12; //6
 }
 

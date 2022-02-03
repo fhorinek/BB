@@ -23,26 +23,46 @@ REGISTER_WIDGET_IU(Map,
 	lv_obj_t * dot;
 
     lv_point_t points[WIDGET_ARROW_POINTS];
+    lv_obj_t * poi[NUMBER_OF_POI];
+    uint8_t poi_magic[NUMBER_OF_POI];
 
     uint8_t magic;
 );
 
+static bool static_init = false;
+static lv_style_t static_label = {0};
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 {
+    if (!static_init)
+    {
+        lv_style_init(&static_label);
+        lv_style_set_text_color(&static_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+        static_init = true;
+    }
+
     widget_create_base(base, slot);
 
-    local->magic = gui.map.magic - 1;
+    local->magic = 0xFF;
 
     for (uint8_t i = 0; i < 9; i++)
     {
 		local->image[i] = lv_canvas_create(slot->obj, NULL);
 		lv_obj_set_size(local->image[i], MAP_W, MAP_H);
 
-		while(gui.map.chunks[i].buffer == NULL);
+		while(gui.map.chunks[i].buffer == NULL)
+		{
+			osDelay(1);
+		}
 		lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 		lv_obj_set_hidden(local->image[i], true);
 	}
+
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        local->poi[i] = NULL;
+        local->poi_magic[i] = 0xFF;
+    }
 
     local->dot = lv_obj_create(slot->obj, NULL);
     lv_obj_set_size(local->dot, 10, 10);
@@ -64,7 +84,61 @@ static void Map_update(widget_slot_t * slot)
         {
         	lv_obj_set_hidden(local->image[i], !gui.map.chunks[i].ready);
         }
+
+        for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+        {
+            FC_ATOMIC_ACCESS
+            {
+                if (gui.map.poi[i].chunk != 0xFF)
+                {
+                    //create
+                    if (local->poi[i] == NULL)
+                    {
+                        lv_obj_t * l = lv_label_create(slot->obj, NULL);
+                        lv_obj_add_style(l, LV_LABEL_PART_MAIN, &static_label);
+                        lv_label_set_text(l, gui.map.poi[i].name);
+
+                        local->poi[i] = l;
+                        local->poi_magic[i] = gui.map.poi[i].magic;
+                    }
+                    else
+                    {
+                        //update
+                        if (local->poi_magic[i] != gui.map.poi[i].magic)
+                        {
+                            lv_label_set_text(local->poi[i], gui.map.poi[i].name);
+                            local->poi_magic[i] = gui.map.poi[i].magic;
+                        }
+                    }
+                }
+                else
+                {
+                    //remove
+                    if (local->poi[i] != NULL)
+                    {
+                        lv_obj_del(local->poi[i]);
+                        local->poi[i] = NULL;
+                        local->poi_magic[i] = 0xFF;
+                    }
+                }
+            }
+        }
         local->magic = gui.map.magic;
+    }
+
+    int32_t disp_lat;
+    int32_t disp_lon;
+    int16_t zoom = config_get_int(&profile.map.zoom_flight);
+
+    if (fc.gnss.fix == 0)
+    {
+        disp_lat = config_get_big_int(&profile.ui.last_lat);
+        disp_lon = config_get_big_int(&profile.ui.last_lon);
+    }
+    else
+    {
+        disp_lat = fc.gnss.latitude;
+        disp_lon = fc.gnss.longtitude;
     }
 
     for (uint8_t i = 0; i < 9; i++)
@@ -74,20 +148,6 @@ static void Map_update(widget_slot_t * slot)
     		continue;
     	}
 
-    	int32_t disp_lat;
-    	int32_t disp_lon;
-
-        if (fc.gnss.fix == 0)
-    	{
-        	disp_lat = config_get_big_int(&profile.ui.last_lat);
-        	disp_lon = config_get_big_int(&profile.ui.last_lon);
-    	}
-        else
-        {
-        	disp_lat = fc.gnss.latitude;
-        	disp_lon = fc.gnss.longtitude;
-        }
-
 		int16_t x, y;
 		tile_geo_to_pix(i, disp_lon, disp_lat, &x, &y);
 
@@ -95,6 +155,23 @@ static void Map_update(widget_slot_t * slot)
 		y -= slot->h / 2;
 
 		lv_obj_set_pos(local->image[i], -x, -y);
+    }
+
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        FC_ATOMIC_ACCESS
+        {
+            if (gui.map.poi[i].chunk != 0xFF && local->poi[i] != NULL)
+            {
+                int32_t lat = gui.map.poi[i].lat;
+                int32_t lon = gui.map.poi[i].lon;
+
+                int16_t x, y;
+                geo_to_pix_w_h(disp_lon, disp_lat, zoom, lon, lat, &x, &y, slot->w, slot->h);
+
+                lv_obj_align_mid(local->poi[i], slot->obj, LV_ALIGN_IN_TOP_LEFT, x, y);
+            }
+        }
     }
 
     if (fc.gnss.fix == 0)

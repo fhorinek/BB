@@ -115,8 +115,9 @@ void geo_to_pix_w_h(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32
     *y = d_lat / step_y;
 }
 
-//get size in pixels for one 1 degree
-void geo_get_steps(int32_t lat, uint8_t zoom, int32_t * step_x, int32_t * step_y)
+
+//get degrees for one pixel
+void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_y)
 {
 	zoom += 1;
 	*step_x = (zoom * GNSS_MUL) / MAP_DIV_CONST;
@@ -124,12 +125,23 @@ void geo_get_steps(int32_t lat, uint8_t zoom, int32_t * step_x, int32_t * step_y
 	*step_y = (zoom * GNSS_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
 
+int64_t geo_get_pixels_from_equator(int32_t lat, uint16_t zoom)
+{
+	zoom += 1;
+	uint8_t lat_e = abs(lat / GNSS_MUL);
+	int64_t steps = 0;
+	for (uint8_t i = 0; i < lat_e; i++)
+	{
+		steps += GNSS_MUL / ((zoom * GNSS_MUL / lat_mult[min(61, i)]) / MAP_DIV_CONST);
+	}
+	return steps;
+}
 
 void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * step_x_m, int16_t * step_y_m)
 {
 	uint8_t lat_i = min(60, abs(lat / GNSS_MUL));
-    *step_x_m = step_x * 111000 / GNSS_MUL / lat_mult[lat_i];
-    *step_y_m = step_y * 111000 / GNSS_MUL;
+    *step_x_m = max(1, step_x * 111000l / GNSS_MUL / lat_mult[lat_i]);
+    *step_y_m = max(1, step_y * 111000l / GNSS_MUL);
 }
 
 void geo_destination_f(float lat1, float lon1, float angle, float distance_km, float * lat2, float * lon2)

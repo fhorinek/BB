@@ -16,31 +16,60 @@
 
 void map_init()
 {
-    gui_lock_acquire();
-	gui.map.magic = 0;
-
-    for (uint8_t i = 0; i < 9; i++)
-    {
-		gui.map.chunks[i].buffer = NULL;
-	}
-
-    gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
-
     for (uint8_t i = 0; i < 9; i++)
     {
     	gui.map.chunks[i].buffer = ps_malloc(MAP_BUFFER_SIZE);
     	gui.map.chunks[i].ready = false;
     }
 
+	gui_lock_acquire();
+	gui.map.magic = 0xFF;
+    gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+
+    gui.map.poi_size = 0;
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        gui.map.poi[i].chunk = 0xFF;
+        gui.map.poi[i].magic = 0xFF;
+    }
+
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
 }
 
+#define ALLOC_SIZE	64
+
+void alloc_bomb(uint8_t * buff_in, uint32_t level)
+{
+	INFO("alloc bomb %lu", level);
+
+	uint8_t buff[1024];
+
+	taskYIELD();
+
+	for (uint16_t i = 0; i < ALLOC_SIZE; i++)
+		buff[i] = buff_in[i];
+
+	alloc_bomb(buff, level + 1);
+
+	uint32_t sum = 0;
+	for (uint16_t i = 0; i < ALLOC_SIZE; i++)
+		sum += buff[i];
+
+	INFO("sum %lu", sum);
+}
+
 void thread_map_start(void *argument)
 {
-	osThreadSuspend(thread_map);
+//	osThreadSuspend(thread_map);
     INFO("Started");
+
+    osDelay(1000);
     map_init();
+
+//    uint8_t buff[ALLOC_SIZE];
+//    alloc_bomb(buff, 0);
+
 
 //    osDelay(1000);
 
@@ -88,6 +117,7 @@ void thread_map_start(void *argument)
 
     	tile_info_t tiles[9];
 
+    	//find usable chunks aroud us
     	static uint8_t gen_order[9] = {4, 3, 5, 1, 7, 0, 2, 6, 8};
     	for (uint8_t i = 0; i < 9; i++)
     	{
@@ -113,12 +143,15 @@ void thread_map_start(void *argument)
 
 			tiles[i].reload = true;
 
-    		for (uint8_t j = 0; j < 9; j++)
+			//assign new chunk
+    		for (uint8_t chunk = 0; chunk < 9; chunk++)
     		{
     			bool used = false;
+
+    			//is chunk used?
     			for (uint8_t k = 0; k < 9; k++)
     			{
-    				if (tiles[k].chunk == j)
+    				if (tiles[k].chunk == chunk)
     				{
     					used = true;
     					break;
@@ -127,7 +160,10 @@ void thread_map_start(void *argument)
 
     			if (!used)
     			{
-    				tiles[i].chunk = j;
+    			    //unload old chunk
+    			    tile_unload_pois(chunk);
+
+    				tiles[i].chunk = chunk;
     				break;
     			}
     		}
@@ -139,7 +175,9 @@ void thread_map_start(void *argument)
     		if (tiles[i].reload)
     		{
     			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+    			{
     				tiles[i].reload = false;
+    			}
     		}
     	}
 

@@ -324,8 +324,10 @@ flight_profile_t profile =
 
 	//map
 	{
-		//zoom_flight
-		entry_int("zoom_flight", 25, 5, 50),
+        //zoom_flight
+        entry_int("zoom_flight", 25, 5, 50),
+        //zoom_flight
+        entry_bool("map_blur", false),
 	},
 
 	//audio

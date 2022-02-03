@@ -18,6 +18,10 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
 	  		ERR("Read fail %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
 	  		return MSD_ERROR;
 		}
+		if (ret != HAL_OK)
+		{
+		    WARN("BSP_SD_ReadBlocks_DMA ret = %u", ret);
+		}
 	}
 	while (ret != HAL_OK);
 

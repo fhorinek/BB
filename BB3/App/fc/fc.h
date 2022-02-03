@@ -421,4 +421,8 @@ float fc_alt_to_press(float alt, float qnh);
 
 void fc_manual_alt1_change(float val);
 
+bool fc_lock_release();
+bool fc_lock_acquire();
+
+
 #endif /* FC_FC_H_ */

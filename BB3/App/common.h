@@ -172,7 +172,9 @@ extern osThreadId_t SystemHandle;
 //RTOS defs
 #define WAIT_INF	portMAX_DELAY
 //do not use in ISR
-#define FC_ATOMIC_ACCESS		for(uint8_t __s = osSemaphoreAcquire(fc.lock, WAIT_INF); __s == osOK; __s = !osSemaphoreRelease(fc.lock))
+//FC_ATOMIC_ACCESS is for loop, you can't use break in there
+
+#define FC_ATOMIC_ACCESS		for(uint8_t __first = fc_lock_acquire(); __first == true; __first = fc_lock_release())
 //#define FC_ATOMIC_ACCESS
 //Paths
 #define	PATH_LEN	128

@@ -51,7 +51,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END Variables */
 /* Definitions for System */
 osThreadId_t SystemHandle;
-uint32_t SystemBuffer[ 1024 ];
+uint32_t SystemBuffer[ 2048 ];
 osStaticThreadDef_t SystemControlBlock;
 const osThreadAttr_t System_attributes = {
   .name = "System",
@@ -164,4 +164,3 @@ __weak void thread_system_start(void *argument)
 
 /* USER CODE END Application */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
