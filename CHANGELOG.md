@@ -1,9 +1,15 @@
-# DD.M.2022 - Build XX
-## Added
- * new AltitudeGraph widget to display graph of altitude
+# 3.2.2021 - Build 
+##Added
+ * Map widget - see strato.skybean.eu/map
+ * Time to take off
+ * Altitude graph
+ 
+#Fixes
+ * Page switching bug
 
-# 24.1.2022 - Build 235
-## Added
+
+# 24.1.2021 - Build 235
+##Added
  * new TimeDate widget to display current time and date
  * logging to csv
  
