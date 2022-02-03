@@ -1,11 +1,13 @@
 Added:
+- Map widget - see strato.skybean.eu/map
+- Time to take off widget
 - Altitude graph widget
 
 Fixes:
-- 
+- Page switching bug
+- Prevent update when not connected
+- Ignore empty update
 
 Known Issues:
-- 
-
 PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT
 
