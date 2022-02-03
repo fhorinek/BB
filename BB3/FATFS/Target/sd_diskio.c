@@ -66,8 +66,12 @@ See BSP_SD_ErrorCallback() and BSP_SD_AbortCallback() below
  * BSP_SD_Init() elsewhere in the application.
  */
 /* USER CODE BEGIN disableSDInit */
+
 #undef SD_TIMEOUT
-#define SD_TIMEOUT 1 * 1000
+#define SD_TIMEOUT          (1 * 1000)
+#define RW_ERROR_MSG       (uint32_t) 3
+#define RW_ABORT_MSG       (uint32_t) 4
+
 /* #define DISABLE_SD_INIT */
 /* USER CODE END disableSDInit */
 
@@ -87,7 +91,7 @@ See BSP_SD_ErrorCallback() and BSP_SD_AbortCallback() below
 * transfer data
 */
 /* USER CODE BEGIN enableScratchBuffer */
-/* #define ENABLE_SCRATCH_BUFFER */
+//#define ENABLE_SCRATCH_BUFFER
 /* USER CODE END enableScratchBuffer */
 
 /* Private variables ---------------------------------------------------------*/
@@ -668,22 +672,17 @@ void BSP_SD_ReadCpltCallback(void)
 }
 
 /* USER CODE BEGIN ErrorAbortCallbacks */
-/*
 void BSP_SD_AbortCallback(void)
 {
 #if (osCMSIS < 0x20000U)
    osMessagePut(SDQueueID, RW_ABORT_MSG, 0);
 #else
    const uint16_t msg = RW_ABORT_MSG;
-   osMessageQueuePut(SDQueueID, (const void *)&msg, NULL, 0);
+   osMessageQueuePut(SDQueueID, (const void *)&msg, 0, 0);
 #endif
 }
-*/
 /* USER CODE END ErrorAbortCallbacks */
 
 /* USER CODE BEGIN lastSection */
 /* can be used to modify / undefine previous code or add new code */
 /* USER CODE END lastSection */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

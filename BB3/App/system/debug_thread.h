@@ -59,6 +59,15 @@
 	} while(0);
 
 
+#define FASSERT(cond)    \
+    do {    \
+        if (!(cond))    \
+        { \
+            bsod_msg("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+        } \
+    } while(0);
+
+
 void debug_fault(const char *format, ...);
 void debug_send(uint8_t type, const char *format, ...);
 void debug_dump(uint8_t * data, uint16_t len);

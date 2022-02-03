@@ -106,9 +106,25 @@ typedef struct
     bool ready;
     bool not_used;
 
-    uint8_t _pad[2];
+    uint8_t _pad[1];
 
 } map_chunk_t;
+
+typedef struct
+{
+    char * name;
+    int32_t lat;
+    int32_t lon;
+
+    uint32_t uid;
+
+    uint8_t chunk;
+    uint8_t type;
+    uint8_t magic;
+    uint8_t _pad[1];
+} map_poi_t;
+
+#define NUMBER_OF_POI     32
 
 typedef struct
 {
@@ -192,8 +208,11 @@ typedef struct
 
         map_chunk_t chunks[9];
 
+        map_poi_t poi[NUMBER_OF_POI];
+        uint8_t poi_size;
+
         uint8_t magic;
-        uint8_t _pad[3];
+        uint8_t _pad[1];
 	} map;
 
 	//ctx menu

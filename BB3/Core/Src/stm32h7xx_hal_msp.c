@@ -84,4 +84,3 @@ void HAL_MspInit(void)
 
 /* USER CODE END 1 */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

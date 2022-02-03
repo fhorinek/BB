@@ -32,14 +32,13 @@
 #include "lvgl/lvgl.h"
 
 //RTOS Tasks
-define_thread("Debug", thread_debug, 1024, osPriorityHigh);
-define_thread("GUI", thread_gui, 2048, osPriorityNormal);
-define_thread("Map", thread_map, 1024, osPriorityNormal);
+define_thread("Debug", thread_debug, 2024, osPriorityHigh);
+define_thread("GUI", thread_gui, 4096, osPriorityNormal);
+define_thread("Map", thread_map, 2048, osPriorityNormal);
 define_thread("GNSS", thread_gnss, 2048, osPriorityNormal);
 define_thread("MEMS", thread_mems, 2048, osPriorityNormal);
-define_thread("ESP", thread_esp, 1024, osPriorityNormal);
-define_thread("ESP SPI", thread_esp_spi, 1024, osPriorityNormal);
-define_thread("USB", thread_usb, 1024, osPriorityNormal);
+define_thread("ESP", thread_esp, 2024, osPriorityNormal);
+define_thread("ESP SPI", thread_esp_spi, 2048, osPriorityNormal);
 
 //thread list for automatic shutdown
 osThreadId_t * thread_list[] =
@@ -50,7 +49,6 @@ osThreadId_t * thread_list[] =
         &thread_esp,
         &thread_esp_spi,
         &thread_mems,
-//        &thread_usb
 };
 uint8_t thread_cnt = sizeof(thread_list) / sizeof(osThreadId_t *);
 
@@ -130,7 +128,8 @@ void cmd_step()
         {
             INFO("=== Help ===");
             INFO(" s - screenshot");
-            INFO(" m - LVGL memory status");
+            INFO(" l - LVGL memory status");
+            INFO(" p - PSRAM allocation table");
             INFO(" d - LVGL defragment");
             INFO(" f - Fake gnss data");
             INFO("");
@@ -143,9 +142,15 @@ void cmd_step()
             gui_take_screenshot();
         }
 
-        if (c == 'm')
+        if (c == 'l')
         {
             gui_print_memory();
+        }
+
+        if (c == 'p')
+        {
+            INFO("=== PSRAM memory ===");
+            ps_malloc_info();
         }
 
         if (c == 'd')

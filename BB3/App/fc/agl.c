@@ -26,18 +26,7 @@
 
 
 
-#define POS_FLAG_NOT_FOUND	0b00000001
-#define POS_INVALID	0x00, -128, -32768
-
-
-typedef struct
-{
-	uint8_t flags;
-	int8_t lat;
-	int16_t lon;
-} hagl_pos_t;
-
-hagl_pos_t agl_get_fpos(int32_t lat, int32_t lon)
+hagl_pos_t agl_get_fpos(int32_t lon, int32_t lat)
 {
 	hagl_pos_t tmp;
 
@@ -46,6 +35,11 @@ hagl_pos_t agl_get_fpos(int32_t lat, int32_t lon)
     tmp.lon = lon / GNSS_MUL;
 
     return tmp;
+}
+
+bool agl_pos_cmp(hagl_pos_t * a, hagl_pos_t * b)
+{
+    return a->lat == b->lat && a->lon == b->lon;
 }
 
 void agl_get_filename(char * fn, hagl_pos_t pos)
@@ -121,7 +115,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
     static hagl_pos_t files_fpos[CACHE_SIZE] = {POS_INVALID, POS_INVALID, POS_INVALID, POS_INVALID};
     static uint8_t file_index = 0;
 
-    hagl_pos_t fpos = agl_get_fpos(lat, lon);
+    hagl_pos_t fpos = agl_get_fpos(lon, lat);
 
     uint8_t i = 0;
     while (1)
