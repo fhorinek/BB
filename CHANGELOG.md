@@ -1,9 +1,13 @@
-# 24.1.2021 - Build 235
-##Added
+# DD.M.2022 - Build XX
+## Added
+ * new AltitudeGraph widget to display graph of altitude
+
+# 24.1.2022 - Build 235
+## Added
  * new TimeDate widget to display current time and date
  * logging to csv
  
-#Fixes
+# Fixes
  * Higher ODO accuracy from m to cm
  * Audio porofile load correct file
 
@@ -11,8 +15,8 @@
  * Added more error messages
  * More memory for lvgl
 
-# 19.1.2021 - Build 230
-##Added
+# 19.1.2022 - Build 230
+## Added
  * New wind estimation calculation
  * New thermal assistant by Igor Popik
  * Firmware channels separation (release, testing, devel)
@@ -20,7 +24,7 @@
  * FANET+ firmware update to 20220113174
  * Direction and distance from Take off
 
-##Fixes
+## Fixes
  * Strato will show passphrase if the phone wrongly interpret strato I/O cap
 
 ## Known Issues
@@ -34,11 +38,11 @@
 
 
 # 22.12.2021 - Build 208
-##Fixes
+## Fixes
  * In some cases Page switching caused crash at boot
 
 # 17.12.2021 - Build 207
-##Added
+## Added
  * Thermal assistant, Thermal gain, Thermal time
  * Smart page switching (power on, take off, glide, circle, land)
  * Glide widget can displey Avg vario in climb
@@ -48,7 +52,7 @@
  * Debug via usb
  * LVGL memory monitor, GNSS spoofing via internal UART
 
-##Fixes
+## Fixes
  * BLE not turning on
  * Better keyboard
  * bugs in profiles
