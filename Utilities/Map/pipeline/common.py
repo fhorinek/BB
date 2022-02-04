@@ -188,7 +188,8 @@ def invalidate_step(step, layer = None):
 # VARIABILES SHARED BETWEEN STEPS
 
 #paths
-storage_path = "/home/horinek/topo_data/OSM/"
+storage_path = "/media/horinek/topo_data/OSM/data/"
+hgt_path = "/media/horinek/topo_data/HGT3/data/hgt/"
 
 target_countries = os.path.join(storage_path, "countries.list")
 target_dir_borders_raw = os.path.join(storage_path, "borders", "raw")
@@ -197,7 +198,7 @@ target_dir_borders_opti = os.path.join(storage_path, "borders", "opti")
 target_dir_countries = os.path.join(storage_path, "countries")
 
 target_dir_step4 = os.path.join(storage_path, "step4")
-target_dir_step5 = os.path.join(storage_path, "dist")
+target_dir_step5 = os.path.join(storage_path, "../dist")
 
 def init_vars(lon_i = None, lat_i = None):
     global lon
