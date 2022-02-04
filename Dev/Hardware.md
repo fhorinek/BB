@@ -10,7 +10,7 @@ characteristics.
 
 ### RAM
 
-This is ~1024 kB of RAM which can be used by `malloc()` and
+This is 1024 kB of RAM which can be used by `malloc()` and
 `free()`. This memory is also used for global variables and for stack
 and its local variables.
 
