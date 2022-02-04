@@ -16,6 +16,8 @@
 // Number of seconds, that we plot in this graph
 #define NUM_PLOTS 30
 
+#define GRAPH_HISTORY_STEP (1000 / FC_HISTORY_PERIOD)
+
 REGISTER_WIDGET_ISU
 (
     AltitudeGraph,
@@ -26,14 +28,19 @@ REGISTER_WIDGET_ISU
 
     lv_obj_t * canvas;        // Canvas to paint to
     lv_color_t *cbuf;         // associated buffer of the canvas
+
+    uint16_t line_alt1_step;     // step for line_alt1, typically  10m depending on canvas_h
+    uint16_t line_alt2_step;     // step for line_alt2, typically  50m depending on canvas_h
+    uint16_t line_alt3_step;     // step for line_alt3, typically 100m depending on canvas_h
+
     uint16_t last_index;      // stores the last displayed fc.history.index to update only on change.
 );
 
 static bool static_init = false;
-static lv_draw_line_dsc_t line_alt10;     // for horizontal line at altitude % 10
-static lv_draw_line_dsc_t line_alt50;     // for horizontal line at altitude % 50
-static lv_draw_line_dsc_t line_alt100;    // for horizontal line at altitude % 100
-static lv_draw_img_dsc_t pilot_dsc;       // the image of the glider at the right side.
+static lv_draw_line_dsc_t line_alt1;     // for horizontal line1
+static lv_draw_line_dsc_t line_alt2;     // for horizontal line2
+static lv_draw_line_dsc_t line_alt3;     // for horizontal line3
+static lv_draw_img_dsc_t glider_dsc;     // the image of the glider at the right side.
 
 static void AltitudeGraph_init(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -41,21 +48,21 @@ static void AltitudeGraph_init(lv_obj_t * base, widget_slot_t * slot)
 
 	if (!static_init)
 	{
-		lv_draw_line_dsc_init(&line_alt10);
-		line_alt10.color = LV_COLOR_GRAY;
-		line_alt10.width = 1;
-		line_alt10.dash_width = 5;
-		line_alt10.dash_gap = 7;
+		lv_draw_line_dsc_init(&line_alt1);
+		line_alt1.color = LV_COLOR_GRAY;
+		line_alt1.width = 1;
+		line_alt1.dash_width = 5;
+		line_alt1.dash_gap = 7;
 
-		lv_draw_line_dsc_init(&line_alt50);
-		line_alt50.color = LV_COLOR_GRAY;
-		line_alt50.width = 1;
+		lv_draw_line_dsc_init(&line_alt2);
+		line_alt2.color = LV_COLOR_GRAY;
+		line_alt2.width = 1;
 
-		lv_draw_line_dsc_init(&line_alt100);
-		line_alt100.color = LV_COLOR_WHITE;
-		line_alt100.width = 2;
+		lv_draw_line_dsc_init(&line_alt3);
+		line_alt3.color = LV_COLOR_WHITE;
+		line_alt3.width = 2;
 
-		lv_draw_img_dsc_init(&pilot_dsc);
+		lv_draw_img_dsc_init(&glider_dsc);
 
 		static_init = true;
 	}
@@ -76,6 +83,22 @@ static void AltitudeGraph_init(lv_obj_t * base, widget_slot_t * slot)
 	lv_canvas_set_buffer(local->canvas, local->cbuf, slot->w, canvas_h, LV_IMG_CF_TRUE_COLOR);
 	lv_obj_set_pos(local->canvas, 0, t_h);
 	lv_obj_set_size(local->canvas, slot->w, canvas_h);
+
+	uint8_t units = config_get_select(&config.units.altitude);
+	switch (units)
+	{
+		case ALTITUDE_M:
+			local->line_alt3_step = 100;
+			local->line_alt2_step = 50;
+			local->line_alt1_step = 10;
+			break;
+		case ALTITUDE_FT:
+			local->line_alt3_step = 500;
+			local->line_alt2_step = 100;
+			local->line_alt1_step = 25;
+			break;
+	}
+	DBG("canvas_h=%d line_alt1/2/3_step=%d/%d/%d", canvas_h, local->line_alt1_step, local->line_alt2_step, local->line_alt3_step);
 
 	local->last_index = UINT16_MAX;
 }
@@ -151,11 +174,10 @@ lv_color_t get_vario_color2(int gain)
 
 static void AltitudeGraph_update(widget_slot_t * slot)
 {
-	int i = 0;
 	int values_num = 0;
 	int values_min = INT_MAX;
 	int values_max = INT_MIN;
-	int values[NUM_PLOTS];
+	uint16_t values[NUM_PLOTS];
 	char horizontal_unit[10];
 
 	if ( fc.history.index == local->last_index)
@@ -173,6 +195,8 @@ static void AltitudeGraph_update(widget_slot_t * slot)
 	uint8_t units = config_get_select(&config.units.altitude);
 	format_altitude_units_2(horizontal_unit, units);
 
+	int16_t i = GRAPH_HISTORY_STEP * 2; // skip last 2 history positions
+
 	while (i < fc.history.size)
 	{
 		uint16_t index = (fc.history.index + FC_HISTORY_SIZE - i) % FC_HISTORY_SIZE;
@@ -187,15 +211,18 @@ static void AltitudeGraph_update(widget_slot_t * slot)
 
 			values_max = max(values[values_num], values_max);
 			values_min = min(values[values_num], values_min);
+
+			// DBG("index=%d, values_num=%d, values[values_num]=%d, values_min=%d, values_max=%d", index, values_num, values[values_num], values_min, values_max);
+
 			values_num++;
 
 			if ( values_num >= NUM_PLOTS ) break;
 		}
-		i++;
+		i += GRAPH_HISTORY_STEP;
 	}
 
 	int values_diff = values_max - values_min;
-	DBG("values_min=%d, values_max=%d, values_diff=%d", values_min, values_max, values_diff);
+	DBG("values_num=%d, values_min=%d, values_max=%d, values_diff=%d", values_num, values_min, values_max, values_diff);
 
 	int canvas_h = lv_obj_get_height(local->canvas);
 	int canvas_w = lv_obj_get_width(local->canvas);
@@ -235,13 +262,13 @@ static void AltitudeGraph_update(widget_slot_t * slot)
 		lv_point_t first_label_pos = {0};  // the position of the lowest label
 		char first_label_buffer[20];       // the text of the lowest label
 
-		for ( int y = (values_min/10 + 1)*10; y < values_max ; y += 10)
+		for ( int y = (values_min/local->line_alt1_step + 1)*local->line_alt1_step; y < values_max ; y += local->line_alt1_step)
 		{
-			if ( y % 10 == 0 )
+			if ( y % local->line_alt1_step == 0 )
 			{
-				if ( y % 100 == 0 )     line_horiz_dsc = &line_alt100;
-				else if ( y % 50 == 0 ) line_horiz_dsc = &line_alt50;
-				else                    line_horiz_dsc = &line_alt10;
+				if ( y % local->line_alt3_step == 0 )      line_horiz_dsc = &line_alt3;
+				else if ( y % local->line_alt2_step == 0 ) line_horiz_dsc = &line_alt2;
+				else                                       line_horiz_dsc = &line_alt1;
 
 				line_p[0].y = line_p[1].y = track_off_y + track_h - ((y - values_min) * track_h / values_diff);
 				lv_canvas_draw_line(local->canvas, line_p, 2, line_horiz_dsc);
@@ -250,7 +277,7 @@ static void AltitudeGraph_update(widget_slot_t * slot)
 				label_pos.y = line_p[0].y - lv_font_montserrat_12.line_height + lv_font_montserrat_12.base_line - 1;
 				sprintf(label_buffer, "%d %s", y, horizontal_unit);
 
-				if ( y % 50 == 0 )
+				if ( y % local->line_alt2_step == 0 )
 				{
 					label_drawn = true;
 					lv_canvas_draw_text(local->canvas, label_pos.x, label_pos.y, 100, &label_dsc, label_buffer, LV_LABEL_ALIGN_LEFT);
@@ -283,7 +310,7 @@ static void AltitudeGraph_update(widget_slot_t * slot)
 		p[0].x = track_w - 1;
 		p[0].y = track_off_y + track_h - ((values[0] - values_min) * track_h / values_diff);
 
-		lv_canvas_draw_img(local->canvas, p[0].x + 1, p[0].y - glider.header.h/2, &glider, &pilot_dsc);
+		lv_canvas_draw_img(local->canvas, p[0].x + 1, p[0].y - glider.header.h/2, &glider, &glider_dsc);
 
 		for ( i = 1; i < values_num; i++ )
 		{
@@ -294,7 +321,7 @@ static void AltitudeGraph_update(widget_slot_t * slot)
 
 			p[1].x = track_w - i * track_w / values_num;
 			p[1].y = track_off_y + track_h - ((values[i] - values_min) * track_h / values_diff);
-			DBG("i=%d pos->gnss_alt=%d x1/y1=%d/%d x2/y2=%d/%d", i, values[i], p[0].x, p[0].y, p[1].x, p[1].y);
+			// DBG("i=%d pos->gnss_alt=%d x1/y1=%d/%d x2/y2=%d/%d", i, values[i], p[0].x, p[0].y, p[1].x, p[1].y);
 
 			lv_canvas_draw_line(local->canvas, p, 2, &line_dsc);
 
