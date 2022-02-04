@@ -21,7 +21,7 @@ for f in files:
 
     tile = os.path.join(common.target_dir_step4, f + ".MAP")
     if os.path.exists(tile):
-        #os.system("zip -g -j %s %s" % (dst, tile))
+        os.system("zip -g -j %s %s" % (dst, tile))
         
         atile = f + ".HGT"
         agl += ("zip -g -j $DST/%s %s\n" % (name + "_agl.zip", atile))
