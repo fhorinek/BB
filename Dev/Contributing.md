@@ -1,6 +1,6 @@
 # Contributing
 
-We welcom any contribution from our users or fans. 
+We welcome any contribution from our users or fans. 
 
 We are using 3 main branches for this repo:
  * master (development branch)
