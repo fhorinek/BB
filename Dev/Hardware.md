@@ -10,11 +10,11 @@ characteristics.
 
 ### RAM
 
-This is ~640 kB of RAM which can be used by `malloc()` and
+This is ~1024 kB of RAM which can be used by `malloc()` and
 `free()`. This memory is also used for global variables and for stack
 and its local variables.
 
-Half of this memory is used for the frame buffer. The memory can be
+187.5kB this memory is used for the frame buffer. The memory can be
 used in a standard way by using pointers.
 
 ### Direct coupled RAM
@@ -25,7 +25,7 @@ Describe, how to access and use this RAM....
 
 ### PSRAM
 
-This memory has a size of 8 GB but is quiete slow (10 MBit/s),
+This memory has a size of 8 MB but is quiete slow (~10 MBit/s),
 compared to the above memories. It is used to store data, which is not
 used very often, e.g. map data or AGL data.
 
