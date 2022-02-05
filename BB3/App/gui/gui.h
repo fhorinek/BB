@@ -200,6 +200,8 @@ typedef struct
 		lv_style_t note;
 		lv_style_t ctx_menu;
 		const lv_font_t * widget_fonts[NUMBER_OF_WIDGET_FONTS];
+		lv_style_t dialog_title;
+		lv_style_t border1;
 	} styles;
 
 	//map

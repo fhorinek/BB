@@ -247,6 +247,8 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
     lv_anim_start(&a);
 
     lv_obj_t * cont = lv_cont_create(gui.dialog.window, NULL);
+    //lv_obj_add_style(cont, LV_OBJ_PART_MAIN, &cont_style);
+
     lv_cont_set_layout(cont, LV_LAYOUT_COLUMN_MID);
     lv_obj_set_auto_realign(cont, true);
     lv_obj_align_origo(cont, NULL, LV_ALIGN_CENTER, 0, 0);
@@ -254,20 +256,29 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
     lv_obj_set_style_local_bg_opa(cont, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
 
     lv_obj_t * title_label = lv_label_create(cont, NULL);
+    lv_obj_add_style(title_label, LV_OBJ_PART_MAIN, &gui.styles.dialog_title);
     lv_label_set_align(title_label, LV_LABEL_ALIGN_CENTER);
     lv_label_set_long_mode(title_label, LV_LABEL_LONG_BREAK);
     lv_obj_set_width(title_label, (LV_HOR_RES * 4) / 5);
     lv_obj_set_style_local_text_font(title_label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
     lv_label_set_text(title_label, title);
 
-    gui.dialog.textarea = lv_textarea_create(cont, NULL);
+    lv_obj_t * cont2 = lv_cont_create(cont, NULL);
+    lv_obj_add_style(cont2, LV_OBJ_PART_MAIN, &gui.styles.border1);
+    lv_cont_set_layout(cont2, LV_LAYOUT_COLUMN_MID);
+    lv_obj_set_auto_realign(cont2, true);
+    lv_obj_align_origo(cont2, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_cont_set_fit(cont2, LV_FIT_TIGHT);
+    lv_obj_set_style_local_bg_opa(cont2, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+
+    gui.dialog.textarea = lv_textarea_create(cont2, NULL);
     lv_textarea_set_text_align(gui.dialog.textarea, LV_LABEL_ALIGN_CENTER);
     lv_obj_set_width(gui.dialog.textarea, (LV_HOR_RES * 4) / 5);
     lv_obj_set_style_local_pad_top(gui.dialog.textarea, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 10);
     lv_textarea_set_text(gui.dialog.textarea, message);    /*Set an initial text*/
     lv_textarea_set_cursor_pos(gui.dialog.textarea, 0);
     lv_textarea_set_cursor_hidden(gui.dialog.textarea, true);
-
+    lv_obj_set_style_local_border_width(gui.dialog.textarea, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 0);
     switch (type)
     {
         case (dialog_yes_no):
@@ -302,7 +313,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
         case (dialog_release_note):
         {
         	lv_textarea_set_text_align(gui.dialog.textarea, LV_LABEL_ALIGN_LEFT);
-            lv_obj_set_width(title_label, LV_HOR_RES);
+            lv_obj_set_width(title_label, (LV_HOR_RES * 9) / 10);
             lv_obj_set_size(gui.dialog.textarea, (LV_HOR_RES * 9) / 10, (LV_VER_RES * 7) / 10);
             for ( int i = 0; i < 8; i++ )
     			lv_textarea_cursor_down(gui.dialog.textarea);
@@ -350,9 +361,9 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
 
         case (dialog_progress):
         {
-            lv_obj_t * spinner = lv_arc_create(cont, NULL);
+            lv_obj_t * spinner = lv_arc_create(cont2, NULL);
             lv_obj_set_size(spinner, 120, 120);
-            lv_obj_align(spinner, cont, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_align(spinner, cont2, LV_ALIGN_CENTER, 0, 0);
             lv_arc_set_angles(spinner, 270, 270);
             lv_obj_set_style_local_bg_opa(spinner, LV_ARC_PART_BG, LV_STATE_DEFAULT, LV_OPA_TRANSP);
             lv_obj_set_style_local_line_width(spinner, LV_ARC_PART_BG, LV_STATE_DEFAULT, 0);
@@ -363,7 +374,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
             lv_obj_set_auto_realign(progress, true);
             lv_label_set_text(progress, "");
 
-            lv_obj_t * subtitle = lv_label_create(cont, NULL);
+            lv_obj_t * subtitle = lv_label_create(cont2, NULL);
             lv_label_set_align(subtitle, LV_LABEL_ALIGN_CENTER);
             lv_label_set_text(subtitle, "");
         }
@@ -371,7 +382,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
 
         case (dialog_textarea):
         {
-            lv_obj_t * textbox = lv_textarea_create(cont, NULL);
+            lv_obj_t * textbox = lv_textarea_create(cont2, NULL);
 
             if (dialog_opt_param != NULL)
                 lv_textarea_set_text(textbox, dialog_opt_param);

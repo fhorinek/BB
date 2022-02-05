@@ -219,6 +219,15 @@ void gui_init_styles()
 	lv_style_set_radius(&gui.styles.note, LV_STATE_DEFAULT, 5);
 	lv_style_set_margin_bottom(&gui.styles.note, LV_STATE_DEFAULT, 5);
 
+    lv_style_init(&gui.styles.dialog_title);
+    lv_style_set_bg_color(&gui.styles.dialog_title, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_style_set_bg_opa(&gui.styles.dialog_title, LV_STATE_DEFAULT, LV_OPA_COVER);
+    lv_style_set_text_color(&gui.styles.dialog_title, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+
+    lv_style_init(&gui.styles.border1);
+    lv_style_set_border_width(&gui.styles.border1, LV_STATE_DEFAULT, 1);
+    lv_style_set_border_color(&gui.styles.border1, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+
 	//numbers only
     gui.styles.widget_fonts[FONT_8XL] = &lv_font_montserrat_140;
     gui.styles.widget_fonts[FONT_7XL] = &lv_font_montserrat_120;
