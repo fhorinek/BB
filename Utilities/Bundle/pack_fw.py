@@ -124,6 +124,9 @@ parser = argparse.ArgumentParser(description='Pack parts to create a Strato firm
 parser.add_argument("-p", "--publish",
                     help="Publish the firmware (=git add,commit)",
                     action="store_true")
+parser.add_argument("-i", "--ignore",
+                    help="Do not increase build number",
+                    action="store_true")
 parser.add_argument("-c", "--channel", default="D", choices=['R', 'T', 'D'],
                     help="Select the release channel for this firmware out of (Release, Test, Debug)")
 args = parser.parse_args()
@@ -157,8 +160,9 @@ try:
     build_number = int(open("build_number", "r").read())
 except:
     build_number = 0
-    
-build_number += 1
+
+if args.ignore != True:
+    build_number += 1
 
 open("build_number", "w").write("%u" % build_number)
 
