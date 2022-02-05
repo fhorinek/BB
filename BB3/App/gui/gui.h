@@ -162,6 +162,7 @@ typedef struct
 	{
         lv_obj_t * window;
         lv_group_t * group;
+        lv_obj_t * textarea;
 
         uint8_t type;
         gui_dialog_cb_t cb;

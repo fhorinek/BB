@@ -78,10 +78,26 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
             dialog_stop(dialog_res_yes, dialog_opt_data);
     }
 
-    if (gui.dialog.type == dialog_confirm || gui.dialog.type == dialog_release_note)
+    if (gui.dialog.type == dialog_confirm)
     {
         if (key == LV_KEY_ESC || key == LV_KEY_ENTER)
             dialog_stop(dialog_res_none, dialog_opt_data);
+    }
+
+    if (gui.dialog.type == dialog_release_note)
+    {
+        if (key == LV_KEY_ENTER)
+            dialog_stop(dialog_res_none, dialog_opt_data);
+        if (key == LV_KEY_HOME ) {
+			lv_textarea_cursor_down(gui.dialog.textarea);
+			lv_textarea_cursor_down(gui.dialog.textarea);
+			lv_textarea_cursor_down(gui.dialog.textarea);
+        }
+        if (key == LV_KEY_ESC ) {
+			lv_textarea_cursor_up(gui.dialog.textarea);
+			lv_textarea_cursor_up(gui.dialog.textarea);
+			lv_textarea_cursor_up(gui.dialog.textarea);
+        }
     }
 
     if (gui.dialog.type == dialog_dfu)
@@ -244,12 +260,13 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
     lv_obj_set_style_local_text_font(title_label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
     lv_label_set_text(title_label, title);
 
-    lv_obj_t * text_label = lv_label_create(cont, NULL);
-    lv_label_set_align(text_label, LV_LABEL_ALIGN_CENTER);
-    lv_label_set_long_mode(text_label, LV_LABEL_LONG_BREAK);
-    lv_obj_set_width(text_label, (LV_HOR_RES * 4) / 5);
-    lv_obj_set_style_local_pad_top(text_label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 10);
-    lv_label_set_text(text_label, message);
+    gui.dialog.textarea = lv_textarea_create(cont, NULL);
+    lv_textarea_set_text_align(gui.dialog.textarea, LV_LABEL_ALIGN_CENTER);
+    lv_obj_set_width(gui.dialog.textarea, (LV_HOR_RES * 4) / 5);
+    lv_obj_set_style_local_pad_top(gui.dialog.textarea, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 10);
+    lv_textarea_set_text(gui.dialog.textarea, message);    /*Set an initial text*/
+    lv_textarea_set_cursor_pos(gui.dialog.textarea, 0);
+    lv_textarea_set_cursor_hidden(gui.dialog.textarea, true);
 
     switch (type)
     {
@@ -284,9 +301,32 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
 
         case (dialog_release_note):
         {
-        	lv_label_set_align(text_label, LV_LABEL_ALIGN_LEFT);
+        	lv_textarea_set_text_align(gui.dialog.textarea, LV_LABEL_ALIGN_LEFT);
             lv_obj_set_width(title_label, LV_HOR_RES);
-            lv_obj_set_width(text_label, (LV_HOR_RES * 5) / 6);
+            lv_obj_set_size(gui.dialog.textarea, (LV_HOR_RES * 9) / 10, (LV_VER_RES * 7) / 10);
+            for ( int i = 0; i < 8; i++ )
+    			lv_textarea_cursor_down(gui.dialog.textarea);
+
+            lv_obj_t * up = lv_label_create(gui.dialog.window, NULL);
+            lv_obj_set_style_local_text_font(up, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+            lv_obj_set_style_local_text_color(up, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
+            lv_obj_set_style_local_pad_all(up, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 5);
+            lv_label_set_text(up, LV_SYMBOL_UP);
+            lv_obj_align(up, gui.dialog.window, LV_ALIGN_IN_BOTTOM_LEFT, 0, 0);
+
+            lv_obj_t * OK = lv_label_create(gui.dialog.window, NULL);
+            lv_obj_set_style_local_text_font(OK, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+            lv_obj_set_style_local_text_color(OK, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+            lv_obj_set_style_local_pad_all(OK, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 5);
+            lv_label_set_text(OK, LV_SYMBOL_OK);
+            lv_obj_align(OK, gui.dialog.window, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+
+            lv_obj_t * down = lv_label_create(gui.dialog.window, NULL);
+            lv_obj_set_style_local_text_font(down, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+            lv_obj_set_style_local_text_color(down, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
+            lv_obj_set_style_local_pad_all(down, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 5);
+            lv_label_set_text(down, LV_SYMBOL_DOWN);
+            lv_obj_align(down, gui.dialog.window, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
         }
         break;
 
