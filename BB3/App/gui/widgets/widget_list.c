@@ -40,13 +40,15 @@ DECLARE_WIDGET(WindSpd);
 DECLARE_WIDGET(TTrace);
 DECLARE_WIDGET(WindDirPoints);
 DECLARE_WIDGET(TimeDate);
+DECLARE_WIDGET(VarioGraph);
 
 widget_t * widgets[] =
 {
-    // Insert new widget in a meaningfull order, 
+    // Insert new widget in a meaningful order,
     // as this list is presented to user:
     LIST_WIDGET(Vario),
     LIST_WIDGET(Avg),
+    LIST_WIDGET(VarioGraph),
     LIST_WIDGET(HeightTO),
     LIST_WIDGET(Glide),
     LIST_WIDGET(Bar),
