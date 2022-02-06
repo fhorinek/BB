@@ -319,7 +319,7 @@ void config_show(cfg_entry_t * structure)
 	}
 }
 
-uint8_t config_move_pages()
+void config_move_pages()
 {
 	FRESULT res;
 	DIR dir;

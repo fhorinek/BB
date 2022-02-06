@@ -47,7 +47,7 @@ bool fc_lock_acquire()
     uint32_t delta = HAL_GetTick() - start;
     if (delta > 100 && prev_lock_owner != NULL)
     {
-        WARN("'%s' was unable to acquire gui lock from '%s' for %u ms!",
+        WARN("'%s' was unable to acquire fc.lock from '%s' for %u ms!",
                 pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(prev_lock_owner), delta);
     }
     fc_lock_owner = xTaskGetCurrentTaskHandle();
