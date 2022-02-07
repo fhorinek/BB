@@ -163,7 +163,7 @@ class GPS_Spoof(object):
             palt = int(palt)
             
             if last_point:
-                otime, olatitude, olongitude, __, opalt, __, __, __ = last_point
+                otime, olatitude, olongitude, oalt, opalt, __, __, __ = last_point
     
                 R = 6371e3 # metres
                 phi_1 = math.radians(lat)
@@ -190,8 +190,9 @@ class GPS_Spoof(object):
                 heading = math.degrees(math.atan2(dx, dy))
                 if heading < 0:
                     heading += 360
-                    
-                vario = palt - opalt
+
+                #vario = palt - opalt      # jumps around heavily
+                vario = alt - oalt
             else:
                 heading = 0
                 speed = 0
