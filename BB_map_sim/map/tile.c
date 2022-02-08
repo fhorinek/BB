@@ -32,13 +32,7 @@
 
 #define	AGL_INVALID -32768
 
-typedef struct
-{
-	int16_t y_min;
-	int16_t y_max;
-	float x_val;
-	float slope;
-} polygon_edge_t;
+
 
 typedef struct
 {
@@ -57,10 +51,11 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD	0x55AA
-#define CACHE_VERSION		34
+#define CACHE_VERSION		2
+
 #define CACHE_HAVE_AGL		0b10000000
 #define CACHE_HAVE_MAP_MASK	0b01111111
-#define CACHE_NO_FILE		0
+
 
 typedef struct
 {
@@ -70,149 +65,6 @@ typedef struct
 	uint8_t src_files_magic[4]; //11 12 22 21
 } cache_header_t;
 
-void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc)
-{
-	polygon_edge_t * edges = (polygon_edge_t * ) malloc(sizeof(polygon_edge_t) * number_of_points);
-
-	uint16_t edge_cnt = 0;
-
-	//get valid edges
-	for (uint16_t i = 0; i < number_of_points - 1; i++)
-	{
-		polygon_edge_t tmp;
-
-		//multipolygon separator
-		if (points[i + 1].x == 0x7FFF && points[i + 1].y == 0x7FFF)
-		{
-			i += 2;
-		}
-
-		if (points[i].y != points[i + 1].y)
-		{
-			if (points[i].y < points[i + 1].y)
-			{
-				tmp.x_val = points[i].x;
-				tmp.y_min = points[i].y;
-				tmp.y_max = points[i + 1].y;
-			}
-			else
-			{
-				tmp.x_val = points[i + 1].x;
-				tmp.y_min = points[i + 1].y;
-				tmp.y_max = points[i].y;
-			}
-			tmp.slope = (points[i + 1].x - points[i].x) / (float)(points[i + 1].y - points[i].y);
-			int64_t tmp_value = (int64_t)tmp.y_min << 32;
-			tmp_value += (int64_t)tmp.y_max << 16;
-			tmp_value += tmp.x_val;
-
-			for (uint16_t j = 0; j < edge_cnt + 1; j++)
-			{
-				int64_t edge_value = (int64_t)edges[j].y_min << 32;
-				edge_value += (int64_t)edges[j].y_max << 16;
-				edge_value += edges[j].x_val;
-
-				if  (edge_cnt == j)
-				{
-					memcpy((void *)&edges[j], (void *)&tmp, sizeof(polygon_edge_t));
-				}
-				else if (edge_value > tmp_value)
-				{
-					__align polygon_edge_t move;
-					memcpy((void *)&move, (void *)&edges[j], sizeof(polygon_edge_t));
-					memcpy((void *)&edges[j], (void *)&tmp, sizeof(polygon_edge_t));
-
-					for (uint16_t k = j + 1; k < edge_cnt + 1; k++)
-					{
-						memcpy((void *)&tmp, (void *)&edges[k], sizeof(polygon_edge_t));
-						memcpy((void *)&edges[k], (void *)&move, sizeof(polygon_edge_t));
-						memcpy((void *)&move,  (void *)&tmp, sizeof(polygon_edge_t));
-					}
-					break;
-				}
-			}
-
-			edge_cnt++;
-		}
-	}
-
-//	for (uint16_t i = 0; i < edge_cnt; i++)
-//	{
-//		INFO("%u: %d %d %0.1f %0.3f", i, edges[i].y_min, edges[i].y_max, edges[i].x_val, edges[i].slope);
-//	}
-
-	if (edge_cnt > 0)
-	{
-		int16_t scan_start = edges[0].y_min;
-		int16_t scan_end = edges[edge_cnt - 1].y_max;
-
-		uint16_t * active = (uint16_t *) malloc(sizeof(uint16_t) * edge_cnt);
-
-		for (int16_t scan_line = scan_start; scan_line < scan_end + 1; scan_line++)
-		{
-			//get active
-			uint16_t active_cnt = 0;
-			for (uint16_t i = 0; i < edge_cnt; i++)
-			{
-				if (edges[i].y_min <= scan_line && edges[i].y_max > scan_line)
-				{
-					for (uint16_t j = 0; j < active_cnt + 1; j++)
-					{
-						bool pass = false;
-
-						if (j < active_cnt)
-						{
-							if (edges[active[j]].x_val > edges[i].x_val)
-								pass = true;
-						}
-						else if (active_cnt == j)
-						{
-							pass = true;
-						}
-
-						if (pass)
-						{
-							uint16_t move;
-							move = active[j];
-							active[j] = i;
-
-							for (uint16_t k = j + 1; k < active_cnt + 1; k++)
-							{
-								uint16_t tmp = active[k];
-								active[k] = move;
-								move = tmp;
-							}
-							break;
-						}
-					}
-
-					active_cnt++;
-				}
-			}
-
-			//draw active
-			lv_point_t line_points[2];
-			for (uint16_t i = 0; i < active_cnt; i++)
-			{
-				line_points[i % 2].x = edges[active[i]].x_val;
-				line_points[i % 2].y = scan_line;
-
-				if (i % 2 == 1)
-				{
-					//TODO: draw directly to memory without lvgl
-					gui_lock_acquire();
-					lv_canvas_draw_line(canvas, line_points, 2, draw_desc);
-					gui_lock_release();
-				}
-
-				edges[active[i]].x_val += edges[active[i]].slope;
-			}
-		}
-
-		free(active);
-	}
-	free(edges);
-}
 
 typedef struct
 {
@@ -221,12 +73,16 @@ typedef struct
 	uint32_t size;
 } agl_header_t;
 
-#define MAP_SHADE_MAG   128
+#define MAP_SHADE_MAG   100
 
-#define BLUR_SIZE	7
+#define BLUR_SIZE	3
+
+void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc);
 
 void write_buffer(char * path, void * buffer, uint32_t len)
 {
+//    return;
+
 	FIL f;
 	UINT wb;
 
@@ -235,43 +91,15 @@ void write_buffer(char * path, void * buffer, uint32_t len)
 	f_close(&f);
 }
 
-void tile_get_filename(char * fn, int32_t lat, int32_t lon)
-{
-    char lat_c, lon_c;
-    lat = lat / GNSS_MUL;
-    lon = lon / GNSS_MUL;
-
-    if (lat >= 0)
-    {
-        lat_c = 'N';
-    }
-    else
-    {
-        lat_c = 'S';
-        lat = abs(lat) + 1;
-    }
-
-    if (lon >= 0)
-    {
-        lon_c = 'E';
-    }
-    else
-    {
-        lon_c = 'W';
-        lon = abs(lon) + 1;
-    }
-
-    sprintf(fn, "%c%02lu%c%03lu", lat_c, lat, lon_c, lon);
-}
-
 
 //TODO: optimize to 1/4 size
-float * generate_blur_kernel(uint16_t size)
+int16_t * generate_blur_kernel(uint16_t size)
 {
-	ASSERT(size % 2 == 1);
+	FASSERT(size % 2 == 1);
     // initialising standard deviation to 1.0
 
-	float * kernel = ps_malloc(sizeof(float) * size * size);
+    float * tmp_kernel = malloc(sizeof(float) * size * size);
+    int16_t * kernel = ps_malloc(sizeof(int16_t) * size * size);
 
 	uint16_t one_half = size / 2;
 
@@ -288,8 +116,8 @@ float * generate_blur_kernel(uint16_t size)
 		for (int16_t x = -one_half; x <= one_half; x++)
 		{
             r = sqrt(x * x + y * y);
-            kernel[index] = (exp(-(r * r) / s)) / (M_PI * s);
-            sum += kernel[index];
+            tmp_kernel[index] = (exp(-(r * r) / s)) / (M_PI * s);
+            sum += tmp_kernel[index];
             index++;
         }
     }
@@ -297,11 +125,14 @@ float * generate_blur_kernel(uint16_t size)
     // normalising the Kernel
     for (int16_t i = 0; i < size * size; ++i)
     {
-		kernel[i] /= sum;
-		INFO("%0.10f ", kernel[i]);
+        tmp_kernel[i] /= sum;
+        kernel[i] = tmp_kernel[i] * 1024;
+        INFO("kernel[%u]: %d", i, kernel[i]);
     }
 
-    write_buffer("kernel.data", kernel, sizeof(float) * size * size);
+    write_buffer("kernel.data", kernel, sizeof(int16_t) * size * size);
+
+    free(tmp_kernel);
 
     return kernel;
 }
@@ -311,24 +142,18 @@ typedef struct
 	int16_t h;
 	int16_t s;
 	int16_t v;
-} palete_point_t;
+	int16_t steps;
+} palete_hsv_point_t;
 
-lv_color_t * generate_palette(palete_point_t * pts, uint8_t cnt, uint16_t * pal_len)
+lv_color_t * generate_palette_hsv(palete_hsv_point_t * pts, uint8_t cnt, uint16_t * pal_len)
 {
 	*pal_len = 0;
 	for (uint8_t i = 0; i < cnt-1; i++)
 	{
-		int16_t h1 = pts[i].h;
-		int16_t s1 = pts[i].s;
-		int16_t v1 = pts[i].v;
-		int16_t h2 = pts[i + 1].h;
-		int16_t s2 = pts[i + 1].s;
-		int16_t v2 = pts[i + 1].v;
-
-		*pal_len += max(max(abs(h2-h1), abs(s2-s1)), abs(v2-v1));
+		*pal_len += pts[i].steps;
 	}
 
-	lv_color_t * palette = ps_malloc(sizeof(lv_color_t) * *pal_len);
+	lv_color_t * palette = malloc(sizeof(lv_color_t) * *pal_len);
 	uint16_t index = 0;
 
 	for (uint8_t i = 0; i < cnt-1; i++)
@@ -340,7 +165,7 @@ lv_color_t * generate_palette(palete_point_t * pts, uint8_t cnt, uint16_t * pal_
 		int16_t s2 = pts[i + 1].s;
 		int16_t v2 = pts[i + 1].v;
 
-		uint16_t steps = max(max(abs(h2-h1), abs(s2-s1)), abs(v2-v1));
+		uint16_t steps = pts[i].steps;
 
 		for (uint16_t j = 0; j < steps; j++)
 		{
@@ -355,103 +180,69 @@ lv_color_t * generate_palette(palete_point_t * pts, uint8_t cnt, uint16_t * pal_
 	return palette;
 }
 
-static uint8_t * load_agl_file(int32_t lon, int32_t lat, uint8_t index)
+typedef struct
 {
-	//buffer for map data
-	static uint8_t * agl_cache = NULL;
-	//name of the file in buffer
-	static char agl_cache_name[16];
+	int16_t r;
+	int16_t g;
+	int16_t b;
+	int16_t steps;
+} palete_rgb_point_t;
 
-	//names used to generate tile
-	static char name[4][16];
-
-	tile_get_filename(name[index], lat, lon);
-
-	for (uint8_t i = index; i > 0; i--)
+lv_color_t * generate_palette_rgb(palete_rgb_point_t * pts, uint8_t cnt, uint16_t * pal_len)
+{
+	*pal_len = 0;
+	for (uint8_t i = 0; i < cnt-1; i++)
 	{
-		//was this file already processed?
-		if (strcmp(name[i-1], name[index]) == 0)
-			return NULL;
+		*pal_len += pts[i].steps;
 	}
 
-	bool loaded = false;
+	lv_color_t * palette = malloc(sizeof(lv_color_t) * *pal_len);
+	uint16_t index = 0;
 
-	if (agl_cache != NULL)
+	for (uint8_t i = 0; i < cnt-1; i++)
 	{
-		if (strcmp(agl_cache_name, name[index]) == 0)
+		int16_t r1 = pts[i].r;
+		int16_t g1 = pts[i].g;
+		int16_t b1 = pts[i].b;
+		int16_t r2 = pts[i + 1].r;
+		int16_t g2 = pts[i + 1].g;
+		int16_t b2 = pts[i + 1].b;
+
+		uint16_t steps = pts[i].steps;
+
+		for (uint16_t j = 0; j < steps; j++)
 		{
-			loaded = true;
+			int16_t r = r1 + (j * (r2-r1)) / steps;
+			int16_t g = g1 + (j * (g2-g1)) / steps;
+			int16_t b = b1 + (j * (b2-b1)) / steps;
+			palette[index++] = lv_color_make(r, g, b);
 		}
 	}
 
-	if (!loaded)
-	{
-		FIL agl_data;
-
-		char path[PATH_LEN];
-		snprintf(path, sizeof(path), "%s/%s.HGT", PATH_TOPO_DIR, name[index]);
-		if (f_open(&agl_data, path, FA_READ) != FR_OK)
-		{
-			ERR("agl file %s not found", name[index]);
-			db_insert(PATH_TOPO_INDEX, name[index], "W"); //set want flag
-			return NULL;
-		}
-
-		if (agl_cache != NULL)
-		{
-			ps_free(agl_cache);
-			agl_cache = NULL;
-		}
-
-		UINT br;
-		agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
-
-		((agl_header_t *)agl_cache)->lat = (lat / GNSS_MUL) * GNSS_MUL;
-		((agl_header_t *)agl_cache)->lon = (lon / GNSS_MUL) * GNSS_MUL;
-		((agl_header_t *)agl_cache)->size = f_size(&agl_data);
-
-		f_read(&agl_data, agl_cache + sizeof(agl_header_t), f_size(&agl_data), &br);
-		f_close(&agl_data);
-
-		//mark name to cache
-		strcpy(agl_cache_name, name[index]);
-	}
-
-	//check if this file was already used on this tile
-	return agl_cache;
+	return palette;
 }
+
 
 #define MAP_W_BLUR_SHADE		(MAP_W + BLUR_SIZE + 2)
 #define MAP_H_BLUR_SHADE		(MAP_H + BLUR_SIZE + 2)
 #define MAP_BLUR_SHADE_OFFSET	(BLUR_SIZE / 2 + 1)
 #define MAP_BLUR_SHADE			(BLUR_SIZE / 2)
 
-uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * input, float * output)
+uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * input, int16_t * output)
 {
 	if (input == NULL)
 		return 0;
 
-    uint16_t num_points_x;
-    uint16_t num_points_y;
-
     agl_header_t * ah = ((agl_header_t *)input);
     int16_t * agl_data = (int16_t *)(input + sizeof(agl_header_t));
 
-    switch (ah->size)
+    if (ah->size != HGT_DATA_WIDTH_3 * HGT_DATA_WIDTH_3 * 2)
     {
-        case HGT_DATA_WIDTH_3 * HGT_DATA_WIDTH_3 * 2:
-            num_points_x = num_points_y = HGT_DATA_WIDTH_3;
-        break;
-        case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2:
-            num_points_x = num_points_y = HGT_DATA_WIDTH_1;
-        break;
-        case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1_HALF * 2:
-            num_points_x = HGT_DATA_WIDTH_1_HALF;
-            num_points_y = HGT_DATA_WIDTH_1;
-        break;
-        default:
-            return 0;
+        return 0;
     }
+
+    uint16_t num_points_x = HGT_DATA_WIDTH_3;
+    uint16_t num_points_y = HGT_DATA_WIDTH_3;
 
     int16_t y_start = max(-MAP_BLUR_SHADE_OFFSET, -2 + (lat1 - (ah->lat + GNSS_MUL)) / step_y);
     int16_t y_end = min(MAP_H + MAP_BLUR_SHADE_OFFSET, 2 + (lat1 - ah->lat) / step_y);
@@ -461,6 +252,9 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
 
     uint32_t coord_div_x = GNSS_MUL / (num_points_x - 2);
     uint32_t coord_div_y = GNSS_MUL / (num_points_y - 2);
+
+    int8_t x_dir = (ah->lon > 0) ? +1 : -1;
+    int8_t y_dir = (ah->lat > 0) ? -1 : +1;
 
     for (int16_t y = y_start; y < y_end; y++)
     {
@@ -478,9 +272,21 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     		if (lat > ah->lat + GNSS_MUL - coord_div_y)
     			lat = ah->lat + GNSS_MUL - coord_div_y;
 
-    	    uint16_t index_y = (lat % GNSS_MUL) / coord_div_y;
-    	    uint16_t index_x = (lon % GNSS_MUL) / coord_div_x;
-    	    uint32_t pos = ((uint32_t) index_x + num_points_x * (uint32_t) ((num_points_y - index_y) - 1));
+    	    int32_t index_y = lat % GNSS_MUL;
+    	    int32_t index_x = lon % GNSS_MUL;
+    	    if (index_y < 0) index_y += GNSS_MUL;
+    	    if (index_x < 0) index_x += GNSS_MUL;
+
+			index_y /= coord_div_y;
+			index_x /= coord_div_x;
+
+//    	    if (ah->lat > 0)
+//    	    	index_y = num_points_y - index_y;
+//
+//    	    if (ah->lon < 0)
+//    	    	index_x = num_points_x - index_x;
+
+			uint32_t pos = index_x + num_points_x * (num_points_y - index_y);
 
     	    int16_t alt11 = SWAP_UINT16(agl_data[pos]);
     	    int16_t alt21 = SWAP_UINT16(agl_data[pos + 1]);
@@ -489,6 +295,12 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     	    int16_t alt12 = SWAP_UINT16(agl_data[pos]);
     	    int16_t alt22 = SWAP_UINT16(agl_data[pos + 1]);
 
+
+//    	    float lat_dr = 1;
+//    	    float lon_dr = 1;
+
+
+
     	    float lat_dr = ((lat % GNSS_MUL) % coord_div_y) / (float)(coord_div_y);
     	    float lon_dr = ((lon % GNSS_MUL) % coord_div_x) / (float)(coord_div_x);
 
@@ -496,7 +308,7 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     	    float alt1 = alt11 + (float)(alt12 - alt11) * lat_dr;
     	    float alt2 = alt21 + (float)(alt22 - alt21) * lat_dr;
 
-    	    float alt = alt1 + (float)(alt2 - alt1) * lon_dr;
+    	    int16_t alt = alt1 + (float)(alt2 - alt1) * lon_dr;
     	    uint32_t index = x + MAP_BLUR_SHADE_OFFSET + MAP_W_BLUR_SHADE * (y + MAP_BLUR_SHADE_OFFSET);
     		output[index] = (int16_t)alt;
     	}
@@ -506,130 +318,201 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     return CACHE_HAVE_AGL;
 }
 
-
 void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * magic)
 {
 	//create static dest buffer for tile in psram
-	static float * topo_tmp1 = NULL;
-	static float * topo_tmp2 = NULL;
-	static float * blur_kernel = NULL;
+	static int16_t * topo_alt = NULL;
+	static int16_t * topo_blur = NULL;
+	static int16_t * blur_kernel = NULL;
 	static lv_color_t * palette = NULL;
 	static uint16_t palette_len;
 
-	if (topo_tmp1 == NULL)
+    lv_canvas_ext_t * ext = lv_obj_get_ext_attr(gui.map.canvas);
+    uint16_t * image_buff = (uint16_t *)ext->dsc.data;
+
+	if (topo_alt == NULL)
 	{
 		//INIT MEMORY
-		topo_tmp1 = (float *)ps_malloc(sizeof(float) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
-		topo_tmp2 = (float *)ps_malloc(sizeof(float) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
+		topo_alt = (int16_t *)ps_malloc(sizeof(int16_t) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
+		topo_blur = (int16_t *)ps_malloc(sizeof(int16_t) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
 		blur_kernel = generate_blur_kernel(BLUR_SIZE);
 
-		palete_point_t pts[] = {
-				{240, 100, 100},
-				{0, 100, 100},
-				{0, 100, 100},
-				{0, 0, 100},
-				{240, 0, 50},
-				{240, 100, 100},
-				{0, 100, 100},
-				{0, 100, 100},
-				{0, 0, 100},
-				{240, 0, 50},
-				{240, 100, 100},
-				{0, 100, 100},
-				{0, 100, 100},
-				{0, 0, 100},
-				{240, 0, 50},
+		palete_rgb_point_t pts[] = {
+				{92, 145, 70, 50},
+				{92, 145, 70, 100},
+				{190, 190, 65, 100},
+				{160, 100, 70, 100},
+				{130, 90, 60, 100},
+				{185, 185, 185, 300},
+				{140, 140, 165, 400},
 		};
 
 
-		palette = generate_palette(pts, sizeof(pts) / sizeof(palete_point_t), &palette_len);
+		palette = generate_palette_rgb(pts, sizeof(pts) / sizeof(palete_hsv_point_t), &palette_len);
 
 		write_buffer("palette.data", palette, sizeof(lv_color_t) * palette_len);
 	}
 
 
-	//LOAD HEIGHT VALUES
+    DBG("Loading agl data");
+    uint32_t timestamp = HAL_GetTick();
+
+	//LOAD DEFAULT HEIGHT VALUES
 	for (uint32_t i = 0; i < MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE; i++)
 	{
-    	topo_tmp1[i] = -INFINITY;
+    	topo_alt[i] = INT16_MIN;
 	}
-    memset(topo_tmp2, 0, sizeof(float) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
+    memset(topo_blur, 0, sizeof(int16_t) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
 
-    magic[0] |= load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon1, lat1, 0), topo_tmp1);
-    magic[1] |= load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon1, lat2, 1), topo_tmp1);
-    magic[2] |= load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon2, lat2, 2), topo_tmp1);
-    magic[3] |= load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, load_agl_file(lon2, lat1, 3), topo_tmp1);
 
+    //Get tile names
+    hagl_pos_t tile_pos[4];
+    tile_pos[0] = agl_get_fpos(lon1, lat1);
+    tile_pos[1] = agl_get_fpos(lon1, lat2);
+    tile_pos[2] = agl_get_fpos(lon2, lat2);
+    tile_pos[3] = agl_get_fpos(lon2, lat1);
+
+    //remove duplicates
+    for(uint8_t i = 0; i < 4; i++)
+    {
+        for (uint8_t j = i + 1; j < 4; j++)
+        {
+            if (agl_pos_cmp(&tile_pos[i], &tile_pos[j]))
+                tile_pos[j].flags |= POS_FLAG_DUPLICATE;
+        }
+    }
+
+    //buffer for map data
+    static uint8_t * agl_cache = NULL;
+    //name of the file in buffer
+    static hagl_pos_t agl_cache_pos = {POS_INVALID};
+
+    //first use cached file
+    if (agl_cache != NULL)
+    {
+        for(uint8_t i = 0; i < 4; i++)
+        {
+            if (agl_pos_cmp(&tile_pos[i], &agl_cache_pos))
+            {
+                //tile loaded!
+                load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, agl_cache, topo_alt);
+                tile_pos[i].flags |= POS_FLAG_DONE;
+                magic[i] |= CACHE_HAVE_AGL;
+            }
+        }
+    }
+
+    //load the rest
+    for(uint8_t i = 0; i < 4; i++)
+    {
+        //if not duplicate or done
+        if ((tile_pos[i].flags & (POS_FLAG_DUPLICATE | POS_FLAG_DONE)) == 0)
+        {
+            FIL agl_data;
+
+            char path[PATH_LEN];
+            char name[12];
+            agl_get_filename(name, tile_pos[i]);
+            snprintf(path, sizeof(path), "%s/%s.HGT", PATH_TOPO_DIR, name);
+
+            if (f_open(&agl_data, path, FA_READ) != FR_OK)
+            {
+                ERR("agl file %s not found", name);
+                db_insert(PATH_TOPO_INDEX, name, "W"); //set want flag
+                tile_pos[i].flags |= POS_FLAG_NOT_FOUND;
+                continue;
+            }
+
+            if (agl_cache != NULL)
+            {
+                ps_free(agl_cache);
+                agl_cache = NULL;
+            }
+
+            UINT br;
+            agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
+
+            ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL) - ((tile_pos[i].lat < 0) ? GNSS_MUL : 0);
+            ((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL) - ((tile_pos[i].lon < 0) ? GNSS_MUL : 0);
+            ((agl_header_t *)agl_cache)->size = f_size(&agl_data);
+
+            INFO("Reading %s (%u)", name, f_size(&agl_data));
+            FRESULT ret = f_read(&agl_data, agl_cache + sizeof(agl_header_t), f_size(&agl_data), &br);
+            INFO("read %u", br);
+            if (br != f_size(&agl_data) || ret != FR_OK)
+            {
+                WARN("Not all data read ret = %u", ret);
+            }
+
+            f_close(&agl_data);
+
+            //mark pos to cache
+            memcpy(&agl_cache_pos, &tile_pos[i], sizeof(hagl_pos_t));
+            load_agl_data(lon1, lat1, lon2, lat2, step_x, step_y, agl_cache, topo_alt);
+
+            tile_pos[i].flags |= POS_FLAG_DONE;
+            magic[i] |= CACHE_HAVE_AGL;
+        }
+    }
+
+    //no gnss data
+    if (*((uint32_t *)magic) == 0)
+    {
+        for (uint16_t y = 0; y < MAP_H; y++)
+        {
+            for (uint16_t x = 0; x < MAP_W; x++)
+            {
+                image_buff[x + MAP_W * y] = LV_COLOR_GRAY.full;
+            }
+        }
+        return;
+    }
+
+    DBG("Loading data done (%u)", HAL_GetTick() - timestamp);
+    timestamp = HAL_GetTick();
+
+    bool blur_enable = true;//config_get_bool(&profile.map.blur);
+
+    if (blur_enable)
+    {
+        //BLUR HEIGHT MAP
+        for (int16_t y = -1; y < MAP_H + 1; y++)
+        {
+            for (int16_t x = -1; x < MAP_W + 1; x++)
+            {
+                int32_t sum = 0;
+                for (uint16_t i = 0; i < BLUR_SIZE * BLUR_SIZE; i++)
+                {
+                    int16_t ox = i % BLUR_SIZE - (BLUR_SIZE / 2);
+                    int16_t oy = i / BLUR_SIZE - (BLUR_SIZE / 2);
+
+                    int32_t bindex = (x + ox  + MAP_BLUR_SHADE_OFFSET) + MAP_W_BLUR_SHADE * (y + oy  + MAP_BLUR_SHADE_OFFSET);
+                    sum += blur_kernel[i] * topo_alt[bindex];
+                }
+
+                uint32_t index = (x + 1) + MAP_W_BLUR_SHADE * (y + 1);
+                topo_blur[index] = sum / 1024;
+            }
+        }
+
+        DBG("Bluring (%u)", HAL_GetTick() - timestamp);
+    }
+
+    int16_t * topo_src = (blur_enable) ? topo_blur : topo_alt;
+
+    //CALC SHADE
     //ASSIGN COLORS
     int16_t val_min = 0000;
-    int16_t val_max = 6000;
+    int16_t val_max = 2000;
     int16_t delta = val_max - val_min;
     if (delta == 0)
         delta = 1;
 
-    lv_canvas_ext_t * ext = lv_obj_get_ext_attr(gui.map.canvas);
-    uint16_t * image_buff = (uint16_t *)ext->dsc.data;
-
-
-    for (uint16_t y = 0; y < MAP_H; y++)
-    {
-        for (uint16_t x = 0; x < MAP_W; x++)
-        {
-        	uint32_t index = x + MAP_BLUR_SHADE_OFFSET + (MAP_W_BLUR_SHADE) * (y + MAP_BLUR_SHADE_OFFSET);
-            float val = topo_tmp1[index];
-
-            uint16_t ci;
-            lv_color_t color;
-            if (isinff(val))
-            {
-            	color = LV_COLOR_GRAY;
-            }
-            else
-            {
-				ci = min(palette_len, ((val - val_min) * palette_len) / delta);
-				ci = max(0, ci);
-				color = palette[ci];
-            }
-
-            index = x + MAP_W * y;
-            image_buff[index] = color.full;
-        }
-    }
-
-    write_buffer("step2.data", image_buff, sizeof(lv_color_t) * MAP_W * MAP_H);
-
-    memset(topo_tmp2, 0, sizeof(float) * MAP_W * MAP_H);
-
-    //BLUR HEIGHT MAP
-    for (int16_t y = -1; y < MAP_H + 1; y++)
-    {
-        for (int16_t x = -1; x < MAP_W + 1; x++)
-        {
-        	float sum = 0;
-        	for (uint16_t i = 0; i < BLUR_SIZE * BLUR_SIZE; i++)
-        	{
-        		int16_t ox = i % BLUR_SIZE - (BLUR_SIZE / 2);
-				int16_t oy = i / BLUR_SIZE - (BLUR_SIZE / 2);
-
-				int32_t bindex = (x + ox  + MAP_BLUR_SHADE_OFFSET) + MAP_W_BLUR_SHADE * (y + oy  + MAP_BLUR_SHADE_OFFSET);
-//				bindex = max(0, bindex);
-//				bindex = min(bindex, (MAP_W) * (MAP_H));
-
-        		sum += blur_kernel[i] * topo_tmp1[bindex];
-        	}
-
-        	uint32_t index = (x + 1) + MAP_W_BLUR_SHADE * (y + 1);
-        	topo_tmp2[index] = sum;
-        }
-    }
-    write_buffer("step3.data", topo_tmp2, sizeof(float) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
-
-    //CALC SHADE
     int16_t step_x_m, step_y_m;
     geo_get_topo_steps((lat1 + lat2) / 2, step_x, step_y, &step_x_m, &step_y_m);
     int16_t step_d_m = sqrt(pow(step_x_m, 2) + pow(step_y_m, 2));
 
-
+    timestamp = HAL_GetTick();
     for (uint16_t y = 0; y < MAP_H; y++)
     {
         for (uint16_t x = 0; x < MAP_W; x++)
@@ -637,25 +520,28 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
         	uint32_t index;
 
 			index = x + 1 - 1 + MAP_W_BLUR_SHADE * (y + 1 - 1);
-			float val_top_left = topo_tmp2[index];
-            float val_top = topo_tmp2[index + 1];
-            float val_top_right = topo_tmp2[index + 2];
+			int16_t val_top_left = topo_src[index];
+			int16_t val_top = topo_src[index + 1];
+			int16_t val_top_right = topo_src[index + 2];
 
             index += MAP_W_BLUR_SHADE;
-            float val_left = topo_tmp2[index];
-            float val = topo_tmp2[index + 1];
-            float val_right = topo_tmp2[index + 2];
+            int16_t val_left = topo_src[index];
+            int16_t val_center = topo_src[index + 1];
+            int16_t val_right = topo_src[index + 2];
+
+            //not blurred
+            int16_t val = topo_alt[index + 1];
 
             index += MAP_W_BLUR_SHADE;
-            float val_bottom_left = topo_tmp2[index];
-            float val_bottom = topo_tmp2[index + 1];
-            float val_bottom_right = topo_tmp2[index + 2];
+            int16_t val_bottom_left = topo_src[index];
+            int16_t val_bottom = topo_src[index + 1];
+            int16_t val_bottom_right = topo_src[index + 2];
 
             //get near
-			int32_t delta_hor = ((val - val_left) + (val_right - val)) / 2;
-			int32_t delta_ver = ((val - val_top) + (val_bottom - val)) / 2;
-			int32_t delta_dia1 = ((val - val_top_left) + (val_bottom_right - val)) / 2;
-			int32_t delta_dia2 = ((val - val_bottom_left) + (val_top_right- val)) / 2;
+			int32_t delta_hor = ((val_center - val_left) + (val_right - val_center)) / 2;
+			int32_t delta_ver = ((val_center - val_top) + (val_bottom - val_center)) / 2;
+			int32_t delta_dia1 = ((val_center - val_top_left) + (val_bottom_right - val_center)) / 2;
+			int32_t delta_dia2 = ((val_center - val_bottom_left) + (val_top_right- val_center)) / 2;
 
 			int16_t ilum = 0;
 			ilum += (delta_hor * MAP_SHADE_MAG) / (step_x_m);
@@ -669,35 +555,39 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
 
 			index = x + MAP_W * y;
 
-			topo_tmp1[index] = ilum;
+			//get color
+            lv_color_t color;
+            if (val == INT16_MIN)
+            {
+                color = LV_COLOR_GRAY;
+            }
+            if (val == 0)
+            {
+            	color = lv_color_make(60, 100, 130);
+            }
+            else
+            {
+                int16_t ci = min(palette_len - 1, ((val - val_min) * palette_len) / delta);
+                ci = max(0, ci);
+                color = palette[ci];
+            }
+
+			//apply shade
+            if (ilum > 0)
+                color = lv_color_lighten(color, ilum);
+            else
+                color = lv_color_darken(color, -ilum);
+
+            index = x + MAP_W * y;
+            image_buff[index] = color.full;
         }
     }
 
-    write_buffer("step4.data", topo_tmp1, sizeof(float) * MAP_W * MAP_H);
+    write_buffer("step4.data", topo_alt, sizeof(float) * MAP_W * MAP_H);
 
-    //APPLY SHADE
-	for (uint16_t y = 0; y < MAP_H; y++)
-	{
-		for (uint16_t x = 0; x < MAP_W; x++)
-		{
-			uint32_t index = x + MAP_W * y;
-
-			lv_color_t color;
-			color.full = image_buff[index];
-
-			int16_t ilum = topo_tmp1[index];
-			if (ilum > 0)
-				color = lv_color_lighten(color, ilum);
-			else
-				color = lv_color_darken(color, -ilum/2);
-
-			image_buff[index] = color.full;
-		}
-	}
-
+    DBG("Finalising / Topo done (%u)", HAL_GetTick() - timestamp);
+    timestamp = HAL_GetTick();
     write_buffer("step5.data", image_buff, sizeof(int16_t) * MAP_W * MAP_H);
-
-
 }
 
 
@@ -755,9 +645,17 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t *
 	rest = (rest / MAP_H_C) * MAP_H_C;
 	int64_t dist = rest - delta;
 
-	*c_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y + map_h / 2;
+	int32_t t_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y;
+	if (lat > 0)
+	    t_lat += map_h / 2;
+	else
+	    t_lat -= map_h / 2;
 
-	*c_lon = ((lon + (map_w / 2)) / map_w) * map_w;
+
+	int32_t t_lon = ((lon + (map_w / 2)) / map_w) * map_w;
+
+    *c_lat = t_lat;
+    *c_lon = t_lon;
 }
 
 void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
@@ -765,6 +663,35 @@ void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, in
 	tile_align_to_cache_grid(lon, lat, zoom, c_lon, c_lat);
 
 	sprintf(path, PATH_MAP_CACHE_DIR "/%u/%08lX%08lX", zoom, *c_lon, *c_lat);
+}
+
+void tile_get_filename(char * fn, int32_t lat, int32_t lon)
+{
+    char lat_c, lon_c;
+    lat = lat / GNSS_MUL;
+    lon = lon / GNSS_MUL;
+
+    if (lat >= 0)
+    {
+        lat_c = 'N';
+    }
+    else
+    {
+        lat_c = 'S';
+        lat = abs(lat) + 1;
+    }
+
+    if (lon >= 0)
+    {
+        lon_c = 'E';
+    }
+    else
+    {
+        lon_c = 'W';
+        lon = abs(lon) + 1;
+    }
+
+    sprintf(fn, "%c%02lu%c%03lu", lat_c, lat, lon_c, lon);
 }
 
 static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
@@ -829,13 +756,42 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 	return map_cache;
 }
 
+void tile_unload_pois(uint8_t index)
+{
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        if (gui.map.poi[i].chunk == index)
+        {
+            free(gui.map.poi[i].name);
+            gui.map.poi[i].name = NULL;
+            gui.map.poi[i].chunk = 0xFF;
+            gui.map.poi_size--;
+        }
+
+    }
+}
+
+bool tile_find_poi(uint32_t uid)
+{
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        if (gui.map.poi[i].chunk != 0xFF)
+        {
+            if (gui.map.poi[i].uid == uid)
+                return true;
+        }
+    }
+    return false;
+}
 
 
-
-uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache)
+uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache, uint8_t chunk_index)
 {
 	if (map_cache == NULL)
 		return 0;
+
+	static uint8_t poi_magic = 0xFF;
+	poi_magic = (poi_magic + 1) % 0xFF;
 
 	map_header_t * mh = (map_header_t *)map_cache;
 
@@ -912,27 +868,6 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 	text_draw.color = LV_COLOR_BLACK;
 
 	ll_item_t * actual = start;
-//	list_dbg(start);
-
-
-//	line_draw.width = 1;
-//	line_draw.color = LV_COLOR_MAGENTA;
-//
-//	lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * 5);
-//
-//	points[0].x = 0;
-//	points[0].y = 0;
-//	points[1].x = MAP_W - 1;
-//	points[1].y = 0;
-//	points[2].x = MAP_W - 1;
-//	points[2].y = MAP_H - 1;
-//	points[3].x = 0;
-//	points[3].y = MAP_H - 1;
-//	points[4].x = 0;
-//	points[4].y = 0;
-//
-//	lv_canvas_draw_line(gui.map.canvas, points, 5, &line_draw);
-//	free(points);
 
 	//draw features
 	while(actual != NULL)
@@ -940,26 +875,48 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 		uint8_t type = *((uint8_t *)(map_cache + actual->feature_addr));
 //		DBG("feature %u type %u", index++, type);
 
-//		if (type <= 13 && type >= 10) //place
-//		{
-//			uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
-//
-//			int32_t plon, plat;
-//
-//			plon = *((int32_t *)(map_cache + actual->feature_addr + 4));
-//			plat = *((int32_t *)(map_cache + actual->feature_addr + 8));
-//
-//			int64_t px = (int64_t)(plon - lon1) / step_x;
-//			int64_t py = (int64_t)(lat1 - plat) / step_y;
-//
-//			char name[name_len + 1];
-//			strncpy(name, map_cache + actual->feature_addr + 12, name_len);
-//			name[name_len] = 0;
-//
-//	        gui_lock_acquire();
-//			lv_canvas_draw_text(gui.map.canvas, px, py, 100, &text_draw, name, LV_LABEL_ALIGN_CENTER);
-//	        gui_lock_release();
-//		}
+//        if (type == 0 || (type <= 13 && type >= 10)) //place
+        if (type <= 13 && type >= 10) //place
+		{
+            if (gui.map.poi_size < NUMBER_OF_POI)
+            {
+                bool done = false;
+
+                //point already loaded?
+                if (!tile_find_poi(actual->feature_addr))
+                {
+                    //NOTE: FC_ATOMIC_ACCESS is for loop, you can't use break in there
+                    for (uint8_t i = 0; i < NUMBER_OF_POI && !done; i++)
+                    {
+                        //find free poi slot
+                        FC_ATOMIC_ACCESS
+                        {
+                            if (gui.map.poi[i].chunk == 0xFF)
+                            {
+                                gui.map.poi_size++;
+
+                                gui.map.poi[i].chunk = chunk_index;
+                                gui.map.poi[i].magic = poi_magic;
+                                gui.map.poi[i].type = type;
+                                gui.map.poi[i].uid = actual->feature_addr;
+
+                                uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
+
+                                gui.map.poi[i].lon = *((int32_t *)(map_cache + actual->feature_addr + 4));
+                                gui.map.poi[i].lat = *((int32_t *)(map_cache + actual->feature_addr + 8));
+
+                                gui.map.poi[i].name = malloc(name_len + 1);
+                                strncpy(gui.map.poi[i].name, (char *)(map_cache + actual->feature_addr + 12), name_len);
+                                gui.map.poi[i].name[name_len] = 0;
+
+                                done = true;
+                            }
+                        }
+                    }
+                }
+
+			}
+		}
 
 		bool draw_warning = false;
 
@@ -977,32 +934,32 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 			//river
 			case(110):
 				line_draw.width = 2;
-				line_draw.color = LV_COLOR_BLUE;
+				line_draw.color = lv_color_make(60, 100, 130);
 				break;
 			//road
 			case(120):
 				line_draw.width = 2;
-				line_draw.color = LV_COLOR_MAROON;
+				line_draw.color = lv_color_make(225, 5, 35);
 				break;
 			case(121):
 				line_draw.width = 2;
-				line_draw.color = LV_COLOR_BLACK;
+				line_draw.color = LV_COLOR_YELLOW;
 				break;
 			case(122):
 				line_draw.width = 1;
-				line_draw.color = LV_COLOR_BLACK;
+				line_draw.color = LV_COLOR_WHITE;
 				break;
 			case(123):
 				if (zoom > 30)
 					skip = true;
 
 				line_draw.width = 1;
-				line_draw.color = LV_COLOR_BLACK;
+				line_draw.color = LV_COLOR_WHITE;
 				break;
 			//rail
 			case(130):
 				line_draw.width = 1;
-				line_draw.color = LV_COLOR_ORANGE;
+				line_draw.color = LV_COLOR_BLACK;
 				break;
 			//power or airway
 			default:
@@ -1055,7 +1012,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 			if (type == 200)
 			{
 				//water
-				line_draw.color = LV_COLOR_BLUE;
+				line_draw.color = lv_color_make(60, 100, 130);
 				line_draw.opa = LV_OPA_COVER;
 			}
 			else
@@ -1101,17 +1058,14 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 	return mh->magic & CACHE_HAVE_MAP_MASK;
 }
 
-void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom,  uint8_t * magic)
+void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom,  uint8_t * magic, uint8_t chunk_index)
 {
-    lv_canvas_fill_bg(gui.map.canvas, LV_COLOR_GREEN, LV_OPA_COVER);
-
-    draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, magic);
-
     //draw map map
-    magic[0] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat1, 0));
-    magic[1] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat2, 1));
-    magic[2] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon2, lat2, 2));
-    magic[3] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon2, lat1, 3));
+    //TODO: draw loaded first like hagl
+    magic[0] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat1, 0), chunk_index);
+    magic[1] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon1, lat2, 1), chunk_index);
+    magic[2] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon2, lat2, 2), chunk_index);
+    magic[3] |= draw_map(lon1, lat1, lon2, lat2, step_x, step_y, zoom, load_map_file(lon2, lat1, 3), chunk_index);
 }
 
 //get map source files on device
@@ -1155,7 +1109,7 @@ bool tile_validate_sources(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon
 bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
 	gui.map.chunks[index].ready = false;
-	gui.map.magic++;
+	gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
     char tile_path[PATH_LEN];
     int32_t c_lon, c_lat;
@@ -1230,7 +1184,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 		gui.map.chunks[index].zoom = zoom;
 		gui.map.chunks[index].ready = true;
 
-		gui.map.magic++;
+		gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
 		return true;
     }
@@ -1243,7 +1197,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
 	//invalidate
 	gui.map.chunks[index].ready = false;
-	gui.map.magic++;
+	gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
     char tile_path[PATH_LEN];
     int32_t c_lon, c_lat;
@@ -1251,7 +1205,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     tile_get_cache(lon, lat, zoom, &c_lon, &c_lat, tile_path);
 
 	uint32_t start = HAL_GetTick();
-	DBG("Geneating start");
+	DBG("\n\nGeneating start [%u]", index);
 
 	int32_t step_x;
 	int32_t step_y;
@@ -1271,9 +1225,14 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 	ch.start_word = CACHE_START_WORD;
 	ch.version = CACHE_VERSION;
 
+	//assign chunk to canvas
     lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 
-	tile_create(lon1, lat1, lon2, lat2, step_x, step_y, zoom, ch.src_files_magic);
+    //draw topomap
+    draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, ch.src_files_magic);
+
+    //draw lines and popygons
+    tile_create(lon1, lat1, lon2, lat2, step_x, step_y, zoom, ch.src_files_magic, index);
 
 	DBG("Saving tile to storage");
 
@@ -1285,7 +1244,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 //	sprintf(dir_path, PATH_MAP_CACHE_DIR "/%u", zoom);
 //	f_mkdir(dir_path);
 //
-	//write cache
+//	//write cache
 //	f_open(&f, tile_path, FA_WRITE | FA_CREATE_ALWAYS);
 //	f_write(&f, &ch, sizeof(cache_header_t), &bw);
 //	f_write(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &bw);
@@ -1298,7 +1257,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     gui.map.chunks[index].zoom = zoom;
     gui.map.chunks[index].ready = true;
 
-    gui.map.magic++;
+    gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
     return true;
 }

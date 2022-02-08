@@ -16,7 +16,6 @@ def pipeline_step3():
         "lat2": common.lat + common.step,
         "split": common.split,
         "assets": common.assets_dir,
-        "tile_name": common.tile_filename
     }
 
     print("Processing tile %s" % common.tile_name)
@@ -35,7 +34,7 @@ def pipeline_step3():
 
     for filename in files:
         if filename == "borders":
-            source = os.path.join(common.assets_dir, "borders.json")
+            source = common.target_dir_borders_join
             layer = "borders"
             filename = "%s_borders.geojson" % common.tile_filename(common.lon, common.lat)
         else:
@@ -51,12 +50,13 @@ def pipeline_step3():
             raise Exception("Procesing script for %s does not exists" % (filename))
         
         if os.path.exists(target):
-            print("Skipping, target file %s exists" % (filename))
-            continue
-
-            
+            if os.path.getsize(target) > 0:
+                print("Skipping, target file %s exists" % (filename))
+                continue
+                
         if common.geojson_empty(source):
             print("Skipping, source file %s empty" % (filename))
+            os.system("touch %s" % target)
             continue
 
         print("Processing file %s" % filename)
@@ -103,7 +103,9 @@ def pipeline_step3():
                 tmp_file = None
 
         
-        cmd = "mapshaper-xl -i %s \\\n" % source
+        cmd = "node  --max-old-space-size=8000 `which mapshaper`\\\n"
+        #cmd += "   -verbose"
+        cmd += "   -i %s \\\n" % source
         
         if use_grid:
             cmd += "   -i %s \\\n" % grid

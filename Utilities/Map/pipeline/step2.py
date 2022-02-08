@@ -22,8 +22,9 @@ def pipeline_step2():
         target = os.path.join(target_dir, target_filename)
 
         if os.path.exists(target):
-            print("Skipping %s, %s exists" % (filename, target_filename))
-            continue
+            if os.path.getsize(target) > 0:
+                print("Skipping %s, %s exists" % (filename, target_filename))
+                continue
 
         print("Converting %s to %s" % (filename, target_filename))
         os.system("osmtogeojson %s > %s" % (source, target))

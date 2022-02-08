@@ -51,7 +51,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD	0x55AA
-#define CACHE_VERSION		1
+#define CACHE_VERSION		2
 
 #define CACHE_HAVE_AGL		0b10000000
 #define CACHE_HAVE_MAP_MASK	0b01111111
@@ -190,27 +190,16 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
 	if (input == NULL)
 		return 0;
 
-    uint16_t num_points_x;
-    uint16_t num_points_y;
-
     agl_header_t * ah = ((agl_header_t *)input);
     int16_t * agl_data = (int16_t *)(input + sizeof(agl_header_t));
 
-    switch (ah->size)
+    if (ah->size != HGT_DATA_WIDTH_3 * HGT_DATA_WIDTH_3 * 2)
     {
-        case HGT_DATA_WIDTH_3 * HGT_DATA_WIDTH_3 * 2:
-            num_points_x = num_points_y = HGT_DATA_WIDTH_3;
-        break;
-        case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2:
-            num_points_x = num_points_y = HGT_DATA_WIDTH_1;
-        break;
-        case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1_HALF * 2:
-            num_points_x = HGT_DATA_WIDTH_1_HALF;
-            num_points_y = HGT_DATA_WIDTH_1;
-        break;
-        default:
-            return 0;
+        return 0;
     }
+
+    uint16_t num_points_x = HGT_DATA_WIDTH_3;
+    uint16_t num_points_y = HGT_DATA_WIDTH_3;
 
     int16_t y_start = max(-MAP_BLUR_SHADE_OFFSET, -2 + (lat1 - (ah->lat + GNSS_MUL)) / step_y);
     int16_t y_end = min(MAP_H + MAP_BLUR_SHADE_OFFSET, 2 + (lat1 - ah->lat) / step_y);
@@ -237,8 +226,8 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     		if (lat > ah->lat + GNSS_MUL - coord_div_y)
     			lat = ah->lat + GNSS_MUL - coord_div_y;
 
-    	    uint16_t index_y = (lat % GNSS_MUL) / coord_div_y;
-    	    uint16_t index_x = (lon % GNSS_MUL) / coord_div_x;
+    	    uint16_t index_y = (abs(lat) % GNSS_MUL) / coord_div_y;
+    	    uint16_t index_x = (abs(lon) % GNSS_MUL) / coord_div_x;
     	    uint32_t pos = ((uint32_t) index_x + num_points_x * (uint32_t) ((num_points_y - index_y) - 1));
 
     	    int16_t alt11 = SWAP_UINT16(agl_data[pos]);
@@ -384,8 +373,8 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
             UINT br;
             agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
 
-            ((agl_header_t *)agl_cache)->lat = tile_pos[i].lat * GNSS_MUL;
-            ((agl_header_t *)agl_cache)->lon = tile_pos[i].lon * GNSS_MUL;
+            ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL) - ((tile_pos[i].lat < 0) ? GNSS_MUL : 0);
+            ((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL) - ((tile_pos[i].lon < 0) ? GNSS_MUL : 0);
             ((agl_header_t *)agl_cache)->size = f_size(&agl_data);
 
             INFO("Reading %s (%u)", name, f_size(&agl_data));
@@ -593,11 +582,17 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t *
 	rest = (rest / MAP_H_C) * MAP_H_C;
 	int64_t dist = rest - delta;
 
-	*c_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y + map_h / 2;
-	if (lat < 0)
-	    *c_lat *= -1;
+	int32_t t_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y;
+	if (lat > 0)
+	    t_lat += map_h / 2;
+	else
+	    t_lat -= map_h / 2;
 
-	*c_lon = ((lon + (map_w / 2)) / map_w) * map_w;
+
+	int32_t t_lon = ((lon + (map_w / 2)) / map_w) * map_w;
+
+    *c_lat = t_lat;
+    *c_lon = t_lon;
 }
 
 void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
@@ -1182,15 +1177,15 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 	UINT bw;
 
 	//create dir
-	char dir_path[PATH_LEN];
-	sprintf(dir_path, PATH_MAP_CACHE_DIR "/%u", zoom);
-	f_mkdir(dir_path);
-
-	//write cache
-	f_open(&f, tile_path, FA_WRITE | FA_CREATE_ALWAYS);
-	f_write(&f, &ch, sizeof(cache_header_t), &bw);
-	f_write(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &bw);
-	f_close(&f);
+//	char dir_path[PATH_LEN];
+//	sprintf(dir_path, PATH_MAP_CACHE_DIR "/%u", zoom);
+//	f_mkdir(dir_path);
+//
+//	//write cache
+//	f_open(&f, tile_path, FA_WRITE | FA_CREATE_ALWAYS);
+//	f_write(&f, &ch, sizeof(cache_header_t), &bw);
+//	f_write(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &bw);
+//	f_close(&f);
 
 	DBG("duration %u ms", HAL_GetTick() - start);
 

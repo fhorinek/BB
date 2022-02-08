@@ -4,8 +4,14 @@ import sys
 import os
 import common
 
+verbose = False
 
-countries = os.listdir(common.target_dir_countries)
+if (len(sys.argv) == 2):
+    countries = [sys.argv[1] + ".list"]
+    verbose = True
+else:
+    countries = os.listdir(common.target_dir_countries)
+    
 
 lines = []
 for c in countries:
@@ -13,26 +19,40 @@ for c in countries:
     tiles = open(path, "r").read().split("\n")
     name = os.path.basename(path.split(".")[0])
 
-    done = 0
+    done = []
     for t in tiles:
         tile = os.path.join(common.target_dir_step4, t + ".MAP")
         if os.path.exists(tile):
-            done += 1
+            done.append(t)
             
-    dst_name = name + ".zip"
+    if verbose:     
+        i = 0       
+        for t in tiles:
+            if not t in done:
+                i += 1
+                print(i, t, "not found")
+        
+            
+    dst_name = name + "_map.zip"
+    dst = os.path.join(common.target_dir_step5, dst_name)
+    zip_exist = os.path.exists(dst)
+
+    if len(done) == len(tiles) and not zip_exist:
+        os.system("./pack.py '%s'" % path)
+            
+    dst_name = name + "_map.zip"
     dst = os.path.join(common.target_dir_step5, dst_name)
     zip_exist = os.path.exists(dst)
 
     dst_name = name + "_agl.zip"
     dst = os.path.join(common.target_dir_step5, dst_name)
-    agl_exist = os.path.exists(dst)
+    agl_exist = os.path.exists(dst)            
             
             
-    line = (name, done, len(tiles), zip_exist, agl_exist)
+    line = (name, len(done), len(tiles), zip_exist, agl_exist)
     lines.append(line)
 
-
-lines.sort(key = lambda a: a[1] * 1000000 / a[2] + a[2], reverse=True)    
+lines.sort(key = lambda a: a[1] * 100000000 / a[2] + a[2], reverse=True)    
 
 for line in lines:
     name, done, cnt, zip_exist, agl_exist = line
