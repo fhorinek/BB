@@ -233,7 +233,6 @@ uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bo
 }
 
 
-
 void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas)
 {
 	uint16_t w = lv_obj_get_width(canvas);
@@ -241,7 +240,7 @@ void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t z
 
 	zoom += 1;
 	uint32_t step_x = (zoom * GNSS_MUL) / MAP_DIV_CONST;
-	uint32_t step_y = (zoom * GNSS_MUL / lat_mult[map_lat / GNSS_MUL]) / MAP_DIV_CONST;
+	uint32_t step_y = (zoom * GNSS_MUL / lat_mult[abs(map_lat / GNSS_MUL)]) / MAP_DIV_CONST;
 
 	uint32_t map_w = w * step_x;
 	uint32_t map_h = h * step_y;
