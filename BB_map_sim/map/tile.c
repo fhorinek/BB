@@ -74,6 +74,7 @@ typedef struct
 } agl_header_t;
 
 #define MAP_SHADE_MAG   100
+//#define MAP_SHADE_MAG   0
 
 #define BLUR_SIZE	3
 
@@ -253,9 +254,6 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     uint32_t coord_div_x = GNSS_MUL / (num_points_x - 2);
     uint32_t coord_div_y = GNSS_MUL / (num_points_y - 2);
 
-    int8_t x_dir = (ah->lon > 0) ? +1 : -1;
-    int8_t y_dir = (ah->lat > 0) ? -1 : +1;
-
     for (int16_t y = y_start; y < y_end; y++)
     {
     	for (int16_t x = x_start; x < x_end; x++)
@@ -272,19 +270,13 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     		if (lat > ah->lat + GNSS_MUL - coord_div_y)
     			lat = ah->lat + GNSS_MUL - coord_div_y;
 
-    	    int32_t index_y = lat % GNSS_MUL;
-    	    int32_t index_x = lon % GNSS_MUL;
-    	    if (index_y < 0) index_y += GNSS_MUL;
-    	    if (index_x < 0) index_x += GNSS_MUL;
+    	    int32_t lat_mod = lat % GNSS_MUL;
+    	    int32_t lon_mod = lon % GNSS_MUL;
+    	    if (lat_mod < 0) lat_mod += GNSS_MUL;
+    	    if (lon_mod < 0) lon_mod += GNSS_MUL;
 
-			index_y /= coord_div_y;
-			index_x /= coord_div_x;
-
-//    	    if (ah->lat > 0)
-//    	    	index_y = num_points_y - index_y;
-//
-//    	    if (ah->lon < 0)
-//    	    	index_x = num_points_x - index_x;
+			int16_t index_y = lat_mod / coord_div_y;
+			int16_t index_x = lon_mod / coord_div_x;
 
 			uint32_t pos = index_x + num_points_x * (num_points_y - index_y);
 
@@ -295,14 +287,12 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     	    int16_t alt12 = SWAP_UINT16(agl_data[pos]);
     	    int16_t alt22 = SWAP_UINT16(agl_data[pos + 1]);
 
-
-//    	    float lat_dr = 1;
-//    	    float lon_dr = 1;
-
-
-
-    	    float lat_dr = ((lat % GNSS_MUL) % coord_div_y) / (float)(coord_div_y);
-    	    float lon_dr = ((lon % GNSS_MUL) % coord_div_x) / (float)(coord_div_x);
+    	    float lat_dr = (lat_mod % coord_div_y) / (float)(coord_div_y);
+    	    float lon_dr = (lon_mod % coord_div_x) / (float)(coord_div_x);
+    	    if (ah->lat > 0)
+    	    {
+    	    	lat_dr = 1 - lat_dr;
+    	    }
 
     	    //compute height by using bilinear interpolation
     	    float alt1 = alt11 + (float)(alt12 - alt11) * lat_dr;
