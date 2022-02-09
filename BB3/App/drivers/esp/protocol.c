@@ -191,6 +191,8 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 	if (fc.esp.mode == esp_off)
 		return;
 
+	esp_uart_lock_acquire();
+
     uint8_t buf_out[data_len + STREAM_OVERHEAD];
 
     stream_packet(type, buf_out, data, data_len);
@@ -198,6 +200,8 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
     //TODO: DMA || IRQ?
     uint8_t res = HAL_UART_Transmit(esp_uart, buf_out, sizeof(buf_out), 100);
     ASSERT(res == HAL_OK);
+
+    esp_uart_lock_release();
 }
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)

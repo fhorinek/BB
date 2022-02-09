@@ -29,6 +29,9 @@ static uint32_t esp_external_prog_timer = 0;
 #define ESP_EXT_PROG_TIMEOUT    5000
 
 static uint16_t esp_read_index = 0;
+static TaskHandle_t esp_uart_lock_owner = NULL;
+
+osSemaphoreId_t esp_uart_lock;
 
 void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res);
 
@@ -95,6 +98,8 @@ void esp_init()
 
     esp_state_reset();
 	esp_device_reset();
+
+	esp_uart_lock = osMutexNew(NULL);
 }
 
 
@@ -151,6 +156,40 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
         default:
         break;
     }
+}
+
+bool esp_uart_lock_acquire()
+{
+    uint32_t start = HAL_GetTick();
+
+    uint32_t wait = (esp_uart_lock_owner == NULL) ? WAIT_INF : 3000;
+
+    TaskHandle_t prev_lock_owner = esp_uart_lock_owner;
+
+    osStatus_t stat = osMutexAcquire(esp_uart_lock, wait);
+    if (stat == osErrorTimeout)
+    {
+        bsod_msg("Not able to acquire esp_uart_lock in time from task '%s' blocked by task '%s'!",
+                pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(esp_uart_lock_owner));
+    }
+    uint32_t delta = HAL_GetTick() - start;
+    if (delta > 100 && prev_lock_owner != NULL)
+    {
+        WARN("'%s' was unable to acquire esp_uart_lock from '%s' for %u ms!",
+                pcTaskGetName(xTaskGetCurrentTaskHandle()), pcTaskGetName(prev_lock_owner), delta);
+    }
+
+    esp_uart_lock_owner = xTaskGetCurrentTaskHandle();
+
+    return true;
+}
+
+bool esp_uart_lock_release()
+{
+	esp_uart_lock_owner = NULL;
+    osMutexRelease(esp_uart_lock);
+
+    return false;
 }
 
 uint16_t esp_get_waiting()
