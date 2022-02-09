@@ -32,7 +32,7 @@ uint16_t esp_read_bytes(uint8_t * data, uint16_t len, uint32_t timeout);
 void esp_uart_rx_irq_cb();
 void spi_dma_done_cb();
 
-bool esp_uart_lock_acquire();
-bool esp_uart_lock_release();
+void esp_uart_lock_acquire();
+void esp_uart_lock_release();
 
 #endif /* DRIVERS_ESP_ESP_H_ */

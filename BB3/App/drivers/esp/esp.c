@@ -158,7 +158,7 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
     }
 }
 
-bool esp_uart_lock_acquire()
+void esp_uart_lock_acquire()
 {
     uint32_t start = HAL_GetTick();
 
@@ -180,16 +180,12 @@ bool esp_uart_lock_acquire()
     }
 
     esp_uart_lock_owner = xTaskGetCurrentTaskHandle();
-
-    return true;
 }
 
-bool esp_uart_lock_release()
+void esp_uart_lock_release()
 {
 	esp_uart_lock_owner = NULL;
     osMutexRelease(esp_uart_lock);
-
-    return false;
 }
 
 uint16_t esp_get_waiting()
