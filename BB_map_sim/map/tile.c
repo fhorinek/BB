@@ -245,40 +245,41 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     uint16_t num_points_x = HGT_DATA_WIDTH_3;
     uint16_t num_points_y = HGT_DATA_WIDTH_3;
 
-    int16_t y_start = max(-MAP_BLUR_SHADE_OFFSET, -2 + (lat1 - (ah->lat + GNSS_MUL)) / step_y);
-    int16_t y_end = min(MAP_H + MAP_BLUR_SHADE_OFFSET, 2 + (lat1 - ah->lat) / step_y);
-    int16_t x_start = max(-MAP_BLUR_SHADE_OFFSET, -2 + (ah->lon - lon1) / step_x);
-	int16_t x_end = min(MAP_W + MAP_BLUR_SHADE_OFFSET, 2 + (ah->lon + GNSS_MUL - lon1) / step_x);
+    int16_t y_start = max(-MAP_BLUR_SHADE_OFFSET, (lat1 - (ah->lat + GNSS_MUL)) / step_y);
+    int16_t y_end = min(MAP_H + MAP_BLUR_SHADE_OFFSET, (lat1 - ah->lat) / step_y);
+    int16_t x_start = max(-MAP_BLUR_SHADE_OFFSET, (ah->lon - lon1) / step_x);
+	int16_t x_end = min(MAP_W + MAP_BLUR_SHADE_OFFSET, (ah->lon + GNSS_MUL - lon1) / step_x);
 
 
     uint32_t coord_div_x = GNSS_MUL / (num_points_x - 2);
     uint32_t coord_div_y = GNSS_MUL / (num_points_y - 2);
 
-    for (int16_t y = y_start; y < y_end; y++)
+    for (int16_t y = y_start; y <= y_end; y++)
     {
-    	for (int16_t x = x_start; x < x_end; x++)
+    	for (int16_t x = x_start; x <= x_end; x++)
     	{
     		int32_t lon = (x * step_x) + lon1;
     		if (lon < ah->lon)
-    			lon = ah->lon;
-    		if (lon > ah->lon + GNSS_MUL - coord_div_x)
-    			lon = ah->lon + GNSS_MUL - coord_div_x;
+    			continue;
+    		if (lon > ah->lon + GNSS_MUL - num_points_x)
+    			continue;
 
     		int32_t lat = lat1 - y * step_y;
     		if (lat < ah->lat)
-    			lat = ah->lat;
-    		if (lat > ah->lat + GNSS_MUL - coord_div_y)
-    			lat = ah->lat + GNSS_MUL - coord_div_y;
+    			continue;
+    		if (lat > ah->lat + GNSS_MUL - num_points_y)
+    			continue;
 
     	    int32_t lat_mod = lat % GNSS_MUL;
     	    int32_t lon_mod = lon % GNSS_MUL;
     	    if (lat_mod < 0) lat_mod += GNSS_MUL;
     	    if (lon_mod < 0) lon_mod += GNSS_MUL;
 
-			int16_t index_y = lat_mod / coord_div_y;
-			int16_t index_x = lon_mod / coord_div_x;
+			int32_t index_y = lat_mod / coord_div_y;
+			int32_t index_x = lon_mod / coord_div_x;
 
-			uint32_t pos = index_x + num_points_x * (num_points_y - index_y);
+			uint32_t pos = index_x + num_points_x * (num_points_y - index_y - 2);
+			ASSERT(pos < num_points_x * num_points_y)
 
     	    int16_t alt11 = SWAP_UINT16(agl_data[pos]);
     	    int16_t alt21 = SWAP_UINT16(agl_data[pos + 1]);
@@ -304,7 +305,7 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     	}
     }
 
-    write_buffer("step1.data", output, sizeof(float) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
+    write_buffer("step1.data", output, sizeof(int16_t) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
     return CACHE_HAVE_AGL;
 }
 
@@ -445,6 +446,8 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
         }
     }
 
+    write_buffer("step1.data", topo_alt, sizeof(int16_t) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
+
     //no gnss data
     if (*((uint32_t *)magic) == 0)
     {
@@ -487,6 +490,8 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
 
         DBG("Bluring (%u)", HAL_GetTick() - timestamp);
     }
+
+    write_buffer("step2.data", topo_blur, sizeof(int16_t) * MAP_W_BLUR_SHADE * MAP_H_BLUR_SHADE);
 
     int16_t * topo_src = (blur_enable) ? topo_blur : topo_alt;
 
@@ -573,11 +578,11 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
         }
     }
 
-    write_buffer("step4.data", topo_alt, sizeof(float) * MAP_W * MAP_H);
+    write_buffer("step3.data", image_buff, sizeof(int16_t) * MAP_W * MAP_H);
 
     DBG("Finalising / Topo done (%u)", HAL_GetTick() - timestamp);
     timestamp = HAL_GetTick();
-    write_buffer("step5.data", image_buff, sizeof(int16_t) * MAP_W * MAP_H);
+
 }
 
 
@@ -657,31 +662,8 @@ void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, in
 
 void tile_get_filename(char * fn, int32_t lat, int32_t lon)
 {
-    char lat_c, lon_c;
-    lat = lat / GNSS_MUL;
-    lon = lon / GNSS_MUL;
-
-    if (lat >= 0)
-    {
-        lat_c = 'N';
-    }
-    else
-    {
-        lat_c = 'S';
-        lat = abs(lat) + 1;
-    }
-
-    if (lon >= 0)
-    {
-        lon_c = 'E';
-    }
-    else
-    {
-        lon_c = 'W';
-        lon = abs(lon) + 1;
-    }
-
-    sprintf(fn, "%c%02lu%c%03lu", lat_c, lat, lon_c, lon);
+	hagl_pos_t tmp = agl_get_fpos(lon, lat);
+	agl_get_filename(fn, tmp);
 }
 
 static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
@@ -738,6 +720,10 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 		f_read(&map_data, map_cache, f_size(&map_data), &br);
 		f_close(&map_data);
 
+		map_header_t * mh = (map_header_t *)map_cache;
+//		mh->latitude = ((lat / GNSS_MUL) * GNSS_MUL) - ((lat < 0) ? GNSS_MUL : 0);
+//		mh->longitude = ((lon / GNSS_MUL)* GNSS_MUL) - ((lon < 0) ? GNSS_MUL : 0);
+
 		//mark name to cache
 		strcpy(map_cache_name, name[index]);
 	}
@@ -786,6 +772,17 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 	map_header_t * mh = (map_header_t *)map_cache;
 
 //	DBG("file grid is %u x %u", mh->grid_w, mh->grid_h);
+
+	if ((int64_t)lon1 - (int64_t)mh->longitude < - 300 * GNSS_MUL)
+	{
+		lon1 += 360 * GNSS_MUL;
+		lon2 += 360 * GNSS_MUL;
+	}
+	if ((int64_t)lon1 - (int64_t)mh->longitude > 300 * GNSS_MUL)
+	{
+		lon1 -= 360 * GNSS_MUL;
+		lon2 -= 360 * GNSS_MUL;
+	}
 
 	int32_t flon = (mh->longitude / GNSS_MUL) * GNSS_MUL;
 	int32_t flat = (mh->latitude / GNSS_MUL) * GNSS_MUL;
