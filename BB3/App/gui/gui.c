@@ -250,6 +250,7 @@ void gui_init()
 {
     gui.take_screenshot = false;
     gui.dialog.active = false;
+    gui.queue = xQueueCreate(GUI_QUEUE_SIZE, sizeof(void *));
     dbg_overlay_init();
 	gui_init_styles();
 

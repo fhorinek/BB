@@ -241,12 +241,11 @@ typedef struct
 
 	osSemaphoreId_t lock;
 
-	void * next_page;
-	
-	bool change_page;
+	xQueueHandle queue;
+
 	uint8_t take_screenshot;
 	uint8_t fps;
-	uint8_t _pad[1];
+	uint8_t _pad[2];
 
 } gui_t;
 
@@ -268,6 +267,7 @@ void gui_lock_release();
 
 void gui_show_release_note();
 
+#define GUI_QUEUE_SIZE 			2
 #define GUI_TASK_SW_ANIMATION	250
 #define GUI_STATUSBAR_HEIGHT	24
 
