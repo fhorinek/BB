@@ -49,7 +49,7 @@ typedef struct _graph_t
 extern const lv_img_dsc_t glider;
 
 void widget_add_graph(lv_obj_t * base, widget_slot_t * slot, graph_t *graph);
-void widget_update_graph(graph_t * graph, float values[], int values_num, float values_min, float values_max);
+void widget_update_graph(widget_slot_t * slot, graph_t * graph, float values[], int values_num, float values_min, float values_max);
 void widget_remove_graph(graph_t * graph);
 
 lv_color_t get_vario_color(int gain);
