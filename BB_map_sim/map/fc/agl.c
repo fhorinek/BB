@@ -56,6 +56,11 @@ void agl_get_filename(char * fn, hagl_pos_t pos)
         pos.lat = abs(pos.lat) + 1;
     }
 
+    if (pos.lon == -180)
+    	pos.lon = 179;
+    if (pos.lon == 180)
+    	pos.lon = -179;
+
     if (pos.lon >= 0)
     {
         lon_c = 'E';

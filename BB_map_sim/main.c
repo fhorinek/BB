@@ -50,8 +50,11 @@ lv_indev_t *kb_indev;
 
 #include "tile.h"
 
-int32_t map_lon = 1800000000;
-int32_t map_lat = -167759454;
+//int32_t map_lon = 1800000000;
+//int32_t map_lat = -167759454;
+
+int32_t map_lon = -1799947500;
+int32_t map_lat = -169998775;
 
 //int32_t map_lon = 134825900;
 //int32_t map_lat = 468313900;
