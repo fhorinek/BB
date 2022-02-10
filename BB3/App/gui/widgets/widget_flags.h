@@ -24,7 +24,7 @@ typedef enum
     wf_alt_unit,
     wf_glide_show_avg_vario,
     wf_no_rotate,
-    wf_hide_glider,
+    wf_hide_icon,
 
 	wf_def_size
 }  widget_flags_id_t;

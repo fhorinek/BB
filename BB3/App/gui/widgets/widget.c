@@ -16,7 +16,7 @@ widget_flag_def_t widgets_flags[] = {
     {'A', "Alternative units", "Default units", NULL},
     {'V', "Avg. vario on climb", "Empty on climb", NULL},
     {'R', "North is up", "Adjust to heading", NULL},
-    {'H', LV_SYMBOL_EYE_CLOSE " Hide glider", LV_SYMBOL_EYE_OPEN " Show glider", NULL},
+    {'H', LV_SYMBOL_EYE_CLOSE " Hide icon", LV_SYMBOL_EYE_OPEN " Show icon", NULL},
 };
 
 
@@ -502,7 +502,7 @@ void widget_update_graph(widget_slot_t * slot, graph_t * graph, float values[], 
 	int track_h = canvas_h - glider.header.h;        // the track area is smaller than canvas, as the glider/2 must be above/below track.
 	int track_off_y = glider.header.h / 2;           // this is the offset of the track area in the canvas to have room for glider icon.
 
-	if (!widget_flag_is_set(slot, wf_hide_glider))
+	if (!widget_flag_is_set(slot, wf_hide_icon))
         {
 	    track_w = canvas_w - glider.header.w;        // the track area is smaller than canvas, as the glider is right of the track
 	    track_h = canvas_h - glider.header.h;        // the track area is smaller than canvas, as the glider/2 must be above/below track.
@@ -583,7 +583,7 @@ void widget_update_graph(widget_slot_t * slot, graph_t * graph, float values[], 
 		p[0].x = track_w - 1;
 		p[0].y = track_off_y + track_h - ((values[0] - values_min) * track_h / values_diff);
 
-	        if (!widget_flag_is_set(slot, wf_hide_glider))
+	        if (!widget_flag_is_set(slot, wf_hide_icon))
 	    	    lv_canvas_draw_img(graph->canvas, p[0].x + 1, p[0].y - glider.header.h/2, &glider, &glider_dsc);
 
 		for ( i = 1; i < values_num; i++ )
