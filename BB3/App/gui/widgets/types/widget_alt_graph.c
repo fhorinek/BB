@@ -16,7 +16,7 @@ REGISTER_WIDGET_ISU
     "Altitude Graph",
     WIDGET_MIN_W,
     WIDGET_MIN_H,
-	_b(wf_label_hide) | _b(wf_hide_glider),
+	_b(wf_label_hide) | _b(wf_hide_icon),
 
 	graph_t graph;
 	uint16_t last_index;      // stores the last displayed fc.history.index to update only on change.
