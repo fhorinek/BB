@@ -229,7 +229,7 @@ void thread_gui_start(void *argument)
 	static lv_disp_buf_t disp_buf;
 	lv_disp_drv_t disp_drv;
 
-	lv_disp_buf_init(&disp_buf, tft_buffer_1, tft_buffer_2, TFT_BUFFER_SIZE / 2);
+	lv_disp_buf_init(&disp_buf, tft_buffer_1, tft_buffer_2, TFT_BUFFER_SIZE);
 	lv_disp_drv_init(&disp_drv);
 
 	disp_drv.hor_res = TFT_WIDTH;

@@ -63,8 +63,21 @@ typedef struct
 	uint16_t version;
 
 	uint8_t src_files_magic[4]; //11 12 22 21
+
+	uint16_t number_of_poi;
+	uint8_t _pad[2];
 } cache_header_t;
 
+
+typedef struct
+{
+    uint8_t x;
+    uint8_t y;
+    uint8_t type;
+    uint8_t name_len;
+
+    uint32_t uid;
+} cache_poi_t;
 
 typedef struct
 {
@@ -259,13 +272,13 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     	for (int16_t x = x_start; x <= x_end; x++)
     	{
     		int32_t lon = (x * step_x) + lon1;
-    		if (lon < ah->lon)
+    		if (lon <= ah->lon)
     			continue;
     		if (lon > ah->lon + GNSS_MUL - num_points_x)
     			continue;
 
     		int32_t lat = lat1 - y * step_y;
-    		if (lat < ah->lat)
+    		if (lat <= ah->lat)
     			continue;
     		if (lat > ah->lat + GNSS_MUL - num_points_y)
     			continue;
@@ -290,10 +303,6 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
 
     	    float lat_dr = (lat_mod % coord_div_y) / (float)(coord_div_y);
     	    float lon_dr = (lon_mod % coord_div_x) / (float)(coord_div_x);
-    	    if (ah->lat > 0)
-    	    {
-    	    	lat_dr = 1 - lat_dr;
-    	    }
 
     	    //compute height by using bilinear interpolation
     	    float alt1 = alt11 + (float)(alt12 - alt11) * lat_dr;
@@ -760,6 +769,43 @@ bool tile_find_poi(uint32_t uid)
     return false;
 }
 
+bool tile_poi_add(map_poi_t * poi, char * name, uint16_t name_len)
+{
+    if (gui.map.poi_size >= NUMBER_OF_POI)
+    	return false;
+
+	 bool done = false;
+
+	 INFO("add poi %s", name);
+
+	 //point already loaded?
+	 if (!tile_find_poi(poi->uid))
+	 {
+		 //NOTE: FC_ATOMIC_ACCESS is for loop, you can't use break in there
+		 for (uint8_t i = 0; i < NUMBER_OF_POI && !done; i++)
+		 {
+			 //find free poi slot
+			 FC_ATOMIC_ACCESS
+			 {
+				 if (gui.map.poi[i].chunk == 0xFF)
+				 {
+					 gui.map.poi_size++;
+					 memcpy(&gui.map.poi[i], poi, sizeof(map_poi_t));
+
+                     gui.map.poi[i].name = malloc(name_len + 1);
+                     strncpy(gui.map.poi[i].name, name, name_len);
+                     gui.map.poi[i].name[name_len] = 0;
+
+					 done = true;
+				 }
+			 }
+		 }
+
+		 return true;
+	 }
+	 return false;
+}
+
 
 uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache, uint8_t chunk_index)
 {
@@ -865,43 +911,28 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 //        if (type == 0 || (type <= 13 && type >= 10)) //place
         if (type <= 13 && type >= 10) //place
 		{
-            if (gui.map.poi_size < NUMBER_OF_POI)
-            {
-                bool done = false;
+           	int32_t plon = *((int32_t *)(map_cache + actual->feature_addr + 4));
+			int32_t plat = *((int32_t *)(map_cache + actual->feature_addr + 8));
 
-                //point already loaded?
-                if (!tile_find_poi(actual->feature_addr))
-                {
-                    //NOTE: FC_ATOMIC_ACCESS is for loop, you can't use break in there
-                    for (uint8_t i = 0; i < NUMBER_OF_POI && !done; i++)
-                    {
-                        //find free poi slot
-                        FC_ATOMIC_ACCESS
-                        {
-                            if (gui.map.poi[i].chunk == 0xFF)
-                            {
-                                gui.map.poi_size++;
+			int16_t x, y;
+			geo_to_pix_w_h((lon1 + lon2) / 2, (lat1 + lat2) / 2, zoom, plon, plat, &x, &y, MAP_W, MAP_H);
 
-                                gui.map.poi[i].chunk = chunk_index;
-                                gui.map.poi[i].magic = poi_magic;
-                                gui.map.poi[i].type = type;
-                                gui.map.poi[i].uid = actual->feature_addr;
+			if (!(x < 0 || x >= MAP_W || y < 0 || y >= MAP_H))
+			{
 
-                                uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
+				map_poi_t poi;
 
-                                gui.map.poi[i].lon = *((int32_t *)(map_cache + actual->feature_addr + 4));
-                                gui.map.poi[i].lat = *((int32_t *)(map_cache + actual->feature_addr + 8));
+				poi.chunk = chunk_index;
+				poi.magic = poi_magic;
+				poi.type = type;
+				poi.uid = actual->feature_addr;
 
-                                gui.map.poi[i].name = malloc(name_len + 1);
-                                strncpy(gui.map.poi[i].name, (char *)(map_cache + actual->feature_addr + 12), name_len);
-                                gui.map.poi[i].name[name_len] = 0;
 
-                                done = true;
-                            }
-                        }
-                    }
-                }
+				poi.x = x;
+				poi.y = y;
 
+				uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
+				tile_poi_add(&poi, (char *)(map_cache + actual->feature_addr + 12), name_len);
 			}
 		}
 
@@ -1154,6 +1185,28 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 					WARN("Cache body size not valid");
 					pass = false;
 				}
+
+				for (uint8_t i = 0; i < ch.number_of_poi; i++)
+				{
+					cache_poi_t cp;
+					f_read(&f, &cp, sizeof(cache_poi_t), &br);
+
+					map_poi_t poi;
+					poi.chunk = index;
+					poi.type = cp.type;
+					poi.uid = cp.uid;
+					poi.magic = 0xFF;
+					poi.x = cp.x;
+					poi.y = cp.y;
+
+					uint16_t name_len = (cp.name_len + 3) & ~3;
+					char name[name_len];
+					f_read(&f, name, name_len, &br);
+
+					tile_poi_add(&poi, name, cp.name_len);
+
+				}
+
 			}
 
 			f_close(&f);
@@ -1223,19 +1276,45 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
 	DBG("Saving tile to storage");
 
+	ch.number_of_poi = 0;
+	for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+	{
+		if (gui.map.poi[i].chunk == index)
+			ch.number_of_poi++;
+	}
+
 	FIL f;
 	UINT bw;
 
 	//create dir
-//	char dir_path[PATH_LEN];
-//	sprintf(dir_path, PATH_MAP_CACHE_DIR "/%u", zoom);
-//	f_mkdir(dir_path);
-//
-//	//write cache
-//	f_open(&f, tile_path, FA_WRITE | FA_CREATE_ALWAYS);
-//	f_write(&f, &ch, sizeof(cache_header_t), &bw);
-//	f_write(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &bw);
-//	f_close(&f);
+	char dir_path[PATH_LEN];
+	sprintf(dir_path, PATH_MAP_CACHE_DIR "/%u", zoom);
+	f_mkdir(dir_path);
+
+	//write cache
+	f_open(&f, tile_path, FA_WRITE | FA_CREATE_ALWAYS);
+	f_write(&f, &ch, sizeof(cache_header_t), &bw);
+	f_write(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &bw);
+
+	for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+	{
+		if (gui.map.poi[i].chunk == index)
+		{
+			cache_poi_t cp;
+			cp.x = gui.map.poi[i].x;
+			cp.y = gui.map.poi[i].y;
+			cp.type = gui.map.poi[i].type;
+			cp.uid = gui.map.poi[i].uid;
+			cp.name_len = strlen(gui.map.poi[i].name);
+
+			f_write(&f, &cp, sizeof(cache_poi_t), &bw);
+			uint16_t name_len = (cp.name_len + 3) & ~3;
+			f_write(&f, gui.map.poi[i].name, name_len, &bw);
+		}
+	}
+
+
+	f_close(&f);
 
 	DBG("duration %u ms", HAL_GetTick() - start);
 
