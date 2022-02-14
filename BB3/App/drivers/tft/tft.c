@@ -24,8 +24,9 @@ uint16_t * tft_register = (uint16_t *)0xC0000000;
 uint16_t * tft_ram = (uint16_t *)0xC0020000;
 
 uint16_t tft_buffer[TFT_BUFFER_SIZE];
+uint16_t tft_buffer2[TFT_BUFFER_SIZE];
 uint16_t * tft_buffer_1 = tft_buffer;
-uint16_t * tft_buffer_2 = tft_buffer + TFT_BUFFER_SIZE / 2;
+uint16_t * tft_buffer_2 = tft_buffer2;
 
 uint16_t * tft_buffer_ptr;
 
