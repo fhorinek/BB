@@ -140,7 +140,7 @@ void map_step()
 
 
 	//last resort, regenerate
-	for (uint8_t i = 0; i < 1; i++)
+	for (uint8_t i = 0; i < 9; i++)
 	{
 		if (tiles[i].reload)
 		{

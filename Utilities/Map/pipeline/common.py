@@ -65,7 +65,7 @@ def get_lonlat():
         lon, lat = filename_to_lon_lat(sys.argv[1])
     except:
         print("Usage: ./%s [tile]" % os.path.basename(sys.argv[0]))
-        print("   eg: ./%s 17 48" % os.path.basename(sys.argv[0]))
+        print("   eg: ./%s N48E017" % os.path.basename(sys.argv[0]))
     
         sys.exit(-1)
     return lon, lat
@@ -208,6 +208,7 @@ target_countries = os.path.join(storage_path, "countries.list")
 target_dir_borders_raw = os.path.join(storage_path, "borders", "raw")
 target_dir_borders_geo = os.path.join(storage_path, "borders", "geo")
 target_dir_borders_join = os.path.join(storage_path, "borders", "borders.geojson")
+target_dir_land_poly = os.path.join(storage_path, "land/sf_opt", "merged_24_c.shp")
 target_dir_countries = os.path.join(storage_path, "countries")
 
 target_dir_step4 = os.path.join(storage_path, "step4")

@@ -1,0 +1,14 @@
+#clip geometry
+
+#rename layers
+rename-layers polygons
+
+#clip
+clip bbox2=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
+
+rectangle bbox=%lon1%,%lat1%,%lon2%,%lat2% name=cut
+#each 'this.properties["type"] = "water"' target=cut
+
+erase source=polygons target=cut
+
+drop target=polygons

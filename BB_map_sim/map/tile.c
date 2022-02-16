@@ -565,10 +565,6 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
             {
                 color = LV_COLOR_GRAY;
             }
-            if (val == 0)
-            {
-            	color = lv_color_make(60, 100, 130);
-            }
             else
             {
                 int16_t ci = min(palette_len - 1, ((val - val_min) * palette_len) / delta);
@@ -591,7 +587,6 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
 
     DBG("Finalising / Topo done (%u)", HAL_GetTick() - timestamp);
     timestamp = HAL_GetTick();
-
 }
 
 
@@ -728,10 +723,6 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 
 		f_read(&map_data, map_cache, f_size(&map_data), &br);
 		f_close(&map_data);
-
-		map_header_t * mh = (map_header_t *)map_cache;
-//		mh->latitude = ((lat / GNSS_MUL) * GNSS_MUL) - ((lat < 0) ? GNSS_MUL : 0);
-//		mh->longitude = ((lon / GNSS_MUL)* GNSS_MUL) - ((lon < 0) ? GNSS_MUL : 0);
 
 		//mark name to cache
 		strcpy(map_cache_name, name[index]);
@@ -1042,6 +1033,8 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
 			uint16_t number_of_points = *((uint16_t *)(map_cache + actual->feature_addr + 2));
 
+//			INFO("points = []");
+
 			lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * number_of_points);
 			for (uint16_t j = 0; j < number_of_points; j++)
 			{
@@ -1062,7 +1055,10 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
 				points[j].x = px;
 				points[j].y = py;
+
+//				INFO("points.append([%d, %d])", px, py);
 			}
+//			INFO("draw_poly(points)\n");
 
 			draw_polygon(gui.map.canvas, points, number_of_points, &line_draw);
 

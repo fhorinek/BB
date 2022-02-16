@@ -16,6 +16,8 @@ def pipeline_step3():
         "lat2": common.lat + common.step,
         "split": common.split,
         "assets": common.assets_dir,
+        "target": target_dir,        
+        "tile": common.tile_name,        
     }
 
     print("Processing tile %s" % common.tile_name)
@@ -29,15 +31,23 @@ def pipeline_step3():
         common.create_grid(grid, common.lon, common.lat, common.lon + common.step, common.lat + common.step, step, step)
 
     #list files
-    files = os.listdir(source_dir)
+    files = []
     files.append("borders")
+    files.append("land")
+    files += os.listdir(source_dir)
 
     for filename in files:
+        check_source = False
         if filename == "borders":
             source = common.target_dir_borders_join
             layer = "borders"
             filename = "%s_borders.geojson" % common.tile_filename(common.lon, common.lat)
+        elif filename == "land":
+            source = common.target_dir_land_poly
+            layer = "land"
+            filename = "%s_land.geojson" % common.tile_filename(common.lon, common.lat)
         else:
+            check_source = True
             source = os.path.join(source_dir, filename)
             layer = os.path.splitext(filename)[0].split("_")[1]
             
@@ -53,11 +63,12 @@ def pipeline_step3():
             if os.path.getsize(target) > 0:
                 print("Skipping, target file %s exists" % (filename))
                 continue
-                
-        if common.geojson_empty(source):
-            print("Skipping, source file %s empty" % (filename))
-            os.system("touch %s" % target)
-            continue
+            
+        if check_source:
+            if common.geojson_empty(source):
+                print("Skipping, source file %s empty" % (filename))
+                os.system("touch %s" % target)
+                continue
 
         print("Processing file %s" % filename)
 
