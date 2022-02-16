@@ -6,6 +6,9 @@
 #rename layers
 rename-layers polygons,lines,grid
 
+i %target%/%tile%_land.geojson name=sea
+merge-layers target=sea,polygons name=polygons force
+
 #tag features
 each 'this.properties["type"] = "water"' target=polygons
 each 'this.properties["type"] = "river"' target=lines
