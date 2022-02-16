@@ -50,13 +50,14 @@ def pipeline_get_list(country = None):
                 lon1, lat1, lon2, lat2 = map(int, poly.bounds)
                 
                 if lon1 < 0:
-                    lon1 -=1
+                    lon1 = max(-180, lon1 - 1)
                 if lat1 < 0:
-                    lat1 -=1
+                    lat1 = max(-90, lat1 - 1)
                 if lon2 > 0:
-                    lon2 +=1
+                    lon2 = min(180, lon2 + 1)
                 if lat2 > 0:
-                    lat2 +=1
+                    lat2 = min(90, lat2 + 1)
+
 
 #                print("Bounds", lon1, lat1, lon2, lat2)
 #                print("lon", list(range(lon1, lon2)))
@@ -74,7 +75,7 @@ def pipeline_get_list(country = None):
                         if bbox.intersects(poly):                        
                             tile = common.tile_filename(lon, lat)
  #                           print("-rectangle bbox=%d,%d,%d,%d \\" %(blon1, blat1, blon2, blat2))
-                            if (tile not in tiles) and (tile in valid_tiles):
+                            if tile not in tiles:
                                 tiles.append(tile)
         
  #       text = "mapshaper -i '%s' \\\n" % source

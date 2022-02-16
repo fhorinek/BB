@@ -1,14 +1,25 @@
-#clip geometry
+#USE_GRID
 
 #rename layers
-rename-layers polygons
+rename-layers polygons,grid
 
-#clip
+#clip excess
 clip bbox2=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
 
-rectangle bbox=%lon1%,%lat1%,%lon2%,%lat2% name=cut
-#each 'this.properties["type"] = "water"' target=cut
-
+#boolean operation to invert
+rectangle bbox=%lon1s%,%lat1s%,%lon2s%,%lat2s% name=cut
 erase source=polygons target=cut
-
 drop target=polygons
+
+rename-layers target=cut polygons
+
+each 'this.properties["type"] = "water"' target=polygons
+
+#clean geometry
+clean snap-interval=0.00001 target=polygons
+
+#slice
+slice grid target=polygons
+merge-layers target=slice-* name=polygons
+explode name=polygons
+
