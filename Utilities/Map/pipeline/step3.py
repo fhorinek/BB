@@ -9,11 +9,17 @@ def pipeline_step3():
     target_dir = common.target_dir_step3
     os.makedirs(target_dir, exist_ok = True)
 
+    tiny_step = 0.00001
+
     params = {
         "lon1": common.lon,
         "lat1": common.lat,
         "lon2": common.lon + common.step,
         "lat2": common.lat + common.step,
+        "lon1s": common.lon + tiny_step,
+        "lat1s": common.lat + tiny_step,
+        "lon2s": common.lon + common.step - tiny_step,
+        "lat2s": common.lat + common.step - tiny_step,
         "split": common.split,
         "assets": common.assets_dir,
         "target": target_dir,        

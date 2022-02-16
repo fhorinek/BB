@@ -563,7 +563,7 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
             lv_color_t color;
             if (val == INT16_MIN)
             {
-                color = LV_COLOR_GRAY;
+                color = lv_color_make(60, 100, 130);
             }
             else
             {

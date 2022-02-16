@@ -45,13 +45,13 @@ def pipeline_get_list(country = None):
                 lon1, lat1, lon2, lat2 = map(int, poly.bounds)
                 
                 if lon1 < 0:
-                    lon1 -=1
+                    lon1 = max(-180, lon1 - 1)
                 if lat1 < 0:
-                    lat1 -=1
+                    lat1 = max(-90, lat1 - 1)
                 if lon2 > 0:
-                    lon2 +=1
+                    lon2 = min(180, lon2 + 1)
                 if lat2 > 0:
-                    lat2 +=1
+                    lat2 = min(90, lat2 + 1)
 
                 print("Bounds", lon1, lat1, lon2, lat2)
                 print("lon", list(range(lon1, lon2)))
@@ -70,18 +70,17 @@ def pipeline_get_list(country = None):
                         if bbox.intersects(poly):                        
                             tile = common.tile_filename(lon, lat)
                             if (tile not in tiles): 
-                                valid = (tile in valid_tiles)
-                                tiles[tile] = (blon1, blat1, blon2, blat2, [filename.split(".")[0]], valid)
+                                tiles[tile] = (blon1, blat1, blon2, blat2, [filename.split(".")[0]])
                             else:                                
                                 tiles[tile][4].append(filename.split(".")[0])
                      
     features = []    
     for tile in tiles:
-        blon1, blat1, blon2, blat2, countries, valid = tiles[tile]
+        blon1, blat1, blon2, blat2, countries = tiles[tile]
         feature = {}
         feature["type"] = "Feature"
         feature["geometry"] = {"type": "Polygon", "coordinates": [[[blon1, blat1], [blon1, blat2], [blon2, blat2], [blon2, blat1]]]}
-        feature["properties"] = {"name": tile, "valid" : valid}
+        feature["properties"] = {"name": tile}
         for c in countries:
             feature["properties"][c] = True
         features.append(feature)
@@ -103,19 +102,6 @@ if __name__ == '__main__':
 def test(lon, lat):
     print(lon, lat, common.tile_filename(lon, lat))
     
-    
-test(0,0)    
-test(1,1)    
-test(1,-1)    
-test(-1,1)    
-test(-1,-1)    
-test(-1,0)    
-test(1,0)    
-test(0,-1)    
-test(0,1)    
-
-
-
 
 
 
