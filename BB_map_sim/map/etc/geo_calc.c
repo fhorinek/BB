@@ -124,19 +124,6 @@ void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_
 	*step_y = (zoom * GNSS_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
 
-int64_t geo_get_pixels_from_equator(int32_t lat, uint16_t zoom)
-{
-	zoom += 1;
-	uint8_t lat_e = abs(lat / GNSS_MUL);
-	int64_t steps = 0;
-	for (uint8_t i = 0; i < lat_e; i++)
-	{
-		steps += GNSS_MUL / ((zoom * GNSS_MUL / lat_mult[min(61, i)]) / MAP_DIV_CONST);
-	}
-	return steps;
-}
-
-
 void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * step_x_m, int16_t * step_y_m)
 {
 	uint8_t lat_i = min(60, abs(lat / GNSS_MUL));

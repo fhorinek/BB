@@ -11,7 +11,7 @@ import step2
 import step3
 import step4
 
-THREADS_CNT = 8
+THREADS_CNT = 14
 
 def process_tile(f):
     print("[%s] Start processing" % f)

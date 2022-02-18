@@ -6,6 +6,7 @@
  */
 
 #include "common.h"
+#include "etc/geo_calc.h"
 #include "gui/gui.h"
 
 typedef struct
@@ -15,6 +16,8 @@ typedef struct
     float x_val;
     float slope;
 } polygon_edge_t;
+
+
 
 void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc)
 {
@@ -82,19 +85,20 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
         }
     }
 
+//    INFO("gt = []");
 //  for (uint16_t i = 0; i < edge_cnt; i++)
 //  {
-//      INFO("%u: %d %d %0.1f %0.3f", i, edges[i].y_min, edges[i].y_max, edges[i].x_val, edges[i].slope);
+//      INFO("gt.append([%d,%d,%0.1f,%0.3f])", edges[i].y_min, edges[i].y_max, edges[i].x_val, edges[i].slope);
 //  }
+
 
     if (edge_cnt > 0)
     {
         int16_t scan_start = edges[0].y_min;
-        int16_t scan_end = edges[edge_cnt - 1].y_max;
 
         uint16_t * active = (uint16_t *) malloc(sizeof(uint16_t) * edge_cnt);
 
-        for (int16_t scan_line = scan_start; scan_line < scan_end + 1; scan_line++)
+        for (int16_t scan_line = scan_start; scan_line <= MAP_H; scan_line++)
         {
             //get active
             uint16_t active_cnt = 0;
@@ -136,6 +140,9 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
                 }
             }
 
+            if (active_cnt == 0)
+                break;
+
             //draw active
             lv_point_t line_points[2];
             for (uint16_t i = 0; i < active_cnt; i++)
@@ -143,12 +150,14 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
                 line_points[i % 2].x = edges[active[i]].x_val;
                 line_points[i % 2].y = scan_line;
 
-                if (i % 2 == 1)
+                if (i % 2 == 1 && scan_line >= 0)
                 {
                     //TODO: draw directly to memory without lvgl
                     gui_lock_acquire();
                     lv_canvas_draw_line(canvas, line_points, 2, draw_desc);
                     gui_lock_release();
+
+//                  INFO("plt.plot((%d,%d),(%d,%d),c=ac)", line_points[0].x, line_points[1].x, -line_points[0].y, -line_points[1].y);
                 }
 
                 edges[active[i]].x_val += edges[active[i]].slope;

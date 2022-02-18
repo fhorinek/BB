@@ -360,7 +360,7 @@ def pipeline_step4():
     # 8b version
     # 8b grid w
     # 8b grid h
-    magic = (0 % 127) + 1
+    magic = (2 % 127) + 1
     file_data += struct.pack("<BBBB", 0x55, magic, w_cnt, h_cnt)
 
     # 32b longitude

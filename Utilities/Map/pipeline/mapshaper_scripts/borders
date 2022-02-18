@@ -6,8 +6,9 @@ rename-layers lines,grid
 clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines
 
 slice grid target=lines
-merge-layers target=slice-* name=lines
-explode name=lines
-
-
 each 'this.properties = {type:"border"}'
+
+merge-layers target=slice-* name=lines
+
+
+
