@@ -90,15 +90,21 @@ static void get_kx_ky(float lat, float * kx, float * ky)
 }
 
 //get pixel coordinates from reference lat, lon in specified zoom
-void geo_to_pix(int32_t lon, int32_t lat, uint16_t zoom, int32_t g_lon, int32_t g_lat, int16_t * x, int16_t * y)
+void geo_to_pix(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32_t g_lat, int16_t * x, int16_t * y)
+{
+	geo_to_pix_w_h(lon, lat, zoom, g_lon, g_lat, x, y, MAP_W, MAP_H);
+}
+
+//get pixel coordinates from reference lat, lon in specified zoom
+void geo_to_pix_w_h(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32_t g_lat, int16_t * x, int16_t * y, int16_t w, int16_t h)
 {
 	int32_t step_x;
 	int32_t step_y;
 	geo_get_steps(lat, zoom, &step_x, &step_y);
 
 	//get bbox
-	uint32_t map_w = MAP_W * step_x;
-	uint32_t map_h = (MAP_H * step_y);
+	uint32_t map_w = w * step_x;
+	uint32_t map_h = (h * step_y);
 	int32_t lon1 = lon - map_w / 2;
 	int32_t lat1 = lat + map_h / 2;
 
@@ -117,19 +123,6 @@ void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_
 	uint8_t lat_i = min(61, abs(lat / GNSS_MUL));
 	*step_y = (zoom * GNSS_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
-
-int64_t geo_get_pixels_from_equator(int32_t lat, uint16_t zoom)
-{
-	zoom += 1;
-	uint8_t lat_e = abs(lat / GNSS_MUL);
-	int64_t steps = 0;
-	for (uint8_t i = 0; i < lat_e; i++)
-	{
-		steps += GNSS_MUL / ((zoom * GNSS_MUL / lat_mult[min(61, i)]) / MAP_DIV_CONST);
-	}
-	return steps;
-}
-
 
 void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * step_x_m, int16_t * step_y_m)
 {
@@ -233,7 +226,6 @@ uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bo
 }
 
 
-
 void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t zoom, int32_t * lon, int32_t * lat, lv_obj_t * canvas)
 {
 	uint16_t w = lv_obj_get_width(canvas);
@@ -241,7 +233,7 @@ void pix_to_point(lv_point_t point, int32_t map_lon, int32_t map_lat, uint16_t z
 
 	zoom += 1;
 	uint32_t step_x = (zoom * GNSS_MUL) / MAP_DIV_CONST;
-	uint32_t step_y = (zoom * GNSS_MUL / lat_mult[map_lat / GNSS_MUL]) / MAP_DIV_CONST;
+	uint32_t step_y = (zoom * GNSS_MUL / lat_mult[abs(map_lat / GNSS_MUL)]) / MAP_DIV_CONST;
 
 	uint32_t map_w = w * step_x;
 	uint32_t map_h = h * step_y;

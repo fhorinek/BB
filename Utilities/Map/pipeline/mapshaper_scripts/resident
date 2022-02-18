@@ -1,6 +1,7 @@
 #USE_GRID
 #DROP_POINTS
 #DROP_LINES
+#INJECT_POLYGONS
 
 #rename layers
 rename-layers polygons,grid
@@ -17,18 +18,17 @@ simplify 10% target=polygons
 #remove small polygons
 filter-islands remove-empty min-area=0.1km2 target=polygons
 
-#clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
-
-#slice
-slice grid target=polygons
-merge-layers target=slice-* name=polygons
-explode name=polygons
-
 #explode
 explode target=polygons
 clean target=polygons
 
 #tag features
 each 'this.properties = {type:"resident"}'
+
+#clip excess geometry 
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
+
+#slice
+slice grid target=polygons
+merge-layers target=slice-* name=polygons
 

@@ -7,8 +7,6 @@ rename-layers lines,grid
 #remove tags
 filter-fields fields=aerialway,power target=lines
 
-merge-layers target=lines* name=lines
-
 #simplify
 simplify 45% target=lines
 
@@ -16,13 +14,10 @@ each 'this.properties = {type:"aerialway"}' where='this.properties.aerialway != 
 each 'this.properties = {type:"power"}' where='this.properties.power != undefined' target=lines
 
 #join
-dissolve type where="this.properties.type=='aerialway'" target=lines
-dissolve type where="this.properties.type=='power'" target=lines
+dissolve type target=lines
 
 #slice by grid
 slice grid target=lines
 merge-layers target=slice-* name=lines
 explode name=lines
 
-#clip excess geometry 
-clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=lines

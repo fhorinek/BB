@@ -23,7 +23,7 @@ def pipeline_get_borders_raw():
         if c[0] == "":
             continue
             
-        c[1] = c[1].replace("\"","").replace(",","")
+        c[1] = c[1].replace("\"","").replace(",","").replace("'","")
             
         
         filename = c[0] + "_" + c[1] + ".osmjson"
@@ -86,90 +86,39 @@ def pipeline_get_borders_geo():
         
     print("Done")
     
-def pipeline_get_borders_opti():
+def pipeline_join_borders():
     source_dir = common.target_dir_borders_geo
-    target_dir = common.target_dir_borders_opti
-    os.makedirs(target_dir, exist_ok = True)
+    target = common.target_dir_borders_join
 
-    print("Processing borders")
+    print("Merging shapefiles")
     print("  source %s" % source_dir)
-    print("  target %s" % target_dir)
-
-    #list files
+    print("  target %s" % target)
+    
     files = os.listdir(source_dir)
 
+    cmd = "mapshaper-xl -verbose\\\n"
+
     for filename in files:
-        source = os.path.join(source_dir, filename)
-        
-        layer = "border"
-        script_path = os.path.join(common.mapshaper_scripts_dir, layer)
-
-        if not os.path.exists(script_path):
-            raise Exception("Procesing script for %s does not exists" % (filename))
-        
-        target = os.path.join(target_dir, filename)
-
-        if os.path.exists(target):
-            print("Skipping, target file %s exists" % (filename))
-            continue
-
-        print("Processing file %s" % filename)
-
-        #load script
-        script = open(script_path, "r").read()
-
-        drop = []
-        if script.find("#DROP_POLYGONS") >= 0:
-            drop.append("Polygon")
-        if script.find("#DROP_LINES") >= 0:
-            drop.append("LineString")
-            drop.append("MultiLineString")
-        if script.find("#DROP_POINTS") >= 0:
-            drop.append("Point")
-        
-        tmp_file = None
-        if len(drop) > 0:
-            tmp_file = "%s_mapshaper_temporary_input.geojson" % filename
-            dropped = common.drop_geometry(source, tmp_file, drop)
-            if dropped > 0:
-                print("Dropping %u features %s" % (dropped, str(drop)))
-                source = tmp_file
-            else:
-                tmp_file = None
-        
-        cmd = "mapshaper -i '%s' \\\n" % source
-            
-        for line in script.split("\n"):
-            #skip empty line
-            if len(line.split()) == 0:
-                continue
-            #skip comment
-            if line[0] == "#":
-                continue
-            #add command to queue            
-            cmd += "   -%s \\\n" % line
-
-
-        cmd += "   -o '%s' format=geojson combine-layers" % target
-        
-        ret = os.system(cmd)
-        
-        common.invalidate_step(4, layer) 
-
-        if ret != 0:
-            print(" ------ mapshaper command ------ ")
-            print(cmd)
-            print(" ------------------------------- ")
-            raise Exception("Command not processed!")
-        
-        if tmp_file:
-            os.remove(tmp_file)
-        
-    print("Done")       
+        path = os.path.join(source_dir, filename)
+        cmd += "   -i '%s' \\\n" % path
+    
+    cmd += "   -merge-layers target=* force"
+    cmd += "   -simplify 30%"
+    cmd += "   -lines"
+    cmd += "   -dissolve"
+    
+    cmd += "   -o %s format=geojson combine-layers" % target
+    ret = os.system(cmd)
+    
+    if ret != 0:
+        print(" ------ mapshaper command ------ ")
+        print(cmd)
+        print(" ------------------------------- ")
+        raise Exception("Command not processed!")
+    
     
 if __name__ == '__main__':  
     pipeline_get_borders_raw()
     pipeline_get_borders_geo()
-    pipeline_get_borders_opti()
-
+    pipeline_join_borders()
     

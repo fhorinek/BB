@@ -209,6 +209,13 @@ cfg_entry_param_select_t dbg_task_select[] =
     SELECT_END
 };
 
+cfg_entry_param_select_t map_alt_range_select[] =
+{
+    {MAP_ALT_RANGE_FLAT, "Flatlands"},
+    {MAP_ALT_RANGE_NORMAL, "Normal"},
+    {MAP_ALT_RANGE_ALPS, "Alps"},
+    SELECT_END
+};
 
 flight_profile_t profile =
 {
@@ -327,7 +334,9 @@ flight_profile_t profile =
         //zoom_flight
         entry_int("zoom_flight", 25, 5, 50),
         //zoom_flight
-        entry_bool("map_blur", false),
+        entry_bool("map_blur", true),
+        //alt_range
+        entry_select("map_range", MAP_ALT_RANGE_NORMAL, map_alt_range_select),
 	},
 
 	//audio
