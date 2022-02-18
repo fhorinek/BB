@@ -16,26 +16,26 @@
 
 void map_init()
 {
-    gui_lock_acquire();
-	gui.map.magic = 0;
-
-    for (uint8_t i = 0; i < 9; i++)
-    {
-		gui.map.chunks[i].buffer = NULL;
-	}
-
-    gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
-
     for (uint8_t i = 0; i < 9; i++)
     {
     	gui.map.chunks[i].buffer = ps_malloc(MAP_BUFFER_SIZE);
     	gui.map.chunks[i].ready = false;
     }
 
+	gui_lock_acquire();
+	gui.map.magic = 0xFF;
+    gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+
+    gui.map.poi_size = 0;
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        gui.map.poi[i].chunk = 0xFF;
+        gui.map.poi[i].magic = 0xFF;
+    }
+
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
 }
-
 extern int32_t map_lon;
 extern int32_t map_lat;
 extern uint16_t map_zoom;
@@ -86,9 +86,9 @@ void map_step()
 
 		tiles[i].chunk = tile_find_inside(tiles[i].lon, tiles[i].lat, zoom);
 
-//    		DBG("L %u = %u (%ld %ld)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
+//   	DBG("L %u = %u (%d %d)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
 	}
-//    	DBG("");
+//  DBG("");
 
 	//assign buffers to tiles
 	for (uint8_t i = 0; i < 9; i++)
@@ -101,12 +101,15 @@ void map_step()
 
 		tiles[i].reload = true;
 
-		for (uint8_t j = 0; j < 9; j++)
+		//assign new chunk
+		for (uint8_t chunk = 0; chunk < 9; chunk++)
 		{
 			bool used = false;
+
+			//is chunk used?
 			for (uint8_t k = 0; k < 9; k++)
 			{
-				if (tiles[k].chunk == j)
+				if (tiles[k].chunk == chunk)
 				{
 					used = true;
 					break;
@@ -115,7 +118,10 @@ void map_step()
 
 			if (!used)
 			{
-				tiles[i].chunk = j;
+			    //unload old chunk
+			    tile_unload_pois(chunk);
+
+				tiles[i].chunk = chunk;
 				break;
 			}
 		}

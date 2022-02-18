@@ -62,6 +62,10 @@
 #define DBG_TASK_ESP    1
 #define DBG_TASK_STM    2
 
+#define MAP_ALT_RANGE_FLAT      0
+#define MAP_ALT_RANGE_NORMAL    1
+#define MAP_ALT_RANGE_ALPS      2
+
 typedef struct
 {
     cfg_entry_t name;
@@ -145,6 +149,7 @@ typedef struct
 	{
         cfg_entry_t zoom_flight;
         cfg_entry_t blur;
+        cfg_entry_t alt_range;
 	} map;
 
 	struct

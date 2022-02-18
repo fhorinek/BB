@@ -242,7 +242,9 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
         }
         else
         {
+            //add unusable space to allocated chunk
             ps_malloc_used_bytes += requested_size + size_left;
+            ps_malloc_index->chunk_size = requested_size + size_left;
             //find next free block
             ps_malloc_index = ps_malloc_next_free(ps_malloc_index, 0);
         }

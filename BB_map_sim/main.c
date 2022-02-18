@@ -50,9 +50,24 @@ lv_indev_t *kb_indev;
 
 #include "tile.h"
 
-int32_t map_lon = 171479510;
-int32_t map_lat = 481671349;
-int16_t map_zoom = 27;
+//Fiji
+//int32_t map_lon = 1800000000;
+//int32_t map_lat = -167759454;
+
+//Bratislava
+//int32_t map_lon = 170087420;
+//int32_t map_lat = 482252517;
+
+//DC
+//int32_t map_lon = -770372000;
+//int32_t map_lat = 388936000;
+
+//Castilho
+int32_t map_lon = -516151019;
+int32_t map_lat = -206570528;
+
+
+int16_t map_zoom = 32;
 lv_obj_t * screen;
 
 static lv_group_t *g;
@@ -74,6 +89,15 @@ static void my_event_cb(lv_obj_t *obj, lv_event_t event) {
 		int32_t lat;
 
 		pix_to_point(pos, map_lon, map_lat, map_zoom, &lon, &lat, screen);
+
+		while (lon > 180 * GNSS_MUL)
+		{
+			lon -= 360 * GNSS_MUL;
+		}
+		while (lon < -180 * GNSS_MUL)
+		{
+			lon += 360 * GNSS_MUL;
+		}
 
 		map_lon = lon;
 		map_lat = lat;
