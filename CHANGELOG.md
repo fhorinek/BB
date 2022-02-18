@@ -1,3 +1,7 @@
+# 18.2.2021 - Build 238
+## Fixed maps
+ * Fix zero lat/lon bug
+
 # 18.2.2021 - Build 237
 ## Fixed maps
  * Works with negative coordinates
