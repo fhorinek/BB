@@ -3,32 +3,60 @@
 import sys
 import os
 import common
+from threading import Thread
+import time
 
 import step1
 import step2
 import step3
 import step4
 
-path = sys.argv[1]
-files = open(path, "r").read().split("\n")
+THREADS_CNT = 14
 
-for f in files:
-
-    print("Processing", f)
-    lon, lat = common.filename_to_lon_lat(f)
-    common.init_vars(lon, lat)
-
+def process_tile(f):
+    print("[%s] Start processing" % f)
     try:
-        step1.pipeline_step1()
-        step2.pipeline_step2()
-        step3.pipeline_step3()
-        step4.pipeline_step4()
-    except:
+        os.system("./update.py %s" % f)
+    except Exception as e:
         print("***************************************************")
         l = open("errors.list", "a")
         l.write("%s\n" % f)
+        l.write(str(e))
+        l.write("\n\n")
         l.close()
         print("Error in processing tile %s" % f)
+        print("\n", e,"\n")
         print("***************************************************")
-        raise Exception("Error not ignored!")
+    
+    print("[%s] Done" % f)
+
+
+
+if sys.argv[1] == "all":
+    countries = os.listdir(common.target_dir_countries)
+else:
+    countries = [sys.argv[1] + ".list"]
+
+for c in countries:
+    path = os.path.join(common.target_dir_countries, c)
+    files = open(path, "r").read().split("\n")
+
+    threads = []
+    for f in files:
+        thread = Thread(target=process_tile, args=[f])
+        thread.start()
+        
+        threads.append(thread)
+        while len(threads) >= THREADS_CNT:
+            for t in threads:
+                if not t.is_alive():
+                    threads.remove(t)
+            
+            time.sleep(0.05)
+            
+
+    
+    
+    
+    
 

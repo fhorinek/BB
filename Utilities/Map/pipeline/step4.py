@@ -14,6 +14,9 @@ import common
 def feature_factory(dict_data):
     output = []
     
+    if dict_data["geometry"] == None:
+        return output
+    
     if dict_data["geometry"]["type"] == "MultiLineString":
         print("Converting MultiLineString into %u LineStrings" % len(dict_data["geometry"]['coordinates']))
         base = dict(dict_data)
@@ -24,10 +27,11 @@ def feature_factory(dict_data):
             f = Feature(base)
             if f.valid:
                 output.append(f)
+                
     elif dict_data["geometry"]["type"] == "MultiPolygon":
         print("Converting MultiPolygon into %u Polygons" % len(dict_data["geometry"]['coordinates']))
         base = dict(dict_data)
-        base["geometry"]["type"] = "Polygons"
+        base["geometry"]["type"] = "Polygon"
         
         for part in dict_data["geometry"]['coordinates']:
             base["geometry"]['coordinates'] = part
@@ -63,7 +67,8 @@ class Feature(object):
                 ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","").replace("m","")
                 try:
                     self.elevation = int(float(ele))
-                except ValueError:
+                    assert self.elevation < 9000
+                except (ValueError, AssertionError):
                     print("Wrong elevation value")
                     print(dict_data)
                     self.valid = False
@@ -250,13 +255,17 @@ def pipeline_step4():
             continue
             
         source = os.path.join(source_dir, "%s_%s.geojson" % (common.tile_name, filename))
-        #assert os.path.exists(source), "Layer %s not found" % source
         
         if not os.path.exists(source):
-            continue
+            raise Exception("Source data %s not found" % (filename))
         
-        print("Opening file: %s" % source)
-        data = json.loads(open(source, "r").read())
+        print("Opening file: %s" % source, end="")
+        if os.path.getsize(source) > 0:
+            data = json.loads(open(source, "r").read())
+            print()
+        else:
+            data = []
+            print(" (Empty)")
 
         if "features" in data:
             for dict_data in data["features"]:
@@ -351,7 +360,7 @@ def pipeline_step4():
     # 8b version
     # 8b grid w
     # 8b grid h
-    magic = (0 % 127) + 1
+    magic = (2 % 127) + 1
     file_data += struct.pack("<BBBB", 0x55, magic, w_cnt, h_cnt)
 
     # 32b longitude

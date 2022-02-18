@@ -17,6 +17,16 @@ function fake_gnss(lat, lng, spd, hdg)
     var GNSS_MUL = 10000000;
 
     var data = {};
+    
+    while (lng < -180)
+    {
+        lng += 360;
+    }
+    while (lng > 180)
+    {
+        lng -= 360;
+    }
+        
     data["lat"] = Math.round(lat * GNSS_MUL);
     data["lon"] = Math.round(lng * GNSS_MUL);
     data["speed"] = Math.round(spd);

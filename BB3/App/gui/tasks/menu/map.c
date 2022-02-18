@@ -40,6 +40,7 @@ static lv_obj_t * map_init(lv_obj_t * par)
 	lv_obj_t * list = gui_list_create(par, "Map", &gui_settings, NULL);
 
     gui_list_auto_entry(list, "Zoom", &profile.map.zoom_flight, NULL);
+    gui_list_auto_entry(list, "Terrain type", &profile.map.alt_range, NULL);
     gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
     gui_list_auto_entry(list, "Clear cache", CUSTOM_CB, map_cc_cb);
 

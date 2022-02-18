@@ -9,15 +9,7 @@ def pipeline_step3():
     target_dir = common.target_dir_step3
     os.makedirs(target_dir, exist_ok = True)
 
-    params = {
-        "lon1": common.lon,
-        "lat1": common.lat,
-        "lon2": common.lon + common.step,
-        "lat2": common.lat + common.step,
-        "split": common.split,
-        "assets": common.assets_dir,
-        "tile_name": common.tile_filename
-    }
+    tiny_step = 0.00001
 
     print("Processing tile %s" % common.tile_name)
     print("  source %s" % source_dir)
@@ -29,16 +21,40 @@ def pipeline_step3():
         step = 1.0 / common.split
         common.create_grid(grid, common.lon, common.lat, common.lon + common.step, common.lat + common.step, step, step)
 
+    params = {
+        "lon1": common.lon,
+        "lat1": common.lat,
+        "lon2": common.lon + common.step,
+        "lat2": common.lat + common.step,
+        "lon1s": common.lon + tiny_step,
+        "lat1s": common.lat + tiny_step,
+        "lon2s": common.lon + common.step - tiny_step,
+        "lat2s": common.lat + common.step - tiny_step,
+        "split": common.split,
+        "assets": common.assets_dir,
+        "target": target_dir,        
+        "tile": common.tile_name, 
+        "grid": grid       
+    }
+
     #list files
-    files = os.listdir(source_dir)
+    files = []
     files.append("borders")
+    files.append("land")
+    files += os.listdir(source_dir)
 
     for filename in files:
+        check_source = False
         if filename == "borders":
-            source = os.path.join(common.assets_dir, "borders.json")
+            source = common.target_dir_borders_join
             layer = "borders"
             filename = "%s_borders.geojson" % common.tile_filename(common.lon, common.lat)
+        elif filename == "land":
+            source = common.target_dir_land_poly
+            layer = "land"
+            filename = "%s_land.geojson" % common.tile_filename(common.lon, common.lat)
         else:
+            check_source = True
             source = os.path.join(source_dir, filename)
             layer = os.path.splitext(filename)[0].split("_")[1]
             
@@ -51,13 +67,15 @@ def pipeline_step3():
             raise Exception("Procesing script for %s does not exists" % (filename))
         
         if os.path.exists(target):
-            print("Skipping, target file %s exists" % (filename))
-            continue
-
+            if os.path.getsize(target) > 0:
+                print("Skipping, target file %s exists" % (filename))
+                continue
             
-        if common.geojson_empty(source):
-            print("Skipping, source file %s empty" % (filename))
-            continue
+        if check_source:
+            if common.geojson_empty(source):
+                print("Skipping, source file %s empty" % (filename))
+                os.system("touch %s" % target)
+                continue
 
         print("Processing file %s" % filename)
 
@@ -71,6 +89,7 @@ def pipeline_step3():
             script = script.replace("%%%s%%" % k, str(params[k]))   
         
         use_grid = script.find("#USE_GRID") >= 0
+        keep_grid = script.find("#KEEP_GRID") >= 0
         default_output = script.find("#CUSTOM_OUTPUT") == -1
         
         drop = []
@@ -103,7 +122,9 @@ def pipeline_step3():
                 tmp_file = None
 
         
-        cmd = "mapshaper-xl -i %s \\\n" % source
+        cmd = "node  --max-old-space-size=8000 `which mapshaper`\\\n"
+        #cmd += "   -verbose"
+        cmd += "   -i %s \\\n" % source
         
         if use_grid:
             cmd += "   -i %s \\\n" % grid
@@ -120,7 +141,7 @@ def pipeline_step3():
 
 
         if default_output:
-            if use_grid:
+            if use_grid and not keep_grid:
                 cmd += "   -drop target=grid \\\n"
         
             cmd += "   -o %s format=geojson combine-layers" % target
