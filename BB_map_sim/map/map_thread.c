@@ -86,9 +86,9 @@ void map_step()
 
 		tiles[i].chunk = tile_find_inside(tiles[i].lon, tiles[i].lat, zoom);
 
-   		DBG("L %u = %u (%d %d)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
+//   	DBG("L %u = %u (%d %d)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
 	}
-    	DBG("");
+//  DBG("");
 
 	//assign buffers to tiles
 	for (uint8_t i = 0; i < 9; i++)

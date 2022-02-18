@@ -93,7 +93,7 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
 
     if (edge_cnt > 0)
     {
-        int16_t scan_start = max(0, edges[0].y_min);
+        int16_t scan_start = edges[0].y_min;
 
         uint16_t * active = (uint16_t *) malloc(sizeof(uint16_t) * edge_cnt);
 
@@ -149,7 +149,7 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
                 line_points[i % 2].x = edges[active[i]].x_val;
                 line_points[i % 2].y = scan_line;
 
-                if (i % 2 == 1)
+                if (i % 2 == 1 && scan_line >= 0)
                 {
                     //TODO: draw directly to memory without lvgl
                     gui_lock_acquire();

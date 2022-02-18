@@ -1,4 +1,5 @@
 #USE_GRID
+#KEEP_GRID
 #DROP_POINTS
 #INJECT_LINES
 #INJECT_POLYGONS
@@ -32,11 +33,15 @@ simplify 20% target=lines
 erase source=polygons target=lines
 
 #slice
-slice grid target=polygons
-merge-layers target=slice-* name=polygons
-explode name=polygons
-
 slice grid target=lines
 merge-layers target=slice-* name=lines
 explode name=lines
+
+erase source=polygons target=grid
+drop target=polygons
+rename-layers invert target=grid
+i %grid% name=grid
+each 'this.properties["type"] = "water"' target=grid
+erase source=invert target=grid
+drop target=invert
 

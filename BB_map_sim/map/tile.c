@@ -269,19 +269,19 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
 
     for (int16_t y = y_start; y <= y_end; y++)
     {
+		int32_t lat = lat1 - y * step_y;
+		if (lat < ah->lat)
+			lat = ah->lat;
+		if (lat > ah->lat + GNSS_MUL - num_points_y)
+			lat = ah->lat + GNSS_MUL - num_points_y;
+
     	for (int16_t x = x_start; x <= x_end; x++)
     	{
     		int32_t lon = (x * step_x) + lon1;
-    		if (lon <= ah->lon)
-    			continue;
+    		if (lon < ah->lon)
+    			lon = ah->lon;
     		if (lon > ah->lon + GNSS_MUL - num_points_x)
-    			continue;
-
-    		int32_t lat = lat1 - y * step_y;
-    		if (lat <= ah->lat)
-    			continue;
-    		if (lat > ah->lat + GNSS_MUL - num_points_y)
-    			continue;
+    			lon = ah->lon + GNSS_MUL - num_points_x;
 
     	    int32_t lat_mod = lat % GNSS_MUL;
     	    int32_t lon_mod = lon % GNSS_MUL;
@@ -624,9 +624,6 @@ void tile_geo_to_pix(uint8_t index, int32_t g_lon, int32_t g_lat, int16_t * x, i
     geo_to_pix(lon, lat, zoom, g_lon, g_lat, x, y);
 }
 
-#define MAP_H_C (MAP_H - 8)
-#define MAP_W_C (MAP_W - 0)
-
 void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat)
 {
 	int32_t step_x;
@@ -634,27 +631,24 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t *
 	geo_get_steps(lat, zoom, &step_x, &step_y);
 
 	//get bbox
-	uint32_t map_w = (MAP_W_C * step_x) / 1;
-	uint32_t map_h = (MAP_H_C * step_y) / 1;
+	uint32_t map_w = (MAP_W * step_x);
+	uint32_t map_h = (MAP_H * step_y);
 
-	int64_t pixels = geo_get_pixels_from_equator(lat, zoom);
-	int64_t pixels_rounded = (pixels / MAP_H_C) * MAP_H_C;
-	int64_t delta = pixels - pixels_rounded;
-	int64_t rest = delta + (lat % GNSS_MUL) / step_y;
-	rest = (rest / MAP_H_C) * MAP_H_C;
-	int64_t dist = rest - delta;
+	uint32_t number_of_cols = 1 + GNSS_MUL / map_w;
+	uint32_t number_of_rows = 1 + GNSS_MUL / map_h;
 
-	int32_t t_lat = (lat / GNSS_MUL) * GNSS_MUL + dist * step_y;
+	int32_t col_div = GNSS_MUL / number_of_cols;
+	int32_t row_div = GNSS_MUL / number_of_rows;
+
 	if (lat > 0)
-	    t_lat += map_h / 2;
+		*c_lat = (lat / GNSS_MUL) * GNSS_MUL + ((lat % GNSS_MUL) / row_div) * row_div + row_div / 2;
 	else
-	    t_lat -= map_h / 2;
+		*c_lat = (lat / GNSS_MUL) * GNSS_MUL + ((lat % GNSS_MUL) / row_div) * row_div - row_div / 2;
 
-
-	int32_t t_lon = ((lon + (map_w / 2)) / map_w) * map_w;
-
-    *c_lat = t_lat;
-    *c_lon = t_lon;
+	if (lon > 0)
+		*c_lon = (lon / GNSS_MUL) * GNSS_MUL + ((lon % GNSS_MUL) / col_div) * col_div + col_div / 2;
+	else
+		*c_lon = (lon / GNSS_MUL) * GNSS_MUL + ((lon % GNSS_MUL) / col_div) * col_div - col_div / 2;
 }
 
 void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
@@ -891,6 +885,13 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 	text_draw.font = &lv_font_montserrat_12;
 	text_draw.color = LV_COLOR_BLACK;
 
+//	lv_draw_rect_dsc_t rect;
+//	lv_draw_rect_dsc_init(&rect);
+//	rect.border_width = 1;
+//	rect.bg_opa = LV_OPA_TRANSP;
+//
+//	lv_canvas_draw_rect(gui.map.canvas, 0, 0, MAP_W, MAP_H, &rect);
+
 	ll_item_t * actual = start;
 
 	//draw features
@@ -905,8 +906,11 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
            	int32_t plon = *((int32_t *)(map_cache + actual->feature_addr + 4));
 			int32_t plat = *((int32_t *)(map_cache + actual->feature_addr + 8));
 
+			int32_t clon = lon1 + (lon2 - lon1) / 2;
+			int32_t clat = lat1 + (lat2 - lat1) / 2;
+
 			int16_t x, y;
-			geo_to_pix_w_h((lon1 + lon2) / 2, (lat1 + lat2) / 2, zoom, plon, plat, &x, &y, MAP_W, MAP_H);
+			geo_to_pix_w_h(clon, clat, zoom, plon, plat, &x, &y, MAP_W, MAP_H);
 
 			if (!(x < 0 || x >= MAP_W || y < 0 || y >= MAP_H))
 			{

@@ -11,6 +11,16 @@ def pipeline_step3():
 
     tiny_step = 0.00001
 
+    print("Processing tile %s" % common.tile_name)
+    print("  source %s" % source_dir)
+    print("  target %s" % target_dir)
+
+    #generate grid
+    grid = os.path.join(common.target_dir_step3, "grid.geojson")
+    if not os.path.exists(grid):
+        step = 1.0 / common.split
+        common.create_grid(grid, common.lon, common.lat, common.lon + common.step, common.lat + common.step, step, step)
+
     params = {
         "lon1": common.lon,
         "lat1": common.lat,
@@ -23,18 +33,9 @@ def pipeline_step3():
         "split": common.split,
         "assets": common.assets_dir,
         "target": target_dir,        
-        "tile": common.tile_name,        
+        "tile": common.tile_name, 
+        "grid": grid       
     }
-
-    print("Processing tile %s" % common.tile_name)
-    print("  source %s" % source_dir)
-    print("  target %s" % target_dir)
-
-    #generate grid
-    grid = os.path.join(common.target_dir_step3, "grid.geojson")
-    if not os.path.exists(grid):
-        step = 1.0 / common.split
-        common.create_grid(grid, common.lon, common.lat, common.lon + common.step, common.lat + common.step, step, step)
 
     #list files
     files = []
@@ -88,6 +89,7 @@ def pipeline_step3():
             script = script.replace("%%%s%%" % k, str(params[k]))   
         
         use_grid = script.find("#USE_GRID") >= 0
+        keep_grid = script.find("#KEEP_GRID") >= 0
         default_output = script.find("#CUSTOM_OUTPUT") == -1
         
         drop = []
@@ -139,7 +141,7 @@ def pipeline_step3():
 
 
         if default_output:
-            if use_grid:
+            if use_grid and not keep_grid:
                 cmd += "   -drop target=grid \\\n"
         
             cmd += "   -o %s format=geojson combine-layers" % target

@@ -50,25 +50,24 @@ lv_indev_t *kb_indev;
 
 #include "tile.h"
 
-int32_t map_lon = 1800000000;
-int32_t map_lat = -167759454;
+//Fiji
+//int32_t map_lon = 1800000000;
+//int32_t map_lat = -167759454;
 
-//int32_t map_lon = -1799947500;
-//int32_t map_lat = -169998775;
-
-//int32_t map_lon = 134825900;
-//int32_t map_lat = 468313900;
-
-//int32_t map_lon = 76589170;
-//int32_t map_lat = 459768720;
-
+//Bratislava
 //int32_t map_lon = 170087420;
 //int32_t map_lat = 482252517;
 
-//int32_t map_lon = 90630295;
-//int32_t map_lat = 535885154;
+//DC
+//int32_t map_lon = -770372000;
+//int32_t map_lat = 388936000;
 
-int16_t map_zoom = 120;
+//Castilho
+int32_t map_lon = -516151019;
+int32_t map_lat = -206570528;
+
+
+int16_t map_zoom = 32;
 lv_obj_t * screen;
 
 static lv_group_t *g;

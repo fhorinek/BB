@@ -13,11 +13,14 @@
 typedef struct
 {
     lv_obj_t * image[9];
+    lv_point_t offset[9];
+
 	lv_obj_t * dot;
 
     lv_obj_t * poi[NUMBER_OF_POI];
     uint8_t poi_magic[NUMBER_OF_POI];
 
+    uint8_t master;
     uint8_t magic;
 } local_vars_t;
 
@@ -38,6 +41,7 @@ void widget_map_init(lv_obj_t * base)
     }
 
     local->magic = 0xFF;
+    local->master = 0xFF;
 
     for (uint8_t i = 0; i < 9; i++)
     {
@@ -71,9 +75,19 @@ void widget_map_update(lv_obj_t * base, int32_t disp_lat, int32_t disp_lon)
     if (local->magic != gui.map.magic)
     {
 //    	DBG("Widget set to index %u", gui.map.disp_buffer);
+
         for (uint8_t i = 0; i < 9; i++)
         {
-        	lv_obj_set_hidden(local->image[i], !gui.map.chunks[i].ready);
+        	if (!gui.map.chunks[i].ready)
+        	{
+        		lv_obj_set_hidden(local->image[i], true);
+        		if (local->master == i)
+        			local->master = 0xFF;
+        	}
+        	else
+        	{
+        		lv_obj_set_hidden(local->image[i], false);
+        	}
         }
 
         for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
