@@ -25,14 +25,16 @@
 
 
 
-
 hagl_pos_t agl_get_fpos(int32_t lon, int32_t lat)
 {
 	hagl_pos_t tmp;
 
 	tmp.flags = 0x00;
     tmp.lat = lat / GNSS_MUL;
+    if (lat < 0) tmp.lat--;
+
     tmp.lon = lon / GNSS_MUL;
+    if (lon < 0) tmp.lon--;
 
     return tmp;
 }
@@ -53,13 +55,12 @@ void agl_get_filename(char * fn, hagl_pos_t pos)
     else
     {
         lat_c = 'S';
-        pos.lat = abs(pos.lat) + 1;
     }
 
-    if (pos.lon == -180)
-        pos.lon = 179;
+    if (pos.lon == -181)
+    	pos.lon = 179;
     if (pos.lon == 180)
-        pos.lon = -179;
+    	pos.lon = -180;
 
     if (pos.lon >= 0)
     {
@@ -68,11 +69,11 @@ void agl_get_filename(char * fn, hagl_pos_t pos)
     else
     {
         lon_c = 'W';
-        pos.lon = abs(pos.lon) + 1;
     }
 
-    sprintf(fn, "%c%02u%c%03u", lat_c, pos.lat, lon_c, pos.lon);
+    sprintf(fn, "%c%02u%c%03u", lat_c, abs(pos.lat), lon_c, abs(pos.lon));
 }
+
 
 void agl_get_file_min_max(char * filename, int16_t * vmin, int16_t  * vmax)
 {
