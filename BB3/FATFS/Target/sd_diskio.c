@@ -219,6 +219,7 @@ Stat = STA_NOINIT;
       SDQueueID = osMessageCreate (osMessageQ(SD_Queue), NULL);
 #else
       SDQueueID = osMessageQueueNew(QUEUE_SIZE, 2, NULL);
+      vQueueAddToRegistry(SDQueueID, "SDQueueID");
 #endif
       }
 

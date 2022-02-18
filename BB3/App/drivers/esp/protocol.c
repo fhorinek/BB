@@ -196,8 +196,11 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
     stream_packet(type, buf_out, data, data_len);
 
     //TODO: DMA || IRQ?
-    uint8_t res = HAL_UART_Transmit(esp_uart, buf_out, sizeof(buf_out), 100);
-    ASSERT(res == HAL_OK);
+    uint8_t ret = HAL_UART_Transmit(esp_uart, buf_out, sizeof(buf_out), 100);
+    if (ret != HAL_OK)
+    {
+        WARN("protocol_send ret = %02X", ret);
+    }
 }
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)

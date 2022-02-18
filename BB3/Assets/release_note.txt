@@ -1,12 +1,13 @@
-Added:
-- Map widget - see strato.skybean.eu/map
-- Time to take off widget
-- Altitude graph widget
+Fixed maps:
+please redownload maps
+strato.skybean.eu/map
 
-Fixes:
-- Page switching bug
-- Prevent update when not connected
-- Ignore empty update
+Better color palette
+Widget accesible zoom
+
+Added:
+Vario graph
+
 
 Known Issues:
 PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT
