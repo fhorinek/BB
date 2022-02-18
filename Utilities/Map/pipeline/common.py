@@ -27,22 +27,31 @@ def mod_geometry(source, target, drop, add):
         if a == "LineString":
             fl = {}
             fl["type"] = "Feature"
-            fl["properties"] = {"aerialway":"dummy"}
-            fl["geometry"] = {"type": "LineString", "coordinates": [[0, 0], [0, 0.1]]}
-            data["features"].append(fl)
+            fl["properties"] = {"aerialway":"dummy", "power":"dummy"}
+            fl["geometry"] = {"type": "LineString", "coordinates": [[-0.1, 0], [-0.1, 0.1]]}
+
+            features = data["features"]
+            data["features"] = [fl]
+            data["features"] += features
 
         if a == "Polygon":
             fp = {}
             fp["type"] = "Feature"
             fp["geometry"] = {"type": "Polygon", "coordinates": [[[0, 0], [0.1, 0.1], [0, 0.1], [0, 0]]]}
-            data["features"].append(fp)
+
+            features = data["features"]
+            data["features"] = [fp]
+            data["features"] += features
 
         if a == "Point":
             fp = {}
             fp["type"] = "Feature"
             fp["properties"] = {"name":"dummy", "ele": "0"}
             fp["geometry"] = {"type": "Point", "coordinates": [0, 0]}
-            data["features"].append(fp)
+
+            features = data["features"]
+            data["features"] = [fp]
+            data["features"] += features
     
     if len(to_delete) > 0 or len(add) > 0: 
         f = open(target, "w")
@@ -53,11 +62,10 @@ def mod_geometry(source, target, drop, add):
 
 def get_lonlat():
     try:
-        lon = int(sys.argv[1])
-        lat = int(sys.argv[2])
+        lon, lat = filename_to_lon_lat(sys.argv[1])
     except:
-        print("Usage: ./%s [lon] [lat]" % os.path.basename(sys.argv[0]))
-        print("   eg: ./%s 17 48" % os.path.basename(sys.argv[0]))
+        print("Usage: ./%s [tile]" % os.path.basename(sys.argv[0]))
+        print("   eg: ./%s N48E017" % os.path.basename(sys.argv[0]))
     
         sys.exit(-1)
     return lon, lat
@@ -100,13 +108,13 @@ def filename_to_lon_lat(name):
     lon_n = int(name[4:7])
     
     if lat_c == "S":
-        lat = -lat_n + 1
+        lat = -lat_n
     else:
         lat = lat_n
        
 
     if lon_c == "W":
-        lon = -lon_n + 1
+        lon = -lon_n
     else:
         lon = lon_n
     
@@ -121,13 +129,11 @@ def tile_filename(lon, lat):
         lat_c = "N"
     else:
         lat_c = "S"
-        lat_n -= 1
 
     if lon >= 0:
         lon_c = "E"
     else:
         lon_c = "W"
-        lon_n -= 1
         
     return "%c%02u%c%03u" % (lat_c, abs(lat_n), lon_c, abs(lon_n))
     
@@ -162,6 +168,11 @@ def geojson_empty(path):
         return len(data["features"]) == 0
 
     
+def get_valid_tiles():
+    path = os.path.join(assets_dir, "valid_tiles.list")
+    data = open(path).readlines()
+    return list(map(lambda a:a.replace("\n",""), data))
+    
 def invalidate_step(step, layer = None):
     if step == 2:
         path = os.path.join(target_dir_step2, tile_name + "_" + layer + ".geojson")
@@ -188,17 +199,20 @@ def invalidate_step(step, layer = None):
 # VARIABILES SHARED BETWEEN STEPS
 
 #paths
-storage_path = "/media/horinek/topo_data/OSM/data/"
-hgt_path = "/media/horinek/topo_data/HGT3/data/hgt/"
+storage_path = "/media/horinek/topo_data/OSM/"
+hgt_path = "/media/horinek/topo_data/HGT3/hgt/"
+overpass_url = "http://192.168.200.2:12346/api/interpreter"
+
 
 target_countries = os.path.join(storage_path, "countries.list")
 target_dir_borders_raw = os.path.join(storage_path, "borders", "raw")
 target_dir_borders_geo = os.path.join(storage_path, "borders", "geo")
-target_dir_borders_opti = os.path.join(storage_path, "borders", "opti")
+target_dir_borders_join = os.path.join(storage_path, "borders", "borders.geojson")
+target_dir_land_poly = os.path.join(storage_path, "land/sf_opt", "merged_24_c.shp")
 target_dir_countries = os.path.join(storage_path, "countries")
 
 target_dir_step4 = os.path.join(storage_path, "step4")
-target_dir_step5 = os.path.join(storage_path, "../dist")
+target_dir_step5 = os.path.join(storage_path, "dist")
 
 def init_vars(lon_i = None, lat_i = None):
     global lon
@@ -233,8 +247,4 @@ split = 16
 GPS_COORD_MUL = 10000000
 
 overpass_read_chunk_size = 4096
-#overpass_url = "http://overpass-api.de/api/interpreter"
-#overpass_url = "https://lz4.overpass-api.de/api/interpreter"
-#overpass_url = "https://overpass.kumi.systems/api/interpreter"
-overpass_url = "http://192.168.200.2:12346/api/interpreter"
 

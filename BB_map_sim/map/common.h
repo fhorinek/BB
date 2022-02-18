@@ -24,6 +24,7 @@
 
 #define gui_lock_acquire()
 #define gui_lock_release()
+#define FC_ATOMIC_ACCESS
 
 #define GNSS_MUL				10000000l
 
@@ -104,6 +105,8 @@ typedef union
 		} \
 	} while(0);
 
+#define FASSERT(A) ASSERT(A)
+
 typedef struct
 {
     lv_color_t * buffer;
@@ -138,6 +141,22 @@ typedef enum
 } gui_font_size_t;
 
 #define FONT_WITH_TEXTS  FONT_XL
+#define NUMBER_OF_POI     32
+
+typedef struct
+{
+    char * name;
+    uint32_t uid;
+
+    uint8_t x;
+    uint8_t y;
+
+    uint8_t chunk;
+    uint8_t type;
+
+    uint8_t magic;
+    uint8_t _pad[3];
+} map_poi_t;
 
 typedef struct
 {
@@ -160,8 +179,11 @@ typedef struct
 
         map_chunk_t chunks[9];
 
+        map_poi_t poi[NUMBER_OF_POI];
+        uint8_t poi_size;
+
         uint8_t magic;
-        uint8_t _pad[3];
+        uint8_t _pad[1];
 	} map;
 } gui_t;
 

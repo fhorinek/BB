@@ -1,7 +1,12 @@
-#remove unnecesery data fields
-filter-fields fields=name,place
+#INJECT_POINT
+
+#remove points without name
+filter 'this.properties["name"] != undefined'
 
 #tag
 each 'this.properties["type"] = this.properties["place"]'
 filter-fields fields=name,type
+
+#clip excess geometry 
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2%
 

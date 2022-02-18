@@ -113,18 +113,19 @@ typedef struct
 typedef struct
 {
     char * name;
-    int32_t lat;
-    int32_t lon;
-
     uint32_t uid;
+
+    uint8_t x;
+    uint8_t y;
 
     uint8_t chunk;
     uint8_t type;
+
     uint8_t magic;
-    uint8_t _pad[1];
+    uint8_t _pad[3];
 } map_poi_t;
 
-#define NUMBER_OF_POI     32
+#define NUMBER_OF_POI     64
 
 typedef struct
 {
