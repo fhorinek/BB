@@ -432,8 +432,8 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
             UINT br;
             agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
 
-            ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL) - ((tile_pos[i].lat < 0) ? GNSS_MUL : 0);
-            ((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL) - ((tile_pos[i].lon < 0) ? GNSS_MUL : 0);
+            ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL);
+            ((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL);
             ((agl_header_t *)agl_cache)->size = f_size(&agl_data);
 
             INFO("Reading %s (%u)", name, f_size(&agl_data));
