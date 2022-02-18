@@ -37,8 +37,8 @@ overpass_url = "http://192.168.200.2:12346/api/interpreter"
  2. **get_countrie.py** - download list of countries
  3. **get_borders.py** - download shapefiles for borders, convert, merge and simplify for tile generation
  4. **get_tiles.py** - create tile lists for countries
- 5. **build.py [country list]** -create tiles for country *E.g. ./build.py /big_disk/OSM/countries/DE_Germany.list*
+ 5. **build.py [country list]** -create tiles for country *E.g. ./build.py DE_Germany*
  6. **pack.py [country list]** -create zip for map and agl tiles *E.g. ./build.py /big_disk/OSM/countries/DE_Germany.list*
  
- **status.py** - shows tiles done for countries
+ **status.py** - shows tiles done for countries, it will also create zip files when the country is done
 
