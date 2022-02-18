@@ -1,17 +1,27 @@
+# 18.2.2021 - Build 237
+## Fixed maps
+ * Works with negative coordinates
+ * please redownload maps: strato.skybean.eu/map
+ * Better color palette
+ * Widget accesible zoom
+
+## Added:
+ * Vario graph
+
 # 3.2.2021 - Build 236
-##Added
+## Added
  * Map widget - see strato.skybean.eu/map
  * Time to take off widget
  * Altitude graph widget
  
-#Fixes
+# Fixes
  * Page switching bug
  * Prevent update when not connected
  * Ignore empty update
 
 
 # 24.1.2021 - Build 235
-##Added
+## Added
  * new TimeDate widget to display current time and date
  * logging to csv
  
