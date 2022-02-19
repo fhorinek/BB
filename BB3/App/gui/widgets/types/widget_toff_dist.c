@@ -12,7 +12,7 @@
 REGISTER_WIDGET_IU
 (
     DToff,
-    "Distance from take off",
+    "Distance - from TO",
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide) | _b(wf_units_hide),
