@@ -7,6 +7,8 @@
 
 #include "widgets.h"
 
+//I'd keep this order to "track" the evolution of the Widgets
+// --> Last widget on list was added latest
 DECLARE_WIDGET(Vario);
 DECLARE_WIDGET(Avg);
 DECLARE_WIDGET(Bar);
@@ -46,40 +48,40 @@ widget_t * widgets[] =
 {
     // Insert new widget in a meaningful order,
     // as this list is presented to user:
-    LIST_WIDGET(Vario),
-    LIST_WIDGET(Avg),
-    LIST_WIDGET(VarioGraph),
-    LIST_WIDGET(HeightTO),
-    LIST_WIDGET(Glide),
-    LIST_WIDGET(Bar),
-    LIST_WIDGET(Alt1),
-    LIST_WIDGET(Alt2),
-    LIST_WIDGET(AltitudeGraph),
-    LIST_WIDGET(Agl),
-    LIST_WIDGET(FTime),
-    LIST_WIDGET(CompHdg),
-    LIST_WIDGET(CompArrow),
-    LIST_WIDGET(CompPoints),
-    LIST_WIDGET(GSpeed),
-    LIST_WIDGET(GAlt),
-	LIST_WIDGET(GHdg),
-	LIST_WIDGET(GHdgPoints),
-	LIST_WIDGET(GHdgArrow),
+	LIST_WIDGET(GAlt),
+	LIST_WIDGET(AltitudeGraph),
+	LIST_WIDGET(Alt1),
+	LIST_WIDGET(Alt2),
 	LIST_WIDGET(Battery),
-	LIST_WIDGET(Odo),
+	LIST_WIDGET(CompArrow),
+	LIST_WIDGET(CompHdg),
+	LIST_WIDGET(CompPoints),
+	LIST_WIDGET(DToff),
+	LIST_WIDGET(Glide),
 	LIST_WIDGET(Acc),
-    LIST_WIDGET(TTrace),
-    LIST_WIDGET(TAss),
-    LIST_WIDGET(TTime),
-    LIST_WIDGET(TGain),
-    LIST_WIDGET(DToff),
-	LIST_WIDGET(HdgToff),
+	LIST_WIDGET(GHdg),
+	LIST_WIDGET(GHdgArrow),
+	LIST_WIDGET(GHdgPoints),
+	LIST_WIDGET(Agl),
+	LIST_WIDGET(HeightTO),
+	LIST_WIDGET(Map),
+	LIST_WIDGET(Odo),
+	LIST_WIDGET(Gspeed),
+	LIST_WIDGET(TAss),
+	LIST_WIDGET(TGain),
+	LIST_WIDGET(TTime),
+	LIST_WIDGET(TTrace),
+	LIST_WIDGET(FTime),
+	LIST_WIDGET(TimeDate),
 	LIST_WIDGET(TimeToTakeoff),
+	LIST_WIDGET(Avg),
+	LIST_WIDGET(Bar),
+	LIST_WIDGET(Vario),
+	LIST_WIDGET(VarioGraph),
 	LIST_WIDGET(WindDir),
-    LIST_WIDGET(WindSpd),
-    LIST_WIDGET(WindDirPoints),
-    LIST_WIDGET(TimeDate),
-    LIST_WIDGET(Map),
+	LIST_WIDGET(WindDirPoints),
+	LIST_WIDGET(WindSpd),
+	
 };
 
 
