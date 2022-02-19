@@ -12,7 +12,7 @@
 
 
 REGISTER_WIDGET_IU(Bar,
-    "Vario bar",
+    "Vario - bar",
     16,
     80,
 	0,
