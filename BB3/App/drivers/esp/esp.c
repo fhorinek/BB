@@ -55,6 +55,7 @@ void esp_state_reset()
     fc.esp.wifi_list_cb = NULL;
     fc.esp.tone_next_tx = HAL_GetTick() + 4000;
     fc.esp.last_ping = HAL_GetTick() + 5000;
+    fc.esp.last_ping_req = 0;
 
     memset(fc.esp.mac_ap, 0, 6);
     memset(fc.esp.mac_sta, 0, 6);
@@ -89,6 +90,8 @@ void esp_init()
     HAL_UART_Receive_DMA(esp_uart, esp_rx_buffer, ESP_DMA_BUFFER_SIZE);
 
     esp_read_index = ESP_DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(esp_uart->hdmarx);
+
+    protocol_init();
 
     esp_scan_init();
     download_slot_init();
@@ -212,8 +215,10 @@ void esp_step()
 
         if (config_get_bool(&config.debug.esp_wdt))
         {
-			if (fc.esp.last_ping + 200 < HAL_GetTick())
+			if (fc.esp.last_ping + 200 < HAL_GetTick()
+			        && HAL_GetTick() - fc.esp.last_ping_req > 100)
 			{
+			    fc.esp.last_ping_req = HAL_GetTick();
 				protocol_send(PROTO_PING, NULL, 0);
 			}
 
