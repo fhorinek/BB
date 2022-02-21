@@ -26,7 +26,7 @@ void su_xmit(safe_uart_t * su, uint8_t * data, uint32_t len)
     DBG("su_xmit");
     DUMP(data, len);
     HAL_UART_Transmit_DMA(su->uart, data, len);
-    su->last_data = NULL;
+    su->last_data = data;
 }
 
 void su_write(safe_uart_t * su, uint8_t * data, uint32_t len, bool urgent)
