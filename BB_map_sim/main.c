@@ -51,12 +51,12 @@ lv_indev_t *kb_indev;
 #include "tile.h"
 
 //Fiji
-int32_t map_lon = 1800000000;
-int32_t map_lat = -167759454;
+//int32_t map_lon = 1800000000;
+//int32_t map_lat = -167759454;
 
 //Bratislava
-//int32_t map_lon = 170087420;
-//int32_t map_lat = 482252517;
+int32_t map_lon = 170087420;
+int32_t map_lat = 482252517;
 
 //DC
 //int32_t map_lon = -770372000;

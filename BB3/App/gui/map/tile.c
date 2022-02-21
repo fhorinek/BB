@@ -923,14 +923,12 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
             if (!(x < 0 || x >= MAP_W || y < 0 || y >= MAP_H))
             {
-
                 map_poi_t poi;
 
                 poi.chunk = chunk_index;
                 poi.magic = poi_magic;
                 poi.type = type;
                 poi.uid = actual->feature_addr;
-
 
                 poi.x = x;
                 poi.y = y;
@@ -945,6 +943,8 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
         if (type / 100 == 1) //lines
         {
             bool skip = false;
+
+            line_draw.opa = LV_OPA_COVER;
 
             switch (type)
             {
@@ -961,7 +961,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             //road
             case(120):
                 line_draw.width = 2;
-                line_draw.color = lv_color_make(225, 5, 35);
+                line_draw.color = lv_color_make(225, 170, 0);
                 break;
             case(121):
                 line_draw.width = 2;
