@@ -79,11 +79,13 @@ static void uart_event_task(void *pvParameters)
                     ERR("hw fifo overflow");
                     uart_flush_input(UART_PORT);
                     xQueueReset(uart_queue);
+                    stream_reset(&uart_stream);
                 break;
                 case UART_BUFFER_FULL:
                     ERR("ring buffer full");
                     uart_flush_input(UART_PORT);
                     xQueueReset(uart_queue);
+                    stream_reset(&uart_stream);
                 break;
                 case UART_BREAK:
                     ERR("uart rx break");
@@ -127,5 +129,5 @@ void uart_init()
 
     xTaskCreate(uart_event_task, "uart_event_task", 1024 * 3, NULL, 16, NULL);
 
-    //esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
+    esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
 }

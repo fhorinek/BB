@@ -13,6 +13,8 @@
 #include "download/slot.h"
 #include "fc/fc.h"
 
+#include "drivers/safe_uart.h"
+
 
 void esp_send_ping();
 
@@ -42,5 +44,7 @@ void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch);
 
 uint8_t esp_http_get(char * path, uint8_t slot_type, download_slot_cb_t cb);
 void esp_http_stop(uint8_t data_id);
+
+extern safe_uart_t protocol_tx;
 
 #endif /* DRIVERS_ESP_PROTOCOL_H_ */
