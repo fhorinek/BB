@@ -52,27 +52,8 @@ osThreadId_t * thread_list[] =
 };
 uint8_t thread_cnt = sizeof(thread_list) / sizeof(osThreadId_t *);
 
-//RTOS Queue
-osMessageQueueId_t garbage_queue;
-#define GARBAGE_QUEUE_LEN   16
-
 bool system_power_off = false;
 bool start_power_off = false;
-
-void system_free(void * ptr)
-{
-    if (IS_IRQ_MODE())
-    {
-        xQueueSendToBackFromISR(garbage_queue, &ptr, NULL);
-    }
-    else
-    {
-        if (ptr > PSRAM_ADDR)
-            ps_free(ptr);
-        else
-            free(ptr);
-    }
-}
 
 void system_poweroff()
 {
@@ -239,8 +220,6 @@ void thread_system_start(void *argument)
     GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
     GpioWrite(VCC_MAIN_EN, HIGH);
 
-    garbage_queue = xQueueCreate(GARBAGE_QUEUE_LEN, sizeof(void *));
-
     //start debug thread
     start_thread(thread_debug);
 
@@ -294,18 +273,6 @@ void thread_system_start(void *argument)
 	for(;;)
 	{
 		osDelay(10);
-
-		void * to_free;
-		while (xQueueReceive(garbage_queue, &to_free, 0) != errQUEUE_EMPTY)
-		{
-		    DBG("GQ freeing: 0x%08X", to_free);
-
-		    if (to_free > (void *)PSRAM_ADDR)
-	            ps_free(to_free);
-	        else
-	            free(to_free);
-		}
-
 
 		bool gauge_updated = pwr_step();
 
