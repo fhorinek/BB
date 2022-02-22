@@ -129,8 +129,9 @@ void page_focus_widget(lv_obj_t * obj)
 
 void gui_page_set_next(cfg_entry_t * cfg)
 {
-	 gui.next_page = cfg;
-	 gui.change_page = true;
+	 if(xQueueSend(gui.queue, &(cfg), 0) != pdPASS) {
+		 WARN("Cannot switch page due to gui.queue full");
+	 }
 }
 
 void gui_page_set_mode(cfg_entry_t * cfg)
@@ -820,10 +821,12 @@ static void pages_loop()
 
 	widgets_update(local->page);
 
-	if (gui.change_page) {
-		gui_page_set_mode(gui.next_page);
-		gui.change_page = false;
-	}
+	void * next_page;
+
+	if(xQueueReceive(gui.queue, &(next_page), 0) == pdPASS )
+    {
+		gui_page_set_mode(next_page);
+    }
 }
 
 static void pages_stop()
