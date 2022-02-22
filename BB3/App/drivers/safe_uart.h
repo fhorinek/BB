@@ -12,9 +12,10 @@
 
 typedef struct
 {
-    QueueHandle_t queue;
     uint8_t * last_data;
     UART_HandleTypeDef * uart;
+    QueueHandle_t queue;
+    osSemaphoreId_t lock;
 } safe_uart_t;
 
 typedef struct
