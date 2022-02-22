@@ -205,7 +205,7 @@ void fc_takeoff()
     fanet_set_mode();
     logger_start();
 
-    gui_page_set_mode(&profile.ui.autoset.take_off);
+    gui_page_set_next(&profile.ui.autoset.take_off);
 }
 
 void fc_landing()
@@ -219,7 +219,7 @@ void fc_landing()
     fanet_set_mode();
     logger_stop();
 
-    gui_page_set_mode(&profile.ui.autoset.land);
+    gui_page_set_next(&profile.ui.autoset.land);
 }
 
 //run via timer every 250ms
