@@ -9,25 +9,21 @@
 #define DRIVERS_SAFE_UART_H_
 
 #include "common.h"
+#include "rb.h"
 
 typedef struct
 {
-    uint8_t * last_data;
     UART_HandleTypeDef * uart;
-    QueueHandle_t queue;
+    rb_handle_t rb;
     osSemaphoreId_t lock;
+    uint8_t * dma_buf;
+    uint32_t dma_size;
 } safe_uart_t;
 
-typedef struct
-{
-    uint8_t * data;
-    uint32_t len;
-} safe_uart_item_t;
-
-void su_init(safe_uart_t * su, UART_HandleTypeDef * uart, uint16_t queue_len);
+void su_init(safe_uart_t * su, UART_HandleTypeDef * uart, uint32_t buffer_len, uint32_t dma_len);
 void su_clear(safe_uart_t * su);
 
-void su_write(safe_uart_t * su, uint8_t * data, uint32_t len, bool urgent);
+void su_write(safe_uart_t * su, uint8_t * data, uint32_t len);
 void su_tx_done(safe_uart_t * su);
 
 #endif /* DRIVERS_SAFE_UART_H_ */

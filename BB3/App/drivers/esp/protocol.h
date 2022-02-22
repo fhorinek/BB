@@ -13,7 +13,7 @@
 #include "download/slot.h"
 #include "fc/fc.h"
 
-#include "drivers/safe_uart.h"
+#include "etc/safe_uart.h"
 
 
 void esp_send_ping();

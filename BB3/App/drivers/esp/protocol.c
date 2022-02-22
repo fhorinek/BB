@@ -19,7 +19,7 @@
 #include "gui/dbg_overlay.h"
 #include "gui/tasks/menu/bluetooth.h"
 
-#include "drivers/safe_uart.h"
+#include "etc/safe_uart.h"
 
 #include "fc/fc.h"
 
@@ -193,7 +193,7 @@ void esp_http_stop(uint8_t data_id)
 
 void protocol_init()
 {
-    su_init(&protocol_tx, esp_uart, 16);
+    su_init(&protocol_tx, esp_uart, 1024, 128);
 }
 
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
@@ -205,7 +205,7 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 
     stream_packet(type, buf_out, data, data_len);
 
-    su_write(&protocol_tx, buf_out, sizeof(buf_out), false);
+    su_write(&protocol_tx, buf_out, sizeof(buf_out));
 }
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
@@ -214,7 +214,6 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 //        DBG("protocol_handle %u", type);
 
 	fc.esp.last_ping = HAL_GetTick();
-	fc.esp.last_ping_req = 0;
 
     switch(type)
     {
