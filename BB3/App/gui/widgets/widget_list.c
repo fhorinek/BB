@@ -65,7 +65,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(HeightTO),
 	LIST_WIDGET(Map),
 	LIST_WIDGET(Odo),
-	LIST_WIDGET(Gspeed),
+	LIST_WIDGET(GSpeed),
 	LIST_WIDGET(TAss),
 	LIST_WIDGET(TGain),
 	LIST_WIDGET(TTime),
