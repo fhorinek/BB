@@ -34,6 +34,8 @@ bootloader_res_t bootloader_update(char * path)
 	f = (FIL *)malloc(sizeof(FIL));
 	UINT br;
 
+	//TODO: check batery voltage before
+
 	INFO("Checking the bootloader file %s", path);
 
 	if (file_exists(path))
@@ -72,7 +74,7 @@ bootloader_res_t bootloader_update(char * path)
         //reset crc unit
         __HAL_CRC_DR_RESET(&hcrc);
         uint32_t pos = 0;
-        uint32_t crc;
+        uint32_t crc = 0;
 
 		#define WORK_BUFFER_SIZE    (1024 * 16)
         uint8_t * buff = ps_malloc(WORK_BUFFER_SIZE);

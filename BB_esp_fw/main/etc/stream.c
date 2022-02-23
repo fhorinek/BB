@@ -15,6 +15,11 @@ void stream_init(stream_t * stream, uint8_t * buffer, uint16_t buffer_size)
     stream->state = stream_idle;
 }
 
+void stream_reset(stream_t * stream)
+{
+    stream->state = stream_idle;
+}
+
 void stream_packet(uint8_t type, uint8_t * out, uint8_t * in, uint16_t in_size)
 {
     uint16_t lenght = in_size + STREAM_OVERHEAD;

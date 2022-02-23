@@ -39,6 +39,7 @@ typedef struct
 
 
 void stream_init(stream_t * stream, uint8_t * buffer, uint16_t buffer_size);
+void stream_reset(stream_t * stream);
 void stream_packet(uint8_t type, uint8_t * out, uint8_t * in, uint16_t in_size);
 bool stream_parse(stream_t *stream, uint8_t data);
 
