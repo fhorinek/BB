@@ -13,7 +13,7 @@
 REGISTER_WIDGET_ISU
 (
     VarioGraph,
-    "Vario Graph",
+    "Vario - graph",
     WIDGET_MIN_W,
     WIDGET_MIN_H,
         _b(wf_label_hide) | _b(wf_hide_icon),
