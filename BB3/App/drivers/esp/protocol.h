@@ -22,6 +22,7 @@ void esp_send_ping();
 void esp_sound_start(uint8_t id, uint8_t type, uint32_t size);
 void esp_sound_stop();
 
+void protocol_init();
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len);
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len);
 

@@ -226,7 +226,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             data[len] = 0;
 
             char buff[len + 4];
-            sprintf(buff, "\t\t\t%s", data + 1);
+            sprintf(buff, "\t%s", data + 1);
 
             debug_send(level, (char *)buff);
         }
