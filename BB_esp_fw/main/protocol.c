@@ -24,6 +24,29 @@
 
 static bool protocol_enable_processing = false;
 
+TimerHandle_t stm_wtd = 0;
+int64_t protocol_last_packet = 5000l * 1000l;
+
+void stm_wtd_cb(TimerHandle_t xTimer)
+{
+	if (protocol_last_packet + (1000l * 1000l) < esp_timer_get_time())
+	{
+		ERR("No data from STM");
+		esp_restart();
+	}
+}
+
+void stm_wdt_start()
+{
+	if (stm_wtd == 0)
+	{
+		INFO("STM WDT Enabled");
+		stm_wtd = xTimerCreate("stm_wtd", 200, true, 0, stm_wtd_cb);
+		xTimerStart(stm_wtd, WAIT_INF);
+	}
+}
+
+
 void protocol_enable()
 {
 	protocol_enable_processing = true;
@@ -118,12 +141,15 @@ void protocol_task_info(void * param)
     vTaskDelete(NULL);
 }
 
+
+
 #define PROTOCOL_SUBPROCESS_PRIORITY	11
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
     int64_t start = esp_timer_get_time();
-    
+    protocol_last_packet = esp_timer_get_time();
+
     if (!protocol_enable_processing)
     {
     	return;
@@ -132,6 +158,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 	switch (type)
     {
         case (PROTO_PING):
+			stm_wdt_start();
             protocol_send(PROTO_PONG, NULL, 0);
         break;
 

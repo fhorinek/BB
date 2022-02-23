@@ -10,11 +10,13 @@
 
 #include "common.h"
 
+
 #include "drivers/sensors/mems_i2c.h"
 #include "drivers/power/system_i2c.h"
 #include "drivers/tft/tft.h"
 #include "drivers/power/led.h"
 #include "drivers/esp/esp.h"
+#include "drivers/esp/protocol.h"
 #include "drivers/gnss/gnss_thread.h"
 #include "drivers/gnss/gnss_ublox_m8.h"
 #include "drivers/gnss/fanet.h"
@@ -60,6 +62,11 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     if (huart == fanet_uart)
     {
         fanet_tx_done();
+    }
+
+    if (huart == esp_uart)
+    {
+        su_tx_done(&protocol_tx);
     }
 }
 
@@ -204,3 +211,4 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     spi_dma_done_cb();
 }
+

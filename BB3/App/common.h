@@ -165,8 +165,6 @@ extern const osThreadAttr_t thread_mems_attr;
 extern osThreadId_t SystemHandle;
 #define thread_system   (osThreadId_t)SystemHandle
 
-//RTOS Queue
-
 //RTOS semaphores
 
 //RTOS defs
@@ -263,6 +261,7 @@ bool read_value(char * data, char * key, char * value, uint16_t value_len);
 float table_sin(uint16_t angle);
 float table_cos(uint16_t angle);
 
+void system_free(void * ptr);
 void system_poweroff();
 void system_reboot();
 void system_reboot_bl();
@@ -270,6 +269,8 @@ void system_reboot_bl();
 uint8_t nmea_checksum(char *s);
 
 void str_join(char * dst, uint8_t cnt, ...);
+
+#define IS_IRQ_MODE()             (__get_IPSR() != 0U)
 
 #define simple_memcpy(dst, src, len) \
 do { \
