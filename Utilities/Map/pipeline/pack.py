@@ -5,7 +5,7 @@ import os
 import common
 
 
-path = sys.argv[1]
+path = os.path.join(common.target_dir_countries, sys.argv[1] + ".list")
 files = open(path, "r").read().split("\n")
 name = os.path.basename(path.split(".")[0])
 dst_map = os.path.join(common.target_dir_step5, name + "_map.zip")
@@ -18,9 +18,14 @@ for f in files:
 
     tile = os.path.join(common.target_dir_step4, f + ".MAP")
     if os.path.exists(tile):
-        os.system("zip -g -j '%s' '%s'" % (dst_map, tile))
+        ret = os.system("zip -g -j '%s' '%s'" % (dst_map, tile))
+        if ret != 0:
+            sys.exit(ret)
         
-        tile = os.path.join(common.hgt_path, f + ".HGT")
-        os.system("zip -g -j '%s' '%s'" % (dst_agl, tile))
+    tile = os.path.join(common.hgt_path, f + ".HGT")
+    if os.path.exists(tile):
+        ret = os.system("zip -g -j '%s' '%s'" % (dst_agl, tile))
+        if ret != 0:
+            sys.exit(ret)
     
 

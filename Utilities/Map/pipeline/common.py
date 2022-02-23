@@ -200,7 +200,7 @@ def invalidate_step(step, layer = None):
 
 #paths
 storage_path = "/media/horinek/topo_data/OSM/"
-hgt_path = "/media/horinek/topo_data/HGT3/hgt/"
+hgt_path = "/media/horinek/topo_data/HGT13/data/"
 overpass_url = "http://192.168.200.2:12346/api/interpreter"
 
 

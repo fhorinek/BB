@@ -55,16 +55,20 @@ lv_indev_t *kb_indev;
 //int32_t map_lat = -167759454;
 
 //Bratislava
-//int32_t map_lon = 170087420;
-//int32_t map_lat = 482252517;
+int32_t map_lon = 170087420;
+int32_t map_lat = 482252517;
 
 //DC
 //int32_t map_lon = -770372000;
 //int32_t map_lat = 388936000;
 
 //Castilho
-int32_t map_lon = -516151019;
-int32_t map_lat = -206570528;
+//int32_t map_lon = -516151019;
+//int32_t map_lat = -206570528;
+
+//Castilho
+//int32_t map_lon = -00000000;
+//int32_t map_lat = 530000000;
 
 
 int16_t map_zoom = 32;

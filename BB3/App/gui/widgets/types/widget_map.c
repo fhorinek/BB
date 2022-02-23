@@ -143,6 +143,11 @@ static void Map_update(widget_slot_t * slot)
 
         for (uint8_t i = 0; i < 9; i++)
         {
+            if (!gui.map.chunks[i].ready)
+            {
+                continue;
+            }
+
             if (local->master_tile == 0xFF)
             {
                 local->master_tile = i;

@@ -89,7 +89,7 @@ typedef struct
 #define MAP_SHADE_MAG   100
 //#define MAP_SHADE_MAG   0
 
-#define BLUR_SIZE	3
+#define BLUR_SIZE	5
 
 void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc);
 
@@ -432,8 +432,9 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
             UINT br;
             agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
 
-            ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL) - ((tile_pos[i].lat < 0) ? GNSS_MUL : 0);
-            ((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL) - ((tile_pos[i].lon < 0) ? GNSS_MUL : 0);
+            ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL);
+			((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL);
+
             ((agl_header_t *)agl_cache)->size = f_size(&agl_data);
 
             INFO("Reading %s (%u)", name, f_size(&agl_data));
@@ -936,6 +937,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 		if (type / 100 == 1) //lines
 		{
 			bool skip = false;
+			line_draw.opa = LV_OPA_COVER;
 
 			switch (type)
 			{
@@ -952,7 +954,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 			//road
 			case(120):
 				line_draw.width = 2;
-				line_draw.color = lv_color_make(225, 5, 35);
+				line_draw.color = lv_color_make(225, 170, 0);
 				break;
 			case(121):
 				line_draw.width = 2;

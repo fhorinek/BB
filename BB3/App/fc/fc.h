@@ -326,6 +326,7 @@ typedef struct
         fc_device_status_t server_status;
 
         uint32_t last_ping;
+        uint32_t last_ping_req;
 	} esp;
 
 	struct

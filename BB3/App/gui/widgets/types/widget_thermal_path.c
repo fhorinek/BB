@@ -17,7 +17,7 @@
 REGISTER_WIDGET_IU
 (
     TTrace,
-    "Thermal trace",
+    "Thermal - trace",
     120,
     120,
 	_b(wf_label_hide),
@@ -63,7 +63,7 @@ static void TTrace_update(widget_slot_t * slot)
     	int32_t curr_lon = fc.gnss.longtitude;
 
     	int16_t x, y;
-    	uint8_t zoom = (fc.flight.circling ? 0 : 1);
+    	uint8_t zoom = (fc.flight.circling ? 1 : 2);
 
     	int16_t i = THERMAL_HISTORY_STEP * 2; // skip last 2 history positions
 		int16_t t = THERMAL_DOTS_POSITIONS;

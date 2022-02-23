@@ -37,8 +37,16 @@ for c in countries:
     dst = os.path.join(common.target_dir_step5, dst_name)
     zip_exist = os.path.exists(dst)
 
-    if len(done) == len(tiles) and not zip_exist:
-        os.system("./pack.py '%s'" % path)
+    dst_name = name + "_agl.zip"
+    dst = os.path.join(common.target_dir_step5, dst_name)
+    agl_exist = os.path.exists(dst)            
+
+
+    if len(done) == len(tiles) and (not zip_exist or not agl_exist):
+        ret = os.system("./pack.py '%s'" % c.split(".")[0])
+        if ret != 0:
+            sys.exit(ret)
+
             
     dst_name = name + "_map.zip"
     dst = os.path.join(common.target_dir_step5, dst_name)

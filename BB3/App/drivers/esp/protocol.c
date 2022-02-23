@@ -19,11 +19,15 @@
 #include "gui/dbg_overlay.h"
 #include "gui/tasks/menu/bluetooth.h"
 
+#include "etc/safe_uart.h"
+
 #include "fc/fc.h"
 
 #include "file.h"
 
 static bool spi_prepare_in_progress = false;
+
+safe_uart_t protocol_tx;
 
 void esp_send_ping()
 {
@@ -186,18 +190,22 @@ void esp_http_stop(uint8_t data_id)
     protocol_send(PROTO_DOWNLOAD_STOP, (void *) &data, sizeof(data));
 }
 
+
+void protocol_init()
+{
+    su_init(&protocol_tx, esp_uart, 1024, 128);
+}
+
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 {
-	if (fc.esp.mode == esp_off)
+	if (fc.esp.mode == esp_off || fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual)
 		return;
 
     uint8_t buf_out[data_len + STREAM_OVERHEAD];
 
     stream_packet(type, buf_out, data, data_len);
 
-    //TODO: DMA || IRQ?
-    uint8_t res = HAL_UART_Transmit(esp_uart, buf_out, sizeof(buf_out), 100);
-    ASSERT(res == HAL_OK);
+    su_write(&protocol_tx, buf_out, sizeof(buf_out));
 }
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
@@ -218,7 +226,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             data[len] = 0;
 
             char buff[len + 4];
-            sprintf(buff, "\t\t\t%s", data + 1);
+            sprintf(buff, "\t%s", data + 1);
 
             debug_send(level, (char *)buff);
         }

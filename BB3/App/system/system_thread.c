@@ -52,9 +52,6 @@ osThreadId_t * thread_list[] =
 };
 uint8_t thread_cnt = sizeof(thread_list) / sizeof(osThreadId_t *);
 
-//RTOS Queue
-osMessageQueueId_t queue_Debug;
-
 bool system_power_off = false;
 bool start_power_off = false;
 
