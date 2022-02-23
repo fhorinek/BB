@@ -117,7 +117,5 @@ void app_main(void)
     INFO("boot done %lu", esp_timer_get_time() / 1000);
 
     print_free_memory("INIT DONE");
-
-	vTaskDelete(NULL);
 }
 

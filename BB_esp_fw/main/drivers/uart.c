@@ -19,7 +19,7 @@
 #define UART_RX_PIN		GPIO_NUM_3
 
 #define UART_RX_BUFF	1024
-#define UART_TX_BUFF	512
+#define UART_TX_BUFF	1024
 
 #define STREAM_RX_BUFFER_SIZE	256
 static stream_t uart_stream;
@@ -29,22 +29,35 @@ void uart_send(uint8_t *data, uint16_t len)
     uart_write_bytes(UART_PORT, (char *)data, len);
 }
 
-int uart_elog_vprintf(const char *format, ...)
+int uart_elog_vprintf(const char *format, va_list args)
 {
-    va_list arp;
-    uint8_t msg_buff[2048];
+    static uint8_t msg_buff[256];
     uint16_t length;
 
-    msg_buff[0] = 0xFF;
+    length = vsnprintf((char*) msg_buff + 1, sizeof(msg_buff) - 1, format, args);
 
-    va_start(arp, format);
-    length = vsnprintf((char*) msg_buff + 1, sizeof(msg_buff) - 1, format, arp);
-    va_end(arp);
+    uint8_t type = PROTO_NA;
 
-    //omit ending \n
-    protocol_send(PROTO_DEBUG, msg_buff, length);
+    switch (msg_buff[1])
+    {
+		case ('D'): type = DBG_DEBUG; break;
+		case ('I'): type = DBG_INFO; break;
+		case ('W'): type = DBG_WARN; break;
+		case ('E'): type = DBG_ERROR; break;
+    }
 
-    return 0;
+    if (type == PROTO_NA || length < 2)
+    {
+    	msg_buff[0] = type;
+    	protocol_send(PROTO_DEBUG, msg_buff, length);
+    }
+    else
+    {
+    	msg_buff[2] = type;
+    	protocol_send(PROTO_DEBUG, msg_buff + 2, length - 2);
+    }
+
+    return length;
 }
 
 static QueueHandle_t uart_queue;
@@ -109,6 +122,7 @@ static void uart_event_task(void *pvParameters)
     vTaskDelete(NULL);
 }
 
+
 void uart_init()
 {
 	uint8_t * stream_rx_buffer = ps_malloc(STREAM_RX_BUFFER_SIZE);
@@ -127,7 +141,8 @@ void uart_init()
     uart_param_config(UART_PORT, &uart_config);
     uart_set_pin(UART_PORT, UART_TX_PIN, UART_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 
+    esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
+
     xTaskCreate(uart_event_task, "uart_event_task", 1024 * 3, NULL, 16, NULL);
 
-    esp_log_set_vprintf((vprintf_like_t)uart_elog_vprintf);
 }
