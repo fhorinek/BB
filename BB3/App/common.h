@@ -202,6 +202,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_BL_FW_MANUAL   "bootloader.fw"
 #define PATH_FANET_FW       PATH_ASSET_DIR "/fanet.xlb"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
+#define PATH_TTS_DIR        PATH_ASSET_DIR "/tts/en"
 
 #define PATH_TOPO_DIR       "agl"
 #define PATH_MAP_DIR        "map"
