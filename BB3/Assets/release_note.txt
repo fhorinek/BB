@@ -1,14 +1,16 @@
-Fixed maps:
-please redownload maps
-strato.skybean.eu/map
-
-Better color palette
-Widget accesible zoom
+Under the hood maintanace
 
 Added:
-Vario graph
+* New FW notification
+* Scrollable release note
 
+Changed:
+* Widget categorization
+* Main roads are now yellow
 
-Known Issues:
-PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT
+Development:
+* Page switching via queue
+* ESP communication is done via DMA
+* ESP side watchdog
+* New memory locking system
 

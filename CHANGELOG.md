@@ -1,3 +1,21 @@
+# 18.2.2021 - Build 240
+Under the hood maintanace
+
+##Added
+ * New FW notification
+ * Scrollable release note
+
+##Changed
+ * Widget categorization for better orientation
+ * Main roads are now yellow to distinguish them from powerlines
+
+##Development
+ * Page switching thread-safe via queue 
+ * ESP communication is done via thread-safe cirular buffer transfered via DMA
+ * ESP side watchdog will reset ESP if there is no ping in 1000ms
+ * New memory locking system will prevent unsafe access during allocation
+
+
 # 18.2.2021 - Build 238
 ## Fixed maps
  * Fix zero lat/lon bug
