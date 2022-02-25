@@ -51,7 +51,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       2
+#define CACHE_VERSION       3
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
