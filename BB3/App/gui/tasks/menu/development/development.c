@@ -48,32 +48,12 @@ void dev_get_file_cb(uint8_t res, download_slot_t * ds)
 
 }
 
-static void test_bar(void * param)
-{
-    lv_obj_t * status_bar = (lv_obj_t *)param;
-
-    uint8_t status_bar_value = 0;
-
-    while (1)
-    {
-        statusbar_msg_update_progress(status_bar, (status_bar_value++ * 100) / 255);
-    }
-}
-
 void development_trigger()
 {
     INFO("Development fake trigger");
     INFO("-----------------------------------------------------");
 
-//    ublox_init();
-
-//    sound_start("/data/test.wav");
-
-//    local->slot = esp_http_get("https://strato.skybean.eu/update/devel/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
-//    local->slot = esp_http_get("http://192.168.10.32/n48e017.hgt", DOWNLOAD_SLOT_TYPE_FILE, dev_get_file_cb);
-
-    lv_obj_t * status_bar = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, "Testing");
-    xTaskCreate((TaskFunction_t)test_bar, "test_bar", 1024 * 2, status_bar, 24, NULL);
+    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
 }
 
 static void development_loop()

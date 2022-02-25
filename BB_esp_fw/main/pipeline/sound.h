@@ -19,6 +19,4 @@ void pipe_sound_write(uint8_t id, uint8_t * buf, uint16_t len);
 void pipe_sound_reset();
 void pipe_sound_stop();
 
-void pipe_sound_loop();
-
 #endif /* MAIN_PIPELINE_SOUND_H_ */
