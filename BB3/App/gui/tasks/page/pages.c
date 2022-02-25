@@ -783,6 +783,7 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 
 static void pages_loop()
 {
+
 	if (local->state == MENU_SHOW && local->timer < HAL_GetTick())
 	{
 		pages_menu_hide();
@@ -819,10 +820,12 @@ static void pages_loop()
 		local->state = MENU_IDLE;
 	}
 
-	widgets_update(local->page);
+    if (!(local->state == SPLASH_IN || local->state == SPLASH_OUT))
+    {
+        widgets_update(local->page);
+    }
 
 	void * next_page;
-
 	if(xQueueReceive(gui.queue, &(next_page), 0) == pdPASS )
     {
 		gui_page_set_mode(next_page);

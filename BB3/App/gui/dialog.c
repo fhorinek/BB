@@ -47,6 +47,7 @@ void dialog_stop(dialog_result_t res, void * data)
 {
     gui.dialog.active = false;
     //restore groups
+    lv_group_set_editing(gui.dialog.group, false);
     lv_indev_reset(gui.input.indev, NULL);
     lv_indev_wait_release(gui.input.indev);
     lv_indev_set_group(gui.input.indev, gui.input.group);
@@ -78,8 +79,28 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
             dialog_stop(dialog_res_yes, dialog_opt_data);
     }
 
-    if (gui.dialog.type == dialog_confirm || gui.dialog.type == dialog_release_note)
+    if (gui.dialog.type == dialog_confirm)
     {
+        if (key == LV_KEY_ESC || key == LV_KEY_ENTER)
+            dialog_stop(dialog_res_none, dialog_opt_data);
+    }
+
+    if (gui.dialog.type == dialog_release_note)
+    {
+        int16_t scroll = 0;
+        if (key == LV_KEY_LEFT)
+            scroll = +1;
+        if (key == LV_KEY_RIGHT)
+            scroll = -1;
+
+        if (scroll != 0)
+        {
+            lv_obj_t * c = lv_obj_get_child(gui.dialog.window, NULL);
+            c = lv_obj_get_child(gui.dialog.window, c);
+            lv_obj_t * s = lv_obj_get_child(c, NULL);
+            lv_page_scroll_ver(s, scroll * 16);
+        }
+
         if (key == LV_KEY_ESC || key == LV_KEY_ENTER)
             dialog_stop(dialog_res_none, dialog_opt_data);
     }
@@ -218,10 +239,11 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
     gui.dialog.window = lv_obj_create(lv_layer_sys(), NULL);
     lv_obj_set_pos(gui.dialog.window, 0, 0);
     lv_obj_set_size(gui.dialog.window, LV_HOR_RES, LV_VER_RES);
-    lv_obj_set_style_local_bg_color(gui.dialog.window, LV_OBJ_PART_MAIN, LV_STATE_FOCUSED, LV_COLOR_BLACK);
+    lv_obj_set_style_local_bg_color(gui.dialog.window, LV_OBJ_PART_MAIN, LV_STATE_EDITED, LV_COLOR_BLACK);
 
     lv_group_add_obj(gui.dialog.group, gui.dialog.window);
     lv_obj_set_event_cb(gui.dialog.window, dialog_event_cb);
+    lv_group_set_editing(gui.dialog.group, true);
 
     lv_anim_t a;
     lv_anim_init(&a);
@@ -284,9 +306,24 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
 
         case (dialog_release_note):
         {
+            lv_obj_t * yes = lv_label_create(gui.dialog.window, NULL);
+            lv_obj_set_style_local_text_font(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+            lv_obj_set_style_local_text_color(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+            lv_obj_set_style_local_pad_all(yes, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 5);
+            lv_label_set_text(yes, LV_SYMBOL_OK);
+            lv_obj_align(yes, gui.dialog.window, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+
+            lv_obj_t * win = lv_page_create(cont, NULL);
+            lv_obj_set_style_local_bg_opa(win, LV_PAGE_PART_BG, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+            lv_obj_set_style_local_bg_opa(win, LV_PAGE_PART_SCROLLABLE, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+            lv_obj_set_size(win, LV_HOR_RES, (LV_VER_RES * 5) / 7);
+            lv_page_set_scrl_layout(win, LV_LAYOUT_PRETTY_MID);
+            lv_page_set_anim_time(win, 0);
+
+            lv_obj_set_parent(text_label, win);
         	lv_label_set_align(text_label, LV_LABEL_ALIGN_LEFT);
+
             lv_obj_set_width(title_label, LV_HOR_RES);
-            lv_obj_set_width(text_label, (LV_HOR_RES * 5) / 6);
         }
         break;
 

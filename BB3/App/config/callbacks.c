@@ -158,10 +158,16 @@ static void dbg_usb_cb(cfg_entry_t * entry)
 	INFO("USB debug is now %sabled", val ? "en" : "dis");
 }
 
+static void updates_cb(cfg_entry_t * entry)
+{
+    if (!config_get_bool(entry))
+        statusbar_set_icon(BAR_ICON_FW, I_HIDE);
+}
 
 cfg_callback_pair_t config_callbacks[] =
 {
     {&config.device_name, dev_name_cb},
+    {&config.system.check_for_updates, updates_cb},
 	{&profile.audio.master_volume, bt_volume_cb},
 	{&profile.audio.a2dp_volume, bt_volume_cb},
 	{&profile.audio.vario_volume, bt_volume_cb},

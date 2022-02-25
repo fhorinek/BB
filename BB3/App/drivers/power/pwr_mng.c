@@ -23,6 +23,10 @@ void pwr_init()
 
 bool pwr_step()
 {
+    bq25895_step();
+    bool gauge_step = max17260_step();
+    opt3004_step();
+
 	if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH)
 	{
 	    if (pwr.data_port == PWR_DATA_NONE)
@@ -42,11 +46,11 @@ bool pwr_step()
         	{
         		pwr.data_port = PWR_DATA_CHARGE;
 
-				if (pwr.fuel_gauge.bat_current < 0)
+				if (pwr.fuel_gauge.bat_current < 0 && gauge_step)
 				{
 					INFO("Resetting ALT charger");
 					GpioWrite(ALT_CH_EN, HIGH);
-					HAL_Delay(10);
+					osDelay(10);
 					GpioWrite(ALT_CH_EN, LOW);
 				}
         	}
@@ -79,10 +83,6 @@ bool pwr_step()
         GpioWrite(ALT_CH_EN, HIGH);
 	}
 
-	bq25895_step();
-	bool ret = max17260_step();
-	opt3004_step();
-
 	if (pwr.charger.charge_port > PWR_CHARGE_NONE)
 	{
 		GpioWrite(ALT_CH_EN, HIGH);
@@ -92,6 +92,6 @@ bool pwr_step()
 		GpioWrite(ALT_CH_EN, LOW);
 	}
 
-	return ret;
+	return gauge_step;
 }
 
