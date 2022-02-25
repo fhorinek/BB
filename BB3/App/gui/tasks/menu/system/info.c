@@ -101,7 +101,7 @@ void info_update_question_cb(uint8_t res, void * data)
     }
 }
 
-void info_update_get_info_cb(uint8_t res, download_slot_t * ds)
+void info_update_info_cb(uint8_t res, download_slot_t * ds)
 {
 	if (res == DOWNLOAD_SLOT_PROGRESS)
 		return;
@@ -145,7 +145,7 @@ static bool info_update_cb(lv_obj_t * obj, lv_event_t event)
 
 		snprintf(url, sizeof(url), "%s/%s/", config_get_text(&config.system.server_url), config_get_select_text(&config.system.fw_channel));
 
-		local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_PSRAM, info_update_get_info_cb);
+		local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_PSRAM, info_update_info_cb);
 		dialog_show("Checking for updates", "", dialog_progress, info_update_progress_cb);
 		dialog_progress_spin();
     }
@@ -276,6 +276,7 @@ lv_obj_t * info_init(lv_obj_t * par)
     lv_obj_t * obj;
 
     gui_list_auto_entry(list, "Check for updates", CUSTOM_CB, info_update_cb);
+    gui_list_auto_entry(list, "Notify for new fw", &config.system.check_for_updates, NULL);
 
     rev_get_sw_string(rev_str);
     snprintf(value, sizeof(value), "Firmware ver. %s", rev_str);

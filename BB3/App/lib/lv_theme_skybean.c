@@ -201,6 +201,7 @@ lv_theme_t * lv_theme_skybean_init(lv_color_t color_primary, lv_color_t color_se
 
     style_init_reset(&styles->white);
     lv_style_set_bg_color(&styles->white, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_style_set_bg_opa(&styles->white, LV_STATE_DEFAULT, LV_OPA_COVER);
 
     style_init_reset(&styles->space);
     lv_style_set_pad_left(&styles->space, LV_STATE_DEFAULT, LV_DPI / 10);
@@ -426,13 +427,12 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
         case LV_THEME_PAGE:
             list = lv_obj_get_style_list(obj, LV_PAGE_PART_BG);
             _lv_style_list_add_style(list, &styles->bg);
-            _lv_style_list_add_style(list, &styles->gray);
 
             list = lv_obj_get_style_list(obj, LV_PAGE_PART_SCROLLABLE);
             _lv_style_list_add_style(list, &styles->bg);
 
             list = lv_obj_get_style_list(obj, LV_PAGE_PART_SCROLLBAR);
-            _lv_style_list_add_style(list, &styles->bg);
+            _lv_style_list_add_style(list, &styles->white);
             break;
 #endif
 #if LV_USE_TABVIEW
@@ -580,7 +580,7 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
             _lv_style_list_add_style(list, &styles->bg);
 
             list = lv_obj_get_style_list(obj, LV_WIN_PART_SCROLLBAR);
-            _lv_style_list_add_style(list, &styles->bg);
+            _lv_style_list_add_style(list, &styles->white);
 
             list = lv_obj_get_style_list(obj, LV_WIN_PART_CONTENT_SCROLLABLE);
             _lv_style_list_add_style(list, &styles->bg);

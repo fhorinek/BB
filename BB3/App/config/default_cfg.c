@@ -461,6 +461,8 @@ config_t config =
         entry_text("update_url", "https://strato.skybean.eu/update", UPDATE_URL_LEN, 0),
         //firmware_channel
         entry_select("firmware", FW_RELEASE, fw_channel_select),
+        //check_for_updates
+        entry_bool("check_fw", true),
     },
 
 	//debug

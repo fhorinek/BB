@@ -159,7 +159,7 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -188,7 +188,7 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_PRETTY_MID);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	uint16_t w = lv_obj_get_width_fit(entry);
 
@@ -241,7 +241,7 @@ lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -299,7 +299,7 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -335,7 +335,7 @@ lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * va
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -394,7 +394,7 @@ lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height)
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
 	lv_obj_set_height(entry, height);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	return entry;
 }
@@ -404,7 +404,7 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -461,7 +461,7 @@ lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.note);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	lv_page_glue_obj(entry, true);
+	//lv_page_glue_obj(entry, true);
 	lv_obj_set_style_local_bg_color(entry, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, color);
 
 
@@ -487,7 +487,7 @@ lv_obj_t * gui_list_spacer_add_entry(lv_obj_t * list, uint16_t height)
 {
     lv_obj_t * entry = lv_obj_create(list, NULL);
     lv_obj_set_size(entry, 100, height);
-    lv_page_glue_obj(entry, true);
+    //lv_page_glue_obj(entry, true);
 
     return entry;
 }
