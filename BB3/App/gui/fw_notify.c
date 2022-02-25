@@ -30,9 +30,9 @@ void update_info_cb(uint8_t res, download_slot_t * ds)
             {
                 snprintf(msg, sizeof(msg), "New firmware\n %s is avalible.", new_fw);
                 statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
+                statusbar_set_icon(BAR_ICON_FW, I_GREEN);
             }
 
-            statusbar_set_icon(BAR_ICON_FW, I_GREEN);
         }
     }
 }
