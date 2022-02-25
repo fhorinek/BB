@@ -95,6 +95,7 @@ typedef struct
 
 	char name[NB_NAME_LEN];
     uint8_t heading;
+    int16_t climb;
 
 } neighbor_t;
 
