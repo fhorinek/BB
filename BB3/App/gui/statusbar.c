@@ -35,19 +35,7 @@ void statusbar_hide()
 	lv_anim_start(&a);
 }
 
-#define 	I_MASK		0b00111111
-#define 	I_HIDE		0
-#define 	I_SHOW		1
-#define 	I_GRAY		2
-#define 	I_YELLOW	3
-#define     I_RED       4
-#define     I_GREEN     5
-
-#define 	I_BLINK		0b10000000
-#define 	I_FAST		0b01000000
-
-
-static void set_icon(uint8_t index, uint8_t state)
+void statusbar_set_icon(uint8_t index, uint8_t state)
 {
 	lv_obj_t * icon = gui.statusbar.icons[index];
 
@@ -119,7 +107,7 @@ void statusbar_create()
 		else
 			lv_obj_align(gui.statusbar.icons[i], gui.statusbar.icons[i - 1], LV_ALIGN_OUT_LEFT_MID, 0, 0);
 
-		set_icon(i, I_HIDE);
+		statusbar_set_icon(i, I_HIDE);
 	}
 
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BAT], LV_SYMBOL_BATTERY_EMPTY);
@@ -132,7 +120,8 @@ void statusbar_create()
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_AP], "AP ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_WIFI], LV_SYMBOL_WIFI " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_SYS], LV_SYMBOL_SETTINGS " ");
-	lv_label_set_text(gui.statusbar.icons[BAR_ICON_DL], LV_SYMBOL_DOWNLOAD " ");
+    lv_label_set_text(gui.statusbar.icons[BAR_ICON_DL], LV_SYMBOL_DOWNLOAD " ");
+    lv_label_set_text(gui.statusbar.icons[BAR_ICON_FW], LV_SYMBOL_DOWNLOAD " ");
 
 	statusbar_step();
 	statusbar_show();
@@ -269,78 +258,78 @@ void statusbar_step()
 
     if (fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual)
     {
-    	set_icon(BAR_ICON_SYS, I_SHOW | I_FAST | I_BLINK);
-    	set_icon(BAR_ICON_WIFI, I_HIDE);
-    	set_icon(BAR_ICON_AP, I_HIDE);
-    	set_icon(BAR_ICON_BT, I_HIDE);
+    	statusbar_set_icon(BAR_ICON_SYS, I_SHOW | I_FAST | I_BLINK);
+    	statusbar_set_icon(BAR_ICON_WIFI, I_HIDE);
+    	statusbar_set_icon(BAR_ICON_AP, I_HIDE);
+    	statusbar_set_icon(BAR_ICON_BT, I_HIDE);
     }
     else
     {
-    	set_icon(BAR_ICON_SYS, I_HIDE);
+    	statusbar_set_icon(BAR_ICON_SYS, I_HIDE);
         // if there is bt connection active
         if (fc.esp.state & ESP_STATE_BT_ON)
         {
             if (fc.esp.state & ESP_STATE_BT_A2DP || fc.esp.state & ESP_STATE_BT_SPP || fc.esp.state & ESP_STATE_BT_BLE)
-            	set_icon(BAR_ICON_BT, I_SHOW);
+            	statusbar_set_icon(BAR_ICON_BT, I_SHOW);
             else
-            	set_icon(BAR_ICON_BT, I_GRAY);
+            	statusbar_set_icon(BAR_ICON_BT, I_GRAY);
         }
         else
         {
-        	set_icon(BAR_ICON_BT, I_HIDE);
+        	statusbar_set_icon(BAR_ICON_BT, I_HIDE);
         }
 
         //if it is connected to the wifi
         if (fc.esp.state & ESP_STATE_WIFI_CLIENT)
         {
             if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
-            	set_icon(BAR_ICON_WIFI, I_SHOW);
+            	statusbar_set_icon(BAR_ICON_WIFI, I_SHOW);
             else
-            	set_icon(BAR_ICON_WIFI, I_GRAY);
+            	statusbar_set_icon(BAR_ICON_WIFI, I_GRAY);
         }
         else
         {
-        	set_icon(BAR_ICON_WIFI, I_HIDE);
+        	statusbar_set_icon(BAR_ICON_WIFI, I_HIDE);
         }
 
         //if something is connecected to AP
         if (fc.esp.state & ESP_STATE_WIFI_AP)
         {
             if (fc.esp.state & ESP_STATE_WIFI_AP_CONNECTED)
-            	set_icon(BAR_ICON_AP, I_SHOW);
+            	statusbar_set_icon(BAR_ICON_AP, I_SHOW);
             else
-            	set_icon(BAR_ICON_AP, I_GRAY);
+            	statusbar_set_icon(BAR_ICON_AP, I_GRAY);
         }
         else
         {
-        	set_icon(BAR_ICON_AP, I_HIDE);
+        	statusbar_set_icon(BAR_ICON_AP, I_HIDE);
         }
 
     }
 
     if (fc.gnss.status == fc_dev_init || fc.gnss.status == fc_dev_error)
     {
-		set_icon(BAR_ICON_GNSS, I_RED | I_BLINK | I_FAST);
+		statusbar_set_icon(BAR_ICON_GNSS, I_RED | I_BLINK | I_FAST);
     }
     else
     {
 		if (fc.gnss.fix == 3)
 		{
-			set_icon(BAR_ICON_GNSS, I_SHOW);
+			statusbar_set_icon(BAR_ICON_GNSS, I_SHOW);
 		}
 		else if (fc.gnss.fix == 2)
 		{
-			set_icon(BAR_ICON_GNSS, I_YELLOW);
+			statusbar_set_icon(BAR_ICON_GNSS, I_YELLOW);
 		}
 		else
 		{
-			set_icon(BAR_ICON_GNSS, I_SHOW | I_BLINK);
+			statusbar_set_icon(BAR_ICON_GNSS, I_SHOW | I_BLINK);
 		}
     }
 
     if (fc.fanet.status == fc_dev_off)
     {
-    	set_icon(BAR_ICON_FANET, I_HIDE);
+    	statusbar_set_icon(BAR_ICON_FANET, I_HIDE);
     }
     else
     {
@@ -350,35 +339,35 @@ void statusbar_step()
 			lv_label_set_text(gui.statusbar.icons[BAR_ICON_FANET], "F ");
 
     	if (fc.fanet.status == fc_dev_init || fc.fanet.status == fc_dev_error)
-    		set_icon(BAR_ICON_FANET, I_RED | I_BLINK | I_FAST);
+    		statusbar_set_icon(BAR_ICON_FANET, I_RED | I_BLINK | I_FAST);
     	else
-    		set_icon(BAR_ICON_FANET, I_SHOW);
+    		statusbar_set_icon(BAR_ICON_FANET, I_SHOW);
     }
 
 
     fc_logger_status_t logger = logger_state();
     if (logger == fc_logger_record)
     {
-    	set_icon(BAR_ICON_LOG, I_SHOW);
+    	statusbar_set_icon(BAR_ICON_LOG, I_SHOW);
     }
     else if (logger == fc_logger_wait)
     {
-    	set_icon(BAR_ICON_LOG, I_SHOW | I_BLINK);
+    	statusbar_set_icon(BAR_ICON_LOG, I_SHOW | I_BLINK);
     }
     else
     {
-    	set_icon(BAR_ICON_LOG, I_HIDE);
+    	statusbar_set_icon(BAR_ICON_LOG, I_HIDE);
     }
 
 
-	set_icon(BAR_ICON_USB, (pwr.data_port != PWR_DATA_NONE) ? I_SHOW : I_HIDE);
-	set_icon(BAR_ICON_CHARGE, (pwr.charger.charge_port > PWR_CHARGE_WEAK) ? I_SHOW : I_HIDE);
+	statusbar_set_icon(BAR_ICON_USB, (pwr.data_port != PWR_DATA_NONE) ? I_SHOW : I_HIDE);
+	statusbar_set_icon(BAR_ICON_CHARGE, (pwr.charger.charge_port > PWR_CHARGE_WEAK) ? I_SHOW : I_HIDE);
 	if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
 	{
-		set_icon(BAR_ICON_CHARGE, I_RED | I_FAST | I_BLINK);
+		statusbar_set_icon(BAR_ICON_CHARGE, I_RED | I_FAST | I_BLINK);
 	} if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
 	{
-	    set_icon(BAR_ICON_CHARGE, I_GREEN);
+	    statusbar_set_icon(BAR_ICON_CHARGE, I_GREEN);
 	}
 
 
@@ -395,11 +384,11 @@ void statusbar_step()
         strcpy(bat_icon, LV_SYMBOL_BATTERY_FULL);
 
     if (pwr.fuel_gauge.battery_percentage > 10)
-    	set_icon(BAR_ICON_BAT, I_SHOW);
+    	statusbar_set_icon(BAR_ICON_BAT, I_SHOW);
     else if (pwr.fuel_gauge.battery_percentage > 5)
-		set_icon(BAR_ICON_BAT, I_YELLOW);
+		statusbar_set_icon(BAR_ICON_BAT, I_YELLOW);
     else
-    	set_icon(BAR_ICON_BAT, I_RED);
+    	statusbar_set_icon(BAR_ICON_BAT, I_RED);
 
     if (config_get_bool(&config.display.bat_per) && pwr.fuel_gauge.status == fc_dev_ready)
     {

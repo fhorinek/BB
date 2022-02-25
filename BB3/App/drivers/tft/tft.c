@@ -6,7 +6,7 @@
  *
  *  Frame buffer resides in main memory
  *  Display GRAM is mapped via FMC
- *  Data transfer starts during blanking time (when TE goes high) and buffer is mofified
+ *  Data transfer starts during blanking time (when TE goes high) and buffer is modified
  *  Transfer is done via DMA, it must ends before TE goes low
  *  blanking time can be modified via reg 0x2b
  *

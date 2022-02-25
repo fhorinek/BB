@@ -215,13 +215,15 @@ void esp_step()
 
         if (config_get_bool(&config.debug.esp_wdt))
         {
-			if (fc.esp.last_ping_req + 200 < HAL_GetTick())
+			if (fc.esp.last_ping_req + 200 < HAL_GetTick()
+			        && fc.esp.last_ping + 200 < HAL_GetTick())
 			{
 			    fc.esp.last_ping_req = HAL_GetTick();
 				protocol_send(PROTO_PING, NULL, 0);
 			}
 
-        if (fc.esp.last_ping + 1000 < HAL_GetTick())
+        if (fc.esp.last_ping + 1000 < HAL_GetTick()
+                && fc.esp.last_ping_req != 0)
 			{
 				ERR("esp watchdog timed out!");
 				esp_reboot();
