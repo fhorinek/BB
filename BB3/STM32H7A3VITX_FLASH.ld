@@ -55,6 +55,12 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+ .dtcm (NOLOAD) :
+ {
+   *(.dtcmram)
+   *(.dtcmram*)
+ } >DTCMRAM
+
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
   {
@@ -145,12 +151,10 @@ SECTIONS
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
-    memfault_data_start = .;
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
 
     . = ALIGN(4);
-    memfault_data_end = .;
     _edata = .;        /* define a global symbol at data end */
     
   } >RAM AT> FLASH
@@ -162,14 +166,12 @@ SECTIONS
     /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
-    memfault_bss_start = .;
     *(.bss)
     *(.bss*)
     *(COMMON)
 
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
-    memfault_bss_end = .;
     __bss_end__ = _ebss;
   } >RAM
 

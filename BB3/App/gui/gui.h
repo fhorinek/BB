@@ -80,6 +80,7 @@ typedef enum
 	BAR_ICON_WIFI,
 	BAR_ICON_SYS,
 	BAR_ICON_DL,
+	BAR_ICON_FW,
 
 	BAR_ICON_CNT
 } status_bar_icon_t;

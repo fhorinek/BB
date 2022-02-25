@@ -51,7 +51,7 @@
 
 /* Default display refresh period.
  * Can be changed in the display driver (`lv_disp_drv_t`).*/
-#define LV_DISP_DEF_REFR_PERIOD      30      /*[ms]*/
+#define LV_DISP_DEF_REFR_PERIOD      30      /*was 30 [ms]*/
 
 /* Dot Per Inch: used to initialize default sizes.
  * E.g. a button with width = LV_DPI / 2 -> half inch wide
@@ -75,7 +75,7 @@ typedef int16_t lv_coord_t;
 #  define LV_MEM_SIZE    (64U * 1024U)
 
 /* Complier prefix for a big array declaration */
-#  define LV_MEM_ATTR
+#  define LV_MEM_ATTR   __attribute__((section(".dtcmram")))
 
 /* Set an address for the memory pool instead of allocating it as an array.
  * Can be in external SRAM too. */

@@ -18,6 +18,7 @@
 #include "gui/bluetooth.h"
 #include "gui/dbg_overlay.h"
 #include "gui/tasks/menu/bluetooth.h"
+#include "gui/fw_notify.h"
 
 #include "etc/safe_uart.h"
 
@@ -321,6 +322,12 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
             strncpy(fc.esp.ssid, packet->ssid, PROTO_WIFI_SSID_LEN);
             fc.esp.state |= ESP_STATE_WIFI_CONNECTED;
+
+            if (config_get_bool(&config.system.check_for_updates))
+            {
+                osTimerId_t timer = osTimerNew(check_for_update, osTimerOnce, NULL, NULL);
+                osTimerStart(timer, 5000);
+            }
         }
         break;
 
