@@ -14,6 +14,7 @@
 #include "gui/statusbar.h"
 #include "gui/bluetooth.h"
 #include "fc/telemetry/telemetry.h"
+#include "etc/notifications.h"
 
 __align static proto_mac_t dev_mac;
 static bool dev_ble;
@@ -93,6 +94,7 @@ void bluetooth_notify(proto_bt_notify_t * packet)
             dialog_close();
             dialog_on = false;
         }
+        notification_send(notify_bt_connected);
 	}
 
 	if (packet->mode & PROTO_BT_MODE_DISCONNECTED)
@@ -119,6 +121,8 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 			telemetry_stop();
 
 		snprintf(msg, sizeof(msg), "%s disconnected (%s)",  get_dev_name(packet->dev, name), tag[index]);
+
+		notification_send(notify_bt_disconnected);
 	}
 
 	if (packet->mode & PROTO_BT_MODE_PAIRED)

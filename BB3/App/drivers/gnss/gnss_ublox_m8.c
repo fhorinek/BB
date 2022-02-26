@@ -9,6 +9,7 @@
 
 #include "fc/fc.h"
 #include "etc/epoch.h"
+#include "etc/notifications.h"
 
 //Pins
 //#define	GPS_SW_EN
@@ -319,10 +320,14 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 				case(2):
 					fc.gnss.fix = 2;
 					fc.gnss.ttf = HAL_GetTick() - ublox_start_time;
+                    if (fc.gnss.fix == 0)
+                    	notification_send(notify_gnss_fix);
 				break;
 				case(3):
 					fc.gnss.fix = 3;
 					fc.gnss.ttf = ubx_nav_status->ttff;
+                    if (fc.gnss.fix == 0)
+                    	notification_send(notify_gnss_fix);
 				break;
 				default:
 					fc.gnss.fix = 0;
