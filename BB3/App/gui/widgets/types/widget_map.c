@@ -11,12 +11,15 @@
 #include "gui/map/tile.h"
 
 #include "etc/geo_calc.h"
+#include "gui/images/arrow/arrow.h"
 
 typedef struct {
     lv_obj_t * aircraft;
     lv_obj_t * label;
     lv_obj_t * label_shadow;
-    neighbor_t nb;
+    lv_point_t direction[2];
+
+    neighbor_t *nb;
 } map_fanet_data_t;
 
 REGISTER_WIDGET_ISUE(Map,
@@ -39,7 +42,7 @@ REGISTER_WIDGET_ISUE(Map,
     uint8_t master_tile;
     uint8_t action_cnt;
     uint8_t fanet_magic;
-
+    lv_obj_t * arrow_image;
     map_fanet_data_t *fanet_data;
 
     uint8_t magic;
@@ -50,11 +53,9 @@ static lv_style_t static_label = {0};
 
 #define FA_SIZE 1
 
+
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 {
-	local->fanet_data = malloc(sizeof(map_fanet_data_t) * FA_SIZE);
-	memset(local->fanet_data, 0, sizeof(map_fanet_data_t) * FA_SIZE);
-
     if (!static_init)
     {
         lv_style_init(&static_label);
@@ -99,6 +100,10 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
     lv_obj_set_style_local_line_color(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
     lv_obj_set_style_local_line_width(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 4);
+
+	local->fanet_data = malloc(sizeof(map_fanet_data_t) * FA_SIZE);
+	memset(local->fanet_data, 0, sizeof(map_fanet_data_t) * FA_SIZE);
+	local->fanet_magic = 0;
 }
 
 static lv_obj_t * create_fanet_obj(widget_slot_t * slot, map_fanet_data_t *data);
@@ -255,8 +260,13 @@ static void Map_update(widget_slot_t * slot)
     {
     	if (fc.gnss.ground_speed > 2)
 		{
+
 			widget_arrow_rotate_size(local->arrow, local->points, fc.gnss.heading, 40);
-			lv_obj_set_hidden(local->arrow, false);
+
+			lv_obj_align(local->arrow_image, slot->obj, LV_ALIGN_CENTER, 0, 0);
+			lv_img_set_angle(local->arrow_image, fc.gnss.heading * 10);
+
+			lv_obj_set_hidden(local->arrow, true);
 			lv_obj_set_hidden(local->dot, true);
     	}
     	else
@@ -270,24 +280,20 @@ static void Map_update(widget_slot_t * slot)
 
 
 
-    // FANET
-    // if cfg display fanet data on map
 
-    int size = FA_SIZE; //fc.fanet.neighbors_size;
-
-    // MOCK ITEM
-    map_fanet_data_t * fanet =  local->fanet_data;
-    neighbor_t * _nb = &fanet->nb;
-
-    _nb->alititude = 500;
-    _nb->heading = 180;
-    _nb->flags |= NB_HAVE_POS;
-    _nb->latitude = 522213000;
-    		        //529777833;
-    _nb->longitude = 209785166;//222111500;
-
-    _nb->dist = geo_distance(_nb->latitude, _nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, true, NULL) / 100;
-    snprintf(_nb->name, sizeof(_nb->name), "fero");
+//    // MOCK ITEM
+//    map_fanet_data_t * fanet =  local->fanet_data;
+//    neighbor_t * _nb = &fanet->nb;
+//
+//    _nb->alititude = 500;
+//    _nb->heading = 180;
+//    _nb->flags |= NB_HAVE_POS;
+//    _nb->latitude = 522213000;
+//    		        //529777833;
+//    _nb->longitude = 209785166;//222111500;
+//
+//    _nb->dist = geo_distance(_nb->latitude, _nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, true, NULL) / 100;
+//    snprintf(_nb->name, sizeof(_nb->name), "fero");
 
 //    if (size > 1) {
 //		fanet = (map_fanet_data_t * ) local->fanet_data + sizeof(map_fanet_data_t);
@@ -302,38 +308,52 @@ static void Map_update(widget_slot_t * slot)
 //		snprintf(_nb->name, sizeof(_nb->name), "tillman");
 //    }
 
-    if (size > 0 && fc.gnss.fix > 0) {
-		for (uint8_t i = 0; i < size; i++) {
-			map_fanet_data_t *fanet = sizeof(map_fanet_data_t) * i + local->fanet_data;
-			//neighbor_t * nb =  fanet->nb;//&fc.fanet.neighbor[i];
+    // FANET
+    // if cfg display fanet data on map
 
-			if (fanet->nb.flags & NB_HAVE_POS && fanet->nb.dist < 2000) {
+    int size = fc.fanet.neighbors_size;//FA_SIZE
+
+    if (config_get_bool(&profile.map.show_fanet) && size > 0 && fc.gnss.fix > 0) {
+		for (uint8_t i = 0; i < size; i++) {
+			INFO("evaluatin nb: %d -> dist: %d", fc.fanet.neighbor[i].addr.user_id, fc.fanet.neighbor[i].dist);
+//			fc.fanet.neighbor[i].latitude = 529777033;
+//			fc.fanet.neighbor[i].longitude = 222111000;
+//			fc.fanet.neighbor[i].flags |= NB_HAVE_POS;
+//			fc.fanet.neighbor[i].dist = 1000;
+			if (fc.fanet.neighbor[i].flags & NB_HAVE_POS && fc.fanet.neighbor[i].dist < 2000) {
+
+				map_fanet_data_t *fanet = sizeof(map_fanet_data_t) * i + local->fanet_data;
+				fanet->nb = &fc.fanet.neighbor[i];
+
 				if (fanet->aircraft == NULL) {
 					create_fanet_obj(slot, fanet);
 				}
 
-				if (fc.gnss.fix > 0)
-				{
-					int16_t relalt;
-					char value[32];
-					relalt = fanet->nb.alititude - fc.gnss.altitude_above_ellipsiod;
+				char value[32];
+				int16_t relalt;
 
-					if (relalt > 0)
-						snprintf(value, sizeof(value), "%s\n+%i m", fanet->nb.name, relalt);
-					else
-						snprintf(value, sizeof(value), "%s\n%i m", fanet->nb.name, relalt);
+				relalt = fanet->nb->alititude - fc.gnss.altitude_above_ellipsiod;
 
-				   	int32_t curr_lat = fc.gnss.latitude;
-				   	int32_t curr_lon = fc.gnss.longtitude;
-					int16_t zoom = config_get_int(&profile.map.zoom_flight);
-					int16_t x, y;
+				if (relalt > 0)
+					snprintf(value, sizeof(value), "%s\n+%i m", fanet->nb->name, relalt);
+				else
+					snprintf(value, sizeof(value), "%s\n%i m", fanet->nb->name, relalt);
 
-			    	geo_to_pix_w_h(curr_lon, curr_lat, zoom, fanet->nb.longitude, fanet->nb.latitude, &x, &y, slot->w, slot->h);
-			    	update_fanet_obj(fanet, slot, value, x, y);
-				}
+				int32_t curr_lat = fc.gnss.latitude;
+				int32_t curr_lon = fc.gnss.longtitude;
+				int16_t zoom = config_get_int(&profile.map.zoom_flight);
+				int16_t x, y;
+
+				geo_to_pix_w_h(curr_lon, curr_lat, zoom, fanet->nb->longitude, fanet->nb->latitude, &x, &y, slot->w, slot->h);
+		    	update_fanet_obj(fanet, slot, value, x, y);
+				break; //FIXME: make it work for X
+			} else {
+				INFO("FANET nb: %d -> dist: %d is too far or no dist", fc.fanet.neighbor[i].addr.user_id, fc.fanet.neighbor[i].dist);
 			}
 		}
     }
+
+    local->fanet_magic = fc.fanet.neighbors_magic;
 
     if (local->edit != NULL)
     {
@@ -347,6 +367,16 @@ static void Map_update(widget_slot_t * slot)
     }
 }
 
+static void hide_fanet_obj(map_fanet_data_t *fanet)
+{
+	lv_obj_set_hidden(fanet->aircraft, true);
+}
+
+static void show_fanet_obj(map_fanet_data_t *fanet)
+{
+	lv_obj_set_hidden(fanet->aircraft, false);
+}
+
 static void update_fanet_obj(map_fanet_data_t *fanet, widget_slot_t * slot, char *text, int16_t x, int16_t y)
 {
 	lv_obj_align(fanet->aircraft, local->arrow, LV_ALIGN_CENTER, x - slot->w / 2, y - slot->h / 2);
@@ -356,7 +386,7 @@ static void update_fanet_obj(map_fanet_data_t *fanet, widget_slot_t * slot, char
 	lv_label_set_text(fanet->label, text);
 	lv_label_set_text(fanet->label_shadow, text);
 
-	if (fanet->nb.dist < 200) {
+	if (fanet->nb->dist < 200) {
 		lv_obj_set_style_local_bg_color(fanet->aircraft, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
 	} else {
 		lv_obj_set_style_local_bg_color(fanet->aircraft, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);

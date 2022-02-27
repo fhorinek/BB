@@ -150,6 +150,7 @@ typedef struct
         cfg_entry_t zoom_flight;
         cfg_entry_t blur;
         cfg_entry_t alt_range;
+        cfg_entry_t show_fanet;
 	} map;
 
 	struct
