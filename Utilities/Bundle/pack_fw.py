@@ -17,6 +17,7 @@ import zlib
 import os
 import shutil
 import argparse
+import tempfile
 
 name_max_len = 32
 
@@ -75,7 +76,14 @@ def read_chunk(bin_path, addr):
     
     return chunk
 
-
+def work_release_note(release_note_filename):
+    if args.channel != 'R':
+        message = "WARNING!\n\nYou are using a preview version as the current firmware.\nThis brings in new features, but it may be unstable.\nPlease switch to the release channel for stable versions.\n\nTurning on development mode and \"Logging to file\" for possible bug reports."
+        with open(release_note_filename, 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(message + content)
+                      
 chunks = []
 
 #STM
@@ -134,9 +142,16 @@ args = parser.parse_args()
 #STM firmware
 chunks.append(read_chunk(stm_bin_file, 0x0))
 
-#add assets
-add_files(stm_assets_path, 0)
+# Copy Assets to a temporary directory and change release notes there
+# Add them to chunks.
+dirpath = tempfile.mkdtemp()
+shutil.copytree(stm_assets_path, dirpath, dirs_exist_ok=True)
+work_release_note(os.path.join(dirpath, "release_note.txt"))
 
+#add assets
+add_files(dirpath, 0)
+
+shutil.rmtree(dirpath)
 
 #ESP
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
