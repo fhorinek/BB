@@ -43,13 +43,20 @@ void gui_show_release_note()
 	FIL f;
 	if (f_open(&f, PATH_RELEASE_NOTE, FA_READ) == FR_OK)
 	{
+		char fw_str[16];
+		rev_get_sw_string(fw_str);
+		if (fw_str[0] != 'R')
+			strcpy(buff, "WARNING!\n\nYou are using a preview version as the current firmware.\nThis brings in new features, but it may be unstable.\nPlease switch to the release channel for stable versions.\n\nTurning on development mode and \"Logging to file\" for possible bug reports.");
+		else
+			buff[0] = 0;
+
+		int len = strlen(buff);
+
 		UINT br;
-		f_read(&f, buff, RELEASE_NOTE_BUFF_SIZE, &br);
+		f_read(&f, buff + len, RELEASE_NOTE_BUFF_SIZE, &br);
 		f_close(&f);
 
 		char title[64];
-		char fw_str[16];
-		rev_get_sw_string(fw_str);
 		snprintf(title, sizeof(title), "Firmware updated\n to %s", fw_str);
 		dialog_show(title, buff, dialog_release_note, NULL);
 	}
