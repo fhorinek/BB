@@ -12,6 +12,8 @@
 
 #include "etc/geo_calc.h"
 
+#include "gui/images/arrow/arrow.h"
+
 REGISTER_WIDGET_ISUE(Map,
     "Map",
     WIDGET_MIN_W,
@@ -19,10 +21,9 @@ REGISTER_WIDGET_ISUE(Map,
 	0,
 
     lv_obj_t * image[9];
-	lv_obj_t * arrow;
 	lv_obj_t * dot;
+    lv_obj_t * arrow;
 
-    lv_point_t points[WIDGET_ARROW_POINTS];
     lv_obj_t * poi[NUMBER_OF_POI];
     uint8_t poi_magic[NUMBER_OF_POI];
 
@@ -37,6 +38,8 @@ REGISTER_WIDGET_ISUE(Map,
 
 static bool static_init = false;
 static lv_style_t static_label = {0};
+
+LV_IMG_DECLARE(arrow_new);
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -81,9 +84,10 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
     lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
 
-    local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
-    lv_obj_set_style_local_line_color(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-    lv_obj_set_style_local_line_width(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 4);
+    local->arrow = lv_img_create(slot->obj, NULL);
+    lv_img_set_src(local->arrow, &arrow_new);
+    lv_obj_align(local->arrow, slot->obj, LV_ALIGN_CENTER, 0, 0);
+    lv_img_set_antialias(local->arrow, true);
 }
 
 static void Map_update(widget_slot_t * slot)
@@ -237,7 +241,7 @@ static void Map_update(widget_slot_t * slot)
     {
     	if (fc.gnss.ground_speed > 2)
 		{
-			widget_arrow_rotate_size(local->arrow, local->points, fc.gnss.heading, 40);
+    		lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
 			lv_obj_set_hidden(local->arrow, false);
 			lv_obj_set_hidden(local->dot, true);
     	}
