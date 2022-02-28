@@ -23,6 +23,7 @@ void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lot);
 void format_distance_with_units(char * buf, float in);
 void format_distance(char * buf, float in);
 void format_distance_units(char * buf, float in);
+void format_distance_with_units2(char * buf, float in);
 
 void format_altitude(char * buff, float in);
 void format_altitude_units(char * buff);
