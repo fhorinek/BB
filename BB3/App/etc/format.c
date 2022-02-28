@@ -233,18 +233,43 @@ void format_altitude_with_units_2(char * buff, float in, uint8_t units)
     sprintf(buff, "%s %s", val, uni);
 }
 
-
 void format_distance_with_units(char * buf, float in)
+{
+    switch (config_get_select(&config.units.distance))
+    {
+        case(DISTANCE_METERS):
+            if (in < 1000) //1km
+                sprintf(buf, "%0.0fm", in);
+            else if (in < 10000) //10km
+                sprintf(buf, "%0.2fkm", in / 1000.0);
+            else if (in < 100000) //100km
+                sprintf(buf, "%0.1fkm", in / 1000.0);
+            else
+                sprintf(buf, "%0.0fkm", in / 1000.0);
+        break;
+
+        case(DISTANCE_MILES):
+        {
+            float mi = (in / 1000.0) * FC_KM_TO_MILE;
+            if (in < 1.0) //1mi
+                sprintf(buf, "%0.0fft", mi * 5280);
+            if (in < 10.0) //10mi
+                sprintf(buf, "%0.1fmi", mi);
+            else
+                sprintf(buf, "%0.0fmi", mi);
+        }
+        break;
+
+    }
+}
+
+void format_distance_with_units2(char * buf, float in)
 {
 	switch (config_get_select(&config.units.distance))
 	{
 		case(DISTANCE_METERS):
 			if (in < 1000) //1km
 				sprintf(buf, "%0.0fm", in);
-			else if (in < 10000) //10km
-				sprintf(buf, "%0.2fkm", in / 1000.0);
-			else if (in < 100000) //100km
-				sprintf(buf, "%0.1fkm", in / 1000.0);
 			else
 				sprintf(buf, "%0.0fkm", in / 1000.0);
 		break;
@@ -254,8 +279,6 @@ void format_distance_with_units(char * buf, float in)
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (in < 1.0) //1mi
 				sprintf(buf, "%0.0fft", mi * 5280);
-			if (in < 10.0) //10mi
-				sprintf(buf, "%0.1fmi", mi);
 			else
 				sprintf(buf, "%0.0fmi", mi);
 		}
