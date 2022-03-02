@@ -40,6 +40,15 @@ define_thread("MEMS", thread_mems, 2048, osPriorityHigh);
 define_thread("ESP", thread_esp, 2024, osPriorityHigh);
 define_thread("ESP SPI", thread_esp_spi, 2048, osPriorityHigh);
 
+//make task wait until the global variable is assigned to task handle
+void system_wait_for_handle(osThreadId_t * handle)
+{
+    while (osThreadGetId() != *handle)
+    {
+        osDelay(10);
+    }
+}
+
 //thread list for automatic shutdown
 osThreadId_t * thread_list[] =
 {
