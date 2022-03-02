@@ -212,6 +212,8 @@ void gui_create_lock()
 
 void thread_gui_start(void *argument)
 {
+    system_wait_for_handle(&thread_gui);
+
 	INFO("Started");
 
     //Littlvgl init

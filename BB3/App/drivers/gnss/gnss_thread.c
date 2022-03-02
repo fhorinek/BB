@@ -34,6 +34,8 @@ void gnss_uart_rx_irq_idle()
 
 void thread_gnss_start(void *argument)
 {
+    system_wait_for_handle(&thread_gnss);
+
 	INFO("Started");
 
 	ublox_init();
