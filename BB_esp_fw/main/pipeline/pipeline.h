@@ -59,12 +59,11 @@ typedef struct
 	audio_element_handle_t raw;
 
 	SemaphoreHandle_t lock;
-
-	uint8_t id;
 	uint32_t total_len;
 	uint32_t pos;
-	bool request;
 
+	bool request;
+	uint8_t id;
 } sound_pipe_t;
 
 typedef struct

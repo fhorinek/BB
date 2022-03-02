@@ -138,13 +138,14 @@ void thread_esp_spi_start(void * argument)
 
         osSemaphoreAcquire(spi_dma_done, WAIT_INF);
 
-        DBG("SPI RX data: %u", spi_data_to_read);
+//        DBG("SPI RX data: %u", spi_data_to_read);
         //DUMP(spi_rx_buffer, spi_data_to_read);
 
         //parse spi data here (new thread??)
         esp_parse_spi(spi_rx_buffer, spi_data_to_read);
 
         spi_tx_buffer_index = 0;
+        spi_tx_buffer[0] = 0;
         osSemaphoreRelease(spi_buffer_access);
     }
 

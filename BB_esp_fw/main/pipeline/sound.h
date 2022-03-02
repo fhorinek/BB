@@ -16,6 +16,8 @@ void pipe_sound_event(audio_event_iface_msg_t * msg);
 void pipe_sound_start(uint8_t id, uint8_t type, uint32_t len);
 void pipe_sound_write(uint8_t id, uint8_t * buf, uint16_t len);
 
+void pipe_sound_reset_request();
+
 void pipe_sound_reset();
 void pipe_sound_stop();
 
