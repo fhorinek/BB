@@ -10,6 +10,8 @@ void esp_uart_rx_irq_cb()
 
 void thread_esp_start(void *argument)
 {
+    system_wait_for_handle(&thread_esp);
+
 	INFO("Started");
 
 
