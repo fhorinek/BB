@@ -266,6 +266,7 @@ void system_free(void * ptr);
 void system_poweroff();
 void system_reboot();
 void system_reboot_bl();
+void system_wait_for_handle(osThreadId_t * handle);
 
 uint8_t nmea_checksum(char *s);
 
