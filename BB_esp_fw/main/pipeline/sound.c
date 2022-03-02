@@ -3,6 +3,17 @@
 #include "wav_decoder.h"
 #include "../protocol.h"
 
+void pipe_sound_request_next();
+
+void pipe_sound_loop(void * arg)
+{
+	while(1)
+	{
+		pipe_sound_request_next();
+		vTaskDelay(100/ portTICK_PERIOD_MS);
+	}
+}
+
 void pipe_sound_init()
 {
     INFO("pipe_sound_init");
@@ -17,7 +28,7 @@ void pipe_sound_init()
 
     raw_stream_cfg_t raw_cfg = RAW_STREAM_CFG_DEFAULT();
     raw_cfg.type = AUDIO_STREAM_WRITER;
-    raw_cfg.out_rb_size = 12 * 1024;
+    raw_cfg.out_rb_size = 24 * 1024;
     pipes.sound.stream = raw_stream_init(&raw_cfg);
 
     wav_decoder_cfg_t wav_cfg = DEFAULT_WAV_DECODER_CONFIG();
@@ -47,6 +58,8 @@ void pipe_sound_init()
     audio_pipeline_set_listener(pipes.sound.pipe, pipes.events);
 
     xSemaphoreGive(pipes.sound.lock);
+
+    xTaskCreate(pipe_sound_loop, "pipe_sound_loop", 2 * 1024, NULL, 20, NULL);
 }
 
 void pipe_sound_event(audio_event_iface_msg_t * msg)
@@ -213,7 +226,4 @@ void pipe_sound_stop()
 	pipe_sound_reset();
 }
 
-void pipe_sound_loop()
-{
-	pipe_sound_request_next();
-}
+
