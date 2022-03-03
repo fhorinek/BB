@@ -12,7 +12,7 @@ void pipe_sound_loop(void * arg)
 	while(1)
 	{
 		pipe_sound_request_next();
-		vTaskDelay(10/ portTICK_PERIOD_MS);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -88,7 +88,7 @@ void pipe_sound_event(audio_event_iface_msg_t * msg)
 		audio_element_getinfo(pipes.sound.decoder, &music_info);
 
 		INFO("Receive music info from Decoder, sample_rates=%d, bits=%d, ch=%d", music_info.sample_rates, music_info.bits, music_info.channels);
-
+		rsp_filter_set_src_info(pipes.sound.filter, music_info.sample_rates, music_info.channels);
 		audio_element_setinfo(pipes.sound.filter, &music_info);
 	}
 

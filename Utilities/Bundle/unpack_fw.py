@@ -10,7 +10,7 @@ import struct
 import sys
 import os
 
-print("unpacking %s", sys.argv[1])
+print("unpacking %s" % sys.argv[1])
 
 
 f = open(sys.argv[1], "rb")
@@ -32,22 +32,28 @@ for i in range(number_of_records):
     if size % 4 != 0:
         size =  size + (4 - size % 4)
 
-    print("  0x%08X\t%10u bytes\tcrc %08X\t%s" % (addr, size, crc, name))
-
     data = f.read(size)
+    
+    asset_fw = False
+    asset_dir = False
     
     #dir
     if addr & 0x80000000:
+        asset_dir = True
         addr &= ~0x80000000
         index = addr & 0xFFFF
         level = (addr & (0xFFFF << 16)) >> 16
         
         if old_level > level:
-            path = path[:-1]
+            diff = old_level - level
+            while diff > 0:
+                diff -= 1;
+                path = path[:-1]
         
         path += [name]
         os.mkdir(os.path.join(*path))
         old_level = level
+        plevel = level
     
     #file
     elif addr & 0x40000000:
@@ -56,12 +62,29 @@ for i in range(number_of_records):
         level = (addr & (0xFFFF << 16)) >> 16
         
         if old_level > level:
-            path = path[:-1]
-        
+            diff = old_level - level
+            while diff > 0:
+                diff -= 1;
+                path = path[:-1]
         
         write_file(os.path.join(*path, name), data)
-        old_level = level        
+        old_level = level   
+        plevel = level             
     #fw
     else:        
+        asset_fw = True
+        plevel = 0
         write_file(os.path.join(build, name), data)
         
+    if asset_dir:
+        tname = "[%s]" % name
+    elif asset_fw:
+        tname = "*%s" % name
+    else:
+        tname = name
+        
+    pname = plevel * "  " + tname
+    print("  0x%08X\t%10u bytes\tcrc %08X\t%s" % (addr, size, crc, pname))
+        
+    
+

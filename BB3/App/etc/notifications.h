@@ -14,7 +14,9 @@ typedef enum
 	notify_landing,
     notify_bt_connected,
 	notify_bt_disconnected,
-    notify_gnss_fix
+    notify_gnss_fix,
+    notify_gnss_lost,
+    notify_bat_low
 } notification_type_t;
 
 void notification_send(notification_type_t type);

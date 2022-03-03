@@ -15,7 +15,7 @@ void notification_send(notification_type_t type)
 		switch (type)
 		{
 			case (notify_take_off):
-		    	sound_start(PATH_TTS_DIR "/gnss_ok.wav");
+		    	sound_start(PATH_TTS_DIR "/takeoff.wav");
 				break;
 			case (notify_landing):
 		    	sound_start(PATH_TTS_DIR "/landed.wav");
@@ -26,9 +26,15 @@ void notification_send(notification_type_t type)
 			case (notify_bt_disconnected):
 		    	sound_start(PATH_TTS_DIR "/bt_disc.wav");
 				break;
-			case (notify_gnss_fix):
-			    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
-				break;
+            case (notify_gnss_fix):
+                sound_start(PATH_TTS_DIR "/gnss_ok.wav");
+                break;
+            case (notify_gnss_lost):
+                sound_start(PATH_TTS_DIR "/gnss_lost.wav");
+                break;
+            case (notify_bat_low):
+                sound_start(PATH_TTS_DIR "/bat_low.wav");
+                break;
 		}
 	}
 
