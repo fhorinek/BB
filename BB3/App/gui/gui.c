@@ -35,27 +35,7 @@ LV_FONT_DECLARE(lv_font_montserrat_100);
 LV_FONT_DECLARE(lv_font_montserrat_120);
 LV_FONT_DECLARE(lv_font_montserrat_140);
 
-void gui_show_release_note()
-{
-	#define RELEASE_NOTE_BUFF_SIZE (1024 * 8)
-	char * buff = ps_malloc(RELEASE_NOTE_BUFF_SIZE);
 
-	FIL f;
-	if (f_open(&f, PATH_RELEASE_NOTE, FA_READ) == FR_OK)
-	{
-		UINT br;
-		f_read(&f, buff, RELEASE_NOTE_BUFF_SIZE, &br);
-		f_close(&f);
-
-		char title[64];
-		char fw_str[16];
-		rev_get_sw_string(fw_str);
-		snprintf(title, sizeof(title), "Firmware updated\n to %s", fw_str);
-		dialog_show(title, buff, dialog_release_note, NULL);
-	}
-
-	ps_free(buff);
-}
 
 void gui_set_loop_period(uint16_t period)
 {

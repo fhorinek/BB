@@ -106,18 +106,48 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 	}
 }
 
+void gui_list_set_pos(gui_task_t * task, uint16_t pos)
+{
+	task->last_menu_pos = pos;
+}
+
 void gui_list_store_pos(gui_task_t * task)
 {
-	task->last_menu_pos = GUI_LIST_NO_LAST_POS;
+    task->last_menu_pos = GUI_LIST_NO_LAST_POS;
 
-	if (gui.list.object != NULL)
-	{
-		lv_obj_t * focused = lv_group_get_focused(gui.input.group);
-		if (focused != NULL)
-		{
-			task->last_menu_pos = gui_list_index(focused);
-		}
-	}
+    if (gui.list.object != NULL)
+    {
+        lv_obj_t * focused = lv_group_get_focused(gui.input.group);
+        if (focused != NULL)
+        {
+            task->last_menu_pos = gui_list_index(focused);
+        }
+    }
+}
+
+static uint8_t level = 0;
+
+bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
+{
+    INFO("gui_focus_child %u", level++);
+    if (lv_obj_get_group(parent) != NULL)
+    {
+        lv_group_focus_obj(parent);
+        return true;
+    }
+    else
+    {
+        if (child == NULL)
+            child = lv_obj_get_child(parent, child);
+        if (child == NULL)
+            return false;
+        if (gui_focus_child(child, NULL))
+        {
+            level--;
+            return true;
+        }
+    }
+    return false;
 }
 
 void gui_list_retrive_pos(gui_task_t * task)
@@ -130,7 +160,10 @@ void gui_list_retrive_pos(gui_task_t * task)
 
 	lv_obj_t * obj = gui_list_get_entry(task->last_menu_pos);
 	if (obj != NULL)
-		lv_group_focus_obj(obj);
+	{
+	    level = 0;
+	    gui_focus_child(obj, NULL);
+	}
 }
 
 lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back, gui_list_task_cb_t cb)
