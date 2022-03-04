@@ -42,7 +42,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Wi-Fi", NEXT_TASK, &gui_wifi);
 	gui_list_auto_entry(list, "System", NEXT_TASK, &gui_system);
 
-	if (file_exists(DEV_MODE_FILE))
+	if (DEVEL_ACTIVE)
 		gui_list_auto_entry(list, "Development", NEXT_TASK, &gui_development);
 
 	return list;

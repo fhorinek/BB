@@ -219,7 +219,7 @@ extern osThreadId_t SystemHandle;
 #define SKIP_ESP_FILE   "SKIP_ESP"
 #define KEEP_FW_FILE    "KEEP_FW"
 
-
+#define DEVEL_ACTIVE    (file_exists(DEV_MODE_FILE))
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);

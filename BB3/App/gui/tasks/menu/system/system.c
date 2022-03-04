@@ -13,6 +13,7 @@
 #include "advanced/advanced.h"
 #include "display.h"
 #include "info.h"
+#include "firmware.h"
 #include "units.h"
 
 #include "../settings.h"
@@ -41,8 +42,6 @@ static bool restore_cb(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * system_init(lv_obj_t * par)
 {
-    DBG("settings init");
-
     lv_obj_t * list = gui_list_create(par, "System", &gui_settings, NULL);
 
     gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
@@ -52,8 +51,10 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     char rev_str[10];
     rev_get_sw_string(rev_str);
-    lv_obj_t * info = gui_list_info_add_entry(list, "Device info", rev_str);
-    gui_config_entry_add(info, NEXT_TASK, &gui_info);
+    lv_obj_t * fw = gui_list_info_add_entry(list, "Firmware", rev_str);
+    gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);
+
+    gui_list_auto_entry(list, "Device info", NEXT_TASK, &gui_info);
 
     gui_list_auto_entry(list, "Restore factory settings", CUSTOM_CB, restore_cb);
 

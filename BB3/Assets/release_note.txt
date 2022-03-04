@@ -1,8 +1,15 @@
-Based on: D242
+Testing is new devel :-)
+
+We encourage our users to switch to the testing firmware channel.
+Development branch will become much more unstable, with multiple updates per day.
+The Testing branch will behaves as the devel used to, with cumlative functions updates every few days.
+
 
 Added:
- * Map scale bar
- * New icon on map arrow
+ * Warning that you are on devel branch
+ 
+Changed:
+ * Moved debug.log to settings/advanced
+ * Split Device info to info and firmware
+ * Removed old menu items in development
 
-Fixes:
-* Mems not start up when debug to file is on

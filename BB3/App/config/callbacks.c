@@ -19,7 +19,7 @@ void config_new_version_cb()
     {
         f_unlink(PATH_NEW_FW);
 
-        gui_show_release_note();
+        release_note_show();
 
         if (bootloader_update(PATH_BL_FW_AUTO) == bl_update_ok)
         {
