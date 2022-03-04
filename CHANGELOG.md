@@ -1,4 +1,13 @@
-# 18.2.2021 - Build 242
+# 4.3.2022 - Testing 243
+Based on D242
+##Added
+ * Map scale bar
+ * New icon on map arrow
+
+##Fixes:
+ * Mems not start up when debug to file is on
+
+# 18.2.2022 - Build 242
 Under the hood maintanace
 
 ##Added
@@ -16,11 +25,11 @@ Under the hood maintanace
  * New memory locking system will prevent unsafe access during allocation
 
 
-# 18.2.2021 - Build 238
+# 18.2.2022 - Build 238
 ## Fixed maps
  * Fix zero lat/lon bug
 
-# 18.2.2021 - Build 237
+# 18.2.2022 - Build 237
 ## Fixed maps
  * Works with negative coordinates
  * please redownload maps: strato.skybean.eu/map
@@ -30,7 +39,7 @@ Under the hood maintanace
 ## Added:
  * Vario graph
 
-# 3.2.2021 - Build 236
+# 3.2.2022 - Build 236
 ## Added
  * Map widget - see strato.skybean.eu/map
  * Time to take off widget
@@ -42,7 +51,7 @@ Under the hood maintanace
  * Ignore empty update
 
 
-# 24.1.2021 - Build 235
+# 24.1.2022 - Build 235
 ## Added
  * new TimeDate widget to display current time and date
  * logging to csv

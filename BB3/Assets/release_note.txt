@@ -1,16 +1,8 @@
-Under the hood maintanace
+Based on: D242
 
 Added:
-* New FW notification
-* Scrollable release note
+ * Map scale bar
+ * New icon on map arrow
 
-Changed:
-* Widget categorization
-* Main roads are now yellow
-
-Development:
-* Page switching via queue
-* ESP communication is done via DMA
-* ESP side watchdog
-* New memory locking system
-
+Fixes:
+* Mems not start up when debug to file is on
