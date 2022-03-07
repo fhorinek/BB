@@ -130,12 +130,6 @@ static void FanetRadar_update(widget_slot_t * slot)
 		char buffer[32];
 		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
 		for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++) {
-						fc.fanet.neighbor[i].latitude = 529777033;
-						fc.fanet.neighbor[i].longitude = 222111000;
-						fc.fanet.neighbor[i].flags |= NB_HAVE_POS;
-						fc.fanet.neighbor[i].dist = 1100;
-						fc.fanet.neighbor[i].heading = 45;
-
 			if (fc.fanet.neighbor[i].flags & NB_HAVE_POS && ((HAL_GetTick() / 1000) - fc.fanet.neighbor[i].timestamp) < FANET_TIMEOUT) {
 
 				int16_t bearing = 0;

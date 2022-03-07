@@ -286,13 +286,6 @@ static void Map_update(widget_slot_t * slot)
 
 			for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
 			{
-				fc.fanet.neighbor[i].latitude = 529777033;
-				fc.fanet.neighbor[i].longitude = 222111000;
-				fc.fanet.neighbor[i].flags |= NB_HAVE_POS;
-				fc.fanet.neighbor[i].dist = 1100;
-				fc.fanet.neighbor[i].heading = 2;
-				fc.fanet.neighbor[i].alititude = 1232;
-
 				if (fc.fanet.neighbor[i].flags & NB_HAVE_POS)
 				{
 					int16_t x, y;
