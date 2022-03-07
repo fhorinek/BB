@@ -58,8 +58,8 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
         lv_style_set_text_color(&static_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 
         lv_style_init(&fanet_label);
-        lv_style_set_text_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_BLUE);
-        lv_style_set_text_font(&fanet_label, LV_STATE_DEFAULT, &lv_font_montserrat_12);
+        lv_style_set_text_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+        //lv_style_set_text_font(&fanet_label, LV_STATE_DEFAULT, &lv_font_montserrat_12);
 
         static_init = true;
     }
@@ -290,7 +290,7 @@ static void Map_update(widget_slot_t * slot)
 				fc.fanet.neighbor[i].longitude = 222111000;
 				fc.fanet.neighbor[i].flags |= NB_HAVE_POS;
 				fc.fanet.neighbor[i].dist = 1100;
-				fc.fanet.neighbor[i].heading = 45;
+				fc.fanet.neighbor[i].heading = 2;
 				fc.fanet.neighbor[i].alititude = 1232;
 
 				if (fc.fanet.neighbor[i].flags & NB_HAVE_POS)
@@ -317,7 +317,7 @@ static void Map_update(widget_slot_t * slot)
 
 					lv_obj_align(local->fanet_icons[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2, y - slot->h / 2);
 					lv_img_set_angle(local->fanet_icons[t], fc.fanet.neighbor[i].heading * 14); // ~ 360/255 * 10
-					lv_obj_align(local->fanet_labels[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2 + pg_icon.header.w, y - slot->h / 2);
+					lv_obj_align(local->fanet_labels[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2 + 48, y - slot->h / 2);
 					lv_obj_set_hidden(local->fanet_icons[t], false);
 					lv_obj_set_hidden(local->fanet_labels[t], false);
 					t++;
