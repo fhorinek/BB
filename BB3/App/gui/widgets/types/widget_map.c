@@ -44,8 +44,6 @@ static bool static_init = false;
 static lv_style_t static_label = {0};
 static lv_style_t fanet_label = {0};
 
-#define FA_SIZE 1
-
 LV_IMG_DECLARE(pg_icon);
 
 LV_IMG_DECLARE(arrow_new);

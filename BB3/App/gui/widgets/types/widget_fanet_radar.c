@@ -98,8 +98,6 @@ static void FanetRadar_stop(widget_slot_t * slot)
 	local->cbuf = NULL;
 }
 
-#define FANET_TIMEOUT 600
-
 static void FanetRadar_update(widget_slot_t * slot)
 {
 	char label_value[50];
@@ -130,7 +128,7 @@ static void FanetRadar_update(widget_slot_t * slot)
 		char buffer[32];
 		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
 		for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++) {
-			if (fc.fanet.neighbor[i].flags & NB_HAVE_POS && ((HAL_GetTick() / 1000) - fc.fanet.neighbor[i].timestamp) < FANET_TIMEOUT) {
+			if (fc.fanet.neighbor[i].flags & NB_HAVE_POS) {
 
 				int16_t bearing = 0;
 				int32_t radius;
