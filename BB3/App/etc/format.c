@@ -253,7 +253,7 @@ void format_distance_with_units(char * buf, float in)
 		{
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (in < 1.0) //1mi
-				sprintf(buf, "%0.0fft", mi * 5280);
+				sprintf(buf, "%0.0fft", mi * FC_FEET_IN_MILE);
 			if (in < 10.0) //10mi
 				sprintf(buf, "%0.1fmi", mi);
 			else
@@ -283,7 +283,7 @@ void format_distance(char * buf, float in)
 		{
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (mi < 1.0) //1mi
-				sprintf(buf, "%0.0f", mi * 5280);
+				sprintf(buf, "%0.0f", mi * FC_FEET_IN_MILE);
 			if (mi < 10.0) //10mi
 				sprintf(buf, "%0.1f", mi);
 			else

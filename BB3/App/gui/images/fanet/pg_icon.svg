@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="pg_icon.svg"
+   inkscape:export-filename="C:\Users\Igor\pg_icon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:snap-bbox="true"
+     inkscape:zoom="8.7988368"
+     inkscape:cx="291.51581"
+     inkscape:cy="534.61612"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid415" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Warstwa 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <ellipse
+       style="fill:#ffffff;stroke-width:0.254983"
+       id="path53-1-5-1-0"
+       cx="70.422684"
+       cy="130.34151"
+       rx="12.967443"
+       ry="4.7499886"
+       inkscape:export-filename="C:\Users\Igor\pg_icon4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#0000ff;stroke-width:0.238873"
+       id="path53-1-5-1"
+       cx="70.424553"
+       cy="130.24934"
+       rx="12.49966"
+       ry="4.3247309"
+       inkscape:export-filename="C:\Users\Igor\pg_icon4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path53-1"
+       style="fill:#0000ff;stroke-width:0.231982"
+       d="m 70.663555,127.58105 a 12.381227,4.1178394 0.50050897 0 0 -12.366935,3.66053 12.381227,4.1178394 0.50050897 0 0 12.092241,3.39371 12.381227,4.1178394 0.50050897 0 0 12.367466,-3.6625 12.381227,4.1178394 0.50050897 0 0 -12.092772,-3.39174 z"
+       inkscape:export-filename="C:\Users\Igor\pg_icon4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path53-1-5"
+       style="fill:#ffffff;stroke-width:0.238631"
+       d="m 70.623852,125.99984 -3.967952,8.45703 a 12.413092,4.3460687 0 0 0 3.743689,0.20461 12.413092,4.3460687 0 0 0 3.878656,-0.21864 z"
+       inkscape:export-filename="C:\Users\Igor\pg_icon4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+</svg>

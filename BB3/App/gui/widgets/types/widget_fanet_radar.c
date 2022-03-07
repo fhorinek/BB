@@ -8,7 +8,10 @@
 #include <common.h>
 
 #include "gui/widgets/widget.h"
+#include "gui/images/fanet/pg_icon.h"
 #include "etc/geo_calc.h"
+
+LV_IMG_DECLARE(pg_icon);
 
 REGISTER_WIDGET_ISU
 (
@@ -18,8 +21,8 @@ REGISTER_WIDGET_ISU
     WIDGET_MIN_H,
         _b(wf_label_hide) | _b(wf_hide_icon),
 
-	lv_obj_t * canvas;        // Canvas to paint to
-	lv_color_t *cbuf;         // associated buffer of the canvas
+	lv_obj_t * canvas;
+	lv_color_t *cbuf;
 	uint32_t base_radius;
 
 	lv_obj_t * arrow;
@@ -31,9 +34,8 @@ REGISTER_WIDGET_ISU
 
 static bool static_init = false;
 static lv_draw_line_dsc_t draw_dsc;
-static lv_draw_line_dsc_t nb_dsc;
-static lv_draw_line_dsc_t nb_dsc_proximity;
 static lv_draw_label_dsc_t label_dsc;
+static lv_draw_img_dsc_t pg_icon_dsc;
 
 static void FanetRadar_init(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -45,17 +47,14 @@ static void FanetRadar_init(lv_obj_t * base, widget_slot_t * slot)
     	label_dsc.color = LV_COLOR_WHITE;
     	label_dsc.font = &lv_font_montserrat_12;
 
-    	lv_draw_line_dsc_init(&nb_dsc);
-    	nb_dsc.color = LV_COLOR_GREEN;
-    	nb_dsc.width = 2;
-
-    	lv_draw_line_dsc_init(&nb_dsc_proximity);
-    	nb_dsc_proximity.color = LV_COLOR_RED;
-    	nb_dsc_proximity.width = 2;
-
     	lv_draw_line_dsc_init(&draw_dsc);
     	draw_dsc.color = LV_COLOR_GRAY;
     	draw_dsc.width = 2;
+
+    	lv_draw_img_dsc_init(&pg_icon_dsc);
+    	pg_icon_dsc.antialias = true;
+    	pg_icon_dsc.pivot.x = pg_icon.header.w / 2;
+    	pg_icon_dsc.pivot.y = pg_icon.header.h / 2;
 
         static_init = true;
     }
@@ -99,9 +98,11 @@ static void FanetRadar_stop(widget_slot_t * slot)
 	local->cbuf = NULL;
 }
 
+#define FANET_TIMEOUT 600
+
 static void FanetRadar_update(widget_slot_t * slot)
 {
-	char label_buffer[20];
+	char label_value[50];
 
 	if (fc.fanet.neighbors_magic == local->fanet_magic) {
 		// nothing to do
@@ -114,48 +115,62 @@ static void FanetRadar_update(widget_slot_t * slot)
 	lv_canvas_draw_arc(local->canvas, slot->w / 2, slot->h / 2, local->base_radius * 2, 290, 250, &draw_dsc);
 	lv_canvas_draw_arc(local->canvas, slot->w / 2, slot->h / 2, local->base_radius * 3, 290, 250, &draw_dsc);
 
-	sprintf(label_buffer, "1 km");
-	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius, 50, &label_dsc, label_buffer, LV_LABEL_ALIGN_LEFT);
+	uint8_t distance_units = config_get_select(&config.units.distance);
 
-	sprintf(label_buffer, "3 km");
-	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius * 2, 50, &label_dsc, label_buffer, LV_LABEL_ALIGN_LEFT);
+	sprintf(label_value, "1 %s", (distance_units == DISTANCE_METERS) ? "km" : "mi");
+	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
 
-	sprintf(label_buffer, "5 km");
-	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius * 3, 50, &label_dsc, label_buffer, LV_LABEL_ALIGN_LEFT);
+	sprintf(label_value, "3 %s", (distance_units == DISTANCE_METERS) ? "km" : "mi");
+	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius * 2, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
 
+	sprintf(label_value, "5 %s", (distance_units == DISTANCE_METERS) ? "km" : "mi");
+	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius * 3, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
 
 	if (fc.gnss.fix > 0) {
+		char buffer[32];
+		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
 		for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++) {
-			fc.fanet.neighbor[i].latitude = 529777033;
-			fc.fanet.neighbor[i].longitude = 222111000;
-			fc.fanet.neighbor[i].flags |= NB_HAVE_POS;
-			fc.fanet.neighbor[i].dist = 1000;
-			fc.fanet.neighbor[i].climb = 12;
+						fc.fanet.neighbor[i].latitude = 529777033;
+						fc.fanet.neighbor[i].longitude = 222111000;
+						fc.fanet.neighbor[i].flags |= NB_HAVE_POS;
+						fc.fanet.neighbor[i].dist = 1100;
+						fc.fanet.neighbor[i].heading = 45;
 
-			if (fc.fanet.neighbor[i].flags & NB_HAVE_POS) {
-				char value[32];
+			if (fc.fanet.neighbor[i].flags & NB_HAVE_POS && ((HAL_GetTick() / 1000) - fc.fanet.neighbor[i].timestamp) < FANET_TIMEOUT) {
 
-				int16_t relalt = fc.fanet.neighbor[i].alititude - fc.gnss.altitude_above_ellipsiod;
-
-				snprintf(value, sizeof(value), "%s\n%s%i m\n%s%.1f m/s", fc.fanet.neighbor[i].name, (relalt > 0) ? "+" : "", relalt, (fc.fanet.neighbor[i].climb > 0) ? "+" : "", (double)(fc.fanet.neighbor[i].climb / 10.0) );
-
-				bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
 				int16_t bearing = 0;
 				int32_t radius;
+				uint32_t dist;
+				float step = 1000.0;
 
-				uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.fanet.neighbor[i].latitude, fc.fanet.neighbor[i].longitude, use_fai, &bearing) / 100;
+				dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.fanet.neighbor[i].latitude, fc.fanet.neighbor[i].longitude, use_fai, &bearing) / 100;
 
-				radius = (dist < 1000 ) ? local->base_radius - 5 : ((dist < 3000) ? (local->base_radius * 2 - 5) : (local->base_radius * 3 + 5));
+				if (distance_units == DISTANCE_MILES) {
+					dist = dist * FC_METER_TO_FEET;
+					step = FC_FEET_IN_MILE;
+				}
 
-				lv_coord_t x = radius * cos(to_radians(bearing + 90)) + slot->w / 2;
-				lv_coord_t y = radius * sin(to_radians(bearing + 90)) + slot->h / 2;
+				format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
 
-				lv_canvas_draw_text(local->canvas, x + 10, y - 10, 50, &label_dsc, value, LV_LABEL_ALIGN_LEFT);
+				snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);
 
-				if (dist > 100)
-					lv_canvas_draw_arc(local->canvas, x, y, 5, 1, 360, &nb_dsc);
+				if (dist < (step)){
+					radius = local->base_radius * 0.5 + (local->base_radius * (dist / step * 0.5));
+				} else if (dist < (step * 3)) {
+					radius = local->base_radius + (local->base_radius * ((dist - step) / (step * 2.0)));
+				} else if (dist < (step * 5))
+					radius = local->base_radius * 2 + (local->base_radius * ((dist - (step * 3)) / (step * 2.0)));
 				else
-					lv_canvas_draw_arc(local->canvas, x, y, 5, 1, 360, &nb_dsc_proximity);
+					radius = local->base_radius * 3 + pg_icon.header.h;
+
+				lv_coord_t x = radius * cos(to_radians(bearing - 90)) + slot->w / 2 - pg_icon.header.w / 2;
+				lv_coord_t y = radius * sin(to_radians(bearing - 90)) + slot->h / 2 - pg_icon.header.h / 2;
+
+				lv_canvas_draw_text(local->canvas, x + pg_icon.header.w, y - 5, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
+
+				pg_icon_dsc.angle = fc.fanet.neighbor[i].heading * 14; // ~ 360/255 * 10
+
+				lv_canvas_draw_img(local->canvas, x, y, &pg_icon, &pg_icon_dsc);
 			}
 		}
 	}
