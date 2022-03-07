@@ -1,14 +1,15 @@
-Fixed maps:
-please redownload maps
-strato.skybean.eu/map
+Testing is new devel :-)
 
-Better color palette
-Widget accesible zoom
+We encourage our users to switch to the testing firmware channel.
+Development branch will become much more unstable, with multiple updates per day.
+The Testing branch will behaves as the devel used to, with cumlative functions updates every few days.
+
 
 Added:
-Vario graph
-
-
-Known Issues:
-PLEASE DISABLE GNSS FORWARDING IF YOUR DEVICE CRASH MID FILGHT
+ * Warning that you are on devel branch
+ 
+Changed:
+ * Moved debug.log to settings/advanced
+ * Split Device info to info and firmware
+ * Removed old menu items in development
 

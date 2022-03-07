@@ -202,6 +202,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_BL_FW_MANUAL   "bootloader.fw"
 #define PATH_FANET_FW       PATH_ASSET_DIR "/fanet.xlb"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
+#define PATH_TTS_DIR        PATH_ASSET_DIR "/tts/en"
 
 #define PATH_TOPO_DIR       "agl"
 #define PATH_MAP_DIR        "map"
@@ -218,7 +219,7 @@ extern osThreadId_t SystemHandle;
 #define SKIP_ESP_FILE   "SKIP_ESP"
 #define KEEP_FW_FILE    "KEEP_FW"
 
-
+#define DEVEL_ACTIVE    (file_exists(DEV_MODE_FILE))
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);
@@ -265,6 +266,7 @@ void system_free(void * ptr);
 void system_poweroff();
 void system_reboot();
 void system_reboot_bl();
+void system_wait_for_handle(osThreadId_t * handle);
 
 uint8_t nmea_checksum(char *s);
 

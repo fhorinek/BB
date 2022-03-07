@@ -34,6 +34,8 @@ void sound_start(char * filename)
 
         esp_sound_start(audio_file_id, PROTO_FILE_WAV, f_size(&audio_file));
         audio_file_opened = true;
+    } else {
+    	WARN("Cannot open sound %s file", filename);
     }
 }
 
@@ -61,6 +63,7 @@ void sound_read_next(uint8_t id, uint32_t requested_size)
     {
         //only when error
         WARN("audio file not open for reading");
+        br = 0;
     }
 
     if (br > 0)

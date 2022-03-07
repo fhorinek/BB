@@ -236,6 +236,7 @@ typedef struct
     {
         cfg_entry_t server_url;
         cfg_entry_t fw_channel;
+        cfg_entry_t check_for_updates;
     } system;
 
 	struct

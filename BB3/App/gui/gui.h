@@ -80,6 +80,7 @@ typedef enum
 	BAR_ICON_WIFI,
 	BAR_ICON_SYS,
 	BAR_ICON_DL,
+	BAR_ICON_FW,
 
 	BAR_ICON_CNT
 } status_bar_icon_t;
@@ -266,7 +267,7 @@ void gui_take_screenshot();
 void gui_lock_acquire();
 void gui_lock_release();
 
-void gui_show_release_note();
+void release_note_show();
 
 #define GUI_QUEUE_SIZE 			2
 #define GUI_TASK_SW_ANIMATION	250

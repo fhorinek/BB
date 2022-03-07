@@ -1,8 +1,55 @@
-# 18.2.2021 - Build 238
+# 4.3.2022 - Devel 246
+Testing is new devel :-)
+
+We encourage our users to switch to the testing firmware channel.
+Development branch will become much more unstable, with multiple updates per day.
+The Testing branch will behaves as the devel used to, with cumlative functions updates every few days.
+
+
+##Added:
+ * Warning that you are on devel branch
+ 
+##Changed:
+ * Moved debug.log to settings/advanced
+ * Split Device info to info and firmware
+ * Removed old menu items in development
+ 
+##Fixes
+ * Bad object refocus in gui_list_retrive_pos
+
+
+# 4.3.2022 - Testing 243
+Based on D242
+##Added
+ * Map scale bar
+ * New icon on map arrow
+
+##Fixes:
+ * Mems not start up when debug to file is on
+
+# 18.2.2022 - Devel 242
+Under the hood maintanace
+
+##Added
+ * New FW notification
+ * Scrollable release note
+
+##Changed
+ * Widget categorization for better orientation
+ * Main roads are now yellow to distinguish them from powerlines
+
+##Development
+ * Page switching thread-safe via queue 
+ * ESP communication is done via thread-safe cirular buffer transfered via DMA
+ * ESP side watchdog will reset ESP if there is no ping in 1000ms
+ * New memory locking system will prevent unsafe access during allocation
+
+
+# 18.2.2022 - Devel 238
 ## Fixed maps
  * Fix zero lat/lon bug
 
-# 18.2.2021 - Build 237
+# 18.2.2022 - Devel 237
 ## Fixed maps
  * Works with negative coordinates
  * please redownload maps: strato.skybean.eu/map
@@ -12,7 +59,7 @@
 ## Added:
  * Vario graph
 
-# 3.2.2021 - Build 236
+# 3.2.2022 - Devel 236
 ## Added
  * Map widget - see strato.skybean.eu/map
  * Time to take off widget
@@ -24,7 +71,7 @@
  * Ignore empty update
 
 
-# 24.1.2021 - Build 235
+# 24.1.2022 - Devel 235
 ## Added
  * new TimeDate widget to display current time and date
  * logging to csv
@@ -37,7 +84,7 @@
  * Added more error messages
  * More memory for lvgl
 
-# 19.1.2022 - Build 230
+# 19.1.2022 - Devel 230
 ## Added
  * New wind estimation calculation
  * New thermal assistant by Igor Popik
@@ -59,11 +106,11 @@
  * New igc simulator for strato
 
 
-# 22.12.2021 - Build 208
+# 22.12.2021 - Devel 208
 ## Fixes
  * In some cases Page switching caused crash at boot
 
-# 17.12.2021 - Build 207
+# 17.12.2021 - Devel 207
 ## Added
  * Thermal assistant, Thermal gain, Thermal time
  * Smart page switching (power on, take off, glide, circle, land)
@@ -86,7 +133,7 @@
  * GNSS forwarding
 
 
-# 16.11.2021 - Build 177
+# 16.11.2021 - Devel 177
 ## Added
  * New layout editor
  * Widget options
@@ -99,7 +146,7 @@
  * USB mode not working when full
 
 
-# 13.10.2021 - Build 171
+# 13.10.2021 - Devel 171
 ## Added
  * Bluetooth device management
  * BLE + SPP telemetry
@@ -110,13 +157,13 @@
  * Bluetooth playback quality
 
 
-# 09.09.2021 - Build 154
+# 09.09.2021 - Devel 154
 
 ## Fixed
  * GNSS init error
  * return page after power off/on #86
 
-# 09.09.2021 - Build 149
+# 09.09.2021 - Devel 149
 
 ## Added
  * Bootloader wipe will preserve the calibration
@@ -133,7 +180,7 @@
  * OTA update stability improved
  * MEMS i2c recovery
 
-# 31.08.2021 - Build 148
+# 31.08.2021 - Devel 148
 
 ## Added
  * Odometer
@@ -141,7 +188,7 @@
 ## Fixed
  * Arrow widgets crash 
 
-# 29.08.2021 - Build 146
+# 29.08.2021 - Devel 146
 
 ## Added
  * Widget Glide ratio
@@ -153,7 +200,7 @@
 ## Changed
  * system i2c recovery (should also help with #64, #62, #60)
 
-# 27.08.2021 - Build 145
+# 27.08.2021 - Devel 145
 
 ## Changed
  * power off sequence handler (should fix #64, #62, #60)
@@ -163,7 +210,7 @@
  * Powering off with debug to serial disabled
  
 
-# 11.08.2021 - Build 143
+# 11.08.2021 - Devel 143
 
 ## Added
  * G-record for IGC
@@ -174,7 +221,7 @@
  * Bootloader will only change the drive name if it is not set
 
 
-# 05.08.2021 - Build 140
+# 05.08.2021 - Devel 140
 
 ## Changed
  * Development menu is hidden, click 5 times on serial number in device info to enable it #40
@@ -184,7 +231,7 @@
  * Audio Vario freezes #52, #15
  * Wifi menu #43, #25, #44
 
-# 30.07.2021 - Build 139
+# 30.07.2021 - Devel 139
 
 ## Added
  * Audio profile editor on device, connect directly to strato ip via web browser
@@ -195,7 +242,7 @@
  * Audio vario respose
  * bluetooth playback #28
 
-# 23.07.2021 - Build 138
+# 23.07.2021 - Devel 138
 
 ## Added
  * Abiliti to downgrade/change firmware via menu
@@ -208,7 +255,7 @@
  * Vario sound "all the time rising" #15
  
 
-# 20.07.2021 - Build 133
+# 20.07.2021 - Devel 133
 
 ## Added
  * Automatic power-down when 3.1 V on battery is reached - this will prevent triggering battery protection
@@ -219,7 +266,7 @@
 ## Note
  * Bootloader update recomended
 
-# 12.07.2021 - Build 132
+# 12.07.2021 - Devel 132
 
 ## Added
  * Settings for units selection
@@ -237,7 +284,7 @@
  * IGC logger records wrong date #8
  
 
-# 12.07.2021 - Build 125
+# 12.07.2021 - Devel 125
 
 ## Added
 

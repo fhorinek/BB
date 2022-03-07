@@ -84,10 +84,15 @@ uint16_t spi_send(uint8_t * data, uint16_t len)
 
     return to_write;
 }
+
+extern int64_t protocol_last_packet;
+
 void spi_parse(uint8_t * data, uint16_t len)
 {
 	while (len > 0)
 	{
+		protocol_last_packet = esp_timer_get_time();
+
 		proto_spi_header_t * hdr = (proto_spi_header_t *)data;
 
 		//advance buffer

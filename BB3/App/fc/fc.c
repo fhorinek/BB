@@ -25,6 +25,7 @@
 #include "fc/wind.h"
 
 #include "gui/tasks/page/pages.h"
+#include "etc/notifications.h"
 
 fc_t fc;
 
@@ -206,6 +207,8 @@ void fc_takeoff()
     logger_start();
 
     gui_page_set_next(&profile.ui.autoset.take_off);
+
+    notification_send(notify_take_off);
 }
 
 void fc_landing()
@@ -220,6 +223,8 @@ void fc_landing()
     logger_stop();
 
     gui_page_set_next(&profile.ui.autoset.land);
+
+    notification_send(notify_landing);
 }
 
 //run via timer every 250ms

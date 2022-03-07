@@ -332,7 +332,7 @@ flight_profile_t profile =
 	//map
 	{
         //zoom_flight
-        entry_int("zoom_flight", 25, 1, 250),
+        entry_int("zoom_flight", 3, 0, 8),
         //zoom_flight
         entry_bool("map_blur", true),
         //alt_range
@@ -463,6 +463,8 @@ config_t config =
         entry_text("update_url", "https://strato.skybean.eu/update", UPDATE_URL_LEN, 0),
         //firmware_channel
         entry_select("firmware", FW_RELEASE, fw_channel_select),
+        //check_for_updates
+        entry_bool("check_fw", true),
     },
 
 	//debug

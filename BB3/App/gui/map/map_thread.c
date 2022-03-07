@@ -61,6 +61,8 @@ void alloc_bomb(uint8_t * buff_in, uint32_t level)
 
 void thread_map_start(void *argument)
 {
+    system_wait_for_handle(&thread_map);
+
     INFO("Started");
 
     osDelay(1000);

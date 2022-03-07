@@ -51,7 +51,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       2
+#define CACHE_VERSION       9
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -910,31 +910,42 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 //      DBG("feature %u type %u", index++, type);
 
 //        if (type == 0 || (type <= 13 && type >= 10)) //place
-        if (type <= 13 && type >= 10) //place
+        if ((type <= 13 && type >= 10) || type == 0) //place
         {
-            int32_t plon = *((int32_t *)(map_cache + actual->feature_addr + 4));
-            int32_t plat = *((int32_t *)(map_cache + actual->feature_addr + 8));
+            bool next_step = true;
+            if (zoom > 3 && type == 0)
+                next_step = false;
+            if (zoom == 5 && type >= 13)
+                next_step = false;
+            if (zoom >= 6 && type >= 11)
+                next_step = false;
 
-            int32_t clon = lon1 + (lon2 - lon1) / 2;
-            int32_t clat = lat1 + (lat2 - lat1) / 2;
-
-            int16_t x, y;
-            geo_to_pix_w_h(clon, clat, zoom, plon, plat, &x, &y, MAP_W, MAP_H);
-
-            if (!(x < 0 || x >= MAP_W || y < 0 || y >= MAP_H))
+            if (next_step)
             {
-                map_poi_t poi;
+                int32_t plon = *((int32_t *)(map_cache + actual->feature_addr + 4));
+                int32_t plat = *((int32_t *)(map_cache + actual->feature_addr + 8));
 
-                poi.chunk = chunk_index;
-                poi.magic = poi_magic;
-                poi.type = type;
-                poi.uid = actual->feature_addr;
+                int32_t clon = lon1 + (lon2 - lon1) / 2;
+                int32_t clat = lat1 + (lat2 - lat1) / 2;
 
-                poi.x = x;
-                poi.y = y;
+                int16_t x, y;
+                geo_to_pix_w_h(clon, clat, zoom, plon, plat, &x, &y, MAP_W, MAP_H);
 
-                uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
-                tile_poi_add(&poi, (char *)(map_cache + actual->feature_addr + 12), name_len);
+                if (!(x < 0 || x >= MAP_W || y < 0 || y >= MAP_H))
+                {
+                    map_poi_t poi;
+
+                    poi.chunk = chunk_index;
+                    poi.magic = poi_magic;
+                    poi.type = type;
+                    poi.uid = actual->feature_addr;
+
+                    poi.x = x;
+                    poi.y = y;
+
+                    uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
+                    tile_poi_add(&poi, (char *)(map_cache + actual->feature_addr + 12), name_len);
+                }
             }
         }
 
@@ -972,7 +983,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 line_draw.color = LV_COLOR_WHITE;
                 break;
             case(123):
-                if (zoom > 30)
+                if (zoom > 5)
                     skip = true;
 
                 line_draw.width = 1;
@@ -985,6 +996,9 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 break;
             //power or airway
             default:
+                if (zoom > 6)
+                    skip = true;
+
                 line_draw.width = 1;
                 line_draw.color = LV_COLOR_BLACK;
                 draw_warning = true;

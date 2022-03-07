@@ -12,6 +12,8 @@
 
 #include "etc/geo_calc.h"
 
+#include "gui/images/arrow/arrow.h"
+
 REGISTER_WIDGET_ISUE(Map,
     "Map",
     WIDGET_MIN_W,
@@ -19,10 +21,9 @@ REGISTER_WIDGET_ISUE(Map,
 	0,
 
     lv_obj_t * image[9];
-	lv_obj_t * arrow;
 	lv_obj_t * dot;
+    lv_obj_t * arrow;
 
-    lv_point_t points[WIDGET_ARROW_POINTS];
     lv_obj_t * poi[NUMBER_OF_POI];
     uint8_t poi_magic[NUMBER_OF_POI];
 
@@ -46,6 +47,8 @@ static lv_style_t fanet_label = {0};
 #define FA_SIZE 1
 
 LV_IMG_DECLARE(pg_icon);
+
+LV_IMG_DECLARE(arrow_new);
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -101,9 +104,10 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
     lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
 
-    local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
-    lv_obj_set_style_local_line_color(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-    lv_obj_set_style_local_line_width(local->arrow, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 4);
+    local->arrow = lv_img_create(slot->obj, NULL);
+    lv_img_set_src(local->arrow, &arrow_new);
+    lv_obj_align(local->arrow, slot->obj, LV_ALIGN_CENTER, 0, 0);
+    lv_img_set_antialias(local->arrow, true);
 }
 
 static void Map_update(widget_slot_t * slot)
@@ -257,8 +261,7 @@ static void Map_update(widget_slot_t * slot)
     {
     	if (fc.gnss.ground_speed > 2)
 		{
-
-			widget_arrow_rotate_size(local->arrow, local->points, fc.gnss.heading, 40);
+    		lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
 			lv_obj_set_hidden(local->arrow, false);
 			lv_obj_set_hidden(local->dot, true);
     	}
@@ -333,18 +336,25 @@ static void Map_update(widget_slot_t * slot)
     if (local->edit != NULL)
     {
     	lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
-    	lv_obj_t * zoom = lv_obj_get_child(base, NULL);
+    	lv_obj_t * zoom = lv_obj_get_child(base, lv_obj_get_child(base, NULL));
 
     	char buff[32];
 
-    	snprintf(buff, sizeof(buff), "%d", config_get_int(&profile.map.zoom_flight));
+    	uint16_t zoom_p = pow(2, config_get_int(&profile.map.zoom_flight));
+
+    	int32_t guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
+
+    	format_distance_with_units2(buff, guide_m);
     	lv_label_set_text(zoom, buff);
     }
 }
 
 static void Map_stop(widget_slot_t * slot)
 {
-
+    if (local->edit != NULL)
+    {
+        widget_destroy_edit_overlay(local->edit);
+    }
 }
 
 static void Map_edit(widget_slot_t * slot, uint8_t action)
@@ -371,10 +381,26 @@ static void Map_edit(widget_slot_t * slot, uint8_t action)
 		if (local->edit == NULL)
 		{
 			//create menu
-			local->edit = widget_create_edit_overlay("Map", "Set Zoom Level");
+			local->edit = widget_create_edit_overlay("", "Set Zoom Level");
+
+            //no anim, make fully transparent
+            lv_anim_get(local->edit, NULL);
+            lv_obj_set_style_local_bg_opa(local->edit, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+
 			lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
 			lv_obj_t * zoom = lv_label_create(base, NULL);
-			lv_obj_set_style_local_text_font(zoom, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[FONT_XL]);
+            lv_obj_set_style_local_pad_top(zoom, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 15);
+            lv_obj_set_style_local_text_font(zoom, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[FONT_L]);
+
+			lv_obj_t * bar = lv_obj_create(base, NULL);
+			lv_obj_set_size(bar, 120, 8);
+            lv_obj_set_style_local_bg_color(bar, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+            lv_obj_set_style_local_border_color(bar, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+            lv_obj_set_style_local_border_width(bar, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 1);
+
+            lv_obj_t * bar2 = lv_obj_create(bar, NULL);
+            lv_obj_set_size(bar2, 40, 8);
+            lv_obj_align(bar2, bar, LV_ALIGN_CENTER, 0, 0);
 
 			//update values
 			Map_update(slot);
