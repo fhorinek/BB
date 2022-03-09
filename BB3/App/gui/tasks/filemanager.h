@@ -20,7 +20,7 @@ bool filemanager_get_filename(char * dst, char * path);
 bool filemanager_get_path(char * dst, char * path);
 
 #define FM_CB_BACK          0xF0
-#define FM_CB_SELECT        0xF1
+#define FM_CB_SELECT        0xF1   // file gets selected. If callback returns true, filemanager gets closed and return to previous gui_task_t
 #define FM_CB_FOCUS_FILE    0xF2
 #define FM_CB_FOCUS_DIR     0xF3
 #define FM_CB_FILTER        0xF4
