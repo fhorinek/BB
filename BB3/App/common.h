@@ -114,6 +114,7 @@ typedef struct
 #define SWAP_UINT16(x)          ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
 
 #define __align __attribute__ ((aligned (4)))
+#define NO_OPTI	__attribute__((optimize("O0")))
 
 extern bool system_power_off;
 
