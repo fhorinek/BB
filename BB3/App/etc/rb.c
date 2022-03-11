@@ -22,7 +22,7 @@ void rb_free(rb_handle_t * rb)
 uint32_t rb_read(rb_handle_t * rb, uint32_t len, uint8_t * * data)
 {
 	UBaseType_t uxSavedInterruptStatus;
-	if (IS_IRQ_MODE())
+	if (xPortIsInsideInterrupt())
 	{
 		uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
 	}
@@ -42,7 +42,7 @@ uint32_t rb_read(rb_handle_t * rb, uint32_t len, uint8_t * * data)
 	rb->read_index = (rb->read_index + len) % rb->size;
 	rb->length -= len;
 
-	if (IS_IRQ_MODE())
+	if (xPortIsInsideInterrupt())
 	{
 		taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
 	}
@@ -57,7 +57,7 @@ uint32_t rb_read(rb_handle_t * rb, uint32_t len, uint8_t * * data)
 bool rb_write(rb_handle_t * rb, uint32_t len, uint8_t * data)
 {
 	UBaseType_t uxSavedInterruptStatus;
-	if (IS_IRQ_MODE())
+	if (xPortIsInsideInterrupt())
 	{
 		uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
 	}
@@ -89,7 +89,7 @@ bool rb_write(rb_handle_t * rb, uint32_t len, uint8_t * data)
 		rb->length += len;
 	}
 
-	if (IS_IRQ_MODE())
+	if (xPortIsInsideInterrupt())
 	{
 		taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
 	}

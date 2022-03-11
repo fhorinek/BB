@@ -111,130 +111,85 @@ extern TIM_HandleTypeDef htim1;
     FAULT("XPSR: 0x%08X", frame->xpsr);             \
     FAULT("------------------------------------");  \
 
-void backtrace(uint32_t SP)
-{
-
-}
-
 #define HANDLER_ATTR    __attribute__ ((optimize("O0"), naked))
 
-HANDLER_ATTR void UsageFault_Handler(void)
-{
-    DUMP_REGISTERS
-
-    FAULT("Program stopped in UsageFault_Handler");
-    uint32_t CFSR = SCB->CFSR;
-    FAULT("UFSR: 0x%04X", (CFSR & SCB_CFSR_USGFAULTSR_Msk) >> SCB_CFSR_USGFAULTSR_Pos);
-    if (CFSR & SCB_CFSR_DIVBYZERO_Msk)
-        FAULT(" DIVBYZERO - Divide instruction was executed where the denominator was zero");
-    if (CFSR & SCB_CFSR_UNALIGNED_Msk)
-        FAULT(" UNALIGNED - Unaligned access operation occurred");
-    if (CFSR & SCB_CFSR_NOCP_Msk)
-        FAULT(" NOCP - Coprocessor instruction was issued but the coprocessor was disabled or not present");
-    if (CFSR & SCB_CFSR_INVPC_Msk)
-        FAULT(" INVPC - Integrity check failure on EXC_RETURN");
-    if (CFSR & SCB_CFSR_INVSTATE_Msk)
-        FAULT(" INVSTATE - Tried to execute instruction with an invalid Execution Program Status Register");
-    if (CFSR & SCB_CFSR_UNDEFINSTR_Msk)
-        FAULT(" UNDEFINSTR - Undefined instruction was executed");
-
-    bsod_show(frame);
-}
-
-HANDLER_ATTR void BusFault_Handler(void)
-{
-    DUMP_REGISTERS
-	backtrace(frame->lr);
-
-    FAULT("Program stopped in BusFault_Handler");
-    uint32_t CFSR = SCB->CFSR;
-	FAULT("BFSR: 0x%04X", (CFSR & SCB_CFSR_MEMFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
-	if (CFSR & SCB_CFSR_BFARVALID_Msk)
-		FAULT(" BFARVALID - Bus Fault Address Register valid 0x%08X", SCB->BFAR);
-	if (CFSR & SCB_CFSR_LSPERR_Msk)
-		FAULT(" LSPERR");
-	if (CFSR & SCB_CFSR_STKERR_Msk)
-		FAULT(" STKERR");
-	if (CFSR & SCB_CFSR_UNSTKERR_Msk)
-		FAULT(" UNSTKERR - Fault occurred trying to return from an exception");
-	if (CFSR & SCB_CFSR_IMPRECISERR_Msk)
-		FAULT(" IMPRECISERR - Hardware was not able to determine the exact location of the fault");
-	if (CFSR & SCB_CFSR_INVSTATE_Msk)
-		FAULT(" INVSTATE - Tried to execute instruction with an invalid Execution Program Status Register");
-	if (CFSR & SCB_CFSR_PRECISERR_Msk)
-		FAULT(" PRECISERR - Instruction which was executing prior to exception entry triggered the fault");
-	if (CFSR & SCB_CFSR_IBUSERR_Msk)
-		FAULT(" IBUSERR - Instruction access violation");
-    bsod_show(frame);
-}
-
-HANDLER_ATTR void MemManage_Handler(void)
-{
-    DUMP_REGISTERS
-
-	FAULT("Program stopped in MemManage_Handler");
-	uint32_t CFSR = SCB->CFSR;
-    FAULT("MFSR: 0x%04X", (CFSR & SCB_CFSR_BUSFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
-    if (CFSR & SCB_CFSR_IACCVIOL_Msk)
-        FAULT(" IACCVIOL - Instruction access violation");
-    if (CFSR & SCB_CFSR_DACCVIOL_Msk)
-        FAULT(" DACCVIOL - Data access violation");
-    if (CFSR & SCB_CFSR_MUNSTKERR_Msk)
-        FAULT(" MUNSTKERR - Unstacking error");
-    if (CFSR & SCB_CFSR_MSTKERR_Msk)
-        FAULT(" MSTKERR - Stacking error");
-    if (CFSR & SCB_CFSR_MLSPERR_Msk)
-        FAULT(" MLSPERR - Floating point lazy state preserveation error");
-    if (CFSR & SCB_CFSR_MMARVALID_Msk)
-        FAULT(" MMARVALID - Mem manage address register valid 0x%08X", SCB->BFAR);
-    bsod_show(frame);
-}
+//HANDLER_ATTR void UsageFault_Handler(void)
+//{
+//    DUMP_REGISTERS
+//
+//    FAULT("Program stopped in UsageFault_Handler");
+//    uint32_t CFSR = SCB->CFSR;
+//    FAULT("UFSR: 0x%04X", (CFSR & SCB_CFSR_USGFAULTSR_Msk) >> SCB_CFSR_USGFAULTSR_Pos);
+//    if (CFSR & SCB_CFSR_DIVBYZERO_Msk)
+//        FAULT(" DIVBYZERO - Divide instruction was executed where the denominator was zero");
+//    if (CFSR & SCB_CFSR_UNALIGNED_Msk)
+//        FAULT(" UNALIGNED - Unaligned access operation occurred");
+//    if (CFSR & SCB_CFSR_NOCP_Msk)
+//        FAULT(" NOCP - Coprocessor instruction was issued but the coprocessor was disabled or not present");
+//    if (CFSR & SCB_CFSR_INVPC_Msk)
+//        FAULT(" INVPC - Integrity check failure on EXC_RETURN");
+//    if (CFSR & SCB_CFSR_INVSTATE_Msk)
+//        FAULT(" INVSTATE - Tried to execute instruction with an invalid Execution Program Status Register");
+//    if (CFSR & SCB_CFSR_UNDEFINSTR_Msk)
+//        FAULT(" UNDEFINSTR - Undefined instruction was executed");
+//
+//    bsod_show(frame);
+//}
+//
+//HANDLER_ATTR void BusFault_Handler(void)
+//{
+//    DUMP_REGISTERS
+//	backtrace(frame->lr);
+//
+//    FAULT("Program stopped in BusFault_Handler");
+//    uint32_t CFSR = SCB->CFSR;
+//	FAULT("BFSR: 0x%04X", (CFSR & SCB_CFSR_MEMFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
+//	if (CFSR & SCB_CFSR_BFARVALID_Msk)
+//		FAULT(" BFARVALID - Bus Fault Address Register valid 0x%08X", SCB->BFAR);
+//	if (CFSR & SCB_CFSR_LSPERR_Msk)
+//		FAULT(" LSPERR");
+//	if (CFSR & SCB_CFSR_STKERR_Msk)
+//		FAULT(" STKERR");
+//	if (CFSR & SCB_CFSR_UNSTKERR_Msk)
+//		FAULT(" UNSTKERR - Fault occurred trying to return from an exception");
+//	if (CFSR & SCB_CFSR_IMPRECISERR_Msk)
+//		FAULT(" IMPRECISERR - Hardware was not able to determine the exact location of the fault");
+//	if (CFSR & SCB_CFSR_INVSTATE_Msk)
+//		FAULT(" INVSTATE - Tried to execute instruction with an invalid Execution Program Status Register");
+//	if (CFSR & SCB_CFSR_PRECISERR_Msk)
+//		FAULT(" PRECISERR - Instruction which was executing prior to exception entry triggered the fault");
+//	if (CFSR & SCB_CFSR_IBUSERR_Msk)
+//		FAULT(" IBUSERR - Instruction access violation");
+//    bsod_show(frame);
+//}
+//
+//HANDLER_ATTR void MemManage_Handler(void)
+//{
+//    DUMP_REGISTERS
+//
+//	FAULT("Program stopped in MemManage_Handler");
+//	uint32_t CFSR = SCB->CFSR;
+//    FAULT("MFSR: 0x%04X", (CFSR & SCB_CFSR_BUSFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
+//    if (CFSR & SCB_CFSR_IACCVIOL_Msk)
+//        FAULT(" IACCVIOL - Instruction access violation");
+//    if (CFSR & SCB_CFSR_DACCVIOL_Msk)
+//        FAULT(" DACCVIOL - Data access violation");
+//    if (CFSR & SCB_CFSR_MUNSTKERR_Msk)
+//        FAULT(" MUNSTKERR - Unstacking error");
+//    if (CFSR & SCB_CFSR_MSTKERR_Msk)
+//        FAULT(" MSTKERR - Stacking error");
+//    if (CFSR & SCB_CFSR_MLSPERR_Msk)
+//        FAULT(" MLSPERR - Floating point lazy state preserveation error");
+//    if (CFSR & SCB_CFSR_MMARVALID_Msk)
+//        FAULT(" MMARVALID - Mem manage address register valid 0x%08X", SCB->BFAR);
+//    bsod_show(frame);
+//}
 
 /* USER CODE END EV */
 
 /******************************************************************************/
 /*           Cortex Processor Interruption and Exception Handlers          */
 /******************************************************************************/
-/**
-  * @brief This function handles Non maskable interrupt.
-  */
-void NMI_Handler(void)
-{
-  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-
-  /* USER CODE END NonMaskableInt_IRQn 0 */
-  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-
-  /* USER CODE END NonMaskableInt_IRQn 1 */
-}
-
-/**
-  * @brief This function handles Hard fault interrupt.
-  */
-void HardFault_Handler(void)
-{
-  /* USER CODE BEGIN HardFault_IRQn 0 */
-  FAULT("Program stopped in HardFault_Handler");
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
-}
-
-/**
-  * @brief This function handles Debug monitor.
-  */
-void DebugMon_Handler(void)
-{
-  /* USER CODE BEGIN DebugMonitor_IRQn 0 */
-
-  /* USER CODE END DebugMonitor_IRQn 0 */
-  /* USER CODE BEGIN DebugMonitor_IRQn 1 */
-
-  /* USER CODE END DebugMonitor_IRQn 1 */
-}
 
 /******************************************************************************/
 /* STM32H7xx Peripheral Interrupt Handlers                                    */
@@ -349,10 +304,10 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
 
   /* USER CODE END EXTI9_5_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(USB_DATA_DFP_1A_Pin);
-  HAL_GPIO_EXTI_IRQHandler(LED_TORCH_Pin);
+  HAL_GPIO_EXTI_IRQHandler(DISP_TE_Pin);
+  HAL_GPIO_EXTI_IRQHandler(BT1_Pin);
   HAL_GPIO_EXTI_IRQHandler(BT4_Pin);
-  HAL_GPIO_EXTI_IRQHandler(USB_VBUS_Pin);
+  HAL_GPIO_EXTI_IRQHandler(BT5_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
   /* USER CODE END EXTI9_5_IRQn 1 */
@@ -672,4 +627,3 @@ void MDMA_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-

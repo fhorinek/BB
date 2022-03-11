@@ -501,11 +501,13 @@ typedef int mz_bool;
 #define MZ_MACRO_END while (0)
 #endif
 
+#define MINIZ_NO_TIME
+
 #ifdef MINIZ_NO_STDIO
-#define MZ_FILE void *
+#define MZ_FILE FIL
 #else
-#include <stdio.h>
-#define MZ_FILE FILE
+#include "ff.h"
+#define MZ_FILE FIL
 #endif /* #ifdef MINIZ_NO_STDIO */
 
 #ifdef MINIZ_NO_TIME

@@ -27,6 +27,7 @@
 #include "mdma.h"
 #include "octospi.h"
 #include "sdmmc.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -85,13 +86,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
   SCB->VTOR = APP_ADDRESS;
 
-  //enable Usage-/Bus-/MPU Fault
-  SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk
-             | SCB_SHCSR_BUSFAULTENA_Msk
-             | SCB_SHCSR_MEMFAULTENA_Msk;
-
   //enable trap for div 0 and unaligned access
-  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
+  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk
            //| SCB_CCR_UNALIGN_TRP_Msk;
 
   /* USER CODE END 1 */
@@ -135,6 +131,7 @@ int main(void)
   MX_CRC_Init();
   MX_TIM17_Init();
   MX_TIM15_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -142,6 +139,7 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
+
   /* Start scheduler */
   osKernelStart();
 
@@ -169,18 +167,22 @@ void SystemClock_Config(void)
   /** Supply configuration update enable
   */
   HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+
   /** Configure the main internal regulator output voltage
   */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
   while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+
   /** Configure LSE Drive Capability
   */
   HAL_PWR_EnableBkUpAccess();
   __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
+
   /** Macro to configure the PLL clock source
   */
   __HAL_RCC_PLL_PLLSOURCE_CONFIG(RCC_PLLSOURCE_HSE);
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -205,6 +207,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -265,12 +268,13 @@ void MPU_Config(void)
 
   /* Disables the MPU */
   HAL_MPU_Disable();
+
   /** Initializes and configures the Region and the memory to be protected
   */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER0;
   MPU_InitStruct.BaseAddress = 0x90000000;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_16MB;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_8MB;
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
   MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
@@ -280,6 +284,7 @@ void MPU_Config(void)
   MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
 
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
   /** Initializes and configures the Region and the memory to be protected
   */
   MPU_InitStruct.Number = MPU_REGION_NUMBER1;
@@ -347,4 +352,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-

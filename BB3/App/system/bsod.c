@@ -10,6 +10,7 @@
 #include "drivers/nvm.h"
 #include "lib/mcufont/mcufont.h"
 #include "drivers/rev.h"
+#include "lib/miniz/miniz.h"
 
 const struct mf_font_s * bsod_font;
 
@@ -21,6 +22,7 @@ const struct mf_font_s * bsod_font;
 #define GFX_INVERT  5
 
 uint8_t gfx_color = GFX_BLACK;
+static uint16_t gfx_last_x = 0;
 
 static void pixel_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state)
 {
@@ -65,6 +67,7 @@ static void pixel_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, v
 
         x++;
     }
+    gfx_last_x = x;
 }
 
 static uint8_t character_callback(int16_t x, int16_t y, mf_char character, void *state)
@@ -246,4 +249,293 @@ void bsod_msg(const char *format, ...)
 	FAULT("%s", msg);
 
 	bsod_end();
+}
+
+static uint16_t bsod_line = 0;
+
+void bsod_crash_reason(const Crash_Object * info)
+{
+    char buff[64];
+    char tmp[10];
+
+    rev_get_sw_string(tmp);
+    snprintf(buff, sizeof(buff), "FW: %s", tmp);
+    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+
+//    snprintf(buff, sizeof(buff), "HW: %02X", rev_get_hw());
+//    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+
+    bsod_line++;
+
+    uint32_t CFSR = SCB->CFSR;
+
+    if (CFSR & SCB_CFSR_USGFAULTSR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "Usage Fault", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_DIVBYZERO_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "DIVBYZERO", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_UNALIGNED_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "UNALIGNED", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_NOCP_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "NOCP", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_INVPC_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "INVPC", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_INVSTATE_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "INVSTATE", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_UNDEFINSTR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "UNDEFINSTR", MF_ALIGN_LEFT);
+
+    if (CFSR & SCB_CFSR_BUSFAULTSR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "Bus Fault", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_BFARVALID_Msk)
+    {
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "BFARVALID", MF_ALIGN_LEFT);
+        snprintf(buff, sizeof(buff), "BFAR: %08lX", SCB->BFAR);
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+    }
+    if (CFSR & SCB_CFSR_LSPERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "LSPERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_STKERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "STKERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_UNSTKERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "UNSTKERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_IMPRECISERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "IMPRECISERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_PRECISERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "PRECISERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_IBUSERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "IBUSERR", MF_ALIGN_LEFT);
+
+    if (CFSR & SCB_CFSR_MEMFAULTSR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "Mem Fault", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MMARVALID_Msk)
+    {
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "MMARVALID", MF_ALIGN_LEFT);
+        snprintf(buff, sizeof(buff), "MMFAR: %08lX", SCB->BFAR);
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+    }
+    if (CFSR & SCB_CFSR_IACCVIOL_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "IACCVIOL", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_DACCVIOL_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "DACCVIOL", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MUNSTKERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "MUNSTKERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MSTKERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "MSTKERR", MF_ALIGN_LEFT);
+    if (CFSR & SCB_CFSR_MLSPERR_Msk)
+        bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, "MLSPERR", MF_ALIGN_LEFT);
+
+    bsod_line++;
+
+    snprintf(buff, sizeof(buff), "PC: 0x%08lX", info->pSP->pc);
+    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+    snprintf(buff, sizeof(buff), "LR: 0x%08lX", info->pSP->lr);
+    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+
+    bsod_line++;
+
+
+}
+
+void bsod_redraw()
+{
+    tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
+}
+
+
+
+void bsod_crash_start(const Crash_Object * info)
+{
+    bsod_init();
+
+    bsod_line = 0;
+
+    bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, "** Strato Crashed **", MF_ALIGN_CENTER);
+
+    bsod_crash_reason(info);
+
+    if (config_get_bool(&config.debug.crash_dump))
+    {
+        bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, "Creating report", MF_ALIGN_CENTER);
+        bsod_draw_text(LEFT_PAD, (bsod_line) * LINE_SIZE, "Dumping RAM...", MF_ALIGN_LEFT);
+
+        bsod_redraw();
+    }
+    else
+    {
+        bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, "Crash report disabled", MF_ALIGN_CENTER);
+
+        bsod_end();
+    }
+}
+
+void bsod_list_readdir(FIL * file, char * path, uint8_t level)
+{
+    DIR dir;
+    static FILINFO fno;
+    static char buff[PATH_LEN];
+    UINT bw;
+
+    for (uint8_t i = 0; i < level; i++)
+        buff[i] = '\t';
+
+    if (level > 0)
+    {
+        snprintf(buff + level, sizeof(buff) - level, "[%s]\n", path);
+    }
+    else
+    {
+        snprintf(buff, sizeof(buff), "[Strato SD card]\n");
+    }
+    f_write(file, buff, strlen(buff), &bw);
+
+
+    FRESULT res = f_opendir(&dir, path);
+    if (res == FR_OK)
+    {
+        for (;;)
+        {
+            res = f_readdir(&dir, &fno);
+
+            if (res != FR_OK || fno.fname[0] == 0)
+                break;
+
+            if (fno.fattrib & AM_DIR)
+            {
+                uint16_t i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);
+                bsod_list_readdir(file, path, level + 1);
+                path[i] = 0;
+            }
+            else
+            {
+                snprintf(buff + level, sizeof(buff) - level, "\t%-30s %lu\n", fno.fname, fno.fsize);
+                f_write(file, buff, strlen(buff), &bw);
+            }
+        }
+        f_closedir(&dir);
+    }
+}
+
+void bsod_list_flies()
+{
+    bsod_draw_text(LEFT_PAD, (bsod_line) * LINE_SIZE, "Listing files...", MF_ALIGN_LEFT);
+
+    FIL file;
+    FRESULT res = f_open(&file, PATH_CRASH_FILES, FA_WRITE | FA_CREATE_ALWAYS);
+    if (res != FR_OK)
+    {
+        FAULT("f_open, res = %u", res);
+        bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "fail", MF_ALIGN_LEFT);
+    }
+
+    bsod_redraw();
+
+    if (res != FR_OK)
+        return;
+
+    char path[PATH_LEN] = "";
+    bsod_list_readdir(&file, path, 0);
+    f_close(&file);
+
+    bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "done", MF_ALIGN_LEFT);
+
+    bsod_redraw();
+}
+
+void bsod_zip_path(mz_zip_archive * zip, char * path)
+{
+    DIR dir;
+    static FILINFO fno;
+    static char buff[PATH_LEN];
+
+    FRESULT res = f_opendir(&dir, path);
+    if (res == FR_OK)
+    {
+        for (;;)
+        {
+            res = f_readdir(&dir, &fno);
+
+            if (res != FR_OK || fno.fname[0] == 0)
+                break;
+
+            if (fno.fattrib & AM_DIR)
+            {
+                uint16_t i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);
+                bsod_zip_path(zip, path);
+                path[i] = 0;
+            }
+            else
+            {
+                snprintf(buff, sizeof(buff), "%s/%s", path, fno.fname);
+                FAULT("Compressing %s", buff);
+
+                //do not include wifi passwords!
+                if (strcmp(buff, PATH_NETWORK_DB) != 0)
+                    mz_zip_writer_add_file(zip, buff, buff, "", 0, 0);
+            }
+        }
+        f_closedir(&dir);
+    }
+}
+
+void bsod_bundle_report()
+{
+    bsod_draw_text(LEFT_PAD, (bsod_line) * LINE_SIZE, "Compressing...", MF_ALIGN_LEFT);
+    bsod_redraw();
+
+    char path[PATH_LEN];
+    mz_zip_archive * zip = malloc(sizeof(mz_zip_archive));
+    mz_zip_zero_struct(zip);
+
+    snprintf(path, sizeof(path), "crash_report.zip");
+    uint16_t cnt = 0;
+    while (file_exists(path))
+    {
+        cnt++;
+        snprintf(path, sizeof(path), "crash_report_%u.zip", cnt);
+    }
+
+
+    bool res = mz_zip_writer_init_file(zip, path, 0);
+
+    if (res)
+    {
+        strcpy(path, PATH_CONFIG_DIR);
+        bsod_zip_path(zip, path);
+
+        f_rename(DEBUG_FILE, PATH_CRASH_LOG);
+        strcpy(path, PATH_CRASH_DIR);
+        bsod_zip_path(zip, path);
+
+        mz_zip_writer_finalize_archive(zip);
+        free(zip);
+
+        remove_dir(PATH_CRASH_DIR);
+
+        bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "done", MF_ALIGN_LEFT);
+    }
+    else
+    {
+        bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "fail", MF_ALIGN_LEFT);
+    }
+
+    bsod_redraw();
+}
+
+void bsod_crash_dumped()
+{
+    bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "done", MF_ALIGN_LEFT);
+
+    bsod_list_flies();
+    bsod_bundle_report();
+
+    bsod_end();
+}
+
+void bsod_crash_fail()
+{
+    bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "fail", MF_ALIGN_LEFT);
+
+    bsod_end();
 }

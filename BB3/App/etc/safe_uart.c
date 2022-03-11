@@ -41,7 +41,7 @@ void su_write(safe_uart_t * su, uint8_t * data, uint32_t len)
 	if (!rb_write(&su->rb, len, data))
 		WARN("TX RB full");
 
-	if (IS_IRQ_MODE())
+	if (xPortIsInsideInterrupt())
 	{
 		if (osSemaphoreGetCount(su->lock) == 0)
 		{

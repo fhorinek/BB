@@ -127,6 +127,7 @@ lv_obj_t * advanced_init(lv_obj_t * par)
 		gui_list_auto_entry(list, "Reset calibration", CUSTOM_CB, advanced_calib_clear);
 	}
 
+    gui_list_auto_entry(list, "Crash reports", &config.debug.crash_dump, NULL);
     gui_list_auto_entry(list, "Debug to file", &config.debug.use_file, NULL);
     gui_list_auto_entry(list, "Clear debug.log", CUSTOM_CB, clear_debug_file_cb);
 

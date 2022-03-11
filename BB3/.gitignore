@@ -1,7 +1,7 @@
 /Debug/
 /Release/
-/BB2 Debug.launch
-/BB2 Release.launch
+!/Debug/BB3.elf
+!/Release/BB3.elf
 /.settings/
 /.mxproject
 *~
