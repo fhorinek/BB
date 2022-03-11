@@ -2981,123 +2981,91 @@ extern "C" {
 
 /* ------------------- .ZIP archive reading */
 
-#ifdef MINIZ_NO_STDIO
-#define MZ_FILE void *
-#else
-#include <sys/stat.h>
+#include "ff.h"
+#include "common.h"
 
-#if defined(_MSC_VER) || defined(__MINGW64__)
-static FILE *mz_fopen(const char *pFilename, const char *pMode)
+static FIL *mz_fopen(const char *pFilename, const char *pMode)
 {
-    FILE *pFile = NULL;
-    fopen_s(&pFile, pFilename, pMode);
+    FIL * pFile = malloc(sizeof(FIL));
+    uint8_t fa_attr = 0;
+    if (strcmp(pMode, "rb") == 0)
+        fa_attr = FA_READ;
+    else if (strcmp(pMode, "wb") == 0)
+        fa_attr = FA_WRITE | FA_CREATE_ALWAYS;
+    else if (strcmp(pMode, "w+b") == 0)
+        fa_attr = FA_WRITE | FA_OPEN_APPEND;
+    else
+        FASSERT(0);
+
+    FRESULT res = f_open(pFile, pFilename, fa_attr);
+    if (res != FR_OK)
+    {
+        free(pFile);
+        pFile = NULL;
+    }
+
     return pFile;
 }
-static FILE *mz_freopen(const char *pPath, const char *pMode, FILE *pStream)
+
+static int mz_fclose(FIL * file)
 {
-    FILE *pFile = NULL;
-    if (freopen_s(&pFile, pPath, pMode, pStream))
-        return NULL;
+    if (file != NULL)
+    {
+        FRESULT res = f_close(file);
+        free(file);
+
+        if (res == FR_OK)
+            return 0;
+    }
+    return EOF;
+}
+
+
+static FIL *mz_freopen(const char *pPath, const char *pMode, FIL *pStream)
+{
+    mz_fclose(pStream);
+    FIL * pFile = mz_fopen(pPath, pMode);
     return pFile;
 }
-#ifndef MINIZ_NO_TIME
-#include <sys/utime.h>
-#endif
+
+static int mz_fread(uint8_t * buff, uint8_t elem, uint32_t count, FIL * fp)
+{
+    UINT br;
+    f_read(fp, buff, elem * count, &br);
+
+    return br;
+}
+
+static int mz_fwrite(uint8_t * buff, uint8_t elem, uint32_t count, FIL * fp)
+{
+    UINT bw;
+    f_write(fp, buff, elem * count, &bw);
+
+    return bw;
+}
+
+static int mz_fseek(FIL * fp, uint32_t offset, uint8_t origin)
+{
+    if (origin == SEEK_SET)
+        return f_lseek(fp, offset);
+    if (origin == SEEK_END)
+        return f_lseek(fp, f_size(fp));
+    FASSERT(0);
+
+    return 0;
+}
+
 #define MZ_FOPEN mz_fopen
-#define MZ_FCLOSE fclose
-#define MZ_FREAD fread
-#define MZ_FWRITE fwrite
-#define MZ_FTELL64 _ftelli64
-#define MZ_FSEEK64 _fseeki64
-#define MZ_FILE_STAT_STRUCT _stat64
-#define MZ_FILE_STAT _stat64
-#define MZ_FFLUSH fflush
+#define MZ_FCLOSE mz_fclose
+#define MZ_FREAD mz_fread
+#define MZ_FWRITE mz_fwrite
+#define MZ_FTELL64 f_tell
+#define MZ_FSEEK64 mz_fseek
+#define MZ_FILE_STAT_STRUCT FILINFO
+#define MZ_FILE_STAT f_stat
+#define MZ_FFLUSH f_sync
 #define MZ_FREOPEN mz_freopen
-#define MZ_DELETE_FILE remove
-#elif defined(__MINGW32__)
-#ifndef MINIZ_NO_TIME
-#include <sys/utime.h>
-#endif
-#define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
-#define MZ_FREAD fread
-#define MZ_FWRITE fwrite
-#define MZ_FTELL64 ftello64
-#define MZ_FSEEK64 fseeko64
-#define MZ_FILE_STAT_STRUCT _stat
-#define MZ_FILE_STAT _stat
-#define MZ_FFLUSH fflush
-#define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#define MZ_DELETE_FILE remove
-#elif defined(__TINYC__)
-#ifndef MINIZ_NO_TIME
-#include <sys/utime.h>
-#endif
-#define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
-#define MZ_FREAD fread
-#define MZ_FWRITE fwrite
-#define MZ_FTELL64 ftell
-#define MZ_FSEEK64 fseek
-#define MZ_FILE_STAT_STRUCT stat
-#define MZ_FILE_STAT stat
-#define MZ_FFLUSH fflush
-#define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#define MZ_DELETE_FILE remove
-#elif defined(__GNUC__) && defined(_LARGEFILE64_SOURCE)
-#ifndef MINIZ_NO_TIME
-#include <utime.h>
-#endif
-#define MZ_FOPEN(f, m) fopen64(f, m)
-#define MZ_FCLOSE fclose
-#define MZ_FREAD fread
-#define MZ_FWRITE fwrite
-#define MZ_FTELL64 ftello64
-#define MZ_FSEEK64 fseeko64
-#define MZ_FILE_STAT_STRUCT stat64
-#define MZ_FILE_STAT stat64
-#define MZ_FFLUSH fflush
-#define MZ_FREOPEN(p, m, s) freopen64(p, m, s)
-#define MZ_DELETE_FILE remove
-#elif defined(__APPLE__)
-#ifndef MINIZ_NO_TIME
-#include <utime.h>
-#endif
-#define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
-#define MZ_FREAD fread
-#define MZ_FWRITE fwrite
-#define MZ_FTELL64 ftello
-#define MZ_FSEEK64 fseeko
-#define MZ_FILE_STAT_STRUCT stat
-#define MZ_FILE_STAT stat
-#define MZ_FFLUSH fflush
-#define MZ_FREOPEN(p, m, s) freopen(p, m, s)
-#define MZ_DELETE_FILE remove
-
-#else
-#pragma message("Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files.")
-#ifndef MINIZ_NO_TIME
-#include <utime.h>
-#endif
-#define MZ_FOPEN(f, m) fopen(f, m)
-#define MZ_FCLOSE fclose
-#define MZ_FREAD fread
-#define MZ_FWRITE fwrite
-#ifdef __STRICT_ANSI__
-#define MZ_FTELL64 ftell
-#define MZ_FSEEK64 fseek
-#else
-#define MZ_FTELL64 ftello
-#define MZ_FSEEK64 fseeko
-#endif
-#define MZ_FILE_STAT_STRUCT stat
-#define MZ_FILE_STAT stat
-#define MZ_FFLUSH fflush
-#define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#define MZ_DELETE_FILE remove
-#endif /* #ifdef _MSC_VER */
-#endif /* #ifdef MINIZ_NO_STDIO */
+#define MZ_DELETE_FILE f_unlink
 
 #define MZ_TOLOWER(c) ((((c) >= 'A') && ((c) <= 'Z')) ? ((c) - 'A' + 'a') : (c))
 
@@ -3344,7 +3312,7 @@ static void mz_zip_time_t_to_dos_time(MZ_TIME_T time, mz_uint16 *pDOS_time, mz_u
 #ifndef MINIZ_NO_ARCHIVE_WRITING_APIS
 static mz_bool mz_zip_get_file_modified_time(const char *pFilename, MZ_TIME_T *pTime)
 {
-    struct MZ_FILE_STAT_STRUCT file_stat;
+    MZ_FILE_STAT_STRUCT file_stat;
 
     /* On Linux with x86 glibc, this call will fail on large files (I think >= 0x80000000 bytes) unless you compiled with _LARGEFILE64_SOURCE. Argh. */
     if (MZ_FILE_STAT(pFilename, &file_stat) != 0)
@@ -7296,7 +7264,7 @@ mz_bool mz_zip_add_mem_to_archive_file_in_place_v2(const char *pZip_filename, co
 {
     mz_bool status, created_new_archive = MZ_FALSE;
     mz_zip_archive zip_archive;
-    struct MZ_FILE_STAT_STRUCT file_stat;
+    MZ_FILE_STAT_STRUCT file_stat;
     mz_zip_error actual_err = MZ_ZIP_NO_ERROR;
 
     mz_zip_zero_struct(&zip_archive);

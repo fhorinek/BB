@@ -95,7 +95,7 @@ int ff_del_syncobj (	/* 1:Function succeeded, 0:Could not delete due to any erro
 /  When a 0 is returned, the file function fails with FR_TIMEOUT.
 */
 
-int ff_req_grant (	/* 1:Got a grant to access the volume, 0:Could not get a grant */
+__WEAK int ff_req_grant (	/* 1:Got a grant to access the volume, 0:Could not get a grant */
 	_SYNC_t sobj	/* Sync object to wait */
 )
 {

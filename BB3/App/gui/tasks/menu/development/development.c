@@ -17,41 +17,14 @@ REGISTER_TASK_IL(development,
     uint8_t slot;
 );
 
-void dev_get_file_cb(uint8_t res, download_slot_t * ds)
-{
-	switch(res)
-	{
-		case(DOWNLOAD_SLOT_COMPLETE):
-			INFO("DOWNLOAD_SLOT_COMPLETE");
-		break;
-		case(DOWNLOAD_SLOT_PROGRESS):
-			INFO("DOWNLOAD_SLOT_PROGRESS %lu/%lu", ds->pos, ds->size);
-		break;
-		case(DOWNLOAD_SLOT_NO_CONNECTION):
-			INFO("DOWNLOAD_SLOT_NO_CONNECTION");
-		break;
-		case(DOWNLOAD_SLOT_NOT_FOUND):
-			INFO("DOWNLOAD_SLOT_NOT_FOUND");
-		break;
-		case(DOWNLOAD_SLOT_NO_SLOT):
-			INFO("DOWNLOAD_SLOT_NO_SLOT");
-		break;
-		case(DOWNLOAD_SLOT_TIMEOUT):
-			INFO("DOWNLOAD_SLOT_TIMEOUT");
-		break;
-		case(DOWNLOAD_SLOT_CANCEL):
-			INFO("DOWNLOAD_SLOT_CANCEL");
-		break;
-	}
-
-}
 
 void development_trigger()
 {
     INFO("Development fake trigger");
     INFO("-----------------------------------------------------");
 
-    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
+//    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
+    INFO("This should break me %u", 1 / 0);
 }
 
 static void development_loop()

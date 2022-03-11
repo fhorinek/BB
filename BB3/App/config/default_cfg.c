@@ -469,8 +469,8 @@ config_t config =
 	{
 		//use_serial
 		entry_bool("dbg_serial", false),
-		//use_file
-		entry_bool("dbg_file", false),
+        //use_file
+        entry_bool("dbg_file", false),
 		//use_usb
 		entry_bool("dbg_usb", false),
 		//esp_off
@@ -485,5 +485,7 @@ config_t config =
         entry_bool("dbg_lvgl_info", false),
         //fanet_update
         entry_bool("dbg_fn_update", false),
+        //crash_dump
+        entry_bool("dbg_crash", true),
 	},
 };

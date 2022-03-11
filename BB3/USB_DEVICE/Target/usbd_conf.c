@@ -80,6 +80,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   /* USER CODE BEGIN USB_OTG_HS_MspInit 0 */
 
   /* USER CODE END USB_OTG_HS_MspInit 0 */
+
   /** Initializes the peripherals clock
   */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
@@ -88,6 +89,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     {
       Error_Handler();
     }
+
   /** Enable USB Voltage detector
   */
     HAL_PWREx_EnableUSBVoltageDetector();
@@ -356,7 +358,6 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_OTG_HS.Init.Sof_enable = DISABLE;
   hpcd_USB_OTG_HS.Init.low_power_enable = DISABLE;
   hpcd_USB_OTG_HS.Init.lpm_enable = DISABLE;
-  hpcd_USB_OTG_HS.Init.battery_charging_enable = ENABLE;
   hpcd_USB_OTG_HS.Init.vbus_sensing_enable = DISABLE;
   hpcd_USB_OTG_HS.Init.use_dedicated_ep1 = DISABLE;
   hpcd_USB_OTG_HS.Init.use_external_vbus = DISABLE;
@@ -620,6 +621,22 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   return HAL_PCD_EP_GetRxCount((PCD_HandleTypeDef*) pdev->pData, ep_addr);
 }
+
+#ifdef USBD_HS_TESTMODE_ENABLE
+/**
+  * @brief  Set High speed Test mode.
+  * @param  pdev: Device handle
+  * @param  testmode: test mode
+  * @retval USBD Status
+  */
+USBD_StatusTypeDef USBD_LL_SetTestMode(USBD_HandleTypeDef *pdev, uint8_t testmode)
+{
+  UNUSED(pdev);
+  UNUSED(testmode);
+
+  return USBD_OK;
+}
+#endif /* USBD_HS_TESTMODE_ENABLE */
 /**
   * @brief  Static single allocation.
   * @param  size: Size of allocated memory
