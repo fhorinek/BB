@@ -31,6 +31,12 @@ void crash_store_info(const Crash_Object * info)
         snprintf(buff, sizeof(buff), "Hardware revison: %02X\n\n", rev_get_hw());
         WRITE(buff);
 
+        if (bsod_msg_ptr != NULL)
+        {
+            WRITE(bsod_msg_ptr);
+            WRITE("\n\n");
+        }
+
         uint32_t CFSR = SCB->CFSR;
 
         snprintf(buff, sizeof(buff), "CFSR: %08lX\n", CFSR);

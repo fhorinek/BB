@@ -101,18 +101,6 @@ typedef struct
     float q3;
 } quaternion_t;
 
-typedef struct
-{
-  uint32_t r0;
-  uint32_t r1;
-  uint32_t r2;
-  uint32_t r3;
-  uint32_t r12;
-  uint32_t lr;
-  uint32_t pc;
-  uint32_t xpsr;
-} context_frame_t;
-
 #define BLINK(A)                (HAL_GetTick() % A > (A / 2))
 #define min(a,b)                ((a)<(b)?(a):(b))
 #define max(a,b)                ((a)>(b)?(a):(b))

@@ -24,7 +24,8 @@ void development_trigger()
     INFO("-----------------------------------------------------");
 
 //    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
-    INFO("This should break me %u", 1 / 0);
+    bsod_msg("Die Die Die Die Die Die ");
+//    INFO("This should break me %u", 1 / 0);
 }
 
 static void development_loop()

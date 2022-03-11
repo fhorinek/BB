@@ -87,7 +87,7 @@ int main(void)
   SCB->VTOR = APP_ADDRESS;
 
   //enable trap for div 0 and unaligned access
-  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk
+  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
            //| SCB_CCR_UNALIGN_TRP_Msk;
 
   /* USER CODE END 1 */
@@ -290,7 +290,8 @@ void MPU_Config(void)
   MPU_InitStruct.Number = MPU_REGION_NUMBER1;
   MPU_InitStruct.BaseAddress = 0x24000000;
   MPU_InitStruct.Size = MPU_REGION_SIZE_1MB;
-  MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
+//  MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
 
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
   /* Enables the MPU */

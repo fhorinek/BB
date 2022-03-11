@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "common.h"
-#include "system/bsod.h"
 #include "drivers/esp/esp.h"
 #include "drivers/gnss/gnss_thread.h"
 /* USER CODE END Includes */
@@ -88,102 +87,6 @@ extern UART_HandleTypeDef huart8;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
-
-#define  DUMP_REGISTERS \
-    context_frame_t * frame;\
-    __asm volatile(         \
-    "tst lr, #4 \n"         \
-    "ite eq \n"             \
-    "mrseq %0, msp \n"      \
-    "mrsne %0, psp \n"      \
-    :"=r"(frame)            \
-    );                      \
-    \
-    FAULT("");                                      \
-    FAULT("------------------------------------");  \
-    FAULT("PC: 0x%08X", frame->pc);                 \
-    FAULT("R0: 0x%08X", frame->r0);                 \
-    FAULT("R1: 0x%08X", frame->r1);                 \
-    FAULT("R2: 0x%08X", frame->r2);                 \
-    FAULT("R3: 0x%08X", frame->r3);                 \
-    FAULT("R12: 0x%08X", frame->r12);               \
-    FAULT("LR: 0x%08X", frame->lr);                 \
-    FAULT("XPSR: 0x%08X", frame->xpsr);             \
-    FAULT("------------------------------------");  \
-
-#define HANDLER_ATTR    __attribute__ ((optimize("O0"), naked))
-
-//HANDLER_ATTR void UsageFault_Handler(void)
-//{
-//    DUMP_REGISTERS
-//
-//    FAULT("Program stopped in UsageFault_Handler");
-//    uint32_t CFSR = SCB->CFSR;
-//    FAULT("UFSR: 0x%04X", (CFSR & SCB_CFSR_USGFAULTSR_Msk) >> SCB_CFSR_USGFAULTSR_Pos);
-//    if (CFSR & SCB_CFSR_DIVBYZERO_Msk)
-//        FAULT(" DIVBYZERO - Divide instruction was executed where the denominator was zero");
-//    if (CFSR & SCB_CFSR_UNALIGNED_Msk)
-//        FAULT(" UNALIGNED - Unaligned access operation occurred");
-//    if (CFSR & SCB_CFSR_NOCP_Msk)
-//        FAULT(" NOCP - Coprocessor instruction was issued but the coprocessor was disabled or not present");
-//    if (CFSR & SCB_CFSR_INVPC_Msk)
-//        FAULT(" INVPC - Integrity check failure on EXC_RETURN");
-//    if (CFSR & SCB_CFSR_INVSTATE_Msk)
-//        FAULT(" INVSTATE - Tried to execute instruction with an invalid Execution Program Status Register");
-//    if (CFSR & SCB_CFSR_UNDEFINSTR_Msk)
-//        FAULT(" UNDEFINSTR - Undefined instruction was executed");
-//
-//    bsod_show(frame);
-//}
-//
-//HANDLER_ATTR void BusFault_Handler(void)
-//{
-//    DUMP_REGISTERS
-//	backtrace(frame->lr);
-//
-//    FAULT("Program stopped in BusFault_Handler");
-//    uint32_t CFSR = SCB->CFSR;
-//	FAULT("BFSR: 0x%04X", (CFSR & SCB_CFSR_MEMFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
-//	if (CFSR & SCB_CFSR_BFARVALID_Msk)
-//		FAULT(" BFARVALID - Bus Fault Address Register valid 0x%08X", SCB->BFAR);
-//	if (CFSR & SCB_CFSR_LSPERR_Msk)
-//		FAULT(" LSPERR");
-//	if (CFSR & SCB_CFSR_STKERR_Msk)
-//		FAULT(" STKERR");
-//	if (CFSR & SCB_CFSR_UNSTKERR_Msk)
-//		FAULT(" UNSTKERR - Fault occurred trying to return from an exception");
-//	if (CFSR & SCB_CFSR_IMPRECISERR_Msk)
-//		FAULT(" IMPRECISERR - Hardware was not able to determine the exact location of the fault");
-//	if (CFSR & SCB_CFSR_INVSTATE_Msk)
-//		FAULT(" INVSTATE - Tried to execute instruction with an invalid Execution Program Status Register");
-//	if (CFSR & SCB_CFSR_PRECISERR_Msk)
-//		FAULT(" PRECISERR - Instruction which was executing prior to exception entry triggered the fault");
-//	if (CFSR & SCB_CFSR_IBUSERR_Msk)
-//		FAULT(" IBUSERR - Instruction access violation");
-//    bsod_show(frame);
-//}
-//
-//HANDLER_ATTR void MemManage_Handler(void)
-//{
-//    DUMP_REGISTERS
-//
-//	FAULT("Program stopped in MemManage_Handler");
-//	uint32_t CFSR = SCB->CFSR;
-//    FAULT("MFSR: 0x%04X", (CFSR & SCB_CFSR_BUSFAULTSR_Msk) >> SCB_CFSR_MEMFAULTSR_Pos);
-//    if (CFSR & SCB_CFSR_IACCVIOL_Msk)
-//        FAULT(" IACCVIOL - Instruction access violation");
-//    if (CFSR & SCB_CFSR_DACCVIOL_Msk)
-//        FAULT(" DACCVIOL - Data access violation");
-//    if (CFSR & SCB_CFSR_MUNSTKERR_Msk)
-//        FAULT(" MUNSTKERR - Unstacking error");
-//    if (CFSR & SCB_CFSR_MSTKERR_Msk)
-//        FAULT(" MSTKERR - Stacking error");
-//    if (CFSR & SCB_CFSR_MLSPERR_Msk)
-//        FAULT(" MLSPERR - Floating point lazy state preserveation error");
-//    if (CFSR & SCB_CFSR_MMARVALID_Msk)
-//        FAULT(" MMARVALID - Mem manage address register valid 0x%08X", SCB->BFAR);
-//    bsod_show(frame);
-//}
 
 /* USER CODE END EV */
 
