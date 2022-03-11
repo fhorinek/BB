@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"

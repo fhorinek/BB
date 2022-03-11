@@ -117,114 +117,22 @@ void bsod_end()
 			d = 0;
 		}
 	}
+
 }
 
-void bsod_show(context_frame_t * frame)
-{
-	bsod_init();
+static uint16_t bsod_line = 0;
 
-	uint16_t line = 0;
-
-	char buff[64];
-	uint32_t CFSR = SCB->CFSR;
-
-    if (CFSR & SCB_CFSR_USGFAULTSR_Msk)
-    	bsod_draw_text(TFT_WIDTH / 2, (line++) * LINE_SIZE, "** Usage Fault **", MF_ALIGN_CENTER);
-    if (CFSR & SCB_CFSR_DIVBYZERO_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "DIVBYZERO", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_UNALIGNED_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "UNALIGNED", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_NOCP_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "NOCP", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_INVPC_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "INVPC", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_INVSTATE_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "INVSTATE", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_UNDEFINSTR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "UNDEFINSTR", MF_ALIGN_LEFT);
-
-    if (CFSR & SCB_CFSR_BUSFAULTSR_Msk)
-    	bsod_draw_text(TFT_WIDTH / 2, (line++) * LINE_SIZE, "** Bus Fault **", MF_ALIGN_CENTER);
-    if (CFSR & SCB_CFSR_BFARVALID_Msk)
-    {
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "BFARVALID", MF_ALIGN_LEFT);
-    	snprintf(buff, sizeof(buff), "BFAR: %08lX", SCB->BFAR);
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    }
-    if (CFSR & SCB_CFSR_LSPERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "LSPERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_STKERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "STKERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_UNSTKERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "UNSTKERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_IMPRECISERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IMPRECISERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_PRECISERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "PRECISERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_IBUSERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IBUSERR", MF_ALIGN_LEFT);
-
-    if (CFSR & SCB_CFSR_MEMFAULTSR_Msk)
-    	bsod_draw_text(TFT_WIDTH / 2, (line++) * LINE_SIZE, "** Mem Fault **", MF_ALIGN_CENTER);
-    if (CFSR & SCB_CFSR_MMARVALID_Msk)
-    {
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MMARVALID", MF_ALIGN_LEFT);
-    	snprintf(buff, sizeof(buff), "MMFAR: %08lX", SCB->BFAR);
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    }
-    if (CFSR & SCB_CFSR_IACCVIOL_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "IACCVIOL", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_DACCVIOL_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "DACCVIOL", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_MUNSTKERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MUNSTKERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_MSTKERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MSTKERR", MF_ALIGN_LEFT);
-    if (CFSR & SCB_CFSR_MLSPERR_Msk)
-    	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, "MLSPERR", MF_ALIGN_LEFT);
-
-    line++;
-
-    snprintf(buff, sizeof(buff), "PC: 0x%08lX", frame->pc);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    snprintf(buff, sizeof(buff), "R1: 0x%08lX", frame->r1);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    snprintf(buff, sizeof(buff), "R2: 0x%08lX", frame->r2);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    snprintf(buff, sizeof(buff), "R3: 0x%08lX", frame->r3);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    snprintf(buff, sizeof(buff), "R12: 0x%08lX", frame->r12);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    snprintf(buff, sizeof(buff), "LR: 0x%08lX", frame->lr);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-    snprintf(buff, sizeof(buff), "XPSR: 0x%08lX", frame->xpsr);
-    bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-
-    line++;
-
-	snprintf(buff, sizeof(buff), "CFSR: %08lX", CFSR);
-	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-
-    char tmp[10];
-    rev_get_sw_string(tmp);
-	snprintf(buff, sizeof(buff), "FW: %s", tmp);
-	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-
-	snprintf(buff, sizeof(buff), "HW: %02X", rev_get_hw());
-	bsod_draw_text(LEFT_PAD, (line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-
-    bsod_end();
-}
 
 static bool bsod_line_callback(const char *line, uint16_t count, void *state)
 {
-	int16_t * y = (int16_t *)state;
-
-    mf_render_aligned(bsod_font, LEFT_PAD, *y, MF_ALIGN_LEFT, line, count, character_callback, NULL);
-    *y += LINE_SIZE;
+    mf_render_aligned(bsod_font, LEFT_PAD, LINE_SIZE * bsod_line, MF_ALIGN_LEFT, line, count, character_callback, NULL);
+    bsod_line++;
 
     return true;
 }
+
+char * bsod_msg_ptr = NULL;
+#define BSOD_MSG_SIZE   256
 
 void bsod_msg(const char *format, ...)
 {
@@ -234,38 +142,27 @@ void bsod_msg(const char *format, ...)
 
 	va_list arp;
 
-	char msg[256];
+	bsod_msg_ptr = malloc(BSOD_MSG_SIZE);
     va_start(arp, format);
-    vsnprintf(msg, sizeof(msg), format, arp);
+    vsnprintf(bsod_msg_ptr, BSOD_MSG_SIZE, format, arp);
     va_end(arp);
 
-    int16_t y = LEFT_PAD;
+    FAULT("%s", bsod_msg_ptr);
 
-    bsod_draw_text(TFT_WIDTH / 2, y, "ERROR", MF_ALIGN_CENTER);
-    y += LINE_SIZE;
-
-	mf_wordwrap(bsod_font, TFT_WIDTH - 2 * LEFT_PAD, msg, bsod_line_callback, &y);
-
-	FAULT("%s", msg);
-
-	bsod_end();
+	FAULT("%u", 1 / 0);
 }
 
-static uint16_t bsod_line = 0;
+void bsod_crash_message()
+{
+    mf_wordwrap(bsod_font, TFT_WIDTH - 2 * LEFT_PAD, bsod_msg_ptr, bsod_line_callback, NULL);
+    bsod_line++;
+}
+
 
 void bsod_crash_reason(const Crash_Object * info)
 {
     char buff[64];
-    char tmp[10];
 
-    rev_get_sw_string(tmp);
-    snprintf(buff, sizeof(buff), "FW: %s", tmp);
-    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-
-//    snprintf(buff, sizeof(buff), "HW: %02X", rev_get_hw());
-//    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
-
-    bsod_line++;
 
     uint32_t CFSR = SCB->CFSR;
 
@@ -351,7 +248,22 @@ void bsod_crash_start(const Crash_Object * info)
 
     bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, "** Strato Crashed **", MF_ALIGN_CENTER);
 
-    bsod_crash_reason(info);
+    char buff[32];
+    char tmp[10];
+
+    rev_get_sw_string(tmp);
+    snprintf(buff, sizeof(buff), "FW: %s", tmp);
+    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+
+//    snprintf(buff, sizeof(buff), "HW: %02X", rev_get_hw());
+//    bsod_draw_text(LEFT_PAD, (bsod_line++) * LINE_SIZE, buff, MF_ALIGN_LEFT);
+
+    bsod_line++;
+
+    if (bsod_msg_ptr != NULL)
+        bsod_crash_message();
+    else
+        bsod_crash_reason(info);
 
     if (config_get_bool(&config.debug.crash_dump))
     {
