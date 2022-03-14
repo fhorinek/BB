@@ -1,3 +1,21 @@
+# 25.3.2022 - Devel 247
+Please break me!
+
+Please Break me.
+
+There is a new system to record device state in case of Hard Fault.
+New file crash_report.zip will be created when the device crash.
+
+The file contains snapshot of the STM memory, debug.log, listing of files on sdcard and whole config folder, excluding wifi credentials.
+
+Please include whole zip file, when reporting an issue.
+
+##Added:
+ * Memory dump in case of crash
+
+##Fixed
+ * Bugs in file manager
+
 # 4.3.2022 - Devel 246
 Testing is new devel :-)
 
