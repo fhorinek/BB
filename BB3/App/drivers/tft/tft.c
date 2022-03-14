@@ -18,6 +18,9 @@
 #include "hx8352.h"
 #include "ili9327.h"
 
+#include "gui/gui_thread.h"
+
+
 //Note: the NOR/PSRAM and SDRAM banks need to be swapped because of the weird caching on the default location
 // do it in cube!
 uint16_t * tft_register = (uint16_t *)0xC0000000;
@@ -42,18 +45,18 @@ bool tft_normal_mode = true;
 
 void tft_write_register(uint16_t command, uint16_t data)
 {
-    *tft_register = command;
-    tft_ram[0] = data;
+	((uint16_t volatile *)tft_register)[0] = command;
+	((uint16_t volatile *)tft_ram)[0] = data;
 }
 
 uint16_t tft_read_register(uint16_t command)
 {
-    *tft_register = command;
+	((uint16_t volatile *)tft_register)[0] = command;
     uint16_t mem[2];
     //dummy read
-    mem[0] = tft_ram[0];
+    mem[0] = ((uint16_t volatile *)tft_ram)[0];
     //real read
-    mem[1] = tft_ram[1];
+    mem[1] = ((uint16_t volatile *)tft_ram)[1];
 
     return mem[1];
 }
@@ -61,12 +64,12 @@ uint16_t tft_read_register(uint16_t command)
 
 void tft_write_command(uint16_t command)
 {
-    *tft_register = command;
+	((uint16_t volatile *)tft_register)[0] = command;
 }
 
 void tft_write_data(uint16_t data)
 {
-    tft_ram[0] = data;
+    ((uint16_t volatile *)tft_ram)[0] = data;
 }
 
 void tft_delay(uint16_t delay)
@@ -81,7 +84,7 @@ void tft_delay(uint16_t delay)
 	}
 }
 
-bool tft_buffer_copy()
+NO_OPTI bool tft_buffer_copy()
 {
     if (HAL_DMA_GetState(tft_dma) != HAL_DMA_STATE_READY)
     {
@@ -105,6 +108,7 @@ bool tft_buffer_copy()
     }
 
     tft_dma_done = false;
+
     HAL_DMA_Start_IT(tft_dma, (uint32_t)tft_buffer_ptr, (uint32_t)tft_ram, len);
 
     return true;
@@ -284,3 +288,4 @@ void tft_test_pattern()
 
     }
 }
+

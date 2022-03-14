@@ -249,6 +249,7 @@ typedef struct
         cfg_entry_t vario_random;
         cfg_entry_t lvgl_info;
         cfg_entry_t fanet_update;
+        cfg_entry_t crash_dump;
 	} debug;
 } config_t;
 
