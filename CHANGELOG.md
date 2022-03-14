@@ -1,7 +1,5 @@
-# 25.3.2022 - Devel 247
+# 25.3.2022 - Devel 248
 Please break me!
-
-Please Break me.
 
 There is a new system to record device state in case of Hard Fault.
 New file crash_report.zip will be created when the device crash.
@@ -15,6 +13,7 @@ Please include whole zip file, when reporting an issue.
 
 ##Fixed
  * Bugs in file manager
+ * Manual FW install
 
 # 4.3.2022 - Devel 246
 Testing is new devel :-)

@@ -1,15 +1,13 @@
-Testing is new devel :-)
+Please Break me.
 
-We encourage our users to switch to the testing firmware channel.
-Development branch will become much more unstable, with multiple updates per day.
-The Testing branch will behaves as the devel used to, with cumlative functions updates every few days.
+There is a new system to record device state in case of Hard Fault.
+New file crash_report.zip will be created when the device crash.
 
+The file contains snapshot of the STM memory, debug.log, listing of files on sdcard and whole config folder, excluding wifi credentials.
 
-Added:
- * Warning that you are on devel branch
- 
-Changed:
- * Moved debug.log to settings/advanced
- * Split Device info to info and firmware
- * Removed old menu items in development
+Please include whole zip file, when reporting an issue.
+
+Fixes:
+ * Bugs in file manager
+ * Manual FW install
 
