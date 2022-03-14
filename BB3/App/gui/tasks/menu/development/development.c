@@ -25,7 +25,8 @@ void development_trigger()
 
 //    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
 
-    INFO("This should break me %u", 1 / 0);
+//    INFO("This should break me %u", 1 / 0);
+    FASSERT(0);
 }
 
 static void development_loop()

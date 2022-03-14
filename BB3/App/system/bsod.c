@@ -149,7 +149,8 @@ void bsod_msg(const char *format, ...)
 
     FAULT("%s", bsod_msg_ptr);
 
-	FAULT("%u", 1 / 0);
+	volatile uint8_t a = 1 / 0;
+	(void) a;
 }
 
 void bsod_crash_message()
