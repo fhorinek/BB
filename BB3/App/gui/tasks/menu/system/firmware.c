@@ -41,17 +41,21 @@ void firmware_update_progress_cb(uint8_t res, void * data)
 
 void firmware_update_apply_cb(uint8_t res, void * data)
 {
+    char * opt_data = dialog_get_opt_data();
+
     if (res == dialog_res_yes)
     {
         char path[64];
 
-        snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, local->new_fw);
+        snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, opt_data);
         f_unlink(UPDATE_FILE);
         if (copy_file(path, UPDATE_FILE))
         {
             system_reboot();
         }
     }
+
+    free(opt_data);
 }
 
 void firmware_update_get_file_cb(uint8_t res, download_slot_t * ds)
@@ -163,8 +167,11 @@ bool manual_install_fm_cb(uint8_t event, char * path)
         path++;
 
         snprintf(text, sizeof(text), "Install version %s", path);
-        strncpy(local->new_fw, path, sizeof(local->new_fw));
+
         dialog_show("Start update?", text, dialog_yes_no, firmware_update_apply_cb);
+        char * opt_data = malloc(strlen(path) + 1);
+        strcpy(opt_data, path);
+        dialog_add_opt_data(opt_data);
     }
 	return true;
 }

@@ -31,7 +31,6 @@ typedef enum
     dialog_textarea,
     dialog_confirm,
     dialog_release_note,
-    dialog_dfu,
 } dialog_type_t;
 
 typedef enum
