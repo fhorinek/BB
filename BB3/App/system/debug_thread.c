@@ -15,6 +15,7 @@
 
 #include "etc/epoch.h"
 #include "drivers/rtc.h"
+#include "drivers/sd_failsafe/sd_diskio.h"
 
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
@@ -22,6 +23,29 @@
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
 #include "fatfs.h"
+
+void debug_fault_dump(uint8_t * data, uint32_t len)
+{
+    uint32_t loops = 0;
+    while (HAL_UART_GetState(debug_uart) != HAL_UART_STATE_READY)
+    {
+        if (loops++ > 10000)
+        {
+            HAL_UART_Abort(debug_uart);
+        }
+    }
+
+    char tmp[34];
+    for (uint32_t i = 0; i < len; i++)
+    {
+        sprintf(tmp + (i % 16) * 2, "%02X", data[i]);
+        if (i % 16 == 15 || i + 1 == len)
+        {
+            tmp[(i % 16 + 1) * 2] = '\n';
+            HAL_UART_Transmit(debug_uart, (uint8_t *)tmp, 1 + (i % 16 + 1) * 2, 100);
+        }
+    }
+}
 
 void debug_dump(uint8_t * data, uint16_t len)
 {
@@ -95,22 +119,29 @@ void debug_fault(const char *format, ...)
 
     HAL_UART_Transmit(debug_uart, (uint8_t *)debug_tx_buffer, total_lenght, 100);
 
-    if (config_get_bool(&config.debug.use_file))
-    {
-        UINT bw;
-
-        //open
-        if (!debug_file_open)
-        {
-            f_open(&debug_file, DEBUG_FILE, FA_OPEN_APPEND | FA_WRITE);
-            debug_file_open = true;
-        }
-
-        //write
-        f_write(&debug_file, (uint8_t *)debug_tx_buffer, total_lenght, &bw);
-        //sync
-        f_sync(&debug_file);
-    }
+//    if (config_get_bool(&config.debug.use_file))
+//    {
+//        static bool no_dma_sd_init = false;
+//        if (no_dma_sd_init == false)
+//        {
+//            SD_FailSafe_init();
+//            no_dma_sd_init = true;
+//        }
+//
+//        UINT bw;
+//
+//        //open
+//        if (!debug_file_open)
+//        {
+//            f_open(&debug_file, DEBUG_FILE, FA_OPEN_APPEND | FA_WRITE);
+//            debug_file_open = true;
+//        }
+//
+//        //write
+//        f_write(&debug_file, (uint8_t *)debug_tx_buffer, total_lenght, &bw);
+//        //sync
+//        f_sync(&debug_file);
+//    }
 
     osSemaphoreRelease(debug_dma_done);
 }

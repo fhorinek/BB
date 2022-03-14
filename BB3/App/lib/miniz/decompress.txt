@@ -1,14 +1,4 @@
-//	GpioSetDirection(ESP_BOOT_OPTION, INPUT);
-//	GpioSetDirection(ESP_EN_RESET, OUTPUT);
-//	GpioWrite(ESP_EN_RESET, LOW);
-//
-//	GpioSetDirection(ESP_SW_EN, OUTPUT);
-//	GpioWrite(ESP_SW_EN, HIGH);
-//	HAL_Delay(1000);
-//	GpioSetDirection(ESP_EN_RESET, INPUT);
-//
-//	INFO("ESP pin OK");
-//	vTaskResume((TaskHandle_t)GUIHandle);
+
 
 /*
 	uint32_t time_start = HAL_GetTick();

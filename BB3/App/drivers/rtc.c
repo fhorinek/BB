@@ -13,6 +13,11 @@
 
 #define RTC_START_YEAR  2020
 
+uint32_t HAL_GetTick(void)
+{
+  return sys_timer->Instance->CNT / 8;
+}
+
 bool rtc_is_waiting_or_valid()
 {
     return (TAMP->BKP0R == RTC_TAMP_SET) || (TAMP->BKP0R == RTC_TAMP_WAIT);

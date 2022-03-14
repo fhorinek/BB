@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DEBUG_DBG
+//#define DEBUG_LEVEL DEBUG_DBG
 #include "map_thread.h"
 #include "tile.h"
 
@@ -35,28 +35,6 @@ void map_init()
 
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
-}
-
-#define ALLOC_SIZE	64
-
-void alloc_bomb(uint8_t * buff_in, uint32_t level)
-{
-	INFO("alloc bomb %lu", level);
-
-	uint8_t buff[1024];
-
-	taskYIELD();
-
-	for (uint16_t i = 0; i < ALLOC_SIZE; i++)
-		buff[i] = buff_in[i];
-
-	alloc_bomb(buff, level + 1);
-
-	uint32_t sum = 0;
-	for (uint16_t i = 0; i < ALLOC_SIZE; i++)
-		sum += buff[i];
-
-	INFO("sum %lu", sum);
 }
 
 void thread_map_start(void *argument)
