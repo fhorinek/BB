@@ -204,6 +204,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
 #define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
 
+#define IMU_LOG         "imu.csv"
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"

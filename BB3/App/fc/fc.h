@@ -346,7 +346,7 @@ typedef struct
             vector_i16_t mag;
         } raw;
 	    fc_device_status_t status;
-	    uint8_t _pad[1];
+	    bool record;
 	} imu;
 
 	struct

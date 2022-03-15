@@ -16,6 +16,7 @@ float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;  // integral 
 
 void imu_init()
 {
+    fc.imu.record = false;
     fc.imu.acc_gravity_compensated = 0;
     fc.imu.acc_total = 0;
 
@@ -245,6 +246,29 @@ void imu_normalize()
 
 void imu_step()
 {
+    if (fc.imu.record)
+    {
+        static FIL * fp = NULL;
+        char tmp[128];
+        UINT bw;
+
+        if (fp == NULL)
+        {
+            fp = malloc(sizeof(FIL));
+            f_open(fp, IMU_LOG, FA_WRITE | FA_CREATE_ALWAYS);
+            snprintf(tmp, sizeof(tmp), "ax,ay,az,,gx,gy,gz,,mx,my,mz\n");
+            f_write(fp, tmp, strlen(tmp), &bw);
+        }
+
+        snprintf(tmp, sizeof(tmp), "%d,%d,%d,,%d,%d,%d,,%d,%d,%d\n",
+                fc.imu.raw.acc.x, fc.imu.raw.acc.y, fc.imu.raw.acc.z,
+                fc.imu.raw.gyro.x, fc.imu.raw.gyro.y, fc.imu.raw.gyro.z,
+                fc.imu.raw.mag.x, fc.imu.raw.mag.y, fc.imu.raw.mag.z);
+
+        f_write(fp, tmp, strlen(tmp), &bw);
+        f_sync(fp);
+    }
+
     if (fc.imu.status != fc_dev_ready)
         return;
 
