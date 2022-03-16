@@ -44,9 +44,9 @@ void lsm9ds1_init()
     //Temperature compenstaion - on
     //XY Mode - Ultra high performance
     //ODR - 80Hz
-    //Fast ODR ??? - enabled
+    //Fast ODR  - off
     //Self test - off
-    mems_i2c_write8(LSM_MAG, 0x20, 0b11111110);
+    mems_i2c_write8(LSM_MAG, 0x20, 0b11111100);
 
     //CTRL_REG3_M
     //I2c enable
@@ -61,9 +61,9 @@ void lsm9ds1_init()
     mems_i2c_write8(LSM_MAG, 0x23, 0b00001100);
 
     //CTRL_REG5_M
-    //Fast read - on
+    //Fast read - off
     //Block data update protection - on
-    mems_i2c_write8(LSM_MAG, 0x24, 0b11000000);
+    mems_i2c_write8(LSM_MAG, 0x24, 0b01000000);
 }
 
 void lsm9ds1_start_acc_gyro(mems_i2c_cb_t cb)
