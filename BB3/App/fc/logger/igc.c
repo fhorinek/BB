@@ -1,4 +1,4 @@
-//#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DEBUG_DBG
 #include "igc.h"
 
 #include "fc/fc.h"

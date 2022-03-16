@@ -1,3 +1,5 @@
+#define DEBUG_LEVEL	DBG_DEBUG
+
 #include "sound.h"
 
 #include "wav_decoder.h"
@@ -10,16 +12,19 @@ void pipe_sound_loop(void * arg)
 	while(1)
 	{
 		pipe_sound_request_next();
-		vTaskDelay(100/ portTICK_PERIOD_MS);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
 }
 
 void pipe_sound_init()
 {
+	esp_log_level_set("AUDIO_PIPELINE", ESP_LOG_DEBUG);
+
     INFO("pipe_sound_init");
 
     pipes.sound.lock = xSemaphoreCreateBinary();
 
+    pipes.sound.id = 0;
     pipes.sound.total_len = 0;
 	pipes.sound.request = false;
 
@@ -57,6 +62,8 @@ void pipe_sound_init()
     downmix_set_source_stream_info(pipes.output.mix, OUTPUT_SAMPLERATE, OUTPUT_CHANNELS, SOURCE_SOUND_INDEX);
     audio_pipeline_set_listener(pipes.sound.pipe, pipes.events);
 
+//    audio_pipeline_run(pipes.sound.pipe);
+
     xSemaphoreGive(pipes.sound.lock);
 
     xTaskCreate(pipe_sound_loop, "pipe_sound_loop", 2 * 1024, NULL, 20, NULL);
@@ -81,7 +88,7 @@ void pipe_sound_event(audio_event_iface_msg_t * msg)
 		audio_element_getinfo(pipes.sound.decoder, &music_info);
 
 		INFO("Receive music info from Decoder, sample_rates=%d, bits=%d, ch=%d", music_info.sample_rates, music_info.bits, music_info.channels);
-
+		rsp_filter_set_src_info(pipes.sound.filter, music_info.sample_rates, music_info.channels);
 		audio_element_setinfo(pipes.sound.filter, &music_info);
 	}
 
@@ -91,20 +98,28 @@ void pipe_sound_event(audio_event_iface_msg_t * msg)
 
 		uint8_t type = (uint32_t)msg->data;
 
-		if (type == AEL_STATUS_STATE_FINISHED)
+		if (type == AEL_STATUS_STATE_FINISHED)//15
 		{
-			INFO("sound finished");
+			INFO("[sound finished]");
 
 			xSemaphoreTake(pipes.sound.lock, WAIT_INF);
-            pipe_sound_reset();
-            xSemaphoreGive(pipes.sound.lock);
+			pipe_sound_stop();
+			xSemaphoreGive(pipes.sound.lock);
 		}
 
-		if (type == AEL_STATUS_STATE_STOPPED)
+		if (type == AEL_STATUS_STATE_STOPPED)//14
 		{
-			INFO("sound stopped");
-//			audio_pipeline_terminate(pipes.sound.pipe);
+			INFO("[sound stopped]");
+		}
 
+		if (type == AEL_STATUS_OUTPUT_BUFFERING)//11
+		{
+			INFO("[sound buffering]");
+		}
+
+		if (type == AEL_STATUS_STATE_RUNNING)//12
+		{
+			INFO("[sound running]");
 		}
 
 //	    AEL_STATUS_NONE                     = 0,
@@ -129,6 +144,14 @@ void pipe_sound_event(audio_event_iface_msg_t * msg)
 }
 
 #define SOUND_PACKET_SIZE	(1024 * 4)
+
+void pipe_sound_reset_request()
+{
+	xSemaphoreTake(pipes.sound.lock, WAIT_INF);
+	pipes.sound.request = false;
+	xSemaphoreGive(pipes.sound.lock);
+}
+
 
 void pipe_sound_request_next()
 {
@@ -171,12 +194,13 @@ void pipe_sound_write(uint8_t id, uint8_t * buf, uint16_t len)
 				audio_element_set_ringbuf_done(pipes.sound.stream);
 			}
 		}
+
 	}
 	else
 	{
 		WARN("Wrong id %u != %u", id, pipes.sound.id);
+//		DUMP(buf, len);
 	}
-
 	pipes.sound.request = false;
 
     xSemaphoreGive(pipes.sound.lock);
@@ -184,9 +208,8 @@ void pipe_sound_write(uint8_t id, uint8_t * buf, uint16_t len)
 
 void pipe_sound_start(uint8_t id, uint8_t type, uint32_t len)
 {
+	xSemaphoreTake(pipes.sound.lock, WAIT_INF);
     INFO("pipe_sound_start %u %u", id, len);
-
-    xSemaphoreTake(pipes.sound.lock, WAIT_INF);
 
 	//old sound is playing, stop
 	if (pipes.sound.id > 0)
@@ -201,29 +224,25 @@ void pipe_sound_start(uint8_t id, uint8_t type, uint32_t len)
     pipes.sound.total_len = len;
     pipes.sound.pos = 0;
 
+
+    INFO("pipe_sound_started");
     xSemaphoreGive(pipes.sound.lock);
-}
-
-//must be run from locked context
-void pipe_sound_reset()
-{
-	INFO("pipe_sound_reset");
-
-	//invalidate sound id
-	pipes.sound.id = 0;
-	audio_pipeline_reset_ringbuffer(pipes.sound.pipe);
-	audio_pipeline_reset_elements(pipes.sound.pipe);
-	audio_pipeline_change_state(pipes.sound.pipe, AEL_STATE_INIT);
 }
 
 //must be run from locked context
 void pipe_sound_stop()
 {
 	INFO("pipe_sound_stop");
+	pipes.sound.id = 0;
+
 	audio_pipeline_stop(pipes.sound.pipe);
 	audio_pipeline_wait_for_stop(pipes.sound.pipe);
+	audio_pipeline_terminate(pipes.sound.pipe);
 
-	pipe_sound_reset();
+	audio_pipeline_reset_ringbuffer(pipes.sound.pipe);
+	audio_pipeline_reset_elements(pipes.sound.pipe);
+
+	INFO("pipe_sound_stopped");
 }
 
 

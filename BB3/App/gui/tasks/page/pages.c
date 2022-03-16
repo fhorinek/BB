@@ -308,6 +308,8 @@ void pages_splash_show()
 	lv_anim_start(&a);
 	local->state = SPLASH_IN;
 
+	sound_start("on.wav");
+
 	config_new_version_cb();
 }
 
@@ -338,6 +340,8 @@ void pages_splash_hide()
 
 	lv_anim_start(&a);
 	local->state = SPLASH_OUT;
+
+    sound_start("off.wav");
 
 	led_set_backlight(0);
 }

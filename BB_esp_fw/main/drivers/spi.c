@@ -135,7 +135,7 @@ void spi_task_proto(void *pvParameters)
 	{
 		xSemaphoreTake(spi_ready_semaphore, WAIT_INF);
 		protocol_send_spi_ready(spi_data_to_send);
-		DBG("spi_task_proto: spi ready");
+//		DBG("spi_task_proto: spi ready");
 	}
 }
 
@@ -163,12 +163,13 @@ void spi_task(void *pvParameters)
         //trans_len is in bits
         uint16_t len = t.trans_len / 8;
 
-        DBG("SPI RX data: %u", len);
+//        DBG("SPI RX data: %u", len);
 //        DUMP(t.rx_buffer, len);
 
         spi_parse(t.rx_buffer, len);
 
         spi_tx_buffer_index = 0;
+        spi_tx_buffer[0] = 0;
         xSemaphoreGive(spi_buffer_access);
     }
 }

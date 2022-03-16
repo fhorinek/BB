@@ -89,15 +89,16 @@ typedef struct {
 } proto_sound_req_more_t;
 
 #define PROTO_SOUND_STOP		0x12
+#define PROTO_SOUND_WRONG_ID	0x13
 
-#define PROTO_TONE_PLAY         0x13
+#define PROTO_TONE_PLAY         0x1A
 typedef struct {
     uint16_t freq[8];
     uint16_t dura[8];
     uint8_t size;
     uint8_t id;
 } proto_tone_play_t;
-#define PROTO_TONE_ACK	        0x14
+#define PROTO_TONE_ACK	        0x1B
 
 #define PROTO_WIFI_SET_MODE     0x20
 #define PROTO_WIFI_MODE         0x20
@@ -378,10 +379,10 @@ typedef struct
     uint16_t data_len;
 } proto_spi_header_t;
 
-#define SPI_EP_SOUND		0
-#define SPI_EP_MUSIC		1
-#define SPI_EP_DOWNLOAD     2
-#define SPI_EP_FILE		    3
+#define SPI_EP_SOUND		10
+#define SPI_EP_MUSIC		11
+#define SPI_EP_DOWNLOAD     12
+#define SPI_EP_FILE		    13
 
 
 #endif /* DRIVERS_ESP_PROTOCOL_DEF_H_ */

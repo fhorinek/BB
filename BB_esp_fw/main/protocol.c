@@ -203,6 +203,10 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         	pipe_sound_stop();
         break;
 
+        case (PROTO_SOUND_WRONG_ID):
+			pipe_sound_reset_request();
+		break;
+
         case (PROTO_TONE_PLAY):
 		{
         	proto_tone_play_t * packet = (proto_tone_play_t *) ps_malloc(sizeof(proto_tone_play_t));

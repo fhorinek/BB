@@ -193,9 +193,12 @@ bool flash_loop()
 						}
 						else if (level > clevel) //out of the current dir
 						{
-							char * last_slash = strrchr(cwd, '/');
-							ASSERT(last_slash != NULL);
-							*last_slash = 0;
+						    for (;level > clevel; level--)
+						    {
+                                char * last_slash = strrchr(cwd, '/');
+                                ASSERT(last_slash != NULL);
+                                *last_slash = 0;
+						    }
 						}
 						level = clevel;
 

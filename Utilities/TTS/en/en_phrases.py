@@ -2,7 +2,7 @@ phrases = {
     "bt_conn" : "bluetooth connected",
     "bt_disc" : "bluetooth disconnected",
     "gnss_ok" : "satellite fix acquired",
-    "gnss_fail" : "satellite fix lost",
+    "gnss_lost" : "satellite fix lost",
     "takeoff" : "take off",
     "landed" : "landed",
     "bat_low" : "battery low",
