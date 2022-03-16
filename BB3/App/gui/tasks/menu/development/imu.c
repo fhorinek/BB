@@ -20,6 +20,7 @@ REGISTER_TASK_IL(imu,
     lv_obj_t * gyro_noise;
     lv_obj_t * mag_noise;
 
+    lv_obj_t * log;
 
     vector_i16_t acc_old;
     vector_float_t acc_noise_val;
@@ -29,9 +30,22 @@ REGISTER_TASK_IL(imu,
     vector_float_t mag_noise_val;
 );
 
+static bool imu_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        if (obj == local->log)
+            fc.imu.record = gui_list_switch_get_value(obj);
+    }
+
+    return true;
+}
+
 lv_obj_t * imu_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "IMU", &gui_sensors, NULL);
+	lv_obj_t * list = gui_list_create(par, "IMU", &gui_sensors, imu_cb);
+
+    local->log = gui_list_switch_add_entry(list, "Record", fc.imu.record);
 
     local->acc = gui_list_info_add_entry(list, "Accelerometer", "");
     local->acc_noise = gui_list_info_add_entry(list, "-noise", "");

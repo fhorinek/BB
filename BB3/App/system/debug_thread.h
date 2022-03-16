@@ -54,7 +54,7 @@
 	do {	\
 		if (!(cond))	\
 		{ \
-			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+			ERR("Assertion failed %s:%u", __FILE_NAME__, __LINE__); \
 		} \
 	} while(0);
 
@@ -63,12 +63,14 @@
     do {    \
         if (!(cond))    \
         { \
-            bsod_msg("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+            bsod_msg("Assertion failed %s:%u", __FILE_NAME__, __LINE__); \
         } \
     } while(0);
 
 
 void debug_fault(const char *format, ...);
+void debug_fault_dump(uint8_t * data, uint32_t len);
+
 void debug_send(uint8_t type, const char *format, ...);
 void debug_dump(uint8_t * data, uint16_t len);
 void debug_uart_done();

@@ -1,3 +1,25 @@
+/*
+ * filemanager.c
+ *
+ * Created on: Feb 27, 2021
+ *      Author: horinek
+ *
+ * The filemanager allows the user to navigate through a file directory, select files and
+ * offer additional functionality in a context menu. Here is an overview on how to use it.
+ * See specific functions for more detailled information.
+ *
+ *
+ * To open a filemanager on a specific directory you first "gui_switch_task" to the gui_filemanager
+ *      gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
+ * and then use "filemanager_open" to tell the filemanager what to do.
+ *
+ * Whenever a file gets selected, the callback function given to filemanager_open will be called.
+ * This callback function receives two parameters: "event" and "path". Event is one of FM_CB_BACK and others
+ * telling the callback function the reason for being called. "path" is the filename selected.
+ *
+ * See FM_CB_BACK and others for a description of the meaning.
+ */
+
 #define DEBUG_LEVEL	DBG_DEBUG
 #include "filemanager.h"
 
@@ -28,12 +50,12 @@ bool filemanager_get_filename_no_ext(char * dst, char * path)
     else
         dst = start;
 
-    char * dot = strchr(dst, '.');
+    char * dot = strrchr(dst, '.');
     if (dot == NULL)
         return false;
     *dot = 0;
 
-    strncpy(start, dst, strlen(dst) + 1);
+    memmove(start, dst, strlen(dst) + 1);
     return true;
 }
 
@@ -63,7 +85,7 @@ bool filemanager_get_filename(char * dst, char * path)
     else
         dst = start;
 
-    strncpy(start, dst, strlen(dst) + 1);
+    memmove(start, dst, strlen(dst) + 1);
     return true;
 }
 
@@ -197,11 +219,11 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		uint32_t key = *((uint32_t *) lv_event_get_data());
 		if (key == LV_KEY_HOME && ctx_is_active())
 		{
-	        char * fname = (char *)gui_list_text_get_value(obj);
-	        if (strstr(fname, DIR_ICON) != NULL)
-	            fname += strlen(DIR_ICON);
+			char * fname = (char *)gui_list_text_get_value(obj);
+			if (strstr(fname, DIR_ICON) != NULL)
+				fname += strlen(DIR_ICON);
 
-		    strncpy(filemanager_active_fname,  fname, sizeof(filemanager_active_fname) - 1);
+			strncpy(filemanager_active_fname,  fname, sizeof(filemanager_active_fname) - 1);
 
 			ctx_open(0);
 		}
@@ -223,6 +245,15 @@ static lv_obj_t * filemanager_init(lv_obj_t * par)
     return local->list;
 }
 
+/**
+ * Start a filemanager on the given path and use callback function to control everything.
+ *
+ * @param path the directory name to show
+ * @param level the current level inside directory. Start with 0 and it wil be increased on every further directory.
+ * @param back the gui_task_t to return to, if the filemanager is closed.
+ * @param flags use FM_FLAG_HIDE_DIR and others combined with bitwise or. They control behaviour of filemanager.
+ * @param cb the callback function. See description on top of file.
+ */
 void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t flags, filemanager_cb_t cb)
 {
     FRESULT res;

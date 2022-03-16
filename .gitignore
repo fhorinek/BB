@@ -8,6 +8,7 @@
 *~
 *.pyc
 .ipynb_checkpoints/
+Utilities/CrashDebug/dump.bin
 Utilities/Map/pipeline/errors.list
 Utilities/Map/pipeline/*_temporary_input.geojson
 BB_map_sim/*.data

@@ -31,7 +31,6 @@ typedef enum
     dialog_textarea,
     dialog_confirm,
     dialog_release_note,
-    dialog_dfu,
 } dialog_type_t;
 
 typedef enum
@@ -267,7 +266,7 @@ void gui_take_screenshot();
 void gui_lock_acquire();
 void gui_lock_release();
 
-void gui_show_release_note();
+void release_note_show();
 
 #define GUI_QUEUE_SIZE 			2
 #define GUI_TASK_SW_ANIMATION	250

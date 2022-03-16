@@ -78,6 +78,7 @@ void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params
 
 void gui_config_config_cb(cfg_entry_t * entry);
 
+void gui_list_set_pos(gui_task_t * task, uint16_t pos);
 void gui_list_store_pos(gui_task_t * task);
 void gui_list_retrive_pos(gui_task_t * task);
 

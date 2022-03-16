@@ -101,18 +101,6 @@ typedef struct
     float q3;
 } quaternion_t;
 
-typedef struct
-{
-  uint32_t r0;
-  uint32_t r1;
-  uint32_t r2;
-  uint32_t r3;
-  uint32_t r12;
-  uint32_t lr;
-  uint32_t pc;
-  uint32_t xpsr;
-} context_frame_t;
-
 #define BLINK(A)                (HAL_GetTick() % A > (A / 2))
 #define min(a,b)                ((a)<(b)?(a):(b))
 #define max(a,b)                ((a)>(b)?(a):(b))
@@ -126,6 +114,7 @@ typedef struct
 #define SWAP_UINT16(x)          ((((x) & 0xFF00) >> 8) | (((x) &0x00FF) << 8))
 
 #define __align __attribute__ ((aligned (4)))
+#define NO_OPTI	__attribute__((optimize("O0")))
 
 extern bool system_power_off;
 
@@ -191,8 +180,13 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
-#define PATH_COREDUMP       PATH_SYSTEM_DIR "/coredump_stm.bin"
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
+
+#define PATH_CRASH_DIR      "crash"
+#define PATH_CRASH_DUMP     PATH_CRASH_DIR "/dump.bin"
+#define PATH_CRASH_INFO     PATH_CRASH_DIR "/info.txt"
+#define PATH_CRASH_FILES    PATH_CRASH_DIR "/files.txt"
+#define PATH_CRASH_LOG      PATH_CRASH_DIR "/debug.log"
 
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 #define PATH_DEFAULTS_DIR   PATH_ASSET_DIR "/defaults"
@@ -210,6 +204,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
 #define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
 
+#define IMU_LOG         "imu.csv"
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"
@@ -219,7 +214,7 @@ extern osThreadId_t SystemHandle;
 #define SKIP_ESP_FILE   "SKIP_ESP"
 #define KEEP_FW_FILE    "KEEP_FW"
 
-
+#define DEVEL_ACTIVE    (file_exists(DEV_MODE_FILE))
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);
@@ -272,7 +267,6 @@ uint8_t nmea_checksum(char *s);
 
 void str_join(char * dst, uint8_t cnt, ...);
 
-#define IS_IRQ_MODE()             (__get_IPSR() != 0U)
 
 #define simple_memcpy(dst, src, len) \
 do { \

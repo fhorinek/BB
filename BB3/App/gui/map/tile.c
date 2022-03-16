@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"
@@ -1156,7 +1156,7 @@ bool tile_validate_sources(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat
             f_close(&f);
         }
 
-        INFO("magic[%u] = %02X %02X", i, magic[i], tmp_magic);
+        DBG("magic[%u] = %02X %02X", i, magic[i], tmp_magic);
 
         if (tmp_magic != magic[i])
             return false;
