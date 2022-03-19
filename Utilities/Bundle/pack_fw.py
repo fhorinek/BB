@@ -142,6 +142,10 @@ add_files(stm_assets_path, 0)
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
 esp_chunks_path = os.path.join(esp_fw_base_path, "flash_args")
 
+if not os.path.isfile(esp_chunks_path):
+    print("BB_esp_fw is missing. Please either compile this manually or follow instructions on https://github.com/fhorinek/BB/blob/master/Dev/Setup.md#workaround-problems-installing for a workaround.")
+    sys.exit(1)
+
 esp_chunks = []
 
 for line in open(esp_chunks_path, "r").readlines()[1:]:
