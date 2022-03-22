@@ -82,6 +82,9 @@ void firmware_update_get_file_cb(uint8_t res, download_slot_t * ds)
         f_unlink(tmp_path);
 
         dialog_show("Start update process?", "", dialog_yes_no, firmware_update_apply_cb);
+        char * opt_data = malloc(strlen(local->new_fw) + 1);
+        strcpy(opt_data, local->new_fw);
+        dialog_add_opt_data(opt_data);
     }
     else
     {
