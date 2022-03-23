@@ -134,11 +134,11 @@ active_branch = subprocess.check_output(["git", "branch", "--show-current"]).dec
 print("Active branch is %s" % active_branch)
 
 on_master = active_branch == "master"
-on_testing = active_branch.find("testing/") == 0
-on_release = active_branch.find("release/") == 0
+on_testing = active_branch.find("testing_") == 0
+on_release = active_branch.find("release_") == 0
 on_devel = not on_testing and not on_release
 
-branch_numbers = active_branch.replace("testing/", "").replace("release/", "").split(".")
+branch_numbers = active_branch.replace("testing_", "").replace("release_", "").split(".")
 
 if args.channel == 'A':
     if on_release:
@@ -225,14 +225,14 @@ if on_release:
 if args.publish:
     if args.channel == "R":
         if build_release == 0:
-            os.system("git branch release/%u.%u.x" % (build_devel, testing_number))
+            os.system("git checkout -b release_%u.%u.x" % (build_devel, testing_number))
     
         build_release += 1
         open("build_release", "w").write("%u" % build_release)
     elif args.channel == "T":
         build_release = 0
         if build_testing == 0:
-            os.system("git branch testing/%u.x.x" % build_devel)
+            os.system("git checkout -b testing_%u.x.x" % build_devel)
             
         build_testing += 1
         open("build_testing", "w").write("%u" % build_testing)
@@ -282,6 +282,8 @@ if args.publish:
     shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
     shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
 
+    os.system("git add -A")
+    os.system("git commit -m 'Added binaries for relese %s'" % build)
     os.system("git tag '%s'" % build)
 
 print("Done for build " + build)
