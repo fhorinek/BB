@@ -30,10 +30,10 @@ release_number is incremented each time release firmware is emmited (fix applied
 
 Any code additions are made to the `master` branch via PR only (except for branch house keeping).
 
-To emit Testing firmware the `pack_fw.py` with channel set to testing is runned to create firmware bundle and new branch (fx/XXX.x.x, where XXX is build_number).
+To emit Testing firmware the `pack_fw.py` with channel set to testing is runned to create firmware bundle and new branch (testing/XXX.x.x, where XXX is build_number).
 Testing version is allowed only to receive bug fixes, which are based from its branch and then backported to the main.
 
-When the testing version is stable enought then the `pack_fw.py` is runned to create release version.
+When the testing version is stable enought then the `pack_fw.py` is runned to create release version and new branch (relese/XXX.AAA.x, where XXX is build_number and AAA is testing_number)..
 From now on only release version can be emmited from this branch, only serious problem are fixed.
 
 Any feature addition must be made to the master first!
