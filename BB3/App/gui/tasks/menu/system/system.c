@@ -49,7 +49,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Units", NEXT_TASK, &gui_units);
     gui_list_auto_entry(list, "Advanced", NEXT_TASK, &gui_advanced);
 
-    char rev_str[10];
+    char rev_str[20];
     rev_get_sw_string(rev_str);
     lv_obj_t * fw = gui_list_info_add_entry(list, "Firmware", rev_str);
     gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);

@@ -1,5 +1,3 @@
-Please break me!
-
 There is a new system to record device state in case of Hard Fault.
 New file crash_report.zip will be created, please include it, when reporting an issue.
 
