@@ -35,7 +35,11 @@ void rev_get_sw_string(char * str)
     else
         c = 'D';
 
-    sprintf(str, "%c.%lu.%u.%u", c, nvm->app.build_number, nvm->app.build_testing, nvm->app.build_release);
+    //prevent to display wrong numbers because of the old bootloader
+    uint16_t t = (nvm->app.build_testing == 0xFFFF) ? 0 : nvm->app.build_testing;
+    uint16_t r = (nvm->app.build_release == 0xFFFF) ? 0 : nvm->app.build_release;
+
+    sprintf(str, "%c.%lu.%u.%u", c, nvm->app.build_number, t, r);
 }
 
 uint8_t rev_get_hw()
