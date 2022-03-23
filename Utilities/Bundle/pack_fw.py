@@ -225,7 +225,7 @@ if on_release:
 if args.publish:
     if args.channel == "R":
         if build_release == 0:
-            os.system("git checkout -b release_%u.%u.x" % (build_devel, testing_number))
+            os.system("git checkout -b release_%u.%u.x" % (build_devel, build_testing))
     
         build_release += 1
         open("build_release", "w").write("%u" % build_release)
