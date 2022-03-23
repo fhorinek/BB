@@ -14,7 +14,10 @@ typedef struct
 {
         uint32_t build_number;
         uint8_t number_of_records;
-        uint8_t reserved[27];
+        uint16_t build_testing;
+        uint16_t build_release;
+
+        uint8_t reserved[32 - (4 + 1 +2 +2)];
 } file_header_t;
 
 typedef struct

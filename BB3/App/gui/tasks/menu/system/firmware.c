@@ -120,7 +120,7 @@ void firmware_update_info_cb(uint8_t res, download_slot_t * ds)
 
         if (read_value(ds->data, "firmware", local->new_fw, sizeof(local->new_fw)))
         {
-            char rev_str[10];
+            char rev_str[20];
             rev_get_sw_string(rev_str);
             if (strncmp(rev_str, local->new_fw, strlen(rev_str)) == 0 || strlen(local->new_fw) == 0)
             {
@@ -206,7 +206,7 @@ lv_obj_t * firmware_init(lv_obj_t * par)
 {
     lv_obj_t * list = gui_list_create(par, "Device firmware", &gui_system, NULL);
 
-    char rev_str[10];
+    char rev_str[20];
     char value[32];
     lv_obj_t * obj;
 

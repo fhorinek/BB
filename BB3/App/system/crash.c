@@ -22,7 +22,7 @@ void crash_store_info(const Crash_Object * info)
     {
         char buff[64];
         UINT bw;
-        char tmp[10];
+        char tmp[20];
 
         rev_get_sw_string(tmp);
         snprintf(buff, sizeof(buff), "Firmware: %s\n", tmp);

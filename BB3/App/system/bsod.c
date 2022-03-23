@@ -250,7 +250,7 @@ void bsod_crash_start(const Crash_Object * info)
     bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, "** Strato Crashed **", MF_ALIGN_CENTER);
 
     char buff[32];
-    char tmp[10];
+    char tmp[20];
 
     rev_get_sw_string(tmp);
     snprintf(buff, sizeof(buff), "FW: %s", tmp);

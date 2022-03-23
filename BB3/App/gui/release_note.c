@@ -54,7 +54,7 @@ void release_note_show()
         f_close(&f);
 
         char title[64];
-        char fw_str[16];
+        char fw_str[20];
         rev_get_sw_string(fw_str);
         snprintf(title, sizeof(title), "Firmware updated\n to %s", fw_str);
         dialog_show(title, buff, dialog_release_note, confirm_channel);

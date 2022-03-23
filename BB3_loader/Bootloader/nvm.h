@@ -27,7 +27,10 @@ typedef struct {
     uint32_t size;          //+4
     uint32_t crc;           //+4
 
-    uint8_t reserved[20];   //+20
+    uint16_t build_testing; //+2
+    uint16_t build_release; //+2
+
+    uint8_t reserved[20];   //+16
 } app_header_t;
 
 typedef struct
