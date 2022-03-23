@@ -34,12 +34,19 @@ REGISTER_WIDGET_ISUE(Map,
     uint8_t action_cnt;
 
     uint8_t magic;
+
+    lv_obj_t * fanet_icons[NB_NUMBER_IN_MEMORY];
+    lv_obj_t * fanet_labels[NB_NUMBER_IN_MEMORY];
+    uint8_t fanet_obj_count;
+    uint8_t fanet_magic;
 );
 
 static bool static_init = false;
 static lv_style_t static_label = {0};
+static lv_style_t fanet_label = {0};
 
 LV_IMG_DECLARE(arrow_new);
+LV_IMG_DECLARE(pg_icon);
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -47,6 +54,16 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     {
         lv_style_init(&static_label);
         lv_style_set_text_color(&static_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+
+        lv_style_init(&fanet_label);
+        lv_style_set_text_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+        lv_style_set_bg_opa(&fanet_label, LV_STATE_DEFAULT, LV_OPA_50);
+    	lv_style_set_bg_blend_mode(&fanet_label, LV_STATE_DEFAULT, LV_BLEND_MODE_NORMAL);
+    	lv_style_set_bg_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    	lv_style_set_radius(&fanet_label, LV_STATE_DEFAULT, 4);
+    	lv_style_set_text_font(&fanet_label, LV_STATE_DEFAULT, LV_THEME_DEFAULT_FONT_SMALL);
+    	lv_style_set_pad_left(&fanet_label, LV_STATE_DEFAULT, 2);
+
         static_init = true;
     }
 
@@ -54,6 +71,7 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 
     local->magic = 0xFF;
     local->master_tile = 0xFF;
+    local->fanet_magic = 0xFF;
 
     local->edit = NULL;
     local->last_action = 0;
@@ -76,6 +94,11 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     {
         local->poi[i] = NULL;
         local->poi_magic[i] = 0xFF;
+    }
+
+    for (uint8_t i = 0; i < NB_NUMBER_IN_MEMORY; i++) {
+    	local->fanet_icons[i] = NULL;
+    	local->fanet_labels[i] = NULL;
     }
 
     local->dot = lv_obj_create(slot->obj, NULL);
@@ -250,6 +273,59 @@ static void Map_update(widget_slot_t * slot)
 			lv_obj_set_hidden(local->arrow, true);
 			lv_obj_set_hidden(local->dot, false);
     	}
+
+    	if (config_get_bool(&profile.map.show_fanet))
+   	    {
+   			if (fc.fanet.neighbors_magic != local->fanet_magic && fc.gnss.fix > 0)
+   			{
+   				char label_value[50];
+   				char buffer[32];
+
+   				int16_t zoom = config_get_int(&profile.map.zoom_flight);
+    			int8_t t = 0;
+
+    			for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
+    			{
+    				if (fc.fanet.neighbor[i].flags & NB_HAVE_POS)
+    				{
+    					int16_t x, y;
+
+    					geo_to_pix_w_h(fc.gnss.longtitude, fc.gnss.latitude, zoom, fc.fanet.neighbor[i].longitude, fc.fanet.neighbor[i].latitude, &x, &y, slot->w, slot->h);
+
+    					format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
+    					snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);
+
+    					if (local->fanet_icons[t] == NULL && local->fanet_labels[t] == NULL)
+    					{
+    						local->fanet_icons[t] = lv_img_create(slot->obj, NULL);
+    						lv_img_set_src(local->fanet_icons[t], &pg_icon);
+    						lv_img_set_antialias(local->fanet_icons[t], true);
+
+    						local->fanet_labels[t] = lv_label_create(slot->obj, NULL);
+    						lv_obj_add_style(local->fanet_labels[t], LV_LABEL_PART_MAIN, &fanet_label);
+    						lv_label_set_align(local->fanet_labels[t], LV_LABEL_ALIGN_LEFT);
+    					}
+
+    					lv_label_set_text(local->fanet_labels[t], label_value);
+
+    					lv_obj_align(local->fanet_icons[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2, y - slot->h / 2);
+    					lv_img_set_angle(local->fanet_icons[t], fc.fanet.neighbor[i].heading * 14); // ~ 360/255 * 10
+    					lv_obj_align(local->fanet_labels[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2 + 35, y - slot->h / 2);
+    					lv_obj_set_hidden(local->fanet_icons[t], false);
+    					lv_obj_set_hidden(local->fanet_labels[t], false);
+    					t++;
+    				}
+    			}
+
+    			for (uint8_t i = t; i < NB_NUMBER_IN_MEMORY; i++) {
+    				if (local->fanet_icons[i] != NULL && local->fanet_labels[i] != NULL) {
+    				    lv_obj_set_hidden(local->fanet_icons[i], true);
+    					lv_obj_set_hidden(local->fanet_labels[i], true);
+    				}
+    			}
+    		}
+    		local->fanet_magic = fc.fanet.neighbors_magic;
+   	    }
     }
 
     if (local->edit != NULL)
