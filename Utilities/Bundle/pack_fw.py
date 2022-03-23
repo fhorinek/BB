@@ -153,11 +153,11 @@ if args.publish:
     if args.channel == "D" and not on_master:
         print("Error: Please do not publish devel if not on master branch")
         sys.exit(-1)
-    if args.channel == "T" and not on_testing:
-        print("Error: Please do not publish testing if not on testing branch")
+    if args.channel == "T" and (not on_testing and not on_devel):
+        print("Error: Please do not publish testing if not on testing or devel branch")
         sys.exit(-1)
-    if args.channel == "R" and not on_release:
-        print("Error: Please do not publish release if not on release branch")
+    if args.channel == "R" and (not on_testing and not on_release):
+        print("Error: Please do not publish release if not on release or testin branch")
         sys.exit(-1)
 
 if args.publish:
