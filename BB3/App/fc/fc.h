@@ -24,7 +24,7 @@
 #define FC_MPS_TO_MPH		(2.23693629)		//Miles per hour
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
 #define FC_KM_TO_MILE		(0.621371)
-
+#define FC_FEET_IN_MILE		(5280)
 
 #define GNSS_NUMBER_OF_SATS		32
 
@@ -78,6 +78,7 @@ typedef struct
 
 #define NB_NAME_LEN				19
 #define NB_TOO_FAR				0xFFFF
+#define NB_TOO_OLD				120
 
 typedef struct
 {

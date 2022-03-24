@@ -43,6 +43,7 @@ DECLARE_WIDGET(TTrace);
 DECLARE_WIDGET(WindDirPoints);
 DECLARE_WIDGET(TimeDate);
 DECLARE_WIDGET(VarioGraph);
+DECLARE_WIDGET(FanetRadar);
 
 widget_t * widgets[] =
 {
@@ -82,7 +83,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(WindDir),
 	LIST_WIDGET(WindDirPoints),
 	LIST_WIDGET(WindSpd),
-	
+	LIST_WIDGET(FanetRadar),
 };
 
 

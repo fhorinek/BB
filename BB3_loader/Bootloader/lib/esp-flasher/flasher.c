@@ -230,17 +230,16 @@ flasher_ret_t esp_flash_write_file(FIL * file)
 
         DBG("Writing 0x%08X %8u %s", chunk.addr, chunk.size, chunk.name);
 
-        gfx_draw_status(GFX_STATUS_UPDATE, "ESP erase");
+        char text[64];
+        sprintf(text, "ESP %s", chunk.name);
+        gfx_draw_status(GFX_STATUS_UPDATE, text);
+
         err = esp_loader_flash_start(chunk.addr, chunk.size, ESP_PACKET_SIZE);
         if (err != ESP_LOADER_SUCCESS)
         {
             ERR("Programming error %u", err);
             return flasher_unable_to_program;
         }
-
-        char text[64];
-        sprintf(text, "ESP %s", chunk.name);
-        gfx_draw_status(GFX_STATUS_UPDATE, text);
 
         while (chunk.size > pos)
         {

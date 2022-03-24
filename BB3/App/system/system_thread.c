@@ -256,7 +256,7 @@ void thread_system_start(void *argument)
 
 	INFO("\n\n --------------- %02u.%02u.%04u | %02u:%02u.%02u ---------------", day, month, year, hour, min, sec);
 
-	char tmp[16];
+	char tmp[20];
 
     INFO("SkyBean Strato");
     INFO("HW rev: %02X", rev_get_hw());

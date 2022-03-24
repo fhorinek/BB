@@ -17,6 +17,7 @@ import zlib
 import os
 import shutil
 import argparse
+import subprocess
 
 name_max_len = 32
 
@@ -122,14 +123,50 @@ def add_files(path, level):
             
 parser = argparse.ArgumentParser(description='Pack parts to create a Strato firmware.')
 parser.add_argument("-p", "--publish",
-                    help="Publish the firmware (=git add,commit)",
+                    help="Increase build number, tag release, create new branch if needed",
                     action="store_true")
-parser.add_argument("-i", "--ignore",
-                    help="Do not increase build number",
-                    action="store_true")
-parser.add_argument("-c", "--channel", default="D", choices=['R', 'T', 'D'],
-                    help="Select the release channel for this firmware out of (Release, Test, Debug)")
+parser.add_argument("-c", "--channel", default="A", choices=['R', 'T', 'D', 'A'],
+                    help="Select the release channel for this firmware out of (Release, Test, Debug, Auto)")
 args = parser.parse_args()
+
+active_branch = subprocess.check_output(["git", "branch", "--show-current"]).decode().split()[0]
+
+print("Active branch is %s" % active_branch)
+
+on_master = active_branch == "master"
+on_testing = active_branch.find("testing_") == 0
+on_release = active_branch.find("release_") == 0
+on_devel = not on_testing and not on_release
+
+branch_numbers = active_branch.replace("testing_", "").replace("release_", "").split(".")
+
+if args.channel == 'A':
+    if on_release:
+        args.channel = 'R'
+    if on_testing:
+        args.channel = 'T'
+    if on_devel:
+        args.channel = 'D'
+
+#Sanity checks
+if args.publish:
+    if args.channel == "D" and not on_master:
+        print("Error: Please do not publish devel if not on master branch")
+        sys.exit(-1)
+    if args.channel == "T" and (not on_testing and not on_devel):
+        print("Error: Please do not publish testing if not on testing or devel branch")
+        sys.exit(-1)
+    if args.channel == "R" and (not on_testing and not on_release):
+        print("Error: Please do not publish release if not on release or testin branch")
+        sys.exit(-1)
+
+if args.publish:
+    not_staged = os.system("git diff --exit-code")
+    not_commited = os.system("git diff --cached --exit-code")
+    
+    if not_staged != 0 or not_commited != 0:
+        print("Error: Commit your changes first!")
+        sys.exit(-1)
 
 #STM firmware
 chunks.append(read_chunk(stm_bin_file, 0x0))
@@ -141,6 +178,10 @@ add_files(stm_assets_path, 0)
 #ESP
 esp_fw_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB_esp_fw/build/"
 esp_chunks_path = os.path.join(esp_fw_base_path, "flash_args")
+
+if not os.path.isfile(esp_chunks_path):
+    print("BB_esp_fw is missing. Please either compile this manually or follow instructions on https://github.com/fhorinek/BB/blob/master/Dev/Setup.md#workaround-problems-installing for a workaround.")
+    sys.exit(1)
 
 esp_chunks = []
 
@@ -157,16 +198,52 @@ for record in esp_chunks:
     chunks.append(read_chunk(bin_path, addr))
 
 try:
-    build_number = int(open("build_number", "r").read())
+    build_devel = int(open("build_devel", "r").read())
 except:
-    build_number = 0
+    build_devel = 0
 
-if args.ignore != True:
-    build_number += 1
+try:    
+    build_testing = int(open("build_testing", "r").read())
+except:
+    build_testing = 0
 
-open("build_number", "w").write("%u" % build_number)
+try:
+    build_release = int(open("build_release", "r").read())
+except:
+    build_release = 0
+    
+if on_testing:
+    if build_devel != int(branch_numbers[0]):
+        print("Build number is different! file %u.x.x != branch %u.x.x" % (build_devel, int(branch_numbers[0])))
+        sys.exit(-1)
 
-build = build_number | ord(args.channel) << 24
+if on_release:
+    if build_devel != int(branch_numbers[0]) or build_testing != int(branch_numbers[1]):
+        print("Build number is different! file %u.%u.x != branch %u.%u.x" % (build_devel, build_testing, int(branch_numbers[0]), int(branch_numbers[1])))
+        sys.exit(-1)
+
+if args.publish:
+    if args.channel == "R":
+        if build_release == 0:
+            os.system("git checkout -b release_%u.%u.x" % (build_devel, build_testing))
+    
+        build_release += 1
+        open("build_release", "w").write("%u" % build_release)
+    elif args.channel == "T":
+        build_release = 0
+        if build_testing == 0:
+            os.system("git checkout -b testing_%u.x.x" % build_devel)
+            
+        build_testing += 1
+        open("build_testing", "w").write("%u" % build_testing)
+        open("build_release", "w").write("%u" % build_release)
+    else:
+        build_devel += 1
+        build_release = 0
+        build_testing = 0
+        open("build_devel", "w").write("%u" % build_devel)
+        open("build_testing", "w").write("%u" % build_testing)
+        open("build_release", "w").write("%u" % build_release)
 
 number_of_records = len(chunks)
 
@@ -175,10 +252,13 @@ if os.path.exists("strato.fw"):
 
 f = open("strato.fw", "wb")
 
-f.write(struct.pack("<L", build))
+f.write(struct.pack("<L", build_devel))
 f.write(struct.pack("<b", number_of_records))
+f.write(struct.pack("<H", build_testing))
+f.write(struct.pack("<H", build_release))
 
-for i in range(32-5):
+#pad rest of the app header
+for i in range(32 - (4 + 1 + 2 + 2)):
     f.write(struct.pack("<b", 0))
 
 for c in chunks:
@@ -191,19 +271,20 @@ for c in chunks:
 
 f.close()
 
-build = "%c%07u" % (args.channel, build_number)
-folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
-    
-os.makedirs(folder, exist_ok=True)
-shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
-shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
-shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
-shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
+build = "%c.%u.%u.%u" % (args.channel, build_devel, build_testing, build_release)
 
 if args.publish:
-    print("Creating Snapshot Build %s" % build)
+    folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
+
+    os.makedirs(folder, exist_ok=True)
+    shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
+    shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
+    shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
+    shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
+
     os.system("git add -A")
-    os.system("git commit -m \"Snapshot build %s\"" % build)
+    os.system("git commit -m 'Added binaries for relese %s'" % build)
+    os.system("git tag '%s'" % build)
 
 print("Done for build " + build)
 

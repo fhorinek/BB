@@ -27,12 +27,19 @@ uint32_t rev_get_short_id()
 
 void rev_get_sw_string(char * str)
 {
-    sprintf(str, "%c%07lu", (char)((rev_get_sw() & 0xFF000000) >> 24), rev_get_sw() & 0x00FFFFFF);
-}
+    char c;
+    if (nvm->app.build_release != 0)
+        c = 'R';
+    else if (nvm->app.build_testing != 0)
+        c = 'T';
+    else
+        c = 'D';
 
-uint32_t rev_get_sw()
-{
-    return nvm->app.build_number;
+    //prevent to display wrong numbers because of the old bootloader
+    uint16_t t = (nvm->app.build_testing == 0xFFFF) ? 0 : nvm->app.build_testing;
+    uint16_t r = (nvm->app.build_release == 0xFFFF) ? 0 : nvm->app.build_release;
+
+    sprintf(str, "%c.%lu.%u.%u", c, nvm->app.build_number, t, r);
 }
 
 uint8_t rev_get_hw()

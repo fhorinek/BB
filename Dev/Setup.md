@@ -44,7 +44,7 @@ Clone the repositary from github
 You need STM32CubeIDE with some specific configuration. Please follow
 this outline to install:
 
- 1. Download and install [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html#get-software), version 1.8.0 is known to work.
+ 1. Download and install [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html#get-software), version 1.9.0 is known to work
  2. Start the STM32CubeIDE, close the welcome screen and select **Import projects...**
  3. Select **General** / **Projects from Folder or Archive**
  4. Set cloned repository path as your **Import source** *(eg. ~/git/BB)*
@@ -89,14 +89,15 @@ installing the above tools.
 
 Start by downloading an official firmware file (preferably latest
 version) and extract all files contained. Copy all necessary files to
-BB_esp_fw and you are done. The following instructions use version 232
-as an example. Please replace 232 by the latest version:
+BB_esp_fw and you are done. The following instructions use version 260
+as an example. Please replace 260 by the latest version:
 
     cd ~/git/BB3/Utilities/Bundle
-    wget "https://strato.skybean.eu/fw/232/strato.fw"
-    ./extract_fw.py strato.fw
-    cp -a D0000232/{BB_esp_fw.bin,bootloader.bin,partition-table.bin,storage.bin} ~/git/BB_esp_fw/build/
-    cat > ~/git/BB_esp_fw/build/flash_args <<EOF
+    wget "https://strato.skybean.eu/fw/release/260/strato.fw"
+    ./unpack_fw.py strato.fw
+    mkdir ../../BB_esp_fw/build
+    cp -a R0000260/{BB_esp_fw.bin,bootloader.bin,partition-table.bin,storage.bin} ../../BB_esp_fw/build
+    cat > ../../BB_esp_fw/build/flash_args <<EOF
     --flash_mode dio --flash_freq 80m --flash_size 16MB
     0x00001000 bootloader.bin
     0x00010000 BB_esp_fw.bin

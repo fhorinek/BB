@@ -13,4 +13,6 @@ Utilities/Map/pipeline/errors.list
 Utilities/Map/pipeline/*_temporary_input.geojson
 BB_map_sim/*.data
 BB_map_sim/.settings
-BB_map_sim/.settings/language.settings.xml
+Utilities/CrashDebug/dump.bin
+Utilities/Bundle/strato.fw
+

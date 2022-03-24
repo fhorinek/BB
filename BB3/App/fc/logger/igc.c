@@ -201,7 +201,7 @@ void igc_start_write()
 	sprintf(line, "HFDTMGPSDATUM:WGS84");
 	igc_writeline(line);
 	//H F RFW FIRMWARE VERSION
-	char sw[10];
+	char sw[20];
 	rev_get_sw_string(sw);
 	sprintf(line, "HFRFWFIRMWAREVERSION:%s", sw);
 	igc_writeline(line);

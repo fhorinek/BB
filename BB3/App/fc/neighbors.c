@@ -35,6 +35,12 @@ void neighbors_update_magic()
 
 neighbor_t * neighbors_add(fanet_addr_t addr)
 {
+
+	if (fc.fanet.neighbors_size >= NB_NUMBER_IN_MEMORY) {
+		WARN("Max number of FANET NB reached!");
+		return NULL;
+	}
+
 	neighbor_t * nb = &fc.fanet.neighbor[fc.fanet.neighbors_size];
 	fc.fanet.neighbors_size += 1;
 
@@ -72,18 +78,20 @@ void neighbors_update(neighbor_t new_data)
 	if (nb == NULL)
 		nb = neighbors_add(new_data.addr);
 
-	nb->latitude = new_data.latitude;
-	nb->longitude = new_data.longitude;
-	nb->alititude = new_data.alititude;
-	nb->heading = new_data.heading;
-	nb->flags = (nb->flags & 0xF0) | (new_data.flags & 0x0F);
-	nb->flags |= NB_HAVE_POS;
-	nb->timestamp = HAL_GetTick() / 1000;
+	if (nb != NULL) {
+		nb->latitude = new_data.latitude;
+		nb->longitude = new_data.longitude;
+		nb->alititude = new_data.alititude;
+		nb->heading = new_data.heading;
+		nb->flags = (nb->flags & 0xF0) | (new_data.flags & 0x0F);
+		nb->flags |= NB_HAVE_POS;
+		nb->timestamp = HAL_GetTick() / 1000;
 
-	neighbors_update_distance(nb);
+		neighbors_update_distance(nb);
 
-	//notify GUI
-	neighbors_update_magic();
+		//notify GUI
+		neighbors_update_magic();
+	}
 }
 
 void neighbors_update_name(fanet_addr_t addr, char * name)
@@ -94,16 +102,37 @@ void neighbors_update_name(fanet_addr_t addr, char * name)
 	if (nb == NULL)
 		nb = neighbors_add(addr);
 
-	strncpy(nb->name, name, NB_NAME_LEN);
-	nb->timestamp = HAL_GetTick() / 1000;
+	if (nb != NULL) {
+		strncpy(nb->name, name, NB_NAME_LEN);
+		nb->timestamp = HAL_GetTick() / 1000;
 
-	//notify GUI
+		//notify GUI
+		neighbors_update_magic();
+	}
+}
+
+// should be atomic?
+void neighbors_remove_old() {
+	for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
+	{
+		uint32_t last_update = (HAL_GetTick() / 1000) - fc.fanet.neighbor[i].timestamp;
+		if (last_update > NB_TOO_OLD) {
+			if (i != (fc.fanet.neighbors_size - 1)) { // not last?
+				for (uint8_t j = i; j < fc.fanet.neighbors_size; j++) {
+					fc.fanet.neighbor[j] = fc.fanet.neighbor[j + 1];
+				}
+			}
+			fc.fanet.neighbors_size--;
+		}
+	}
+
 	neighbors_update_magic();
 }
 
 void neighbors_step()
 {
 	static uint32_t next_update = 0;
+	static uint32_t remove_old = 0;
 
 	if (next_update < HAL_GetTick())
 	{
@@ -120,7 +149,6 @@ void neighbors_step()
 			uint32_t last_update = HAL_GetTick() - nb->timestamp;
 			if (last_update > 1000 && last_update < 10000)
 				neighbors_update_distance(nb);
-
 		}
 
 		//notify GUI
@@ -128,4 +156,10 @@ void neighbors_step()
 	}
 
 
+	if (remove_old < HAL_GetTick()) {
+
+		remove_old = HAL_GetTick() + NB_TOO_OLD * 1000;
+
+		neighbors_remove_old();
+	}
 }
