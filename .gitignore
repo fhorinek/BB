@@ -15,4 +15,4 @@ BB_map_sim/*.data
 BB_map_sim/.settings
 Utilities/CrashDebug/dump.bin
 Utilities/Bundle/strato.fw
-
+.DS_Store
