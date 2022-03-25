@@ -54,7 +54,7 @@
 	do {	\
 		if (!(cond))	\
 		{ \
-			ERR("Assertion failed %s:%u", __FILE_NAME__, __LINE__); \
+			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
 		} \
 	} while(0);
 
@@ -63,7 +63,7 @@
     do {    \
         if (!(cond))    \
         { \
-            bsod_msg("Assertion failed %s:%u", __FILE_NAME__, __LINE__); \
+            bsod_msg("Assertion failed %s:%u", __FILENAME__, __LINE__); \
         } \
     } while(0);
 
