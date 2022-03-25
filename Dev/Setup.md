@@ -67,13 +67,14 @@ Please follow this outline to install:
 
  1. [Install Prerequisites](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#Prerequisites) as this is included in the following step "Install ESP-IDF/ADF"
  2. [Install IDF Plugin](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-idf-plugin-using-update-site-url)
- 3. [Install ESP-IDF/ADF](https://strato.skybean.eu/dev/esp.zip) extract this modified version to ~/esp/ so that you get ~/esp/esp-idf and ~/esp/esp-adf.
+ 3. [Install ESP-IDF/ADF](https://strato.skybean.eu/dev/esp.zip) extract this modified version to `~/esp/` so that you get `~/esp/esp-idf` and `~/esp/esp-adf`.
  4. [Install ESP-IDF Tools](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md#installing-esp-idf-tools)
  5. [Set path to ESP-ADF](https://docs.espressif.com/projects/esp-adf/en/latest/get-started/index.html#step-3-set-up-path-to-esp-adf)
  6. Select **Import projects**. Select **Espressif** / **Existing IDF Project**
  7. Set **Existing project Location** to the ESP fw prooject path *(eg. ~/git/BB/BB_esp_fw)*
- 8. Try to build the projects
- 9. If the **ADF_PATH** is not defined in the CMake go to 
+ 8. Select the `esp32` launch target (*not* `esp32s2`)
+ 9. Try to build the project
+ 10. If the **ADF_PATH** is not defined in the CMake go to 
      **Window** / **Preferences** / **C / C++** / **Build** / **Enviroment**
      Add Variabile **ADF_PATH** to `~/esp/esp-adf` and make sure that you select 
      **Replace native enviroment with specified one**
