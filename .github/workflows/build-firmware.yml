@@ -14,8 +14,26 @@ jobs:
     steps:
         - name: Checkout repository
           uses: actions/checkout@v3
+        - name: Build STM32 firmware
+          shell: bash
+          run: |
+            headless-build.sh -import $(pwd)/BB3 -build 'BB3/Release'
+        - name: Build STM32 bootloader
+          shell: bash
+          run: |
+            headless-build.sh -import $(pwd)/BB3_loader -build 'BB3_loader/Release'
         - name: Build ESP32 firmware
           shell: bash
           run: |
             cd BB_esp_fw
             $IDF_PATH/tools/idf.py build
+        - name: Package Strato firmware
+          shell: bash
+          run: |
+            cd Utilities/Bundle
+            ./pack_fw.py
+        - name: Archive strato.fw
+          uses: actions/upload-artifact@v3
+          with:
+            name: strato.fw
+            path: Utilities/Bundle/strato.fw
