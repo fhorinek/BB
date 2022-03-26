@@ -43,3 +43,4 @@ RUN cd /opt && \
 
 RUN ln -s /usr/bin/python3 /usr/bin/python && \
     pip install -r $IDF_PATH/requirements.txt
+
