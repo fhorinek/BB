@@ -1,0 +1,21 @@
+name: Build firmware
+
+on:
+  pull_request
+
+jobs:
+  build-firmware:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/strato-build:latest
+      credentials:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Build ESP32 firmware
+          shell: bash
+          run: |
+            cd BB_esp_fw
+            $IDF_PATH/tools/idf.py build
