@@ -30,5 +30,10 @@ bool filemanager_get_path(char * dst, char * path);
 #define FM_FLAG_FOCUS       0b00000010
 #define FM_FLAG_HIDE_FILE   0b00000100
 #define FM_FLAG_HIDE_DIR    0b00001000
+#define FM_FLAG_SHOW_EXT    0b00010000
+#define FM_FLAG_SORT_NAME   0b00100000
+#define FM_FLAG_SORT_DATE   0b01000000
+
+#define FM_FILE_MAX_COUNT   100         // the maximum number of files to show
 
 #endif /* GUI_FILEMANAGER_H_ */

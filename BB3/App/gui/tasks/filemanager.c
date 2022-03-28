@@ -26,8 +26,29 @@
 #include "gui/gui_list.h"
 #include "gui/ctx.h"
 
-REGISTER_TASK_I(filemanager,
+#define FM_OFFSET_FDATE 0
+#define FM_OFFSET_FTIME 2
+#define FM_OFFSET_FATTRIB 4
+#define FM_OFFSET_FN 5
+
+REGISTER_TASK_IS(filemanager,
 	char path[PATH_LEN];
+
+	/**
+	 * The following is a ps_malloc'ed 2-dimensional array:
+	 * filenames[FM_FILE_MAX_COUNT][PATH_LEN].
+	 *
+	 * Each filename starts with (unmodified taken from FILINFO):
+	 *
+	 *   WORD fdate;      // Modified date
+	 *   WORD ftime;      // Modified time
+	 *   BYTE fattrib;    // File attribute
+	 *
+	 * followed by the filename characters (to allow sorting).
+	 * The filename can be found at offset FM_OFFSET_FN.
+	 */
+	unsigned char (*filenames)[PATH_LEN];
+
 	lv_obj_t * list;
 	gui_task_t * back;
 	filemanager_cb_t cb;
@@ -103,8 +124,6 @@ bool filemanager_ctx_cb(uint8_t index, lv_obj_t * obj)
     return true;
 }
 
-#define DIR_ICON	 LV_SYMBOL_DIRECTORY " "
-
 bool filemanager_back()
 {
 	if (local->level == 0)
@@ -132,7 +151,7 @@ bool filemanager_back()
 		}
 
 		//we are switching to the same task
-		//"local" variabile will belong to new task now
+		//"local" variable will belong to new task now
 		gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 		filemanager_open(new_path, old->level - 1, old->back, old->flags, old->cb);
 	}
@@ -166,18 +185,17 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 	if (event == LV_EVENT_CLICKED)
 	{
-		char * fname = (char *)gui_list_text_get_value(obj);
-		if (strstr(fname, DIR_ICON) != NULL)
-			fname += strlen(DIR_ICON);
+		unsigned char * file = local->filenames[index];
 
 		char new_path[PATH_LEN];
 
-		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, fname);
+		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file + FM_OFFSET_FN);
+		DBG("index=%d %s", index, new_path);
 
-		if (file_isdir(new_path))
+		if (file[FM_OFFSET_FATTRIB] & AM_DIR)
 		{
 			//we are switching to the same task
-			//"local" variabile will belong to new task now
+			//"local" variable will belong to new task now
 			gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 			filemanager_open(new_path, old->level + 1, old->back, old->flags, old->cb);
 		}
@@ -198,16 +216,15 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	{
 		ctx_hide();
 
-		char * fname = (char *)gui_list_text_get_value(obj);
-		if (strstr(fname, DIR_ICON) != NULL)
-			fname += strlen(DIR_ICON);
+		unsigned char * file = local->filenames[index];
+
 		char new_path[PATH_LEN];
 
-		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, fname);
+		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file + FM_OFFSET_FN);
 
         if (local->cb != NULL && local->flags & FM_FLAG_FOCUS)
         {
-            if (file_isdir(new_path))
+            if ( file[FM_OFFSET_FATTRIB] & AM_DIR )
                 local->cb(FM_CB_FOCUS_DIR, new_path);
             else
                 local->cb(FM_CB_FOCUS_FILE, new_path);
@@ -219,11 +236,9 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		uint32_t key = *((uint32_t *) lv_event_get_data());
 		if (key == LV_KEY_HOME && ctx_is_active())
 		{
-			char * fname = (char *)gui_list_text_get_value(obj);
-			if (strstr(fname, DIR_ICON) != NULL)
-				fname += strlen(DIR_ICON);
+			unsigned char * file = local->filenames[index];
 
-			strncpy(filemanager_active_fname,  fname, sizeof(filemanager_active_fname) - 1);
+			strncpy(filemanager_active_fname,  file + FM_OFFSET_FN, sizeof(filemanager_active_fname) - 1);
 
 			ctx_open(0);
 		}
@@ -239,10 +254,39 @@ static lv_obj_t * filemanager_init(lv_obj_t * par)
 	local->cb = NULL;
 	local->path[0] = 0;
 	local->flags = 0;
+	local->filenames = ps_malloc(FM_FILE_MAX_COUNT*PATH_LEN);
+	DBG("ps_malloc = %p", local->filenames);
 
 	ctx_set_cb(filemanager_ctx_cb);
 
     return local->list;
+}
+
+static void filemanager_stop()
+{
+	DBG("ps_free(%p)", local->filenames);
+
+	ps_free(local->filenames);
+	local->filenames = NULL;
+}
+
+static int fm_sort_name(char *a, char *b)
+{
+	// Todo: Take FATTRIB into account to place directories first
+	return strcmp(a + FM_OFFSET_FN, b + FM_OFFSET_FN);
+}
+
+static int fm_sort_date(WORD *a, WORD *b)
+{
+    if (a[0] < b[0])
+        return -1;
+    if (a[0] > b[0])
+        return +1;
+    if (a[1] < b[1])
+        return -1;
+    if (a[1] > b[1])
+        return +1;
+    return 0;
 }
 
 /**
@@ -285,12 +329,15 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	if (res == FR_OK)
 	{
 		uint16_t cnt = 0;
-        while (true)
+        while (cnt < FM_FILE_MAX_COUNT)
         {
             res = f_readdir(&dir, &fno);
             if (res != FR_OK || fno.fname[0] == 0)
             	break;
 
+            //hide system files
+            if (fno.fname[0] == '.')
+                continue;
 
             if (local->flags & FM_FLAG_FILTER)
             {
@@ -305,29 +352,61 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             {
                 if (local->flags & FM_FLAG_HIDE_DIR)
                     continue;
-
-            	char name[PATH_LEN];
-            	snprintf(name, sizeof(name), DIR_ICON "%s", fno.fname);
-            	gui_list_text_add_entry(local->list, name);
-                cnt++;
             }
             else
             {
                 if (local->flags & FM_FLAG_HIDE_FILE)
                     continue;
-
-                gui_list_text_add_entry(local->list, fno.fname);
-                cnt++;
             }
+
+            local->filenames[cnt][0] = (fno.fdate >> 8) & 0xff;
+            local->filenames[cnt][1] = (fno.fdate >> 0) & 0xff;
+            local->filenames[cnt][2] = (fno.ftime >> 8) & 0xff;
+            local->filenames[cnt][3] = (fno.ftime >> 0) & 0xff;
+            local->filenames[cnt][4] = fno.fattrib;
+            strcpy(&local->filenames[cnt][5], fno.fname);
+
+            cnt++;
         }
+        f_closedir(&dir);
 
         if (cnt == 0)
         {
             gui_list_note_add_entry(local->list, "Nothing to show", LIST_NOTE_COLOR);
             gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
         }
+        else
+        {
+            if (local->flags & FM_FLAG_SORT_NAME)
+            {
+                qsort(local->filenames, cnt, PATH_LEN, fm_sort_name);
+            }
+            if (local->flags & FM_FLAG_SORT_DATE)
+            {
+                qsort(local->filenames, cnt, PATH_LEN, fm_sort_date);
+            }
+            for ( int i = 0; i < cnt; i++ )
+            {
+                char name[PATH_LEN];
+                if (local->filenames[i][FM_OFFSET_FATTRIB] & AM_DIR)
+                {
+                    snprintf(name, sizeof(name), LV_SYMBOL_DIRECTORY " %s", &local->filenames[i][FM_OFFSET_FN]);
+                }
+                else
+                {
+                    if (local->flags & FM_FLAG_SHOW_EXT)
+                    {
+                        strcpy(name, &local->filenames[i][FM_OFFSET_FN]);
+                    }
+                    else
+                    {
+                        filemanager_get_filename_no_ext(name, &local->filenames[i][FM_OFFSET_FN]);
+                    }
+                }
+                gui_list_text_add_entry(local->list, name);
+            }
+        }
 
-        f_closedir(&dir);
 	}
 }
 

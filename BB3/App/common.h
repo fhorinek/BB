@@ -29,6 +29,7 @@
 #include "spi.h"
 #include "crc.h"
 #include "sdmmc.h"
+#include "rtc.h"
 
 //os
 #include "FreeRTOS.h"

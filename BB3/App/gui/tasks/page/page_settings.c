@@ -43,7 +43,7 @@ void page_settings_open_fm(bool anim)
     gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
     char path[PATH_LEN] = {0};
     str_join(path, 3, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile));
-    filemanager_open(path, 0, &gui_pages, FM_FLAG_FILTER | FM_FLAG_HIDE_DIR | FM_FLAG_FOCUS, page_settings_load_page_fm_cb);
+    filemanager_open(path, 0, &gui_pages, FM_FLAG_FILTER | FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, page_settings_load_page_fm_cb);
 }
 
 
@@ -575,7 +575,7 @@ void page_settings_open_copy_fm(bool anim)
     gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
     char path[PATH_LEN] = {0};
     strcpy(path, PATH_PAGES_DIR);
-    filemanager_open(path, 0, &gui_pages, FM_FLAG_FOCUS, page_settings_load_page_copy_fm_cb);
+    filemanager_open(path, 0, &gui_pages, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME, page_settings_load_page_copy_fm_cb);
 }
 
 static bool page_settings_copy_cb(lv_obj_t * obj, lv_event_t event)

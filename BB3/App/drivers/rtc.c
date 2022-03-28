@@ -77,6 +77,7 @@ void rtc_get_time(uint8_t * hour, uint8_t * minute, uint8_t * second)
 	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 }
 
+
 void rtc_set_time(uint8_t hour, uint8_t minute, uint8_t second)
 {
 	RTC_TimeTypeDef sTime = {0};
