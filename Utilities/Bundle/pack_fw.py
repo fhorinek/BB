@@ -129,7 +129,7 @@ parser.add_argument("-c", "--channel", default="A", choices=['R', 'T', 'D', 'A']
                     help="Select the release channel for this firmware out of (Release, Test, Debug, Auto)")
 args = parser.parse_args()
 
-active_branch = subprocess.check_output(["git", "branch", "--show-current"]).decode().split()[0]
+active_branch = "".join(subprocess.check_output(["git", "branch", "--show-current"]).decode().split())
 
 print("Active branch is %s" % active_branch)
 

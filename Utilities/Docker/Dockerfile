@@ -1,9 +1,9 @@
 FROM ubuntu
 
-ENV ESP_TOOLCHAIN_URL=https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_4_0-esp-2021r2-linux-amd64.tar.gz
+ENV ESP_TOOLCHAIN_URL=https://strato.skybean.eu/dev/xtensa-esp32-elf-gcc8_4_0-esp-2021r2-linux-amd64.tar.gz
 ENV ESP_URL=https://strato.skybean.eu/dev/esp.zip
 
-ENV STM32CUBEIDE_URL=https://st.com/content/ccc/resource/technical/software/sw_development_suite/group0/13/d4/6b/b0/d2/fd/47/6d/stm32cubeide_deb/files/st-stm32cubeide_1.9.0_12015_20220302_0855_amd64.deb_bundle.sh.zip/jcr:content/translations/en.st-stm32cubeide_1.9.0_12015_20220302_0855_amd64.deb_bundle.sh.zip
+ENV STM32CUBEIDE_URL=https://strato.skybean.eu/dev/en.st-stm32cubeide_1.9.0_12015_20220302_0855_amd64.deb_bundle.sh
 ENV STM32CUBEIDE_VERSION=1.9.0
 
 ENV DEBIAN_FRONTEND=noninteractive
