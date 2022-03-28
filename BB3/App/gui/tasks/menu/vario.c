@@ -54,7 +54,7 @@ static bool vario_profile_cb(lv_obj_t * obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
 		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-		filemanager_open(PATH_VARIO_DIR, 0, &gui_vario_settings, FM_FLAG_HIDE_DIR, vario_profile_fm_cb);
+		filemanager_open(PATH_VARIO_DIR, 0, &gui_vario_settings, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME, vario_profile_fm_cb);
 
 		//supress default handler
 		return false;

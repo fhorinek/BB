@@ -124,8 +124,6 @@ bool filemanager_ctx_cb(uint8_t index, lv_obj_t * obj)
     return true;
 }
 
-#define DIR_ICON	 LV_SYMBOL_DIRECTORY " "
-
 bool filemanager_back()
 {
 	if (local->level == 0)
@@ -153,7 +151,7 @@ bool filemanager_back()
 		}
 
 		//we are switching to the same task
-		//"local" variabile will belong to new task now
+		//"local" variable will belong to new task now
 		gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 		filemanager_open(new_path, old->level - 1, old->back, old->flags, old->cb);
 	}
@@ -194,7 +192,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file + FM_OFFSET_FN);
 		DBG("index=%d %s", index, new_path);
 
-		if ( file[FM_OFFSET_FATTRIB] & AM_DIR )
+		if (file[FM_OFFSET_FATTRIB] & AM_DIR)
 		{
 			//we are switching to the same task
 			//"local" variable will belong to new task now
@@ -280,11 +278,15 @@ static int fm_sort_name(char *a, char *b)
 
 static int fm_sort_date(WORD *a, WORD *b)
 {
-	if ( a[0] < b[0] ) return -1;
-	if ( a[0] > b[0] ) return +1;
-	if ( a[1] < b[1] ) return -1;
-	if ( a[1] > b[1] ) return +1;
-	return 0;
+    if (a[0] < b[0])
+        return -1;
+    if (a[0] > b[0])
+        return +1;
+    if (a[1] < b[1])
+        return -1;
+    if (a[1] > b[1])
+        return +1;
+    return 0;
 }
 
 /**
@@ -333,6 +335,9 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             if (res != FR_OK || fno.fname[0] == 0)
             	break;
 
+            //hide system files
+            if (fno.fname[0] == '.')
+                continue;
 
             if (local->flags & FM_FLAG_FILTER)
             {
@@ -353,12 +358,14 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
                 if (local->flags & FM_FLAG_HIDE_FILE)
                     continue;
             }
+
             local->filenames[cnt][0] = (fno.fdate >> 8) & 0xff;
             local->filenames[cnt][1] = (fno.fdate >> 0) & 0xff;
             local->filenames[cnt][2] = (fno.ftime >> 8) & 0xff;
             local->filenames[cnt][3] = (fno.ftime >> 0) & 0xff;
             local->filenames[cnt][4] = fno.fattrib;
             strcpy(&local->filenames[cnt][5], fno.fname);
+
             cnt++;
         }
         f_closedir(&dir);
@@ -367,7 +374,9 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         {
             gui_list_note_add_entry(local->list, "Nothing to show", LIST_NOTE_COLOR);
             gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
-        } else {
+        }
+        else
+        {
             if (local->flags & FM_FLAG_SORT_NAME)
             {
                 qsort(local->filenames, cnt, PATH_LEN, fm_sort_name);
@@ -381,10 +390,15 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
                 char name[PATH_LEN];
                 if (local->filenames[i][FM_OFFSET_FATTRIB] & AM_DIR)
                 {
-                    snprintf(name, sizeof(name), DIR_ICON "%s", &local->filenames[i][FM_OFFSET_FN]);
-                } else {
-                    strcpy(name, &local->filenames[i][FM_OFFSET_FN]);
-                    if (local->flags & FM_FLAG_HIDE_EXT)
+                    snprintf(name, sizeof(name), LV_SYMBOL_DIRECTORY " %s", &local->filenames[i][FM_OFFSET_FN]);
+                }
+                else
+                {
+                    if (local->flags & FM_FLAG_SHOW_EXT)
+                    {
+                        strcpy(name, &local->filenames[i][FM_OFFSET_FN]);
+                    }
+                    else
                     {
                         filemanager_get_filename_no_ext(name, &local->filenames[i][FM_OFFSET_FN]);
                     }

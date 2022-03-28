@@ -177,7 +177,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
 void profile_pilot_open_fm(bool anim)
 {
     gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
-    filemanager_open(PATH_PILOT_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_FOCUS, profiles_pilot_fm_cb);
+    filemanager_open(PATH_PILOT_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, profiles_pilot_fm_cb);
 }
 
 static bool profiles_pilot_cb(lv_obj_t * obj, lv_event_t event)
@@ -379,7 +379,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
 void profile_profile_open_fm(bool anim)
 {
     gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
-    filemanager_open(PATH_PROFILE_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_FOCUS, profiles_profile_fm_cb);
+    filemanager_open(PATH_PROFILE_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, profiles_profile_fm_cb);
 }
 
 static bool profiles_flight_cb(lv_obj_t * obj, lv_event_t event)

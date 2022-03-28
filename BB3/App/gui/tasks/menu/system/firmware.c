@@ -181,7 +181,7 @@ static bool manual_install_cb(lv_obj_t * obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
 		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
-		filemanager_open(PATH_FW_DIR, 0, &gui_firmware, FM_FLAG_HIDE_DIR, manual_install_fm_cb);
+		filemanager_open(PATH_FW_DIR, 0, &gui_firmware, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME, manual_install_fm_cb);
 
 		//supress default handler
 		return false;
