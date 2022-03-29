@@ -19,6 +19,7 @@ bool PSRAM_test();
 #define ps_malloc(size) ps_malloc_real(size, __FILE__, __LINE__)
 
 void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno);
+void * ps_realloc(void * ptr, uint32_t size);
 void ps_free(void * ptr);
 
 void ps_malloc_info();
