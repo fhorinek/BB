@@ -143,7 +143,7 @@
    Note if MINIZ_NO_MALLOC is defined then the user must always provide custom user alloc/free/realloc
    callbacks to the zlib and archive API's, and a few stand-alone helper API's which don't provide custom user
    functions (such as tdefl_compress_mem_to_heap() and tinfl_decompress_mem_to_heap()) won't work. */
-/*#define MINIZ_NO_MALLOC */
+//#define MINIZ_NO_MALLOC
 
 #if defined(__TINYC__) && (defined(__linux) || defined(__linux__))
 /* TODO: Work around "error: include file 'sys\utime.h' when compiling with tcc on Linux */
@@ -522,6 +522,8 @@ typedef struct mz_dummy_time_t_tag
 
 #define MZ_ASSERT(x) assert(x)
 
+#include "drivers/psram.h"
+
 #ifdef MINIZ_NO_MALLOC
 #define MZ_MALLOC(x) NULL
 #define MZ_FREE(x) (void)x, ((void)0)
@@ -530,6 +532,9 @@ typedef struct mz_dummy_time_t_tag
 #define MZ_MALLOC(x) malloc(x)
 #define MZ_FREE(x) free(x)
 #define MZ_REALLOC(p, x) realloc(p, x)
+//#define MZ_MALLOC(x) ps_malloc(x)
+//#define MZ_FREE(x) ps_free(x)
+//#define MZ_REALLOC(p, x) ps_realloc(p, x)
 #endif
 
 #define MZ_MAX(a, b) (((a) > (b)) ? (a) : (b))

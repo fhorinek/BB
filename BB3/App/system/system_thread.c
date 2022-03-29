@@ -377,6 +377,7 @@ void thread_system_start(void *argument)
 
 	//Announce proper shut down
     INFO("Power down complete.\n-------------------------------\n");
+    osDelay(100);
 
 	//unmount storage
 	sd_deinit();
@@ -384,7 +385,7 @@ void thread_system_start(void *argument)
 	//debug stop
 	osThreadSuspend(thread_debug);
 
-	osDelay(1000);
+	osDelay(500);
 
 	//wait for option button to be released
 	while(HAL_GPIO_ReadPin(BT4) == LOW);

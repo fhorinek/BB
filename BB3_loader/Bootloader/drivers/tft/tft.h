@@ -19,6 +19,12 @@ void tft_init();
 void tft_stop();
 void tft_reset();
 
+void tft_write_command(uint16_t command);
+void tft_write_data(uint16_t data);
+void tft_write_register(uint16_t command, uint16_t data);
+uint16_t tft_read_register(uint16_t command);
+
+
 void tft_test_pattern();
 void tft_color_fill(uint16_t color);
 

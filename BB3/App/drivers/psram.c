@@ -339,6 +339,18 @@ void ps_free(void * ptr)
     osSemaphoreRelease(psram_lock);
 }
 
+void * ps_realloc(void * ptr, uint32_t size)
+{
+    //TODO: look to next block and expand if possible
+    void * new_ptr = ps_malloc(size);
+    if (new_ptr == NULL)
+        return NULL;
+
+    memcpy(new_ptr, ptr, size);
+    ps_free(ptr);
+
+    return new_ptr;
+}
 
 bool PSRAM_test()
 {

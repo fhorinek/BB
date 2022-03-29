@@ -50,10 +50,15 @@ bool db_query(char * path, char * key, char * value, uint16_t value_len)
     int32_t pos = -1;
 
 
-    if (f_open(&f, path, FA_READ) == FR_OK)
+    FRESULT res = f_open(&f, path, FA_READ);
+    if (res == FR_OK)
     {
         pos = db_locate(&f, key, buff, sizeof(buff));
         f_close(&f);
+    }
+    else
+    {
+        ERR("Could not open file '%s', res = %u", path, res);
     }
 
     //line starting with key found!
@@ -63,6 +68,10 @@ bool db_query(char * path, char * key, char * value, uint16_t value_len)
         buff[strlen(buff) - 1] = 0;
         strncpy(value, buff + strlen(key) + 1, value_len);
         return true;
+    }
+    else
+    {
+        WARN("Key '%s' not found in '%s'", key, path);
     }
 
     return false;

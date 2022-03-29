@@ -106,8 +106,8 @@ void bsod_end()
 	{
 		if (HAL_GPIO_ReadPin(BT3) == LOW)
 		{
-			d++;
-			if (d > 500000)
+			HAL_Delay(1);
+			if (d > 500)
 			{
 				NVIC_SystemReset();
 			}
@@ -385,7 +385,7 @@ void bsod_zip_path(mz_zip_archive * zip, char * path)
 
                 //do not include wifi passwords!
                 if (strcmp(buff, PATH_NETWORK_DB) != 0)
-                    mz_zip_writer_add_file(zip, buff, buff, "", 0, 0);
+                    mz_zip_writer_add_file(zip, buff, buff, "", 0, MZ_NO_COMPRESSION);
             }
         }
         f_closedir(&dir);
@@ -409,6 +409,8 @@ void bsod_bundle_report()
         snprintf(path, sizeof(path), "crash_report_%u.zip", cnt);
     }
 
+    //clear all psram
+    ps_malloc_init();
 
     bool res = mz_zip_writer_init_file(zip, path, 0);
 

@@ -155,6 +155,7 @@ void SD_FailSafe_init()
     sd_failsafe_init = true;
 }
 
+//override the cube default function, so we can use filesystem without RTOS
 int ff_req_grant (  /* 1:Got a grant to access the volume, 0:Could not get a grant */
     _SYNC_t sobj    /* Sync object to wait */
 )
