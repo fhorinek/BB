@@ -231,7 +231,7 @@ static uint16_t USBD_MTP_Itf_Create_NewObject(MTP_ObjectInfoTypeDef ObjectInfo, 
 static uint64_t USBD_MTP_Itf_GetMaxCapability(void)
 {
     INFO("USBD_MTP_Itf_GetMaxCapability");
-  uint64_t max_cap = MTP_ACCESS_CAP_RW;
+  uint64_t max_cap = 5000U;
 
   return max_cap;
 }

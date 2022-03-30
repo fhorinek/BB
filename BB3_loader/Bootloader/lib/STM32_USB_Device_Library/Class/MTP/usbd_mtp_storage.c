@@ -18,6 +18,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_mtp_storage.h"
+#include "common.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -157,6 +158,8 @@ uint8_t USBD_MTP_STORAGE_ReadData(USBD_HandleTypeDef  *pdev)
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 
@@ -188,6 +191,8 @@ uint8_t USBD_MTP_STORAGE_SendContainer(USBD_HandleTypeDef  *pdev, MTP_CONTAINER_
       (void)USBD_MTP_STORAGE_SendData(pdev, (uint8_t *)&hmtp->GenericContainer, hmtp->ResponseLength);
       break;
     default:
+        ASSERT(0);
+
       break;
   }
   return (uint8_t)USBD_OK;
@@ -294,6 +299,8 @@ uint8_t USBD_MTP_STORAGE_ReceiveData(USBD_HandleTypeDef  *pdev)
       break;
 
     default :
+        ASSERT(0);
+
       break;
   }
 
@@ -310,6 +317,9 @@ uint8_t USBD_MTP_STORAGE_ReceiveData(USBD_HandleTypeDef  *pdev)
 static uint8_t USBD_MTP_STORAGE_DecodeOperations(USBD_HandleTypeDef  *pdev)
 {
   USBD_MTP_HandleTypeDef  *hmtp = (USBD_MTP_HandleTypeDef *)pdev->pClassDataCmsit;
+
+  INFO("USBD_MTP_STORAGE_DecodeOperations, %04X", hmtp->OperationsContainer.code);
+
   switch (hmtp->OperationsContainer.code)
   {
     case MTP_OP_GET_DEVICE_INFO:
@@ -392,7 +402,15 @@ static uint8_t USBD_MTP_STORAGE_DecodeOperations(USBD_HandleTypeDef  *pdev)
       hmtp->MTP_ResponsePhase = MTP_RESPONSE_PHASE;
       break;
 
+    case MTP_OP_GET_DEVICE_PROP_VALUE:
+//        USBD_MTP_OPT_DeleteObject(pdev);
+        hmtp->MTP_ResponsePhase = MTP_RESPONSE_PHASE;
+        break;
+
+
     default:
+        ASSERT(0);
+
       break;
   }
 
@@ -465,6 +483,9 @@ static uint8_t USBD_MTP_STORAGE_SendData(USBD_HandleTypeDef  *pdev, uint8_t *buf
   /* Get the Endpoints addresses allocated for this class instance */
   MTPInEpAdd  = USBD_CoreGetEPAdd(pdev, USBD_EP_IN, USBD_EP_TYPE_BULK);
 #endif /* USE_USBD_COMPOSITE */
+
+//  INFO("USBD_MTP_STORAGE_SendData, len %u", length);
+//  DUMP(buf, length);
 
   (void)USBD_LL_Transmit(pdev, MTPInEpAdd, buf, length);
 

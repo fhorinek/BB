@@ -43,6 +43,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_mtp.h"
 #include "usbd_mtp_storage.h"
+#include "common.h"
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
@@ -157,9 +158,9 @@ __ALIGN_BEGIN static uint8_t USBD_MTP_CfgDesc[MTP_CONFIG_DESC_SIZ] __ALIGN_END =
   MTP_CMD_ITF_NBR,                              /* bInterfaceNumber: Number of Interface */
   0x00,                                         /* bAlternateSetting: Alternate setting */
   0x03,                                         /* bNumEndpoints:  */
-  USB_MTP_INTRERFACE_CLASS,                     /* bInterfaceClass: bInterfaceClass: user's interface for MTP */
-  USB_MTP_INTRERFACE_SUB_CLASS,                 /* bInterfaceSubClass:Abstract Control Model */
-  USB_MTP_INTRERFACE_PROTOCOL,                  /* bInterfaceProtocol: Common AT commands */
+  255,                                          /* bInterfaceClass: bInterfaceClass: user's interface for MTP */
+  255,                                          /* bInterfaceSubClass:Abstract Control Model */
+  0,                                            /* bInterfaceProtocol: Common AT commands */
   0x05,                                         /* iInterface: */
 
   /********************  MTP   Endpoints ********************/
@@ -386,6 +387,8 @@ static uint8_t USBD_MTP_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *re
               break;
 
             default:
+                ASSERT(0);
+
               break;
           }
           (void)USBD_CtlSendData(pdev, (uint8_t *)&hmtp->dev_status, len);
@@ -435,11 +438,15 @@ static uint8_t USBD_MTP_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *re
           break;
 
         default:
+            ASSERT(0);
+
           break;
       }
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
   return (uint8_t)ret;
@@ -495,6 +502,8 @@ static uint8_t USBD_MTP_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 
         break;
       default:
+          ASSERT(0);
+
         break;
     }
   }
@@ -557,6 +566,7 @@ static uint8_t USBD_MTP_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
       break;
 
     default:
+
       break;
   }
 

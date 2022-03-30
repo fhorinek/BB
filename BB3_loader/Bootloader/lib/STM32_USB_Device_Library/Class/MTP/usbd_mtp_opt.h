@@ -454,7 +454,7 @@ static const uint16_t ObjectPropSupp[] = {MTP_OB_PROP_STORAGE_ID, MTP_OB_PROP_OB
                                           MTP_OB_PROP_PERS_UNIQ_OBJ_IDEN, MTP_OB_PROP_PROTECTION_STATUS
                                          };
 
-static const uint16_t DevicePropSupp[] = {MTP_DEV_PROP_DEVICE_FRIENDLY_NAME, MTP_DEV_PROP_BATTERY_LEVEL};
+static const uint16_t DevicePropSupp[] = {MTP_DEV_PROP_SYNCHRONIZATION_PARTNER, MTP_DEV_PROP_DEVICE_FRIENDLY_NAME, MTP_DEV_PROP_BATTERY_LEVEL};
 
 /* for all mtp struct */
 typedef struct
@@ -657,6 +657,7 @@ void USBD_MTP_OPT_GetObjectPropDesc(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_GetObjectPropValue(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_GetObjectPropList(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_GetDevicePropDesc(USBD_HandleTypeDef  *pdev);
+void USBD_MTP_OPT_GetDevicePropValue(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_SendObjectInfo(USBD_HandleTypeDef  *pdev, uint8_t *buff, uint32_t len);
 void USBD_MTP_OPT_SendObject(USBD_HandleTypeDef  *pdev, uint8_t *buff, uint32_t len);
 void USBD_MTP_OPT_GetObject(USBD_HandleTypeDef  *pdev);

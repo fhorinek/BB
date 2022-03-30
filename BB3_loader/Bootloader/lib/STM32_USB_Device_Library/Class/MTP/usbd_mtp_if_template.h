@@ -80,8 +80,8 @@ static const uint16_t DeviceVers[] = {'V', '1', '.', '0', '0', 0}; /* last 2 byt
 
 static const uint16_t DefaultFileName[] = {'N', 'e', 'w', ' ', 'F', 'o', 'l', 'd', 'e', 'r', 0};
 
-static const uint16_t DevicePropDefVal[] = {'S', 'T', 'M', '3', '2', 0}; /* last 2 bytes must be 0*/
-static const uint16_t DevicePropCurDefVal[] = {'S', 'T', 'M', '3', '2', ' ', 'V', '1', '.', '0', 0};
+static const uint16_t DevicePropDefVal[] = {'S', 't', 'r', 'a', 't', 'o', 0}; /* last 2 bytes must be 0*/
+static const uint16_t DevicePropCurDefVal[] = {'S', 't', 'r', 'a', 't', 'o', 0};
 
 
 /**

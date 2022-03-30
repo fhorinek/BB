@@ -377,6 +377,29 @@ void USBD_MTP_OPT_GetDevicePropDesc(USBD_HandleTypeDef  *pdev)
 }
 
 /**
+  * @brief  USBD_MTP_OPT_GetDevicePropDesc
+  *         Get The DevicePropDesc dataset
+  * @param  pdev: device instance
+  * @retval None
+  */
+void USBD_MTP_OPT_GetDevicePropValue(USBD_HandleTypeDef  *pdev)
+{
+  USBD_MTP_HandleTypeDef  *hmtp = (USBD_MTP_HandleTypeDef *)pdev->pClassDataCmsit;
+
+  hmtp->GenericContainer.code = MTP_OP_GET_DEVICE_PROP_VALUE;
+  hmtp->GenericContainer.trans_id = hmtp->OperationsContainer.trans_id;
+  hmtp->GenericContainer.type = MTP_CONT_TYPE_DATA;
+
+  (void)MTP_Get_PayloadContent(pdev);
+
+  hmtp->ResponseLength = sizeof(0) + MTP_CONT_HEADER_SIZE;
+  hmtp->GenericContainer.length =  hmtp->ResponseLength;
+
+  hmtp->ResponseCode = MTP_RESPONSE_OK;
+}
+
+
+/**
   * @brief  USBD_MTP_OPT_SendObject
   *         Send object from host to MTP device
   * @param  pdev: device instance
@@ -431,6 +454,8 @@ void USBD_MTP_OPT_SendObject(USBD_HandleTypeDef  *pdev, uint8_t *buff, uint32_t 
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 
@@ -506,6 +531,8 @@ void USBD_MTP_OPT_SendObjectInfo(USBD_HandleTypeDef  *pdev, uint8_t *buff, uint3
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 }
@@ -550,7 +577,7 @@ static void MTP_Get_PayloadContent(USBD_HandleTypeDef *pdev)
       (void)MTP_Get_DeviceInfo();
       (void)USBD_memcpy(buffer, (const uint8_t *)&MTP_DeviceInfo, sizeof(MTP_DeviceInfo));
 
-      for (i = 0U; i < sizeof(MTP_StorageIDS); i++)
+      for (i = 0U; i < sizeof(MTP_DeviceInfo); i++)
       {
         hmtp->GenericContainer.data[i] = buffer[i];
       }
@@ -605,6 +632,7 @@ static void MTP_Get_PayloadContent(USBD_HandleTypeDef *pdev)
       hmtp->ResponseLength = MTP_build_data_propdesc(pdev, MTP_ObjectPropDesc);
       break;
 
+
     case MTP_OP_GET_OBJECT_PROP_REFERENCES:
       MTP_Ref.ref_len = 0U;
       (void)USBD_memcpy(buffer, (const uint8_t *)&MTP_Ref.ref_len, sizeof(MTP_Ref.ref_len));
@@ -637,6 +665,10 @@ static void MTP_Get_PayloadContent(USBD_HandleTypeDef *pdev)
       }
       break;
 
+    case MTP_OP_GET_DEVICE_PROP_VALUE:
+        //todo:
+      break;
+
     case MTP_OP_SEND_OBJECT_INFO:
       n_idx = hmtpif->GetNewIndex(obj_format);
       (void)USBD_memcpy(hmtp->GenericContainer.data, (const uint8_t *)&storage_id, sizeof(uint32_t));
@@ -648,6 +680,8 @@ static void MTP_Get_PayloadContent(USBD_HandleTypeDef *pdev)
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 }
@@ -890,6 +924,7 @@ static void MTP_Get_ObjectPropDesc(USBD_HandleTypeDef  *pdev)
       break;
 
     default:
+      ASSERT(0);
       break;
   }
 }
@@ -905,6 +940,8 @@ static uint8_t *MTP_Get_ObjectPropValue(USBD_HandleTypeDef *pdev)
   USBD_MTP_HandleTypeDef  *hmtp = (USBD_MTP_HandleTypeDef *)pdev->pClassDataCmsit;
   USBD_MTP_ItfTypeDef     *hmtpif = (USBD_MTP_ItfTypeDef *)pdev->pUserData;
   static uint8_t buf[512];
+
+  INFO("MTP_Get_ObjectPropValue, %04X", hmtp->OperationsContainer.Param2);
 
   /* Add all other supported object properties */
   switch (hmtp->OperationsContainer.Param2)
@@ -942,6 +979,8 @@ static uint8_t *MTP_Get_ObjectPropValue(USBD_HandleTypeDef *pdev)
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 
@@ -1037,6 +1076,8 @@ static void MTP_Get_ObjectPropList(USBD_HandleTypeDef  *pdev)
         break;
 
       default:
+          ASSERT(0);
+
         break;
     }
 
@@ -1166,6 +1207,8 @@ static uint32_t MTP_build_data_propdesc(USBD_HandleTypeDef  *pdev, MTP_ObjectPro
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 
@@ -1240,6 +1283,8 @@ static uint32_t MTP_build_data_proplist(USBD_HandleTypeDef  *pdev,
       break;
 
     default:
+        ASSERT(0);
+
       break;
   }
 
