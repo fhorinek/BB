@@ -21,11 +21,9 @@
 #include "main.h"
 #include "crc.h"
 #include "dma.h"
-#include "fatfs.h"
 #include "i2c.h"
 #include "mdma.h"
 #include "rng.h"
-#include "sdmmc.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -105,9 +103,7 @@ int main(void)
   MX_MDMA_Init();
   MX_UART7_Init();
   MX_FMC_Init();
-  MX_SDMMC1_SD_Init();
   MX_TIM2_Init();
-  MX_FATFS_Init();
   MX_CRC_Init();
   MX_I2C2_Init();
   MX_TIM15_Init();
@@ -142,14 +138,17 @@ void SystemClock_Config(void)
   /** Supply configuration update enable
   */
   HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+
   /** Configure the main internal regulator output voltage
   */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
   while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+
   /** Macro to configure the PLL clock source
   */
   __HAL_RCC_PLL_PLLSOURCE_CONFIG(RCC_PLLSOURCE_HSE);
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -170,6 +169,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -243,5 +243,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

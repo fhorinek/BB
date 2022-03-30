@@ -41,9 +41,6 @@ void app_deinit()
 	//MX_FMC_Init();
 	HAL_SRAM_DeInit(&hsram1);
 
-	//MX_FATFS_Init();
-	FATFS_UnLinkDriver(SDPath);
-
 	//MX_TIM2_Init();
 //    HAL_TIM_PWM_DeInit(disp_timer);
 //    HAL_TIM_Base_DeInit(disp_timer);
@@ -400,6 +397,8 @@ void app_main(uint8_t power_on_mode)
     {
     	bat_check_step();
     }
+
+    sd_init();
 
     if (button_pressed(BT2) && button_pressed(BT5))
     {

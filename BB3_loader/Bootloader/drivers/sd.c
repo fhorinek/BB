@@ -2,145 +2,159 @@
 #include "../drivers/sd.h"
 
 #include "../debug.h"
-#include "fatfs.h"
+#include "lib/littlefs/lfs.h"
 
 #include "gfx.h"
 
-#define DISK_NAME	"Strato"
-
 #define SD_DMA_TIMEOUT					150
 
-uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
 	uint8_t ret;
 	uint8_t cnt = 0;
+	uint32_t addr = block * c->block_size + off;
+	size /= c->block_size;
+
 	do
 	{
-	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks);
+	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)buffer, addr, size);
 		cnt++;
 		if (cnt > 10)
 		{
-	  		ERR("Read fail %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	  		return MSD_ERROR;
+	  		ERR("Read fail %08lX %u %u", addr, size, cnt);
+	  		return -1;
 		}
 	}
 	while (ret != HAL_OK);
 
 	if (cnt > 1)
 	{
-		WARN("Read problem %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
+		WARN("Read problem %08lX %u %u", addr, size, cnt);
 	}
 
-	return MSD_OK;
+    uint32_t start = HAL_GetTick();
+    while (hsd1.State == HAL_SD_STATE_BUSY)
+    {
+        if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
+        {
+            ERR("Read timeout %08lX %u", addr, size);
+            return -2;
+        }
+    };
+
+
+	return 0;
 }
 
-uint8_t BSP_SD_ReadBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks)
+int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-	  uint32_t start = HAL_GetTick();
-	  while (hsd1.State == HAL_SD_STATE_BUSY)
-	  {
-	  	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-	  	{
-	  		ERR("Read timeout %08lX %u", ReadAddr, NumOfBlocks);
-	  		return MSD_ERROR;
-	  	}
-	  };
+    uint8_t ret;
+    uint8_t cnt = 0;
+    uint32_t addr = block * c->block_size + off;
+    size /= c->block_size;
 
-	  return MSD_OK;
+    do
+    {
+        ret = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t*) buffer, addr, size);
+        cnt++;
+        if (cnt > 10)
+        {
+            ERR("Write fail %08lX %u %u", addr, size, cnt);
+            return -1;
+        }
+    }
+    while (ret != HAL_OK);
+
+    if (cnt > 1)
+    {
+        WARN("Write problem %08lX %u %u", addr, size, cnt);
+    }
+
+    uint32_t start = HAL_GetTick();
+    while (hsd1.State == HAL_SD_STATE_BUSY)
+    {
+        if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
+        {
+            ERR("Write timeout %08lX %u %u", addr, size, cnt);
+            return -2;
+        }
+    };
+
+
+
+    return 0;
 }
 
-uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+int sd_card_erase(const struct lfs_config *c, lfs_block_t block)
 {
-	uint8_t ret;
-	uint8_t cnt = 0;
-	do
-	{
-	    ret = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks);
-		cnt++;
-		if (cnt > 10)
-		{
-	  		ERR("Write fail %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	  		return MSD_ERROR;
-		}
-	}
-	while (ret != HAL_OK);
+	uint32_t addr_start = block * c->block_size;
+	uint32_t addr_end = (block + 1) * c->block_size;
 
-	if (cnt > 1)
-	{
-		WARN("Write problem %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	}
-
-  uint32_t start = HAL_GetTick();
-  while (hsd1.State == HAL_SD_STATE_BUSY)
-  {
-  	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-  	{
-  		ERR("Write timeout %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-  		return MSD_ERROR;
-  	}
-  };
-
-  return MSD_OK;
+	return (HAL_SD_Erase(&hsd1, addr_start, addr_end) == HAL_OK) ? 0 : -1;
 }
 
-uint8_t BSP_SD_WriteBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks)
+int sd_card_sync(const struct lfs_config *c)
 {
-	  uint32_t start = HAL_GetTick();
-	  while (hsd1.State == HAL_SD_STATE_BUSY)
-	  {
-	  	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-	  	{
-	  		ERR("Write timeout %08lX %u", ReadAddr, NumOfBlocks);
-	  		return MSD_ERROR;
-	  	}
-	  };
-
-	  return MSD_OK;
+	return 0;
 }
 
-void sd_set_disk_label()
+struct lfs_config cfg;
+lfs_t lfs;
+
+#define SD_DEFAULT_BLOCK_SIZE 512
+
+void sd_init()
 {
-	//set disk name to Strato
-	char label[36];
+    MX_SDMMC1_SD_Init();
 
-	f_getlabel(SDPath, label, NULL);
+    HAL_SD_CardInfoTypeDef CardInfo;
+    HAL_SD_GetCardInfo(&hsd1, &CardInfo);
 
-	if (strlen(label) == 0)
-	{
-		f_setlabel(DISK_NAME);
-	}
+    // block device operations
+    cfg.read  = sd_card_read;
+    cfg.prog  = sd_card_prog;
+    cfg.erase = sd_card_erase;
+    cfg.sync  = sd_card_sync;
+
+    // block device configuration
+    cfg.read_size = SD_DEFAULT_BLOCK_SIZE;
+    cfg.prog_size = SD_DEFAULT_BLOCK_SIZE;
+    cfg.cache_size = SD_DEFAULT_BLOCK_SIZE;
+    cfg.block_size = CardInfo.BlockSize;
+    cfg.block_count = CardInfo.BlockNbr;
+
+    cfg.block_cycles = 500;
+
+    cfg.lookahead_size = 64;
 }
 
 void sd_format()
 {
-	BYTE work[_MAX_SS];
-
 	gfx_draw_status(GFX_STATUS_UPDATE, "Formating SD");
 	gfx_draw_progress(0);
 
-	uint8_t res = f_mkfs(SDPath, FM_FAT32, 0, work, sizeof(work));
-	DBG(" f_mkfs = %u", res);
+	lfs_format(&lfs, &cfg);
 }
 
 bool sd_mount()
 {
 	INFO("Mounting SD");
 
-	uint8_t res = f_mount(&SDFatFS, SDPath, 1);
-	if (res == FR_NO_FILESYSTEM)
-	{
-		sd_format();
+    int8_t err = lfs_mount(&lfs, &cfg);
 
-		res =  f_mount(&SDFatFS, SDPath, 1);
-	}
+    // reformat if we can't mount the filesystem
+    // this should only happen on the first boot
+    if (err)
+    {
+        lfs_format(&lfs, &cfg);
+        err = lfs_mount(&lfs, &cfg);
+    }
 
-	if (res != FR_OK)
+	if (err)
 	{
-		DBG(" Error mounting SD = %u", res);
+		DBG(" Error mounting SD = %u", err);
 		return false;
 	}
-
-	sd_set_disk_label();
 
 	return true;
 }
@@ -148,11 +162,7 @@ bool sd_mount()
 void sd_unmount()
 {
 	INFO("Unmounting SD");
-	uint8_t res =  f_mount(NULL, SDPath, 1);
-	if (res != FR_OK)
-	{
-		DBG(" Error unmounting SD = %u", res);
-	}
+	lfs_unmount(&lfs);
 }
 
 

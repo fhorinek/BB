@@ -23,14 +23,19 @@
 #include "usart.h"
 #include "tim.h"
 #include "mdma.h"
-#include "fatfs.h"
-#include "usb_device.h"
 #include "fmc.h"
 #include "crc.h"
 #include "sdmmc.h"
 #include "i2c.h"
 
 #include "debug.h"
+
+#define LFS_TRACE(...)   INFO(__VA_ARGS__)
+#define LFS_DEBUG(...)   DBG(__VA_ARGS__)
+#define LFS_WARN(...)    WARN(__VA_ARGS__)
+#define LFS_ERROR(...)   ERR(__VA_ARGS__)
+#include "lib/littlefs/lfs.h"
+#include "drivers/sd.h"
 
 #define	PA0		GPIOA,	GPIO_PIN_0
 #define	PA1		GPIOA,	GPIO_PIN_1

@@ -10,14 +10,13 @@
 
 #include "gfx.h"
 
-#include "usb_device.h"
-#include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_msc.h"
-
 #include "pwr_mng.h"
 #include "nvm.h"
 #include "drivers/led.h"
+
+#include "lib/STM32_USB_Device_Library/App/usb_device.h"
+#include "lib/STM32_USB_Device_Library/Core/usbd_core.h"
+#include "lib/STM32_USB_Device_Library/Class/MTP/usbd_mtp.h"
 
 volatile bool msc_locked = false;
 volatile bool msc_ejected = false;
@@ -63,10 +62,10 @@ bool msc_loop()
         }
 
         //get class data
-        USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData;
+        USBD_MTP_HandleTypeDef *hmtp = (USBD_MTP_HandleTypeDef *)hUsbDeviceHS.pClassDataCmsit;
 
         //are class data avalible (usb init ok)
-        if (hmsc > 0)
+        if (hmtp > 0)
         {
             if (pwr.data_port == PWR_DATA_CHARGE || pwr.data_port == PWR_DATA_CHARGE_DONE)
             {
@@ -125,7 +124,7 @@ bool msc_loop()
             		&& pwr.charge_port == PWR_CHARGE_WEAK)
             	pwr_delay = HAL_GetTick() + 2000;
 
-            INFO("PWR %u %u %u %d", pwr.fuel_gauge.bat_cap, pwr.fuel_gauge.bat_cap_full, pwr.fuel_gauge.bat_voltage, pwr.fuel_gauge.bat_current);
+            //INFO("PWR %u %u %u %d", pwr.fuel_gauge.bat_cap, pwr.fuel_gauge.bat_cap_full, pwr.fuel_gauge.bat_voltage, pwr.fuel_gauge.bat_current);
 
             old_charge = pwr.charge_port;
             old_data = pwr.data_port;
@@ -240,35 +239,35 @@ bool msc_loop()
     return start_up;
 }
 
-void msc_irq_handler()
-{
-	static uint8_t scsii_state_old = 0xFF;
-	pwr.data_usb_activity = HAL_GetTick();
-
-    //class data are avalible
-    if ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData > 0 && pwr.data_port == PWR_DATA_ACTIVE)
-    {
-    	uint8_t scsii_state = ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData)->scsi_medium_state;
-
-    	if (scsii_state_old != scsii_state)
-    	{
-    		INFO("scsii state %u %u", scsii_state, hUsbDeviceHS.dev_state);
-    		scsii_state_old = scsii_state;
-
-			if (scsii_state == SCSI_MEDIUM_EJECTED)
-			{
-				msc_ejected = true;
-			}
-
-			if (scsii_state == SCSI_MEDIUM_LOCKED)
-			{
-				msc_locked = true;
-			}
-
-			if (scsii_state == SCSI_MEDIUM_UNLOCKED)
-			{
-				msc_locked = false;
-			}
-    	}
-    }
-}
+//void msc_irq_handler()
+//{
+//	static uint8_t scsii_state_old = 0xFF;
+//	pwr.data_usb_activity = HAL_GetTick();
+//
+//    //class data are avalible
+//    if ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData > 0 && pwr.data_port == PWR_DATA_ACTIVE)
+//    {
+//    	uint8_t scsii_state = ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData)->scsi_medium_state;
+//
+//    	if (scsii_state_old != scsii_state)
+//    	{
+//    		INFO("scsii state %u %u", scsii_state, hUsbDeviceHS.dev_state);
+//    		scsii_state_old = scsii_state;
+//
+//			if (scsii_state == SCSI_MEDIUM_EJECTED)
+//			{
+//				msc_ejected = true;
+//			}
+//
+//			if (scsii_state == SCSI_MEDIUM_LOCKED)
+//			{
+//				msc_locked = true;
+//			}
+//
+//			if (scsii_state == SCSI_MEDIUM_UNLOCKED)
+//			{
+//				msc_locked = false;
+//			}
+//    	}
+//    }
+//}
