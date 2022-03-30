@@ -235,7 +235,8 @@ const CrashCatcherMemoryRegion * CrashCatcher_GetMemoryRegions(void)
         //RAM
         {0x24000000, 0x24100000, CRASH_CATCHER_BYTE},
         //PSRAM
-        {0x90000000, 0x90800000, CRASH_CATCHER_BYTE},
+        // Excluded because it adds ~8MB to the dump file
+        //{0x90000000, 0x90800000, CRASH_CATCHER_BYTE},
         //end of records
         {0xFFFFFFFF, 0xFFFFFFFF, CRASH_CATCHER_BYTE}
     };
