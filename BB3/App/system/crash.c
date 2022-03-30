@@ -61,7 +61,7 @@ void crash_store_info(const Crash_Object * info)
 
         if (bsod_msg_ptr != NULL)
         {
-        	WRITE("message: '");
+            WRITE("message: '");
             WRITE(bsod_msg_ptr);
             WRITE("'\n");
         }
