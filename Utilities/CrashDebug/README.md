@@ -13,7 +13,7 @@ To load thease files into the CubeIDE you need to configure new debug launcher.
  * **Startup** / Initialization Commands : 
  ```
     set target-charset ASCII
-    target remote | ${project_loc}/../Utilities/CrashDebug/CrashDebug --elf  ${config_name:BB3}/BB3.elf --dump ${project_loc}/../Utilities/CrashDebug/dump.bin
+    target remote | ${project_loc}/../Utilities/CrashDebug/lin64/CrashDebug --elf  ${config_name:BB3}/BB3.elf --dump ${project_loc}/../Utilities/CrashDebug/dump.bin
  ```
  * **Startup** / Load image : unchecked
 4. Place `dump.bin` from the crash_report zip file here
@@ -22,6 +22,5 @@ To load thease files into the CubeIDE you need to configure new debug launcher.
 Notes
 * You need to have Crash reports enabled in System/Advanced
 * You need to checkout the code for the debugged firmware, otherwise the lines will not match
-
-
+* If you are on macOS, replace `lin64` with `osx64` above
 
