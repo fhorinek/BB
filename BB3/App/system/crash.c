@@ -23,15 +23,6 @@ void info_get_firmware_version(char * buff, size_t buff_size)
     snprintf(buff, buff_size, "firmware_version: '%s'\n", tmp);
 }
 
-// Unique device identifier (format: 'x-x-x' where x are 8 hex digits)
-void info_get_device_id(char * buff, size_t buff_size)
-{
-    uint32_t uid0 = HAL_GetUIDw0();
-    uint32_t uid1 = HAL_GetUIDw1();
-    uint32_t uid2 = HAL_GetUIDw2();
-    snprintf(buff, buff_size, "device_id: '%08lX-%08lX-%08lX'\n", uid0, uid1, uid2);
-}
-
 // Time according to ISO8601 (e.g 2022-03-13T18:05:42Z)
 void info_get_timestamp(char * buff, size_t buff_size)
 {
@@ -53,13 +44,16 @@ void crash_store_info(const Crash_Object * info)
         char buff[64];
         UINT bw;
 
-        info_get_device_id(buff, sizeof(buff));
+        snprintf(buff, sizeof(buff), "serial_number: '%08lX'\n", rev_get_short_id());
         WRITE(buff);
 
         info_get_timestamp(buff, sizeof(buff));
         WRITE(buff);
 
         info_get_firmware_version(buff, sizeof(buff));
+        WRITE(buff);
+
+        snprintf(buff, sizeof(buff), "firmware_build: '%lu'\n", rev_get_build_number());
         WRITE(buff);
 
         snprintf(buff, sizeof(buff), "hardware_revision: '%02X'\n", rev_get_hw());

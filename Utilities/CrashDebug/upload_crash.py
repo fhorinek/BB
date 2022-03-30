@@ -85,7 +85,7 @@ exception = {
 hardware_revision = info_file['hardware_revision']
 device = {
     'appVersion': info_file['firmware_version'],
-    'appBuild': info_file['firmware_version'],
+    'appBuild': info_file['firmware_build'],
     'sdkName': 'appcenter.custom',
     'sdkVersion': '0.0.0',
     'osName': '',
@@ -136,7 +136,7 @@ all_logs.append(file_attachment_log('dump.bin', encode_file(f'{args.crash_path}/
 
 # Create UUID based on 12 byte device ID
 md5 = hashlib.md5()
-md5.update(info_file['device_id'].encode('utf-8'))
+md5.update(info_file['serial_number'].encode('utf-8'))
 install_id = str(uuid.UUID(md5.hexdigest()))
 
 url = 'https://in.appcenter.ms/logs?Api-Version=1.0.0'
