@@ -19,7 +19,7 @@ import hashlib
 parser = argparse.ArgumentParser(description='Upload Strato crash to AppCenter (arm-none-eabi-gdb needs to be available in the PATH)')
 parser.add_argument('--secret', type=str,
                     help='AppCenter secret')
-parser.add_argument('elf_path', type=pathlib.Path,
+parser.add_argument('--elf', type=pathlib.Path,
                     help='path to the corresponding elf file')
 parser.add_argument('crash_path', type=pathlib.Path,
                     help='path to the extracted Strato crash_report folder (with crash & config inside)')
@@ -31,9 +31,9 @@ crashdebug_path = "lin64/CrashDebug"
 if platform.system() == "Darwin":
     crashdebug_path = "osx64/CrashDebug"
 
-cmd = ( f'arm-none-eabi-gdb --batch --quiet {args.elf_path}'
+cmd = ( f'arm-none-eabi-gdb --batch --quiet {args.elf}'
         f' -ex "set target-charset ASCII"'
-        f' -ex "target remote | {crashdebug_path} --elf {args.elf_path} --dump {args.crash_path}/crash/dump.bin"'
+        f' -ex "target remote | {crashdebug_path} --elf {args.elf} --dump {args.crash_path}/crash/dump.bin"'
         f' -ex "set print pretty on"'
         f' -ex "bt full"'
         f' -ex "quit"')
