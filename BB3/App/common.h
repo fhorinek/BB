@@ -185,7 +185,7 @@ extern osThreadId_t SystemHandle;
 
 #define PATH_CRASH_DIR      "crash"
 #define PATH_CRASH_DUMP     PATH_CRASH_DIR "/dump.bin"
-#define PATH_CRASH_INFO     PATH_CRASH_DIR "/info.txt"
+#define PATH_CRASH_INFO     PATH_CRASH_DIR "/info.yaml"
 #define PATH_CRASH_FILES    PATH_CRASH_DIR "/files.txt"
 #define PATH_CRASH_LOG      PATH_CRASH_DIR "/debug.log"
 
