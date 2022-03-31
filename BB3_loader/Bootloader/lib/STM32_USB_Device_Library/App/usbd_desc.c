@@ -149,8 +149,7 @@ __ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 {
   0x12,                       /*bLength */
   USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
-  0x10,                       /*bcdUSB */
-
+  0x00,                       /*bcdUSB */
   0x02,
   0x00,                       /*bDeviceClass*/
   0x00,                       /*bDeviceSubClass*/
@@ -160,7 +159,7 @@ __ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   HIBYTE(USBD_VID),           /*idVendor*/
   LOBYTE(USBD_PID_HS),        /*idProduct*/
   HIBYTE(USBD_PID_HS),        /*idProduct*/
-  0x23,                       /*bcdDevice rel. 2.00*/
+  0x00,                       /*bcdDevice rel. 2.00*/
   0x02,
   USBD_IDX_MFC_STR,           /*Index of manufacturer  string*/
   USBD_IDX_PRODUCT_STR,       /*Index of product string*/

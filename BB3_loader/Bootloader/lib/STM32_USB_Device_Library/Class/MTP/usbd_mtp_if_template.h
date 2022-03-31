@@ -28,10 +28,14 @@ extern "C" {
 #include "usbd_mtp.h"
 
 /* Exported Define -----------------------------------------------------------*/
-#define USBD_MTP_DEVICE_PROP_SUPPORTED                           1U
-#define USBD_MTP_CAPTURE_FORMAT_SUPPORTED                        1U
-#define USBD_MTP_VEND_EXT_DESC_SUPPORTED                         1U
-#define USBD_MTP_EVENTS_SUPPORTED                                1U
+#define USBD_MTP_DEVICE_PROP_SUPPORTED                           0U
+#define USBD_MTP_CAPTURE_FORMAT_SUPPORTED                        0U
+#define USBD_MTP_VEND_EXT_DESC_SUPPORTED                         0U
+#define USBD_MTP_EVENTS_SUPPORTED                                0U
+//#define USBD_MTP_DEVICE_PROP_SUPPORTED                           1U
+//#define USBD_MTP_CAPTURE_FORMAT_SUPPORTED                        1U
+//#define USBD_MTP_VEND_EXT_DESC_SUPPORTED                         1U
+//#define USBD_MTP_EVENTS_SUPPORTED                                1U
 
 #if USBD_MTP_EVENTS_SUPPORTED  == 1
 #define SUPP_EVENTS_LEN                                        (uint8_t)((uint8_t)sizeof(SuppEvents) / 2U)

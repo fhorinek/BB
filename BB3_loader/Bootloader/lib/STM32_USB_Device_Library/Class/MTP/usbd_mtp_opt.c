@@ -422,11 +422,18 @@ void USBD_MTP_OPT_GetDevicePropValue(USBD_HandleTypeDef  *pdev)
   hmtp->GenericContainer.trans_id = hmtp->OperationsContainer.trans_id;
   hmtp->GenericContainer.type = MTP_CONT_TYPE_DATA;
 
+
+
   uint16_t len = 0;
   if (hmtp->OperationsContainer.Param1 == MTP_DEV_PROP_DEVICE_FRIENDLY_NAME)
   {
-      strcpy(hmtp->GenericContainer.data, "SratTo");
-      len = strlen(hmtp->GenericContainer.data);
+      uint16_t test[] = {'S', 'r', 'a', 't', ' ', 'T', 'o', 0}; /* last 2 bytes must be 0*/
+
+      for (uint8_t i = 0; i < sizeof(test) / 2; i++)
+      {
+          *(uint16_t *)&hmtp->GenericContainer.data[1 + i * 2] = test[i];
+      }
+      len = 1 + sizeof(test);
   }
 
   hmtp->ResponseLength = len + MTP_CONT_HEADER_SIZE;

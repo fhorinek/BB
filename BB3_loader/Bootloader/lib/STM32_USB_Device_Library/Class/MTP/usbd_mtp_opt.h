@@ -457,7 +457,7 @@ static const uint16_t ObjectPropSupp[] = {MTP_OB_PROP_STORAGE_ID, MTP_OB_PROP_OB
                                           MTP_OB_PROP_PERS_UNIQ_OBJ_IDEN, MTP_OB_PROP_PROTECTION_STATUS
                                          };
 
-static const uint16_t DevicePropSupp[] = {MTP_DEV_PROP_BATTERY_LEVEL};
+static const uint16_t DevicePropSupp[] = {MTP_DEV_PROP_DEVICE_FRIENDLY_NAME, MTP_DEV_PROP_BATTERY_LEVEL};
 
 /* for all mtp struct */
 typedef struct

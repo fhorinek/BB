@@ -119,8 +119,12 @@ static uint32_t USBD_MTP_Itf_GetIdx(uint32_t Param3, uint32_t *obj_handle)
 {
     INFO("USBD_MTP_Itf_GetIdx, %d", Param3);
 
-  uint32_t count = 1U;
-  obj_handle[0] = 100;
+//  uint32_t count = 5U;
+//  obj_handle[0] = 100;
+//  obj_handle[1] = 200;
+//  obj_handle[2] = 300;
+//  obj_handle[3] = 400;
+//  obj_handle[4] = 500;
 
   return count;
 }
@@ -164,7 +168,7 @@ static uint16_t USBD_MTP_Itf_GetObjectFormat(uint32_t Param)
 static uint8_t USBD_MTP_Itf_GetObjectName_len(uint32_t Param)
 {
     INFO("USBD_MTP_Itf_GetObjectName_len");
-  uint8_t obj_len = 0U;
+  uint8_t obj_len = 05U;
   UNUSED(Param);
 
   return obj_len;
@@ -180,10 +184,9 @@ static uint8_t USBD_MTP_Itf_GetObjectName_len(uint32_t Param)
   */
 static void USBD_MTP_Itf_GetObjectName(uint32_t Param, uint8_t obj_len, uint16_t *buf)
 {
-    INFO("USBD_MTP_Itf_GetObjectName");
-  UNUSED(Param);
-  UNUSED(obj_len);
-  UNUSED(buf);
+    INFO("USBD_MTP_Itf_GetObjectName, %04X", Param);
+  obj_len = 5;
+  strcpy(buf, "asdfg");
 
   return;
 }
@@ -196,10 +199,9 @@ static void USBD_MTP_Itf_GetObjectName(uint32_t Param, uint8_t obj_len, uint16_t
   */
 static uint32_t USBD_MTP_Itf_GetObjectSize(uint32_t Param)
 {
-    INFO("USBD_MTP_Itf_GetObjectSize");
+    INFO("USBD_MTP_Itf_GetObjectSize, %04X", Param);
 
-  uint32_t ObjCompSize = 0U;
-  UNUSED(Param);
+  uint32_t ObjCompSize = Param;
 
   return ObjCompSize;
 }

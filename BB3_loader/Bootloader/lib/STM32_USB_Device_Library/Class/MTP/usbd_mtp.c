@@ -143,7 +143,7 @@ __ALIGN_BEGIN static uint8_t USBD_MTP_CfgDesc[MTP_CONFIG_DESC_SIZ] __ALIGN_END =
   HIBYTE(MTP_CONFIG_DESC_SIZ),
   0x01,                                         /* bNumInterfaces: 1 interface */
   0x01,                                         /* bConfigurationValue: Configuration value */
-  0x04,                                         /* iConfiguration: Index of string descriptor
+  0x00,                                         /* iConfiguration: Index of string descriptor
                                                    describing the configuration */
 #if (USBD_SELF_POWERED == 1U)
   0xC0,                                         /* bmAttributes: Bus Powered according to user configuration */
@@ -158,10 +158,10 @@ __ALIGN_BEGIN static uint8_t USBD_MTP_CfgDesc[MTP_CONFIG_DESC_SIZ] __ALIGN_END =
   MTP_CMD_ITF_NBR,                              /* bInterfaceNumber: Number of Interface */
   0x00,                                         /* bAlternateSetting: Alternate setting */
   0x03,                                         /* bNumEndpoints:  */
-  255,                                          /* bInterfaceClass: bInterfaceClass: user's interface for MTP */
-  255,                                          /* bInterfaceSubClass:Abstract Control Model */
-  0,                                            /* bInterfaceProtocol: Common AT commands */
-  0x05,                                         /* iInterface: */
+  USB_MTP_INTRERFACE_CLASS,                     /* bInterfaceClass: bInterfaceClass: user's interface for MTP */
+  USB_MTP_INTRERFACE_SUB_CLASS,                 /* bInterfaceSubClass:Abstract Control Model */
+  USB_MTP_INTRERFACE_PROTOCOL,                  /* bInterfaceProtocol: Common AT commands */
+  0x00,                                         /* iInterface: */
 
   /********************  MTP   Endpoints ********************/
   MTP_ENDPOINT_DESC_SIZE,                       /* Endpoint descriptor length = 7 */
