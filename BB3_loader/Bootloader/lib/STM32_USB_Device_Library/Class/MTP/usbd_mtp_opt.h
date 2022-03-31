@@ -438,14 +438,17 @@ static const uint16_t SuppOP[] = { MTP_OP_GET_DEVICE_INFO, MTP_OP_OPEN_SESSION, 
                                  };
 
 static const uint16_t SuppEvents[] = {MTP_EVENT_OBJECTADDED};
-static const uint16_t SuppImgFormat[] = {MTP_OBJ_FORMAT_UNDEFINED, MTP_OBJ_FORMAT_TEXT, MTP_OBJ_FORMAT_ASSOCIATION,
-                                         MTP_OBJ_FORMAT_EXECUTABLE, MTP_OBJ_FORMAT_WAV, MTP_OBJ_FORMAT_MP3,
-                                         MTP_OBJ_FORMAT_EXIF_JPEG, MTP_OBJ_FORMAT_MPEG, MTP_OBJ_FORMAT_MP4_CONTAINER,
-                                         MTP_OBJ_FORMAT_WINDOWS_IMAGE_FORMAT, MTP_OBJ_FORMAT_PNG, MTP_OBJ_FORMAT_WMA,
-                                         MTP_OBJ_FORMAT_WMV
-                                        };
+//static const uint16_t SuppImgFormat[] = {MTP_OBJ_FORMAT_UNDEFINED, MTP_OBJ_FORMAT_TEXT, MTP_OBJ_FORMAT_ASSOCIATION,
+//                                         MTP_OBJ_FORMAT_EXECUTABLE, MTP_OBJ_FORMAT_WAV, MTP_OBJ_FORMAT_MP3,
+//                                         MTP_OBJ_FORMAT_EXIF_JPEG, MTP_OBJ_FORMAT_MPEG, MTP_OBJ_FORMAT_MP4_CONTAINER,
+//                                         MTP_OBJ_FORMAT_WINDOWS_IMAGE_FORMAT, MTP_OBJ_FORMAT_PNG, MTP_OBJ_FORMAT_WMA,
+//                                         MTP_OBJ_FORMAT_WMV
+//                                        };
+//
+//static const uint16_t SuppCaptFormat[] = {MTP_OBJ_FORMAT_UNDEFINED, MTP_OBJ_FORMAT_ASSOCIATION, MTP_OBJ_FORMAT_TEXT};
+static const uint16_t SuppImgFormat[] = {MTP_OBJ_FORMAT_UNDEFINED};
 
-static const uint16_t SuppCaptFormat[] = {MTP_OBJ_FORMAT_UNDEFINED, MTP_OBJ_FORMAT_ASSOCIATION, MTP_OBJ_FORMAT_TEXT};
+static const uint16_t SuppCaptFormat[] = {MTP_OBJ_FORMAT_UNDEFINED};
 
 /* required for all object format : storageID, objectFormat, ObjectCompressedSize,
 persistent unique object identifier, name*/
@@ -454,7 +457,7 @@ static const uint16_t ObjectPropSupp[] = {MTP_OB_PROP_STORAGE_ID, MTP_OB_PROP_OB
                                           MTP_OB_PROP_PERS_UNIQ_OBJ_IDEN, MTP_OB_PROP_PROTECTION_STATUS
                                          };
 
-static const uint16_t DevicePropSupp[] = {MTP_DEV_PROP_SYNCHRONIZATION_PARTNER, MTP_DEV_PROP_DEVICE_FRIENDLY_NAME, MTP_DEV_PROP_BATTERY_LEVEL};
+static const uint16_t DevicePropSupp[] = {MTP_DEV_PROP_BATTERY_LEVEL};
 
 /* for all mtp struct */
 typedef struct
@@ -568,22 +571,6 @@ __packed typedef struct
   uint32_t ref[1];
 } MTP_RefTypeDef;
 
-#if defined ( __GNUC__ )
-typedef __PACKED_STRUCT
-#else
-__packed typedef struct
-#endif /* __GNUC__ */
-{
-  uint16_t     DevicePropertyCode;
-  uint16_t     DataType;
-  uint8_t      GetSet;
-  uint8_t      DefValue_len;
-  uint16_t     DefValue[DEVICE_PROP_DESC_DEF_LEN];
-  uint8_t      curDefValue_len;
-  uint16_t     curDefValue[DEVICE_PROP_DESC_CUR_LEN];
-  uint8_t      FormFlag;
-} MTP_DevicePropDescTypeDef;
-
 /* MTP device info structure */
 #if defined ( __GNUC__ )
 typedef __PACKED_STRUCT
@@ -646,6 +633,7 @@ __packed typedef struct
   */
 
 void USBD_MTP_OPT_CreateObjectHandle(USBD_HandleTypeDef  *pdev);
+void USBD_MTP_OPT_CloseSession(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_GetDeviceInfo(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_GetStorageIDS(USBD_HandleTypeDef  *pdev);
 void USBD_MTP_OPT_GetStorageInfo(USBD_HandleTypeDef  *pdev);

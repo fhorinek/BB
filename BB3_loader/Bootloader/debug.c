@@ -29,14 +29,21 @@ void debug_enable()
 
 void debug_dump(uint8_t * data, uint16_t len)
 {
-    char tmp[8 * 3 + 3];
+    char s[18] = {0};
+
+    char tmp[16 * 3 + 3];
     for (uint16_t i = 0; i < len; i++)
     {
-        sprintf(tmp + ((i % 8) * 3) + ((i % 8 > 3) ? 1 : 0), "%02X  ", data[i]);
-        if (i % 8 == 7 || i + 1 == len)
+        sprintf(tmp + ((i % 16) * 3) + ((i % 16 > 7) ? 1 : 0), "%02X  ", data[i]);
+        if (i % 16 == 0) memset(s, ' ', 17);
+
+        s[(i % 16) + ((i % 16 > 7) ? 1 : 0)] = (data[i] > 32 && data[i] <= 127) ? data[i] : '.';
+
+
+        if (i % 16 == 15 || i + 1 == len)
         {
             tmp[strlen(tmp) - 2] = 0;
-            debug_send(DBG_DEBUG, "[%s]", tmp);
+            debug_send(DBG_DEBUG, "[%-48s] %s", tmp, s);
         }
     }
 }

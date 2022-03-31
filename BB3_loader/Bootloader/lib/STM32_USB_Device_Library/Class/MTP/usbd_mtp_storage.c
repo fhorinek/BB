@@ -318,7 +318,7 @@ static uint8_t USBD_MTP_STORAGE_DecodeOperations(USBD_HandleTypeDef  *pdev)
 {
   USBD_MTP_HandleTypeDef  *hmtp = (USBD_MTP_HandleTypeDef *)pdev->pClassDataCmsit;
 
-  INFO("USBD_MTP_STORAGE_DecodeOperations, %04X", hmtp->OperationsContainer.code);
+  INFO("\n\nUSBD_MTP_STORAGE_DecodeOperations, %04X", hmtp->OperationsContainer.code);
 
   switch (hmtp->OperationsContainer.code)
   {
@@ -329,6 +329,11 @@ static uint8_t USBD_MTP_STORAGE_DecodeOperations(USBD_HandleTypeDef  *pdev)
 
     case MTP_OP_OPEN_SESSION:
       USBD_MTP_OPT_CreateObjectHandle(pdev);
+      hmtp->MTP_ResponsePhase = MTP_RESPONSE_PHASE;
+      break;
+
+    case MTP_OP_CLOSE_SESSION:
+      USBD_MTP_OPT_CloseSession(pdev);
       hmtp->MTP_ResponsePhase = MTP_RESPONSE_PHASE;
       break;
 
@@ -403,7 +408,8 @@ static uint8_t USBD_MTP_STORAGE_DecodeOperations(USBD_HandleTypeDef  *pdev)
       break;
 
     case MTP_OP_GET_DEVICE_PROP_VALUE:
-//        USBD_MTP_OPT_DeleteObject(pdev);
+        //added
+        USBD_MTP_OPT_GetDevicePropValue(pdev);
         hmtp->MTP_ResponsePhase = MTP_RESPONSE_PHASE;
         break;
 
@@ -484,8 +490,8 @@ static uint8_t USBD_MTP_STORAGE_SendData(USBD_HandleTypeDef  *pdev, uint8_t *buf
   MTPInEpAdd  = USBD_CoreGetEPAdd(pdev, USBD_EP_IN, USBD_EP_TYPE_BULK);
 #endif /* USE_USBD_COMPOSITE */
 
-//  INFO("USBD_MTP_STORAGE_SendData, len %u", length);
-//  DUMP(buf, length);
+INFO("USBD_MTP_STORAGE_SendData, len %u", length);
+DUMP(buf, length);
 
   (void)USBD_LL_Transmit(pdev, MTPInEpAdd, buf, length);
 

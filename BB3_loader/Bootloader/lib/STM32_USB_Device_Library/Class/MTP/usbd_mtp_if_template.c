@@ -231,7 +231,7 @@ static uint16_t USBD_MTP_Itf_Create_NewObject(MTP_ObjectInfoTypeDef ObjectInfo, 
 static uint64_t USBD_MTP_Itf_GetMaxCapability(void)
 {
     INFO("USBD_MTP_Itf_GetMaxCapability");
-  uint64_t max_cap = 5000U;
+  uint64_t max_cap = (uint64_t)lfs.cfg->block_size * (uint64_t)lfs.cfg->block_count;
 
   return max_cap;
 }
@@ -245,7 +245,7 @@ static uint64_t USBD_MTP_Itf_GetMaxCapability(void)
 static uint64_t USBD_MTP_Itf_GetFreeSpaceInBytes(void)
 {
     INFO("USBD_MTP_Itf_GetFreeSpaceInBytes");
-  uint64_t f_space_inbytes = 1000U;
+  uint64_t f_space_inbytes = (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
 
   return f_space_inbytes;
 }

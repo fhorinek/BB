@@ -40,7 +40,6 @@ static MTP_PropertiesListTypedef MTP_PropertiesList;
 static MTP_RefTypeDef            MTP_Ref;
 static MTP_PropertyValueTypedef  MTP_PropertyValue;
 static MTP_FileNameTypeDef       MTP_FileName;
-static MTP_DevicePropDescTypeDef MTP_DevicePropDesc;
 
 /* Private function prototypes -----------------------------------------------*/
 static void MTP_Get_DeviceInfo(void);
@@ -52,7 +51,7 @@ static void MTP_Get_ObjectHandle(USBD_HandleTypeDef *pdev);
 static void MTP_Get_ObjectPropSupp(void);
 static void MTP_Get_ObjectPropDesc(USBD_HandleTypeDef *pdev);
 static void MTP_Get_ObjectPropList(USBD_HandleTypeDef *pdev);
-static void MTP_Get_DevicePropDesc(void);
+static void MTP_Get_DevicePropDesc(USBD_HandleTypeDef *pdev);
 static uint8_t *MTP_Get_ObjectPropValue(USBD_HandleTypeDef *pdev);
 static uint32_t MTP_build_data_propdesc(USBD_HandleTypeDef *pdev, MTP_ObjectPropDescTypeDef def);
 static uint32_t MTP_build_data_ObjInfo(USBD_HandleTypeDef *pdev, MTP_ObjectInfoTypeDef objinfo);
@@ -96,6 +95,39 @@ void USBD_MTP_OPT_CreateObjectHandle(USBD_HandleTypeDef  *pdev)
   hmtp->ResponseLength = MTP_CONT_HEADER_SIZE;
   hmtp->GenericContainer.length =  hmtp->ResponseLength;
 }
+/**
+ *
+  * @brief  USBD_MTP_OPT_CreateObjectHandle
+  *         Open a new session
+  * @param  pdev: device instance
+  * @retval None
+  */
+void USBD_MTP_OPT_CloseSession(USBD_HandleTypeDef  *pdev)
+{
+  USBD_MTP_HandleTypeDef  *hmtp = (USBD_MTP_HandleTypeDef *)pdev->pClassDataCmsit;
+
+  if (hmtp->OperationsContainer.Param1 == 0U)   /* Param1 == Session ID*/
+  {
+    hmtp->ResponseCode = MTP_RESPONSE_INVALID_PARAMETER;
+  }
+  /* driver supports single session */
+  else if (hmtp->MTP_SessionState == MTP_SESSION_OPENED)
+  {
+      hmtp->ResponseCode =  MTP_RESPONSE_OK;
+      USBD_MTP_STORAGE_DeInit();
+  }
+  else
+  {
+      hmtp->ResponseCode = MTP_RESPONSE_INVALID_PARAMETER;
+  }
+
+  hmtp->GenericContainer.trans_id = hmtp->OperationsContainer.trans_id;
+  hmtp->GenericContainer.type = MTP_CONT_TYPE_RESPONSE;
+  hmtp->ResponseLength = MTP_CONT_HEADER_SIZE;
+  hmtp->GenericContainer.length =  hmtp->ResponseLength;
+}
+
+
 
 /**
   * @brief  USBD_MTP_OPT_GetDeviceInfo
@@ -370,7 +402,7 @@ void USBD_MTP_OPT_GetDevicePropDesc(USBD_HandleTypeDef  *pdev)
 
   (void)MTP_Get_PayloadContent(pdev);
 
-  hmtp->ResponseLength = sizeof(MTP_DevicePropDesc) + MTP_CONT_HEADER_SIZE;
+  hmtp->ResponseLength += MTP_CONT_HEADER_SIZE;
   hmtp->GenericContainer.length =  hmtp->ResponseLength;
 
   hmtp->ResponseCode = MTP_RESPONSE_OK;
@@ -390,9 +422,14 @@ void USBD_MTP_OPT_GetDevicePropValue(USBD_HandleTypeDef  *pdev)
   hmtp->GenericContainer.trans_id = hmtp->OperationsContainer.trans_id;
   hmtp->GenericContainer.type = MTP_CONT_TYPE_DATA;
 
-  (void)MTP_Get_PayloadContent(pdev);
+  uint16_t len = 0;
+  if (hmtp->OperationsContainer.Param1 == MTP_DEV_PROP_DEVICE_FRIENDLY_NAME)
+  {
+      strcpy(hmtp->GenericContainer.data, "SratTo");
+      len = strlen(hmtp->GenericContainer.data);
+  }
 
-  hmtp->ResponseLength = sizeof(0) + MTP_CONT_HEADER_SIZE;
+  hmtp->ResponseLength = len + MTP_CONT_HEADER_SIZE;
   hmtp->GenericContainer.length =  hmtp->ResponseLength;
 
   hmtp->ResponseCode = MTP_RESPONSE_OK;
@@ -657,16 +694,7 @@ static void MTP_Get_PayloadContent(USBD_HandleTypeDef *pdev)
       break;
 
     case MTP_OP_GET_DEVICE_PROP_DESC:
-      (void)MTP_Get_DevicePropDesc();
-      (void)USBD_memcpy(buffer, (const uint8_t *)&MTP_DevicePropDesc, sizeof(MTP_DevicePropDesc));
-      for (i = 0U; i < sizeof(MTP_DevicePropDesc); i++)
-      {
-        hmtp->GenericContainer.data[i] = buffer[i];
-      }
-      break;
-
-    case MTP_OP_GET_DEVICE_PROP_VALUE:
-        //todo:
+      (void)MTP_Get_DevicePropDesc(pdev);
       break;
 
     case MTP_OP_SEND_OBJECT_INFO:
@@ -1091,27 +1119,30 @@ static void MTP_Get_ObjectPropList(USBD_HandleTypeDef  *pdev)
   * @param  pdev: device instance
   * @retval None
   */
-static void MTP_Get_DevicePropDesc(void)
+static void MTP_Get_DevicePropDesc(USBD_HandleTypeDef *pdev)
 {
-  MTP_DevicePropDesc.DevicePropertyCode = MTP_DEV_PROP_DEVICE_FRIENDLY_NAME;
-  MTP_DevicePropDesc.DataType = MTP_DATATYPE_STR;
-  MTP_DevicePropDesc.GetSet = MTP_PROP_GET_SET;
-  MTP_DevicePropDesc.DefValue_len = DEVICE_PROP_DESC_DEF_LEN;
-  uint32_t i;
+    USBD_MTP_HandleTypeDef *hmtp = (USBD_MTP_HandleTypeDef*) pdev->pClassDataCmsit;
 
-  for (i = 0U; i < (sizeof(DevicePropDefVal) / 2U); i++)
-  {
-    MTP_DevicePropDesc.DefValue[i] = DevicePropDefVal[i];
-  }
+    INFO("MTP_Get_DevicePropDesc %04X", hmtp->OperationsContainer.Param1);
 
-  MTP_DevicePropDesc.curDefValue_len = DEVICE_PROP_DESC_CUR_LEN;
+    switch (hmtp->OperationsContainer.Param1)
+    {
+//        case (MTP_DEV_PROP_DEVICE_FRIENDLY_NAME):
+//        {
+//
+//        }
 
-  for (i = 0U; i < (sizeof(DevicePropCurDefVal) / 2U); i++)
-  {
-    MTP_DevicePropDesc.curDefValue[i] = DevicePropCurDefVal[i];
-  }
-
-  MTP_DevicePropDesc.FormFlag = 0U;
+        case (MTP_DEV_PROP_BATTERY_LEVEL):
+        {
+            *((uint16_t *)&hmtp->GenericContainer.data[0]) = MTP_DEV_PROP_BATTERY_LEVEL;
+            *((uint16_t *)&hmtp->GenericContainer.data[2]) = MTP_DATATYPE_UINT8;
+            hmtp->GenericContainer.data[4] = MTP_PROP_GET;
+            hmtp->GenericContainer.data[5] = 0;
+            hmtp->GenericContainer.data[6] = 50;
+            hmtp->GenericContainer.data[7] = 0;
+            hmtp->ResponseLength = 8;
+        }
+    }
 }
 
 /**

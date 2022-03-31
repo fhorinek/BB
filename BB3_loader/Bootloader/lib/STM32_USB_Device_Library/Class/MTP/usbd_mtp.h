@@ -60,11 +60,11 @@ extern "C" {
 #endif /* MTP_CMD_ITF_NBR */
 
 #ifndef MTP_HS_BINTERVAL
-#define MTP_HS_BINTERVAL                                            0x10U
+#define MTP_HS_BINTERVAL                                            0x20U
 #endif /* MTP_HS_BINTERVAL */
 
 #ifndef MTP_FS_BINTERVAL
-#define MTP_FS_BINTERVAL                                            0x10U
+#define MTP_FS_BINTERVAL                                            0x20U
 #endif /* MTP_FS_BINTERVAL */
 
 #define MTP_DATA_MAX_HS_PACKET_SIZE                                 512U

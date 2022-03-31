@@ -78,8 +78,6 @@
 /*---------- -----------*/
 #define USBD_SELF_POWERED     0U
 /*---------- -----------*/
-#define MSC_MEDIA_PACKET     32768U
-
 /****************************************/
 /* #define for FS and HS identification */
 #define DEVICE_FS 		0

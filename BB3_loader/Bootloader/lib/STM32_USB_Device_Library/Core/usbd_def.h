@@ -137,7 +137,7 @@ extern "C" {
 #define USB_EP_DESC_SIZE                                0x07U
 #define USB_IAD_DESC_SIZE                               0x08U
 
-#define USB_HS_MAX_PACKET_SIZE                          512U
+#define USB_HS_MAX_PACKET_SIZE                          64U
 #define USB_FS_MAX_PACKET_SIZE                          64U
 #define USB_MAX_EP0_SIZE                                64U
 
