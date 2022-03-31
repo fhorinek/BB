@@ -53,9 +53,6 @@ void crash_store_info(const Crash_Object * info)
         info_get_firmware_version(buff, sizeof(buff));
         WRITE(buff);
 
-        snprintf(buff, sizeof(buff), "firmware_build: '%lu'\n", rev_get_build_number());
-        WRITE(buff);
-
         snprintf(buff, sizeof(buff), "hardware_revision: '%02X'\n", rev_get_hw());
         WRITE(buff);
 

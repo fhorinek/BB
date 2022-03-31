@@ -13,7 +13,7 @@
 void rev_get_uuid(uint8_t * buff);
 uint32_t rev_get_short_id();
 
-uint32_t rev_get_build_number();
+uint32_t rev_get_sw();
 void rev_get_sw_string(char * str);
 
 uint8_t rev_get_hw();

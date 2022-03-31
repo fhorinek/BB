@@ -85,7 +85,7 @@ exception = {
 hardware_revision = info_file['hardware_revision']
 device = {
     'appVersion': info_file['firmware_version'],
-    'appBuild': info_file['firmware_build'],
+    'appBuild': info_file['firmware_version'],
     'sdkName': 'appcenter.custom',
     'sdkVersion': '0.0.0',
     'osName': '',

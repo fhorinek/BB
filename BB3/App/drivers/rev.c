@@ -42,11 +42,6 @@ void rev_get_sw_string(char * str)
     sprintf(str, "%c.%lu.%u.%u", c, nvm->app.build_number, t, r);
 }
 
-uint32_t rev_get_build_number()
-{
-	return nvm->app.build_number;
-}
-
 uint8_t rev_get_hw()
 {
     if (rev_id == 0xFF)
