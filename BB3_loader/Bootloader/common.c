@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern lfs_t lfs;
+
 bool development_mode = false;
 
 bool button_pressed(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)

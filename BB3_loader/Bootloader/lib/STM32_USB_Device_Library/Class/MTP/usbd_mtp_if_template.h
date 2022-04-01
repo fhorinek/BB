@@ -34,7 +34,7 @@ extern "C" {
 #define USBD_MTP_EVENTS_SUPPORTED                                0U
 //#define USBD_MTP_DEVICE_PROP_SUPPORTED                           1U
 //#define USBD_MTP_CAPTURE_FORMAT_SUPPORTED                        1U
-//#define USBD_MTP_VEND_EXT_DESC_SUPPORTED                         1U
+#define USBD_MTP_VEND_EXT_DESC_SUPPORTED                         1U
 //#define USBD_MTP_EVENTS_SUPPORTED                                1U
 
 #if USBD_MTP_EVENTS_SUPPORTED  == 1
@@ -73,7 +73,9 @@ extern USBD_MTP_ItfTypeDef USBD_MTP_fops;
 static const uint16_t Manuf[] = {'S', 'k', 'y', 'B', 'e', 'a', 'n', 0}; /* last 2 bytes must be 0*/
 static const uint16_t Model[] = {'S', 't', 'r', 'a', 't', 'o', 0}; /* last 2 bytes must be 0*/
 static const uint16_t VendExtDesc[] = {'m', 'i', 'c', 'r', 'o', 's', 'o', 'f', 't', '.',
-                                       'c', 'o', 'm', ':', ' ', '1', '.', '0', ';', ' ', 0
+                                       'c', 'o', 'm', ':', ' ', '1', '.', '0', ';', ' ',
+                                       'a', 'n', 'd', 'r', 'o', 'i', 'd', '.', 'c', 'o',
+                                       'm', ':', ' ', '1', '.', '0', ';', 0
                                       };  /* last 2 bytes must be 0*/
 /*SerialNbr shall be 32 character hexadecimal string for legacy compatibility reasons */
 static const uint16_t SerialNbr[] = {'0', '0', '0', '0', '1', '0', '0', '0', '0', '1', '0', '0', '0', '0',

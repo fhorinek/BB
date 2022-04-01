@@ -74,7 +74,7 @@ void debug_send(uint8_t type, const char *format, ...)
 	char id[] = "DIWE";
 
 	static char message[256];
-	snprintf(message, sizeof(message), "[%c] %s\n", id[type], msg_buff);
+	snprintf(message, sizeof(message), "[%lu][%c] %s\n", HAL_GetTick(), id[type], msg_buff);
 
 	debug_uart_done = false;
 	uint8_t ret = HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)message, strlen(message));

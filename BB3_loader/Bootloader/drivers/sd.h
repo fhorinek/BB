@@ -10,8 +10,6 @@
 
 #include "../common.h"
 
-extern lfs_t lfs;
-
 void sd_init();
 bool sd_mount();
 void sd_unmount();

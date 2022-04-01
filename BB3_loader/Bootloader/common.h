@@ -30,10 +30,6 @@
 
 #include "debug.h"
 
-#define LFS_TRACE(...)   INFO(__VA_ARGS__)
-#define LFS_DEBUG(...)   DBG(__VA_ARGS__)
-#define LFS_WARN(...)    WARN(__VA_ARGS__)
-#define LFS_ERROR(...)   ERR(__VA_ARGS__)
 #include "lib/littlefs/lfs.h"
 #include "drivers/sd.h"
 

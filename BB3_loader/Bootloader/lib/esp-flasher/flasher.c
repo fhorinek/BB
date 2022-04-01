@@ -13,6 +13,8 @@
 #include "gfx.h"
 #include "lib/stm32-bootloader/bootloader.h"
 
+extern lfs_t lfs;
+
 uint32_t flasher_aligned(uint32_t size)
 {
 	return (size + 3) & ~3;

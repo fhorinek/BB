@@ -158,9 +158,9 @@ __ALIGN_BEGIN static uint8_t USBD_MTP_CfgDesc[MTP_CONFIG_DESC_SIZ] __ALIGN_END =
   MTP_CMD_ITF_NBR,                              /* bInterfaceNumber: Number of Interface */
   0x00,                                         /* bAlternateSetting: Alternate setting */
   0x03,                                         /* bNumEndpoints:  */
-  USB_MTP_INTRERFACE_CLASS,                     /* bInterfaceClass: bInterfaceClass: user's interface for MTP */
-  USB_MTP_INTRERFACE_SUB_CLASS,                 /* bInterfaceSubClass:Abstract Control Model */
-  USB_MTP_INTRERFACE_PROTOCOL,                  /* bInterfaceProtocol: Common AT commands */
+  6,                     /* bInterfaceClass: bInterfaceClass: user's interface for MTP */
+  1,                 /* bInterfaceSubClass:Abstract Control Model */
+  1,                  /* bInterfaceProtocol: Common AT commands */
   0x00,                                         /* iInterface: */
 
   /********************  MTP   Endpoints ********************/

@@ -15,6 +15,7 @@
 #include "nvm.h"
 
 extern CRC_HandleTypeDef hcrc;
+extern lfs_t lfs;
 
 bool flash_loop()
 {

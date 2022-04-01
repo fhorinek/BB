@@ -1051,7 +1051,9 @@ HAL_StatusTypeDef HAL_PCD_Stop(PCD_HandleTypeDef *hpcd)
   * @param  hpcd PCD handle
   * @retval HAL status
   */
-void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
+
+
+void HAL_PCD_IRQHandler_real(PCD_HandleTypeDef *hpcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   uint32_t USBx_BASE = (uint32_t)USBx;
@@ -1505,6 +1507,13 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
   }
 }
 #endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
+
+extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+
+void HAL_PCD_IRQHandler()
+{
+    HAL_PCD_IRQHandler_real(&hpcd_USB_OTG_HS);
+}
 
 
 /**

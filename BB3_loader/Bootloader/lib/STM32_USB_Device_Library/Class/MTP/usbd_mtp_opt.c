@@ -1134,10 +1134,16 @@ static void MTP_Get_DevicePropDesc(USBD_HandleTypeDef *pdev)
 
     switch (hmtp->OperationsContainer.Param1)
     {
-//        case (MTP_DEV_PROP_DEVICE_FRIENDLY_NAME):
-//        {
-//
-//        }
+        case (MTP_DEV_PROP_DEVICE_FRIENDLY_NAME):
+        {
+            *((uint16_t *)&hmtp->GenericContainer.data[0]) = MTP_DEV_PROP_BATTERY_LEVEL;
+            *((uint16_t *)&hmtp->GenericContainer.data[2]) = MTP_DATATYPE_STR;
+            hmtp->GenericContainer.data[4] = MTP_PROP_GET;
+            hmtp->GenericContainer.data[5] = 0;
+            hmtp->GenericContainer.data[6] = 0;
+            hmtp->GenericContainer.data[7] = 0;
+            hmtp->ResponseLength = 8;
+        }
 
         case (MTP_DEV_PROP_BATTERY_LEVEL):
         {
@@ -1145,7 +1151,7 @@ static void MTP_Get_DevicePropDesc(USBD_HandleTypeDef *pdev)
             *((uint16_t *)&hmtp->GenericContainer.data[2]) = MTP_DATATYPE_UINT8;
             hmtp->GenericContainer.data[4] = MTP_PROP_GET;
             hmtp->GenericContainer.data[5] = 0;
-            hmtp->GenericContainer.data[6] = 50;
+            hmtp->GenericContainer.data[6] = 0;
             hmtp->GenericContainer.data[7] = 0;
             hmtp->ResponseLength = 8;
         }

@@ -48,6 +48,12 @@ extern "C"
 // macros must not have side-effects as the macros can be removed for a smaller
 // code footprint
 
+#include "common.h"
+#define LFS_TRACE(...)   INFO(__VA_ARGS__)
+#define LFS_DEBUG(...)   DBG(__VA_ARGS__)
+#define LFS_WARN(...)    WARN(__VA_ARGS__)
+#define LFS_ERROR(...)   ERR(__VA_ARGS__)
+
 // Logging functions
 #ifndef LFS_TRACE
 #ifdef LFS_YES_TRACE

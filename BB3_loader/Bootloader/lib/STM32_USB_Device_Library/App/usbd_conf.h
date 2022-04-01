@@ -39,6 +39,8 @@
  void debug_send(uint8_t type, const char *format, ...);
 #define printf(...) debug_send(0, __VA_ARGS__)
 
+extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+
 /* USER CODE END INCLUDE */
 
 /** @addtogroup USBD_OTG_DRIVER

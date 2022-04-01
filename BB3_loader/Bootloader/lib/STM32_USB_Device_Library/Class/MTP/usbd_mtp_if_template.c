@@ -23,6 +23,8 @@
 #define DEBUG_LEVEL DBG_DEBUG
 #include "common.h"
 
+extern lfs_t lfs;
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern USBD_HandleTypeDef USBD_Device;
@@ -84,6 +86,83 @@ USBD_MTP_ItfTypeDef USBD_MTP_fops =
 
 /* Private functions ---------------------------------------------------------*/
 
+#define MAX_IDX_HANDLES   1024
+#define IDX_DELETED 0xFFFFFFFF
+#define IDX_CLEAR   NULL
+
+#define PATH_LEN    128
+
+typedef struct
+{
+    uint32_t parent;
+    char * name;
+} idx_path_t;
+
+#define IDX_OFFSET      0x80000000
+
+idx_path_t * idx_to_filename[MAX_IDX_HANDLES];
+uint32_t idx_new_index = 0;
+
+bool construct_path(char * path, uint32_t idx)
+{
+    if (idx == 0xFFFFFFFF)
+    {
+        strcpy(path, "/");
+        return true;
+    }
+
+    if (idx < idx_new_index)
+    {
+        idx &= IDX_OFFSET;
+
+        if (!construct_path(path, idx_to_filename[idx]->parent))
+            return false;
+
+        strcat(path, "/");
+        strcat(path, idx_to_filename[idx]->name);
+
+        return true;
+    }
+
+    return false;
+}
+
+uint32_t get_idx(uint32_t parent, char * name)
+{
+    for (uint32_t i = 0 ; i < idx_new_index; i++)
+    {
+        if (idx_to_filename[i]->parent == parent)
+        {
+            if (strcmp(idx_to_filename[i]->name, name) == 0)
+            {
+                return i | IDX_OFFSET;
+            }
+        }
+    }
+
+    //add new
+    idx_path_t * n = malloc(sizeof(idx_path_t));
+    n->name = malloc(strlen(name));
+    strcpy(n->name, name);
+    n->parent = parent;
+
+    uint32_t idx = idx_new_index;
+    idx_new_index++;
+    idx_to_filename[idx] = n;
+    ASSERT(idx_new_index < MAX_IDX_HANDLES);
+
+    return idx | IDX_OFFSET;
+}
+
+void utf_to_char(char * dst, uint16_t * src, uint16_t len)
+{
+    ASSERT(len > 0);
+    for (uint16_t i = 0; i < len; i++)
+    {
+        dst[i] = src[i];
+    }
+}
+
 /**
   * @brief  USBD_MTP_Itf_Init
   *         Initialize the file system Layer
@@ -93,7 +172,15 @@ USBD_MTP_ItfTypeDef USBD_MTP_fops =
 static uint8_t USBD_MTP_Itf_Init(void)
 {
     INFO("USBD_MTP_Itf_Init");
-  return 0;
+
+    idx_new_index = 0;
+
+    for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
+    {
+        idx_to_filename[i] = IDX_CLEAR;
+    }
+
+    return 0;
 }
 
 /**
@@ -105,6 +192,17 @@ static uint8_t USBD_MTP_Itf_Init(void)
 static uint8_t USBD_MTP_Itf_DeInit(void)
 {
     INFO("USBD_MTP_Itf_DeInit");
+
+    for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
+    {
+        if (idx_to_filename[i] != IDX_CLEAR)
+        {
+            free(idx_to_filename[i]->name);
+            free(idx_to_filename[i]);
+            idx_to_filename[i] = IDX_CLEAR;
+        }
+    }
+
   return 0;
 }
 
@@ -117,16 +215,41 @@ static uint8_t USBD_MTP_Itf_DeInit(void)
   */
 static uint32_t USBD_MTP_Itf_GetIdx(uint32_t Param3, uint32_t *obj_handle)
 {
-    INFO("USBD_MTP_Itf_GetIdx, %d", Param3);
+    INFO("USBD_MTP_Itf_GetIdx, %u", Param3);
 
-//  uint32_t count = 5U;
-//  obj_handle[0] = 100;
-//  obj_handle[1] = 200;
-//  obj_handle[2] = 300;
-//  obj_handle[3] = 400;
-//  obj_handle[4] = 500;
+    uint32_t count = 0;
+    char path[PATH_LEN];
 
-  return count;
+    if (construct_path(path, Param3))
+    {
+        lfs_dir_t dir;
+
+        INFO(" listing %s", path);
+        if (lfs_dir_open(&lfs, &dir, path) == LFS_ERR_OK)
+        {
+            int found;
+
+            do
+            {
+                struct lfs_info info;
+                found = lfs_dir_read(&lfs, &dir, &info);
+                if (found)
+                {
+                    if (info.name[0] == '.')
+                        continue;
+
+                    obj_handle[count] = get_idx(Param3, info.name);
+                    INFO("  %08X %s", obj_handle[count], info.name);
+                    count++;
+                }
+
+            } while(found);
+
+            lfs_dir_close(&lfs, &dir);
+        }
+    }
+    INFO(" done, count %u", count);
+    return count;
 }
 
 /**
@@ -213,15 +336,24 @@ static uint32_t USBD_MTP_Itf_GetObjectSize(uint32_t Param)
   * @param  objhandle: object handle (object index)
   * @retval None
   */
+static uint32_t new_idx = 0;
+
 static uint16_t USBD_MTP_Itf_Create_NewObject(MTP_ObjectInfoTypeDef ObjectInfo, uint32_t objhandle)
 {
     INFO("USBD_MTP_Itf_Create_NewObject");
 
-  uint16_t rep_code = 0U;
-  UNUSED(ObjectInfo);
-  UNUSED(objhandle);
+    char name[sizeof(ObjectInfo.Filename)];
+    utf_to_char(name, ObjectInfo.Filename, ObjectInfo.Filename_len);
+    new_idx = get_idx(ObjectInfo.ParentObject, name);
 
-  return rep_code;
+    lfs_file_t file;
+    char path[PATH_LEN];
+    construct_path(path, new_idx);
+
+    INFO(" Creating file %08X %s");
+    lfs_file_open(&lfs, &file, path, LFS_O_RDONLY | LFS_O_CREAT | LFS_O_EXCL);
+
+    return 0;
 }
 
 /**
@@ -247,9 +379,9 @@ static uint64_t USBD_MTP_Itf_GetMaxCapability(void)
 static uint64_t USBD_MTP_Itf_GetFreeSpaceInBytes(void)
 {
     INFO("USBD_MTP_Itf_GetFreeSpaceInBytes");
-  uint64_t f_space_inbytes = (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
+    uint64_t f_space_inbytes = (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
 
-  return f_space_inbytes;
+    return f_space_inbytes;
 }
 
 /**
@@ -262,10 +394,10 @@ static uint32_t USBD_MTP_Itf_GetNewIndex(uint16_t objformat)
 {
     INFO("USBD_MTP_Itf_GetNewIndex");
 
-  uint32_t n_index = 0U;
-  UNUSED(objformat);
+    uint32_t n_index = new_idx;
+    UNUSED(objformat);
 
-  return n_index;
+    return n_index;
 }
 
 /**
