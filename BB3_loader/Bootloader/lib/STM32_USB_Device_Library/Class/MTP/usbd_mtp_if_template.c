@@ -86,7 +86,7 @@ USBD_MTP_ItfTypeDef USBD_MTP_fops =
 
 /* Private functions ---------------------------------------------------------*/
 
-#define MAX_IDX_HANDLES   1024
+#define MAX_IDX_HANDLES   128
 #define IDX_DELETED 0xFFFFFFFF
 #define IDX_CLEAR   NULL
 
@@ -103,18 +103,23 @@ typedef struct
 idx_path_t * idx_to_filename[MAX_IDX_HANDLES];
 uint32_t idx_new_index = 0;
 
+void wtf()
+{
+
+}
+
 bool construct_path(char * path, uint32_t idx)
 {
-    if (idx == 0xFFFFFFFF)
+    idx &= ~IDX_OFFSET;
+
+    if (idx == 0x7FFFFFFF)
     {
-        strcpy(path, "/");
+        strcpy(path, "");
         return true;
     }
 
     if (idx < idx_new_index)
     {
-        idx &= IDX_OFFSET;
-
         if (!construct_path(path, idx_to_filename[idx]->parent))
             return false;
 
@@ -129,6 +134,8 @@ bool construct_path(char * path, uint32_t idx)
 
 uint32_t get_idx(uint32_t parent, char * name)
 {
+    parent &= ~IDX_OFFSET;
+
     for (uint32_t i = 0 ; i < idx_new_index; i++)
     {
         if (idx_to_filename[i]->parent == parent)
@@ -141,8 +148,9 @@ uint32_t get_idx(uint32_t parent, char * name)
     }
 
     //add new
-    idx_path_t * n = malloc(sizeof(idx_path_t));
-    n->name = malloc(strlen(name));
+    idx_path_t * n = (idx_path_t *) ps_malloc(sizeof(idx_path_t));
+    n->name = (char *) ps_malloc(strlen(name) + 1);
+
     strcpy(n->name, name);
     n->parent = parent;
 
@@ -154,7 +162,32 @@ uint32_t get_idx(uint32_t parent, char * name)
     return idx | IDX_OFFSET;
 }
 
+idx_path_t * get_path(uint32_t idx)
+{
+    idx &= ~IDX_OFFSET;
+    ASSERT(idx < MAX_IDX_HANDLES);
+
+    return idx_to_filename[idx];
+}
+
+uint32_t get_parent(uint32_t idx)
+{
+    idx &= ~IDX_OFFSET;
+    ASSERT(idx < MAX_IDX_HANDLES);
+
+    return idx_to_filename[idx]->parent | IDX_OFFSET;
+}
+
 void utf_to_char(char * dst, uint16_t * src, uint16_t len)
+{
+    ASSERT(len > 0);
+    for (uint16_t i = 0; i < len; i++)
+    {
+        dst[i] = src[i];
+    }
+}
+
+void char_to_utf(uint16_t * dst, char * src, uint16_t len)
 {
     ASSERT(len > 0);
     for (uint16_t i = 0; i < len; i++)
@@ -197,11 +230,13 @@ static uint8_t USBD_MTP_Itf_DeInit(void)
     {
         if (idx_to_filename[i] != IDX_CLEAR)
         {
-            free(idx_to_filename[i]->name);
-            free(idx_to_filename[i]);
+            ps_free(idx_to_filename[i]->name);
+            ps_free(idx_to_filename[i]);
             idx_to_filename[i] = IDX_CLEAR;
         }
     }
+
+    idx_new_index = 0;
 
   return 0;
 }
@@ -224,7 +259,7 @@ static uint32_t USBD_MTP_Itf_GetIdx(uint32_t Param3, uint32_t *obj_handle)
     {
         lfs_dir_t dir;
 
-        INFO(" listing %s", path);
+        INFO(" listing '%s'", path);
         if (lfs_dir_open(&lfs, &dir, path) == LFS_ERR_OK)
         {
             int found;
@@ -260,11 +295,9 @@ static uint32_t USBD_MTP_Itf_GetIdx(uint32_t Param3, uint32_t *obj_handle)
   */
 static uint32_t USBD_MTP_Itf_GetParentObject(uint32_t Param)
 {
-    INFO("USBD_MTP_Itf_GetParentObject, %d", Param);
-  uint32_t parentobj = 0U;
-  UNUSED(Param);
+    INFO("USBD_MTP_Itf_GetParentObject, %08X", Param);
 
-  return parentobj;
+    return get_parent(Param);
 }
 
 /**
@@ -290,9 +323,8 @@ static uint16_t USBD_MTP_Itf_GetObjectFormat(uint32_t Param)
   */
 static uint8_t USBD_MTP_Itf_GetObjectName_len(uint32_t Param)
 {
-    INFO("USBD_MTP_Itf_GetObjectName_len");
-  uint8_t obj_len = 05U;
-  UNUSED(Param);
+    INFO("USBD_MTP_Itf_GetObjectName_len, %08X", Param);
+    uint8_t obj_len = strlen(get_path(Param)->name);
 
   return obj_len;
 }
@@ -308,10 +340,10 @@ static uint8_t USBD_MTP_Itf_GetObjectName_len(uint32_t Param)
 static void USBD_MTP_Itf_GetObjectName(uint32_t Param, uint8_t obj_len, uint16_t *buf)
 {
     INFO("USBD_MTP_Itf_GetObjectName, %04X", Param);
-  obj_len = 5;
-  strcpy(buf, "asdfg");
 
-  return;
+    char_to_utf(buf, get_path(Param)->name, obj_len);
+
+    return;
 }
 
 /**
@@ -324,9 +356,12 @@ static uint32_t USBD_MTP_Itf_GetObjectSize(uint32_t Param)
 {
     INFO("USBD_MTP_Itf_GetObjectSize, %04X", Param);
 
-  uint32_t ObjCompSize = Param;
+    char path[PATH_LEN];
+    construct_path(path, Param);
+    struct lfs_info info;
+    lfs_stat(&lfs, path, &info);
 
-  return ObjCompSize;
+    return info.size;
 }
 
 /**

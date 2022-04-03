@@ -23,6 +23,8 @@ volatile bool msc_ejected = false;
 volatile uint32_t msc_activity = 0;
 
 
+void wtf();
+
 bool msc_loop()
 {
     INFO("USB mode on");
@@ -43,6 +45,7 @@ bool msc_loop()
     {
         pwr_step();
 
+        wtf();
 
 
         if (button_pressed(BT1) ||button_pressed(BT2) || button_pressed(BT3) || button_pressed(BT4) || button_pressed(BT5))

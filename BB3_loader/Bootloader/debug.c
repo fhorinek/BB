@@ -54,7 +54,7 @@ void debug_send(uint8_t type, const char *format, ...)
 		return;
 
 	va_list arp;
-	char msg_buff[250];
+	static char msg_buff[1024];
 
 	va_start(arp, format);
 	vsnprintf(msg_buff, sizeof(msg_buff), format, arp);
@@ -73,7 +73,7 @@ void debug_send(uint8_t type, const char *format, ...)
 
 	char id[] = "DIWE";
 
-	static char message[256];
+	static char message[1024];
 	snprintf(message, sizeof(message), "[%lu][%c] %s\n", HAL_GetTick(), id[type], msg_buff);
 
 	debug_uart_done = false;

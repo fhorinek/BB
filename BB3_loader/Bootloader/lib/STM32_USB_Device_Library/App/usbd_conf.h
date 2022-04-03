@@ -96,10 +96,10 @@ extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
 /* Memory management macros make sure to use static memory allocation */
 /** Alias for memory allocation. */
-#define USBD_malloc         (void *)USBD_static_malloc
+#define USBD_malloc         malloc
 
 /** Alias for memory release. */
-#define USBD_free           USBD_static_free
+#define USBD_free           free
 
 /** Alias for memory set. */
 #define USBD_memset         memset

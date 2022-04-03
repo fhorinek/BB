@@ -27,11 +27,13 @@
 #include "crc.h"
 #include "sdmmc.h"
 #include "i2c.h"
+#include "octospi.h"
 
 #include "debug.h"
 
 #include "lib/littlefs/lfs.h"
 #include "drivers/sd.h"
+#include "drivers/psram.h"
 
 #define	PA0		GPIOA,	GPIO_PIN_0
 #define	PA1		GPIOA,	GPIO_PIN_1

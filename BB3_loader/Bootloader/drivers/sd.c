@@ -15,6 +15,15 @@ int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, v
 	uint32_t addr = block * c->block_size + off;
 	size /= c->block_size;
 
+	ret = HAL_SD_ReadBlocks(&hsd1, (uint8_t *)buffer, addr, size, 200);
+	if (ret != HAL_OK)
+	{
+	    ERR("HAL_SD_ReadBlocks, ret = %u", ret);
+        while(1);
+	}
+
+	return 0;
+
 	do
 	{
 	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)buffer, addr, size);
@@ -146,6 +155,8 @@ bool sd_mount()
     // this should only happen on the first boot
     if (err)
     {
+        INFO("Error mounting, formating");
+        while(1);
         lfs_format(&lfs, &cfg);
         err = lfs_mount(&lfs, &cfg);
     }
