@@ -383,6 +383,7 @@ void app_main(uint8_t power_on_mode)
 
 	INFO("Bootloader init");
 
+
     //main power on
     GpioWrite(VCC_MAIN_EN, HIGH);
 
@@ -400,6 +401,7 @@ void app_main(uint8_t power_on_mode)
 
     PSRAM_init();
     sd_init();
+
 
     if (button_pressed(BT2) && button_pressed(BT5))
     {

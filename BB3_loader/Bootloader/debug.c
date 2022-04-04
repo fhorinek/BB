@@ -29,6 +29,9 @@ void debug_enable()
 
 void debug_dump(uint8_t * data, uint16_t len)
 {
+    if (debug_off)
+        return;
+
     char s[18] = {0};
 
     char tmp[16 * 3 + 3];

@@ -397,12 +397,17 @@ void MDMA_IRQHandler(void)
 /**
   * @brief This function handles USB On The Go HS global interrupt.
   */
-
+uint32_t fail_cnt = 0;
 void OTG_HS_IRQHandler(void)
 {
   /* USER CODE BEGIN OTG_HS_IRQn 0 */
 
   /* USER CODE END OTG_HS_IRQn 0 */
+    fail_cnt++;
+    if (fail_cnt == 123)
+    {
+        INFO("End is here");
+    }
   HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
   /* USER CODE BEGIN OTG_HS_IRQn 1 */
   /* USER CODE END OTG_HS_IRQn 1 */
