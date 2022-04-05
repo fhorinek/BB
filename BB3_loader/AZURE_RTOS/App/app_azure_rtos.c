@@ -39,7 +39,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#undef TX_APP_MEM_POOL_SIZE
+#define TX_APP_MEM_POOL_SIZE                     (32 * 1024)
 
+#undef UX_DEVICE_APP_MEM_POOL_SIZE
+#define UX_DEVICE_APP_MEM_POOL_SIZE              (32 * 1024)
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/

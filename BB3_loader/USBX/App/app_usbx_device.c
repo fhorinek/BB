@@ -108,7 +108,7 @@ UCHAR device_framework_high_speed[] =
     /* Endpoint descriptor (Bulk In) */
     7,                          /* Endpoint descriptor length = 7 */
     0x05,                       /* Endpoint descriptor type */
-    0x02,                       /* Endpoint address (OUT, address 1) */
+    0x01,                       /* Endpoint address (OUT, address 1) */
     0x02,                       /* Bulk endpoint type */
     SPLIT16(64),                /* wMaxPacketSize */
     0x00,                       /* Polling interval in milliseconds */
@@ -116,7 +116,7 @@ UCHAR device_framework_high_speed[] =
     /* Endpoint descriptor (Interrupt) */
     7,                          /* bLength: Endpoint Descriptor size */
     0x05,                       /* bDescriptorType:*/
-    0x83,                       /* bEndpointAddress: Endpoint Address (IN) */
+    0x82,                       /* bEndpointAddress: Endpoint Address (IN) */
     0x03,                       /* bmAttributes: Interrupt endpoint */
     SPLIT16(8),                 /* wMaxPacketSize */
     0x20                        /* Polling interval in milliseconds */

@@ -200,8 +200,8 @@ void app_mtp_thread_entry(ULONG arg)
     MX_USB_OTG_HS_PCD_Init();
 
     HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 0x200);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 0x80);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 0x174);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 0x200);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 0x80);
 
     UINT status = ux_dcd_stm32_initialize((ULONG)0, (ULONG)&hpcd_USB_OTG_HS);
 

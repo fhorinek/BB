@@ -87,7 +87,8 @@ ULONG               stm32_endpoint_index;
     ed =  &dcd_stm32 -> ux_dcd_stm32_ed[stm32_endpoint_index];
 
     /* Check the index range and endpoint status, if it is free, reserve it. If not reject this endpoint.  */
-    if ((stm32_endpoint_index < UX_DCD_STM32_MAX_ED) && ((ed -> ux_dcd_stm32_ed_status & UX_DCD_STM32_ED_STATUS_USED) == 0))
+//    if ((stm32_endpoint_index < UX_DCD_STM32_MAX_ED) && ((ed -> ux_dcd_stm32_ed_status & UX_DCD_STM32_ED_STATUS_USED) == 0))
+    if ((stm32_endpoint_index < UX_DCD_STM32_MAX_ED)) //XXX hack!!!
     {
 
         /* We can use this endpoint.  */
