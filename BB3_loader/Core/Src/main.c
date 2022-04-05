@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "app_threadx.h"
 #include "crc.h"
 #include "dma.h"
 #include "i2c.h"
@@ -27,6 +28,7 @@
 #include "rng.h"
 #include "tim.h"
 #include "usart.h"
+#include "usb_otg.h"
 #include "gpio.h"
 #include "fmc.h"
 
@@ -118,6 +120,7 @@ int main(void)
   MX_TIM15_Init();
   MX_UART4_Init();
   MX_RNG_Init();
+  MX_USB_OTG_HS_PCD_Init();
   MX_OCTOSPI1_Init();
   /* USER CODE BEGIN 2 */
 
@@ -125,6 +128,9 @@ int main(void)
 
   /* USER CODE END 2 */
 
+  MX_ThreadX_Init();
+
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

@@ -402,6 +402,7 @@ void app_main(uint8_t power_on_mode)
     PSRAM_init();
     sd_init();
 
+    return;
 
     if (button_pressed(BT2) && button_pressed(BT5))
     {
