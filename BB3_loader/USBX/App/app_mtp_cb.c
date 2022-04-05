@@ -11,6 +11,7 @@
 #include "usb_otg.h"
 #include "ux_dcd_stm32.h"
 
+static uint8_t mtp_buffer[128];
 
 void mtp_activate(void * param)
 {
@@ -29,9 +30,44 @@ static UINT mtp_device_reset(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
     return UX_SUCCESS;
 }
 
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint8_t default_value;
+    uint8_t current_value;
+    uint8_t form;
+} device_property_describtion_uint8_t;
+
+
 static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG device_property, UCHAR **device_prop_dataset, ULONG *device_prop_dataset_length)
 {
-    INFO("mtp_device_prop_desc_get");
+    INFO("mtp_device_prop_desc_get %04X", device_property);
+
+    switch (device_property)
+    {
+        case (UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL):
+        {
+            device_property_describtion_uint8_t * payload = (device_property_describtion_uint8_t *)&mtp_buffer;
+
+            payload->property_code = UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL;
+            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT8;
+            payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
+            payload->default_value = 0;
+            payload->current_value = 50; //TODO: add real number
+            payload->form = 0x00;
+
+            *device_prop_dataset = (UCHAR *)payload;
+            *device_prop_dataset_length = sizeof(device_property_describtion_uint8_t);
+        }
+        break;
+
+        default:
+            WARN("Not handled");
+            return UX_ERROR;
+    }
+
+
     return UX_SUCCESS;
 }
 
@@ -55,7 +91,13 @@ static UINT mtp_storage_format(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG st
 
 static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG storage_id)
 {
-    INFO("mtp_storage_info_get");
+    INFO("mtp_storage_info_get %08X", storage_id);
+    pima->ux_device_class_pima_storage_free_space_high = 100;
+    pima->ux_device_class_pima_storage_free_space_low = 0;
+
+    pima->ux_device_class_pima_storage_max_capacity_high = 150;
+    pima->ux_device_class_pima_storage_max_capacity_high = 0;
+
     return UX_SUCCESS;
 }
 
@@ -199,9 +241,9 @@ void app_mtp_thread_entry(ULONG arg)
 
     MX_USB_OTG_HS_PCD_Init();
 
-    HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 0x200);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 0x200);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 0x80);
+    HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 512);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 1024);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 2, 1024);
 
     UINT status = ux_dcd_stm32_initialize((ULONG)0, (ULONG)&hpcd_USB_OTG_HS);
 

@@ -102,21 +102,21 @@ UCHAR device_framework_high_speed[] =
     0x05,                       /* Endpoint descriptor type */
     0x81,                       /* Endpoint address (IN, address 1) */
     0x02,                       /* Bulk endpoint type */
-    SPLIT16(64),                /* wMaxPacketSize */
+    SPLIT16(512),                /* wMaxPacketSize */
     0x00,                       /* Polling interval in milliseconds */
 
     /* Endpoint descriptor (Bulk In) */
     7,                          /* Endpoint descriptor length = 7 */
     0x05,                       /* Endpoint descriptor type */
-    0x01,                       /* Endpoint address (OUT, address 1) */
+    0x02,                       /* Endpoint address (OUT, address 1) */
     0x02,                       /* Bulk endpoint type */
-    SPLIT16(64),                /* wMaxPacketSize */
+    SPLIT16(512),                /* wMaxPacketSize */
     0x00,                       /* Polling interval in milliseconds */
 
     /* Endpoint descriptor (Interrupt) */
     7,                          /* bLength: Endpoint Descriptor size */
     0x05,                       /* bDescriptorType:*/
-    0x82,                       /* bEndpointAddress: Endpoint Address (IN) */
+    0x83,                       /* bEndpointAddress: Endpoint Address (IN) */
     0x03,                       /* bmAttributes: Interrupt endpoint */
     SPLIT16(8),                 /* wMaxPacketSize */
     0x20                        /* Polling interval in milliseconds */
@@ -180,8 +180,8 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
   /* USER CODE BEGIN MX_USBX_Device_Init */
   void * allocated_memory;
 
-  tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 10 * 1024, TX_NO_WAIT);
-  UINT status = ux_system_initialize(allocated_memory, 10 * 1024, UX_NULL, 0);
+  tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 14 * 1024, TX_NO_WAIT);
+  UINT status = ux_system_initialize(allocated_memory, 14 * 1024, UX_NULL, 0);
 //  INFO("ux_system_initialize %02X", status);
 
   status = ux_device_stack_initialize(device_framework_high_speed, sizeof(device_framework_high_speed),
