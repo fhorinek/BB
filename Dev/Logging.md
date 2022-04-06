@@ -9,7 +9,7 @@ Strato can output the debug informations to the file debug.log, via right USB po
 2. Replicate the issue
 3. Transfer the `debug.log` file from strato and send it to us (most likely fero@skybean.eu) with link to the issue or the problem description.
 
-## Diagnostic report (from R261.0.0)
+## Create diagnostic report (from R261.0.0)
 Crash report enable us to view the internal state of the strato system. It porvide us with much more information. Normaly the Crash report is automaticali created during hard errors (device crash), but thay can be usefull for us with minor errors as well.
 1. Go to the `System` / `Advanced` and enable `Debug to file`
 2. If `Debug to file` is enabled `Clear debug.log` before proceding further
