@@ -53,11 +53,10 @@ void update_info_callback(uint8_t res, upload_slot_t * slot)
 
 uint8_t upload_crash_report(char * bundle_file)
 {
-    INFO("Uploading crash report: %s", bundle_file);
-
-    // TODO: Make URL configurable (with default)
     char url[128];
-    snprintf(url, sizeof(url), "http://192.168.0.147/%s", bundle_file);
+    snprintf(url, sizeof(url), "%s/%s", config_get_text(&config.debug.crash_reporting_url), bundle_file);
+
+    INFO("Uploading crash report: %s", url);
 
     return esp_http_post(url, bundle_file, update_info_callback);
 }
@@ -103,7 +102,9 @@ void upload_crash_reports(void * arg)
 
 void upload_crash_reports_schedule()
 {
-    // TODO: Add option to disable automatic crash reporting
+    if (!config_get_bool(&config.debug.crash_reporting))
+        return;
+
     osTimerId_t timer = osTimerNew(upload_crash_reports, osTimerOnce, NULL, NULL);
     osTimerStart(timer, 8000);
 }

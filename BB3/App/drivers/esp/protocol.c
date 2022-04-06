@@ -365,9 +365,9 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             {
                 osTimerId_t timer = osTimerNew(check_for_update, osTimerOnce, NULL, NULL);
                 osTimerStart(timer, 5000);
-
-                upload_crash_reports_schedule();
             }
+
+            upload_crash_reports_schedule();
         }
         break;
 
