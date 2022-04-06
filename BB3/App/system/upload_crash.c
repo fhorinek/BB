@@ -8,8 +8,9 @@
 #define DEBUG_LEVEL DBG_DEBUG
 #include "upload_crash.h"
 #include "drivers/esp/upload/slot.h"
+#include "gui/statusbar.h"
 
-void update_info_callback(uint8_t res, upload_slot_t * slot)
+void upload_crash_callback(uint8_t res, upload_slot_t * slot)
 {
     switch (res)
     {
@@ -18,6 +19,8 @@ void update_info_callback(uint8_t res, upload_slot_t * slot)
         case(UPLOAD_SLOT_COMPLETE):
         {
             INFO("Uploading crash report finished");
+            statusbar_msg_add(STATUSBAR_MSG_INFO, "Crash report sent");
+
             upload_crash_reports_schedule();
 
             // TODO: Delete file when upload completed
@@ -58,7 +61,7 @@ uint8_t upload_crash_report(char * bundle_file)
 
     INFO("Uploading crash report: %s", url);
 
-    return esp_http_post(url, bundle_file, update_info_callback);
+    return esp_http_post(url, bundle_file, upload_crash_callback);
 }
 
 
