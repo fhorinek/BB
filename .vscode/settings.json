@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "esp_gap_bt_api.h": "c",
-        "esp_bt_main.h": "c",
-        "esp_bt.h": "c"
-    }
-}
