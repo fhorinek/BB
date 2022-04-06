@@ -21,7 +21,7 @@
 #define UART_RX_BUFF	1024
 #define UART_TX_BUFF	1024
 
-#define STREAM_RX_BUFFER_SIZE	256
+#define STREAM_RX_BUFFER_SIZE	384
 static stream_t uart_stream;
 
 void uart_send(uint8_t *data, uint16_t len)
