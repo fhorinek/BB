@@ -212,6 +212,35 @@ typedef struct {
     uint8_t data_id;
 } proto_download_stop_t;
 
+//-------------------- WiFi Upload --------------------
+
+#define PROTO_UPLOAD_URL          0x38
+#define PROTO_UPLOAD_INFO         0x38
+
+typedef struct {
+    char url[PROTO_URL_LEN];
+    char file_path[PROTO_FS_PATH_LEN];
+    uint32_t file_size;
+    uint8_t data_id;
+} proto_upload_request_t;
+
+#define PROTO_UPLOAD_OK               0
+#define PROTO_UPLOAD_DONE             1
+#define PROTO_UPLOAD_FAILED           10
+#define PROTO_UPLOAD_NO_CONNECTION    20
+
+typedef struct {
+    uint32_t size;
+    uint8_t result;
+    uint8_t end_point;
+} proto_upload_info_t;
+
+#define PROTO_UPLOAD_STOP         0x39
+
+typedef struct {
+    uint8_t data_id;
+} proto_upload_stop_t;
+
 //-------------------- Filesystem --------------------
 
 #define PROTO_FS_LIST_REQ			0x40
