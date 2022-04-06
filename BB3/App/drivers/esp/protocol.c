@@ -24,6 +24,8 @@
 
 #include "fc/fc.h"
 
+#include "system/upload_crash.h"
+
 #include "file.h"
 
 static bool spi_prepare_in_progress = false;
@@ -363,6 +365,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             {
                 osTimerId_t timer = osTimerNew(check_for_update, osTimerOnce, NULL, NULL);
                 osTimerStart(timer, 5000);
+
+                upload_crash_reports_schedule();
             }
         }
         break;

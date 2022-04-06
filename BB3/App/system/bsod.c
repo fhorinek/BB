@@ -401,12 +401,12 @@ void bsod_bundle_report()
     mz_zip_archive * zip = malloc(sizeof(mz_zip_archive));
     mz_zip_zero_struct(zip);
 
-    snprintf(path, sizeof(path), "crash_report.zip");
+    snprintf(path, sizeof(path), PATH_CRASH_BUNDLE ".zip");
     uint16_t cnt = 0;
     while (file_exists(path))
     {
         cnt++;
-        snprintf(path, sizeof(path), "crash_report_%u.zip", cnt);
+        snprintf(path, sizeof(path), PATH_CRASH_BUNDLE "_%u.zip", cnt);
     }
 
     //clear all psram
