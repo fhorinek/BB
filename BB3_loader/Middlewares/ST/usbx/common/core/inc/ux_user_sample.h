@@ -170,8 +170,8 @@
 /* Defined, this value represents the maximum number of bytes received on a control endpoint in
    the device stack. The default is 256 bytes but can be reduced in memory constraint environments.  */
 
-/* #define UX_SLAVE_REQUEST_CONTROL_MAX_LENGTH 256
-*/
+#define UX_SLAVE_REQUEST_CONTROL_MAX_LENGTH 1024
+
 
 
 /* Defined, this value represents the maximum number of bytes that can be received or transmitted

@@ -49,6 +49,8 @@
 #ifndef UX_USER_H
 #define UX_USER_H
 
+#define UX_PIMA_WITH_MTP_SUPPORT
+
 /* Define various build options for the USBX port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
    though the compiler's equivalent of the -D option.  */

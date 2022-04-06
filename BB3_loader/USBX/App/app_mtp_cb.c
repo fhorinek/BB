@@ -37,7 +37,7 @@ typedef struct {
     uint8_t default_value;
     uint8_t current_value;
     uint8_t form;
-} device_property_describtion_uint8_t;
+} device_prop_desc_uint8_t;
 
 
 static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG device_property, UCHAR **device_prop_dataset, ULONG *device_prop_dataset_length)
@@ -48,7 +48,7 @@ static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
     {
         case (UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL):
         {
-            device_property_describtion_uint8_t * payload = (device_property_describtion_uint8_t *)&mtp_buffer;
+            device_prop_desc_uint8_t * payload = (device_prop_desc_uint8_t *)&mtp_buffer;
 
             payload->property_code = UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL;
             payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT8;
@@ -58,7 +58,7 @@ static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
             payload->form = 0x00;
 
             *device_prop_dataset = (UCHAR *)payload;
-            *device_prop_dataset_length = sizeof(device_property_describtion_uint8_t);
+            *device_prop_dataset_length = sizeof(device_prop_desc_uint8_t);
         }
         break;
 
@@ -73,7 +73,19 @@ static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
 
 static UINT mtp_device_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG device_property, UCHAR **device_prop_value, ULONG *device_prop_value_length)
 {
-    INFO("mtp_device_prop_value_get");
+    INFO("mtp_device_prop_value_get %04X", device_property);
+
+    switch (device_property)
+    {
+        case (UX_DEVICE_CLASS_PIMA_DEV_PROP_DEVICE_FRIENDLY_NAME):
+            *device_prop_value_length = 0;
+        break;
+
+        default:
+            WARN("device_property not handled");
+            return UX_ERROR;
+    }
+
     return UX_SUCCESS;
 }
 
@@ -148,9 +160,44 @@ static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG obj
     return UX_SUCCESS;
 }
 
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint64_t default_value;
+    uint64_t current_value;
+    uint8_t form;
+} object_prop_desc_uint64_t;
+
 static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR **object_prop_dataset, ULONG *object_prop_dataset_length)
 {
-    INFO("mtp_object_prop_desc_get");
+    INFO("mtp_object_prop_desc_get %04X %04X", object_handle, object_property);
+
+    switch (object_handle)
+    {
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE):
+        {
+            //every object size is 0
+            object_prop_desc_uint64_t * payload = (object_prop_desc_uint64_t *)&mtp_buffer;
+
+            payload->property_code = object_property;
+            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT64;
+            payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
+            payload->default_value = 0;
+            payload->current_value = 0;
+            payload->form = 0x00;
+
+            *object_prop_dataset = (UCHAR *)payload;
+            *object_prop_dataset_length = sizeof(device_prop_desc_uint8_t);
+            break;
+        }
+        break;
+
+        default:
+            WARN("object_handle not handled");
+            return UX_ERROR;
+    }
+
     return UX_SUCCESS;
 }
 
@@ -241,9 +288,9 @@ void app_mtp_thread_entry(ULONG arg)
 
     MX_USB_OTG_HS_PCD_Init();
 
-    HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 512);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 1024);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 2, 1024);
+    HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 1024);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 64);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 3, 128);
 
     UINT status = ux_dcd_stm32_initialize((ULONG)0, (ULONG)&hpcd_USB_OTG_HS);
 

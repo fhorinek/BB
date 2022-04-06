@@ -120,7 +120,7 @@ int main(void)
   MX_TIM15_Init();
   MX_UART4_Init();
   MX_RNG_Init();
-  MX_USB_OTG_HS_PCD_Init();
+//  MX_USB_OTG_HS_PCD_Init();
   MX_OCTOSPI1_Init();
   /* USER CODE BEGIN 2 */
 
