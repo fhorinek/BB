@@ -53,6 +53,11 @@ typedef struct {
     uint32_t data_lenght;
 } proto_spi_ready_t;
 
+#define PROTO_FS_PATH_LEN       128
+#define PROTO_FS_NAME_LEN       32
+
+//-------------------- Sound --------------------
+
 #define PROTO_SET_VOLUME        0x10
 
 #define PROTO_VOLUME_MASTER    	0
@@ -99,8 +104,7 @@ typedef struct {
 } proto_tone_play_t;
 #define PROTO_TONE_ACK	        0x14
 
-#define PROTO_WIFI_SET_MODE     0x20
-#define PROTO_WIFI_MODE         0x20
+//-------------------- WiFi --------------------
 
 #define PROTO_WIFI_MODE_OFF     0
 #define PROTO_WIFI_MODE_ON      1
@@ -109,8 +113,8 @@ typedef struct {
 #define PROTO_WIFI_SSID_LEN   	32
 #define PROTO_WIFI_PASS_LEN		64
 
-#define PROTO_FS_PATH_LEN		128
-#define PROTO_FS_NAME_LEN		32
+#define PROTO_WIFI_SET_MODE     0x20
+#define PROTO_WIFI_MODE         0x20
 
 typedef struct {
     char ssid[PROTO_WIFI_SSID_LEN];
@@ -180,6 +184,8 @@ typedef struct {
 
 #define PROTO_URL_LEN   128
 
+//-------------------- WiFi Download --------------------
+
 #define PROTO_DOWNLOAD_URL          0x30
 #define PROTO_DOWNLOAD_INFO         0x30
 
@@ -205,6 +211,8 @@ typedef struct {
 typedef struct {
     uint8_t data_id;
 } proto_download_stop_t;
+
+//-------------------- Filesystem --------------------
 
 #define PROTO_FS_LIST_REQ			0x40
 #define PROTO_FS_LIST_RES			0x40
@@ -247,6 +255,7 @@ typedef struct {
 
 //response trought SPI
 
+//-------------------- Bluetooth --------------------
 
 #define PROTO_BT_SET_MODE       	0x50
 
@@ -309,6 +318,8 @@ typedef struct {
     uint8_t mode;
 } proto_bt_notify_t;
 
+//-------------------- Bluetooth Telemetry --------------------
+
 #define PROTO_TELE_SEND			0x60
 #define PROTO_TELE_RECV			0x60
 #define PROTO_TELE_BUFF_LEN		128
@@ -325,9 +336,7 @@ typedef struct {
 
 #define PROTO_TELE_SEND_ACK		0x61
 
-
-
-//------------------------------------------
+//-------------------- Fanet & Tasks --------------------
 
 #define PROTO_FANET_BOOT0_CTRL			0xF0
 typedef struct {
