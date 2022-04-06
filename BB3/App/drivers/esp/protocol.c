@@ -191,6 +191,42 @@ void esp_http_stop(uint8_t data_id)
     protocol_send(PROTO_DOWNLOAD_STOP, (void *) &data, sizeof(data));
 }
 
+uint8_t esp_http_post(char * url, char * file_path, upload_slot_callback_t callback)
+{
+    uint8_t data_id = upload_slot_create(callback);
+    if (data_id == UPLOAD_SLOT_NONE)
+        return UPLOAD_SLOT_NONE;
+
+    FILINFO file_info;
+    FRESULT res = f_stat(file_path, &file_info);
+    if (res != FR_OK)
+    {
+        return UPLOAD_SLOT_NO_FILE;
+    }
+
+    proto_upload_request_t upload_request;
+    strncpy(upload_request.url, url, PROTO_URL_LEN);
+    strncpy(upload_request.file_path, file_path, PROTO_FS_PATH_LEN);
+    upload_request.file_size = file_info.fsize;
+    upload_request.data_id = data_id;
+
+    DBG("Upload: %s (size: %ld)", file_path, file_info.fsize);
+
+    protocol_send(PROTO_UPLOAD_URL, (void *) &upload_request, sizeof(upload_request));
+
+    return data_id;
+}
+
+void esp_http_post_stop(uint8_t data_id)
+{
+    proto_upload_stop_t stop;
+    stop.data_id = data_id;
+
+    upload_slot_cancel(data_id);
+
+    protocol_send(PROTO_UPLOAD_STOP, (void *) &stop, sizeof(stop));
+}
+
 
 void protocol_init()
 {
@@ -382,6 +418,10 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_DOWNLOAD_INFO):
             download_slot_process_info((proto_download_info_t *)data);
+        break;
+
+        case(PROTO_UPLOAD_INFO):
+            upload_slot_process_info((proto_upload_info_t *)data);
         break;
 
         case(PROTO_FS_LIST_REQ):

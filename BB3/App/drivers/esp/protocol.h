@@ -11,6 +11,7 @@
 #include "common.h"
 #include "protocol_def.h"
 #include "download/slot.h"
+#include "upload/slot.h"
 #include "fc/fc.h"
 
 #include "etc/safe_uart.h"

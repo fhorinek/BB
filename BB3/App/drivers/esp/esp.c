@@ -13,6 +13,7 @@
 #include "etc/stream.h"
 
 #include "download/slot.h"
+#include "upload/slot.h"
 
 #include "protocol.h"
 #include "scan.h"
@@ -67,6 +68,7 @@ void esp_state_reset()
     memset(fc.esp.ssid, 0, PROTO_WIFI_SSID_LEN);
 
     download_slot_reset();
+    upload_slot_reset();
 }
 
 void esp_start_dma()
@@ -95,6 +97,7 @@ void esp_init()
 
     esp_scan_init();
     download_slot_init();
+    upload_slot_init();
 
     esp_state_reset();
 	esp_device_reset();
@@ -211,6 +214,7 @@ void esp_step()
 
         esp_scan_step();
         download_slot_step();
+        upload_slot_step();
 
 
         if (config_get_bool(&config.debug.esp_wdt))
