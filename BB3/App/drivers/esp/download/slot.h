@@ -12,14 +12,11 @@
 
 #include "../protocol_def.h"
 
-
-#define DOWNLOAD_SLOT_NUMBER        5
+#define DOWNLOAD_SLOT_NONE          0xFF
 
 #define DOWNLOAD_SLOT_TYPE_MEMORY   0
 #define DOWNLOAD_SLOT_TYPE_PSRAM    1
 #define DOWNLOAD_SLOT_TYPE_FILE     2
-
-#define DOWNLOAD_SLOT_NONE          0xFF
 
 #define DOWNLOAD_SLOT_COMPLETE      0
 #define DOWNLOAD_SLOT_PROGRESS      1

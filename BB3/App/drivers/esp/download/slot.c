@@ -10,10 +10,11 @@
 
 #include "drivers/psram.h"
 
+#define DOWNLOAD_SLOT_NUMBER        5
+#define DOWNLOAD_TIMEOUT            (30 * 1000)
+
 download_slot_t * download_slot[DOWNLOAD_SLOT_NUMBER] = {NULL};
 osSemaphoreId_t download_slot_access;
-
-#define DOWNLOAD_TIMEOUT            (30 * 1000)
 
 static void download_slot_free(uint8_t data_id)
 {
