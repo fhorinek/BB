@@ -266,7 +266,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
         ret = memory_address;
     }
 
-    ps_malloc_info();
+//    ps_malloc_info();
 
     PS_LOCK_RELEASE
 

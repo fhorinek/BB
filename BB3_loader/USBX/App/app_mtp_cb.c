@@ -11,16 +11,146 @@
 #include "usb_otg.h"
 #include "ux_dcd_stm32.h"
 
+#include "lib/littlefs/lfs.h"
+
+extern lfs_t lfs;
+
+
+
+
+
+
+
+
+#define MAX_IDX_HANDLES   128
+#define IDX_DELETED 0xFFFFFFFF
+#define IDX_CLEAR   NULL
+
+#define PATH_LEN    128
+
+typedef struct
+{
+    uint32_t parent;
+    char * name;
+} idx_path_t;
+
+#define IDX_OFFSET      0x80000000
+
+idx_path_t * idx_to_filename[MAX_IDX_HANDLES];
+uint32_t idx_new_index = 0;
+
+bool construct_path(char * path, uint32_t idx)
+{
+    idx &= ~IDX_OFFSET;
+
+    if (idx == 0x7FFFFFFF)
+    {
+        strcpy(path, "");
+        return true;
+    }
+
+    if (idx < idx_new_index)
+    {
+        if (!construct_path(path, idx_to_filename[idx]->parent))
+            return false;
+
+        strcat(path, "/");
+        strcat(path, idx_to_filename[idx]->name);
+
+        return true;
+    }
+
+    return false;
+}
+
+uint32_t get_idx(uint32_t parent, char * name)
+{
+    parent &= ~IDX_OFFSET;
+
+    for (uint32_t i = 0 ; i < idx_new_index; i++)
+    {
+        if (idx_to_filename[i]->parent == parent)
+        {
+            if (strcmp(idx_to_filename[i]->name, name) == 0)
+            {
+                return i | IDX_OFFSET;
+            }
+        }
+    }
+
+    //add new
+    idx_path_t * n = (idx_path_t *) ps_malloc(sizeof(idx_path_t));
+    n->name = (char *) ps_malloc(strlen(name) + 1);
+
+    strcpy(n->name, name);
+    n->parent = parent;
+
+    uint32_t idx = idx_new_index;
+    idx_new_index++;
+    idx_to_filename[idx] = n;
+    ASSERT(idx_new_index < MAX_IDX_HANDLES);
+
+    return idx | IDX_OFFSET;
+}
+
+idx_path_t * get_path(uint32_t idx)
+{
+    idx &= ~IDX_OFFSET;
+    ASSERT(idx < MAX_IDX_HANDLES);
+
+    return idx_to_filename[idx];
+}
+
+uint32_t get_parent(uint32_t idx)
+{
+    idx &= ~IDX_OFFSET;
+    ASSERT(idx < MAX_IDX_HANDLES);
+
+    return idx_to_filename[idx]->parent | IDX_OFFSET;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static uint8_t mtp_buffer[128];
 
 void mtp_activate(void * param)
 {
     INFO("mtp_activate %p", param);
+
+    idx_new_index = 0;
+
+    for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
+    {
+        idx_to_filename[i] = IDX_CLEAR;
+    }
 }
 
 void mtp_deactivate(void * param)
 {
     INFO("mtp_deactivate %p", param);
+
+    for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
+    {
+        if (idx_to_filename[i] != IDX_CLEAR)
+        {
+            ps_free(idx_to_filename[i]->name);
+            ps_free(idx_to_filename[i]);
+            idx_to_filename[i] = IDX_CLEAR;
+        }
+    }
+
+    idx_new_index = 0;
 }
 
 
@@ -104,11 +234,15 @@ static UINT mtp_storage_format(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG st
 static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG storage_id)
 {
     INFO("mtp_storage_info_get %08X", storage_id);
-    pima->ux_device_class_pima_storage_free_space_high = 100;
-    pima->ux_device_class_pima_storage_free_space_low = 0;
 
-    pima->ux_device_class_pima_storage_max_capacity_high = 150;
-    pima->ux_device_class_pima_storage_max_capacity_high = 0;
+    uint64_t max_capacity = (uint64_t)lfs.cfg->block_size * (uint64_t)lfs.cfg->block_count;
+    uint64_t free_space =  (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
+
+    pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 8;
+    pima->ux_device_class_pima_storage_free_space_low = free_space & 0xFFFFFFFF;
+
+    pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 8;
+    pima->ux_device_class_pima_storage_max_capacity_low = max_capacity & 0xFFFFFFFF;
 
     return UX_SUCCESS;
 }
@@ -124,7 +258,43 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
         ULONG *object_handles_array,
         ULONG object_handles_max_number)
 {
-    INFO("mtp_object_handles_get");
+    INFO("mtp_object_handles_get %04X", object_handles_association);
+
+    uint32_t count = 0;
+    char path[PATH_LEN];
+
+    if (construct_path(path, object_handles_association))
+    {
+        lfs_dir_t dir;
+
+        INFO(" listing '%s'", path);
+        if (lfs_dir_open(&lfs, &dir, path) == LFS_ERR_OK)
+        {
+            int found;
+
+            do
+            {
+                struct lfs_info info;
+                found = lfs_dir_read(&lfs, &dir, &info);
+                if (found)
+                {
+                    if (info.name[0] == '.')
+                        continue;
+
+                    object_handles_array[count + 1] = get_idx(object_handles_association, info.name);
+                    INFO("  %08X %s", object_handles_array[count + 1], info.name);
+                    count++;
+                }
+
+            } while(found);
+
+            lfs_dir_close(&lfs, &dir);
+        }
+    }
+    INFO(" done, count %u", count);
+    object_handles_array[0] = count;
+
+
     return UX_SUCCESS;
 }
 
@@ -229,8 +399,7 @@ static UCHAR manufacturer[] = "SkyBean";
 static UCHAR model[] = "Strato";
 static UCHAR serial[] = "TODO";
 static UCHAR version[] = "1.0";
-static UCHAR storage_desc[] = "";
-static UCHAR storage_label[] = "Internal storage";
+static UCHAR storage_desc[] = "Internal storage";
 
 void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
 {
@@ -249,9 +418,9 @@ void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
     parameter->ux_device_class_pima_parameter_storage_max_capacity_high = 0;
     parameter->ux_device_class_pima_parameter_storage_free_space_low = 0;
     parameter->ux_device_class_pima_parameter_storage_free_space_high = 0;
-    parameter->ux_device_class_pima_parameter_storage_free_space_image = 0;
+    parameter->ux_device_class_pima_parameter_storage_free_space_image = 0xFFFFFFFF;
     parameter->ux_device_class_pima_parameter_storage_description = storage_desc;
-    parameter->ux_device_class_pima_parameter_storage_volume_label = storage_label;
+    parameter->ux_device_class_pima_parameter_storage_volume_label = NULL;
 
     //lists
     parameter->ux_device_class_pima_parameter_device_properties_list = NULL;
@@ -289,7 +458,7 @@ void app_mtp_thread_entry(ULONG arg)
     MX_USB_OTG_HS_PCD_Init();
 
     HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 1024);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 64);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 32);
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 3, 128);
 
     UINT status = ux_dcd_stm32_initialize((ULONG)0, (ULONG)&hpcd_USB_OTG_HS);

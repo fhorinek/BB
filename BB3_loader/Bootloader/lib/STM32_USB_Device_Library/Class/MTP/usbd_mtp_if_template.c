@@ -103,11 +103,6 @@ typedef struct
 idx_path_t * idx_to_filename[MAX_IDX_HANDLES];
 uint32_t idx_new_index = 0;
 
-void wtf()
-{
-
-}
-
 bool construct_path(char * path, uint32_t idx)
 {
     idx &= ~IDX_OFFSET;

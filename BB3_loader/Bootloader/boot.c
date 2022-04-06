@@ -401,6 +401,7 @@ void app_main(uint8_t power_on_mode)
 
     PSRAM_init();
     sd_init();
+    sd_mount();
 
     return;
 

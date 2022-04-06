@@ -125,6 +125,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   app_main(power_on_mode);
+  HAL_Delay(100);
 
   /* USER CODE END 2 */
 
