@@ -28,7 +28,6 @@
 #include "rng.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb_otg.h"
 #include "gpio.h"
 #include "fmc.h"
 
@@ -103,6 +102,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_I2C2_Init();
+  MX_TIM5_Init();
 
   uint8_t power_on_mode = app_poweroff();
 
@@ -112,6 +112,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_MDMA_Init();
+  MX_TIM5_Init();
   MX_UART7_Init();
   MX_FMC_Init();
   MX_TIM2_Init();
@@ -120,7 +121,6 @@ int main(void)
   MX_TIM15_Init();
   MX_UART4_Init();
   MX_RNG_Init();
-//  MX_USB_OTG_HS_PCD_Init();
   MX_OCTOSPI1_Init();
   /* USER CODE BEGIN 2 */
 

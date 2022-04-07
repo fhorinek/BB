@@ -27,7 +27,7 @@
 #include "tx_api.h"
 
 #include "app_mtp_cb.h"
-
+#include "drivers/rev.h"
 
 #include "debug.h"
 /* USER CODE END Includes */
@@ -135,8 +135,8 @@ UCHAR string_framework[] = {
 
     /* Serial Number string descriptor: Index 3 */
     0x09, 0x04, 0x03,
-    4,
-    '0', '.', '0', '1',
+    8,
+    'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X',
 
     /* Serial Number string descriptor: Index 4 */
     0x09, 0x04, 0x04,
@@ -160,8 +160,6 @@ UCHAR language_id_framework[] = {
 /* USER CODE BEGIN PFP */
 
 
-
-
 /* USER CODE END PFP */
 /**
   * @brief  Application USBX Device Initialization.
@@ -180,43 +178,42 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
   /* USER CODE BEGIN MX_USBX_Device_Init */
   void * allocated_memory;
 
-  tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 14 * 1024, TX_NO_WAIT);
-  UINT status = ux_system_initialize(allocated_memory, 14 * 1024, UX_NULL, 0);
-//  INFO("ux_system_initialize %02X", status);
+  //assign serial number
+  sprintf(strstr(string_framework, "XXXXXXXX"), "%08X", rev_get_short_id());
 
+  //allocate memory
+  tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 20 * 1024, TX_NO_WAIT);
+  UINT status = ux_system_initialize(allocated_memory, 20 * 1024, UX_NULL, 0);
+  ASSERT_MSG(status == UX_SUCCESS, "ux_system_initialize, status %u" , status);
+
+  //init stack
   status = ux_device_stack_initialize(device_framework_high_speed, sizeof(device_framework_high_speed),
           device_framework_high_speed, sizeof(device_framework_high_speed),
           string_framework, sizeof(string_framework),
           language_id_framework, sizeof(language_id_framework),
           UX_NULL);
-
-//  INFO("ux_device_stack_initialize %02X", status);
+  ASSERT_MSG(status == UX_SUCCESS, "ux_device_stack_initialize, status %u" , status);
 
   //register MTP
   UX_SLAVE_CLASS_PIMA_PARAMETER parameter;
   mtp_assign_parameters(&parameter);
 
-  ux_device_stack_class_register(_ux_system_slave_class_pima_name,
+  status = ux_device_stack_class_register(_ux_system_slave_class_pima_name,
           ux_device_class_pima_entry,
           1,
           0,
           &parameter);
+  ASSERT_MSG(status == UX_SUCCESS, "ux_device_stack_class_register, status %u" , status);
 
-
+  //start usb
   tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 2 * 1024, TX_NO_WAIT);
-  /* Create the usbx_app_thread_entry.  */
   TX_THREAD ux_app_thread;
   status = tx_thread_create(&ux_app_thread, "app_mtp_thread_entry",
                           app_mtp_thread_entry, 0,
                           allocated_memory, 2 * 1024,
                          10, 10,
                          TX_NO_TIME_SLICE, TX_AUTO_START);
-
-//  INFO("ux_dcd_stm32_initialize %02X", status);
-
-
-//  ux_device_stack_initialize
-  /* USER CODE END MX_USBX_Device_Init */
+  ASSERT_MSG(status == UX_SUCCESS, "tx_thread_create app_mtp_thread_entry, status %u" , status);
 
   return ret;
 }

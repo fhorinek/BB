@@ -12,6 +12,7 @@
 #include "ux_dcd_stm32.h"
 
 #include "lib/littlefs/lfs.h"
+#include "drivers/rev.h"
 
 extern lfs_t lfs;
 
@@ -122,7 +123,7 @@ uint32_t get_parent(uint32_t idx)
 
 
 
-static uint8_t mtp_buffer[128];
+static uint8_t mtp_buffer[1024];
 
 void mtp_activate(void * param)
 {
@@ -301,14 +302,72 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
 static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UX_SLAVE_CLASS_PIMA_OBJECT **object)
 {
     INFO("mtp_object_info_get");
-    return UX_SUCCESS;
+
+    char path[PATH_LEN];
+    if (construct_path(path, object_handle))
+    {
+        struct lfs_info info;
+        lfs_stat(&lfs, path, &info);
+
+        UX_SLAVE_CLASS_PIMA_OBJECT * payload = (UX_SLAVE_CLASS_PIMA_OBJECT *)mtp_buffer;
+        memset(payload, 0, sizeof(UX_SLAVE_CLASS_PIMA_OBJECT));
+
+        payload->ux_device_class_pima_object_storage_id = pima->ux_device_class_pima_storage_id;
+        payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED;
+        payload->ux_device_class_pima_object_protection_status = UX_DEVICE_CLASS_PIMA_OPS_NO_PROTECTION;
+        payload->ux_device_class_pima_object_compressed_size = info.size;
+        payload->ux_device_class_pima_object_length = info.size;
+        payload->ux_device_class_pima_object_parent_object = get_parent(object_handle);
+        _ux_utility_string_to_unicode((UCHAR *)info.name, payload->ux_device_class_pima_object_filename);
+        payload->ux_device_class_pima_object_capture_date[0] = 0;
+        payload->ux_device_class_pima_object_modification_date[0] = 0;
+        payload->ux_device_class_pima_object_keywords[0] = 0;
+
+        *object = payload;
+
+        return UX_SUCCESS;
+    }
+    return UX_ERROR;
 }
+
+static lfs_file_t mtp_file;
+static uint32_t mtp_file_idx = 0;
 
 static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR *object_buffer, ULONG object_offset,
         ULONG object_length_requested, ULONG *object_actual_length)
 {
-    INFO("mtp_object_data_get");
-    return UX_SUCCESS;
+    INFO("mtp_object_data_get %08X %u+%u", object_handle, object_offset, object_length_requested);
+
+    if (mtp_file_idx != object_handle)
+    {
+        char path[PATH_LEN];
+        if (!construct_path(path, object_handle))
+            return UX_ERROR;
+
+        if (mtp_file_idx != 0)
+        {
+            lfs_file_close(&lfs, &mtp_file);
+            mtp_file_idx = 0;
+        }
+
+        UINT res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_RDONLY);
+        if (res == LFS_ERR_OK)
+        {
+            mtp_file_idx = object_handle;
+        }
+    }
+
+    if (mtp_file_idx != 0)
+    {
+        lfs_file_seek(&lfs, &mtp_file, object_offset, LFS_SEEK_SET);
+        *object_actual_length = lfs_file_read(&lfs, &mtp_file, object_buffer, object_length_requested);
+
+        if (*object_actual_length < 0)
+            return UX_ERROR;
+
+        return UX_SUCCESS;
+    }
+    return UX_ERROR;
 }
 
 static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLAVE_CLASS_PIMA_OBJECT *object, ULONG storage_id, ULONG parent_object_handle, ULONG *object_handle)
@@ -397,12 +456,17 @@ static UINT mtp_object_references_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 
 static UCHAR manufacturer[] = "SkyBean";
 static UCHAR model[] = "Strato";
-static UCHAR serial[] = "TODO";
-static UCHAR version[] = "1.0";
+static UCHAR serial[9];
+static UCHAR version[32];
 static UCHAR storage_desc[] = "Internal storage";
+
+static USHORT empty_list[] = {NULL};
 
 void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
 {
+    snprintf(serial, sizeof(serial), "%08X", rev_get_short_id());
+    rev_get_sw_string(version);
+
     parameter->ux_device_class_pima_instance_activate = mtp_activate;
     parameter->ux_device_class_pima_instance_deactivate = mtp_deactivate;
 
@@ -423,10 +487,11 @@ void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
     parameter->ux_device_class_pima_parameter_storage_volume_label = NULL;
 
     //lists
-    parameter->ux_device_class_pima_parameter_device_properties_list = NULL;
-    parameter->ux_device_class_pima_parameter_supported_capture_formats_list = NULL;
-    parameter->ux_device_class_pima_parameter_supported_image_formats_list = NULL;
-    parameter->ux_device_class_pima_parameter_object_properties_list = NULL;
+    parameter->ux_device_class_pima_parameter_device_properties_list = empty_list;
+    parameter->ux_device_class_pima_parameter_supported_capture_formats_list = empty_list;
+    parameter->ux_device_class_pima_parameter_supported_image_formats_list = empty_list;
+    parameter->ux_device_class_pima_parameter_object_properties_list = empty_list;
+
 
     //cb
     parameter->ux_device_class_pima_parameter_device_reset = mtp_device_reset;

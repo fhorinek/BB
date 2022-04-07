@@ -4,6 +4,13 @@ extern lfs_t lfs;
 
 bool development_mode = false;
 
+//usable without IRQ
+uint32_t HAL_GetTick(void)
+{
+  return sys_timer->Instance->CNT / 8;
+}
+
+
 bool button_pressed(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
     return HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == LOW;

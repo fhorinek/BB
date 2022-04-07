@@ -58,20 +58,21 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define disp_timer (&htim2)
-#define esp_uart (&huart4)
-#define debug_uart (&huart7)
 #define fanet_uart (&huart8)
-#define gnss_uart (&huart5)
-#define tft_dma (&hdma_memtomem_dma1_stream0)
-#define led_timer (&htim15)
-#define led_bclk TIM_CHANNEL_4
-#define led_torch TIM_CHANNEL_2
-#define mems_i2c (&hi2c1)
 #define sys_i2c (&hi2c2)
+#define gnss_uart (&huart5)
 #define meas_timer (&htim3)
+#define led_timer (&htim15)
 #define esp_spi (&hspi1)
+#define debug_uart (&huart7)
+#define tft_dma (&hdma_memtomem_dma1_stream0)
+#define mems_i2c (&hi2c1)
+#define led_bclk TIM_CHANNEL_4
+#define esp_uart (&huart4)
 #define rtos_timer (&htim17)
+#define disp_timer (&htim2)
+#define led_torch TIM_CHANNEL_2
+#define sys_timer (&htim5)
 #define BT3_Pin GPIO_PIN_3
 #define BT3_GPIO_Port GPIOE
 #define BT3_EXTI_IRQn EXTI3_IRQn

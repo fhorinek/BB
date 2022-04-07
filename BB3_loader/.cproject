@@ -52,6 +52,7 @@
 									<listOptionValue builtIn="false" value="../Bootloader/lib/"/>
 									<listOptionValue builtIn="false" value="../Core/Inc"/>
 									<listOptionValue builtIn="false" value="../AZURE_RTOS/App"/>
+									<listOptionValue builtIn="false" value="../USBX/Override"/>
 									<listOptionValue builtIn="false" value="../USBX/App"/>
 									<listOptionValue builtIn="false" value="../USBX/Target"/>
 									<listOptionValue builtIn="false" value="../Drivers/STM32H7xx_HAL_Driver/Inc"/>

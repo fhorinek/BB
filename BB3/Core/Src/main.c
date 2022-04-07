@@ -71,8 +71,6 @@ void HAL_TIM_PeriodElapsedCallback2(TIM_HandleTypeDef *htim);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//#define APP_ADDRESS     0x08020000
-//bootloader debug
 #define APP_ADDRESS     0x08040000
 
 /* USER CODE END 0 */

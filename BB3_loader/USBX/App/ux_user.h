@@ -55,8 +55,8 @@
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
    though the compiler's equivalent of the -D option.  */
 
-/* #define UX_THREAD_STACK_SIZE                                (2 * 1024)
-*/
+#define UX_THREAD_STACK_SIZE                                (4 * 1024)
+
 
 /* Define USBX Host Enum Thread Stack Size. The default is to use UX_THREAD_STACK_SIZE */
 /*

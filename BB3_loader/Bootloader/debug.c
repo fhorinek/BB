@@ -76,7 +76,7 @@ void debug_send(uint8_t type, const char *format, ...)
 
 	char id[] = "DIWE";
 
-	static char message[1024];
+	static char message[1040];
 	snprintf(message, sizeof(message), "[%lu][%c] %s\n", HAL_GetTick(), id[type], msg_buff);
 
 	debug_uart_done = false;
