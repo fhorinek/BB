@@ -182,8 +182,8 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
   sprintf(strstr(string_framework, "XXXXXXXX"), "%08X", rev_get_short_id());
 
   //allocate memory
-  tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 20 * 1024, TX_NO_WAIT);
-  UINT status = ux_system_initialize(allocated_memory, 20 * 1024, UX_NULL, 0);
+  tx_byte_allocate(byte_pool, (VOID **) &allocated_memory, 24 * 1024, TX_NO_WAIT);
+  UINT status = ux_system_initialize(allocated_memory, 24 * 1024, UX_NULL, 0);
   ASSERT_MSG(status == UX_SUCCESS, "ux_system_initialize, status %u" , status);
 
   //init stack

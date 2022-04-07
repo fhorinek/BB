@@ -43,7 +43,7 @@
 #define TX_APP_MEM_POOL_SIZE                     (32 * 1024)
 
 #undef UX_DEVICE_APP_MEM_POOL_SIZE
-#define UX_DEVICE_APP_MEM_POOL_SIZE              (32 * 1024)
+#define UX_DEVICE_APP_MEM_POOL_SIZE              (64 * 1024)
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
