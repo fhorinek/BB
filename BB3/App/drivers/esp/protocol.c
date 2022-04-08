@@ -193,30 +193,36 @@ void esp_http_stop(uint8_t data_id)
     protocol_send(PROTO_DOWNLOAD_STOP, (void *) &data, sizeof(data));
 }
 
-uint8_t esp_http_post(char * url, char * file_path, upload_slot_callback_t callback)
+uint8_t map_content_type(esp_http_content_type_t content_type)
 {
-    uint8_t data_id = upload_slot_create(callback);
-    if (data_id == UPLOAD_SLOT_NONE)
-        return UPLOAD_SLOT_NONE;
-
-    FILINFO file_info;
-    FRESULT res = f_stat(file_path, &file_info);
-    if (res != FR_OK)
+    switch(content_type)
     {
-        return UPLOAD_SLOT_NO_FILE;
+        case(ESP_HTTP_CONTENT_TYPE_TEXT): return PROTO_UPLOAD_CONTENT_TYPE_TEXT;
+        case(ESP_HTTP_CONTENT_TYPE_BINARY): return PROTO_UPLOAD_CONTENT_TYPE_BINARY;
+        case(ESP_HTTP_CONTENT_TYPE_ZIP): return PROTO_UPLOAD_CONTENT_TYPE_ZIP;
     }
+    ASSERT(false);
+    return 0;
+}
+
+upload_slot_t * esp_http_post(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback)
+{
+    upload_slot_t * slot = upload_slot_create(file_path, callback);
+    if (slot == NULL)
+        return NULL;
 
     proto_upload_request_t upload_request;
     strncpy(upload_request.url, url, PROTO_URL_LEN);
     strncpy(upload_request.file_path, file_path, PROTO_FS_PATH_LEN);
-    upload_request.file_size = file_info.fsize;
-    upload_request.data_id = data_id;
+    upload_request.file_size = slot->file_size;
+    upload_request.data_id = slot->data_id;
+    upload_request.content_type = map_content_type(content_type);
 
-    DBG("Upload: %s (size: %ld)", file_path, file_info.fsize);
+    DBG("Upload: %s (size: %ld)", upload_request.file_path, upload_request.file_size);
 
     protocol_send(PROTO_UPLOAD_URL, (void *) &upload_request, sizeof(upload_request));
 
-    return data_id;
+    return slot;
 }
 
 void esp_http_post_stop(uint8_t data_id)

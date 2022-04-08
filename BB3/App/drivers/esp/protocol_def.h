@@ -217,22 +217,27 @@ typedef struct {
 #define PROTO_UPLOAD_URL          0x38
 #define PROTO_UPLOAD_INFO         0x38
 
+#define PROTO_UPLOAD_CONTENT_TYPE_TEXT      0x01 /**< mime type: text/plain */
+#define PROTO_UPLOAD_CONTENT_TYPE_BINARY    0x02 /**< mime type: application/octet-stream */
+#define PROTO_UPLOAD_CONTENT_TYPE_ZIP       0x03 /**< mime type: application/zip */
+
 typedef struct {
+    uint8_t data_id;
     char url[PROTO_URL_LEN];
     char file_path[PROTO_FS_PATH_LEN];
     uint32_t file_size;
-    uint8_t data_id;
+    uint8_t content_type;
 } proto_upload_request_t;
 
-#define PROTO_UPLOAD_OK               0
-#define PROTO_UPLOAD_DONE             1
-#define PROTO_UPLOAD_FAILED           10
-#define PROTO_UPLOAD_NO_CONNECTION    20
+#define PROTO_UPLOAD_IN_PROGRESS        0
+#define PROTO_UPLOAD_DONE               1
+#define PROTO_UPLOAD_FAILED             10
+#define PROTO_UPLOAD_NO_CONNECTION      20
 
 typedef struct {
-    uint32_t size;
-    uint8_t result;
-    uint8_t end_point;
+    uint8_t data_id;
+    uint8_t status;
+    uint32_t transmitted_size;
 } proto_upload_info_t;
 
 #define PROTO_UPLOAD_STOP         0x39

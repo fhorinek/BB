@@ -11,35 +11,44 @@
 #include "common.h"
 #include "../protocol_def.h"
 
-#define UPLOAD_SLOT_NONE          0xFF
+#define UPLOAD_FILE_PATH_LEN        PROTO_FS_PATH_LEN
 
-#define UPLOAD_SLOT_COMPLETE        0
-#define UPLOAD_SLOT_PROGRESS        1
-#define UPLOAD_SLOT_NO_CONNECTION   2
-#define UPLOAD_SLOT_NO_FILE         3
-#define UPLOAD_SLOT_FAILED          4
-#define UPLOAD_SLOT_NO_SLOT         5
-#define UPLOAD_SLOT_TIMEOUT         6
-#define UPLOAD_SLOT_CANCEL          7
-
-typedef void (*upload_slot_callback_t)(uint8_t, struct upload_slot_t *);
-
-typedef struct
+typedef enum
 {
-    uint32_t pos;
-    uint32_t timestamp;
+    UPLOAD_SLOT_COMPLETE = 0,
+    UPLOAD_SLOT_PROGRESS,
+    UPLOAD_SLOT_NO_CONNECTION,
+    UPLOAD_SLOT_FAILED,
+    UPLOAD_SLOT_NO_SLOT,
+    UPLOAD_SLOT_TIMEOUT,
+    UPLOAD_SLOT_CANCEL,
+} upload_slot_status_t;
 
-    upload_slot_callback_t callback;
+typedef struct upload_slot_t upload_slot_t;
 
-    bool canceled;
-} upload_slot_t;
+typedef void (*upload_slot_callback_t)(upload_slot_status_t, struct upload_slot_t*);
+
+struct upload_slot_t
+{
+        uint8_t data_id;
+
+        char file_path[UPLOAD_FILE_PATH_LEN];
+        uint32_t file_size;
+
+        uint32_t transmitted_size;
+        uint32_t timestamp;
+
+        upload_slot_callback_t callback;
+
+        bool canceled;
+};
 
 void upload_slot_init();
 void upload_slot_step();
 void upload_slot_reset();
 
-uint8_t upload_slot_create(upload_slot_callback_t callback);
+upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback);
 void upload_slot_cancel(uint8_t data_id);
-void upload_slot_process_info(proto_upload_info_t * info);
+void upload_slot_process_info(proto_upload_info_t *info);
 
 #endif /* DRIVERS_ESP_UPLOAD_SLOT_H_ */

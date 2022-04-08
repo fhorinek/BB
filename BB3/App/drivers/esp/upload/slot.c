@@ -10,16 +10,17 @@
 #include "drivers/esp/protocol.h"
 
 #define UPLOAD_SLOT_NUMBER        5
+#define UPLOAD_SLOT_NONE          0xFF
 #define UPLOAD_TIMEOUT            (30 * 1000)
 
-upload_slot_t * upload_slot[UPLOAD_SLOT_NUMBER] = {NULL};
+upload_slot_t *upload_slot[UPLOAD_SLOT_NUMBER] = { NULL };
 osSemaphoreId_t upload_slot_access;
 
 static void upload_slot_free(uint8_t data_id)
 {
     proto_upload_stop_t data;
     data.data_id = data_id;
-    protocol_send(PROTO_UPLOAD_STOP, (void *)&data, sizeof(data));
+    protocol_send(PROTO_UPLOAD_STOP, (void*) &data, sizeof(data));
 
     if (upload_slot[data_id] == NULL)
         return;
@@ -50,7 +51,7 @@ static inline void upload_slot_unlock()
     osSemaphoreRelease(upload_slot_access);
 }
 
-static upload_slot_t * upload_slot_get(uint8_t data_id)
+static upload_slot_t* upload_slot_get(uint8_t data_id)
 {
     if (upload_slot[data_id] != NULL)
     {
@@ -84,7 +85,7 @@ void upload_slot_reset()
     {
         if (upload_slot[i] != NULL)
         {
-            upload_slot[i]->callback(UPLOAD_SLOT_TIMEOUT, &upload_slot[i]);
+            upload_slot[i]->callback(UPLOAD_SLOT_TIMEOUT, upload_slot[i]);
 
             upload_slot_free(i);
         }
@@ -101,24 +102,35 @@ void upload_slot_cancel(uint8_t data_id)
     }
 }
 
-uint8_t upload_slot_create(upload_slot_callback_t callback)
+upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback)
 {
+    ASSERT(callback != NULL);
+
+    upload_slot_t *slot = NULL;
+    FILINFO file_info;
+
+    if (f_stat(file_path, &file_info) != FR_OK)
+    {
+        WARN("Upload slot: Failed to retrieve file size");
+        return NULL;
+    }
+
     upload_slot_lock();
 
     uint8_t i = upload_slot_get_free();
-
-    ASSERT(callback != NULL);
-
     if (i == UPLOAD_SLOT_NONE)
     {
         callback(UPLOAD_SLOT_NO_SLOT, NULL);
     }
     else
     {
-        upload_slot_t * slot = (upload_slot_t *)malloc(sizeof(upload_slot_t));
+        slot = (upload_slot_t*) malloc(sizeof(upload_slot_t));
 
+        strncpy(slot->file_path, file_path, UPLOAD_FILE_PATH_LEN);
+        slot->data_id = i;
         slot->callback = callback;
-        slot->pos = 0;
+        slot->file_size = file_info.fsize;
+        slot->transmitted_size = 0;
         slot->timestamp = HAL_GetTick();
         slot->canceled = false;
 
@@ -126,45 +138,45 @@ uint8_t upload_slot_create(upload_slot_callback_t callback)
     }
 
     upload_slot_unlock();
-    return i;
+    return slot;
 }
 
-void upload_slot_process_info(proto_upload_info_t * info)
+void upload_slot_process_info(proto_upload_info_t *info)
 {
     upload_slot_lock();
 
-    upload_slot_t * slot = upload_slot_get(info->end_point);
+    upload_slot_t *slot = upload_slot_get(info->data_id);
 
     if (slot != NULL)
     {
-        switch(info->result)
+        switch (info->status)
         {
-            case (PROTO_UPLOAD_OK):
-            {
+            case (PROTO_UPLOAD_IN_PROGRESS):
+                {
                 slot->timestamp = HAL_GetTick();
-                slot->pos = info->size;
+                slot->transmitted_size = info->transmitted_size;
                 slot->callback(UPLOAD_SLOT_PROGRESS, slot);
             }
             break;
 
             case (PROTO_UPLOAD_NO_CONNECTION):
-            {
+                {
                 slot->callback(UPLOAD_SLOT_NO_CONNECTION, slot);
-                upload_slot_free(info->end_point);
+                upload_slot_free(info->data_id);
             }
             break;
 
             case (PROTO_UPLOAD_FAILED):
-            {
+                {
                 slot->callback(UPLOAD_SLOT_FAILED, slot);
-                upload_slot_free(info->end_point);
+                upload_slot_free(info->data_id);
             }
             break;
 
             case (PROTO_UPLOAD_DONE):
-            {
+                {
                 slot->callback(UPLOAD_SLOT_COMPLETE, slot);
-                upload_slot_free(info->end_point);
+                upload_slot_free(info->data_id);
             }
             break;
         }
@@ -188,12 +200,12 @@ void upload_slot_step()
         {
             if (upload_slot[i]->canceled)
             {
-                upload_slot[i]->callback(UPLOAD_SLOT_CANCEL, &upload_slot[i]);
+                upload_slot[i]->callback(UPLOAD_SLOT_CANCEL, upload_slot[i]);
                 upload_slot_free(i);
             }
             else if (upload_slot[i]->timestamp + UPLOAD_TIMEOUT < HAL_GetTick())
             {
-                upload_slot[i]->callback(UPLOAD_SLOT_TIMEOUT, &upload_slot[i]);
+                upload_slot[i]->callback(UPLOAD_SLOT_TIMEOUT, upload_slot[i]);
                 upload_slot_free(i);
             }
         }

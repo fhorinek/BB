@@ -14,7 +14,8 @@
 
 #include "esp_http_client.h"
 
-#define UPLOAD_FS_WAIT     500
+#define UPLOAD_FS_WAIT          500
+#define UPLOAD_FS_CHUNK_SIZE    1024
 
 static uint32_t stop_flag = 0;
 
@@ -36,134 +37,180 @@ bool upload_is_canceled(uint8_t data_id)
     return (stop_flag & 1 << data_id) > 0;
 }
 
-void upload_process_request(proto_upload_request_t * packet)
+char* map_content_type(uint8_t content_type)
 {
-    proto_upload_info_t info;
-    info.end_point = packet->data_id;
-
-    esp_http_client_config_t config = {0};
-    config.url = packet->url;
-    config.method = HTTP_METHOD_POST;
-
-
-    uint32_t total_size = 0;
-
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-
-    // TODO: detect content type automatically based on file extension (or pass via packet?)
-    esp_http_client_set_header(client, "Content-Type", "text/plain");
-
-    esp_err_t ret = esp_http_client_open(client, packet->file_size);
-    INFO("esp_http_client_open = %s", esp_err_to_name(ret));
-
-    if (ret == ESP_OK)
+    switch (content_type)
     {
-        proto_fs_get_file_req_t file_request;
-        strncpy(file_request.path, packet->file_path, PROTO_FS_PATH_LEN);
-        file_request.req_id = packet->data_id;
-        file_request.chunk_size = 1024;
+        case (PROTO_UPLOAD_CONTENT_TYPE_TEXT):
+            return "text/plain";
+        case (PROTO_UPLOAD_CONTENT_TYPE_BINARY):
+            return "application/octet-stream";
+        case (PROTO_UPLOAD_CONTENT_TYPE_ZIP):
+            return "application/zip";
+    }
 
-        ll_item_t * handle = ll_add_item(PROTO_FS_GET_FILE_RES, file_request.req_id, 0);
-        protocol_send(PROTO_FS_GET_FILE_REQ, (void *)&file_request, sizeof(file_request));
+    ERR("Upload: Unexpected content type");
+    ASSERT(false);
+    return "";
+}
 
-        while (true)
+uint32_t upload_transmit_chunks(uint8_t data_id, esp_http_client_handle_t http_client, ll_item_t *file_handle)
+{
+    uint32_t transmitted_size = 0;
+    uint32_t received_chunk_size = 0;
+
+    proto_upload_info_t info = {
+            .data_id = data_id,
+            .status = PROTO_UPLOAD_IN_PROGRESS
+    };
+
+    while (true)
+    {
+        if (!xSemaphoreTake(file_handle->read, UPLOAD_FS_WAIT))
         {
-            if (!xSemaphoreTake(handle->read, UPLOAD_FS_WAIT))
-            {
-                //error
-                WARN("FS operation timeout!");
-                break;
-            }
-
-            uint32_t rx_size = 0;
-
-            if (handle->data_ptr != NULL)
-            {
-                rx_size = *((uint32_t *)handle->data_ptr);
-                int wlen = esp_http_client_write(client, handle->data_ptr + 4, rx_size);
-                if (wlen != rx_size)
-                {
-                    WARN("Didn't write all data: %u of %u", wlen, rx_size);
-                }
-
-                total_size += rx_size;
-
-                free(handle->data_ptr);
-                handle->data_ptr = NULL;
-            }
-            else
-            {
-                //file not found!
-            }
-
-            xSemaphoreGive(handle->write);
-
-            if (rx_size == file_request.chunk_size)
-            {
-                // Send upload info
-                info.result = PROTO_UPLOAD_OK;
-                info.size = total_size;
-                protocol_send(PROTO_UPLOAD_INFO, (void *)&info, sizeof(info));
-            }
-            else
-            {
-                //last packet
-                break;
-            }
-
-            if (upload_is_canceled(packet->data_id))
-                break;
+            ERR("Upload: File system operation timeout!");
+            return transmitted_size;
         }
-        ll_delete_item(handle);
 
-        int len = esp_http_client_fetch_headers(client);
-        INFO("esp_http_client_fetch_headers = %d", len);
-        uint16_t status = esp_http_client_get_status_code(client);
-
-        INFO("esp_http_client_get_status_code = %u", status);
-        if (status == 200) //OK
+        if (file_handle->data_ptr == NULL)
         {
-            info.result = PROTO_UPLOAD_DONE;
-            info.size = total_size;
-            protocol_send(PROTO_UPLOAD_INFO, (void *)&info, sizeof(info));
+            ERR("Upload: File not found");
+            return transmitted_size;
+        }
+
+        received_chunk_size = *((uint32_t*) file_handle->data_ptr);
+        int write_size = esp_http_client_write(http_client, file_handle->data_ptr + 4, received_chunk_size);
+        transmitted_size += write_size;
+
+        free(file_handle->data_ptr);
+        file_handle->data_ptr = NULL;
+
+        if (write_size != received_chunk_size)
+        {
+            ERR("Upload: Failed to transmit all data %u/%u", write_size, received_chunk_size);
+            return transmitted_size;
+        }
+
+        xSemaphoreGive(file_handle->write);
+
+        if (received_chunk_size < UPLOAD_FS_CHUNK_SIZE)
+        {
+            return transmitted_size; // Transmission complete
+        }
+
+        // Send progress
+        info.transmitted_size = transmitted_size;
+        protocol_send(PROTO_UPLOAD_INFO, (void*) &info, sizeof(info));
+
+        if (upload_is_canceled(data_id))
+        {
+            return transmitted_size;
+        }
+    }
+}
+
+uint32_t upload_transmit(proto_upload_request_t *upload_request, esp_http_client_handle_t http_client)
+{
+    ll_item_t *file_handle = ll_add_item(PROTO_FS_GET_FILE_RES, upload_request->data_id, 0);
+
+    proto_fs_get_file_req_t file_request = {
+            .req_id = upload_request->data_id,
+            .chunk_size = UPLOAD_FS_CHUNK_SIZE
+    };
+    strncpy(file_request.path, upload_request->file_path, PROTO_FS_PATH_LEN);
+    protocol_send(PROTO_FS_GET_FILE_REQ, (void*) &file_request, sizeof(file_request));
+
+    uint32_t transmitted_size = upload_transmit_chunks(upload_request->data_id, http_client, file_handle);
+
+    ll_delete_item(file_handle);
+
+    return transmitted_size;
+}
+
+void upload_process_request(proto_upload_request_t *upload_request)
+{
+    proto_upload_info_t info = {
+            .data_id = upload_request->data_id,
+            .transmitted_size = 0
+    };
+
+    esp_http_client_config_t config = {
+            .url = upload_request->url,
+            .method = HTTP_METHOD_POST
+    };
+
+    esp_http_client_handle_t http_client = esp_http_client_init(&config);
+    esp_http_client_set_header(http_client, "Content-Type", map_content_type(upload_request->content_type));
+
+    esp_err_t open_status = esp_http_client_open(http_client, upload_request->file_size);
+
+    if (open_status == ESP_OK)
+    {
+        info.transmitted_size = upload_transmit(upload_request, http_client);
+
+        if (info.transmitted_size == upload_request->file_size)
+        {
+            int content_length = esp_http_client_fetch_headers(http_client);
+            if (content_length == upload_request->file_size)
+            {
+                uint16_t status = esp_http_client_get_status_code(http_client);
+                if (status == 200) // OK
+                {
+                    info.status = PROTO_UPLOAD_DONE;
+                }
+                else
+                {
+                    info.status = PROTO_UPLOAD_FAILED;
+                    WARN("Upload: Failed with status code %u", status);
+                }
+            }
+            else
+            {
+                info.status = PROTO_UPLOAD_FAILED;
+                WARN("Upload: Content length does not match file size %u/%u", content_length, upload_request->file_size);
+            }
         }
         else
         {
-            info.result = PROTO_UPLOAD_FAILED;
-            info.size = total_size;
-            protocol_send(PROTO_UPLOAD_INFO, (void *)&info, sizeof(info));
+            info.status = PROTO_UPLOAD_FAILED;
+            WARN("Upload: Failed to transmit complete file %u/%u", info.transmitted_size, upload_request->file_size);
         }
     }
     else
     {
-        info.result = PROTO_UPLOAD_NO_CONNECTION;
-        info.size = total_size;
-        protocol_send(PROTO_UPLOAD_INFO, (void *)&info, sizeof(info));
+        info.status = PROTO_UPLOAD_NO_CONNECTION;
+        WARN("Upload: Failed to open connection: %s", esp_err_to_name(open_status));
     }
 
-    esp_http_client_close(client);
-    esp_http_client_cleanup(client);
+    protocol_send(PROTO_UPLOAD_INFO, (void*) &info, sizeof(info));
 
-    INFO("upload_url %s done", packet->url);
+    esp_http_client_close(http_client);
+    esp_http_client_cleanup(http_client);
+
+    INFO("Upload: done");
 
 }
 
-void upload_file(proto_upload_request_t * packet)
+void upload_file(proto_upload_request_t *packet)
 {
-    INFO("upload_url start");
+    INFO("Upload: start (%s) ", packet->url);
 
     upload_start(packet->data_id);
 
-    if (wifi_is_connected()) {
+    if (wifi_is_connected())
+    {
         upload_process_request(packet);
-    } else {
-        proto_upload_info_t data;
-        data.end_point = packet->data_id;
-        data.result = PROTO_UPLOAD_NO_CONNECTION;
-        data.size = 0;
-        protocol_send(PROTO_UPLOAD_INFO, (void *)&data, sizeof(data));
+    }
+    else
+    {
+        proto_upload_info_t info = {
+                .data_id = packet->data_id,
+                .status = PROTO_UPLOAD_NO_CONNECTION,
+                .transmitted_size = 0
+        };
+        protocol_send(PROTO_UPLOAD_INFO, (void*) &info, sizeof(info));
 
-        WARN("upload_url %s failed, no WIFI connection", packet->url);
+        WARN("Upload: failed, no WIFI connection");
     }
 
     upload_stop(packet->data_id);

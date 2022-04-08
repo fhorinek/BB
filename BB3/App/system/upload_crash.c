@@ -8,7 +8,9 @@
 #define DEBUG_LEVEL DBG_DEBUG
 #include "upload_crash.h"
 #include "drivers/esp/upload/slot.h"
+#include "drivers/esp/protocol.h"
 #include "gui/statusbar.h"
+#include "fatfs.h"
 
 void upload_crash_callback(uint8_t res, upload_slot_t * slot)
 {
@@ -18,7 +20,7 @@ void upload_crash_callback(uint8_t res, upload_slot_t * slot)
             break;
         case(UPLOAD_SLOT_COMPLETE):
         {
-            INFO("Uploading crash report finished");
+            INFO("Uploading crash report finished: %s", slot->file_path);
             statusbar_msg_add(STATUSBAR_MSG_INFO, "Crash report sent");
 
             upload_crash_reports_schedule();
@@ -29,11 +31,6 @@ void upload_crash_callback(uint8_t res, upload_slot_t * slot)
         case(UPLOAD_SLOT_NO_CONNECTION):
         {
             WARN("Uploading crash report failed: no connection");
-            break;
-        }
-        case(UPLOAD_SLOT_NO_FILE):
-        {
-            ERR("Uploading crash report failed: no file");
             break;
         }
         case(UPLOAD_SLOT_FAILED):
@@ -54,14 +51,14 @@ void upload_crash_callback(uint8_t res, upload_slot_t * slot)
     }
 }
 
-uint8_t upload_crash_report(char * bundle_file)
+upload_slot_t * upload_crash_report(char * bundle_file)
 {
     char url[128];
     snprintf(url, sizeof(url), "%s/%s", config_get_text(&config.debug.crash_reporting_url), bundle_file);
 
     INFO("Uploading crash report: %s", url);
 
-    return esp_http_post(url, bundle_file, upload_crash_callback);
+    return esp_http_post(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback);
 }
 
 
@@ -87,7 +84,7 @@ void upload_crash_reports(void * arg)
                 continue;
             }
 
-            if (upload_crash_report(fno.fname) != UPLOAD_SLOT_NONE)
+            if (upload_crash_report(fno.fname) != NULL)
             {
                 break;
             }
