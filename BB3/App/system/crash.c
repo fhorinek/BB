@@ -58,7 +58,7 @@ void crash_store_info(const Crash_Object * info)
 
         if (bsod_msg_ptr != NULL)
         {
-            // Escape >'< with >"< (>'< is used as delimiter in the yaml)
+            // Replace >'< with >"< (>'< is used as delimiter in the yaml)
             char * result;
             while((result = strchr(bsod_msg_ptr, '\'')) != NULL)
                 *result = '"';
