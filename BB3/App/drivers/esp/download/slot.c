@@ -103,7 +103,7 @@ void download_slot_reset()
     {
         if (download_slot[i] != NULL)
         {
-            download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, &download_slot[i]);
+            download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, download_slot[i]);
 
             download_slot_free(i);
         }
@@ -299,12 +299,12 @@ void download_slot_step()
         {
             if (download_slot[i]->canceled)
             {
-                download_slot[i]->cb(DOWNLOAD_SLOT_CANCEL, &download_slot[i]);
+                download_slot[i]->cb(DOWNLOAD_SLOT_CANCEL, download_slot[i]);
                 download_slot_free(i);
             }
             else if (download_slot[i]->timestamp + DOWNLOAD_TIMEOUT < HAL_GetTick())
             {
-                download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, &download_slot[i]);
+                download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, download_slot[i]);
                 download_slot_free(i);
             }
 
