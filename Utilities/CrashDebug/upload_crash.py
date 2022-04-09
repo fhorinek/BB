@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 import platform
@@ -128,9 +127,9 @@ with tempfile.TemporaryDirectory() as content_path:
         'appBuild': info_file['firmware_version'],
         'sdkName': 'appcenter.custom',
         'sdkVersion': '0.0.0',
-        'osName': '',
+        'osName': 'None',
         'osVersion': '0.0.0',
-        'model': f'strato-{hardware_revision}',
+        'model': f'Strato ({hardware_revision})',
         'locale': 'en-US'
     }
 
@@ -139,6 +138,7 @@ with tempfile.TemporaryDirectory() as content_path:
     error_log = {
         'type': 'managedError',
         'device': device,
+        'userId': info_file['serial_number'],
         'timestamp': datetime.utcnow().isoformat(timespec='seconds') + 'Z',
         'appLaunchTimestamp': info_file['timestamp'],
         'id': str(uuid.uuid4()),
