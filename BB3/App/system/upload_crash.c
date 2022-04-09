@@ -12,14 +12,33 @@
 #include "gui/statusbar.h"
 #include "fatfs.h"
 
-void upload_crash_callback(uint8_t res, upload_slot_t * slot)
+typedef struct
 {
-    switch (res)
+    lv_obj_t *status_bar_progress_handle;
+} upload_crash_context_t;
+
+void upload_crash_callback(uint8_t status, upload_slot_t *slot)
+{
+    upload_crash_context_t *context = (upload_crash_context_t*) slot->context;
+    switch (status)
     {
-        case(UPLOAD_SLOT_PROGRESS):
+        case (UPLOAD_SLOT_PROGRESS):
+            {
+            if (context->status_bar_progress_handle == NULL)
+            {
+                context->status_bar_progress_handle = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, "Uploading crash report");
+            }
+
+            ASSERT(slot->file_size > 0);
+            ASSERT(slot->transmitted_size  <= slot->file_size);
+            uint8_t progress = (slot->transmitted_size * 100) / slot->file_size;
+            statusbar_msg_update_progress(context->status_bar_progress_handle, progress);
+
             break;
-        case(UPLOAD_SLOT_COMPLETE):
-        {
+        }
+
+        case (UPLOAD_SLOT_COMPLETE):
+            {
             INFO("Uploading crash report finished: %s", slot->file_path);
             statusbar_msg_add(STATUSBAR_MSG_INFO, "Crash report sent");
 
@@ -28,41 +47,56 @@ void upload_crash_callback(uint8_t res, upload_slot_t * slot)
             // TODO: Delete file when upload completed
             break;
         }
-        case(UPLOAD_SLOT_NO_CONNECTION):
-        {
+        case (UPLOAD_SLOT_NO_CONNECTION):
+            {
+            // Skip status bar update — silently retry on next WiFi connect
             WARN("Uploading crash report failed: no connection");
             break;
         }
-        case(UPLOAD_SLOT_FAILED):
-        {
+        case (UPLOAD_SLOT_FAILED):
+            {
+            statusbar_msg_add(STATUSBAR_MSG_WARN, "Failed to send crash report");
             WARN("Uploading crash report failed: upload failed");
             break;
         }
-        case(UPLOAD_SLOT_NO_SLOT):
-        {
+        case (UPLOAD_SLOT_NO_SLOT):
+            {
+            // Skip status bar update — silently retry on next WiFi connect
             WARN("Uploading crash report failed: no slot");
             break;
         }
-        case(UPLOAD_SLOT_TIMEOUT):
-        {
+        case (UPLOAD_SLOT_TIMEOUT):
+            {
+            statusbar_msg_add(STATUSBAR_MSG_WARN, "Failed to send crash report");
             WARN("Uploading crash report failed: timeout");
             break;
         }
     }
+
+    if (status != UPLOAD_SLOT_PROGRESS)
+    {
+        if (context->status_bar_progress_handle != NULL)
+        {
+            statusbar_msg_close(context->status_bar_progress_handle);
+        }
+        free(context);
+    }
 }
 
-upload_slot_t * upload_crash_report(char * bundle_file)
+upload_slot_t* upload_crash_report(char *bundle_file)
 {
     char url[128];
     snprintf(url, sizeof(url), "%s/%s", config_get_text(&config.debug.crash_reporting_url), bundle_file);
 
     INFO("Uploading crash report: %s", url);
 
-}
+    upload_crash_context_t *context = (upload_crash_context_t *) malloc(sizeof(upload_crash_context_t));
+    context->status_bar_progress_handle = NULL;
 
     return esp_http_upload(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback, NULL);
+}
 
-void upload_crash_reports(void * arg)
+void upload_crash_reports(void *arg)
 {
     DIR dir;
     FILINFO fno;
