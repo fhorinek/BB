@@ -16,6 +16,7 @@ import hashlib
 import os
 import zipfile
 import tempfile
+import shutil
 
 # Arguments
 
@@ -50,8 +51,9 @@ with tempfile.TemporaryDirectory() as content_path:
     dump_file_path = os.path.join(content_path, 'crash/dump.bin')
     info_file_path = os.path.join(content_path, 'crash/info.yaml')
     files_file_path = os.path.join(content_path, 'crash/files.txt')
+    config_path = os.path.join(content_path, 'config/')
 
-    for file in [dump_file_path, info_file_path, files_file_path]:
+    for file in [dump_file_path, info_file_path, files_file_path, config_path]:
         if not os.path.exists(file):
             parser.error(f'Missing expected file in zip: {file}')
 
@@ -150,6 +152,9 @@ with tempfile.TemporaryDirectory() as content_path:
 
     # Add attachments
 
+    shutil.make_archive(os.path.join(content_path, 'config'), 'zip', config_path)
+    config_archive_path = os.path.join(content_path, 'config.zip')
+
     def encode_file(path):
         return base64.b64encode(open(path, "rb").read()).decode('utf-8')
 
@@ -168,7 +173,7 @@ with tempfile.TemporaryDirectory() as content_path:
     all_logs.append(file_attachment_log('files.txt', encode_file(files_file_path)))
     all_logs.append(file_attachment_log('trace.txt', base64.b64encode(stack_trace.encode('utf-8')).decode('utf-8')))
     all_logs.append(file_attachment_log('dump.bin', encode_file(dump_file_path), 'application/octet-stream'))
-
+    all_logs.append(file_attachment_log('config.zip', encode_file(config_archive_path), 'application/zip'))
 
     # Upload
 
@@ -185,6 +190,5 @@ with tempfile.TemporaryDirectory() as content_path:
     }
     data = json.dumps({ 'logs': all_logs })
 
-    # print(data)
     response = requests.post(url, headers=headers, data=data)
     print(f'Response: [{response.status_code}] {response.text}')
