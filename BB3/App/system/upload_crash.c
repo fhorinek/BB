@@ -58,7 +58,7 @@ upload_slot_t * upload_crash_report(char * bundle_file)
 
     INFO("Uploading crash report: %s", url);
 
-    return esp_http_post(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback);
+    return esp_http_upload(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback);
 }
 
 
@@ -100,6 +100,13 @@ void upload_crash_reports(void * arg)
     }
 }
 
+/**
+ * Schedules uploading of crash bundles.
+ *
+ * Scans for crash_report ZIP files in the root of the SD card.
+ * Bundles are uploaded to configured debug.crash_reporting_url.
+ * Upload can be disabled by configuring debug.crash_reporting.
+ */
 void upload_crash_reports_schedule()
 {
     if (!config_get_bool(&config.debug.crash_reporting))

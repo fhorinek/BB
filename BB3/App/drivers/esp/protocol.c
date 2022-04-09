@@ -205,7 +205,20 @@ uint8_t map_content_type(esp_http_content_type_t content_type)
     return 0;
 }
 
-upload_slot_t * esp_http_post(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback)
+/**
+ * Uploads a file from the SD card via WiFi to the given URL.
+ *
+ * Content type must be specified — currently only a small set of content types is supported.
+ *
+ * Custom headers cannot be provided, response content is ignored.
+ *
+ * @param url           a valid URL starting with either http:// or https://
+ * @param file_path     file path relative to the root of the SD card storage
+ * @param content_type  the content type provided to the server (see esp_http_content_type_t)
+ * @param callback      function called with status updates during the transfer and when it completes
+ * @return              a reference to the upload
+ */
+upload_slot_t * esp_http_upload(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback)
 {
     upload_slot_t * slot = upload_slot_create(file_path, callback);
     if (slot == NULL)
@@ -225,12 +238,19 @@ upload_slot_t * esp_http_post(char * url, char * file_path, esp_http_content_typ
     return slot;
 }
 
-void esp_http_post_stop(uint8_t data_id)
+/**
+ * Cancels a pending upload if it is still running.
+ *
+ * Will call the respective callback function in case the upload hasn't finished yet.
+ *
+ * @param slot  upload reference
+ */
+void esp_http_upload_stop(upload_slot_t *slot)
 {
     proto_upload_stop_t stop;
-    stop.data_id = data_id;
+    stop.data_id = slot->data_id;
 
-    upload_slot_cancel(data_id);
+    upload_slot_cancel(slot->data_id);
 
     protocol_send(PROTO_UPLOAD_STOP, (void *) &stop, sizeof(stop));
 }
