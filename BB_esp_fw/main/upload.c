@@ -150,9 +150,14 @@ void upload_process_request(proto_upload_request_t *upload_request)
 
         if (info.transmitted_size == upload_request->file_size)
         {
-            int content_length = esp_http_client_fetch_headers(http_client);
-            if (content_length == upload_request->file_size)
+            int response_content_length = esp_http_client_fetch_headers(http_client);
+            if (response_content_length != ESP_FAIL)
             {
+                if (response_content_length > 0)
+                {
+                    INFO("Upload: Ignoring response content of length %d", response_content_length);
+                }
+
                 uint16_t status = esp_http_client_get_status_code(http_client);
                 if (status == 200) // OK
                 {
@@ -167,7 +172,7 @@ void upload_process_request(proto_upload_request_t *upload_request)
             else
             {
                 info.status = PROTO_UPLOAD_FAILED;
-                WARN("Upload: Content length does not match file size %u/%u", content_length, upload_request->file_size);
+                WARN("Upload: Failed to fetch response headers");
             }
         }
         else
