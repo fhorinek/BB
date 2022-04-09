@@ -216,11 +216,12 @@ uint8_t map_content_type(esp_http_content_type_t content_type)
  * @param file_path     file path relative to the root of the SD card storage
  * @param content_type  the content type provided to the server (see esp_http_content_type_t)
  * @param callback      function called with status updates during the transfer and when it completes
+ * @param context       pointer to custom context data that is accessible in the callback (not freed automatically)
  * @return              a reference to the upload
  */
-upload_slot_t * esp_http_upload(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback)
+upload_slot_t * esp_http_upload(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback, void *context)
 {
-    upload_slot_t * slot = upload_slot_create(file_path, callback);
+    upload_slot_t * slot = upload_slot_create(file_path, callback, context);
     if (slot == NULL)
         return NULL;
 

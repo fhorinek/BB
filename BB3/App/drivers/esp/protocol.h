@@ -53,7 +53,7 @@ uint8_t esp_http_get(char * path, uint8_t slot_type, download_slot_cb_t cb);
 void esp_http_stop(uint8_t data_id);
 
 
-upload_slot_t * esp_http_upload(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback);
+upload_slot_t * esp_http_upload(char * url, char * file_path, esp_http_content_type_t content_type, upload_slot_callback_t callback, void *context);
 void esp_http_upload_stop(upload_slot_t *slot);
 
 extern safe_uart_t protocol_tx;

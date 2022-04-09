@@ -58,9 +58,9 @@ upload_slot_t * upload_crash_report(char * bundle_file)
 
     INFO("Uploading crash report: %s", url);
 
-    return esp_http_upload(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback);
 }
 
+    return esp_http_upload(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback, NULL);
 
 void upload_crash_reports(void * arg)
 {

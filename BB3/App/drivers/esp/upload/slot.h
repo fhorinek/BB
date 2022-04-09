@@ -39,6 +39,7 @@ struct upload_slot_t
         uint32_t timestamp;
 
         upload_slot_callback_t callback;
+        void *context; // Can be used to reference state that can be used in the callback
 
         bool canceled;
 };
@@ -47,7 +48,7 @@ void upload_slot_init();
 void upload_slot_step();
 void upload_slot_reset();
 
-upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback);
+upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback, void *context);
 void upload_slot_cancel(uint8_t data_id);
 void upload_slot_process_info(proto_upload_info_t *info);
 

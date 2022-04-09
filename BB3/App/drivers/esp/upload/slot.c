@@ -102,7 +102,7 @@ void upload_slot_cancel(uint8_t data_id)
     }
 }
 
-upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback)
+upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback, void *context)
 {
     ASSERT(callback != NULL);
 
@@ -129,6 +129,7 @@ upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callba
         strncpy(slot->file_path, file_path, UPLOAD_FILE_PATH_LEN);
         slot->data_id = i;
         slot->callback = callback;
+        slot->context = context;
         slot->file_size = file_info.fsize;
         slot->transmitted_size = 0;
         slot->timestamp = HAL_GetTick();
