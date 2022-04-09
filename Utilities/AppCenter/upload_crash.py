@@ -64,9 +64,12 @@ with tempfile.TemporaryDirectory() as content_path:
 
     # Extract stack trace
 
-    crashdebug_path = "lin64/CrashDebug"
+    crashdebug_path = "../CrashDebug/lin64/CrashDebug"
     if platform.system() == "Darwin":
-        crashdebug_path = "osx64/CrashDebug"
+        crashdebug_path = "../CrashDebug/osx64/CrashDebug"
+    
+    if not os.path.exists(crashdebug_path):
+        exit(f'CrashDebug binary not found — make sure it is available at {crashdebug_path}')
 
     cmd = ( f'arm-none-eabi-gdb --batch --quiet {args.elf}'
             f' -ex "set target-charset ASCII"'
