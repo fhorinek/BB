@@ -127,6 +127,30 @@ uint32_t upload_transmit(proto_upload_request_t *upload_request, esp_http_client
     return transmitted_size;
 }
 
+uint8_t upload_process_response(esp_http_client_handle_t http_client)
+{
+    int content_length = esp_http_client_fetch_headers(http_client);
+    if (content_length == ESP_FAIL)
+    {
+        WARN("Upload: Failed to fetch response headers");
+        return PROTO_UPLOAD_FAILED;
+    }
+
+    if (content_length > 0)
+    {
+        INFO("Upload: Ignoring response content of length %d", content_length);
+    }
+
+    uint16_t status = esp_http_client_get_status_code(http_client);
+    if (status != 200)
+    {
+        WARN("Upload: Failed with status code %u", status);
+        return PROTO_UPLOAD_FAILED;
+    }
+
+    return PROTO_UPLOAD_DONE;
+}
+
 void upload_process_request(proto_upload_request_t *upload_request)
 {
     proto_upload_info_t info = {
@@ -143,37 +167,12 @@ void upload_process_request(proto_upload_request_t *upload_request)
     esp_http_client_set_header(http_client, "Content-Type", map_content_type(upload_request->content_type));
 
     esp_err_t open_status = esp_http_client_open(http_client, upload_request->file_size);
-
     if (open_status == ESP_OK)
     {
         info.transmitted_size = upload_transmit(upload_request, http_client);
-
         if (info.transmitted_size == upload_request->file_size)
         {
-            int response_content_length = esp_http_client_fetch_headers(http_client);
-            if (response_content_length != ESP_FAIL)
-            {
-                if (response_content_length > 0)
-                {
-                    INFO("Upload: Ignoring response content of length %d", response_content_length);
-                }
-
-                uint16_t status = esp_http_client_get_status_code(http_client);
-                if (status == 200) // OK
-                {
-                    info.status = PROTO_UPLOAD_DONE;
-                }
-                else
-                {
-                    info.status = PROTO_UPLOAD_FAILED;
-                    WARN("Upload: Failed with status code %u", status);
-                }
-            }
-            else
-            {
-                info.status = PROTO_UPLOAD_FAILED;
-                WARN("Upload: Failed to fetch response headers");
-            }
+            info.status = upload_process_response(http_client);
         }
         else
         {
