@@ -8,16 +8,22 @@
 
 #define SD_DMA_TIMEOUT					150
 
+#undef DBG
+#define DBG(...)
+
 int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
 	uint8_t ret;
 	uint8_t cnt = 0;
-	uint32_t addr = block * c->block_size + off;
+	uint32_t addr = block;// * c->block_size + off;
 	size /= c->block_size;
+
+	ASSERT_MSG(off == 0, "Offset is not 0");
 
 	do
 	{
 	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)buffer, addr, size);
+        DBG("HAL_SD_ReadBlocks_DMA %p %08X %u, ret = %u", buffer, addr, size, ret);
 		cnt++;
 		if (cnt > 10)
 		{
@@ -50,8 +56,10 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
 {
     uint8_t ret;
     uint8_t cnt = 0;
-    uint32_t addr = block * c->block_size + off;
+    uint32_t addr = block;// * c->block_size + off;
     size /= c->block_size;
+
+    ASSERT_MSG(off == 0, "Offset is not 0");
 
     do
     {
@@ -87,8 +95,8 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
 
 int sd_card_erase(const struct lfs_config *c, lfs_block_t block)
 {
-	uint32_t addr_start = block * c->block_size;
-	uint32_t addr_end = (block + 1) * c->block_size;
+	uint32_t addr_start = block;// * c->block_size;
+	uint32_t addr_end = (block + 1);// * c->block_size;
 
 	return (HAL_SD_Erase(&hsd1, addr_start, addr_end) == HAL_OK) ? 0 : -1;
 }
@@ -98,7 +106,7 @@ int sd_card_sync(const struct lfs_config *c)
 	return 0;
 }
 
-struct lfs_config cfg;
+struct lfs_config lfs_cfg;
 lfs_t lfs;
 
 #define SD_DEFAULT_BLOCK_SIZE 512
@@ -107,25 +115,25 @@ void sd_init()
 {
     MX_SDMMC1_SD_Init();
 
-    HAL_SD_CardInfoTypeDef CardInfo;
-    HAL_SD_GetCardInfo(&hsd1, &CardInfo);
+    HAL_SD_CardInfoTypeDef card_info;
+    HAL_SD_GetCardInfo(&hsd1, &card_info);
 
     // block device operations
-    cfg.read  = sd_card_read;
-    cfg.prog  = sd_card_prog;
-    cfg.erase = sd_card_erase;
-    cfg.sync  = sd_card_sync;
+    lfs_cfg.read  = sd_card_read;
+    lfs_cfg.prog  = sd_card_prog;
+    lfs_cfg.erase = sd_card_erase;
+    lfs_cfg.sync  = sd_card_sync;
 
     // block device configuration
-    cfg.read_size = SD_DEFAULT_BLOCK_SIZE;
-    cfg.prog_size = SD_DEFAULT_BLOCK_SIZE;
-    cfg.cache_size = SD_DEFAULT_BLOCK_SIZE;
-    cfg.block_size = CardInfo.BlockSize;
-    cfg.block_count = CardInfo.BlockNbr;
+    lfs_cfg.read_size = SD_DEFAULT_BLOCK_SIZE;
+    lfs_cfg.prog_size = SD_DEFAULT_BLOCK_SIZE;
+    lfs_cfg.cache_size = SD_DEFAULT_BLOCK_SIZE;
+    lfs_cfg.block_size = card_info.BlockSize;
+    lfs_cfg.block_count = card_info.BlockNbr;
 
-    cfg.block_cycles = 500;
+    lfs_cfg.block_cycles = 500;
 
-    cfg.lookahead_size = 64;
+    lfs_cfg.lookahead_size = 64;
 }
 
 void sd_format()
@@ -133,28 +141,28 @@ void sd_format()
 	gfx_draw_status(GFX_STATUS_UPDATE, "Formating SD");
 	gfx_draw_progress(0);
 
-	lfs_format(&lfs, &cfg);
+	lfs_format(&lfs, &lfs_cfg);
 }
 
 bool sd_mount()
 {
-	INFO("Mounting SD");
+	DBG("Mounting SD");
 
-    int8_t err = lfs_mount(&lfs, &cfg);
+    int8_t err = lfs_mount(&lfs, &lfs_cfg);
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err)
     {
-        INFO("Error mounting, formating");
+        ERR("Error mounting, formating");
         while(1);
-        lfs_format(&lfs, &cfg);
-        err = lfs_mount(&lfs, &cfg);
+        lfs_format(&lfs, &lfs_cfg);
+        err = lfs_mount(&lfs, &lfs_cfg);
     }
 
 	if (err)
 	{
-		DBG(" Error mounting SD = %u", err);
+		ERR(" Error mounting SD = %u", err);
 		return false;
 	}
 
@@ -163,7 +171,7 @@ bool sd_mount()
 
 void sd_unmount()
 {
-	INFO("Unmounting SD");
+	DBG("Unmounting SD");
 	lfs_unmount(&lfs);
 }
 

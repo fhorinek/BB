@@ -24,6 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "common.h"
 
 /* USER CODE END Includes */
 
@@ -63,7 +64,12 @@ static TX_BYTE_POOL ux_device_app_byte_pool;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
+    void tx_stack_ovf(TX_THREAD * thread_ptr)
+    {
+        ERR("Thread %s stack ovf", thread_ptr->tx_thread_name);
+        while(1);
 
+    }
 /* USER CODE END PFP */
 
 /**
@@ -74,7 +80,7 @@ static TX_BYTE_POOL ux_device_app_byte_pool;
 VOID tx_application_define(VOID *first_unused_memory)
 {
   /* USER CODE BEGIN  tx_application_define */
-
+    tx_thread_stack_error_notify(tx_stack_ovf);
   /* USER CODE END  tx_application_define */
 
   VOID *memory_ptr;

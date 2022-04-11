@@ -89,8 +89,9 @@ uint32_t get_idx(uint32_t parent, char * name)
     n->parent = parent;
 
     uint32_t idx = idx_new_index;
-    idx_new_index++;
     idx_to_filename[idx] = n;
+
+    idx_new_index++;
     ASSERT(idx_new_index < MAX_IDX_HANDLES);
 
     return idx | IDX_OFFSET;
@@ -128,7 +129,10 @@ void idx_delete(uint32_t idx)
 
 
 
-
+//void print_threads()
+//{
+//    tx_thread_performance_info_get()
+//}
 
 
 
@@ -144,6 +148,8 @@ void mtp_activate(void * param)
     {
         idx_to_filename[i] = IDX_CLEAR;
     }
+
+
 }
 
 void mtp_deactivate(void * param)
@@ -240,6 +246,16 @@ static UINT mtp_device_prop_value_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 static UINT mtp_storage_format(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG storage_id)
 {
     INFO("mtp_storage_format");
+
+    if (lfs_unmount(&lfs) != LFS_ERR_OK)
+        return UX_ERROR;
+
+    if (lfs_format(&lfs, lfs.cfg) != LFS_ERR_OK)
+        return UX_ERROR;
+
+    if (lfs_mount(&lfs, lfs.cfg) != LFS_ERR_OK)
+        return UX_ERROR;
+
     return UX_SUCCESS;
 }
 
@@ -250,10 +266,10 @@ static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
     uint64_t max_capacity = (uint64_t)lfs.cfg->block_size * (uint64_t)lfs.cfg->block_count;
     uint64_t free_space =  (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
 
-    pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 8;
+    pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 32;
     pima->ux_device_class_pima_storage_free_space_low = free_space & 0xFFFFFFFF;
 
-    pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 8;
+    pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 32;
     pima->ux_device_class_pima_storage_max_capacity_low = max_capacity & 0xFFFFFFFF;
 
     return UX_SUCCESS;
@@ -262,6 +278,7 @@ static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 static UINT mtp_object_number_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_format_code, ULONG object_association, ULONG *object_number)
 {
     INFO("mtp_object_number_get");
+    while(1);
     return UX_SUCCESS;
 }
 
@@ -310,15 +327,30 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
     return UX_SUCCESS;
 }
 
+static uint32_t mtp_new_object_idx = 0;
+static uint32_t mtp_new_object_size = 0;
+
 static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UX_SLAVE_CLASS_PIMA_OBJECT **object)
 {
-    INFO("mtp_object_info_get");
+    INFO("mtp_object_info_get %08X", object_handle);
 
     char path[PATH_LEN];
     if (construct_path(path, object_handle))
     {
         struct lfs_info info;
-        lfs_stat(&lfs, path, &info);
+        if (mtp_new_object_idx == object_handle)
+        {
+            strcpy(info.name, get_path(object_handle)->name);
+            info.type = LFS_TYPE_REG;
+            info.size = mtp_new_object_size;
+//            mtp_new_object_idx = 0;
+        }
+        else
+        {
+            lfs_stat(&lfs, path, &info);
+        }
+
+        INFO(" %s %lu", info.name, info.size);
 
         UX_SLAVE_CLASS_PIMA_OBJECT * payload = (UX_SLAVE_CLASS_PIMA_OBJECT *)mtp_buffer;
         memset(payload, 0, sizeof(UX_SLAVE_CLASS_PIMA_OBJECT));
@@ -406,23 +438,30 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
 
     *object_handle = get_idx(parent_object_handle, name);
 
-    if (object->ux_device_class_pima_object_format == UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION)
+    char path[PATH_LEN];
+    if (construct_path(path, *object_handle))
     {
-        char path[PATH_LEN];
-        if (construct_path(path, *object_handle))
+        if (object->ux_device_class_pima_object_format == UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION)
         {
-            lfs_mkdir(&lfs, path);
+            if (lfs_mkdir(&lfs, path) != LFS_ERR_OK)
+                return UX_ERROR;
+        }
+        else
+        {
+            mtp_new_object_idx = *object_handle;
+            mtp_new_object_size = object->ux_device_class_pima_object_compressed_size;
         }
 
+        return UX_SUCCESS;
     }
+    return UX_ERROR;
 
-    return UX_SUCCESS;
 }
 
 static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG phase, UCHAR *object_buffer, ULONG object_offset,
         ULONG object_length)
 {
-    INFO("mtp_object_data_send %08X %u+%u", object_handle, object_offset, object_buffer);
+    INFO("mtp_object_data_send %u %08X %u+%u", phase, object_handle, object_offset, object_length);
 
     if (mtp_file_write_idx != object_handle)
     {
@@ -459,8 +498,11 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
         lfs_file_sync(&lfs, &mtp_file);
 
         if (wrote < 0 || wrote != object_length)
+        {
             return UX_ERROR;
+        }
 
+        INFO("Wrote OK");
         return UX_SUCCESS;
     }
 
@@ -503,7 +545,7 @@ typedef struct {
 
 static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR **object_prop_dataset, ULONG *object_prop_dataset_length)
 {
-    INFO("mtp_object_prop_desc_get %04X %04X", object_handle, object_property);
+    INFO("mtp_object_prop_desc_get %08X %04X", object_handle, object_property);
 
     switch (object_handle)
     {
@@ -536,27 +578,64 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
     return UX_SUCCESS;
 }
 
+
+
 static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR **object_prop_value, ULONG *object_prop_value_length)
 {
-    INFO("mtp_object_prop_value_get");
+    INFO("mtp_object_prop_value_get %08X, %04X", object_handle, object_property);
+
+    char path[PATH_LEN];
+
+    switch (object_property)
+    {
+        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE):
+        {
+            uint64_t * size = (uint64_t *)mtp_buffer;
+            if (construct_path(path, object_handle))
+            {
+                struct lfs_info info;
+                lfs_stat(&lfs, path, &info);
+
+                *size = info.size;
+
+                *object_prop_value = (UCHAR *)size;
+                *object_prop_value_length = sizeof(uint64_t);
+            }
+            else
+            {
+                return UX_ERROR;
+            }
+        }
+        break;
+
+
+        default:
+            WARN("object_property not handled");
+            return UX_ERROR;
+    }
+
+
     return UX_SUCCESS;
 }
 
 static UINT mtp_object_prop_value_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR *object_prop_value, ULONG object_prop_value_length)
 {
     INFO("mtp_object_prop_value_set");
+    while(1);
     return UX_SUCCESS;
 }
 
 static UINT mtp_object_references_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR **object_handle_array, ULONG *object_handle_array_length)
 {
     INFO("mtp_object_references_get");
+    while(1);
     return UX_SUCCESS;
 }
 
 static UINT mtp_object_references_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR *object_handle_array, ULONG object_handle_array_length)
 {
     INFO("mtp_object_references_set");
+    while(1);
     return UX_SUCCESS;
 }
 
@@ -565,6 +644,19 @@ static UCHAR model[] = "Strato";
 static UCHAR serial[9];
 static UCHAR version[32];
 static UCHAR storage_desc[] = "Internal storage";
+
+static USHORT object_properties_list[] = {
+        UX_DEVICE_CLASS_PIMA_OFC_TEXT,
+        7,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_STORAGEID,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PROTECTION_STATUS,
+        0
+};
 
 static USHORT empty_list[] = {NULL};
 
@@ -596,7 +688,7 @@ void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
     parameter->ux_device_class_pima_parameter_device_properties_list = empty_list;
     parameter->ux_device_class_pima_parameter_supported_capture_formats_list = empty_list;
     parameter->ux_device_class_pima_parameter_supported_image_formats_list = empty_list;
-    parameter->ux_device_class_pima_parameter_object_properties_list = empty_list;
+    parameter->ux_device_class_pima_parameter_object_properties_list = object_properties_list;
 
 
     //cb
@@ -629,7 +721,7 @@ void app_mtp_thread_entry(ULONG arg)
     MX_USB_OTG_HS_PCD_Init();
 
     HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 1024);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 32);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 64);
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 3, 128);
 
     UINT status = ux_dcd_stm32_initialize((ULONG)0, (ULONG)&hpcd_USB_OTG_HS);
