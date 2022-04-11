@@ -107,7 +107,7 @@ void bsod_end()
 		if (HAL_GPIO_ReadPin(BT3) == LOW)
 		{
 			HAL_Delay(1);
-			if (d > 500)
+			if (d++ > 500)
 			{
 				NVIC_SystemReset();
 			}

@@ -42,7 +42,7 @@ void upload_crash_callback(uint8_t status, upload_slot_t *slot)
             INFO("Uploading crash report finished: %s", slot->file_path);
             statusbar_msg_add(STATUSBAR_MSG_INFO, "Crash report sent");
 
-            uint8_t result = f_unlink(slot->file_path);
+            uint8_t result = FR_OK;//f_unlink(slot->file_path);
             if (result == FR_OK)
             {
                 upload_crash_reports_schedule();
@@ -93,15 +93,12 @@ void upload_crash_callback(uint8_t status, upload_slot_t *slot)
 
 upload_slot_t* upload_crash_report(char *bundle_file)
 {
-    char url[128];
-    snprintf(url, sizeof(url), "%s/%s", config_get_text(&config.debug.crash_reporting_url), bundle_file);
-
-    INFO("Uploading crash report: %s", url);
+    INFO("Uploading crash report");
 
     upload_crash_context_t *context = (upload_crash_context_t *) malloc(sizeof(upload_crash_context_t));
     context->status_bar_progress_handle = NULL;
 
-    return esp_http_upload(url, bundle_file, ESP_HTTP_CONTENT_TYPE_ZIP, upload_crash_callback, NULL);
+    return esp_http_upload(config_get_text(&config.debug.crash_reporting_url), bundle_file, upload_crash_callback, context);
 }
 
 void upload_crash_reports(void *arg)
@@ -109,7 +106,7 @@ void upload_crash_reports(void *arg)
     DIR dir;
     FILINFO fno;
 
-    DBG("Uploading crash reports...");
+    DBG("Looking crash reports...");
 
     FRESULT res = f_opendir(&dir, "/");
     if (res == FR_OK)
