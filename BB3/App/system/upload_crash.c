@@ -42,7 +42,7 @@ void upload_crash_callback(uint8_t status, upload_slot_t *slot)
             INFO("Uploading crash report finished: %s", slot->file_path);
             statusbar_msg_add(STATUSBAR_MSG_INFO, "Crash report sent");
 
-            uint8_t result = FR_OK;//f_unlink(slot->file_path);
+            uint8_t result = f_unlink(slot->file_path);
             if (result == FR_OK)
             {
                 upload_crash_reports_schedule();
@@ -106,7 +106,7 @@ void upload_crash_reports(void *arg)
     DIR dir;
     FILINFO fno;
 
-    DBG("Looking crash reports...");
+    DBG("Looking for crash reports...");
 
     FRESULT res = f_opendir(&dir, "/");
     if (res == FR_OK)

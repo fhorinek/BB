@@ -127,11 +127,12 @@ uint8_t upload_process_response(esp_http_client_handle_t http_client)
 
     if (content_length > 0)
     {
-    	char buffer[128];
+    	char buffer[129];
         while (content_length > 0)
         {
-        	uint16_t to_read = min(sizeof(buffer), content_length);
-        	esp_http_client_read_response(http_client, buffer, to_read);
+        	uint16_t to_read = min(sizeof(buffer) - 1, content_length);
+        	uint16_t readed = esp_http_client_read_response(http_client, buffer, to_read);
+        	buffer[readed] = 0;
         	INFO("%s", buffer);
         	content_length -= to_read;
         }

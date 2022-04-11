@@ -26,6 +26,10 @@ parser.add_argument('--elf', type=pathlib.Path,
                     help='path to the corresponding elf file')
 parser.add_argument('--elf-search-path', type=pathlib.Path,
                     help='path to a folder with subfolders per firmware version with one elf file inside')
+parser.add_argument('--crashdebug', type=pathlib.Path,
+                    help='path to a CrashDebug binary')
+parser.add_argument('--gdb', type=pathlib.Path, default="arm-none-eabi-gdb",
+                    help='path to a arm-none-eabi-gdb binary')
 parser.add_argument('crash_path', type=pathlib.Path,
                     help='path to a crash_report.zip file')
 args = parser.parse_args()
@@ -52,34 +56,45 @@ with tempfile.TemporaryDirectory() as content_path:
     files_file_path = os.path.join(content_path, 'crash/files.txt')
     config_path = os.path.join(content_path, 'config/')
 
+    info_file = yaml.safe_load(open(info_file_path, "r").read())
+
     for file in [dump_file_path, info_file_path, files_file_path, config_path]:
         if not os.path.exists(file):
             parser.error(f'Missing expected file in zip: {file}')
 
     # Resolve elf path
-
-    # TODO
     if args.elf_search_path is not None:
-        parser.error("--elf-search-path not supported yet")
+        args.elf = os.path.join(args.elf_search_path, info_file['firmware_version'] + ".elf")
 
     # Extract stack trace
 
-    crashdebug_path = "../CrashDebug/lin64/CrashDebug"
-    if platform.system() == "Darwin":
-        crashdebug_path = "../CrashDebug/osx64/CrashDebug"
+    if args.crashdebug is not None:
+        crashdebug_path = args.crashdebug
+    else:
+        crashdebug_path = "../CrashDebug/lin64/CrashDebug"
+        if platform.system() == "Darwin":
+            crashdebug_path = "../CrashDebug/osx64/CrashDebug"
     
     if not os.path.exists(crashdebug_path):
         exit(f'CrashDebug binary not found — make sure it is available at {crashdebug_path}')
 
-    cmd = ( f'arm-none-eabi-gdb --batch --quiet {args.elf}'
+    cmd = ( f'{args.gdb} --batch --quiet {args.elf}'
             f' -ex "set target-charset ASCII"'
             f' -ex "target remote | {crashdebug_path} --elf {args.elf} --dump {dump_file_path}"'
             f' -ex "set print pretty on"'
             f' -ex "bt full"'
             f' -ex "quit"')
 
+    #print(cmd)
+
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    output, error = process.communicate()
+    try:
+        output, error = process.communicate(timeout = 120)
+    except TimeoutExpired:
+        process.terminate()
+        exit('Not able to extract stack trace in time. Wrong elf?')
+
+
     stack_trace = output.decode("utf-8")
 
     if process.returncode != 0:
@@ -110,8 +125,6 @@ with tempfile.TemporaryDirectory() as content_path:
         frames.insert(0, start_frame)
 
     # Extract info
-
-    info_file = yaml.safe_load(open(info_file_path, "r").read())
 
     message = ', '.join(info_file['fault']['reasons'])
     if 'message' in info_file:
