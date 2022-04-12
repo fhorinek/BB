@@ -253,12 +253,12 @@ if os.path.exists("strato.fw"):
 f = open("strato.fw", "wb")
 
 f.write(struct.pack("<L", build_devel))
-f.write(struct.pack("<b", number_of_records))
+f.write(struct.pack("<H", number_of_records))
 f.write(struct.pack("<H", build_testing))
 f.write(struct.pack("<H", build_release))
 
 #pad rest of the app header
-for i in range(32 - (4 + 1 + 2 + 2)):
+for i in range(32 - (4 + 2 + 2 + 2)):
     f.write(struct.pack("<b", 0))
 
 for c in chunks:
