@@ -84,8 +84,8 @@ stm_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/"
 stm_assets_path = os.path.join(stm_base_path, "Assets")
 stm_fw_path = os.path.join(stm_base_path, "Release")
 stm_bin_file = os.path.join(stm_fw_path, "BB3.bin")
-stm_map_file = os.path.join(stm_fw_path, "BB3.map")
-stm_list_file = os.path.join(stm_fw_path, "BB3.list")
+stm_elf_file = os.path.join(stm_fw_path, "BB3.elf")
+
 
 # assets
 def add_files(path, level):
@@ -288,8 +288,8 @@ if args.publish:
     path_new = "vps.skybean.eu:/var/www/strato/update/%s/fw/%s.fw" % (folder, build)
     os.system("scp strato.fw %s" % path_new)
 
-    path_elf = "vps.skybean.eu:/var/www/strato/metrics/elf/%s.fw" % (build)
-    os.system("scp strato.fw %s" % path_elf)
+    path_elf = "vps.skybean.eu:/var/www/strato/metrics/elf/%s.elf" % (build)
+    os.system("scp %s %s" % (stm_elf_file, path_elf))
 
     os.system("git add -A")
     os.system("git commit -m 'Build numbers update for %s'" % build)
