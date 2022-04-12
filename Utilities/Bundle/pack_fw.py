@@ -281,16 +281,18 @@ if args.publish:
     if args.channel == "R":
         folder = "release"
 
-    path_legacy = "vps.skybean.eu/var/www/strato/fw/%s/%s/strato.fw" % (folder, build)
-    os.system("ssh %s" % os.path.dirname(path_legacy).replace("/", " mkdir -p ", 1))
+    path_legacy = "vps.skybean.eu:/var/www/strato/fw/%s/%s/strato.fw" % (folder, build)
+    os.system("ssh %s" % os.path.dirname(path_legacy).replace(":", " mkdir -p "))
     os.system("scp strato.fw %s" % path_legacy)
 
-    path_new = "vps.skybean.eu/var/www/strato/update/%s/fw/%s.fw" % (folder, build)
+    path_new = "vps.skybean.eu:/var/www/strato/update/%s/fw/%s.fw" % (folder, build)
     os.system("scp strato.fw %s" % path_new)
 
-    path_elf = "vps.skybean.eu/var/www/strato/metrics/elf/%s.fw" % (build)
+    path_elf = "vps.skybean.eu:/var/www/strato/metrics/elf/%s.fw" % (build)
     os.system("scp strato.fw %s" % path_elf)
 
+    os.system("git add -A")
+    os.system("git commit -m 'Build numbers update for %s'" % build)
     os.system("git tag '%s'" % build)
 
 print("Done for build " + build)
