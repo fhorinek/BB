@@ -36,7 +36,7 @@ bool flash_loop()
 		f_read(&update_file, &hdr, sizeof(hdr), &br);
 
 		INFO("file build number %lu.%u.%u", hdr.build_number, hdr.build_testing, hdr.build_release);
-		INFO("device build number %lX.%u.%u", nvm->app.build_number, nvm->app.build_testing, nvm->app.build_release);
+		INFO("device build number %lu.%u.%u", nvm->app.build_number, nvm->app.build_testing, nvm->app.build_release);
 
         gfx_draw_status(GFX_STATUS_UPDATE, "Checking the file");
         gfx_draw_progress(0);
