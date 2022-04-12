@@ -489,5 +489,9 @@ config_t config =
         entry_bool("dbg_fn_update", false),
         //crash_dump
         entry_bool("dbg_crash", true),
+        //automatic crash reporting
+        entry_bool("dbg_crash_reporting", true),
+        //crash reporting URL
+        entry_text("dbg_crash_url", "https://strato.skybean.eu/metrics/crash", CRASH_REPORTING_URL_LEN, 0),
 	},
 };

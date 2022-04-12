@@ -97,19 +97,24 @@ void bsod_init()
 
 void bsod_end()
 {
-    bsod_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - LINE_SIZE, "Reset", MF_ALIGN_CENTER);
+    if (!config_get_bool(&config.debug.crash_dump))
+        bsod_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - LINE_SIZE, "Reset", MF_ALIGN_CENTER);
 
 	tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
 
 	uint32_t d = 0;
 	while(1)
 	{
-		if (HAL_GPIO_ReadPin(BT3) == LOW)
+		if (HAL_GPIO_ReadPin(BT3) == LOW || config_get_bool(&config.debug.crash_dump))
 		{
 			HAL_Delay(1);
-			if (d > 500)
+			if (d++ > 500)
 			{
-				NVIC_SystemReset();
+			    no_init_check();
+			    no_init->boot_type = BOOT_REBOOT;
+			    no_init_update();
+
+			    NVIC_SystemReset();
 			}
 		}
 		else
@@ -401,12 +406,12 @@ void bsod_bundle_report()
     mz_zip_archive * zip = malloc(sizeof(mz_zip_archive));
     mz_zip_zero_struct(zip);
 
-    snprintf(path, sizeof(path), "crash_report.zip");
+    snprintf(path, sizeof(path), PATH_CRASH_BUNDLE ".zip");
     uint16_t cnt = 0;
     while (file_exists(path))
     {
         cnt++;
-        snprintf(path, sizeof(path), "crash_report_%u.zip", cnt);
+        snprintf(path, sizeof(path), PATH_CRASH_BUNDLE "_%u.zip", cnt);
     }
 
     //clear all psram

@@ -188,6 +188,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_CRASH_INFO     PATH_CRASH_DIR "/info.yaml"
 #define PATH_CRASH_FILES    PATH_CRASH_DIR "/files.txt"
 #define PATH_CRASH_LOG      PATH_CRASH_DIR "/debug.log"
+#define PATH_CRASH_BUNDLE   "crash_report"
 
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
 #define PATH_DEFAULTS_DIR   PATH_ASSET_DIR "/defaults"

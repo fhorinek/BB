@@ -12,14 +12,11 @@
 
 #include "../protocol_def.h"
 
-
-#define DOWNLOAD_SLOT_NUMBER        5
+#define DOWNLOAD_SLOT_NONE          0xFF
 
 #define DOWNLOAD_SLOT_TYPE_MEMORY   0
 #define DOWNLOAD_SLOT_TYPE_PSRAM    1
 #define DOWNLOAD_SLOT_TYPE_FILE     2
-
-#define DOWNLOAD_SLOT_NONE          0xFF
 
 #define DOWNLOAD_SLOT_COMPLETE      0
 #define DOWNLOAD_SLOT_PROGRESS      1
@@ -29,10 +26,10 @@
 #define DOWNLOAD_SLOT_TIMEOUT       5
 #define DOWNLOAD_SLOT_CANCEL        6
 
-
+typedef struct download_slot_t download_slot_t;
 typedef void (*download_slot_cb_t)(uint8_t, struct download_slot_t *);
 
-typedef struct
+struct download_slot_t
 {
     uint32_t size;
     uint32_t pos;
@@ -43,7 +40,7 @@ typedef struct
 
     uint8_t type;
     bool canceled;
-} download_slot_t;
+};
 
 typedef struct
 {

@@ -58,6 +58,11 @@ void crash_store_info(const Crash_Object * info)
 
         if (bsod_msg_ptr != NULL)
         {
+            // Replace >'< with >"< (>'< is used as delimiter in the yaml)
+            char * result;
+            while((result = strchr(bsod_msg_ptr, '\'')) != NULL)
+                *result = '"';
+
             WRITE("message: '");
             WRITE(bsod_msg_ptr);
             WRITE("'\n");

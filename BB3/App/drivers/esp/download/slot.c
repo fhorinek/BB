@@ -10,10 +10,11 @@
 
 #include "drivers/psram.h"
 
+#define DOWNLOAD_SLOT_NUMBER        5
+#define DOWNLOAD_TIMEOUT            (30 * 1000)
+
 download_slot_t * download_slot[DOWNLOAD_SLOT_NUMBER] = {NULL};
 osSemaphoreId_t download_slot_access;
-
-#define DOWNLOAD_TIMEOUT            (30 * 1000)
 
 static void download_slot_free(uint8_t data_id)
 {
@@ -102,7 +103,7 @@ void download_slot_reset()
     {
         if (download_slot[i] != NULL)
         {
-            download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, &download_slot[i]);
+            download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, download_slot[i]);
 
             download_slot_free(i);
         }
@@ -298,12 +299,12 @@ void download_slot_step()
         {
             if (download_slot[i]->canceled)
             {
-                download_slot[i]->cb(DOWNLOAD_SLOT_CANCEL, &download_slot[i]);
+                download_slot[i]->cb(DOWNLOAD_SLOT_CANCEL, download_slot[i]);
                 download_slot_free(i);
             }
             else if (download_slot[i]->timestamp + DOWNLOAD_TIMEOUT < HAL_GetTick())
             {
-                download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, &download_slot[i]);
+                download_slot[i]->cb(DOWNLOAD_SLOT_TIMEOUT, download_slot[i]);
                 download_slot_free(i);
             }
 

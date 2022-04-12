@@ -151,6 +151,7 @@ lv_obj_t * advanced_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, "Create diagnostic report", CUSTOM_CB, advanced_crash_cb);
     gui_list_auto_entry(list, "Crash reports", &config.debug.crash_dump, NULL);
+    gui_list_auto_entry(list, "Auto crash upload", &config.debug.crash_reporting, NULL);
     gui_list_auto_entry(list, "Debug to file", &config.debug.use_file, NULL);
     gui_list_auto_entry(list, "Clear debug.log", CUSTOM_CB, clear_debug_file_cb);
 

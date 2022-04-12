@@ -49,6 +49,7 @@
 
 #define WIFI_PASS_LEN           64
 #define UPDATE_URL_LEN          128
+#define CRASH_REPORTING_URL_LEN 128
 
 #define FW_RELEASE  0
 #define FW_TESTING  1
@@ -251,6 +252,8 @@ typedef struct
         cfg_entry_t lvgl_info;
         cfg_entry_t fanet_update;
         cfg_entry_t crash_dump;
+        cfg_entry_t crash_reporting;
+        cfg_entry_t crash_reporting_url;
 	} debug;
 } config_t;
 

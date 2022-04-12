@@ -162,6 +162,7 @@ lv_obj_t * statusbar_msg_add(statusbar_msg_type_t type, char * text)
 	lv_cont_set_fit2(msg, LV_FIT_NONE, LV_FIT_TIGHT);
 	lv_obj_set_size(msg, LV_HOR_RES, 0);
 	lv_cont_set_layout(msg, LV_LAYOUT_CENTER);
+	lv_obj_set_style_local_pad_inner(msg, LV_BAR_PART_BG, LV_STATE_DEFAULT, 5);
 
 	lv_obj_set_style_local_bg_opa(msg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_70);
 	lv_obj_set_style_local_bg_color(msg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, colors[type]);
@@ -187,7 +188,6 @@ lv_obj_t * statusbar_msg_add(statusbar_msg_type_t type, char * text)
 	    lv_obj_set_size(bar, LV_HOR_RES - 10, 10);
 	    lv_bar_set_range(bar, 0, 100);
 	    lv_bar_set_value(bar, 0, LV_ANIM_OFF);
-	    lv_obj_set_style_local_margin_top(bar, LV_BAR_PART_BG, LV_STATE_DEFAULT, 10);
 	}
 
 	lv_cont_set_fit(msg, LV_FIT_NONE);
