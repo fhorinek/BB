@@ -24,6 +24,8 @@
 
 #include "fc/fc.h"
 
+#include "system/upload_crash.h"
+
 #include "file.h"
 
 static bool spi_prepare_in_progress = false;
@@ -191,6 +193,53 @@ void esp_http_stop(uint8_t data_id)
     protocol_send(PROTO_DOWNLOAD_STOP, (void *) &data, sizeof(data));
 }
 
+/**
+ * Uploads a file from the SD card via WiFi to the given URL.
+ *
+ * Custom headers cannot be provided, response content is ignored.
+ *
+ * @param url           a valid URL starting with either http:// or https://
+ * @param file_path     file path relative to the root of the SD card storage
+ * @param callback      function called with status updates during the transfer and when it completes
+ * @param context       pointer to custom context data that is accessible in the callback (not freed automatically)
+ * @return              a reference to the upload
+ */
+upload_slot_t * esp_http_upload(char * url, char * file_path, upload_slot_callback_t callback, void *context)
+{
+    upload_slot_t * slot = upload_slot_create(file_path, callback, context);
+    if (slot == NULL)
+        return NULL;
+
+    proto_upload_request_t upload_request;
+    strncpy(upload_request.url, url, PROTO_URL_LEN);
+    strncpy(upload_request.file_path, file_path, PROTO_FS_PATH_LEN);
+    upload_request.file_size = slot->file_size;
+    upload_request.data_id = slot->data_id;
+
+    DBG("Upload: %s (size: %ld)", upload_request.file_path, upload_request.file_size);
+
+    protocol_send(PROTO_UPLOAD_URL, (void *) &upload_request, sizeof(upload_request));
+
+    return slot;
+}
+
+/**
+ * Cancels a pending upload if it is still running.
+ *
+ * Will call the respective callback function in case the upload hasn't finished yet.
+ *
+ * @param slot  upload reference
+ */
+void esp_http_upload_stop(upload_slot_t *slot)
+{
+    proto_upload_stop_t stop;
+    stop.data_id = slot->data_id;
+
+    upload_slot_cancel(slot->data_id);
+
+    protocol_send(PROTO_UPLOAD_STOP, (void *) &stop, sizeof(stop));
+}
+
 
 void protocol_init()
 {
@@ -328,6 +377,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
                 osTimerId_t timer = osTimerNew(check_for_update, osTimerOnce, NULL, NULL);
                 osTimerStart(timer, 5000);
             }
+
+            upload_crash_reports_schedule();
         }
         break;
 
@@ -382,6 +433,10 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_DOWNLOAD_INFO):
             download_slot_process_info((proto_download_info_t *)data);
+        break;
+
+        case(PROTO_UPLOAD_INFO):
+            upload_slot_process_info((proto_upload_info_t *)data);
         break;
 
         case(PROTO_FS_LIST_REQ):

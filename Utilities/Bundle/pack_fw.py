@@ -84,8 +84,8 @@ stm_base_path = os.path.dirname(os.path.realpath(__file__)) + "/../../BB3/"
 stm_assets_path = os.path.join(stm_base_path, "Assets")
 stm_fw_path = os.path.join(stm_base_path, "Release")
 stm_bin_file = os.path.join(stm_fw_path, "BB3.bin")
-stm_map_file = os.path.join(stm_fw_path, "BB3.map")
-stm_list_file = os.path.join(stm_fw_path, "BB3.list")
+stm_elf_file = os.path.join(stm_fw_path, "BB3.elf")
+
 
 # assets
 def add_files(path, level):
@@ -253,12 +253,12 @@ if os.path.exists("strato.fw"):
 f = open("strato.fw", "wb")
 
 f.write(struct.pack("<L", build_devel))
-f.write(struct.pack("<b", number_of_records))
+f.write(struct.pack("<H", number_of_records))
 f.write(struct.pack("<H", build_testing))
 f.write(struct.pack("<H", build_release))
 
 #pad rest of the app header
-for i in range(32 - (4 + 1 + 2 + 2)):
+for i in range(32 - (4 + 2 + 2 + 2)):
     f.write(struct.pack("<b", 0))
 
 for c in chunks:
@@ -274,16 +274,25 @@ f.close()
 build = "%c.%u.%u.%u" % (args.channel, build_devel, build_testing, build_release)
 
 if args.publish:
-    folder = os.path.dirname(os.path.realpath(__file__)) + "/build/%s" % (build)
+    if args.channel == "D":
+        folder = "devel"
+    if args.channel == "T":
+        folder = "testing"
+    if args.channel == "R":
+        folder = "release"
 
-    os.makedirs(folder, exist_ok=True)
-    shutil.copyfile("strato.fw", os.path.join(folder, "strato.fw"))
-    shutil.copyfile("strato.fw", os.path.join(folder, "%s.fw" % build))
-    shutil.copyfile(stm_map_file, os.path.join(folder, "BB3.map"))
-    shutil.copyfile(stm_list_file, os.path.join(folder, "BB3.list"))
+    path_legacy = "vps.skybean.eu:/var/www/strato/fw/%s/%s/strato.fw" % (folder, build)
+    os.system("ssh %s" % os.path.dirname(path_legacy).replace(":", " mkdir -p "))
+    os.system("scp strato.fw %s" % path_legacy)
+
+    path_new = "vps.skybean.eu:/var/www/strato/update/%s/fw/%s.fw" % (folder, build)
+    os.system("scp strato.fw %s" % path_new)
+
+    path_elf = "vps.skybean.eu:/var/www/strato/metrics/elf/%s.elf" % (build)
+    os.system("scp %s %s" % (stm_elf_file, path_elf))
 
     os.system("git add -A")
-    os.system("git commit -m 'Added binaries for relese %s'" % build)
+    os.system("git commit -m 'Build numbers update for %s'" % build)
     os.system("git tag '%s'" % build)
 
 print("Done for build " + build)

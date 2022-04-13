@@ -16,6 +16,7 @@
 #include "pipeline/sound.h"
 #include "pipeline/vario.h"
 #include "download.h"
+#include "upload.h"
 #include "bluetooth/bluetooth.h"
 #include "pipeline/pipeline.h"
 #include "pipeline/output.h"
@@ -255,6 +256,20 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 		}
         break;
 
+        case (PROTO_UPLOAD_URL):
+        {
+            proto_upload_request_t * packet = (proto_upload_request_t *) ps_malloc(sizeof(proto_upload_request_t));
+            memcpy(packet, data, sizeof(proto_upload_request_t));
+
+            xTaskCreate((TaskFunction_t)upload_file, "upload_file", 1024 * 4, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
+        }
+        break;
+
+        case (PROTO_UPLOAD_STOP):
+        {
+            upload_stop(((proto_upload_stop_t *)data)->data_id);
+        }
+        break;
 
         case (PROTO_FS_LIST_RES):
 		{
