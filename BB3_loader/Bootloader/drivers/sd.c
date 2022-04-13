@@ -155,7 +155,6 @@ bool sd_mount()
     if (err)
     {
         ERR("Error mounting, formating");
-        while(1);
         lfs_format(&lfs, &lfs_cfg);
         err = lfs_mount(&lfs, &lfs_cfg);
     }

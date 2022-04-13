@@ -395,7 +395,7 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
             return UX_ERROR;
         INFO(" path %s", path);
 
-        if (mtp_file_read_idx != 0)
+        if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
         {
             INFO("Closing mtp_file");
             lfs_file_close(&lfs, &mtp_file);
@@ -458,51 +458,56 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
 
 }
 
+uint16_t mtp_object_data_send_cnt = 0;
+
 static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG phase, UCHAR *object_buffer, ULONG object_offset,
         ULONG object_length)
 {
     INFO("mtp_object_data_send %u %08X %u+%u", phase, object_handle, object_offset, object_length);
 
-    if (mtp_file_write_idx != object_handle)
+    if (phase == UX_DEVICE_CLASS_PIMA_OBJECT_TRANSFER_PHASE_ACTIVE)
     {
-        char path[PATH_LEN];
-        if (!construct_path(path, object_handle))
-            return UX_ERROR;
+        if (mtp_file_write_idx != object_handle)
+        {
+            char path[PATH_LEN];
+            if (!construct_path(path, object_handle))
+                return UX_ERROR;
 
-        INFO(" path %s", path);
+
+            if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
+            {
+                lfs_file_close(&lfs, &mtp_file);
+                mtp_file_read_idx = 0;
+                mtp_file_write_idx = 0;
+            }
+
+            UINT res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_WRONLY | LFS_O_CREAT);
+            if (res == LFS_ERR_OK)
+            {
+                mtp_file_write_idx = object_handle;
+            }
+        }
 
         if (mtp_file_write_idx != 0)
         {
-            INFO("Closing mtp_file");
-            lfs_file_close(&lfs, &mtp_file);
-            mtp_file_read_idx = 0;
-            mtp_file_write_idx = 0;
-        }
+            lfs_file_seek(&lfs, &mtp_file, object_offset, LFS_SEEK_SET);
+            int wrote = lfs_file_write(&lfs, &mtp_file, object_buffer, object_length);
+            lfs_file_sync(&lfs, &mtp_file);
 
-        INFO("Opening mtp_file %s for write", path);
-        UINT res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_WRONLY | LFS_O_CREAT);
-        if (res == LFS_ERR_OK)
-        {
-            mtp_file_write_idx = object_handle;
+            if (wrote < 0 || wrote != object_length)
+            {
+                return UX_ERROR;
+            }
+
+
+            INFO("Wrote OK %u", mtp_object_data_send_cnt);
+            mtp_object_data_send_cnt++;
+            return UX_SUCCESS;
         }
     }
     else
     {
-        INFO("mtp_file is open to write");
-    }
-
-    if (mtp_file_write_idx != 0)
-    {
-        lfs_file_seek(&lfs, &mtp_file, object_offset, LFS_SEEK_SET);
-        int wrote = lfs_file_write(&lfs, &mtp_file, object_buffer, object_length);
-        lfs_file_sync(&lfs, &mtp_file);
-
-        if (wrote < 0 || wrote != object_length)
-        {
-            return UX_ERROR;
-        }
-
-        INFO("Wrote OK");
+        //COMPLETE OR COMPLETE ERROR
         return UX_SUCCESS;
     }
 

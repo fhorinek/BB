@@ -158,7 +158,11 @@ UCHAR language_id_framework[] = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+void ux_error_cb(UINT system_level, UINT system_context, UINT error_code)
+{
+    ERR("ux_error_cb %u, %u, %u", system_level, system_context, error_code);
+  //  while(1);
+}
 /* USER CODE END PFP */
 /**
   * @brief  Application USBX Device Initialization.
@@ -186,6 +190,8 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
 
     status = ux_system_initialize(allocated_memory, 60 * 1024, UX_NULL, 0);
     ASSERT_MSG(status == UX_SUCCESS, "ux_system_initialize, status %02X", status);
+
+    ux_utility_error_callback_register(ux_error_cb);
 
     //init stack
     status = ux_device_stack_initialize(device_framework_high_speed, sizeof(device_framework_high_speed),

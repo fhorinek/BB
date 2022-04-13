@@ -24,19 +24,20 @@
 
 #define DUMP(data, len) debug_dump(data, len)
 
-#undef __FILENAME__
-#define __FILENAME__ __FILE_NAME__
+#ifndef __FILE_NAME__
+#define __FILE_NAME__ __FILENAME__
+#endif
 
 #define ASSERT(cond)	\
 	do {	\
 		if (!(cond))	\
-			ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+			ERR("Assertion failed %s:%u", __FILE_NAME__, __LINE__); \
 	} while(0);
 
 #define ASSERT_MSG(cond, ...)    \
     do {    \
         if (!(cond))  {  \
-            ERR("Assertion failed %s:%u", __FILENAME__, __LINE__); \
+            ERR("Assertion failed %s:%u", __FILE_NAME__, __LINE__); \
             ERR(__VA_ARGS__); \
             while(1); }\
     } while(0);
