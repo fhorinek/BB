@@ -6,28 +6,64 @@
 
 #include "gfx.h"
 
-#define SD_DMA_TIMEOUT					150
+#define SD_DMA_TIMEOUT					300
+
+#define SD_DEFAULT_BLOCK_SIZE 512
+#define LFS_BLOCK_SIZE   32
+#define BUFF_SIZE (SD_DEFAULT_BLOCK_SIZE * LFS_BLOCK_SIZE)
+#define LA_SIZE 64
 
 #undef DBG
 #define DBG(...)
+//#undef INFO
+//#define INFO(...)
+
+bool sd_wait()
+{
+    uint32_t start = HAL_GetTick();
+    while (hsd1.State == HAL_SD_STATE_BUSY)
+    {
+        if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
+        {
+            ERR("Wait timeout");
+            return false;
+        }
+    }
+
+    return true;
+}
 
 int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
 	uint8_t ret;
 	uint8_t cnt = 0;
-	uint32_t addr = block;// * c->block_size + off;
-	size /= c->block_size;
+	uint32_t addr = (block * LFS_BLOCK_SIZE)  + (off / SD_DEFAULT_BLOCK_SIZE);
+	size /= SD_DEFAULT_BLOCK_SIZE;
 
-	ASSERT_MSG(off == 0, "Offset is not 0");
+//	INFO("Read adr %08lX blk %u off %u siz %u", addr, block, off, size);
+
+
+	uint8_t bad_ret;
+	uint32_t bad_error_code;
+
+	if (!sd_wait())
+	{
+	    return -2;
+	}
 
 	do
 	{
 	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)buffer, addr, size);
         DBG("HAL_SD_ReadBlocks_DMA %p %08X %u, ret = %u", buffer, addr, size, ret);
+        if (ret != HAL_OK)
+        {
+            bad_ret = ret;
+            bad_error_code = hsd1.ErrorCode;
+        }
 		cnt++;
 		if (cnt > 10)
 		{
-	  		ERR("Read fail %08lX %u %u, ret = %u", addr, size, cnt, ret);
+	  		ERR("Read fail %08lX %u %u, ret = %u, %X", addr, size, cnt, ret, bad_error_code);
 	  		return -1;
 		}
 	}
@@ -35,19 +71,13 @@ int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, v
 
 	if (cnt > 1)
 	{
-		WARN("Read problem %08lX %u %u", addr, size, cnt);
+		WARN("Read problem %08lX %u %u %u %X", addr, bad_ret, size, cnt, bad_error_code);
 	}
 
-    uint32_t start = HAL_GetTick();
-    while (hsd1.State == HAL_SD_STATE_BUSY)
+    if (!sd_wait())
     {
-        if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-        {
-            ERR("Read timeout %08lX %u", addr, size);
-            return -2;
-        }
-    };
-
+        return -2;
+    }
 
 	return 0;
 }
@@ -56,18 +86,28 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
 {
     uint8_t ret;
     uint8_t cnt = 0;
-    uint32_t addr = block;// * c->block_size + off;
-    size /= c->block_size;
+    uint32_t addr = (block * LFS_BLOCK_SIZE)  + (off / SD_DEFAULT_BLOCK_SIZE);
+    size /= SD_DEFAULT_BLOCK_SIZE;
 
-    ASSERT_MSG(off == 0, "Offset is not 0");
+//    INFO("Write adr %08lX blk %u off %u siz %u", addr, block, off, size);
+    uint8_t bad_ret;
+    uint32_t bad_error_code;
+
+    if (!sd_wait())
+        return -2;
 
     do
     {
         ret = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t*) buffer, addr, size);
+        if (ret != HAL_OK)
+        {
+            bad_ret = ret;
+            bad_error_code = hsd1.ErrorCode;
+        }
         cnt++;
         if (cnt > 10)
         {
-            ERR("Write fail %08lX %u %u", addr, size, cnt);
+            ERR("Write fail %08lX %u %u %X", addr, size, cnt, bad_error_code);
             return -1;
         }
     }
@@ -75,45 +115,62 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
 
     if (cnt > 1)
     {
-        WARN("Write problem %08lX %u %u", addr, size, cnt);
+        WARN("Write problem %08lX %u %u %u %X", addr, bad_ret, size, cnt, bad_error_code);
     }
 
-    uint32_t start = HAL_GetTick();
-    while (hsd1.State == HAL_SD_STATE_BUSY)
-    {
-        if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-        {
-            ERR("Write timeout %08lX %u %u", addr, size, cnt);
-            return -2;
-        }
-    };
-
-
+    if (!sd_wait())
+        return -2;
 
     return 0;
 }
 
 int sd_card_erase(const struct lfs_config *c, lfs_block_t block)
 {
-	uint32_t addr_start = block;// * c->block_size;
-	uint32_t addr_end = (block + 1);// * c->block_size;
+	uint32_t addr_start = block * LFS_BLOCK_SIZE;
+	uint32_t addr_end = addr_start + LFS_BLOCK_SIZE;
 
-	return (HAL_SD_Erase(&hsd1, addr_start, addr_end) == HAL_OK) ? 0 : -1;
+	INFO("Erase %X - %X", addr_start, addr_end);
+
+    if (!sd_wait())
+    {
+        return -2;
+    }
+
+    HAL_StatusTypeDef res = HAL_SD_Erase(&hsd1, addr_start, addr_end);
+
+    if (!sd_wait())
+    {
+        return -2;
+    }
+
+    return (res == HAL_OK) ? 0 : -1;
 }
 
 int sd_card_sync(const struct lfs_config *c)
 {
-	return 0;
+    INFO("Sync");
+
+    if (!sd_wait())
+    {
+        return -2;
+    }
+
+    return 0;
 }
 
 struct lfs_config lfs_cfg;
 lfs_t lfs;
 
-#define SD_DEFAULT_BLOCK_SIZE 512
+
+
+uint8_t read_buff[BUFF_SIZE];
+uint8_t prog_buff[BUFF_SIZE];
+uint8_t la_buff[LA_SIZE];
 
 void sd_init()
 {
     MX_SDMMC1_SD_Init();
+
 
     HAL_SD_CardInfoTypeDef card_info;
     HAL_SD_GetCardInfo(&hsd1, &card_info);
@@ -125,15 +182,42 @@ void sd_init()
     lfs_cfg.sync  = sd_card_sync;
 
     // block device configuration
-    lfs_cfg.read_size = SD_DEFAULT_BLOCK_SIZE;
-    lfs_cfg.prog_size = SD_DEFAULT_BLOCK_SIZE;
-    lfs_cfg.cache_size = SD_DEFAULT_BLOCK_SIZE;
-    lfs_cfg.block_size = card_info.BlockSize;
-    lfs_cfg.block_count = card_info.BlockNbr;
+    lfs_cfg.read_size = BUFF_SIZE;
+    lfs_cfg.prog_size = BUFF_SIZE;
+    lfs_cfg.cache_size = BUFF_SIZE;
+    lfs_cfg.block_size = BUFF_SIZE;
+    lfs_cfg.block_count = card_info.BlockNbr / LFS_BLOCK_SIZE;
+
+    lfs_cfg.read_buffer = read_buff;
+    lfs_cfg.prog_buffer = prog_buff;
 
     lfs_cfg.block_cycles = 500;
 
-    lfs_cfg.lookahead_size = 64;
+    lfs_cfg.lookahead_size = LA_SIZE;
+    lfs_cfg.lookahead_buffer = la_buff;
+
+    HAL_Delay(100);
+
+//    for (uint32_t i = 0; i < card_info.BlockNbr; i++)
+//        sd_card_read(&lfs_cfg, i, 0, buff, 512);
+//
+//    for (uint16_t i = 0; i < sizeof(buff); i++)
+//        buff[i] = i % 255;
+//
+//    for (uint32_t i = 0; i < card_info.BlockNbr; i+=100)
+//    {
+//        sd_card_read(&lfs_cfg, i, 0, buff, 512);
+//        sd_card_prog(&lfs_cfg, i, 0, buff, 512);
+//        if (i % 1000000 == 0)
+//        {
+//            INFO("%u/%u %0.2f%%", i, card_info.BlockNbr, (i * 100.0) / (float)card_info.BlockNbr);
+//        }
+//        break;
+//    }
+
+
+
+//    while(1);
 }
 
 void sd_format()
@@ -148,20 +232,33 @@ bool sd_mount()
 {
 	DBG("Mounting SD");
 
-    int8_t err = lfs_mount(&lfs, &lfs_cfg);
+
+
+
+    int err = lfs_mount(&lfs, &lfs_cfg);
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
-    if (err)
+    if (err||1)
     {
         ERR("Error mounting, formating");
         lfs_format(&lfs, &lfs_cfg);
         err = lfs_mount(&lfs, &lfs_cfg);
+
+        lfs_file_t file;
+
+        for (uint8_t i = 1; i <13; i++)
+        {
+            char path[64];
+            sprintf(path, "file_%u", i);
+            lfs_file_open(&lfs, &file, path, LFS_O_WRONLY | LFS_O_CREAT);
+            lfs_file_close(&lfs, &file);
+        }
     }
 
 	if (err)
 	{
-		ERR(" Error mounting SD = %u", err);
+		ERR(" Error mounting SD = %d", err);
 		return false;
 	}
 

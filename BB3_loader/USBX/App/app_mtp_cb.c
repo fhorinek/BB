@@ -14,6 +14,8 @@
 #include "lib/littlefs/lfs.h"
 #include "drivers/rev.h"
 
+#include "ux_api.h"
+
 extern lfs_t lfs;
 
 
@@ -240,7 +242,7 @@ static UINT mtp_device_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 static UINT mtp_device_prop_value_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG device_property, UCHAR *device_prop_value, ULONG device_prop_value_length)
 {
     INFO("mtp_device_prop_value_set");
-    return UX_SUCCESS;
+    return UX_ERROR;
 }
 
 static UINT mtp_storage_format(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG storage_id)
@@ -278,8 +280,7 @@ static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 static UINT mtp_object_number_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_format_code, ULONG object_association, ULONG *object_number)
 {
     INFO("mtp_object_number_get");
-    while(1);
-    return UX_SUCCESS;
+    return UX_ERROR;
 }
 
 static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handles_format_code,
@@ -412,7 +413,7 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
     }
     else
     {
-        INFO("mtp_file is open to read");
+//        INFO("mtp_file is open to read");
     }
 
 
@@ -471,7 +472,10 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
         {
             char path[PATH_LEN];
             if (!construct_path(path, object_handle))
+            {
+                ERR("Unable to construct path");
                 return UX_ERROR;
+            }
 
 
             if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
@@ -481,10 +485,14 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
                 mtp_file_write_idx = 0;
             }
 
-            UINT res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_WRONLY | LFS_O_CREAT);
+            int res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_WRONLY | LFS_O_CREAT);
             if (res == LFS_ERR_OK)
             {
                 mtp_file_write_idx = object_handle;
+            }
+            else
+            {
+                ERR("Unable to open file to write %d", res);
             }
         }
 
@@ -496,11 +504,12 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 
             if (wrote < 0 || wrote != object_length)
             {
+                ERR("Wrong write lenght %d", wrote);
                 return UX_ERROR;
             }
 
 
-            INFO("Wrote OK %u", mtp_object_data_send_cnt);
+//            INFO("Wrote OK %u", mtp_object_data_send_cnt);
             mtp_object_data_send_cnt++;
             return UX_SUCCESS;
         }
@@ -663,12 +672,12 @@ static USHORT object_properties_list[] = {
         0
 };
 
-static USHORT empty_list[] = {NULL};
+static USHORT empty_list[] = {0};
 
 void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
 {
-    snprintf(serial, sizeof(serial), "%08lX", rev_get_short_id());
-    rev_get_sw_string(version);
+    snprintf((char *)serial, sizeof(serial), "%08lX", rev_get_short_id());
+    rev_get_sw_string((char *)version);
 
     parameter->ux_device_class_pima_instance_activate = mtp_activate;
     parameter->ux_device_class_pima_instance_deactivate = mtp_deactivate;
@@ -727,9 +736,10 @@ void app_mtp_thread_entry(ULONG arg)
 
     HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 1024);
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 64);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 3, 128);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 3, 64);
 
     UINT status = ux_dcd_stm32_initialize((ULONG)0, (ULONG)&hpcd_USB_OTG_HS);
+    ASSERT(status == UX_SUCCESS)
 
     HAL_PCD_Start(&hpcd_USB_OTG_HS);
 }
