@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "app_threadx.h"
 #include "crc.h"
 #include "dma.h"
 #include "i2c.h"
@@ -127,11 +126,10 @@ int main(void)
   app_main(power_on_mode);
   HAL_Delay(100);
 
-  /* USER CODE END 2 */
-
   MX_ThreadX_Init();
 
-  /* We should never get here as control is now taken by the scheduler */
+  /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

@@ -126,34 +126,36 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
 
 int sd_card_erase(const struct lfs_config *c, lfs_block_t block)
 {
-	uint32_t addr_start = block * LFS_BLOCK_SIZE;
-	uint32_t addr_end = addr_start + LFS_BLOCK_SIZE;
+    return 0;
 
-	INFO("Erase %X - %X", addr_start, addr_end);
-
-    if (!sd_wait())
-    {
-        return -2;
-    }
-
-    HAL_StatusTypeDef res = HAL_SD_Erase(&hsd1, addr_start, addr_end);
-
-    if (!sd_wait())
-    {
-        return -2;
-    }
-
-    return (res == HAL_OK) ? 0 : -1;
+//	uint32_t addr_start = block * LFS_BLOCK_SIZE;
+//	uint32_t addr_end = addr_start + LFS_BLOCK_SIZE;
+//
+//	INFO("Erase %X - %X", addr_start, addr_end);
+//
+//    if (!sd_wait())
+//    {
+//        return -2;
+//    }
+//
+//    HAL_StatusTypeDef res = HAL_SD_Erase(&hsd1, addr_start, addr_end);
+//
+//    if (!sd_wait())
+//    {
+//        return -2;
+//    }
+//
+//    return (res == HAL_OK) ? 0 : -1;
 }
 
 int sd_card_sync(const struct lfs_config *c)
 {
-    INFO("Sync");
-
-    if (!sd_wait())
-    {
-        return -2;
-    }
+//    INFO("Sync");
+//
+//    if (!sd_wait())
+//    {
+//        return -2;
+//    }
 
     return 0;
 }

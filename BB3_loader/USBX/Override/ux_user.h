@@ -7,8 +7,8 @@
 #include "../App/ux_user.h"
 
 #define UX_ENABLE_MEMORY_STATISTICS
-#define UX_THREAD_STACK_SIZE                                (4 * 1024)
-//#define UX_SLAVE_REQUEST_CONTROL_MAX_LENGTH                 1024
+#define UX_THREAD_STACK_SIZE                                        (4 * 1024)
+#define UX_SLAVE_REQUEST_DATA_MAX_LENGTH                            (16 * 1024)
 
 #endif
 
