@@ -5,6 +5,7 @@
  *      Author: horinek
  */
 
+#include <usb_mode.h>
 #include "common.h"
 
 #include "drivers/sd.h"
@@ -13,7 +14,6 @@
 #include "nvm.h"
 
 #include "gfx.h"
-#include "msc.h"
 #include "flash.h"
 #include "pwr_mng.h"
 
@@ -374,11 +374,57 @@ void bat_check_step()
 	}
 }
 
+void app_continue()
+{
+    bool updated = false;
+    bool skip_crc = false;
+
+    updated = flash_loop();
+
+    if (file_exists(SKIP_CRC_FILE))
+    {
+        WARN("CRC check override!");
+        skip_crc = true;
+    }
+
+    if (flash_verify() || skip_crc)
+    {
+        if (updated)
+        {
+            gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
+            button_confirm(BT3);
+        }
+
+        if (*(uint32_t *)APP_ADDRESS == 0xFFFFFFFF)
+        {
+            gfx_draw_status(GFX_STATUS_ERROR, "No Firmware");
+            button_confirm(BT3);
+        }
+        else
+        {
+            app_deinit();
+
+            no_init_check();
+            no_init->boot_type = BOOT_SHOW;
+            no_init_update();
+
+            Bootloader_JumpToApplication();
+        }
+    }
+    else
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not found");
+        button_confirm(BT3);
+    }
+
+    app_reset();
+
+    //not possible to reach!
+    while(1);
+}
+
 void app_main(uint8_t power_on_mode)
 {
-	bool updated = false;
-	bool skip_crc = false;
-
 	debug_enable();
 
 	INFO("Bootloader init");
@@ -401,9 +447,6 @@ void app_main(uint8_t power_on_mode)
 
     PSRAM_init();
     sd_init();
-    sd_mount();
-
-    return;
 
     if (button_pressed(BT2) && button_pressed(BT5))
     {
@@ -430,79 +473,22 @@ void app_main(uint8_t power_on_mode)
     	key_combo(GFX_STARTUP_APP, BT3);
     }
 
-    //check for FORMAT file
-    if (sd_mount())
+    if (sd_mount() == false)
     {
-    	if (file_exists(DEV_MODE_FILE))
-    		development_mode = true;
+        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+        button_confirm(BT3);
+        app_sleep();
+    }
 
-    	bool format = file_exists(FORMAT_FILE);
-
-    	sd_unmount();
-
-    	if (format)
-    	{
-    		sd_format();
-    	}
+    if (file_exists(DEV_MODE_FILE))
+    {
+        development_mode = true;
     }
 
 	if (power_on_mode == POWER_ON_USB)
 	{
-	    //if usb mode exited with usb disconnect, power off
-	    if (!msc_loop())
-	    {
-	        app_sleep();
-	    }
+	    usb_mode_start();
 	}
 
-    if (sd_mount())
-    {
-        updated = flash_loop();
-
-        if (file_exists(SKIP_CRC_FILE))
-        {
-            WARN("CRC check override!");
-            skip_crc = true;
-        }
-    }
-    else
-    {
-        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
-        button_confirm(BT3);
-    }
-
-    if (flash_verify() || skip_crc)
-    {
-        if (updated)
-        {
-            gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
-            button_confirm(BT3);
-        }
-
-        if (*(uint32_t *)APP_ADDRESS == 0xFFFFFFFF)
-        {
-            gfx_draw_status(GFX_STATUS_ERROR, "No Firmware");
-            button_confirm(BT3);
-        }
-        else
-        {
-			app_deinit();
-
-		    no_init_check();
-		    no_init->boot_type = BOOT_SHOW;
-		    no_init_update();
-
-			Bootloader_JumpToApplication();
-        }
-    }
-    else
-    {
-        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not found");
-        button_confirm(BT3);
-    }
-
-    app_reset();
-
-    //not possible to reach!
-    while(1);
+	app_continue();
 }

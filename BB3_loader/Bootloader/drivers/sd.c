@@ -9,9 +9,10 @@
 #define SD_DMA_TIMEOUT					300
 
 #define SD_DEFAULT_BLOCK_SIZE 512
-#define LFS_BLOCK_SIZE   32
-#define BUFF_SIZE (SD_DEFAULT_BLOCK_SIZE * LFS_BLOCK_SIZE)
-#define LA_SIZE 64
+#define LFS_BLOCK_SIZE   64
+#define BUFF_SIZE   (SD_DEFAULT_BLOCK_SIZE * LFS_BLOCK_SIZE)
+#define BLOCK_SIZE  BUFF_SIZE
+#define LA_SIZE 8192
 
 #undef DBG
 #define DBG(...)
@@ -45,11 +46,6 @@ int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, v
 
 	uint8_t bad_ret;
 	uint32_t bad_error_code;
-
-	if (!sd_wait())
-	{
-	    return -2;
-	}
 
 	do
 	{
@@ -93,9 +89,6 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
     uint8_t bad_ret;
     uint32_t bad_error_code;
 
-    if (!sd_wait())
-        return -2;
-
     do
     {
         ret = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t*) buffer, addr, size);
@@ -119,7 +112,9 @@ int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, c
     }
 
     if (!sd_wait())
+    {
         return -2;
+    }
 
     return 0;
 }
@@ -150,13 +145,6 @@ int sd_card_erase(const struct lfs_config *c, lfs_block_t block)
 
 int sd_card_sync(const struct lfs_config *c)
 {
-//    INFO("Sync");
-//
-//    if (!sd_wait())
-//    {
-//        return -2;
-//    }
-
     return 0;
 }
 
@@ -165,9 +153,9 @@ lfs_t lfs;
 
 
 
-uint8_t read_buff[BUFF_SIZE];
-uint8_t prog_buff[BUFF_SIZE];
-uint8_t la_buff[LA_SIZE];
+uint8_t __aligned(4) read_buff[BUFF_SIZE];
+uint8_t __aligned(4) prog_buff[BUFF_SIZE];
+uint8_t __aligned(16) la_buff[LA_SIZE / sizeof(uint8_t)];
 
 void sd_init()
 {
@@ -241,21 +229,11 @@ bool sd_mount()
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
-    if (err||1)
+    if (err)
     {
         ERR("Error mounting, formating");
         lfs_format(&lfs, &lfs_cfg);
         err = lfs_mount(&lfs, &lfs_cfg);
-
-        lfs_file_t file;
-
-        for (uint8_t i = 1; i <13; i++)
-        {
-            char path[64];
-            sprintf(path, "file_%u", i);
-            lfs_file_open(&lfs, &file, path, LFS_O_WRONLY | LFS_O_CREAT);
-            lfs_file_close(&lfs, &file);
-        }
     }
 
 	if (err)

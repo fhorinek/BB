@@ -44,7 +44,7 @@ typedef enum
 
 typedef struct
 {
-	uint32_t data_usb_activity;
+	volatile uint32_t data_usb_activity;
 
     uint16_t boost_output; //in mW
     uint8_t data_port;

@@ -6,33 +6,29 @@
  */
 
 
-#include "msc.h"
-
+#include <usb_mode.h>
 #include "gfx.h"
 
 #include "pwr_mng.h"
 #include "nvm.h"
 #include "drivers/led.h"
 
-#include "lib/STM32_USB_Device_Library/App/usb_device.h"
-#include "lib/STM32_USB_Device_Library/Core/usbd_core.h"
-#include "lib/STM32_USB_Device_Library/Class/MTP/usbd_mtp.h"
+#include "app_mtp_cb.h"
+#include "app_threadx.h"
 
-volatile bool msc_locked = false;
-volatile bool msc_ejected = false;
-volatile uint32_t msc_activity = 0;
-
-
-void wtf();
-
-bool msc_loop()
+void usb_mode_start()
 {
+    MX_ThreadX_Init();
+}
+
+void usb_mode_entry(ULONG id)
+{
+    return;
+
     INFO("USB mode on");
 	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
 
     uint8_t start_up = false;
-
-    bool usb_init = false;
 
     uint8_t old_charge = 0xFF;
     uint8_t old_data = 0xFF;
@@ -41,35 +37,23 @@ bool msc_loop()
 
     uint32_t pwr_delay = HAL_GetTick() + 4000;
 
+    bool session_open = false;
+
     while (1)
     {
         pwr_step();
 
-        if (button_pressed(BT1) ||button_pressed(BT2) || button_pressed(BT3) || button_pressed(BT4) || button_pressed(BT5))
+        if (button_pressed(BT1) || button_pressed(BT2) || button_pressed(BT3) || button_pressed(BT4) || button_pressed(BT5))
         {
         	led_set_backlight(GFX_BACKLIGHT);
         	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
         }
 
-        if ((pwr.data_port == PWR_DATA_CHARGE  || pwr.data_port == PWR_DATA_CHARGE_DONE) && !usb_init)
-        {
-            usb_init = true;
-            msc_locked = false;
-            MX_USB_DEVICE_Init();
-        }
-
-        if (msc_ejected)
-        {
-            start_up = true;
-            break;
-        }
-
-        //get class data
-        USBD_MTP_HandleTypeDef *hmtp = (USBD_MTP_HandleTypeDef *)hUsbDeviceHS.pClassDataCmsit;
-
         //are class data avalible (usb init ok)
-        if (hmtp > 0)
+        if (mtp_session_is_open())
         {
+            session_open = true;
+
             if (pwr.data_port == PWR_DATA_CHARGE || pwr.data_port == PWR_DATA_CHARGE_DONE)
             {
                 pwr.data_port = PWR_DATA_ACTIVE;
@@ -77,29 +61,21 @@ bool msc_loop()
 
             if (pwr.data_port == PWR_DATA_NONE)
             {
-                usb_init = false;
-                msc_locked = false;
-                USBD_DeInit(&hUsbDeviceHS);
-            }
-
-            if (pwr.charge_port == PWR_CHARGE_NONE
-            		&& old_charge > PWR_CHARGE_NONE)
-            {
-            	//after bq usb disconnection, restart usb stack
-                pwr.data_port = PWR_DATA_NONE;
-				usb_init = false;
-				USBD_DeInit(&hUsbDeviceHS);
-				msc_locked = false;
+                INFO("Port none, session open");
+                mtp_session_close_force();
             }
         }
         else
         {
+            session_open = false;
+
         	if (pwr.data_port == PWR_DATA_ACTIVE)
         	{
+                INFO("Port active, session closed");
                 pwr.data_port = PWR_DATA_NONE;
-				usb_init = false;
-				USBD_DeInit(&hUsbDeviceHS);
-				msc_locked = false;
+
+                //ejected
+                break;
         	}
         }
 
@@ -164,7 +140,6 @@ bool msc_loop()
             {
                 gfx_draw_status(GFX_STATUS_NONE_NONE, NULL);
             }
-
         }
 
         bool anim_done = gfx_draw_anim();
@@ -188,7 +163,7 @@ bool msc_loop()
 		}
 
 		//charge done by bq charger
-		if (pwr.charge_port == PWR_CHARGE_DONE && !msc_locked)
+		if (pwr.charge_port == PWR_CHARGE_DONE && !session_open)
 		{
 			no_init->boot_type = BOOT_CHARGE;
 			no_init_update();
@@ -197,7 +172,7 @@ bool msc_loop()
 		}
 
 		//usb charging or active but msc unlocked
-		if (button_hold(BT3) && !msc_locked)
+		if (button_hold(BT3) && !session_open)
 		{
 			//start right now!
 			start_up = true;
@@ -206,7 +181,7 @@ bool msc_loop()
 
 		//weak charger connected
 		if (pwr.charge_port == PWR_CHARGE_WEAK
-				&& !msc_locked
+				&& !session_open
 				&& pwr_delay < HAL_GetTick())
 		{
 			gfx_draw_status(GFX_STATUS_ERROR, "Weak charger!");
@@ -229,48 +204,14 @@ bool msc_loop()
         }
     }
 
-    if (usb_init)
-    {
-    	USBD_DeInit(&hUsbDeviceHS);
-    }
-
     INFO("USB mode off");
 
 	led_set_backlight(GFX_BACKLIGHT);
 	led_set_backlight_timeout(0);
 
-    return start_up;
+    if (start_up)
+        app_continue();
+    else
+        app_sleep();
 }
 
-//void msc_irq_handler()
-//{
-//	static uint8_t scsii_state_old = 0xFF;
-//	pwr.data_usb_activity = HAL_GetTick();
-//
-//    //class data are avalible
-//    if ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData > 0 && pwr.data_port == PWR_DATA_ACTIVE)
-//    {
-//    	uint8_t scsii_state = ((USBD_MSC_BOT_HandleTypeDef *)hUsbDeviceHS.pClassData)->scsi_medium_state;
-//
-//    	if (scsii_state_old != scsii_state)
-//    	{
-//    		INFO("scsii state %u %u", scsii_state, hUsbDeviceHS.dev_state);
-//    		scsii_state_old = scsii_state;
-//
-//			if (scsii_state == SCSI_MEDIUM_EJECTED)
-//			{
-//				msc_ejected = true;
-//			}
-//
-//			if (scsii_state == SCSI_MEDIUM_LOCKED)
-//			{
-//				msc_locked = true;
-//			}
-//
-//			if (scsii_state == SCSI_MEDIUM_UNLOCKED)
-//			{
-//				msc_locked = false;
-//			}
-//    	}
-//    }
-//}

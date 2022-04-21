@@ -13,6 +13,7 @@
 
 #include "lib/littlefs/lfs.h"
 #include "drivers/rev.h"
+#include "pwr_mng.h"
 
 #include "ux_api.h"
 
@@ -131,18 +132,27 @@ void idx_delete(uint32_t idx)
 
 
 
-//void print_threads()
-//{
-//    tx_thread_performance_info_get()
-//}
-
-
-
+struct UX_SLAVE_CLASS_PIMA_STRUCT * mtp_pima = NULL;
 static uint8_t mtp_buffer[1024];
+
+bool mtp_session_is_open()
+{
+    if (mtp_pima != NULL)
+    {
+        return mtp_pima->ux_device_class_pima_session_id != 0;
+    }
+    return false;
+}
+
+void mtp_session_close_force()
+{
+    mtp_pima = NULL;
+}
 
 void mtp_activate(void * param)
 {
     INFO("mtp_activate %p", param);
+    mtp_pima = NULL;
 
     idx_new_index = 0;
 
@@ -157,6 +167,7 @@ void mtp_activate(void * param)
 void mtp_deactivate(void * param)
 {
     INFO("mtp_deactivate %p", param);
+    mtp_pima = NULL;
 
     for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
     {
@@ -265,14 +276,19 @@ static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 {
     INFO("mtp_storage_info_get %08X", storage_id);
 
-    uint64_t max_capacity = (uint64_t)lfs.cfg->block_size * (uint64_t)lfs.cfg->block_count;
-    uint64_t free_space =  (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
+    if (mtp_pima == NULL)
+    {
+        mtp_pima = pima;
 
-    pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 32;
-    pima->ux_device_class_pima_storage_free_space_low = free_space & 0xFFFFFFFF;
+        uint64_t max_capacity = (uint64_t)lfs.cfg->block_size * (uint64_t)lfs.cfg->block_count;
+        uint64_t free_space =  (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
 
-    pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 32;
-    pima->ux_device_class_pima_storage_max_capacity_low = max_capacity & 0xFFFFFFFF;
+        pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 32;
+        pima->ux_device_class_pima_storage_free_space_low = free_space & 0xFFFFFFFF;
+
+        pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 32;
+        pima->ux_device_class_pima_storage_max_capacity_low = max_capacity & 0xFFFFFFFF;
+    }
 
     return UX_SUCCESS;
 }
@@ -283,12 +299,19 @@ static UINT mtp_object_number_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG
     return UX_ERROR;
 }
 
+static inline void mtp_port_active()
+{
+    pwr.data_usb_activity = HAL_GetTick();
+}
+
 static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handles_format_code,
         ULONG object_handles_association,
         ULONG *object_handles_array,
         ULONG object_handles_max_number)
 {
     INFO("mtp_object_handles_get %04X", object_handles_association);
+
+    mtp_port_active();
 
     uint32_t count = 0;
     char path[PATH_LEN];
@@ -389,6 +412,8 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
 {
     INFO("mtp_object_data_get %08X %u+%u", object_handle, object_offset, object_length_requested);
 
+    mtp_port_active();
+
     if (mtp_file_read_idx != object_handle)
     {
         char path[PATH_LEN];
@@ -434,6 +459,8 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
 {
     INFO("mtp_object_info_send");
 
+    mtp_port_active();
+
     char name[128];
     _ux_utility_unicode_to_string(object->ux_device_class_pima_object_filename, (UCHAR *)name);
 
@@ -465,6 +492,8 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
         ULONG object_length)
 {
     INFO("mtp_object_data_send %u %08X %u+%u", phase, object_handle, object_offset, object_length);
+
+    mtp_port_active();
 
     if (phase == UX_DEVICE_CLASS_PIMA_OBJECT_TRANSFER_PHASE_ACTIVE)
     {
@@ -526,6 +555,8 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle)
 {
     INFO("mtp_object_delete %08X", object_handle);
+
+    mtp_port_active();
 
     char path[PATH_LEN];
     if (construct_path(path, object_handle))

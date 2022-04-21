@@ -160,8 +160,9 @@ UCHAR language_id_framework[] = {
 /* USER CODE BEGIN PFP */
 void ux_error_cb(UINT system_level, UINT system_context, UINT error_code)
 {
-    ERR("ux_error_cb %u, %u, %u", system_level, system_context, error_code);
-  //  while(1);
+    ERR("ux_error_cb %u, %u, %X", system_level, system_context, error_code);
+    if (error_code == UX_MEMORY_INSUFFICIENT || error_code == 8193)
+        while(1);
 }
 /* USER CODE END PFP */
 /**
@@ -185,10 +186,10 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
     sprintf(strstr((char *)string_framework, "XXXXXXXX"), "%08lX", rev_get_short_id());
 
     //allocate memory
-    UINT status = tx_byte_allocate(byte_pool, (VOID**) &allocated_memory, 60 * 1024, TX_NO_WAIT);
+    UINT status = tx_byte_allocate(byte_pool, (VOID**) &allocated_memory, 210 * 1024, TX_NO_WAIT);
     ASSERT_MSG(status == UX_SUCCESS, "tx_byte_allocate, status %02X", status);
 
-    status = ux_system_initialize(allocated_memory, 60 * 1024, UX_NULL, 0);
+    status = ux_system_initialize(allocated_memory, 210 * 1024, UX_NULL, 0);
     ASSERT_MSG(status == UX_SUCCESS, "ux_system_initialize, status %02X", status);
 
     ux_utility_error_callback_register(ux_error_cb);

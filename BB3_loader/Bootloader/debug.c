@@ -74,6 +74,7 @@ void debug_send(uint8_t type, const char *format, ...)
 		}
 	}
 
+
 	char id[] = "DIWE";
 
 	static char message[1040];

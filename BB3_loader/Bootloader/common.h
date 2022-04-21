@@ -30,6 +30,7 @@
 #include "octospi.h"
 
 #include "debug.h"
+#include "ux_port.h"
 
 #include "lib/littlefs/lfs.h"
 #include "drivers/sd.h"
@@ -200,5 +201,8 @@ void clear_dir(char * path);
 extern bool development_mode;
 
 void bat_check_step();
+
+void app_sleep();
+void app_continue();
 
 #endif /* INC_COMMON_H_ */

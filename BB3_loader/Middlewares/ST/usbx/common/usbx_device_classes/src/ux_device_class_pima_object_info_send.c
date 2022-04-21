@@ -225,8 +225,8 @@ ULONG                       object_handle;
         status = pima -> ux_device_class_pima_object_info_send(pima, object, storage_id, parent_object_handle, &object_handle);
         
         /* Now we return a response with success.  */
-        status = (status == UX_SUCCESS) ? UX_DEVICE_CLASS_PIMA_RC_OK : status;
-        _ux_device_class_pima_response_send(pima, status, 3, pima -> ux_device_class_pima_storage_id, 
+        UINT resp_status = (status == UX_SUCCESS) ? UX_DEVICE_CLASS_PIMA_RC_OK : status;
+        _ux_device_class_pima_response_send(pima, resp_status, 3, pima -> ux_device_class_pima_storage_id,
                                             object -> ux_device_class_pima_object_parent_object, object_handle);
 
         /* Store the object handle. It will be used for the OBJECT_SEND command.  */

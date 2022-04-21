@@ -126,7 +126,6 @@ int main(void)
   app_main(power_on_mode);
   HAL_Delay(100);
 
-  MX_ThreadX_Init();
 
   /* USER CODE END 2 */
 

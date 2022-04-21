@@ -452,7 +452,7 @@ void gfx_draw_progress(float val)
 	tft_refresh_buffer(0, GFX_PROGRESS_TOP, 239, 399);
 }
 
-#define USB_ACTIVITY_TIMEOUT	200
+#define USB_ACTIVITY_TIMEOUT	1000
 #define USB_ACTIVITY_BLINK		500
 
 bool gfx_draw_anim()
