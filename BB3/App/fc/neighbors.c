@@ -4,6 +4,8 @@
 
 #include "fc.h"
 
+neighbor_t * neighbors_add(fanet_addr_t addr);
+
 void neighbors_reset()
 {
 	for (uint8_t i = 0; i < NB_NUMBER_IN_MEMORY; i++)
@@ -36,7 +38,29 @@ void neighbors_update_magic()
 neighbor_t * neighbors_add(fanet_addr_t addr)
 {
 	neighbor_t * nb = &fc.fanet.neighbor[fc.fanet.neighbors_size];
-	fc.fanet.neighbors_size += 1;
+
+	if (fc.fanet.neighbors_size < NB_NUMBER_IN_MEMORY - 1)
+	{
+	    fc.fanet.neighbors_size += 1;
+	}
+	else
+	{
+	    INFO("FANET neighbors list full...");
+	    uint8_t worst = 0;
+        uint16_t max_timestamp = 0xFFFF;
+	    //find oldest and furtherest and drop it
+	    for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
+	    {
+	        if (fc.fanet.neighbor[i].timestamp < max_timestamp)
+	        {
+	            max_timestamp = fc.fanet.neighbor[worst].timestamp;
+	            worst = i;
+	        }
+	    }
+
+	    INFO(" %u is the oldest", worst);
+	    nb = &fc.fanet.neighbor[worst];
+	}
 
 	nb->addr.manufacturer_id = addr.manufacturer_id;
 	nb->addr.user_id = addr.user_id;
@@ -46,6 +70,7 @@ neighbor_t * neighbors_add(fanet_addr_t addr)
 
 	nb->max_dist = 0;
 	nb->dist = 0;
+	nb->timestamp = HAL_GetTick() / 1000;
 
 	return nb;
 }
