@@ -54,6 +54,7 @@ with tempfile.TemporaryDirectory() as content_path:
     dump_file_path = os.path.join(content_path, 'crash/dump.bin')
     info_file_path = os.path.join(content_path, 'crash/info.yaml')
     files_file_path = os.path.join(content_path, 'crash/files.txt')
+    log_file_path = os.path.join(content_path, 'crash/debug.log')
     config_path = os.path.join(content_path, 'config/')
 
     info_file = yaml.safe_load(open(info_file_path, "r").read())
@@ -190,6 +191,9 @@ with tempfile.TemporaryDirectory() as content_path:
     all_logs.append(file_attachment_log('trace.txt', base64.b64encode(stack_trace.encode('utf-8')).decode('utf-8')))
     all_logs.append(file_attachment_log('dump.bin', encode_file(dump_file_path), 'application/octet-stream'))
     all_logs.append(file_attachment_log('config.zip', encode_file(config_archive_path), 'application/zip'))
+
+    if os.path.exists(log_file_path):
+        all_logs.append(file_attachment_log('debug.log', encode_file(log_file_path)))
 
     # Upload
 
