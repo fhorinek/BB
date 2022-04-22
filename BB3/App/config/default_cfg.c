@@ -472,7 +472,7 @@ config_t config =
 		//use_serial
 		entry_bool("dbg_serial", false),
         //use_file
-        entry_bool("dbg_file", false),
+        entry_bool("dbg_file", true),
 		//use_usb
 		entry_bool("dbg_usb", false),
 		//esp_off
