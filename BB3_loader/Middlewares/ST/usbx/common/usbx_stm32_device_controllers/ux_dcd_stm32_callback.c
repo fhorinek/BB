@@ -387,6 +387,10 @@ UX_SLAVE_ENDPOINT       *endpoint;
 /*                                            resulting in version 6.1.10 */
 /*                                                                        */
 /**************************************************************************/
+#include "common.h"
+
+uint32_t HAL_PCD_DataInStageCallback_cnt = 0;
+
 void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
 
@@ -397,6 +401,14 @@ UX_SLAVE_TRANSFER       *transfer_request;
 ULONG                   transfer_length;
 UX_SLAVE_ENDPOINT       *endpoint;
 
+
+//    INFO("HAL_PCD_DataInStageCallback %u", HAL_PCD_DataInStageCallback_cnt);
+    HAL_PCD_DataInStageCallback_cnt++;
+
+    if (HAL_PCD_DataInStageCallback_cnt == 1001)
+    {
+//        INFO("GO");
+    }
 
     /* Get the pointer to the DCD.  */
     dcd =  &_ux_system_slave -> ux_system_slave_dcd;

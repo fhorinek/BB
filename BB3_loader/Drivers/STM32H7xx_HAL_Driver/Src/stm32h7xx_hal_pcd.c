@@ -1051,8 +1051,13 @@ HAL_StatusTypeDef HAL_PCD_Stop(PCD_HandleTypeDef *hpcd)
   * @param  hpcd PCD handle
   * @retval HAL status
   */
+
+#include "common.h"
+
 void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
 {
+//    INFO("HAL_PCD_IRQHandler");
+
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   uint32_t USBx_BASE = (uint32_t)USBx;
   USB_OTG_EPTypeDef *ep;
@@ -1895,6 +1900,8 @@ uint32_t HAL_PCD_EP_GetRxCount(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
 HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len)
 {
   PCD_EPTypeDef *ep;
+
+  //INFO("HAL_PCD_EP_Transmit %u %u", ep_addr, len);
 
   ep = &hpcd->IN_ep[ep_addr & EP_ADDR_MSK];
 

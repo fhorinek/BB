@@ -191,6 +191,12 @@ static UINT mtp_device_reset(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
     return UX_SUCCESS;
 }
 
+static UINT mtp_device_cancel(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
+{
+    INFO("mtp_device_cancel");
+    return UX_SUCCESS;
+}
+
 typedef struct {
     uint16_t property_code;
     uint16_t datatype;
@@ -358,16 +364,16 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
 {
     INFO("mtp_object_info_get %08X", object_handle);
 
-    char path[PATH_LEN];
+    static char path[PATH_LEN];
+    struct lfs_info info;
+
     if (construct_path(path, object_handle))
     {
-        struct lfs_info info;
         if (mtp_new_object_idx == object_handle)
         {
             strcpy(info.name, get_path(object_handle)->name);
             info.type = LFS_TYPE_REG;
             info.size = mtp_new_object_size;
-//            mtp_new_object_idx = 0;
         }
         else
         {
@@ -407,10 +413,14 @@ static lfs_file_t mtp_file;
 static uint32_t mtp_file_read_idx = 0;
 static uint32_t mtp_file_write_idx = 0;
 
+extern uint32_t HAL_PCD_DataInStageCallback_cnt;
+
 static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR *object_buffer, ULONG object_offset,
         ULONG object_length_requested, ULONG *object_actual_length)
 {
-    INFO("mtp_object_data_get %08X %u+%u", object_handle, object_offset, object_length_requested);
+    HAL_PCD_DataInStageCallback_cnt = 1000;
+
+    INFO("mtp_object_data_get %08X %X+%X", object_handle, object_offset, object_length_requested);
 
     mtp_port_active();
 
@@ -737,6 +747,7 @@ void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
 
 
     //cb
+    parameter->ux_device_class_pima_parameter_cancel = mtp_device_cancel;
     parameter->ux_device_class_pima_parameter_device_reset = mtp_device_reset;
     parameter->ux_device_class_pima_parameter_device_prop_desc_get = mtp_device_prop_desc_get;
     parameter->ux_device_class_pima_parameter_device_prop_value_get = mtp_device_prop_value_get;
@@ -755,6 +766,7 @@ void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
     parameter->ux_device_class_pima_parameter_object_prop_value_set = mtp_object_prop_value_set;
     parameter->ux_device_class_pima_parameter_object_references_get = mtp_object_references_get;
     parameter->ux_device_class_pima_parameter_object_references_set = mtp_object_references_set;
+
 
     parameter->ux_device_class_pima_parameter_application = NULL;
 }

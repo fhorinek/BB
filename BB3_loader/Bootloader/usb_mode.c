@@ -23,8 +23,6 @@ void usb_mode_start()
 
 void usb_mode_entry(ULONG id)
 {
-    return;
-
     INFO("USB mode on");
 	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
 

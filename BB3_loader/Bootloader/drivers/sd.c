@@ -9,7 +9,7 @@
 #define SD_DMA_TIMEOUT					300
 
 #define SD_DEFAULT_BLOCK_SIZE 512
-#define LFS_BLOCK_SIZE   64
+#define LFS_BLOCK_SIZE   2
 #define BUFF_SIZE   (SD_DEFAULT_BLOCK_SIZE * LFS_BLOCK_SIZE)
 #define BLOCK_SIZE  BUFF_SIZE
 #define LA_SIZE 8192
@@ -186,28 +186,7 @@ void sd_init()
     lfs_cfg.lookahead_size = LA_SIZE;
     lfs_cfg.lookahead_buffer = la_buff;
 
-    HAL_Delay(100);
 
-//    for (uint32_t i = 0; i < card_info.BlockNbr; i++)
-//        sd_card_read(&lfs_cfg, i, 0, buff, 512);
-//
-//    for (uint16_t i = 0; i < sizeof(buff); i++)
-//        buff[i] = i % 255;
-//
-//    for (uint32_t i = 0; i < card_info.BlockNbr; i+=100)
-//    {
-//        sd_card_read(&lfs_cfg, i, 0, buff, 512);
-//        sd_card_prog(&lfs_cfg, i, 0, buff, 512);
-//        if (i % 1000000 == 0)
-//        {
-//            INFO("%u/%u %0.2f%%", i, card_info.BlockNbr, (i * 100.0) / (float)card_info.BlockNbr);
-//        }
-//        break;
-//    }
-
-
-
-//    while(1);
 }
 
 void sd_format()
@@ -229,7 +208,7 @@ bool sd_mount()
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
-    if (err)
+    if (err||1)
     {
         ERR("Error mounting, formating");
         lfs_format(&lfs, &lfs_cfg);
@@ -241,6 +220,18 @@ bool sd_mount()
 		ERR(" Error mounting SD = %d", err);
 		return false;
 	}
+
+	uint8_t buffer[1024] = {0};
+
+    INFO("write file");
+    lfs_file_t f;
+    lfs_file_open(&lfs, &f, "test.bin", LFS_O_WRONLY | LFS_O_TRUNC | LFS_O_CREAT);
+    for (uint32_t i = 0; i < 1024 * 32; i++)
+    {
+        lfs_file_write(&lfs, &f, buffer, sizeof(buffer));
+    }
+    lfs_file_close(&lfs, &f);
+    INFO("end");
 
 	return true;
 }
