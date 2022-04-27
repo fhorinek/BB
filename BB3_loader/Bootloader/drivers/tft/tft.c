@@ -14,6 +14,7 @@
 
 
 #include "tft.h"
+#include "tx_api.h"
 
 #include "hx8352.h"
 #include "ili9327.h"
@@ -32,6 +33,8 @@ static uint16_t tft_win_x1, tft_win_x2;
 static uint16_t tft_win_y1, tft_win_y2;
 
 uint8_t tft_controller_type;
+
+TX_SEMAPHORE tft_dma_semaphore;
 
 void tft_write_register(uint16_t command, uint16_t data)
 {
@@ -116,7 +119,10 @@ void tft_irq_dma_done(DMA_HandleTypeDef *DmaHandle)
 
 #ifndef IN_BOOTLOADER
     osThreadFlagsSet(thread_gui, 0x01);
+#else
+    tx_semaphore_put(&tft_dma_semaphore);
 #endif
+
 }
 
 void tft_wait_for_buffer()
@@ -128,8 +134,8 @@ void tft_wait_for_buffer()
 void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
 #ifdef IN_BOOTLOADER
-    tft_wait_for_buffer();
-    tft_dma_done = false;
+//    tft_wait_for_buffer();
+//    tft_dma_done = false;
 #endif
 
     tft_win_x1 = x1;
@@ -142,11 +148,17 @@ void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
 #ifndef IN_BOOTLOADER
     osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
+#else
+    tx_semaphore_get(&tft_dma_semaphore, TX_WAIT_FOREVER);
 #endif
 }
 
 void tft_init()
 {
+#ifdef IN_BOOTLOADER
+    tx_semaphore_create(&tft_dma_semaphore, "TFT DMA", 0);
+#endif
+
     //init vars
     tft_buffer_ready = false;
     tft_dma_done = true;

@@ -13,14 +13,12 @@
 #include "gfx.h"
 #include "lib/stm32-bootloader/bootloader.h"
 
-extern lfs_t lfs;
-
 uint32_t flasher_aligned(uint32_t size)
 {
 	return (size + 3) & ~3;
 }
 
-flasher_ret_t check_update_file(lfs_file_t * file)
+flasher_ret_t check_update_file(int32_t file)
 {
     uint8_t buff[COPY_WORK_BUFFER_SIZE];
 
@@ -32,10 +30,10 @@ flasher_ret_t check_update_file(lfs_file_t * file)
 
     //rewind
 //    f_lseek(file, 0);
-    lfs_file_rewind(&lfs, file);
+    red_lseek(file, 0, RED_SEEK_SET);
 
     //    br = f_read(file, &file_header, sizeof(file_header_t), &br) == FR_OK);
-    int32_t br = lfs_file_read(&lfs, file, &file_header, sizeof(file_header_t));
+    int32_t br = red_read(file, &file_header, sizeof(file_header_t));
     if (br != sizeof(file_header_t))
     {
         return flasher_unexpected_eof;
@@ -46,7 +44,7 @@ flasher_ret_t check_update_file(lfs_file_t * file)
         chunk_header_t chunk;
 
 //        ASSERT(f_read(file, &chunk, sizeof(chunk_header_t), &br) == FR_OK);
-        br = lfs_file_read(&lfs, file, &chunk, sizeof(chunk_header_t));
+        br = red_read(file, &chunk, sizeof(chunk_header_t));
         if (br != sizeof(chunk_header_t))
         {
             return flasher_unexpected_eof;
@@ -84,11 +82,11 @@ flasher_ret_t check_update_file(lfs_file_t * file)
                 to_read = COPY_WORK_BUFFER_SIZE;
 
 //            ASSERT(f_read(file, buff, to_read, &br) == FR_OK);
-            ASSERT(lfs_file_read(&lfs, file, buff, to_read) >= 0);
+            ASSERT(red_read(file, buff, to_read) == to_read);
 
             crc = HAL_CRC_Accumulate(&hcrc, (uint32_t *)buff, br);
 
-            gfx_draw_progress(lfs_file_tell(&lfs, file) / (float)lfs_file_size(&lfs, file));
+            gfx_draw_progress(red_lseek(file, 0, RED_SEEK_CUR) / (float)file_size(file));
 
             if (br == 0)
             {
@@ -171,7 +169,7 @@ uint16_t esp_read_bytes(uint8_t * data, uint16_t len, uint32_t timeout)
     return readed;
 }
 
-flasher_ret_t esp_flash_write_file(lfs_file_t * file)
+flasher_ret_t esp_flash_write_file(int32_t file)
 {
     uint8_t work_buff[COPY_WORK_BUFFER_SIZE];
 
@@ -202,13 +200,15 @@ flasher_ret_t esp_flash_write_file(lfs_file_t * file)
 
     //rewind
 //    f_lseek(file, 0);
-    lfs_file_rewind(&lfs, file);
+    red_lseek(file, 0, RED_SEEK_SET);
 
 //    UINT br;
 //    ASSERT(f_read(file, &file_header, sizeof(file_header_t), &br) == FR_OK);
-    int32_t br = lfs_file_read(&lfs, file, &file_header, sizeof(file_header_t));
+    int32_t br = red_read(file, &file_header, sizeof(file_header_t));
+
     if (br != sizeof(file_header_t))
     {
+        ERR("br = %d", br);
         return flasher_unexpected_eof;
     }
 
@@ -216,7 +216,7 @@ flasher_ret_t esp_flash_write_file(lfs_file_t * file)
     {
         chunk_header_t chunk;
 
-        br = lfs_file_read(&lfs, file, &chunk, sizeof(chunk_header_t));
+        br = red_read(file, &chunk, sizeof(chunk_header_t));
         if (br != sizeof(chunk_header_t))
         {
             return flasher_unexpected_eof;
@@ -226,7 +226,7 @@ flasher_ret_t esp_flash_write_file(lfs_file_t * file)
         if (chunk.addr == CHUNK_STM_ADDR || chunk.addr & CHUNK_FS_MASK)
         {
 //            f_lseek(file, f_tell(file) + flasher_aligned(chunk.size));
-            lfs_file_seek(&lfs, file, lfs_file_tell(&lfs, file), LFS_SEEK_SET);
+            red_lseek(file, flasher_aligned(chunk.size), RED_SEEK_CUR);
             continue;
         }
 
@@ -256,9 +256,9 @@ flasher_ret_t esp_flash_write_file(lfs_file_t * file)
                 to_read = ESP_PACKET_SIZE;
 
             //ASSERT(f_read(file, work_buff, to_read, &br) == FR_OK);
-            ASSERT(lfs_file_read(&lfs, file, work_buff, to_read) >= 0);
+            ASSERT(red_read(file, work_buff, to_read) >= 0);
 
-            gfx_draw_progress(lfs_file_tell(&lfs, file) / (float)lfs_file_size(&lfs, file));
+            gfx_draw_progress(red_lseek(file, 0, RED_SEEK_CUR) / (float)file_size(file));
 
             if (br == 0)
             {

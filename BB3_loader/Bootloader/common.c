@@ -1,7 +1,5 @@
 #include "common.h"
 
-extern lfs_t lfs;
-
 bool development_mode = false;
 
 //usable without IRQ
@@ -91,8 +89,21 @@ bool button_hold(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 
 bool file_exists(char * path)
 {
-    struct lfs_info info;
-    return (lfs_stat(&lfs, path, &info) == LFS_ERR_OK);
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        red_close(f);
+        return true;
+    }
+    return false;
+}
+
+uint64_t file_size(int32_t file)
+{
+    REDSTAT stat;
+    red_fstat(file, &stat);
+
+    return stat.st_size;
 }
 
 void GpioSetDirection(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint16_t direction, uint16_t pull)

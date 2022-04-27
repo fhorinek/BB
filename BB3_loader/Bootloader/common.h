@@ -32,7 +32,9 @@
 #include "debug.h"
 #include "ux_port.h"
 
-#include "lib/littlefs/lfs.h"
+#include "redfs.h"
+#include "redposix.h"
+
 #include "drivers/sd.h"
 #include "drivers/psram.h"
 
@@ -137,6 +139,7 @@ bool button_hold(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 bool button_hold_2(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint32_t timeout);
 
 bool file_exists(char * path);
+uint64_t file_size(int32_t file);
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);

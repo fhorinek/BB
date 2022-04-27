@@ -11,19 +11,10 @@
 #include "usb_otg.h"
 #include "ux_dcd_stm32.h"
 
-#include "lib/littlefs/lfs.h"
 #include "drivers/rev.h"
 #include "pwr_mng.h"
 
 #include "ux_api.h"
-
-extern lfs_t lfs;
-
-
-
-
-
-
 
 
 #define MAX_IDX_HANDLES   128
@@ -44,6 +35,15 @@ static char file_deleted[] = "";
 
 idx_path_t * idx_to_filename[MAX_IDX_HANDLES];
 uint32_t idx_new_index = 0;
+
+static int32_t mtp_file = 0;
+static uint32_t mtp_file_read_idx = 0;
+static uint32_t mtp_file_write_idx = 0;
+
+static uint32_t mtp_new_object_idx = 0;
+static uint32_t mtp_new_object_size = 0;
+static bool mtp_cancel = false;
+
 
 bool construct_path(char * path, uint32_t idx)
 {
@@ -122,14 +122,11 @@ void idx_delete(uint32_t idx)
     idx &= ~IDX_OFFSET;
     ASSERT(idx < MAX_IDX_HANDLES);
 
-    ps_free(idx_to_filename[idx]->name);
+    if (idx_to_filename[idx]->name != file_deleted)
+        ps_free(idx_to_filename[idx]->name);
+
     idx_to_filename[idx]->name = file_deleted;
 }
-
-
-
-
-
 
 
 struct UX_SLAVE_CLASS_PIMA_STRUCT * mtp_pima = NULL;
@@ -194,6 +191,10 @@ static UINT mtp_device_reset(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
 static UINT mtp_device_cancel(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
 {
     INFO("mtp_device_cancel");
+
+    mtp_cancel = true;
+    mtp_new_object_idx = 0;
+
     return UX_SUCCESS;
 }
 
@@ -266,14 +267,14 @@ static UINT mtp_storage_format(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG st
 {
     INFO("mtp_storage_format");
 
-    if (lfs_unmount(&lfs) != LFS_ERR_OK)
-        return UX_ERROR;
-
-    if (lfs_format(&lfs, lfs.cfg) != LFS_ERR_OK)
-        return UX_ERROR;
-
-    if (lfs_mount(&lfs, lfs.cfg) != LFS_ERR_OK)
-        return UX_ERROR;
+//    if (lfs_unmount(&lfs) != LFS_ERR_OK)
+//        return UX_ERROR;
+//
+//    if (lfs_format(&lfs, lfs.cfg) != LFS_ERR_OK)
+//        return UX_ERROR;
+//
+//    if (lfs_mount(&lfs, lfs.cfg) != LFS_ERR_OK)
+//        return UX_ERROR;
 
     return UX_SUCCESS;
 }
@@ -285,16 +286,20 @@ static UINT mtp_storage_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
     if (mtp_pima == NULL)
     {
         mtp_pima = pima;
-
-        uint64_t max_capacity = (uint64_t)lfs.cfg->block_size * (uint64_t)lfs.cfg->block_count;
-        uint64_t free_space =  (uint64_t)lfs.cfg->block_size * (uint64_t)(lfs.cfg->block_count - lfs_fs_size(&lfs));
-
-        pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 32;
-        pima->ux_device_class_pima_storage_free_space_low = free_space & 0xFFFFFFFF;
-
-        pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 32;
-        pima->ux_device_class_pima_storage_max_capacity_low = max_capacity & 0xFFFFFFFF;
     }
+
+    REDSTATFS stat;
+
+    red_statvfs("", &stat);
+
+    uint64_t max_capacity = stat.f_blocks * (uint64_t)stat.f_bsize;
+    uint64_t free_space = stat.f_bfree * (uint64_t)stat.f_bsize;
+
+    pima->ux_device_class_pima_storage_free_space_high = (free_space & 0xFFFFFFFF00000000) >> 32;
+    pima->ux_device_class_pima_storage_free_space_low = free_space & 0xFFFFFFFF;
+
+    pima->ux_device_class_pima_storage_max_capacity_high = (max_capacity & 0xFFFFFFFF00000000) >> 32;
+    pima->ux_device_class_pima_storage_max_capacity_low = max_capacity & 0xFFFFFFFF;
 
     return UX_SUCCESS;
 }
@@ -324,30 +329,30 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
 
     if (construct_path(path, object_handles_association))
     {
-        lfs_dir_t dir;
+        REDDIR * dir;
 
         INFO(" listing '%s'", path);
-        if (lfs_dir_open(&lfs, &dir, path) == LFS_ERR_OK)
+        dir = red_opendir(path);
+        if (dir != NULL)
         {
-            int found;
+            REDDIRENT * info;
 
             do
             {
-                struct lfs_info info;
-                found = lfs_dir_read(&lfs, &dir, &info);
-                if (found)
+                info = red_readdir(dir);
+                if (info != NULL)
                 {
-                    if (info.name[0] == '.')
+                    if (info->d_name[0] == '.')
                         continue;
 
-                    object_handles_array[count + 1] = get_idx(object_handles_association, info.name);
-                    INFO("  %08X %s", object_handles_array[count + 1], info.name);
+                    object_handles_array[count + 1] = get_idx(object_handles_association, info->d_name);
+                    INFO("  %08X %s", object_handles_array[count + 1], info->d_name);
                     count++;
                 }
 
-            } while(found);
+            } while(info != NULL);
 
-            lfs_dir_close(&lfs, &dir);
+            red_closedir(dir);
         }
     }
     INFO(" done, count %u", count);
@@ -357,47 +362,52 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
     return UX_SUCCESS;
 }
 
-static uint32_t mtp_new_object_idx = 0;
-static uint32_t mtp_new_object_size = 0;
+
 
 static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UX_SLAVE_CLASS_PIMA_OBJECT **object)
 {
     INFO("mtp_object_info_get %08X", object_handle);
 
     static char path[PATH_LEN];
-    struct lfs_info info;
+    REDSTAT stat;
 
     if (construct_path(path, object_handle))
     {
         if (mtp_new_object_idx == object_handle)
         {
-            strcpy(info.name, get_path(object_handle)->name);
-            info.type = LFS_TYPE_REG;
-            info.size = mtp_new_object_size;
+            stat.st_mode = RED_S_IFREG;
+            stat.st_size = mtp_new_object_size;
         }
         else
         {
-            lfs_stat(&lfs, path, &info);
+            int32_t f = red_open(path, RED_O_RDONLY);
+            mtp_cancel = false;
+            if (f > 0)
+            {
+                red_fstat(f, &stat);
+                red_close(f);
+            }
+
         }
 
-        INFO(" %s %lu", info.name, info.size);
+        INFO(" %s %lu", get_path(object_handle)->name, stat.st_size);
 
         UX_SLAVE_CLASS_PIMA_OBJECT * payload = (UX_SLAVE_CLASS_PIMA_OBJECT *)mtp_buffer;
         memset(payload, 0, sizeof(UX_SLAVE_CLASS_PIMA_OBJECT));
 
-        if (info.type == LFS_TYPE_DIR)
+        if (RED_S_ISDIR(stat.st_mode))
             payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION;
         else
             payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_TEXT;
 
         payload->ux_device_class_pima_object_storage_id = pima->ux_device_class_pima_storage_id;
         payload->ux_device_class_pima_object_protection_status = UX_DEVICE_CLASS_PIMA_OPS_NO_PROTECTION;
-        payload->ux_device_class_pima_object_compressed_size = info.size;
-        payload->ux_device_class_pima_object_length = info.size;
+        payload->ux_device_class_pima_object_compressed_size = stat.st_size;
+        payload->ux_device_class_pima_object_length = stat.st_size;
         payload->ux_device_class_pima_object_parent_object = get_parent(object_handle);
 
         //strings
-        _ux_utility_string_to_unicode((UCHAR *)info.name, payload->ux_device_class_pima_object_filename);
+        _ux_utility_string_to_unicode((UCHAR *)get_path(object_handle)->name, payload->ux_device_class_pima_object_filename);
         payload->ux_device_class_pima_object_capture_date[0] = 0;
         payload->ux_device_class_pima_object_modification_date[0] = 0;
         payload->ux_device_class_pima_object_keywords[0] = 0;
@@ -409,17 +419,9 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
     return UX_ERROR;
 }
 
-static lfs_file_t mtp_file;
-static uint32_t mtp_file_read_idx = 0;
-static uint32_t mtp_file_write_idx = 0;
-
-extern uint32_t HAL_PCD_DataInStageCallback_cnt;
-
 static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR *object_buffer, ULONG object_offset,
         ULONG object_length_requested, ULONG *object_actual_length)
 {
-    HAL_PCD_DataInStageCallback_cnt = 1000;
-
     INFO("mtp_object_data_get %08X %X+%X", object_handle, object_offset, object_length_requested);
 
     mtp_port_active();
@@ -434,14 +436,14 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
         if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
         {
             INFO("Closing mtp_file");
-            lfs_file_close(&lfs, &mtp_file);
+            red_close(mtp_file);
             mtp_file_read_idx = 0;
             mtp_file_write_idx = 0;
         }
 
         INFO("Opening mtp_file %s for read", path);
-        UINT res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_RDONLY);
-        if (res == LFS_ERR_OK)
+        mtp_file = red_open(path, RED_O_RDONLY);
+        if (mtp_file > 0)
         {
             mtp_file_read_idx = object_handle;
         }
@@ -454,8 +456,8 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
 
     if (mtp_file_read_idx != 0)
     {
-        lfs_file_seek(&lfs, &mtp_file, object_offset, LFS_SEEK_SET);
-        *object_actual_length = lfs_file_read(&lfs, &mtp_file, object_buffer, object_length_requested);
+        red_lseek(mtp_file, object_offset, RED_SEEK_SET);
+        *object_actual_length = red_read(mtp_file, object_buffer, object_length_requested);
 
         if (*object_actual_length < 0)
             return UX_ERROR;
@@ -481,7 +483,7 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
     {
         if (object->ux_device_class_pima_object_format == UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION)
         {
-            if (lfs_mkdir(&lfs, path) != LFS_ERR_OK)
+            if (red_mkdir(path) != 0)
                 return UX_ERROR;
         }
         else
@@ -519,27 +521,27 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 
             if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
             {
-                lfs_file_close(&lfs, &mtp_file);
+                red_close(mtp_file);
                 mtp_file_read_idx = 0;
                 mtp_file_write_idx = 0;
             }
 
-            int res = lfs_file_open(&lfs, &mtp_file, path, LFS_O_WRONLY | LFS_O_CREAT);
-            if (res == LFS_ERR_OK)
+            mtp_file = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+            mtp_cancel = false;
+            if (mtp_file > 0)
             {
                 mtp_file_write_idx = object_handle;
             }
             else
             {
-                ERR("Unable to open file to write %d", res);
+                ERR("Unable to open file to write %d", mtp_file);
             }
         }
 
         if (mtp_file_write_idx != 0)
         {
-            lfs_file_seek(&lfs, &mtp_file, object_offset, LFS_SEEK_SET);
-            int wrote = lfs_file_write(&lfs, &mtp_file, object_buffer, object_length);
-            lfs_file_sync(&lfs, &mtp_file);
+            red_lseek(mtp_file, object_offset, RED_SEEK_SET);
+            int32_t wrote = red_write(mtp_file, object_buffer, object_length);
 
             if (wrote < 0 || wrote != object_length)
             {
@@ -556,6 +558,30 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
     else
     {
         //COMPLETE OR COMPLETE ERROR
+        mtp_new_object_idx = 0;
+
+        if (mtp_file_write_idx != 0)
+        {
+            red_close(mtp_file);
+        }
+
+        if (mtp_cancel)
+        {
+            mtp_cancel = false;
+
+            if (mtp_file_write_idx != 0)
+            {
+                char path[PATH_LEN];
+
+                if (construct_path(path, mtp_file_write_idx))
+                {
+                    red_unlink(path);
+                }
+                idx_delete(mtp_file_write_idx);
+            }
+        }
+        mtp_file_write_idx = 0;
+
         return UX_SUCCESS;
     }
 
@@ -574,12 +600,12 @@ static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG obj
         if (mtp_file_read_idx == object_handle || mtp_file_write_idx == object_handle)
         {
             INFO("Closing mtp_file");
-            lfs_file_close(&lfs, &mtp_file);
+            red_close(mtp_file);
             mtp_file_read_idx = 0;
             mtp_file_write_idx = 0;
         }
 
-        if (lfs_remove(&lfs, path) == LFS_ERR_OK)
+        if (red_unlink(path) == 0)
         {
             idx_delete(object_handle);
             return UX_SUCCESS;
@@ -648,10 +674,15 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
             uint64_t * size = (uint64_t *)mtp_buffer;
             if (construct_path(path, object_handle))
             {
-                struct lfs_info info;
-                lfs_stat(&lfs, path, &info);
+                REDSTAT stat;
+                int32_t f = red_open(path, RED_O_RDONLY);
+                if (f > 0)
+                {
+                    red_fstat(f, &stat);
+                    red_close(f);
+                }
 
-                *size = info.size;
+                *size = stat.st_size;
 
                 *object_prop_value = (UCHAR *)size;
                 *object_prop_value_length = sizeof(uint64_t);

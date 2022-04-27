@@ -13,11 +13,6 @@
 #include "drivers/tft/tft.h"
 #include "drivers/led.h"
 
-void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
-{
-	ERR("HAL_SD: %08X", hsd->ErrorCode);
-	//Error_Handler();
-}
 
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

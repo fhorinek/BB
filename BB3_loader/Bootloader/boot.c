@@ -445,15 +445,6 @@ void app_main(uint8_t power_on_mode)
     	bat_check_step();
     }
 
-    PSRAM_init();
-    sd_init();
-
-    if (button_pressed(BT2) && button_pressed(BT5))
-    {
-    	format_loop();
-    	app_sleep();
-    }
-
     if (power_on_mode == POWER_ON_TORCH)
     {
     	key_combo(GFX_STARTUP_TORCH, BT1);
@@ -471,18 +462,6 @@ void app_main(uint8_t power_on_mode)
     if (power_on_mode == POWER_ON_BUTTON)
     {
     	key_combo(GFX_STARTUP_APP, BT3);
-    }
-
-    if (sd_mount() == false)
-    {
-        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
-        button_confirm(BT3);
-        app_sleep();
-    }
-
-    if (file_exists(DEV_MODE_FILE))
-    {
-        development_mode = true;
     }
 
 	if (power_on_mode == POWER_ON_USB)

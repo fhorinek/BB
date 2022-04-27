@@ -49,6 +49,8 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths.1166641590" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../Bootloader"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Bootloader/lib/reliance-edge/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Bootloader/lib/reliance-edge/core/include}&quot;"/>
 									<listOptionValue builtIn="false" value="../Bootloader/lib/"/>
 									<listOptionValue builtIn="false" value="../USBX/Override"/>
 									<listOptionValue builtIn="false" value="../Core/Inc"/>

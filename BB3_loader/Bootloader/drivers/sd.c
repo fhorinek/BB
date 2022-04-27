@@ -2,199 +2,144 @@
 #include "../drivers/sd.h"
 
 #include "../debug.h"
-#include "lib/littlefs/lfs.h"
+
 
 #include "gfx.h"
 
-#define SD_DMA_TIMEOUT					300
+#define SD_DMA_TIMEOUT					(300 / (1000 / TX_TIMER_TICKS_PER_SECOND))
 
 #define SD_DEFAULT_BLOCK_SIZE 512
-#define LFS_BLOCK_SIZE   2
-#define BUFF_SIZE   (SD_DEFAULT_BLOCK_SIZE * LFS_BLOCK_SIZE)
-#define BLOCK_SIZE  BUFF_SIZE
-#define LA_SIZE 8192
 
-#undef DBG
-#define DBG(...)
-//#undef INFO
-//#define INFO(...)
+static TX_SEMAPHORE sd_semaphore;
+static TX_SEMAPHORE sd_dma_semaphore;
 
-bool sd_wait()
+uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
-    uint32_t start = HAL_GetTick();
-    while (hsd1.State == HAL_SD_STATE_BUSY)
+    uint8_t ret = HAL_OK;
+
+//    INFO("BSP_SD_ReadBlocks_DMA %08X %u", ReadAddr, NumOfBlocks);
+
+    tx_semaphore_get(&sd_semaphore, TX_WAIT_FOREVER);
+
+    uint8_t status = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks);
+
+    if (status != HAL_OK)
     {
-        if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
+        WARN("Read error %08lX %u ret = %u", ReadAddr, NumOfBlocks, status);
+
+        tx_semaphore_put(&sd_semaphore);
+        ret = HAL_ERROR;
+    }
+    else
+    {
+        status = tx_semaphore_get(&sd_dma_semaphore, SD_DMA_TIMEOUT);
+        if (status != TX_SUCCESS)
         {
-            ERR("Wait timeout");
-            return false;
+            WARN("Read timeout %08lX %u err = %X", ReadAddr, NumOfBlocks, status);
+            ret = HAL_ERROR;
+        }
+        else
+        {
+            if (hsd1.ErrorCode != 0)
+            {
+                WARN("Read dma error %08lX %u err = %X", ReadAddr, NumOfBlocks, hsd1.ErrorCode);
+                ret = HAL_ERROR;
+            }
         }
     }
 
-    return true;
+    tx_semaphore_put(&sd_semaphore);
+    return ret;
 }
 
-int sd_card_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
+uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
-	uint8_t ret;
-	uint8_t cnt = 0;
-	uint32_t addr = (block * LFS_BLOCK_SIZE)  + (off / SD_DEFAULT_BLOCK_SIZE);
-	size /= SD_DEFAULT_BLOCK_SIZE;
+    uint8_t ret = HAL_OK;
 
-//	INFO("Read adr %08lX blk %u off %u siz %u", addr, block, off, size);
+//    INFO("BSP_SD_WriteBlocks_DMA %08X %u", WriteAddr, NumOfBlocks);
 
+    tx_semaphore_get(&sd_semaphore, TX_WAIT_FOREVER);
 
-	uint8_t bad_ret;
-	uint32_t bad_error_code;
+    uint8_t status = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t *)pData, WriteAddr, NumOfBlocks);
 
-	do
-	{
-	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)buffer, addr, size);
-        DBG("HAL_SD_ReadBlocks_DMA %p %08X %u, ret = %u", buffer, addr, size, ret);
-        if (ret != HAL_OK)
-        {
-            bad_ret = ret;
-            bad_error_code = hsd1.ErrorCode;
-        }
-		cnt++;
-		if (cnt > 10)
-		{
-	  		ERR("Read fail %08lX %u %u, ret = %u, %X", addr, size, cnt, ret, bad_error_code);
-	  		return -1;
-		}
-	}
-	while (ret != HAL_OK);
-
-	if (cnt > 1)
-	{
-		WARN("Read problem %08lX %u %u %u %X", addr, bad_ret, size, cnt, bad_error_code);
-	}
-
-    if (!sd_wait())
+    if (status != HAL_OK)
     {
-        return -2;
+        WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
+
+        tx_semaphore_put(&sd_semaphore);
+        ret = HAL_ERROR;
     }
-
-	return 0;
-}
-
-int sd_card_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
-{
-    uint8_t ret;
-    uint8_t cnt = 0;
-    uint32_t addr = (block * LFS_BLOCK_SIZE)  + (off / SD_DEFAULT_BLOCK_SIZE);
-    size /= SD_DEFAULT_BLOCK_SIZE;
-
-//    INFO("Write adr %08lX blk %u off %u siz %u", addr, block, off, size);
-    uint8_t bad_ret;
-    uint32_t bad_error_code;
-
-    do
+    else
     {
-        ret = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t*) buffer, addr, size);
-        if (ret != HAL_OK)
+        status = tx_semaphore_get(&sd_dma_semaphore, SD_DMA_TIMEOUT);
+        if (status != TX_SUCCESS)
         {
-            bad_ret = ret;
-            bad_error_code = hsd1.ErrorCode;
+            WARN("Write timeout %08lX %u err = %X", WriteAddr, NumOfBlocks, status);
+            ret = HAL_ERROR;
         }
-        cnt++;
-        if (cnt > 10)
+        else
         {
-            ERR("Write fail %08lX %u %u %X", addr, size, cnt, bad_error_code);
-            return -1;
+            if (hsd1.ErrorCode != 0)
+            {
+                WARN("Write dma error %08lX %u err = %X", WriteAddr, NumOfBlocks, hsd1.ErrorCode);
+                ret = HAL_ERROR;
+            }
         }
     }
-    while (ret != HAL_OK);
 
-    if (cnt > 1)
-    {
-        WARN("Write problem %08lX %u %u %u %X", addr, bad_ret, size, cnt, bad_error_code);
-    }
-
-    if (!sd_wait())
-    {
-        return -2;
-    }
-
-    return 0;
+    tx_semaphore_put(&sd_semaphore);
+    return ret;
 }
 
-int sd_card_erase(const struct lfs_config *c, lfs_block_t block)
+void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
 {
-    return 0;
-
-//	uint32_t addr_start = block * LFS_BLOCK_SIZE;
-//	uint32_t addr_end = addr_start + LFS_BLOCK_SIZE;
-//
-//	INFO("Erase %X - %X", addr_start, addr_end);
-//
-//    if (!sd_wait())
-//    {
-//        return -2;
-//    }
-//
-//    HAL_StatusTypeDef res = HAL_SD_Erase(&hsd1, addr_start, addr_end);
-//
-//    if (!sd_wait())
-//    {
-//        return -2;
-//    }
-//
-//    return (res == HAL_OK) ? 0 : -1;
+    tx_semaphore_put(&sd_dma_semaphore);
 }
 
-int sd_card_sync(const struct lfs_config *c)
+void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
-    return 0;
+    tx_semaphore_put(&sd_dma_semaphore);
 }
 
-struct lfs_config lfs_cfg;
-lfs_t lfs;
+void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
+{
+    tx_semaphore_put(&sd_dma_semaphore);
+}
+
+void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
+{
+    ERR("HAL_SD: %08X", hsd->ErrorCode);
+    tx_semaphore_put(&sd_dma_semaphore);
+//  Error_Handler();
+}
 
 
-
-uint8_t __aligned(4) read_buff[BUFF_SIZE];
-uint8_t __aligned(4) prog_buff[BUFF_SIZE];
-uint8_t __aligned(16) la_buff[LA_SIZE / sizeof(uint8_t)];
 
 void sd_init()
 {
-    MX_SDMMC1_SD_Init();
+    tx_semaphore_create(&sd_semaphore, "SD semaphore", 0);
+    tx_semaphore_create(&sd_dma_semaphore, "SD dma semaphore", 0);
 
+    MX_SDMMC1_SD_Init();
 
     HAL_SD_CardInfoTypeDef card_info;
     HAL_SD_GetCardInfo(&hsd1, &card_info);
 
-    // block device operations
-    lfs_cfg.read  = sd_card_read;
-    lfs_cfg.prog  = sd_card_prog;
-    lfs_cfg.erase = sd_card_erase;
-    lfs_cfg.sync  = sd_card_sync;
+    tx_semaphore_put(&sd_semaphore);
 
-    // block device configuration
-    lfs_cfg.read_size = BUFF_SIZE;
-    lfs_cfg.prog_size = BUFF_SIZE;
-    lfs_cfg.cache_size = BUFF_SIZE;
-    lfs_cfg.block_size = BUFF_SIZE;
-    lfs_cfg.block_count = card_info.BlockNbr / LFS_BLOCK_SIZE;
-
-    lfs_cfg.read_buffer = read_buff;
-    lfs_cfg.prog_buffer = prog_buff;
-
-    lfs_cfg.block_cycles = 500;
-
-    lfs_cfg.lookahead_size = LA_SIZE;
-    lfs_cfg.lookahead_buffer = la_buff;
-
-
-}
+    red_init();
+ }
 
 void sd_format()
 {
 	gfx_draw_status(GFX_STATUS_UPDATE, "Formating SD");
 	gfx_draw_progress(0);
 
-	lfs_format(&lfs, &lfs_cfg);
+	int32_t err = red_format("");
+	if (err != 0)
+	{
+	    ERR("red_format = %d", red_errno);
+	}
 }
 
 bool sd_mount()
@@ -204,15 +149,15 @@ bool sd_mount()
 
 
 
-    int err = lfs_mount(&lfs, &lfs_cfg);
+    int32_t err = red_mount("");
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
-    if (err||1)
+    if (err != 0)
     {
         ERR("Error mounting, formating");
-        lfs_format(&lfs, &lfs_cfg);
-        err = lfs_mount(&lfs, &lfs_cfg);
+        sd_format();
+        err = red_mount("");
     }
 
 	if (err)
@@ -221,17 +166,18 @@ bool sd_mount()
 		return false;
 	}
 
-	uint8_t buffer[1024] = {0};
-
-    INFO("write file");
-    lfs_file_t f;
-    lfs_file_open(&lfs, &f, "test.bin", LFS_O_WRONLY | LFS_O_TRUNC | LFS_O_CREAT);
-    for (uint32_t i = 0; i < 1024 * 32; i++)
-    {
-        lfs_file_write(&lfs, &f, buffer, sizeof(buffer));
-    }
-    lfs_file_close(&lfs, &f);
-    INFO("end");
+//	uint8_t buffer[1024 * 10] = {0};
+//
+//    INFO("write file");
+//    int32_t f;
+//    f = red_open("test.bin", RED_O_WRONLY | RED_O_CREAT);
+//
+//    for (uint32_t i = 0; i < 1024; i++)
+//    {
+//        red_write(f, buffer, sizeof(buffer));
+//    }
+//    red_close(f);
+//    INFO("end");
 
 	return true;
 }
@@ -239,7 +185,7 @@ bool sd_mount()
 void sd_unmount()
 {
 	DBG("Unmounting SD");
-	lfs_unmount(&lfs);
+	red_umount("");
 }
 
 

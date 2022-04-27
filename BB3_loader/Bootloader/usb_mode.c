@@ -24,6 +24,28 @@ void usb_mode_start()
 void usb_mode_entry(ULONG id)
 {
     INFO("USB mode on");
+
+    PSRAM_init();
+    sd_init();
+
+    if (button_pressed(BT2) && button_pressed(BT5))
+    {
+        format_loop();
+        app_sleep();
+    }
+
+    if (sd_mount() == false)
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+        button_confirm(BT3);
+        app_sleep();
+    }
+
+    if (file_exists(DEV_MODE_FILE))
+    {
+        development_mode = true;
+    }
+
 	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
 
     uint8_t start_up = false;
