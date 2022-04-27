@@ -75,6 +75,7 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
         if (status != TX_SUCCESS)
         {
             WARN("Write timeout %08lX %u err = %X", WriteAddr, NumOfBlocks, status);
+            MX_SDMMC1_SD_Init();
             ret = HAL_ERROR;
         }
         else
