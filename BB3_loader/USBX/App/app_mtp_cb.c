@@ -16,52 +16,53 @@
 
 #include "ux_api.h"
 
+#define MAX_HANDLES     1024
 
-#define MAX_IDX_HANDLES   128
-#define IDX_DELETED 0xFFFFFFFF
-#define IDX_CLEAR   NULL
+#define HANDLE_DELETED  0xFFFFFFFF
+#define HANDLE_CLEAR    NULL
+#define HANDLE_OFFSET   0x80000000
 
-#define PATH_LEN    128
+#define PATH_LEN        128
 
 typedef struct
 {
     uint32_t parent;
     char * name;
-} idx_path_t;
+} handle_node_t;
 
 static char file_deleted[] = "";
 
-#define IDX_OFFSET      0x80000000
+static handle_node_t * handle_to_filename[MAX_HANDLES];
 
-idx_path_t * idx_to_filename[MAX_IDX_HANDLES];
-uint32_t idx_new_index = 0;
+static uint32_t handle_new_index = 0;
 
 static int32_t mtp_file = 0;
-static uint32_t mtp_file_read_idx = 0;
-static uint32_t mtp_file_write_idx = 0;
+static uint32_t mtp_file_read_handle = 0;
+static uint32_t mtp_file_write_handle = 0;
 
-static uint32_t mtp_new_object_idx = 0;
+static uint32_t mtp_new_object_handle = 0;
 static uint32_t mtp_new_object_size = 0;
+
 static bool mtp_cancel = false;
 
 
-bool construct_path(char * path, uint32_t idx)
+bool mtp_construct_path(char * path, uint32_t handle)
 {
-    idx &= ~IDX_OFFSET;
+    handle &= ~HANDLE_OFFSET;
 
-    if (idx == 0x7FFFFFFF)
+    if (handle == 0x7FFFFFFF)
     {
         strcpy(path, "");
         return true;
     }
 
-    if (idx < idx_new_index)
+    if (handle < handle_new_index)
     {
-        if (!construct_path(path, idx_to_filename[idx]->parent))
+        if (!mtp_construct_path(path, handle_to_filename[handle]->parent))
             return false;
 
         strcat(path, "/");
-        strcat(path, idx_to_filename[idx]->name);
+        strcat(path, handle_to_filename[handle]->name);
 
         return true;
     }
@@ -69,63 +70,63 @@ bool construct_path(char * path, uint32_t idx)
     return false;
 }
 
-uint32_t get_idx(uint32_t parent, char * name)
+uint32_t mtp_get_handle(uint32_t parent, char * name)
 {
-    parent &= ~IDX_OFFSET;
+    parent &= ~HANDLE_OFFSET;
 
-    for (uint32_t i = 0 ; i < idx_new_index; i++)
+    for (uint32_t i = 0 ; i < handle_new_index; i++)
     {
-        if (idx_to_filename[i]->parent == parent)
+        if (handle_to_filename[i]->parent == parent)
         {
-            if (strcmp(idx_to_filename[i]->name, name) == 0)
+            if (strcmp(handle_to_filename[i]->name, name) == 0)
             {
-                return i | IDX_OFFSET;
+                return i | HANDLE_OFFSET;
             }
         }
     }
 
     //add new
-    idx_path_t * n = (idx_path_t *) ps_malloc(sizeof(idx_path_t));
+    handle_node_t * n = (handle_node_t *) ps_malloc(sizeof(handle_node_t));
     n->name = (char *) ps_malloc(strlen(name) + 1);
 
     strcpy(n->name, name);
     n->parent = parent;
 
-    uint32_t idx = idx_new_index;
-    idx_to_filename[idx] = n;
+    uint32_t handle = handle_new_index;
+    handle_to_filename[handle] = n;
 
-    idx_new_index++;
-    ASSERT(idx_new_index < MAX_IDX_HANDLES);
+    handle_new_index++;
+    ASSERT(handle_new_index < MAX_HANDLES);
 
-    return idx | IDX_OFFSET;
+    return handle | HANDLE_OFFSET;
 }
 
-idx_path_t * get_path(uint32_t idx)
+handle_node_t * mtp_handle_get_node(uint32_t handle)
 {
-    idx &= ~IDX_OFFSET;
-    ASSERT(idx < MAX_IDX_HANDLES);
+    handle &= ~HANDLE_OFFSET;
+    ASSERT(handle < MAX_HANDLES);
 
-    return idx_to_filename[idx];
+    return handle_to_filename[handle];
 }
 
-uint32_t get_parent(uint32_t idx)
+uint32_t mtp_handle_get_parent(uint32_t handle)
 {
-    idx &= ~IDX_OFFSET;
-    ASSERT(idx < MAX_IDX_HANDLES);
+    handle &= ~HANDLE_OFFSET;
+    ASSERT(handle < MAX_HANDLES);
 
-    return idx_to_filename[idx]->parent | IDX_OFFSET;
+    return handle_to_filename[handle]->parent | HANDLE_OFFSET;
 }
 
-//idx should not be reused if the object is removed
-void idx_delete(uint32_t idx)
+//handle should not be reused if the object is removed
+void mtp_handle_delete(uint32_t handle)
 {
-    idx &= ~IDX_OFFSET;
-    ASSERT(idx < MAX_IDX_HANDLES);
+    handle &= ~HANDLE_OFFSET;
+    ASSERT(handle < MAX_HANDLES);
 
-    if (idx_to_filename[idx]->name != file_deleted)
-        ps_free(idx_to_filename[idx]->name);
+    if (handle_to_filename[handle]->name != file_deleted)
+        ps_free(handle_to_filename[handle]->name);
 
-    idx_to_filename[idx]->name = file_deleted;
+    handle_to_filename[handle]->name = file_deleted;
 }
 
 
@@ -151,11 +152,11 @@ void mtp_activate(void * param)
     INFO("mtp_activate %p", param);
     mtp_pima = NULL;
 
-    idx_new_index = 0;
+    handle_new_index = 0;
 
-    for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
+    for (uint32_t i = 0; i < MAX_HANDLES; i++)
     {
-        idx_to_filename[i] = IDX_CLEAR;
+        handle_to_filename[i] = HANDLE_CLEAR;
     }
 
 
@@ -166,19 +167,19 @@ void mtp_deactivate(void * param)
     INFO("mtp_deactivate %p", param);
     mtp_pima = NULL;
 
-    for (uint32_t i = 0; i < MAX_IDX_HANDLES; i++)
+    for (uint32_t i = 0; i < MAX_HANDLES; i++)
     {
-        if (idx_to_filename[i] != IDX_CLEAR)
+        if (handle_to_filename[i] != HANDLE_CLEAR)
         {
-            if (idx_to_filename[i]->name != file_deleted)
-                ps_free(idx_to_filename[i]->name);
+            if (handle_to_filename[i]->name != file_deleted)
+                ps_free(handle_to_filename[i]->name);
 
-            ps_free(idx_to_filename[i]);
-            idx_to_filename[i] = IDX_CLEAR;
+            ps_free(handle_to_filename[i]);
+            handle_to_filename[i] = HANDLE_CLEAR;
         }
     }
 
-    idx_new_index = 0;
+    handle_new_index = 0;
 }
 
 
@@ -193,7 +194,7 @@ static UINT mtp_device_cancel(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
     INFO("mtp_device_cancel");
 
     mtp_cancel = true;
-    mtp_new_object_idx = 0;
+    mtp_new_object_handle = 0;
 
     return UX_SUCCESS;
 }
@@ -327,7 +328,7 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
     uint32_t count = 0;
     char path[PATH_LEN];
 
-    if (construct_path(path, object_handles_association))
+    if (mtp_construct_path(path, object_handles_association))
     {
         REDDIR * dir;
 
@@ -345,7 +346,7 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
                     if (info->d_name[0] == '.')
                         continue;
 
-                    object_handles_array[count + 1] = get_idx(object_handles_association, info->d_name);
+                    object_handles_array[count + 1] = mtp_get_handle(object_handles_association, info->d_name);
                     INFO("  %08X %s", object_handles_array[count + 1], info->d_name);
                     count++;
                 }
@@ -371,9 +372,9 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
     static char path[PATH_LEN];
     REDSTAT stat;
 
-    if (construct_path(path, object_handle))
+    if (mtp_construct_path(path, object_handle))
     {
-        if (mtp_new_object_idx == object_handle)
+        if (mtp_new_object_handle == object_handle)
         {
             stat.st_mode = RED_S_IFREG;
             stat.st_size = mtp_new_object_size;
@@ -387,11 +388,9 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
                 red_fstat(f, &stat);
                 red_close(f);
             }
-
         }
 
-
-        INFO(" %s %lu", get_path(object_handle)->name, (uint32_t)stat.st_size);
+        INFO(" %s %lu", mtp_handle_get_node(object_handle)->name, (uint32_t)stat.st_size);
 
         UX_SLAVE_CLASS_PIMA_OBJECT * payload = (UX_SLAVE_CLASS_PIMA_OBJECT *)mtp_buffer;
         memset(payload, 0, sizeof(UX_SLAVE_CLASS_PIMA_OBJECT));
@@ -405,10 +404,10 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
         payload->ux_device_class_pima_object_protection_status = UX_DEVICE_CLASS_PIMA_OPS_NO_PROTECTION;
         payload->ux_device_class_pima_object_compressed_size = stat.st_size;
         payload->ux_device_class_pima_object_length = (uint32_t)stat.st_size;
-        payload->ux_device_class_pima_object_parent_object = get_parent(object_handle);
+        payload->ux_device_class_pima_object_parent_object = mtp_handle_get_parent(object_handle);
 
         //strings
-        _ux_utility_string_to_unicode((UCHAR *)get_path(object_handle)->name, payload->ux_device_class_pima_object_filename);
+        _ux_utility_string_to_unicode((UCHAR *)mtp_handle_get_node(object_handle)->name, payload->ux_device_class_pima_object_filename);
         payload->ux_device_class_pima_object_capture_date[0] = 0;
         payload->ux_device_class_pima_object_modification_date[0] = 0;
         payload->ux_device_class_pima_object_keywords[0] = 0;
@@ -427,26 +426,26 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
 
     mtp_port_active();
 
-    if (mtp_file_read_idx != object_handle)
+    if (mtp_file_read_handle != object_handle)
     {
         char path[PATH_LEN];
-        if (!construct_path(path, object_handle))
+        if (!mtp_construct_path(path, object_handle))
             return UX_ERROR;
         INFO(" path %s", path);
 
-        if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
+        if (mtp_file_read_handle != 0 || mtp_file_write_handle != 0)
         {
             INFO("Closing mtp_file");
             red_close(mtp_file);
-            mtp_file_read_idx = 0;
-            mtp_file_write_idx = 0;
+            mtp_file_read_handle = 0;
+            mtp_file_write_handle = 0;
         }
 
         INFO("Opening mtp_file %s for read", path);
         mtp_file = red_open(path, RED_O_RDONLY);
         if (mtp_file > 0)
         {
-            mtp_file_read_idx = object_handle;
+            mtp_file_read_handle = object_handle;
         }
     }
     else
@@ -455,7 +454,7 @@ static UINT mtp_object_data_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
     }
 
 
-    if (mtp_file_read_idx != 0)
+    if (mtp_file_read_handle != 0)
     {
         red_lseek(mtp_file, object_offset, RED_SEEK_SET);
         *object_actual_length = red_read(mtp_file, object_buffer, object_length_requested);
@@ -477,10 +476,10 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
     char name[128];
     _ux_utility_unicode_to_string(object->ux_device_class_pima_object_filename, (UCHAR *)name);
 
-    *object_handle = get_idx(parent_object_handle, name);
+    *object_handle = mtp_get_handle(parent_object_handle, name);
 
     char path[PATH_LEN];
-    if (construct_path(path, *object_handle))
+    if (mtp_construct_path(path, *object_handle))
     {
         if (object->ux_device_class_pima_object_format == UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION)
         {
@@ -489,7 +488,7 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
         }
         else
         {
-            mtp_new_object_idx = *object_handle;
+            mtp_new_object_handle = *object_handle;
             mtp_new_object_size = object->ux_device_class_pima_object_compressed_size;
         }
 
@@ -498,8 +497,6 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
     return UX_ERROR;
 
 }
-
-uint16_t mtp_object_data_send_cnt = 0;
 
 static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG phase, UCHAR *object_buffer, ULONG object_offset,
         ULONG object_length)
@@ -510,28 +507,28 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
 
     if (phase == UX_DEVICE_CLASS_PIMA_OBJECT_TRANSFER_PHASE_ACTIVE)
     {
-        if (mtp_file_write_idx != object_handle)
+        if (mtp_file_write_handle != object_handle)
         {
             char path[PATH_LEN];
-            if (!construct_path(path, object_handle))
+            if (!mtp_construct_path(path, object_handle))
             {
                 ERR("Unable to construct path");
                 return UX_ERROR;
             }
 
 
-            if (mtp_file_read_idx != 0 || mtp_file_write_idx != 0)
+            if (mtp_file_read_handle != 0 || mtp_file_write_handle != 0)
             {
                 red_close(mtp_file);
-                mtp_file_read_idx = 0;
-                mtp_file_write_idx = 0;
+                mtp_file_read_handle = 0;
+                mtp_file_write_handle = 0;
             }
 
             mtp_file = red_open(path, RED_O_WRONLY | RED_O_CREAT);
             mtp_cancel = false;
             if (mtp_file > 0)
             {
-                mtp_file_write_idx = object_handle;
+                mtp_file_write_handle = object_handle;
             }
             else
             {
@@ -539,7 +536,7 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
             }
         }
 
-        if (mtp_file_write_idx != 0)
+        if (mtp_file_write_handle != 0)
         {
             red_lseek(mtp_file, object_offset, RED_SEEK_SET);
             int32_t wrote = red_write(mtp_file, object_buffer, object_length);
@@ -550,18 +547,15 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
                 return UX_ERROR;
             }
 
-
-//            INFO("Wrote OK %u", mtp_object_data_send_cnt);
-            mtp_object_data_send_cnt++;
             return UX_SUCCESS;
         }
     }
     else
     {
         //COMPLETE OR COMPLETE ERROR
-        mtp_new_object_idx = 0;
+        mtp_new_object_handle = 0;
 
-        if (mtp_file_write_idx != 0)
+        if (mtp_file_write_handle != 0)
         {
             red_close(mtp_file);
         }
@@ -570,18 +564,18 @@ static UINT mtp_object_data_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG 
         {
             mtp_cancel = false;
 
-            if (mtp_file_write_idx != 0)
+            if (mtp_file_write_handle != 0)
             {
                 char path[PATH_LEN];
 
-                if (construct_path(path, mtp_file_write_idx))
+                if (mtp_construct_path(path, mtp_file_write_handle))
                 {
                     red_unlink(path);
                 }
-                idx_delete(mtp_file_write_idx);
+                mtp_handle_delete(mtp_file_write_handle);
             }
         }
-        mtp_file_write_idx = 0;
+        mtp_file_write_handle = 0;
 
         return UX_SUCCESS;
     }
@@ -593,22 +587,20 @@ static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG obj
 {
     INFO("mtp_object_delete %08X", object_handle);
 
-    mtp_port_active();
-
     char path[PATH_LEN];
-    if (construct_path(path, object_handle))
+    if (mtp_construct_path(path, object_handle))
     {
-        if (mtp_file_read_idx == object_handle || mtp_file_write_idx == object_handle)
+        if (mtp_file_read_handle == object_handle || mtp_file_write_handle == object_handle)
         {
             INFO("Closing mtp_file");
             red_close(mtp_file);
-            mtp_file_read_idx = 0;
-            mtp_file_write_idx = 0;
+            mtp_file_read_handle = 0;
+            mtp_file_write_handle = 0;
         }
 
         if (red_unlink(path) == 0)
         {
-            idx_delete(object_handle);
+            mtp_handle_delete(object_handle);
             return UX_SUCCESS;
         }
     }
@@ -758,7 +750,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE):
         {
             uint64_t * size = (uint64_t *)mtp_buffer;
-            if (construct_path(path, object_handle))
+            if (mtp_construct_path(path, object_handle))
             {
                 REDSTAT stat;
                 int32_t f = red_open(path, RED_O_RDONLY);
@@ -786,7 +778,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME):
         case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME):
         {
-            UCHAR * name = (UCHAR *)get_path(object_handle)->name;
+            UCHAR * name = (UCHAR *)mtp_handle_get_node(object_handle)->name;
 
             _ux_utility_string_to_unicode(name, mtp_buffer);
             *object_prop_value = (UCHAR *)mtp_buffer;
@@ -797,7 +789,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT):
         {
             uint16_t * type = (uint16_t *)mtp_buffer;
-            if (construct_path(path, object_handle))
+            if (mtp_construct_path(path, object_handle))
             {
                 REDSTAT stat;
                 int32_t f = red_open(path, RED_O_RDONLY);
@@ -824,7 +816,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 
         case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER):
         {
-            if (construct_path(path, object_handle))
+            if (mtp_construct_path(path, object_handle))
             {
                 REDSTAT stat;
                 int32_t f = red_open(path, RED_O_RDONLY);
@@ -833,7 +825,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
                     red_fstat(f, &stat);
                     red_close(f);
 
-                    memcpy(mtp_buffer, stat.st_ino, 16);
+                    memcpy(mtp_buffer, &stat.st_ino, 16);
                     *object_prop_value = (UCHAR *)mtp_buffer;
                     *object_prop_value_length = sizeof(uint16_t);
                 }
@@ -861,8 +853,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 static UINT mtp_object_prop_value_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR *object_prop_value, ULONG object_prop_value_length)
 {
     INFO("mtp_object_prop_value_set");
-    while(1);
-    return UX_SUCCESS;
+    return UX_ERROR;
 }
 
 static UINT mtp_object_references_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR **object_handle_array, ULONG *object_handle_array_length)
@@ -877,7 +868,6 @@ static UINT mtp_object_references_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 static UINT mtp_object_references_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UCHAR *object_handle_array, ULONG object_handle_array_length)
 {
     INFO("mtp_object_references_set");
-
     return UX_ERROR;
 }
 
@@ -904,7 +894,6 @@ static USHORT object_properties_list[] = {
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT,
-//        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PROTECTION_STATUS,
 
         UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION,
         7,
@@ -915,7 +904,6 @@ static USHORT object_properties_list[] = {
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT,
-//        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PROTECTION_STATUS,
         0
 };
 
@@ -923,8 +911,6 @@ static USHORT device_properties_list[] = {
         UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL,
         0
 };
-
-static USHORT empty_list[] = {0};
 
 void mtp_assign_parameters(UX_SLAVE_CLASS_PIMA_PARAMETER * parameter)
 {

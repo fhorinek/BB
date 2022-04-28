@@ -21,9 +21,13 @@ void usb_mode_start()
     MX_ThreadX_Init();
 }
 
+extern bool tft_no_rtos;
+
 void usb_mode_entry(ULONG id)
 {
     INFO("USB mode on");
+
+    tft_no_rtos = false;
 
     PSRAM_init();
     sd_init();

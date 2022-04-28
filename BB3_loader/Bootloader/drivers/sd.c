@@ -25,7 +25,7 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
 
     if (status != HAL_OK)
     {
-        WARN("Read error %08lX %u ret = %u", ReadAddr, NumOfBlocks, status);
+        //WARN("Read error %08lX %u ret = %u", ReadAddr, NumOfBlocks, status);
 
         tx_semaphore_put(&sd_semaphore);
         ret = HAL_ERROR;
@@ -36,6 +36,7 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
         if (status != TX_SUCCESS)
         {
             WARN("Read timeout %08lX %u err = %X", ReadAddr, NumOfBlocks, status);
+            MX_SDMMC1_SD_Init();
             ret = HAL_ERROR;
         }
         else
@@ -64,7 +65,7 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
 
     if (status != HAL_OK)
     {
-        WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
+        //WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
 
         tx_semaphore_put(&sd_semaphore);
         ret = HAL_ERROR;
@@ -166,19 +167,6 @@ bool sd_mount()
 		ERR(" Error mounting SD = %d", err);
 		return false;
 	}
-
-//	uint8_t buffer[1024 * 10] = {0};
-//
-//    INFO("write file");
-//    int32_t f;
-//    f = red_open("test.bin", RED_O_WRONLY | RED_O_CREAT);
-//
-//    for (uint32_t i = 0; i < 1024; i++)
-//    {
-//        red_write(f, buffer, sizeof(buffer));
-//    }
-//    red_close(f);
-//    INFO("end");
 
 	return true;
 }

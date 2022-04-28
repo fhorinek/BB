@@ -83,21 +83,13 @@ uint8_t app_poweroff()
         if (boot_type == BOOT_REBOOT)
             return POWER_ON_REBOOT;
     }
-    if (boot_type == BOOT_SHOW)
-        return POWER_ON_USB;
+//    if (boot_type == BOOT_SHOW)
+//        return POWER_ON_USB;
 
     //main power on
     GpioWrite(VCC_MAIN_EN, HIGH);
 
     HAL_Delay(100);
-
-//    bq25895_init();
-//    max17260_init();
-//
-////    //enable boost for negotiator
-////    GpioWrite(BQ_OTG, HIGH);
-////    //enable alt charger
-////    GpioWrite(ALT_CH_EN, LOW);
 
     pwr_init();
     GpioWrite(BQ_OTG, LOW);
@@ -147,6 +139,10 @@ uint8_t app_poweroff()
         GpioWrite(VCC_MAIN_EN, LOW);
         GpioWrite(DISP_BCKL, LOW);
 
+        HAL_SuspendTick();
+
+        //Wait for interrupt
+       // SCB->VTOR = 0x8000000;
         HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
         //check right after wake up IRQ is only 256us long
@@ -156,7 +152,7 @@ uint8_t app_poweroff()
         SystemClock_Config();
 
         //PeriphCommonClock not used in this clock configuration
-//        PeriphCommonClock_Config();
+        PeriphCommonClock_Config();
     }
 }
 
@@ -427,7 +423,7 @@ void app_main(uint8_t power_on_mode)
 {
 	debug_enable();
 
-	INFO("Bootloader init");
+	INFO("Bootloader init %u", power_on_mode);
 
 
     //main power on

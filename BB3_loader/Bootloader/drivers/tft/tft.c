@@ -32,6 +32,8 @@ static volatile bool tft_dma_done = false;
 static uint16_t tft_win_x1, tft_win_x2;
 static uint16_t tft_win_y1, tft_win_y2;
 
+bool tft_no_rtos = true;
+
 uint8_t tft_controller_type;
 
 TX_SEMAPHORE tft_dma_semaphore;
@@ -134,8 +136,11 @@ void tft_wait_for_buffer()
 void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
 #ifdef IN_BOOTLOADER
-//    tft_wait_for_buffer();
-//    tft_dma_done = false;
+    if(tft_no_rtos)
+    {
+        tft_wait_for_buffer();
+        tft_dma_done = false;
+    }
 #endif
 
     tft_win_x1 = x1;

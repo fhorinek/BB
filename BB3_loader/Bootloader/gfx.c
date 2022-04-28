@@ -481,17 +481,17 @@ bool gfx_draw_anim()
         break;
         case(GFX_STATUS_CHARGE_DATA):
             strcpy(left_icon, "4");
-        	if (pwr.data_usb_activity - HAL_GetTick() < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
+        	if (HAL_GetTick() - pwr.data_usb_activity < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
         		strcpy(right_icon, "");
         	else
         		strcpy(right_icon, "0");
         break;
         case(GFX_STATUS_NONE_DATA):
             strcpy(left_icon, "");
-    	if (pwr.data_usb_activity - HAL_GetTick() < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
-    		strcpy(right_icon, "4");
-    	else
-            strcpy(right_icon, "04");
+            if (HAL_GetTick() - pwr.data_usb_activity < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
+                strcpy(right_icon, "4");
+            else
+                strcpy(right_icon, "04");
         break;
         case(GFX_STATUS_NONE_CHARGE):
             strcpy(left_icon, "");
