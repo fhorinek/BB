@@ -28,6 +28,7 @@
 #include "sdmmc.h"
 #include "i2c.h"
 #include "octospi.h"
+#include "rng.h"
 
 #include "debug.h"
 #include "ux_port.h"
@@ -206,6 +207,6 @@ extern bool development_mode;
 void bat_check_step();
 
 void app_sleep();
-void app_continue();
+void app_main_entry(ULONG id);
 
 #endif /* INC_COMMON_H_ */

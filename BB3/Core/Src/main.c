@@ -117,6 +117,7 @@ int main(void)
   MX_DMA_Init();
   MX_MDMA_Init();
   MX_UART7_Init();
+  MX_TIM5_Init();
   MX_FMC_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
@@ -129,7 +130,6 @@ int main(void)
   MX_CRC_Init();
   MX_TIM17_Init();
   MX_TIM15_Init();
-  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

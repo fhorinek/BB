@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "common.h"
-#include "usb_mode.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,13 +67,13 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   /* USER CODE BEGIN App_ThreadX_Init */
   void * allocated_memory;
-  UINT status = tx_byte_allocate(byte_pool, (VOID**) &allocated_memory, 8 * 1024, TX_NO_WAIT);
+  UINT status = tx_byte_allocate(byte_pool, (VOID**) &allocated_memory, 16 * 1024, TX_NO_WAIT);
   ASSERT_MSG(status == TX_SUCCESS, "tx_byte_allocate, status %02X", status);
 
-  static TX_THREAD usb_mode_thread;
-  status = tx_thread_create(&usb_mode_thread, "main_app_thread",
-          usb_mode_entry, 0,
-          allocated_memory, 8 * 1024,
+  static TX_THREAD app_main;
+  status = tx_thread_create(&app_main, "app_main",
+          app_main_entry, 0,
+          allocated_memory, 16 * 1024,
           25, 25,
           TX_NO_TIME_SLICE, TX_AUTO_START);
   ASSERT_MSG(status == TX_SUCCESS, "main_app_thread, status %02X", status);

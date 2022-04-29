@@ -15,40 +15,11 @@
 
 #include "app_mtp_cb.h"
 #include "app_threadx.h"
+#include "usb_otg.h"
 
-void usb_mode_start()
-{
-    MX_ThreadX_Init();
-}
-
-extern bool tft_no_rtos;
-
-void usb_mode_entry(ULONG id)
+bool usb_mode_loop()
 {
     INFO("USB mode on");
-
-    tft_no_rtos = false;
-
-    PSRAM_init();
-    sd_init();
-
-    if (button_pressed(BT2) && button_pressed(BT5))
-    {
-        format_loop();
-        app_sleep();
-    }
-
-    if (sd_mount() == false)
-    {
-        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
-        button_confirm(BT3);
-        app_sleep();
-    }
-
-    if (file_exists(DEV_MODE_FILE))
-    {
-        development_mode = true;
-    }
 
 	led_set_backlight_timeout(GFX_BACKLIGHT_TIME);
 
@@ -97,6 +68,7 @@ void usb_mode_entry(ULONG id)
         	{
                 INFO("Port active, session closed");
                 pwr.data_port = PWR_DATA_NONE;
+                start_up = true;
 
                 //ejected
                 break;
@@ -230,12 +202,16 @@ void usb_mode_entry(ULONG id)
 
     INFO("USB mode off");
 
+    ux_device_stack_disconnect();
+
+    HAL_PCD_Stop(&hpcd_USB_OTG_HS);
+    HAL_PCD_DeInit(&hpcd_USB_OTG_HS);
+    ux_device_stack_uninitialize();
+    ux_system_uninitialize();
+
 	led_set_backlight(GFX_BACKLIGHT);
 	led_set_backlight_timeout(0);
 
-    if (start_up)
-        app_continue();
-    else
-        app_sleep();
+    return start_up;
 }
 

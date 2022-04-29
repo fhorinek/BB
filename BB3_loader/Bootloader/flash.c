@@ -23,7 +23,8 @@ bool flash_loop()
 
 	//Flash new FW
 //    uint8_t res = f_open(&update_file, UPDATE_FILE, FA_READ);
-	int32_t update_file = red_open(UPDATE_FILE, RED_O_RDONLY);
+
+    int32_t update_file = red_open(UPDATE_FILE, RED_O_RDONLY);
 	if (update_file > 0)
 	{
 		INFO("Update file found on sd card!");

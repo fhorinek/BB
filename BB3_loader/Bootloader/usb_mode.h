@@ -10,7 +10,6 @@
 
 #include "common.h"
 
-void usb_mode_start();
-void usb_mode_entry(ULONG id);
+bool usb_mode_loop();
 
 #endif /* USB_MODE_H_ */

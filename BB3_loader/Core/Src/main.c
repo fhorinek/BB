@@ -103,7 +103,7 @@ int main(void)
   MX_I2C2_Init();
   MX_TIM5_Init();
 
-  uint8_t power_on_mode = app_poweroff();
+  app_poweroff();
 
   /* USER CODE END SysInit */
 
@@ -123,7 +123,8 @@ int main(void)
   MX_OCTOSPI1_Init();
   /* USER CODE BEGIN 2 */
 
-  app_main(power_on_mode);
+  MX_ThreadX_Init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

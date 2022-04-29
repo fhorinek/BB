@@ -20,16 +20,16 @@
 #include "drivers/bq25895.h"
 #include "drivers/led.h"
 
+extern volatile UINT _tx_thread_preempt_disable;
+
 void app_deinit()
 {
 	//deinit
 	INFO("Bootloader deinit");
 	HAL_Delay(2);
 
-	MX_GPIO_Deinit();
-
-	//MX_DMA_Init();
-	HAL_DMA_DeInit(tft_dma);
+	//PSRAM
+	HAL_OSPI_DeInit(&hospi1);
 
 	//MX_SDMMC1_SD_Init();
 	sd_unmount();
@@ -38,8 +38,14 @@ void app_deinit()
 	//void MX_MDMA_Init();
 	HAL_MDMA_DeInit(&hmdma_mdma_channel40_sdmmc1_end_data_0);
 
+	//disable ThreadX Pre-emption
+	_tx_thread_preempt_disable++;
+
 	//MX_FMC_Init();
 	HAL_SRAM_DeInit(&hsram1);
+
+    //MX_DMA_Init();
+    HAL_DMA_DeInit(tft_dma);
 
 	//MX_TIM2_Init();
 //    HAL_TIM_PWM_DeInit(disp_timer);
@@ -53,11 +59,24 @@ void app_deinit()
     HAL_UART_DeInit(&huart4);
     HAL_UART_DeInit(&huart7);
 
-	//MX_USB_DEVICE_Init();
-	//in usb loop
-
 	//MX_CRC_Init();
 	HAL_CRC_DeInit(&hcrc);
+
+    //MX_I2C2_Init();
+    HAL_I2C_DeInit(&hi2c2);
+
+    //MX_TIM15_Init();
+    HAL_TIM_PWM_DeInit(&htim15);
+    HAL_TIM_Base_DeInit(&htim15);
+
+    //MX_UART4_Init();
+    HAL_UART_DeInit(&huart4);
+
+    //MX_RNG_Init();
+    HAL_RNG_DeInit(&hrng);
+
+    //MX_GPIO_Init();
+    MX_GPIO_Deinit();
 
 	//main power off
 	GpioSetDirection(VCC_MAIN_EN, INPUT, GPIO_NOPULL);
@@ -71,7 +90,11 @@ void app_deinit()
 #define POWER_ON_BOOST  		3
 #define POWER_ON_REBOOT 		4
 
-uint8_t app_poweroff()
+static uint8_t power_on_mode;
+
+void PeriphCommonClock_Config(void);
+
+void app_poweroff()
 {
 	uint8_t boot_type = BOOT_SHOW;
 	if (no_init_check())
@@ -81,7 +104,10 @@ uint8_t app_poweroff()
         no_init_update();
 
         if (boot_type == BOOT_REBOOT)
-            return POWER_ON_REBOOT;
+        {
+            power_on_mode = POWER_ON_REBOOT;
+            return;
+        }
     }
 //    if (boot_type == BOOT_SHOW)
 //        return POWER_ON_USB;
@@ -101,7 +127,10 @@ uint8_t app_poweroff()
     //charge port connected, but charging is not done
     if (pwr.charge_port > PWR_CHARGE_NONE
     		&& !(pwr.charge_port == PWR_CHARGE_DONE && boot_type == BOOT_CHARGE))
-        return POWER_ON_USB;
+    {
+        power_on_mode = POWER_ON_USB;
+        return;
+    }
 
     bool bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
 
@@ -110,25 +139,43 @@ uint8_t app_poweroff()
         //usb connected, but charging is not done
         if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH
         		&& !(pwr.data_port == PWR_DATA_CHARGE_DONE && boot_type == BOOT_CHARGE))
-            return POWER_ON_USB;
+        {
+            power_on_mode = POWER_ON_USB;
+            return;
+        }
 
         //usb disconnected, but charging was done
         if (HAL_GPIO_ReadPin(USB_VBUS) == LOW
         		&& pwr.data_port == PWR_DATA_CHARGE_DONE
 				&& boot_type == BOOT_CHARGE)
-            return POWER_ON_USB;
+        {
+            power_on_mode = POWER_ON_USB;
+            return;
+        }
 
         if (bq_irq)
-            return POWER_ON_USB;
+        {
+            power_on_mode = POWER_ON_USB;
+            return;
+        }
 
         if (button_hold_2(BT1, 150))
-            return POWER_ON_TORCH;
+        {
+            power_on_mode = POWER_ON_TORCH;
+            return;
+        }
 
         if (button_hold_2(BT3, 150))
-            return POWER_ON_BUTTON;
+        {
+            power_on_mode = POWER_ON_BUTTON;
+            return;
+        }
 
         if (button_hold_2(BT4, 150))
-            return POWER_ON_BOOST;
+        {
+            power_on_mode = POWER_ON_BOOST;
+            return;
+        }
 
         //do not sleep if button is pressed
         if (button_pressed(BT1) || button_pressed(BT3) || button_pressed(BT4))
@@ -143,7 +190,7 @@ uint8_t app_poweroff()
 
         //Wait for interrupt
        // SCB->VTOR = 0x8000000;
-        HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+        //HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
         //check right after wake up IRQ is only 256us long
         bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
@@ -370,56 +417,7 @@ void bat_check_step()
 	}
 }
 
-void app_continue()
-{
-    bool updated = false;
-    bool skip_crc = false;
-
-    updated = flash_loop();
-
-    if (file_exists(SKIP_CRC_FILE))
-    {
-        WARN("CRC check override!");
-        skip_crc = true;
-    }
-
-    if (flash_verify() || skip_crc)
-    {
-        if (updated)
-        {
-            gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
-            button_confirm(BT3);
-        }
-
-        if (*(uint32_t *)APP_ADDRESS == 0xFFFFFFFF)
-        {
-            gfx_draw_status(GFX_STATUS_ERROR, "No Firmware");
-            button_confirm(BT3);
-        }
-        else
-        {
-            app_deinit();
-
-            no_init_check();
-            no_init->boot_type = BOOT_SHOW;
-            no_init_update();
-
-            Bootloader_JumpToApplication();
-        }
-    }
-    else
-    {
-        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not found");
-        button_confirm(BT3);
-    }
-
-    app_reset();
-
-    //not possible to reach!
-    while(1);
-}
-
-void app_main(uint8_t power_on_mode)
+void app_main_entry(ULONG id)
 {
 	debug_enable();
 
@@ -460,10 +458,82 @@ void app_main(uint8_t power_on_mode)
     	key_combo(GFX_STARTUP_APP, BT3);
     }
 
+    PSRAM_init();
+    sd_init();
+
+    if (button_pressed(BT2) && button_pressed(BT5))
+    {
+        format_loop();
+        //app_sleep();
+    }
+
+    if (sd_mount() == false)
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+        button_confirm(BT3);
+        app_sleep();
+    }
+
+    if (file_exists(DEV_MODE_FILE))
+    {
+        development_mode = true;
+    }
+
 	if (power_on_mode == POWER_ON_USB)
 	{
-	    usb_mode_start();
+	    if (!usb_mode_loop())
+	        app_sleep();
 	}
 
-	app_continue();
+    bool updated = false;
+    bool skip_crc = false;
+
+    INFO("app_continue");
+
+    if (file_exists(SKIP_CRC_FILE))
+    {
+        WARN("CRC check override!");
+        skip_crc = true;
+    }
+
+    updated = flash_loop();
+
+    INFO("flash_loop done");
+
+
+
+    if (flash_verify() || skip_crc)
+    {
+        if (updated)
+        {
+            gfx_draw_status(GFX_STATUS_SUCCESS, "Firmware updated");
+            button_confirm(BT3);
+        }
+
+        if (*(uint32_t *)APP_ADDRESS == 0xFFFFFFFF)
+        {
+            gfx_draw_status(GFX_STATUS_ERROR, "No Firmware");
+            button_confirm(BT3);
+        }
+        else
+        {
+            app_deinit();
+
+            no_init_check();
+            no_init->boot_type = BOOT_SHOW;
+            no_init_update();
+
+            Bootloader_JumpToApplication();
+        }
+    }
+    else
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "Firmware not found");
+        button_confirm(BT3);
+    }
+
+    app_reset();
+
+    //not possible to reach!
+    while(1);
 }
