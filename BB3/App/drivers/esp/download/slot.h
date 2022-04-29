@@ -44,7 +44,7 @@ struct download_slot_t
 
 typedef struct
 {
-    FIL f;
+    int32_t f;
     uint32_t tmp_id;
 } download_slot_file_data_t;
 

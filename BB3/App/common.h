@@ -32,10 +32,12 @@
 #include "rtc.h"
 
 //os
+#include "redfs.h"
+#include "redposix.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os2.h"
-#include "fatfs.h"
 #include "queue.h"
 
 
@@ -236,8 +238,8 @@ int16_t complement2_16bit(uint16_t in);
 bool file_exists(char * path);
 bool file_isdir(char * path);
 void touch(char * path);
-char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
-char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);
+char * find_in_file_sep(int32_t f, char * key, char * def, char * buff, uint16_t len, char separator);
+char * find_in_file(int32_t f, char * key, char * def, char * buff, uint16_t len);
 
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
 uint32_t calc_crc32(uint32_t * data, uint32_t size);

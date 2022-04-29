@@ -248,7 +248,7 @@ void imu_step()
 {
     if (fc.imu.record)
     {
-        static FIL * fp = NULL;
+        static int32_t fp = NULL;
         char tmp[128];
         UINT bw;
 

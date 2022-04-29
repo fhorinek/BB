@@ -101,15 +101,6 @@ typedef struct
 
 typedef enum
 {
-	esp_off = 0,
-	esp_starting,
-	esp_normal,
-    esp_external_auto,
-    esp_external_manual,
-} esp_mode_t;
-
-typedef enum
-{
     fc_dev_error = 0,
     fc_dev_init,
     fc_dev_sampling,

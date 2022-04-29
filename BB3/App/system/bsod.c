@@ -286,7 +286,7 @@ void bsod_crash_start(const Crash_Object * info)
     }
 }
 
-void bsod_list_readdir(FIL * file, char * path, uint8_t level)
+void bsod_list_readdir(int32_t file, char * path, uint8_t level)
 {
     DIR dir;
     static FILINFO fno;

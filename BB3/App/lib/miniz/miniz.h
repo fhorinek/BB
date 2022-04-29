@@ -506,7 +506,7 @@ typedef int mz_bool;
 #ifdef MINIZ_NO_STDIO
 #define MZ_FILE FIL
 #else
-#include "ff.h"
+//#include "ff.h"
 #define MZ_FILE FIL
 #endif /* #ifdef MINIZ_NO_STDIO */
 

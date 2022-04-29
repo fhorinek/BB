@@ -22,7 +22,6 @@
 
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
-#include "fatfs.h"
 
 void debug_fault_dump(uint8_t * data, uint32_t len)
 {

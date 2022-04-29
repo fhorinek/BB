@@ -9,7 +9,6 @@
 
 #include "common.h"
 
-#include "fatfs.h"
 
 #include "fc/fc.h"
 

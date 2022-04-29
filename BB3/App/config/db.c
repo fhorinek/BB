@@ -10,7 +10,7 @@
 #define DB_LINE_LEN             128
 #define DB_WORK_BUFFER_SIZE     2048
 
-int32_t db_locate(FIL * fp, char * key, char * buff, uint16_t buffer_size)
+int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
 {
     uint32_t pos = 0;
     f_lseek(fp, 0);
@@ -90,7 +90,7 @@ bool db_query_int(char * path, char * key, int16_t * value)
 }
 
 
-void db_remove_line(FIL * fp, char * path, uint32_t start_pos, uint16_t lenght)
+void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght)
 {
     FIL new;
     char * buff;

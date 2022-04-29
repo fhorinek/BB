@@ -17,7 +17,7 @@ typedef struct
 	uint32_t crc;
 } bootloader_header_t;
 
-static FIL * f = NULL;
+static int32_t f = NULL;
 
 void bl_clean()
 {
@@ -31,7 +31,7 @@ void bl_clean()
 
 bootloader_res_t bootloader_update(char * path)
 {
-	f = (FIL *)malloc(sizeof(FIL));
+	f = (int32_t)malloc(sizeof(FIL));
 	UINT br;
 
 	//TODO: check batery voltage before

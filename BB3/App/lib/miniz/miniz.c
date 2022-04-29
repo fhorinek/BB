@@ -2984,9 +2984,9 @@ extern "C" {
 #include "ff.h"
 #include "common.h"
 
-static FIL *mz_fopen(const char *pFilename, const char *pMode)
+static int32_tmz_fopen(const char *pFilename, const char *pMode)
 {
-    FIL * pFile = malloc(sizeof(FIL));
+    int32_t pFile = malloc(sizeof(FIL));
     uint8_t fa_attr = 0;
     if (strcmp(pMode, "rb") == 0)
         fa_attr = FA_READ;
@@ -3007,7 +3007,7 @@ static FIL *mz_fopen(const char *pFilename, const char *pMode)
     return pFile;
 }
 
-static int mz_fclose(FIL * file)
+static int mz_fclose(int32_t file)
 {
     if (file != NULL)
     {
@@ -3021,14 +3021,14 @@ static int mz_fclose(FIL * file)
 }
 
 
-static FIL *mz_freopen(const char *pPath, const char *pMode, FIL *pStream)
+static int32_tmz_freopen(const char *pPath, const char *pMode, int32_tpStream)
 {
     mz_fclose(pStream);
-    FIL * pFile = mz_fopen(pPath, pMode);
+    int32_t pFile = mz_fopen(pPath, pMode);
     return pFile;
 }
 
-static int mz_fread(uint8_t * buff, uint8_t elem, uint32_t count, FIL * fp)
+static int mz_fread(uint8_t * buff, uint8_t elem, uint32_t count, int32_t fp)
 {
     UINT br;
     f_read(fp, buff, elem * count, &br);
@@ -3036,7 +3036,7 @@ static int mz_fread(uint8_t * buff, uint8_t elem, uint32_t count, FIL * fp)
     return br;
 }
 
-static int mz_fwrite(uint8_t * buff, uint8_t elem, uint32_t count, FIL * fp)
+static int mz_fwrite(uint8_t * buff, uint8_t elem, uint32_t count, int32_t fp)
 {
     UINT bw;
     f_write(fp, buff, elem * count, &bw);
@@ -3044,7 +3044,7 @@ static int mz_fwrite(uint8_t * buff, uint8_t elem, uint32_t count, FIL * fp)
     return bw;
 }
 
-static int mz_fseek(FIL * fp, uint32_t offset, uint8_t origin)
+static int mz_fseek(int32_t fp, uint32_t offset, uint8_t origin)
 {
     if (origin == SEEK_SET)
         return f_lseek(fp, offset);

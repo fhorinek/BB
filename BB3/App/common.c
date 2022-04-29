@@ -152,7 +152,7 @@ int16_t complement2_16bit(uint16_t in)
     return in;
 }
 
-char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len)
+char * find_in_file(int32_t f, char * key, char * def, char * buff, uint16_t len)
 {
 	FSIZE_t start_pos = f_tell(f);
 	bool loop = false;
@@ -231,8 +231,8 @@ uint32_t get_tmp_filename(char * fname)
 #define COPY_WORK_BUFFER_SIZE (1024 * 4)
 bool copy_file(char * src, char * dst)
 {
-    FIL * f_src = (FIL *)malloc(sizeof(FIL));
-    FIL * f_dst = (FIL *)malloc(sizeof(FIL));
+    int32_t f_src = (int32_t)malloc(sizeof(FIL));
+    int32_t f_dst = (int32_t)malloc(sizeof(FIL));
     uint8_t * work_buffer = (uint8_t *) malloc(COPY_WORK_BUFFER_SIZE);
 
     if (f_src == NULL || f_dst == NULL || work_buffer == NULL)

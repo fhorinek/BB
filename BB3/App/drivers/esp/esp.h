@@ -9,7 +9,15 @@
 #define DRIVERS_ESP_ESP_H_
 
 #include "common.h"
-#include "fc/fc.h"
+
+typedef enum
+{
+    esp_off = 0,
+    esp_starting,
+    esp_normal,
+    esp_external_auto,
+    esp_external_manual,
+} esp_mode_t;
 
 void esp_init();
 void esp_deinit();
