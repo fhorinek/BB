@@ -248,16 +248,14 @@ void imu_step()
 {
     if (fc.imu.record)
     {
-        static int32_t fp = NULL;
+        static int32_t fp = 0;
         char tmp[128];
-        UINT bw;
 
-        if (fp == NULL)
+        if (fp == 0)
         {
-            fp = malloc(sizeof(FIL));
-            f_open(fp, IMU_LOG, FA_WRITE | FA_CREATE_ALWAYS);
+            fp = red_open(IMU_LOG, RED_O_WRONLY | RED_O_CREAT);
             snprintf(tmp, sizeof(tmp), "ax,ay,az,,gx,gy,gz,,mx,my,mz\n");
-            f_write(fp, tmp, strlen(tmp), &bw);
+            red_write(fp, tmp, strlen(tmp));
         }
 
         snprintf(tmp, sizeof(tmp), "%d,%d,%d,,%d,%d,%d,,%d,%d,%d\n",
@@ -265,8 +263,8 @@ void imu_step()
                 fc.imu.raw.gyro.x, fc.imu.raw.gyro.y, fc.imu.raw.gyro.z,
                 fc.imu.raw.mag.x, fc.imu.raw.mag.y, fc.imu.raw.mag.z);
 
-        f_write(fp, tmp, strlen(tmp), &bw);
-        f_sync(fp);
+        red_write(fp, tmp, strlen(tmp));
+        red_sync();
     }
 
     if (fc.imu.status != fc_dev_ready)

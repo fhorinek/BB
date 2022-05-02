@@ -54,7 +54,7 @@ bool page_rename(char * old_name, char * new_name)
     if (file_exists(path_new) || !file_exists(path_old))
         return false;
 
-    f_rename(path_old, path_new);
+    red_rename(path_old, path_new);
 
 	return true;
 }
@@ -88,5 +88,5 @@ void page_delete(char * name)
 
 	snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), name);
 
-	f_unlink(path);
+	red_unlink(path);
 }

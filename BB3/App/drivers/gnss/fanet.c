@@ -24,7 +24,7 @@ static uint32_t fanet_next_transmit_tracking = 0;
 static uint32_t fanet_next_transmit_name = 0;
 static uint16_t fanet_read_index = 0;
 bool fanet_need_update = false;
-osSemaphoreId fanet_tx_lock = NULL;
+osSemaphoreId_t fanet_tx_lock = NULL;
 
 void fanet_start_dma()
 {
@@ -203,16 +203,15 @@ void fanet_set_mode()
 
 bool fanet_is_actual_version(char * module)
 {
-    FIL f;
-    if (f_open(&f, PATH_FANET_FW, FA_READ) == FR_OK)
+    int32_t f = red_open(PATH_FANET_FW, RED_O_RDONLY);
+    if (f > 0)
     {
         //version start
-        f_lseek(&f, 0x18);
+        red_lseek(f, 0x18, RED_SEEK_SET);
 
         char version[13];
-        UINT br;
-        f_read(&f, version, 12, &br);
-        f_close(&f);
+        int32_t br = red_read(f, version, 12);
+        red_close(f);
 
         version[12] = 0;
         if (br == 12)
@@ -346,6 +345,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 
 				flags |= NB_HAVE_TURNRATE;
 			}
+			(void)turn;
 
 			neighbor_t nb;
 			nb.addr = source;

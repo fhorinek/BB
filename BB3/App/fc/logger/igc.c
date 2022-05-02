@@ -10,14 +10,14 @@
 
 #include <private_key.h>
 
-static osTimerId igc_timer;
+static osTimerId_t igc_timer;
 
 #define IGC_PERIOD	900
 #define LOG_IGC_MANUFACTURER_ID	"XSB"
 #define LOG_IGC_DEVICE_ID		"DRP"
 //#define LOG_IGC_DEVICE_ID		"STR"
 
-FIL igc_log_file;
+int32_t igc_log_file;
 static bool igc_started = false;
 
 sha_internal_state_t sha_state;
@@ -25,7 +25,6 @@ sha_internal_state_t sha_state;
 void igc_writeline_2(char * line, bool sign)
 {
 	uint8_t l = strlen(line);
-	UINT wl;
 
 	DBG("IGC:%s", line);
 
@@ -33,9 +32,8 @@ void igc_writeline_2(char * line, bool sign)
 	snprintf(new_line, sizeof(new_line), "%s\r\n", line);
 	l += 2;
 
-	ASSERT(f_write(&igc_log_file, new_line, l, &wl) == FR_OK);
-	ASSERT(wl == l);
-	ASSERT(f_sync(&igc_log_file) == FR_OK);
+	ASSERT(red_write(igc_log_file, new_line, l) == l);
+	ASSERT(red_sync() == 0);
 
 #ifndef IGC_NO_PRIVATE_KEY
 	if (sign)
@@ -77,13 +75,12 @@ void igc_write_grecord()
 		strcat(line, tmp);
 	}
 
-	uint32_t pos = f_tell(&igc_log_file);
-
+	int32_t pos = red_lseek(igc_log_file, 0, RED_SEEK_CUR);
 	igc_writeline_2(line, false);
-	f_sync(&igc_log_file);
+	red_sync();
 
 	//rewind pointer
-	ASSERT(f_lseek(&igc_log_file, pos) == FR_OK);
+	red_lseek(igc_log_file, pos, RED_SEEK_SET);
 #endif
 }
 
@@ -163,12 +160,11 @@ void igc_start_write()
 	datetime_from_epoch(utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 
 	snprintf(path, sizeof(path), "%s/%04u.%02u", PATH_LOGS_DIR, year, month);
-	f_mkdir(path);
+	red_mkdir(path);
 	snprintf(path, sizeof(path), "%s/%04u.%02u/%04u.%02u.%02u %02u.%02u.igc", PATH_LOGS_DIR, year, month, year, month, day, hour, min);
-	uint8_t res = f_open(&igc_log_file, path, FA_WRITE | FA_CREATE_ALWAYS);
-	DBG("IGC OPEN %s, res = %u", path, res);
-	ASSERT(res == FR_OK);
-	if (res != FR_OK)
+	igc_log_file = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+	DBG("IGC OPEN %s, res = %d", path, igc_log_file);
+	if (igc_log_file < 0)
 		return;
 
 	//write header
@@ -315,7 +311,7 @@ void igc_stop()
 	if (igc_started)
 	{
 		igc_comment("end");
-		f_close(&igc_log_file);
+		red_close(igc_log_file);
 		igc_started = false;
 	}
 	fc.logger.igc = fc_logger_off;

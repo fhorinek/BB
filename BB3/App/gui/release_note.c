@@ -46,12 +46,11 @@ void release_note_show()
     #define RELEASE_NOTE_BUFF_SIZE (1024 * 8)
     char * buff = ps_malloc(RELEASE_NOTE_BUFF_SIZE);
 
-    FIL f;
-    if (f_open(&f, PATH_RELEASE_NOTE, FA_READ) == FR_OK)
+    int32_t f = red_open(PATH_RELEASE_NOTE, RED_O_RDONLY);
+    if (f > 0)
     {
-        UINT br;
-        f_read(&f, buff, RELEASE_NOTE_BUFF_SIZE, &br);
-        f_close(&f);
+        red_read(f, buff, RELEASE_NOTE_BUFF_SIZE);
+        red_close(f);
 
         char title[64];
         char fw_str[20];

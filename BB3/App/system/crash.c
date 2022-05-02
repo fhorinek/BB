@@ -9,7 +9,6 @@
 #include "bsod.h"
 #include "rtc.h"
 
-#include "drivers/sd_failsafe/sd_diskio.h"
 #include "drivers/rtc.h"
 #include "drivers/rev.h"
 
@@ -161,7 +160,7 @@ void CrashCatcher_DumpStart(const Crash_Object * info)
 {
     bsod_crash_start(info);
 
-    SD_FailSafe_init();
+//    SD_FailSafe_init();
 
     red_mkdir(PATH_CRASH_DIR);
 

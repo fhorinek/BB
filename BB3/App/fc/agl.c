@@ -7,7 +7,6 @@
 
 
 #include "agl.h"
-#include "fatfs.h"
 
 #include "fc.h"
 
@@ -75,38 +74,6 @@ void agl_get_filename(char * fn, hagl_pos_t pos)
 }
 
 
-void agl_get_file_min_max(char * filename, int16_t * vmin, int16_t  * vmax)
-{
-	uint8_t buff[2048];
-	FIL file;
-
-	f_open(&file, filename, FA_READ);
-
-	*vmin = INT16_MAX;
-	*vmax = INT16_MIN;
-
-	while(!f_eof(&file))
-	{
-		UINT br;
-
-		f_read(&file, buff, sizeof(buff), &br);
-
-		for (uint16_t i = 0; i < br / 2; i++)
-		{
-			byte2 alt;
-
-		    alt.uint8[0] = buff[i*2 + 1];
-		    alt.uint8[1] = buff[i*2 + 0];
-
-		    if (alt.int16 > *vmax) *vmax = alt.int16;
-		    if (alt.int16 < *vmin) *vmin = alt.int16;
-		}
-
-	}
-
-	f_close(&file);
-
-}
 
 int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 {
@@ -116,8 +83,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 
     #define CACHE_SIZE	4
 
-    static FIL files_cache[CACHE_SIZE];
-    static FIL files_cache2[CACHE_SIZE];
+    static int32_t files_cache[CACHE_SIZE];
     static hagl_pos_t files_fpos[CACHE_SIZE] = {POS_INVALID, POS_INVALID, POS_INVALID, POS_INVALID};
     static uint8_t file_index = 0;
 
@@ -146,12 +112,11 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 				agl_get_filename(filename, fpos);
 				snprintf(path, sizeof(path), PATH_TOPO_DIR "/%s.hgt", filename);
 
-				f_close(&files_cache[file_index]);
-				f_close(&files_cache2[file_index]);
+				red_close(files_cache[file_index]);
 
 				INFO("opening file '%s' cache[%u]", path, file_index);
-				uint8_t ret = f_open(&files_cache[file_index], path, FA_READ);
-				if (ret != FR_OK)
+				int32_t f = red_open(path, RED_O_RDONLY);
+				if (f < 0)
 				{
 					files_fpos[file_index].flags |= POS_FLAG_NOT_FOUND;
 					WARN("not found!");
@@ -160,14 +125,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 					return AGL_INVALID;
 				}
 
-//				int16_t vmin, vmax;
-//
-//				uint32_t t_start = HAL_GetTick();
-//				agl_get_file_min_max(path, &vmin, &vmax);
-//				DBG("time %lu ms", HAL_GetTick() - t_start);
-
-				if (use_bilinear)
-					f_open(&files_cache2[file_index], path, FA_READ);
+				files_cache[file_index] = f;
 
 				break;
 			}
@@ -191,22 +149,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
         lat = (GNSS_MUL - 1) + (lat % GNSS_MUL);   // lat is negative!
     }
 
-    // Check, if we have a 1201x1201 or 3601x3601 tile:
-    switch (f_size(&files_cache[file_index]))
-    {
-        case HGT_DATA_WIDTH_3 * HGT_DATA_WIDTH_3 * 2:
-            num_points_x = num_points_y = HGT_DATA_WIDTH_3;
-        break;
-        case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2:
-            num_points_x = num_points_y = HGT_DATA_WIDTH_1;
-        break;
-        case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1_HALF * 2:
-            num_points_x = HGT_DATA_WIDTH_1_HALF;
-            num_points_y = HGT_DATA_WIDTH_1;
-        break;
-        default:
-            return AGL_INVALID;
-    }
+    num_points_x = num_points_y = HGT_DATA_WIDTH_3;
 
     // "-2" is, because a file has a overlap of 1 point to the next file.
     uint32_t coord_div_x = GNSS_MUL / (num_points_x - 2);
@@ -214,7 +157,6 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
     uint16_t y = (lat % GNSS_MUL) / coord_div_y;
     uint16_t x = (lon % GNSS_MUL) / coord_div_x;
 
-    UINT rd;
     uint8_t tmp[4];
     byte2 alt11, alt12, alt21, alt22;
 
@@ -222,9 +164,8 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
     uint32_t pos = ((uint32_t) x + num_points_x * (uint32_t) ((num_points_y - y) - 1)) * 2;
 //    DBG("agl_get_alt: lat=%ld, lon=%ld; x=%d, y=%d; pos=%ld", lat, lon, x, y, pos);
 
-    ASSERT(f_lseek(&files_cache[file_index], pos) == FR_OK);
-    ASSERT(f_read(&files_cache[file_index], tmp, 4, &rd) == FR_OK);
-    ASSERT(rd == 4);
+    ASSERT(red_lseek(files_cache[file_index], pos, RED_SEEK_SET) == 0);
+    ASSERT(red_read(files_cache[file_index], tmp, 4) == 4);
 
     //switch big endian to little
     alt11.uint8[0] = tmp[1];
@@ -240,9 +181,8 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 
     //seek to opposite position
     pos -= num_points_x * 2;
-    ASSERT(f_lseek(&files_cache2[file_index], pos) == FR_OK);
-    ASSERT(f_read(&files_cache2[file_index], tmp, 4, &rd) == FR_OK);
-    ASSERT(rd == 4);
+    ASSERT(red_lseek(files_cache[file_index], pos, RED_SEEK_SET) == 0);
+    ASSERT(red_read(files_cache[file_index], tmp, 4) == 4);
 
     //switch big endian to little
     alt12.uint8[0] = tmp[1];

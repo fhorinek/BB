@@ -7,22 +7,24 @@
 #include "db.h"
 
 #define DB_SEPARATOR            '\t'
+#define DB_OLD_SEPARATOR            '='
 #define DB_LINE_LEN             128
 #define DB_WORK_BUFFER_SIZE     2048
 
 int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
 {
     uint32_t pos = 0;
-    f_lseek(fp, 0);
+    red_lseek(fp, 0, RED_SEEK_SET);
 
-    while (f_gets(buff, buffer_size, fp) != NULL)
+    while (red_gets(buff, buffer_size, fp) != NULL)
     {
-        if (strstr(buff, key) == buff && buff[strlen(key)] == DB_SEPARATOR)
+        if (strstr(buff, key) == buff
+                && (buff[strlen(key)] == DB_SEPARATOR || buff[strlen(key)] == DB_OLD_SEPARATOR))
         {
             return pos;
         }
 
-        pos = f_tell(fp);
+        pos = red_lseek(fp, 0, RED_SEEK_CUR);
     }
 
     return -1;
@@ -31,13 +33,14 @@ int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
 bool db_exists(char * path, char * key)
 {
     char buff[DB_LINE_LEN];
-    FIL f;
+    int32_t f = red_open(path, RED_O_RDONLY);
+
     bool ret = false;
 
-    if (f_open(&f, path, FA_READ) == FR_OK)
+    if (f > 0)
     {
-        ret = db_locate(&f, key, buff, sizeof(buff)) >= 0;
-        f_close(&f);
+        ret = db_locate(f, key, buff, sizeof(buff)) >= 0;
+        red_close(f);
     }
 
     return ret;
@@ -46,19 +49,19 @@ bool db_exists(char * path, char * key)
 bool db_query(char * path, char * key, char * value, uint16_t value_len)
 {
     char buff[DB_LINE_LEN];
-    FIL f;
+
     int32_t pos = -1;
 
 
-    FRESULT res = f_open(&f, path, FA_READ);
-    if (res == FR_OK)
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
     {
-        pos = db_locate(&f, key, buff, sizeof(buff));
-        f_close(&f);
+        pos = db_locate(f, key, buff, sizeof(buff));
+        red_close(f);
     }
     else
     {
-        ERR("Could not open file '%s', res = %u", path, res);
+        ERR("Could not open file '%s', res = %d", path, f);
     }
 
     //line starting with key found!
@@ -77,6 +80,14 @@ bool db_query(char * path, char * key, char * value, uint16_t value_len)
     return false;
 }
 
+bool db_query_def(char * path, char * key, char * value, uint16_t value_len, char * def)
+{
+    bool found = db_query(path, key, value, value_len);
+    if (!found)
+        value = def;
+    return found;
+}
+
 bool db_query_int(char * path, char * key, int16_t * value)
 {
     char buff[8];
@@ -89,18 +100,25 @@ bool db_query_int(char * path, char * key, int16_t * value)
     return ret;
 }
 
+bool db_query_int_def(char * path, char * key, int16_t * value, int16_t def)
+{
+    bool found = db_query_int(path, key, value);
+    if (!found)
+        *value = def;
+    return found;
+}
 
 void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght)
 {
-    FIL new;
     char * buff;
-    char path_new[64];
-    UINT br, bw;
+    char path_new[PATH_LEN];
+    int32_t br, bw;
 
-    f_lseek(fp, 0);
+    red_lseek(fp, 0, RED_SEEK_SET);
     get_tmp_filename(path_new);
 
-    ASSERT(f_open(&new, path_new, FA_WRITE | FA_CREATE_NEW) == FR_OK);
+    int32_t new = red_open(path_new, RED_O_WRONLY | RED_O_CREAT);
+    ASSERT(new > 0);
 
     buff = (char *) malloc(DB_WORK_BUFFER_SIZE);
     ASSERT(buff != NULL);
@@ -114,11 +132,13 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
 
         if (to_read > 0)
         {
-            f_read(fp, buff, to_read, &br);
+            br = red_read(fp, buff, to_read);
             if (br == 0) //EOF
                 break;
 
-            f_write(&new, buff, br, &bw);
+            bw = red_write(new, buff, br);
+
+            ASSERT(bw == br);
 
             pos += to_read;
         }
@@ -127,47 +147,48 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
         {
             pos += lenght;
             start_pos = INT16_MAX;
-            f_lseek(fp, pos);
+            red_lseek(fp, pos, RED_SEEK_SET);
         }
     }
 
     free(buff);
 
-    f_close(fp);
-    f_close(&new);
-    f_unlink(path);
-    f_rename(path_new, path);
+    red_close(fp);
+    red_close(new);
+    red_unlink(path);
+    red_rename(path_new, path);
 }
 
 void db_delete(char * path, char * key)
 {
     char buff[DB_LINE_LEN];
-    FIL f;
+    int32_t f = red_open(path, RED_O_RDONLY);
 
-    if(f_open(&f, path, FA_READ) == FR_OK)
+    if (f > 0)
     {
-        int32_t pos = db_locate(&f, key, buff, sizeof(buff));
+        int32_t pos = db_locate(f, key, buff, sizeof(buff));
 
         if (pos >= 0)
         {
             //remove line close the file for us
-            db_remove_line(&f, path, pos, strlen(buff));
+            db_remove_line(f, path, pos, strlen(buff));
         }
         else
         {
-            f_close(&f);
+            red_close(f);
         }
     }
 }
 
 void db_insert(char * path, char * key, char * value)
 {
-    FIL f;
     char buff[DB_LINE_LEN];
 
-    if (f_open(&f, path, FA_OPEN_ALWAYS | FA_WRITE | FA_READ) == FR_OK)
+    int32_t f = red_open(path, RED_O_RDWR | RED_O_CREAT);
+
+    if (f > 0)
     {
-        int32_t pos = db_locate(&f, key, buff, sizeof(buff));
+        int32_t pos = db_locate(f, key, buff, sizeof(buff));
 
         if (pos >= 0)
         {
@@ -182,29 +203,35 @@ void db_insert(char * path, char * key, char * value)
             else
             {
                 //value differs, remove old record
-                db_remove_line(&f, path, pos, strlen(buff) + 1);
-                f_open(&f, path, FA_WRITE | FA_OPEN_APPEND);
+                db_remove_line(f, path, pos, strlen(buff) + 1);
+                f = red_open(path, RED_O_WRONLY | RED_O_APPEND);
             }
         }
 
-        UINT bw;
-
         //move to end
-        f_lseek(&f, f_size(&f));
+        red_lseek(f, 0, RED_SEEK_END);
         snprintf(buff, DB_LINE_LEN, "%s%c%s\n", key, DB_SEPARATOR, value);
-        f_write(&f, buff, strlen(buff), &bw);
-        f_close(&f);
+        red_write(f, buff, strlen(buff));
+        red_close(f);
     }
+}
+
+void db_insert_int(char * path, char * key, int16_t value)
+{
+    char buff[8];
+    snprintf(buff, sizeof(buff), "%d", value);
+    db_insert(path, key, buff);
 }
 
 void db_dump(char * path)
 {
-    FIL f;
     char buff[DB_LINE_LEN];
 
     INFO("Dumping file: %s", path);
 
-    if (f_open(&f, path, FA_READ) == FR_OK)
+    int32_t f = f_open(&f, path, RED_O_RDONLY);
+
+    if (f > 0)
     {
         uint16_t i = 0;
         while (f_gets(buff, sizeof(buff), &f) != NULL)

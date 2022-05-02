@@ -4,6 +4,7 @@
 
 #include "drivers/esp/esp.h"
 #include "drivers/esp/protocol.h"
+#include "fc/fc.h"
 
 static scan_network_info_t * esp_scan_list = NULL;
 static uint8_t scan_index = 0;

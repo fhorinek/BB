@@ -30,6 +30,7 @@
 #define OSBDEV_STM32SDIO_H
 
 #include "common.h"
+#include "drivers/sd.h"
 
 /** @brief Number of times to call BSP_SD_GetStatus() before timing out and
            returning an error.

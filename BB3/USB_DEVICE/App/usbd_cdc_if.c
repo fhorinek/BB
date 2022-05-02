@@ -65,8 +65,13 @@
 /* USER CODE BEGIN PRIVATE_DEFINES */
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
+
+#undef APP_RX_DATA_SIZE
 #define APP_RX_DATA_SIZE  2048
+
+#undef APP_TX_DATA_SIZE
 #define APP_TX_DATA_SIZE  2048
+
 /* USER CODE END PRIVATE_DEFINES */
 
 /**

@@ -9,12 +9,12 @@
 #define DRIVERS_ESP_PROTOCOL_H_
 
 #include "common.h"
-#include "protocol_def.h"
 #include "download/slot.h"
 #include "upload/slot.h"
-#include "fc/fc.h"
 
 #include "etc/safe_uart.h"
+
+typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
 void esp_send_ping();
 

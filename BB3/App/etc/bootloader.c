@@ -17,57 +17,43 @@ typedef struct
 	uint32_t crc;
 } bootloader_header_t;
 
-static int32_t f = NULL;
-
-void bl_clean()
-{
-	if (f != NULL)
-	{
-		f_close(f);
-		free(f);
-		f = NULL;
-	}
-}
-
 bootloader_res_t bootloader_update(char * path)
 {
-	f = (int32_t)malloc(sizeof(FIL));
-	UINT br;
-
 	//TODO: check batery voltage before
 
 	INFO("Checking the bootloader file %s", path);
 
 	if (file_exists(path))
 	{
-		if (f_open(f, path, FA_READ) != FR_OK)
+	    int32_t f = red_open(path, RED_O_RDONLY);
+
+		if (f < 0)
 		{
 			ERR("Unable to open update file");
-			bl_clean();
+			red_close(f);
 			return bl_file_invalid;
 		}
 
 		bootloader_header_t hdr;
-		f_read(f, &hdr, sizeof(hdr), &br);
 
-		if (br != sizeof(hdr))
+		if (red_read(f, &hdr, sizeof(hdr)) != sizeof(hdr))
 		{
 			ERR("Unexpected end while getting head");
-			bl_clean();
+			red_close(f);
 			return bl_file_invalid;
 		}
 
         if (nvm->bootloader == hdr.build_number)
         {
             ERR("Already up-to-date");
-            bl_clean();
+            red_close(f);
             return bl_same_version;
         }
 
-		if (f_size(f) != hdr.size + sizeof(hdr))
+		if (file_size(f) != hdr.size + sizeof(hdr))
 		{
 			ERR("Unexpected file size");
-			bl_clean();
+			red_close(f);
 			return bl_file_invalid;
 		}
 
@@ -84,12 +70,12 @@ bootloader_res_t bootloader_update(char * path)
             if (to_read > WORK_BUFFER_SIZE)
                 to_read = WORK_BUFFER_SIZE;
 
-            ASSERT(f_read(f, buff, to_read, &br) == FR_OK);
+            int32_t br = red_read(f, buff, to_read);
 
-            if (br == 0)
+            if (br <= 0)
             {
                 ERR("Unexpected eof at %lu", pos);
-                bl_clean();
+                red_close(f);
                 ps_free(buff);
                 return bl_file_invalid;
             }
@@ -104,7 +90,7 @@ bootloader_res_t bootloader_update(char * path)
         if (crc != hdr.crc)
         {
             ERR("CRC fail");
-            bl_clean();
+            red_close(f);
             return bl_file_invalid;
         }
 
@@ -112,7 +98,7 @@ bootloader_res_t bootloader_update(char * path)
 
 	    HAL_FLASH_Unlock();
 	    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS_BANK1);
-	    f_lseek(f, sizeof(hdr));
+	    red_lseek(f, sizeof(hdr), RED_SEEK_SET);
 
 		INFO("Erasing bootloader");
 	    FLASH_EraseInitTypeDef pEraseInit;
@@ -132,7 +118,9 @@ bootloader_res_t bootloader_update(char * path)
             if (to_read > WORK_BUFFER_SIZE)
                 to_read = WORK_BUFFER_SIZE;
 
-            f_read(f, buff, to_read, &br);
+            int32_t br = red_read(f, buff, to_read);
+
+            ASSERT(br > 0);
 
             for (uint16_t j = 0; j < br; j += 16)
             {
@@ -147,13 +135,12 @@ bootloader_res_t bootloader_update(char * path)
         INFO("Programming done");
         HAL_FLASH_Lock();
         ps_free(buff);
-        bl_clean();
+        red_close(f);
 		return bl_update_ok;
 	}
 	else
 	{
 		ERR("Unable to locate the file");
-		bl_clean();
 		return bl_file_not_found;
 	}
 }

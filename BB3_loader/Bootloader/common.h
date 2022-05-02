@@ -187,6 +187,8 @@ void system_reboot();
 
 void clear_dir(char * path);
 
+#define PATH_LEN    128
+
 #define UPDATE_FILE 	"STRATO.FW"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"

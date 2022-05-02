@@ -60,12 +60,12 @@ struct xmodem_chunk
 
 bool fanet_update_firmware()
 {
-    FIL f;
     INFO("FANET module firmware update start");
+    int32_t f = red_open(PATH_FANET_FW, RED_O_RDONLY);
 
-    if (f_open(&f, PATH_FANET_FW, FA_READ) == FR_OK)
+    if (f > 0)
     {
-        uint32_t len = f_size(&f);
+        uint32_t len = file_size(f);
         uint32_t readed = 0;
         __align struct xmodem_chunk chunk;
 
@@ -86,22 +86,21 @@ bool fanet_update_firmware()
         while (len)
         {
             uint32_t to_send = min(len, sizeof(chunk.payload));
-            UINT br;
 
             //read next block
             if (read_next)
             {
-                FRESULT res = f_read(&f, chunk.payload, to_send, &br);
-                readed += br;
-                if (br != to_send || res != FR_OK)
+                int32_t br = red_read(f, chunk.payload, to_send);
+                if (br != to_send)
                 {
-                    ERR("Failed to read from file %u != %u, res = %u", br, to_send, res);
+                    ERR("Failed to read from file %d != %u", br, to_send);
                     statusbar_msg_close(msg);
                     statusbar_msg_add(STATUSBAR_MSG_ERROR, "FANET update failed!");
 
-                    f_close(&f);
+                    red_close(f);
                     return false;
                 }
+                readed += br;
                 memset(chunk.payload + to_send, 0xFF, sizeof(chunk.payload) - to_send);
 
                 chunk.crc = swap16(crc16(chunk.payload, sizeof(chunk.payload)));
@@ -173,7 +172,7 @@ bool fanet_update_firmware()
 
         }
 
-        f_close(&f);
+        red_close(f);
 
         uint8_t eof = X_EOF;
         HAL_UART_Transmit(fanet_uart, &eof, sizeof(eof), 100);

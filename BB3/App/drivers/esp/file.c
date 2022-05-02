@@ -11,25 +11,22 @@
 
 void file_list_path(proto_fs_list_req_t * packet)
 {
-	DIR dir;
-	FILINFO fno;
-
-	FRESULT res = f_opendir(&dir, packet->path);
+	REDDIR * dir = red_opendir(packet->path);
 	proto_fs_list_res_t data_res;
 	data_res.req_id = packet->req_id;
-	if (res == FR_OK)
+	if (dir != NULL)
 	{
 		while (true)
 		{
-			res = f_readdir(&dir, &fno);
-			if (res != FR_OK || fno.fname[0] == 0)
+			REDDIRENT * entry = red_readdir(dir);
+			if (entry == NULL)
 				break;
 
-			if (packet->filter & PROTO_FS_TYPE_FILE && !(fno.fattrib & AM_DIR))
+			if (packet->filter & PROTO_FS_TYPE_FILE && RED_S_ISREG(entry->d_stat.st_mode))
 			{
 				data_res.type = PROTO_FS_TYPE_FILE;
 			}
-			else if (packet->filter & PROTO_FS_TYPE_FOLDER && fno.fattrib & AM_DIR)
+			else if (packet->filter & PROTO_FS_TYPE_FOLDER && RED_S_ISDIR(entry->d_stat.st_mode))
 			{
 				data_res.type = PROTO_FS_TYPE_FOLDER;
 			}
@@ -38,12 +35,12 @@ void file_list_path(proto_fs_list_req_t * packet)
 				continue;
 			}
 
-			strncpy(data_res.name, fno.fname, sizeof(data_res.name));
+			strncpy(data_res.name, entry->d_name, sizeof(data_res.name));
 
 			protocol_send(PROTO_FS_LIST_RES, (void *)&data_res, sizeof(data_res));
 		}
 
-		f_closedir(&dir);
+		red_closedir(dir);
 	}
 
 	data_res.type = PROTO_FS_TYPE_END;
@@ -52,10 +49,8 @@ void file_list_path(proto_fs_list_req_t * packet)
 
 void file_send_file(proto_fs_get_file_req_t * packet)
 {
-	FIL f;
-
-	FRESULT res = f_open(&f, packet->path, FA_READ);
-	if (res == FR_OK)
+	int32_t f = red_open(packet->path, RED_O_RDONLY);
+	if (f > 0)
 	{
 		//acquire buffer
 		while (1)
@@ -69,8 +64,7 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 				continue;
 			}
 
-			UINT br;
-			f_read(&f, buf + sizeof(proto_spi_header_t), packet->chunk_size, &br);
+			int32_t br = red_read(f, buf + sizeof(proto_spi_header_t), packet->chunk_size);
 	        __align proto_spi_header_t hdr;
 	        hdr.packet_type = SPI_EP_FILE;
 	        hdr.data_id = packet->req_id;
@@ -85,7 +79,7 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 	        	break;
 		}
 
-		f_close(&f);
+		red_close(f);
 	}
 	else
 	{
@@ -102,7 +96,7 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 
 typedef struct _file_slot_t
 {
-	FIL f;
+	int32_t f;
 	char path[PROTO_FS_PATH_LEN];
 	uint32_t tmp_id;
 	uint32_t size;
@@ -181,8 +175,8 @@ void file_get_file_info(proto_fs_save_file_req_t * packet)
 	slot->data_id = packet->req_id;
 	strcpy(slot->path, packet->path);
 
-	FRESULT res = f_open(&slot->f, tmp_path, FA_WRITE | FA_CREATE_NEW);
-	DBG("res = %d", res);
+	slot->f = red_open(tmp_path, RED_O_WRONLY | RED_O_CREAT);
+	DBG("res = %d", slot->f);
 }
 
 void file_get_file_data(uint8_t id, uint8_t * data, uint16_t data_len)
@@ -191,23 +185,22 @@ void file_get_file_data(uint8_t id, uint8_t * data, uint16_t data_len)
 
 	ASSERT(slot != NULL);
 
-	UINT bw;
-	f_write(&slot->f, data, data_len, &bw);
+	int32_t bw = red_write(slot->f, data, data_len);
 	ASSERT(bw == data_len);
 
 	slot->pos += data_len;
 
 	if (slot->pos >= slot->size)
 	{
-		f_close(&slot->f);
+		red_close(slot->f);
 
 		char tmp_path[PATH_LEN];
 		get_tmp_path(tmp_path, slot->tmp_id);
 
-		FRESULT res;
-		res = f_unlink(slot->path);
-		DBG("f_unlink = %d", res);
-		res = f_rename(tmp_path, slot->path);
+		int32_t res;
+		res = red_unlink(slot->path);
+		DBG("red_unlink = %d", res);
+		res = red_rename(tmp_path, slot->path);
 		DBG("f_rename = %d", res);
 
 		delete_slot(slot);

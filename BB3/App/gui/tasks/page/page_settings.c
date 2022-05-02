@@ -266,7 +266,7 @@ void page_settings_fm_remove_cb(uint8_t res, void * opt_data)
 
     if (res == dialog_res_yes)
     {
-        f_unlink(path);
+        red_unlink(path);
 
         char name[PATH_LEN];
         filemanager_get_filename_no_ext(name, path);
@@ -592,23 +592,19 @@ static bool page_settings_copy_cb(lv_obj_t * obj, lv_event_t event)
 
 static uint16_t hidden_pages_cnt()
 {
-    FRESULT res;
-    DIR dir;
-    FILINFO fno;
-
     char path[PATH_LEN] = {0};
     str_join(path, 3, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile));
 
-    res = f_opendir(&dir, path);
+    REDDIR * dir = red_opendir(path);
     uint16_t cnt = 0;
     while (true)
     {
-        res = f_readdir(&dir, &fno);
-        if (res != FR_OK || fno.fname[0] == 0)
+        REDDIRENT * entry = red_readdir(dir);
+        if (entry != NULL)
             break;
 
         char name[64];
-        filemanager_get_filename_no_ext(name, fno.fname);
+        filemanager_get_filename_no_ext(name, entry->d_name);
 
         bool page_used = false;
         for (uint8_t i = 0; i < PAGE_MAX_COUNT; i++)
@@ -620,13 +616,13 @@ static uint16_t hidden_pages_cnt()
             }
         }
 
-        if (fno.fattrib & AM_DIR || page_used)
+        if (RED_S_ISDIR(entry->d_stat.st_mode) || page_used)
             continue;
 
         cnt++;
     }
 
-    f_closedir(&dir);
+    red_closedir(dir);
     return cnt;
 }
 

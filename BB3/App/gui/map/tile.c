@@ -97,12 +97,9 @@ void write_buffer(char * path, void * buffer, uint32_t len)
 {
     return;
 
-    FIL f;
-    UINT wb;
-
-    f_open(&f, path, FA_WRITE | FA_CREATE_NEW);
-    f_write(&f, buffer, len, &wb);
-    f_close(&f);
+    int32_t f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+    red_write(f, buffer, len);
+    red_close(f);
 }
 
 
@@ -408,14 +405,13 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
         //if not duplicate or done
         if ((tile_pos[i].flags & (POS_FLAG_DUPLICATE | POS_FLAG_DONE)) == 0)
         {
-            FIL agl_data;
-
             char path[PATH_LEN];
             char name[12];
             agl_get_filename(name, tile_pos[i]);
             snprintf(path, sizeof(path), "%s/%s.HGT", PATH_TOPO_DIR, name);
 
-            if (f_open(&agl_data, path, FA_READ) != FR_OK)
+            int32_t agl_data = red_open(path, RED_O_RDONLY);
+            if (agl_data < 0)
             {
                 ERR("agl file %s not found", name);
                 db_insert(PATH_TOPO_INDEX, name, "W"); //set want flag
@@ -429,22 +425,22 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
                 agl_cache = NULL;
             }
 
-            UINT br;
-            agl_cache = ps_malloc(f_size(&agl_data) + sizeof(agl_header_t));
+            uint32_t size = file_size(agl_data);
+            agl_cache = ps_malloc(size + sizeof(agl_header_t));
 
             ((agl_header_t *)agl_cache)->lat = (tile_pos[i].lat * GNSS_MUL);
             ((agl_header_t *)agl_cache)->lon = (tile_pos[i].lon * GNSS_MUL);
-            ((agl_header_t *)agl_cache)->size = f_size(&agl_data);
+            ((agl_header_t *)agl_cache)->size = size;
 
-            INFO("Reading %s (%u)", name, f_size(&agl_data));
-            FRESULT ret = f_read(&agl_data, agl_cache + sizeof(agl_header_t), f_size(&agl_data), &br);
+            INFO("Reading %s (%u)", name, size);
+            uint32_t br = red_read(agl_data, agl_cache + sizeof(agl_header_t),size);
             INFO("read %u", br);
-            if (br != f_size(&agl_data) || ret != FR_OK)
+            if (br != size)
             {
-                WARN("Not all data read ret = %u", ret);
+                WARN("Not all data read ret = %d", br);
             }
 
-            f_close(&agl_data);
+            red_close(agl_data);
 
             //mark pos to cache
             memcpy(&agl_cache_pos, &tile_pos[i], sizeof(hagl_pos_t));
@@ -708,11 +704,11 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 
     if (!loaded)
     {
-        FIL map_data;
-
         char path[PATH_LEN];
         snprintf(path, sizeof(path), "%s/%s.MAP", PATH_MAP_DIR, name[index]);
-        if (f_open(&map_data, path, FA_READ) != FR_OK)
+
+        int32_t map_data = red_open(path, RED_O_RDONLY);
+        if (map_data < 0)
         {
             ERR("map file %s not found", name[index]);
             db_insert(PATH_MAP_INDEX, name[index], "W"); //set want flag
@@ -725,11 +721,16 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
             map_cache = NULL;
         }
 
-        UINT br;
-        map_cache = ps_malloc(f_size(&map_data));
+        uint32_t map_size = file_size(map_data);
+        map_cache = ps_malloc(map_size);
 
-        f_read(&map_data, map_cache, f_size(&map_data), &br);
-        f_close(&map_data);
+        if (map_size != red_read(map_data, map_cache, map_size))
+        {
+            ERR("Map data invalid size");
+            ps_free(map_cache);
+            map_cache = NULL;
+        }
+        red_close(map_data);
 
         //mark name to cache
         strcpy(map_cache_name, name[index]);
@@ -1146,14 +1147,13 @@ bool tile_validate_sources(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat
             tmp_magic = CACHE_HAVE_AGL;
 
         snprintf(path, sizeof(path), "%s/%s.map", PATH_MAP_DIR, name);
-        FIL f;
-        if (f_open(&f, path, FA_READ) == FR_OK)
+        int32_t f = red_open(path, RED_O_RDONLY);
+        if (f > 0)
         {
             map_header_t mh;
-            UINT rb;
-            f_read(&f, &mh, sizeof(mh), &rb);
+            red_read(f, &mh, sizeof(mh));
             tmp_magic |= mh.magic & CACHE_HAVE_MAP_MASK;
-            f_close(&f);
+            red_close(f);
         }
 
         DBG("magic[%u] = %02X %02X", i, magic[i], tmp_magic);
@@ -1194,17 +1194,14 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
         DBG("Trying to load from cache");
 
         //load from cache
-        FIL f;
-        UINT br;
         cache_header_t ch;
-        FRESULT res;
 
 
-        res = f_open(&f, tile_path, FA_READ);
-        if (res == FR_OK)
+        int32_t f = red_open(tile_path, RED_O_RDONLY);
+        if (f > 0)
         {
-            res = f_read(&f, &ch, sizeof(cache_header_t), &br);
-            if (res == FR_OK && br == sizeof(cache_header_t))
+            int32_t br = red_read(f, &ch, sizeof(cache_header_t));
+            if (br == sizeof(cache_header_t))
             {
                 if (ch.start_word != CACHE_START_WORD || ch.version != CACHE_VERSION)
                 {
@@ -1221,8 +1218,8 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
             if (pass)
             {
-                res = f_read(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &br);
-                if (res != FR_OK || br != MAP_BUFFER_SIZE)
+                int32_t br = red_read(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
+                if (br != MAP_BUFFER_SIZE)
                 {
                     WARN("Cache body size not valid");
                     pass = false;
@@ -1231,7 +1228,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
                 for (uint8_t i = 0; i < ch.number_of_poi; i++)
                 {
                     cache_poi_t cp;
-                    f_read(&f, &cp, sizeof(cache_poi_t), &br);
+                    red_read(f, &cp, sizeof(cache_poi_t));
 
                     map_poi_t poi;
                     poi.chunk = index;
@@ -1243,7 +1240,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
                     uint16_t name_len = (cp.name_len + 3) & ~3;
                     char name[name_len];
-                    f_read(&f, name, name_len, &br);
+                    red_read(f, name, name_len);
 
                     tile_poi_add(&poi, name, cp.name_len);
 
@@ -1251,7 +1248,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
             }
 
-            f_close(&f);
+            red_close(f);
         }
     }
     else
@@ -1325,18 +1322,16 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
             ch.number_of_poi++;
     }
 
-    FIL f;
-    UINT bw;
 
     //create dir
     char dir_path[PATH_LEN];
     sprintf(dir_path, PATH_MAP_CACHE_DIR "/%u", zoom);
-    f_mkdir(dir_path);
+    red_mkdir(dir_path);
 
     //write cache
-    f_open(&f, tile_path, FA_WRITE | FA_CREATE_ALWAYS);
-    f_write(&f, &ch, sizeof(cache_header_t), &bw);
-    f_write(&f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE, &bw);
+    int32_t f = red_open(tile_path, RED_O_WRONLY | RED_O_CREAT);
+    red_write(f, &ch, sizeof(cache_header_t));
+    red_write(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
 
     //write POIs
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
@@ -1350,14 +1345,14 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
             cp.uid = gui.map.poi[i].uid;
             cp.name_len = strlen(gui.map.poi[i].name);
 
-            f_write(&f, &cp, sizeof(cache_poi_t), &bw);
+            red_write(f, &cp, sizeof(cache_poi_t));
             uint16_t name_len = (cp.name_len + 3) & ~3;
-            f_write(&f, gui.map.poi[i].name, name_len, &bw);
+            red_write(f, gui.map.poi[i].name, name_len);
         }
     }
 
 
-    f_close(&f);
+    red_close(f);
 
     DBG("duration %u ms", HAL_GetTick() - start);
 

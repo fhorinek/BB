@@ -107,9 +107,9 @@ upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callba
     ASSERT(callback != NULL);
 
     upload_slot_t *slot = NULL;
-    FILINFO file_info;
+    REDSTAT file_info;
 
-    if (f_stat(file_path, &file_info) != FR_OK)
+    if (red_fstat(file_path, &file_info) == -1)
     {
         WARN("Upload slot: Failed to retrieve file size");
         return NULL;
@@ -130,7 +130,7 @@ upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callba
         slot->data_id = i;
         slot->callback = callback;
         slot->context = context;
-        slot->file_size = file_info.fsize;
+        slot->file_size = file_info.st_size;
         slot->transmitted_size = 0;
         slot->timestamp = HAL_GetTick();
         slot->canceled = false;

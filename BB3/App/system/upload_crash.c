@@ -10,7 +10,6 @@
 #include "drivers/esp/upload/slot.h"
 #include "drivers/esp/protocol.h"
 #include "gui/statusbar.h"
-#include "fatfs.h"
 
 typedef struct
 {
@@ -42,8 +41,8 @@ void upload_crash_callback(uint8_t status, upload_slot_t *slot)
             INFO("Uploading crash report finished: %s", slot->file_path);
             statusbar_msg_add(STATUSBAR_MSG_INFO, "Crash report sent");
 
-            uint8_t result = f_unlink(slot->file_path);
-            if (result == FR_OK)
+            uint8_t result = red_unlink(slot->file_path);
+            if (result == 0)
             {
                 upload_crash_reports_schedule();
             }
@@ -103,27 +102,24 @@ upload_slot_t* upload_crash_report(char *bundle_file)
 
 void upload_crash_reports(void *arg)
 {
-    DIR dir;
-    FILINFO fno;
-
     DBG("Looking for crash reports...");
 
-    FRESULT res = f_opendir(&dir, "/");
-    if (res == FR_OK)
+    REDDIR * dir = red_opendir("/");
+    if (dir != NULL)
     {
         while (true)
         {
-            res = f_readdir(&dir, &fno);
-            if (res != FR_OK || fno.fname[0] == 0)
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry != NULL)
                 break;
 
             // Check for files that start with PATH_CRASH_BUNDLE
-            if ((fno.fattrib & AM_DIR) || strncmp(PATH_CRASH_BUNDLE, fno.fname, strlen(PATH_CRASH_BUNDLE)) != 0)
+            if (RED_S_ISDIR(entry->d_stat.st_mode) || strncmp(PATH_CRASH_BUNDLE, entry->d_name, strlen(PATH_CRASH_BUNDLE)) != 0)
             {
                 continue;
             }
 
-            if (upload_crash_report(fno.fname) != NULL)
+            if (upload_crash_report(entry->d_name) != NULL)
             {
                 break;
             }
@@ -131,11 +127,11 @@ void upload_crash_reports(void *arg)
             break; // Only upload one file for now (next scan is triggered when upload finished)
         }
 
-        f_closedir(&dir);
+        red_closedir(dir);
     }
     else
     {
-        ERR("Failed to read root directory: %d", res);
+        ERR("Failed to read root directory: %d", dir);
     }
 }
 

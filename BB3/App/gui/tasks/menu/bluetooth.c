@@ -5,6 +5,7 @@
 #include "drivers/esp/protocol.h"
 #include "etc/format.h"
 #include "gui/bluetooth.h"
+#include "fc/fc.h"
 
 #include "gui/dialog.h"
 

@@ -26,28 +26,18 @@
 #include "gui/gui_list.h"
 #include "gui/ctx.h"
 
-#define FM_OFFSET_FDATE 0
-#define FM_OFFSET_FTIME 2
-#define FM_OFFSET_FATTRIB 4
-#define FM_OFFSET_FN 5
+typedef struct
+{
+        uint32_t date;
+        uint16_t mode;
+        char name[REDCONF_NAME_MAX + 1];
+        uint8_t _pad[1];
+} fm_record_cache_t;
 
 REGISTER_TASK_IS(filemanager,
 	char path[PATH_LEN];
 
-	/**
-	 * The following is a ps_malloc'ed 2-dimensional array:
-	 * filenames[FM_FILE_MAX_COUNT][PATH_LEN].
-	 *
-	 * Each filename starts with (unmodified taken from FILINFO):
-	 *
-	 *   WORD fdate;      // Modified date
-	 *   WORD ftime;      // Modified time
-	 *   BYTE fattrib;    // File attribute
-	 *
-	 * followed by the filename characters (to allow sorting).
-	 * The filename can be found at offset FM_OFFSET_FN.
-	 */
-	unsigned char (*filenames)[PATH_LEN];
+    fm_record_cache_t *filenames;
 
 	lv_obj_t * list;
 	gui_task_t * back;
@@ -185,14 +175,14 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 	if (event == LV_EVENT_CLICKED)
 	{
-		unsigned char * file = local->filenames[index];
+	    fm_record_cache_t * file = &local->filenames[index];
 
 		char new_path[PATH_LEN];
 
-		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file + FM_OFFSET_FN);
+		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file->name);
 		DBG("index=%d %s", index, new_path);
 
-		if (file[FM_OFFSET_FATTRIB] & AM_DIR)
+		if (RED_S_ISDIR(file->mode))
 		{
 			//we are switching to the same task
 			//"local" variable will belong to new task now
@@ -216,15 +206,15 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	{
 		ctx_hide();
 
-		unsigned char * file = local->filenames[index];
+		fm_record_cache_t * file = &local->filenames[index];
 
 		char new_path[PATH_LEN];
 
-		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file + FM_OFFSET_FN);
+		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file->name);
 
         if (local->cb != NULL && local->flags & FM_FLAG_FOCUS)
         {
-            if ( file[FM_OFFSET_FATTRIB] & AM_DIR )
+            if (RED_S_ISDIR(file->mode))
                 local->cb(FM_CB_FOCUS_DIR, new_path);
             else
                 local->cb(FM_CB_FOCUS_FILE, new_path);
@@ -236,9 +226,9 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		uint32_t key = *((uint32_t *) lv_event_get_data());
 		if (key == LV_KEY_HOME && ctx_is_active())
 		{
-			unsigned char * file = local->filenames[index];
+		    fm_record_cache_t * file = &local->filenames[index];
 
-			strncpy(filemanager_active_fname,  file + FM_OFFSET_FN, sizeof(filemanager_active_fname) - 1);
+			strncpy(filemanager_active_fname,  file->name, sizeof(filemanager_active_fname) - 1);
 
 			ctx_open(0);
 		}
@@ -270,22 +260,31 @@ static void filemanager_stop()
 	local->filenames = NULL;
 }
 
-static int fm_sort_name(char *a, char *b)
+static int fm_sort_name(const void * a, const void * b)
 {
-	// Todo: Take FATTRIB into account to place directories first
-	return strcmp(a + FM_OFFSET_FN, b + FM_OFFSET_FN);
+	//Take mode into account to place directories first
+    fm_record_cache_t * file_a = (fm_record_cache_t *)a;
+    fm_record_cache_t * file_b = (fm_record_cache_t *)b;
+
+    if (RED_S_ISDIR(file_a->mode) && RED_S_ISDIR(file_b->mode))
+        return strcmp(file_a->name, file_b->name);
+    if (RED_S_ISDIR(file_a->mode) && !RED_S_ISDIR(file_b->mode))
+        return +1;
+    if (!RED_S_ISDIR(file_a->mode) && RED_S_ISDIR(file_b->mode))
+        return +1;
+    return 0;
 }
 
-static int fm_sort_date(WORD *a, WORD *b)
+static int fm_sort_date(const void * a, const void * b)
 {
-    if (a[0] < b[0])
+    fm_record_cache_t * file_a = (fm_record_cache_t *)a;
+    fm_record_cache_t * file_b = (fm_record_cache_t *)b;
+
+    if (file_a->date < file_b->date)
         return -1;
-    if (a[0] > b[0])
+    if (file_a->date > file_b->date)
         return +1;
-    if (a[1] < b[1])
-        return -1;
-    if (a[1] > b[1])
-        return +1;
+
     return 0;
 }
 
@@ -300,10 +299,6 @@ static int fm_sort_date(WORD *a, WORD *b)
  */
 void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t flags, filemanager_cb_t cb)
 {
-    FRESULT res;
-    DIR dir;
-    FILINFO fno;
-
     local->flags = flags;
 
     if (level > 100)
@@ -325,30 +320,30 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	local->cb = cb;
 	strncpy(local->path, path, PATH_LEN);
 
-	res = f_opendir(&dir, path);
-	if (res == FR_OK)
+	REDDIR * dir = red_opendir(path);
+	if (dir != NULL)
 	{
 		uint16_t cnt = 0;
         while (cnt < FM_FILE_MAX_COUNT)
         {
-            res = f_readdir(&dir, &fno);
-            if (res != FR_OK || fno.fname[0] == 0)
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry != NULL)
             	break;
 
             //hide system files
-            if (fno.fname[0] == '.')
+            if (entry->d_name[0] == '.')
                 continue;
 
             if (local->flags & FM_FLAG_FILTER)
             {
                 char new_path[PATH_LEN];
-                snprintf(new_path, sizeof(new_path), "%s/%s", local->path, fno.fname);
+                snprintf(new_path, sizeof(new_path), "%s/%s", local->path, entry->d_name);
 
                 if (!local->cb(FM_CB_FILTER, new_path))
                     continue;
             }
 
-            if (fno.fattrib & AM_DIR)
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
             {
                 if (local->flags & FM_FLAG_HIDE_DIR)
                     continue;
@@ -359,16 +354,13 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
                     continue;
             }
 
-            local->filenames[cnt][0] = (fno.fdate >> 8) & 0xff;
-            local->filenames[cnt][1] = (fno.fdate >> 0) & 0xff;
-            local->filenames[cnt][2] = (fno.ftime >> 8) & 0xff;
-            local->filenames[cnt][3] = (fno.ftime >> 0) & 0xff;
-            local->filenames[cnt][4] = fno.fattrib;
-            strcpy(&local->filenames[cnt][5], fno.fname);
+            local->filenames[cnt].date = entry->d_stat.st_atime;
+            local->filenames[cnt].mode = entry->d_stat.st_mode;
+            strncpy(&local->filenames[cnt].name, entry->d_name, REDCONF_NAME_MAX);
 
             cnt++;
         }
-        f_closedir(&dir);
+        red_closedir(dir);
 
         if (cnt == 0)
         {
@@ -388,19 +380,19 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             for ( int i = 0; i < cnt; i++ )
             {
                 char name[PATH_LEN];
-                if (local->filenames[i][FM_OFFSET_FATTRIB] & AM_DIR)
+                if (RED_S_ISDIR(local->filenames[i].mode))
                 {
-                    snprintf(name, sizeof(name), LV_SYMBOL_DIRECTORY " %s", &local->filenames[i][FM_OFFSET_FN]);
+                    snprintf(name, sizeof(name), LV_SYMBOL_DIRECTORY " %s", local->filenames[i].name);
                 }
                 else
                 {
                     if (local->flags & FM_FLAG_SHOW_EXT)
                     {
-                        strcpy(name, &local->filenames[i][FM_OFFSET_FN]);
+                        strcpy(name, local->filenames[i].name);
                     }
                     else
                     {
-                        filemanager_get_filename_no_ext(name, &local->filenames[i][FM_OFFSET_FN]);
+                        filemanager_get_filename_no_ext(name, local->filenames[i].name);
                     }
                 }
                 gui_list_text_add_entry(local->list, name);

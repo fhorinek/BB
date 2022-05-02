@@ -8,12 +8,11 @@
 #define DEBUG_LEVEL     DBG_DEBUG
 
 #include "sound.h"
-#include "fatfs.h"
 #include "gui/gui.h"
 
 #include "drivers/esp/protocol.h"
 
-FIL audio_file;
+int32_t audio_file;
 uint8_t audio_file_id = 0;
 static bool audio_file_opened = false;
 
@@ -24,17 +23,19 @@ void sound_start(char * filename)
         sound_close();
     }
 
-    uint8_t ret = f_open(&audio_file, filename, FA_READ);
-    if (ret == FR_OK)
+    audio_file = red_open(filename, RED_O_RDONLY);
+    if (audio_file > 0)
     {
         //id 0 is invalid
         audio_file_id++;
         if (audio_file_id == 0)
             audio_file_id = 1;
 
-        esp_sound_start(audio_file_id, PROTO_FILE_WAV, f_size(&audio_file));
+        esp_sound_start(audio_file_id, PROTO_FILE_WAV, file_size(audio_file));
         audio_file_opened = true;
-    } else {
+    }
+    else
+    {
     	WARN("Cannot open sound %s file", filename);
     }
 }
@@ -50,14 +51,11 @@ void sound_read_next(uint8_t id, uint32_t requested_size)
     if (free_space < requested_size + sizeof(proto_spi_header_t))
         requested_size = free_space - sizeof(proto_spi_header_t);
 
-    UINT br;
-    uint8_t ret = f_read(&audio_file, buf + sizeof(proto_spi_header_t), requested_size, &br);
-    if (ret == FR_OK)
+    int32_t br = red_read(audio_file, buf + sizeof(proto_spi_header_t), requested_size);
+
+    if (br == 0)
     {
-        if (f_eof(&audio_file))
-        {
-            sound_close();
-        }
+        sound_close();
     }
     else
     {
@@ -87,7 +85,7 @@ void sound_read_next(uint8_t id, uint32_t requested_size)
 
 void sound_close()
 {
-    f_close(&audio_file);
+    red_close(audio_file);
     audio_file_opened = false;
 }
 

@@ -6,48 +6,36 @@
  */
 
 #include "widgets.h"
-#include "fatfs.h"
 
 bool widgets_save_to_file(page_layout_t * page, char * layout_name)
 {
-    FIL f;
-    char path[64];
+    char path[PATH_LEN];
     uint8_t ret;
 
     snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
-    if ((ret = f_open(&f, path, FA_WRITE | FA_CREATE_ALWAYS)) != FR_OK)
-    {
-        ERR("Unable to open %s Error:%u", path, ret);
-        return false;
-    }
+    char key[16];
 
-    char buff[255];
-    UINT bw;
-
-    snprintf(buff, sizeof(buff), "widgets=%u\n", page->number_of_widgets);
-    f_write(&f, buff, strlen(buff), &bw);
+    db_insert_int(path, "widgets", page->number_of_widgets);
 
     for (uint8_t i = 0; i < page->number_of_widgets; i++)
     {
         widget_slot_t * ws = &page->widget_slots[i];
 
-        snprintf(buff, sizeof(buff), "w%u_type=%s\n", i, ws->widget->short_name);
-        f_write(&f, buff, strlen(buff), &bw);
+        snprintf(key, sizeof(key), "w%u_type");
+        db_insert(path, key, ws->widget->short_name);
 
         //store widget parameters
-        snprintf(buff, sizeof(buff), "w%u_x=%u\n", i, ws->x);
-        f_write(&f, buff, strlen(buff), &bw);
-        snprintf(buff, sizeof(buff), "w%u_y=%u\n", i, ws->y);
-        f_write(&f, buff, strlen(buff), &bw);
-        snprintf(buff, sizeof(buff), "w%u_w=%u\n", i, ws->w);
-        f_write(&f, buff, strlen(buff), &bw);
-        snprintf(buff, sizeof(buff), "w%u_h=%u\n", i, ws->h);
-        f_write(&f, buff, strlen(buff), &bw);
-        snprintf(buff, sizeof(buff), "w%u_f=%s\n", i, ws->flags);
-        f_write(&f, buff, strlen(buff), &bw);
+        snprintf(key, sizeof(key), "w%u_x", i);
+        db_insert_int(path, key, ws->x);
+        snprintf(key, sizeof(key), "w%u_y", i);
+        db_insert_int(path, key, ws->y);
+        snprintf(key, sizeof(key), "w%u_w", i);
+        db_insert_int(path, key, ws->w);
+        snprintf(key, sizeof(key), "w%u_h", i);
+        db_insert_int(path, key, ws->h);
+        snprintf(key, sizeof(key), "w%u_f", i);
+        db_insert(path, key, ws->flags);
     }
-
-    f_close(&f);
 
     return true;
 }
@@ -62,20 +50,11 @@ void widget_dimension_check(widget_slot_t * ws)
 
 bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 {
-	FIL f;
-	uint8_t ret;
+    if (!file_exists(path))
+        return;
 
-	if ((ret = f_open(&f, path, FA_READ)) != FR_OK)
-	{
-		ERR("Unable to open %s Error:%u", path, ret);
-		page->number_of_widgets = 0;
-		return false;
-	}
-
-	char buff[255];
-
-	page->number_of_widgets = atoi(find_in_file(&f, "widgets", "0", buff, sizeof(buff)));
-	page->base = NULL;
+    db_query_int_def(path, "widgets", &page->number_of_widgets, 0);
+    page->base = NULL;
 
 	if (page->number_of_widgets > 0)
 	{
@@ -86,13 +65,16 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 		for (uint8_t i = 0; i < page->number_of_widgets; i++)
 		{
 			widget_slot_t * ws = &page->widget_slots[i];
+			ws->widget = NULL;
+
 			char key[16];
 
 			//Get widget type
 			snprintf(key, sizeof(key), "w%u_type", i);
-			char * type = find_in_file(&f, key, "", buff, sizeof(buff));
+			char type[16];
 
-			ws->widget = widget_find_by_name(type);
+			if (db_query(path, key, type, sizeof(type)))
+			    ws->widget = widget_find_by_name(type);
 
 			if (ws->widget == NULL)
 			{
@@ -102,21 +84,20 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 
 			//get widget parameters
 			snprintf(key, sizeof(key), "w%u_x", i);
-			ws->x = atoi(find_in_file(&f, key, "0", buff, sizeof(buff)));
+			db_query_int_def(path, key, &ws->x, 0);
 
 			snprintf(key, sizeof(key), "w%u_y", i);
-			ws->y = atoi(find_in_file(&f, key, "0", buff, sizeof(buff)));
+            db_query_int_def(path, key, &ws->y, 0);
 
 			snprintf(key, sizeof(key), "w%u_w", i);
-			ws->w = atoi(find_in_file(&f, key, "0", buff, sizeof(buff)));
+            db_query_int_def(path, key, &ws->w, 0);
 
 			snprintf(key, sizeof(key), "w%u_h", i);
-			ws->h = atoi(find_in_file(&f, key, "0", buff, sizeof(buff)));
+            db_query_int_def(path, key, &ws->h, 0);
 
 			snprintf(key, sizeof(key), "w%u_f", i);
-			char * flags = find_in_file(&f, key, "", buff, sizeof(buff));
-
-			if (strlen(flags) != 0)
+			char flags[WIDGET_FLAGS_LEN];
+			if (db_query_def(path, key, flags, sizeof(flags), ""))
 				strncpy(ws->flags, flags, WIDGET_FLAGS_LEN - 1);
 			else
 				ws->flags[0] = 0;
@@ -127,8 +108,6 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
             ws->obj = NULL;
 		}
 	}
-
-	f_close(&f);
 
 	return true;
 }

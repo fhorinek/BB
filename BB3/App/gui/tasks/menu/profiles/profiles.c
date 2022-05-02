@@ -19,7 +19,7 @@ void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
     char * path = opt_data;
     if (res == dialog_res_yes)
     {
-        f_unlink(path);
+        red_unlink(path);
 
         char name[PATH_LEN];
         filemanager_get_filename_no_ext(name, path);
@@ -60,7 +60,7 @@ void profile_pilot_fm_rename_cb(uint8_t res, void * opt_data)
                 config_set_text(&config.pilot_profile, new_name);
             }
 
-            f_rename(old_path, new_path);
+            red_rename(old_path, new_path);
 
             //refresh
             profile_pilot_open_fm(false);
@@ -197,7 +197,7 @@ void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
     char * path = opt_data;
     if (res == dialog_res_yes)
     {
-        f_unlink(path);
+        red_unlink(path);
 
         char name[PATH_LEN];
         filemanager_get_filename_no_ext(name, path);
@@ -243,13 +243,13 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
                 config_set_text(&config.flight_profile, new_name);
             }
 
-            f_rename(old_path, new_path);
+            red_rename(old_path, new_path);
 
             old_path[0] = 0;
             str_join(old_path, 3, PATH_PAGES_DIR, "/", old_name);
             new_path[0] = 0;
             str_join(new_path, 3, PATH_PAGES_DIR, "/", new_name);
-            f_rename(old_path, new_path);
+            red_rename(old_path, new_path);
 
             //refresh
             profile_profile_open_fm(false);

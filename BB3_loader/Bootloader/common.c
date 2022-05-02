@@ -146,11 +146,63 @@ int16_t complement2_16bit(uint16_t in)
 	return in;
 }
 
+//not using memcpy to prevent unaligned access
+void str_join(char * dst, uint8_t cnt, ...)
+{
+    va_list vl;
+    va_start(vl, cnt);
+
+    //move to end
+    char * ptr = dst + strlen(dst);
+
+    for (uint8_t i=0; i < cnt; i++)
+    {
+        char * val = va_arg(vl, char *);
+        while(*val != 0)
+        {
+            *ptr = *val;
+            ptr++;
+            val++;
+        }
+    }
+    va_end(vl);
+    *ptr = 0;
+}
+
+
+void remove_dir_rec(char * path, bool remove)
+{
+    REDDIR * dir = red_opendir(path);
+    if (dir != NULL)
+    {
+        while (true)
+        {
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry == NULL)
+                break;
+
+            char work_path[PATH_LEN] = {0};
+            str_join(work_path, 3, path, "/", entry->d_name);
+
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
+            {
+                remove_dir_rec(work_path, true);
+            }
+            else
+            {
+                red_unlink(work_path);
+            }
+        }
+
+        red_closedir(dir);
+
+        if (remove)
+            red_unlink(path);
+    }
+}
+
 void clear_dir(char * path)
 {
-    char path_buff[512];
-    strcpy(path_buff, path);
-    //TODO implement this
-
+    remove_dir_rec(path, false);
 }
 

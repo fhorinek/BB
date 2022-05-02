@@ -93,7 +93,7 @@ static void clear_debug_file_dialog_cb(uint8_t res, void * data)
 {
     if (res == dialog_res_yes)
     {
-        f_unlink(DEBUG_FILE);
+        red_unlink(DEBUG_FILE);
     }
 }
 

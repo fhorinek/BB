@@ -2981,91 +2981,78 @@ extern "C" {
 
 /* ------------------- .ZIP archive reading */
 
-#include "ff.h"
 #include "common.h"
 
-static int32_tmz_fopen(const char *pFilename, const char *pMode)
+static int32_t * mz_fopen(const char *pFilename, const char *pMode)
 {
-    int32_t pFile = malloc(sizeof(FIL));
     uint8_t fa_attr = 0;
     if (strcmp(pMode, "rb") == 0)
-        fa_attr = FA_READ;
+        fa_attr = RED_O_RDONLY;
     else if (strcmp(pMode, "wb") == 0)
-        fa_attr = FA_WRITE | FA_CREATE_ALWAYS;
+        fa_attr = RED_O_WRONLY | RED_O_CREAT;
     else if (strcmp(pMode, "w+b") == 0)
-        fa_attr = FA_WRITE | FA_OPEN_APPEND;
+        fa_attr = RED_O_RDWR | RED_O_APPEND;
     else
         FASSERT(0);
 
-    FRESULT res = f_open(pFile, pFilename, fa_attr);
-    if (res != FR_OK)
+    int32_t file = red_open(pFilename, fa_attr);
+
+    return (int32_t *)file;
+}
+
+
+
+static int32_t * mz_freopen(const char *pPath, const char *pMode, int32_t * fp)
+{
+    red_close((int32_t)fp);
+    return mz_fopen(pPath, pMode);
+}
+
+static int mz_fread(uint8_t * buff, uint8_t elem, uint32_t count, int32_t * fp)
+{
+    return red_read((int32_t)fp, buff, elem * count);
+}
+
+static int mz_fwrite(const void * buff, uint8_t elem, uint32_t count, int32_t * fp)
+{
+    return red_write((int32_t)fp, buff, elem * count);
+}
+
+static int mz_sync(int32_t * fp)
+{
+    (void)fp;
+    return red_sync();
+}
+
+static uint32_t mz_tell(int32_t * fp)
+{
+    return red_lseek((int32_t)fp, 0, RED_SEEK_CUR);
+}
+
+static int mz_fstat(const char * path, REDSTAT * stat)
+{
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
     {
-        free(pFile);
-        pFile = NULL;
+        red_fstat(f, stat);
+        red_close(f);
+
+        return 0;
     }
-
-    return pFile;
-}
-
-static int mz_fclose(int32_t file)
-{
-    if (file != NULL)
-    {
-        FRESULT res = f_close(file);
-        free(file);
-
-        if (res == FR_OK)
-            return 0;
-    }
-    return EOF;
-}
-
-
-static int32_tmz_freopen(const char *pPath, const char *pMode, int32_tpStream)
-{
-    mz_fclose(pStream);
-    int32_t pFile = mz_fopen(pPath, pMode);
-    return pFile;
-}
-
-static int mz_fread(uint8_t * buff, uint8_t elem, uint32_t count, int32_t fp)
-{
-    UINT br;
-    f_read(fp, buff, elem * count, &br);
-
-    return br;
-}
-
-static int mz_fwrite(uint8_t * buff, uint8_t elem, uint32_t count, int32_t fp)
-{
-    UINT bw;
-    f_write(fp, buff, elem * count, &bw);
-
-    return bw;
-}
-
-static int mz_fseek(int32_t fp, uint32_t offset, uint8_t origin)
-{
-    if (origin == SEEK_SET)
-        return f_lseek(fp, offset);
-    if (origin == SEEK_END)
-        return f_lseek(fp, f_size(fp));
-    FASSERT(0);
-
-    return 0;
+    return f;
 }
 
 #define MZ_FOPEN mz_fopen
-#define MZ_FCLOSE mz_fclose
+#define MZ_FCLOSE(A) red_close((int32_t)A)
 #define MZ_FREAD mz_fread
 #define MZ_FWRITE mz_fwrite
-#define MZ_FTELL64 f_tell
-#define MZ_FSEEK64 mz_fseek
-#define MZ_FILE_STAT_STRUCT FILINFO
-#define MZ_FILE_STAT f_stat
-#define MZ_FFLUSH f_sync
+#define MZ_FTELL64 mz_tell
+#define MZ_FSEEK64(fp, off, set) red_lseek((int32_t)fp, off, set)
+#define MZ_FILE_STAT_STRUCT REDSTAT
+#define MZ_FILE_STAT mz_fstat
+#define MZ_FFLUSH mz_sync
 #define MZ_FREOPEN mz_freopen
-#define MZ_DELETE_FILE f_unlink
+#define MZ_DELETE_FILE red_unlink
 
 #define MZ_TOLOWER(c) ((((c) >= 'A') && ((c) <= 'Z')) ? ((c) - 'A' + 'a') : (c))
 

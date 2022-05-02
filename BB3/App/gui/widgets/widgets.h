@@ -181,10 +181,10 @@ typedef struct _widget_slot_t
     void * vars;
 
 	//widget size and position
-    uint16_t x;
-    uint16_t y;
-    uint16_t w;
-    uint16_t h;
+    int16_t x;
+    int16_t y;
+    int16_t w;
+    int16_t h;
 
     //flags
     char flags[WIDGET_FLAGS_LEN];

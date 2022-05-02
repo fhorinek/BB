@@ -7,11 +7,14 @@
 
 #include "telemetry.h"
 
+#include "drivers/esp/esp.h"
 #include "drivers/esp/protocol.h"
 
 #include "lk8ex1.h"
 #include "openvario.h"
 #include "gnss.h"
+
+#include "fc/fc.h"
 
 #define PROTOCOL_PERIOD 100 //in ms - 10Hz
 

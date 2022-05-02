@@ -48,7 +48,7 @@ void firmware_update_apply_cb(uint8_t res, void * data)
         char path[64];
 
         snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, opt_data);
-        f_unlink(UPDATE_FILE);
+        red_unlink(UPDATE_FILE);
         if (copy_file(path, UPDATE_FILE))
         {
             system_reboot();
@@ -77,9 +77,9 @@ void firmware_update_get_file_cb(uint8_t res, download_slot_t * ds)
 
         snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, local->new_fw);
 
-        f_unlink(path);
-        f_rename(tmp_path, path);
-        f_unlink(tmp_path);
+        red_unlink(path);
+        red_rename(tmp_path, path);
+        red_unlink(tmp_path);
 
         dialog_show("Start update process?", "", dialog_yes_no, firmware_update_apply_cb);
         char * opt_data = malloc(strlen(local->new_fw) + 1);
