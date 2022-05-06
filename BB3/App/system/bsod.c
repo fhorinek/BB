@@ -10,6 +10,7 @@
 #include "drivers/nvm.h"
 #include "lib/mcufont/mcufont.h"
 #include "drivers/rev.h"
+#include "drivers/psram.h"
 #include "lib/miniz/miniz.h"
 
 const struct mf_font_s * bsod_font;
@@ -98,7 +99,9 @@ void bsod_init()
 void bsod_end()
 {
     if (!config_get_bool(&config.debug.crash_dump))
+    {
         bsod_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - LINE_SIZE, "Reset", MF_ALIGN_CENTER);
+    }
 
 	tft_refresh_buffer(0, 0, 239, 399, tft_buffer);
 
@@ -286,12 +289,9 @@ void bsod_crash_start(const Crash_Object * info)
     }
 }
 
-void bsod_list_readdir(FIL * file, char * path, uint8_t level)
+void bsod_list_readdir(int32_t file, char * path, uint8_t level)
 {
-    DIR dir;
-    static FILINFO fno;
     static char buff[PATH_LEN];
-    UINT bw;
 
     for (uint8_t i = 0; i < level; i++)
         buff[i] = '\t';
@@ -304,33 +304,33 @@ void bsod_list_readdir(FIL * file, char * path, uint8_t level)
     {
         snprintf(buff, sizeof(buff), "[Strato SD card]\n");
     }
-    f_write(file, buff, strlen(buff), &bw);
+    red_write(file, buff, strlen(buff));
 
 
-    FRESULT res = f_opendir(&dir, path);
-    if (res == FR_OK)
+    REDDIR * dir = red_opendir(path);
+    if (dir != NULL)
     {
         for (;;)
         {
-            res = f_readdir(&dir, &fno);
+            REDDIRENT * entry = red_readdir(dir);
 
-            if (res != FR_OK || fno.fname[0] == 0)
+            if (entry == NULL)
                 break;
 
-            if (fno.fattrib & AM_DIR)
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
             {
                 uint16_t i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
+                sprintf(&path[i], "/%s", entry->d_name);
                 bsod_list_readdir(file, path, level + 1);
                 path[i] = 0;
             }
             else
             {
-                snprintf(buff + level, sizeof(buff) - level, "\t%-30s %lu\n", fno.fname, fno.fsize);
-                f_write(file, buff, strlen(buff), &bw);
+                snprintf(buff + level, sizeof(buff) - level, "\t%-30s %lu\n", entry->d_name, (uint32_t)entry->d_stat.st_size);
+                red_write(file, buff, strlen(buff));
             }
         }
-        f_closedir(&dir);
+        red_closedir(dir);
     }
 }
 
@@ -338,22 +338,22 @@ void bsod_list_flies()
 {
     bsod_draw_text(LEFT_PAD, (bsod_line) * LINE_SIZE, "Listing files...", MF_ALIGN_LEFT);
 
-    FIL file;
-    FRESULT res = f_open(&file, PATH_CRASH_FILES, FA_WRITE | FA_CREATE_ALWAYS);
-    if (res != FR_OK)
+    int32_t file;
+    file = red_open(PATH_CRASH_FILES, RED_O_WRONLY | RED_O_CREAT);
+    if (file < 0)
     {
-        FAULT("f_open, res = %u", res);
+        FAULT("red_open, res = %u", file);
         bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "fail", MF_ALIGN_LEFT);
     }
 
     bsod_redraw();
 
-    if (res != FR_OK)
+    if (file < 0)
         return;
 
     char path[PATH_LEN] = "";
-    bsod_list_readdir(&file, path, 0);
-    f_close(&file);
+    bsod_list_readdir(file, path, 0);
+    red_close(file);
 
     bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "done", MF_ALIGN_LEFT);
 
@@ -362,30 +362,28 @@ void bsod_list_flies()
 
 void bsod_zip_path(mz_zip_archive * zip, char * path)
 {
-    DIR dir;
-    static FILINFO fno;
     static char buff[PATH_LEN];
 
-    FRESULT res = f_opendir(&dir, path);
-    if (res == FR_OK)
+    REDDIR * dir = red_opendir(path);
+    if (dir != NULL)
     {
         for (;;)
         {
-            res = f_readdir(&dir, &fno);
+            REDDIRENT * entry = red_readdir(dir);
 
-            if (res != FR_OK || fno.fname[0] == 0)
+            if (entry == NULL)
                 break;
 
-            if (fno.fattrib & AM_DIR)
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
             {
                 uint16_t i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
+                sprintf(&path[i], "/%s", entry->d_name);
                 bsod_zip_path(zip, path);
                 path[i] = 0;
             }
             else
             {
-                snprintf(buff, sizeof(buff), "%s/%s", path, fno.fname);
+                snprintf(buff, sizeof(buff), "%s/%s", path, entry->d_name);
                 FAULT("Compressing %s", buff);
 
                 //do not include wifi passwords!
@@ -393,7 +391,7 @@ void bsod_zip_path(mz_zip_archive * zip, char * path)
                     mz_zip_writer_add_file(zip, buff, buff, "", 0, MZ_NO_COMPRESSION);
             }
         }
-        f_closedir(&dir);
+        red_closedir(dir);
     }
 }
 
@@ -424,7 +422,7 @@ void bsod_bundle_report()
         strcpy(path, PATH_CONFIG_DIR);
         bsod_zip_path(zip, path);
 
-        f_rename(DEBUG_FILE, PATH_CRASH_LOG);
+        red_rename(DEBUG_FILE, PATH_CRASH_LOG);
         strcpy(path, PATH_CRASH_DIR);
         bsod_zip_path(zip, path);
 

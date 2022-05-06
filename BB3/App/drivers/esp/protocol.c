@@ -366,7 +366,11 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             char msg[PROTO_WIFI_SSID_LEN + 32];
 
             proto_wifi_connected_t * packet = (proto_wifi_connected_t *)data;
-            db_insert(PATH_NETWORK_DB, packet->ssid, packet->pass);
+
+            //do not save strato home network
+            if (strcmp(packet->ssid, STRATO_HOME_SSID) != 0 || strcmp(packet->pass, STRATO_HOME_PASS) != 0)
+                db_insert(PATH_NETWORK_DB, packet->ssid, packet->pass);
+
             sprintf(msg, "Connected to '%s'", packet->ssid);
             statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
             strncpy(fc.esp.ssid, packet->ssid, PROTO_WIFI_SSID_LEN);
@@ -490,7 +494,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         break;
 
         case(PROTO_TELE_SEND_ACK):
-			//telemety packet was send3
+			//telemety packet was send
         break;
 
         case(PROTO_FAKE_GNSS):

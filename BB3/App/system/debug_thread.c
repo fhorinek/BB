@@ -15,14 +15,12 @@
 
 #include "etc/epoch.h"
 #include "drivers/rtc.h"
-#include "drivers/sd_failsafe/sd_diskio.h"
 
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
 
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
-#include "fatfs.h"
 
 void debug_fault_dump(uint8_t * data, uint32_t len)
 {
@@ -75,7 +73,7 @@ osSemaphoreId_t debug_data;
 osSemaphoreId_t debug_dma_done;
 osSemaphoreId_t debug_new_message;
 
-static FIL debug_file;
+static int32_t debug_file;
 static bool debug_file_open = false;
 
 bool debug_thread_ready = false;
@@ -329,22 +327,18 @@ void thread_debug_start(void *argument)
 
             if (config_get_bool(&config.debug.use_file))
             {
-            	UINT bw;
-
             	//open
             	if (!debug_file_open)
             	{
-            		f_open(&debug_file, DEBUG_FILE, FA_OPEN_APPEND | FA_WRITE);
+            	    debug_file = red_open(DEBUG_FILE, RED_O_WRONLY | RED_O_APPEND);
             		debug_file_open = true;
             	}
 
             	//write
-            	f_write(&debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit, &bw);
+            	red_write(debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
             	//sync
-            	f_sync(&debug_file);
+            	red_sync();
             }
-
-
 
             debug_tx_buffer_lenght -= to_transmit;
             debug_tx_buffer_read_index = (debug_tx_buffer_read_index + to_transmit) % DEBUG_TX_BUFFER;

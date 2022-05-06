@@ -35,7 +35,7 @@ LV_FONT_DECLARE(lv_font_montserrat_100);
 LV_FONT_DECLARE(lv_font_montserrat_120);
 LV_FONT_DECLARE(lv_font_montserrat_140);
 
-
+gui_task_t * gui_startup_task = &gui_pages;
 
 void gui_set_loop_period(uint16_t period)
 {
@@ -251,7 +251,7 @@ void gui_init()
 
 	//first task
 	gui.task.last = NULL;
-	gui.task.actual = &gui_pages;
+	gui.task.actual = gui_startup_task;
 	gui.task.last_memory = NULL;
 
 	//list

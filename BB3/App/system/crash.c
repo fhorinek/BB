@@ -9,12 +9,14 @@
 #include "bsod.h"
 #include "rtc.h"
 
-#include "drivers/sd_failsafe/sd_diskio.h"
+#include "drivers/rtc.h"
+#include "drivers/rev.h"
+#include "drivers/sd.h"
 
-static FIL file;
+static int32_t file;
 static bool file_open = false;
 
-#define WRITE(A)    f_write(&file, A, strlen(A), &bw)
+#define WRITE(A)    red_write(file, A, strlen(A))
 
 void info_get_firmware_version(char * buff, size_t buff_size)
 {
@@ -38,11 +40,10 @@ void info_get_timestamp(char * buff, size_t buff_size)
 // Records relevant meta data in a yaml format
 void crash_store_info(const Crash_Object * info)
 {
-    FRESULT res = f_open(&file, PATH_CRASH_INFO, FA_WRITE | FA_CREATE_ALWAYS);
-    if (res == FR_OK)
+    file = red_open(PATH_CRASH_INFO, RED_O_WRONLY | RED_O_CREAT);
+    if (file > 0)
     {
         char buff[64];
-        UINT bw;
 
         snprintf(buff, sizeof(buff), "serial_number: '%08lX'\n", rev_get_short_id());
         WRITE(buff);
@@ -152,7 +153,7 @@ void crash_store_info(const Crash_Object * info)
         snprintf(buff, sizeof(buff), "  PSR: '%08lX'\n", info->pSP->psr);
         WRITE(buff);
 
-        f_close(&file);
+        red_close(file);
     }
 }
 
@@ -160,21 +161,21 @@ void CrashCatcher_DumpStart(const Crash_Object * info)
 {
     bsod_crash_start(info);
 
-    SD_FailSafe_init();
+    sd_init_failsafe();
 
-    f_mkdir(PATH_CRASH_DIR);
+    red_mkdir(PATH_CRASH_DIR);
 
     crash_store_info(info);
 
-    FRESULT res = f_open(&file, PATH_CRASH_DUMP, FA_WRITE | FA_CREATE_ALWAYS);
-    if (res == FR_OK)
+    file = red_open(PATH_CRASH_DUMP, RED_O_WRONLY | RED_O_CREAT);
+    if (file > 0)
     {
         file_open = true;
         FAULT("Crash file opened!");
     }
     else
     {
-        FAULT("Unable to create crash dump, res = %u", res);
+        FAULT("Unable to create crash dump, res = %d", file);
     }
 }
 
@@ -188,32 +189,26 @@ void CrashCatcher_DumpMemory(const void* pvMemory, CrashCatcherElementSizes elem
     uint32_t len = elementCount * elementSize;
     total_size += len;
 
-    UINT bw;
-    FRESULT res;
-
-
+    int32_t res;
     static uint16_t dbg_cnt = 0;
 
     dbg_cnt++;
-    res = f_write(&file, pvMemory, len, &bw);
-    if (res != FR_OK)
-        FAULT("f_write, res = %u (%u)", res, dbg_cnt);
+    res = red_write(file, pvMemory, len);
+    if (res != len)
+        FAULT("f_write, res = %d (%u)", res, dbg_cnt);
 
-    res = f_sync(&file);
-    if (res != FR_OK)
-        FAULT("f_sync, res = %u (%u)", res, dbg_cnt);
+    res = red_sync();
+    if (res != 0)
+        FAULT("f_sync, res = %d (%u)", res, dbg_cnt);
 }
-
-
-
 
 CrashCatcherReturnCodes CrashCatcher_DumpEnd(void)
 {
     if (!file_open)
         bsod_crash_fail();
 
-    FRESULT res = f_close(&file);
-    if (res != FR_OK)
+    int32_t res = red_close(file);
+    if (res != 0)
         FAULT("f_close, res = %u", res);
 
     FAULT("Closed, size: %u", total_size);

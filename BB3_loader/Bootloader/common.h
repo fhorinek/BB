@@ -23,14 +23,21 @@
 #include "usart.h"
 #include "tim.h"
 #include "mdma.h"
-#include "fatfs.h"
-#include "usb_device.h"
 #include "fmc.h"
 #include "crc.h"
 #include "sdmmc.h"
 #include "i2c.h"
+#include "octospi.h"
+#include "rng.h"
 
 #include "debug.h"
+#include "ux_port.h"
+
+#include "redfs.h"
+#include "redposix.h"
+
+#include "drivers/sd.h"
+#include "drivers/psram.h"
 
 #define	PA0		GPIOA,	GPIO_PIN_0
 #define	PA1		GPIOA,	GPIO_PIN_1
@@ -133,6 +140,7 @@ bool button_hold(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 bool button_hold_2(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint32_t timeout);
 
 bool file_exists(char * path);
+uint64_t file_size(int32_t file);
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);
@@ -179,7 +187,9 @@ void system_reboot();
 
 void clear_dir(char * path);
 
-#define UPDATE_FILE 	"STRATO.FW"
+#define PATH_LEN    128
+
+#define UPDATE_FILE 	"strato.fw"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"
 #define SKIP_CRC_FILE   "SKIP_CRC"
@@ -197,5 +207,16 @@ void clear_dir(char * path);
 extern bool development_mode;
 
 void bat_check_step();
+
+void app_sleep();
+void app_main_entry(ULONG id);
+
+#define POWER_ON_USB            0
+#define POWER_ON_BUTTON         1
+#define POWER_ON_TORCH          2
+#define POWER_ON_BOOST          3
+#define POWER_ON_REBOOT         4
+
+extern uint8_t power_on_mode;
 
 #endif /* INC_COMMON_H_ */

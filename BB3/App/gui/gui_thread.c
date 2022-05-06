@@ -22,24 +22,22 @@
 void gui_save_screen()
 {
     static uint16_t index = 0;
-    FIL f;
     char path[32];
-    FRESULT res;
 
-    f_mkdir(PATH_SCREENSHOT);
+    red_mkdir(PATH_SCREENSHOT);
 
+    int32_t f;
     do
     {
         sprintf(path, "%s/%08u.scr", PATH_SCREENSHOT, index);
         index++;
-        res = f_open(&f, path, FA_WRITE | FA_CREATE_NEW);
-    } while (res != FR_OK);
+        f = red_open(path, RED_O_WRONLY);
+    } while (f < 0);
 
     INFO("Saving screenshot to %s", path);
 
-    UINT bw;
-    f_write(&f, tft_buffer, TFT_BUFFER_SIZE * sizeof(uint16_t), &bw);
-    f_close(&f);
+    red_write(f, tft_buffer, TFT_BUFFER_SIZE * sizeof(uint16_t));
+    red_close(f);
 
     gui.take_screenshot = 0;
 }

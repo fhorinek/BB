@@ -11,6 +11,8 @@
 #include "common.h"
 #include "drivers/nvm.h"
 #include "drivers/esp/protocol_def.h"
+#include "drivers/esp/protocol.h"
+#include "drivers/esp/esp.h"
 
 //unit conversions
 #define FC_METER_TO_FEET		(3.2808399)
@@ -101,15 +103,6 @@ typedef struct
 
 typedef enum
 {
-	esp_off = 0,
-	esp_starting,
-	esp_normal,
-    esp_external_auto,
-    esp_external_manual,
-} esp_mode_t;
-
-typedef enum
-{
     fc_dev_error = 0,
     fc_dev_init,
     fc_dev_sampling,
@@ -125,8 +118,6 @@ typedef enum
     flight_flight,
     flight_landed
 } fc_flight_mode;
-
-typedef void (* wifi_list_update_cb)(proto_wifi_scan_res_t *);
 
 #define FC_POS_GNSS_2D		0b0001
 #define FC_POS_GNSS_3D		0b0010
@@ -371,7 +362,7 @@ typedef struct
 
 	struct
 	{
-		osTimerId timer;
+		osTimerId_t timer;
         fc_pos_history_t * positions;
 
         uint16_t index;

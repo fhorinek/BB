@@ -39,20 +39,26 @@ void firmware_update_progress_cb(uint8_t res, void * data)
     }
 }
 
+void firmware_update_worker(char * path)
+{
+    red_unlink(UPDATE_FILE);
+    system_reboot();
+
+    vTaskDelete(NULL);
+}
+
 void firmware_update_apply_cb(uint8_t res, void * data)
 {
     char * opt_data = dialog_get_opt_data();
 
     if (res == dialog_res_yes)
     {
-        char path[64];
+        char * path = malloc(PATH_LEN);
 
-        snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, opt_data);
-        f_unlink(UPDATE_FILE);
-        if (copy_file(path, UPDATE_FILE))
-        {
-            system_reboot();
-        }
+        snprintf(path, PATH_LEN, "%s/%s", PATH_FW_DIR, opt_data);
+        dialog_show("Updating", "Please wait", dialog_progress, NULL);
+        dialog_progress_spin();
+        xTaskCreate((TaskFunction_t)firmware_update_worker, "firmware_update_worker", 1024 * 2, path, 24, NULL);
     }
 
     free(opt_data);
@@ -77,9 +83,9 @@ void firmware_update_get_file_cb(uint8_t res, download_slot_t * ds)
 
         snprintf(path, sizeof(path), "%s/%s", PATH_FW_DIR, local->new_fw);
 
-        f_unlink(path);
-        f_rename(tmp_path, path);
-        f_unlink(tmp_path);
+        red_unlink(path);
+        red_rename(tmp_path, path);
+        red_unlink(tmp_path);
 
         dialog_show("Start update process?", "", dialog_yes_no, firmware_update_apply_cb);
         char * opt_data = malloc(strlen(local->new_fw) + 1);

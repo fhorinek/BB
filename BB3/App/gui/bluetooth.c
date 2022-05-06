@@ -13,6 +13,7 @@
 #include "etc/format.h"
 #include "gui/statusbar.h"
 #include "gui/bluetooth.h"
+#include "fc/fc.h"
 #include "fc/telemetry/telemetry.h"
 #include "etc/notifications.h"
 

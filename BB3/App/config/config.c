@@ -7,7 +7,6 @@
 #include "config.h"
 #include "gui/widgets/widgets.h"
 
-#include "fatfs.h"
 #include "gui/widgets/pages.h"
 
 bool config_changed = false;
@@ -229,18 +228,15 @@ uint16_t config_structure_size(cfg_entry_t * structure)
 
 void config_load(cfg_entry_t * structure, char * path)
 {
-	FIL f;
-	uint8_t ret;
-
-	ret = f_open(&f, path, FA_READ);
 	INFO("Reading configuration from %s", path);
+    int32_t f = red_open(path, RED_O_RDONLY);
 
-	if (ret == FR_OK)
+	if (f > 0)
 	{
 		__align char buff[256];
 		uint16_t line = 0;
 
-		while (f_gets(buff, sizeof(buff), &f) != NULL)
+		while (red_gets(buff, sizeof(buff), f) != NULL)
 		{
 			line++;
 
@@ -269,7 +265,7 @@ void config_load(cfg_entry_t * structure, char * path)
 			}
 		}
 
-		f_close(&f);
+		red_close(f);
 	}
 	else
 	{
@@ -280,13 +276,10 @@ void config_load(cfg_entry_t * structure, char * path)
 
 void config_store(cfg_entry_t * structure, char * path)
 {
-	FIL f;
-	uint8_t ret;
-
-	ret = f_open(&f, path, FA_WRITE | FA_CREATE_ALWAYS);
+	int32_t f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
 	INFO("Writing configuration to %s", path);
 
-	if (ret != FR_OK)
+	if (f < 0)
 	{
 		INFO("Unable to open file %s", path);
 		return;
@@ -297,12 +290,11 @@ void config_store(cfg_entry_t * structure, char * path)
 		char buff[256];
 
 		entry_get_str(buff, &structure[i]);
-		UINT bw;
-		f_write(&f, buff, strlen(buff), &bw);
+		red_write(f, buff, strlen(buff));
 
 	}
 
-	f_close(&f);
+	red_close(f);
 }
 
 void config_show(cfg_entry_t * structure)
@@ -317,31 +309,6 @@ void config_show(cfg_entry_t * structure)
 		buff[strlen(buff) - 1] = 0;
 		INFO("%s", buff);
 	}
-}
-
-void config_move_pages()
-{
-	FRESULT res;
-	DIR dir;
-	FILINFO fno;
-
-	res = f_opendir(&dir, PATH_PAGES_DIR);
-	while (true)
-	{
-		res = f_readdir(&dir, &fno);
-		if (res != FR_OK || fno.fname[0] == 0)
-			break;
-
-		if (!(fno.fattrib & AM_DIR))
-		{
-			char path_old[PATH_LEN] = {0};
-			char path_new[PATH_LEN] = {0};
-			str_join(path_old, 3, PATH_PAGES_DIR, "/", fno.fname);
-			str_join(path_new, 5, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile), "/", fno.fname);
-			f_rename(path_old, path_new);
-		}
-	}
-	f_closedir(&dir);
 }
 
 void config_load_all()
@@ -378,9 +345,6 @@ void config_load_all()
     //make sure to process
     config_process_cb(&config.device_name);
 
-    //move any pages to active profile
-    config_move_pages();
-
 //    config_apply_new_defaults
 }
 
@@ -414,23 +378,19 @@ void config_change_profile(char * profile_name)
 
 uint8_t config_profiles_cnt()
 {
-	FRESULT res;
-	DIR dir;
-	FILINFO fno;
-
-	res = f_opendir(&dir, PATH_PAGES_DIR);
+	REDDIR * dir = red_opendir(PATH_PAGES_DIR);
 	uint16_t cnt = 0;
 	while (true)
 	{
-		res = f_readdir(&dir, &fno);
-		if (res != FR_OK || fno.fname[0] == 0)
+		REDDIRENT * entry = red_readdir(dir);
+		if (entry == NULL)
 			break;
 
-		if (fno.fattrib & AM_DIR)
+		if (RED_S_ISDIR(entry->d_stat.st_mode))
 			cnt++;
 	}
 
-	f_closedir(&dir);
+	red_closedir(dir);
 	return cnt;
 }
 

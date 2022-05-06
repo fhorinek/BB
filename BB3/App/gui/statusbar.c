@@ -91,7 +91,7 @@ void statusbar_create()
 {
 	lv_obj_t * bg = lv_obj_create(lv_layer_sys(), NULL);
 	lv_obj_set_size(bg, LV_HOR_RES, GUI_STATUSBAR_HEIGHT);
-	lv_obj_set_style_local_bg_color(bg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	lv_obj_set_style_local_bg_color(bg, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 
 	gui.statusbar.bar = lv_obj_create(bg, NULL);
 	lv_obj_set_size(gui.statusbar.bar, LV_HOR_RES, GUI_STATUSBAR_HEIGHT);

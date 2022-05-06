@@ -22,11 +22,9 @@
 #include "cmsis_os.h"
 #include "crc.h"
 #include "dma.h"
-#include "fatfs.h"
 #include "i2c.h"
 #include "mdma.h"
 #include "octospi.h"
-#include "sdmmc.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -71,8 +69,6 @@ void HAL_TIM_PeriodElapsedCallback2(TIM_HandleTypeDef *htim);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//#define APP_ADDRESS     0x08020000
-//bootloader debug
 #define APP_ADDRESS     0x08040000
 
 /* USER CODE END 0 */
@@ -119,19 +115,17 @@ int main(void)
   MX_DMA_Init();
   MX_MDMA_Init();
   MX_UART7_Init();
+  MX_TIM5_Init();
   MX_FMC_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
   MX_OCTOSPI1_Init();
-  MX_SDMMC1_SD_Init();
   MX_SPI1_Init();
   MX_UART4_Init();
-  MX_FATFS_Init();
   MX_TIM3_Init();
   MX_CRC_Init();
   MX_TIM17_Init();
   MX_TIM15_Init();
-  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

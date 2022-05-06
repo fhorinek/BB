@@ -18,6 +18,7 @@ extern uint16_t tft_buffer[TFT_BUFFER_SIZE];
 void tft_init();
 void tft_stop();
 void tft_reset();
+void tft_delay(uint16_t delay);
 
 void tft_write_command(uint16_t command);
 void tft_write_data(uint16_t data);

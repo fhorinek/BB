@@ -8,7 +8,7 @@
 #include "gui.h"
 #include "drivers/esp/protocol.h"
 
-static osTimerId dbg_overlay_timer = NULL;
+static osTimerId_t dbg_overlay_timer = NULL;
 
 #define TIMER_PERIOD    500
 #define ITEM_HEIGHT 15

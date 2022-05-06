@@ -29,7 +29,7 @@ static void download_slot_free(uint8_t data_id)
     {
         if (download_slot[data_id]->data != NULL)
         {
-            f_close(&((download_slot_file_data_t *)download_slot[data_id]->data)->f);
+            red_close(((download_slot_file_data_t *)download_slot[data_id]->data)->f);
             free(download_slot[data_id]->data);
         }
     }
@@ -186,11 +186,11 @@ void download_slot_process_info(proto_download_info_t * info)
 							download_slot_file_data_t * data = (download_slot_file_data_t *) malloc(sizeof(download_slot_file_data_t));
 							char path[TEMP_NAME_LEN];
 							data->tmp_id = get_tmp_filename(path);
-							FRESULT res = f_open(&data->f, path, FA_WRITE | FA_CREATE_ALWAYS);
+							data->f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
 
-							if (res != FR_OK)
+							if (data->f < 0)
 							{
-								ERR("Failed to create file %s, res = %u", path, res);
+								ERR("Failed to create file %s, res = %u", path, data->f);
 
 							}
 
@@ -215,7 +215,7 @@ void download_slot_process_info(proto_download_info_t * info)
 
 			case (PROTO_DOWNLOAD_DONE):
 				if (ds->type == DOWNLOAD_SLOT_TYPE_FILE)
-					f_close(&((download_slot_file_data_t *)ds->data)->f);
+					red_close(((download_slot_file_data_t *)ds->data)->f);
 
 				if (ds->type == DOWNLOAD_SLOT_TYPE_PSRAM)
 					((char *)ds->data)[ds->pos + 1] = 0;
@@ -263,9 +263,7 @@ void download_slot_process_data(uint8_t data_id, uint8_t * data, uint16_t len)
 
             case(DOWNLOAD_SLOT_TYPE_FILE):
             {
-                UINT bw;
-                f_write(&((download_slot_file_data_t *)ds->data)->f, data, len, &bw);
-                ASSERT(bw == len);
+                ASSERT(red_write(((download_slot_file_data_t *)ds->data)->f, data, len) == len);
             }
             break;
         }

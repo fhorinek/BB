@@ -29,14 +29,24 @@ void debug_enable()
 
 void debug_dump(uint8_t * data, uint16_t len)
 {
-    char tmp[8 * 3 + 3];
+    if (debug_off)
+        return;
+
+    char s[18] = {0};
+
+    char tmp[16 * 3 + 3];
     for (uint16_t i = 0; i < len; i++)
     {
-        sprintf(tmp + ((i % 8) * 3) + ((i % 8 > 3) ? 1 : 0), "%02X  ", data[i]);
-        if (i % 8 == 7 || i + 1 == len)
+        sprintf(tmp + ((i % 16) * 3) + ((i % 16 > 7) ? 1 : 0), "%02X  ", data[i]);
+        if (i % 16 == 0) memset(s, ' ', 17);
+
+        s[(i % 16) + ((i % 16 > 7) ? 1 : 0)] = (data[i] > 32 && data[i] <= 127) ? data[i] : '.';
+
+
+        if (i % 16 == 15 || i + 1 == len)
         {
             tmp[strlen(tmp) - 2] = 0;
-            debug_send(DBG_DEBUG, "[%s]", tmp);
+            debug_send(DBG_DEBUG, "[%-48s] %s", tmp, s);
         }
     }
 }
@@ -47,7 +57,7 @@ void debug_send(uint8_t type, const char *format, ...)
 		return;
 
 	va_list arp;
-	char msg_buff[250];
+	static char msg_buff[1024];
 
 	va_start(arp, format);
 	vsnprintf(msg_buff, sizeof(msg_buff), format, arp);
@@ -64,10 +74,11 @@ void debug_send(uint8_t type, const char *format, ...)
 		}
 	}
 
+
 	char id[] = "DIWE";
 
-	static char message[256];
-	snprintf(message, sizeof(message), "[%c] %s\n", id[type], msg_buff);
+	static char message[1040];
+	snprintf(message, sizeof(message), "[%lu][%c] %s\n", HAL_GetTick(), id[type], msg_buff);
 
 	debug_uart_done = false;
 	uint8_t ret = HAL_UART_Transmit_DMA(debug_uart, (uint8_t *)message, strlen(message));

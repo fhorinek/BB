@@ -46,7 +46,7 @@ static bool info_serial_cb(lv_obj_t * obj, lv_event_t event)
 
     		if (DEVEL_ACTIVE)
     		{
-    			f_unlink(DEV_MODE_FILE);
+    			red_unlink(DEV_MODE_FILE);
     			statusbar_msg_add(STATUSBAR_MSG_INFO, "Developer mode disabled");
     		}
     		else

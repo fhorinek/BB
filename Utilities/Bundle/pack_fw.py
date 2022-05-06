@@ -34,6 +34,9 @@ def read_chunk(bin_path, addr):
         data += bytes([0] * (4 - (len(data) % 4)))
         
     name = bytes(os.path.basename(bin_path), encoding='ascii')
+    if name == b'BB_esp_fw.bin':
+        name = b'firmware.bin'
+        
     name = name[0:name_max_len - 1]
     name += bytes([0] * (name_max_len - len(name)))
 

@@ -7,24 +7,22 @@
 #include "drivers/rev.h"
 #include "drivers/rtc.h"
 
-static osTimerId csv_timer;
+static osTimerId_t csv_timer;
 
 #define CSV_PERIOD	240
 
-FIL csv_log_file;
+int32_t csv_log_file;
 static bool csv_started = false;
 static uint32_t csv_ticks = 0;
 
 void csv_write_line(char * line)
 {
 	uint8_t l = strlen(line);
-	UINT wl;
 
 	DBG("CSV:%s", line);
 
-	ASSERT(f_write(&csv_log_file, line, l, &wl) == FR_OK);
-	ASSERT(wl == l);
-	ASSERT(f_sync(&csv_log_file) == FR_OK);
+	ASSERT(red_write(csv_log_file, line, l) == l);
+	red_sync();
 }
 
 void csv_write_data()
@@ -67,13 +65,13 @@ void csv_start_write()
 	datetime_from_epoch(utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
 
 	snprintf(path, sizeof(path), "%s/%04u.%02u", PATH_LOGS_DIR, year, month);
-	f_mkdir(path);
+	red_mkdir(path);
 	snprintf(path, sizeof(path), "%s/%04u.%02u/%04u.%02u.%02u %02u.%02u.csv", PATH_LOGS_DIR, year, month, year, month, day, hour, min);
-	uint8_t res = f_open(&csv_log_file, path, FA_WRITE | FA_CREATE_ALWAYS);
+	csv_log_file = red_open(path, RED_O_WRONLY | RED_O_CREAT);
 
-	DBG("CSV OPEN %s, res = %u", path, res);
-	ASSERT(res == FR_OK);
-	if (res != FR_OK)
+	DBG("CSV OPEN %s, res = %u", path, csv_log_file);
+	ASSERT(csv_log_file > 0);
+	if (csv_log_file < 0)
 		return;
 
 	sprintf(line, "ms_since_start,timestamp,latitude,longtitude,ground_speed,heading,gnss_alt,baro_alt,vario,accel\r\n");
@@ -119,7 +117,7 @@ void csv_stop()
 
 	if (csv_started)
 	{
-		f_close(&csv_log_file);
+		red_close(csv_log_file);
 		csv_started = false;
 	}
 	fc.logger.csv = fc_logger_off;

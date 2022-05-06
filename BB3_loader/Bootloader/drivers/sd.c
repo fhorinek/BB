@@ -2,157 +2,179 @@
 #include "../drivers/sd.h"
 
 #include "../debug.h"
-#include "fatfs.h"
+
 
 #include "gfx.h"
 
-#define DISK_NAME	"Strato"
+#define SD_DMA_TIMEOUT					(300 / (1000 / TX_TIMER_TICKS_PER_SECOND))
 
-#define SD_DMA_TIMEOUT					150
+#define SD_DEFAULT_BLOCK_SIZE 512
 
-uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+static TX_SEMAPHORE sd_semaphore;
+static TX_SEMAPHORE sd_dma_semaphore;
+
+uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
-	uint8_t ret;
-	uint8_t cnt = 0;
-	do
-	{
-	    ret = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks);
-		cnt++;
-		if (cnt > 10)
-		{
-	  		ERR("Read fail %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	  		return MSD_ERROR;
-		}
-	}
-	while (ret != HAL_OK);
+    uint8_t ret = HAL_OK;
 
-	if (cnt > 1)
-	{
-		WARN("Read problem %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	}
+//    INFO("BSP_SD_ReadBlocks_DMA %08X %u", ReadAddr, NumOfBlocks);
 
-	return MSD_OK;
+    tx_semaphore_get(&sd_semaphore, TX_WAIT_FOREVER);
+
+    uint8_t status = HAL_SD_ReadBlocks_DMA(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks);
+
+    if (status != HAL_OK)
+    {
+        //WARN("Read error %08lX %u ret = %u", ReadAddr, NumOfBlocks, status);
+
+        tx_semaphore_put(&sd_semaphore);
+        ret = HAL_ERROR;
+    }
+    else
+    {
+        status = tx_semaphore_get(&sd_dma_semaphore, SD_DMA_TIMEOUT);
+        if (status != TX_SUCCESS)
+        {
+            WARN("Read timeout %08lX %u err = %X", ReadAddr, NumOfBlocks, status);
+            MX_SDMMC1_SD_Init();
+            ret = HAL_ERROR;
+        }
+        else
+        {
+            if (hsd1.ErrorCode != 0)
+            {
+                WARN("Read dma error %08lX %u err = %X", ReadAddr, NumOfBlocks, hsd1.ErrorCode);
+                ret = HAL_ERROR;
+            }
+        }
+    }
+
+    tx_semaphore_put(&sd_semaphore);
+    return ret;
 }
 
-uint8_t BSP_SD_ReadBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks)
+uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
-	  uint32_t start = HAL_GetTick();
-	  while (hsd1.State == HAL_SD_STATE_BUSY)
-	  {
-	  	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-	  	{
-	  		ERR("Read timeout %08lX %u", ReadAddr, NumOfBlocks);
-	  		return MSD_ERROR;
-	  	}
-	  };
+    uint8_t ret = HAL_OK;
 
-	  return MSD_OK;
+//    INFO("BSP_SD_WriteBlocks_DMA %08X %u", WriteAddr, NumOfBlocks);
+
+    tx_semaphore_get(&sd_semaphore, TX_WAIT_FOREVER);
+
+    uint8_t status = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t *)pData, WriteAddr, NumOfBlocks);
+
+    if (status != HAL_OK)
+    {
+        //WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
+
+        tx_semaphore_put(&sd_semaphore);
+        ret = HAL_ERROR;
+    }
+    else
+    {
+        status = tx_semaphore_get(&sd_dma_semaphore, SD_DMA_TIMEOUT);
+        if (status != TX_SUCCESS)
+        {
+            WARN("Write timeout %08lX %u err = %X", WriteAddr, NumOfBlocks, status);
+            MX_SDMMC1_SD_Init();
+            ret = HAL_ERROR;
+        }
+        else
+        {
+            if (hsd1.ErrorCode != 0)
+            {
+                WARN("Write dma error %08lX %u err = %X", WriteAddr, NumOfBlocks, hsd1.ErrorCode);
+                ret = HAL_ERROR;
+            }
+        }
+    }
+
+    tx_semaphore_put(&sd_semaphore);
+    return ret;
 }
 
-uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
 {
-	uint8_t ret;
-	uint8_t cnt = 0;
-	do
-	{
-	    ret = HAL_SD_WriteBlocks_DMA(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks);
-		cnt++;
-		if (cnt > 10)
-		{
-	  		ERR("Write fail %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	  		return MSD_ERROR;
-		}
-	}
-	while (ret != HAL_OK);
-
-	if (cnt > 1)
-	{
-		WARN("Write problem %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-	}
-
-  uint32_t start = HAL_GetTick();
-  while (hsd1.State == HAL_SD_STATE_BUSY)
-  {
-  	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-  	{
-  		ERR("Write timeout %08lX %u %u", ReadAddr, NumOfBlocks, cnt);
-  		return MSD_ERROR;
-  	}
-  };
-
-  return MSD_OK;
+    tx_semaphore_put(&sd_dma_semaphore);
 }
 
-uint8_t BSP_SD_WriteBlocks_DMA_Wait(uint32_t ReadAddr, uint32_t NumOfBlocks)
+void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
-	  uint32_t start = HAL_GetTick();
-	  while (hsd1.State == HAL_SD_STATE_BUSY)
-	  {
-	  	if (HAL_GetTick() - start > SD_DMA_TIMEOUT)
-	  	{
-	  		ERR("Write timeout %08lX %u", ReadAddr, NumOfBlocks);
-	  		return MSD_ERROR;
-	  	}
-	  };
-
-	  return MSD_OK;
+    tx_semaphore_put(&sd_dma_semaphore);
 }
 
-void sd_set_disk_label()
+void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
-	//set disk name to Strato
-	char label[36];
-
-	f_getlabel(SDPath, label, NULL);
-
-	if (strlen(label) == 0)
-	{
-		f_setlabel(DISK_NAME);
-	}
+    tx_semaphore_put(&sd_dma_semaphore);
 }
+
+void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
+{
+    ERR("HAL_SD: %08X", hsd->ErrorCode);
+    tx_semaphore_put(&sd_dma_semaphore);
+//  Error_Handler();
+}
+
+
+
+void sd_init()
+{
+    tx_semaphore_create(&sd_semaphore, "SD semaphore", 0);
+    tx_semaphore_create(&sd_dma_semaphore, "SD dma semaphore", 0);
+
+    MX_SDMMC1_SD_Init();
+
+    HAL_SD_CardInfoTypeDef card_info;
+    HAL_SD_GetCardInfo(&hsd1, &card_info);
+
+    tx_semaphore_put(&sd_semaphore);
+
+    red_init();
+ }
 
 void sd_format()
 {
-	BYTE work[_MAX_SS];
-
 	gfx_draw_status(GFX_STATUS_UPDATE, "Formating SD");
 	gfx_draw_progress(0);
 
-	uint8_t res = f_mkfs(SDPath, FM_FAT32, 0, work, sizeof(work));
-	DBG(" f_mkfs = %u", res);
+	int32_t err = red_format("");
+	if (err != 0)
+	{
+	    ERR("red_format = %d", red_errno);
+	}
 }
 
 bool sd_mount()
 {
-	INFO("Mounting SD");
+	DBG("Mounting SD");
 
-	uint8_t res = f_mount(&SDFatFS, SDPath, 1);
-	if (res == FR_NO_FILESYSTEM)
+
+
+
+    int32_t err = red_mount("");
+
+    // reformat if we can't mount the filesystem
+    // this should only happen on the first boot
+    if (err != 0)
+    {
+        ERR("Error mounting, formating");
+        sd_format();
+        err = red_mount("");
+    }
+
+	if (err)
 	{
-		sd_format();
-
-		res =  f_mount(&SDFatFS, SDPath, 1);
-	}
-
-	if (res != FR_OK)
-	{
-		DBG(" Error mounting SD = %u", res);
+		ERR(" Error mounting SD = %d", err);
 		return false;
 	}
-
-	sd_set_disk_label();
 
 	return true;
 }
 
 void sd_unmount()
 {
-	INFO("Unmounting SD");
-	uint8_t res =  f_mount(NULL, SDPath, 1);
-	if (res != FR_OK)
-	{
-		DBG(" Error unmounting SD = %u", res);
-	}
+	DBG("Unmounting SD");
+	red_umount("");
 }
 
 

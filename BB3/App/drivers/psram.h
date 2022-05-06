@@ -22,6 +22,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno);
 void * ps_realloc(void * ptr, uint32_t size);
 void ps_free(void * ptr);
 
+void ps_malloc_init();
 void ps_malloc_info();
 
 #endif /* DRIVERS_PSRAM_H_ */

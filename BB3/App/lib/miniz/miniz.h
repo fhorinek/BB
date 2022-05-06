@@ -506,8 +506,8 @@ typedef int mz_bool;
 #ifdef MINIZ_NO_STDIO
 #define MZ_FILE FIL
 #else
-#include "ff.h"
-#define MZ_FILE FIL
+#include "lib/reliance-edge/include/redposix.h"
+#define MZ_FILE int32_t
 #endif /* #ifdef MINIZ_NO_STDIO */
 
 #ifdef MINIZ_NO_TIME

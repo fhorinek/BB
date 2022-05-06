@@ -35,10 +35,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os2.h"
-#include "fatfs.h"
 #include "queue.h"
 
+//fs
+#include "redposix.h"
 
+//etc
 #include "drivers/psram.h"
 #include "config/config.h"
 #include "config/db.h"
@@ -134,7 +136,9 @@ const osThreadAttr_t FUNC ## _attr = {  \
 };
 
 #define start_thread(FUNC)  \
-    FUNC = osThreadNew(FUNC ## _start, NULL, &FUNC ## _attr);
+    if (FUNC == NULL) { \
+        FUNC = osThreadNew(FUNC ## _start, NULL, &FUNC ## _attr); \
+    }
 
 //RTOS Threads
 extern osThreadId_t thread_debug;
@@ -146,6 +150,7 @@ extern osThreadId_t thread_esp;
 extern osThreadId_t thread_esp_spi;
 extern osThreadId_t thread_usb;
 
+extern const osThreadAttr_t thread_gui_attr;
 extern const osThreadAttr_t thread_esp_spi_attr;
 extern const osThreadAttr_t thread_map_attr;
 extern const osThreadAttr_t thread_esp_attr;
@@ -218,6 +223,9 @@ extern osThreadId_t SystemHandle;
 
 #define DEVEL_ACTIVE    (file_exists(DEV_MODE_FILE))
 
+#define STRATO_HOME_SSID    "Strato"
+#define STRATO_HOME_PASS    "skybean_strato"
+
 //simple functions
 uint8_t hex_to_num(uint8_t c);
 bool start_with(char * s1, const char * s2);
@@ -234,10 +242,9 @@ int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
 
 bool file_exists(char * path);
-bool file_isdir(char * path);
 void touch(char * path);
-char * find_in_file_sep(FIL * f, char * key, char * def, char * buff, uint16_t len, char separator);
-char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len);
+uint64_t file_size(int32_t file);
+char * red_gets(char * buff, uint16_t buff_len, int32_t fp);
 
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
 uint32_t calc_crc32(uint32_t * data, uint32_t size);

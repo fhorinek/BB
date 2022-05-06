@@ -152,38 +152,14 @@ int16_t complement2_16bit(uint16_t in)
     return in;
 }
 
-char * find_in_file(FIL * f, char * key, char * def, char * buff, uint16_t len)
+uint64_t file_size(int32_t file)
 {
-	FSIZE_t start_pos = f_tell(f);
-	bool loop = false;
+    REDSTAT stat;
+    red_fstat(file, &stat);
 
-	if (f_size(f) == 0)
-	    return def;
-
-	while (1)
-	{
-		while (f_gets(buff, len, f) != NULL)
-		{
-			if (strstr(buff, key) == buff && buff[strlen(key)] == '=')
-			{
-				//remove /n
-				buff[strlen(buff) - 1] = 0;
-				return buff + strlen(key) + 1;
-			}
-
-			if (loop && f_tell(f) >= start_pos)
-			{
-				return def;
-			}
-		}
-
-		if (f_eof(f))
-		{
-			f_lseek(f, 0);
-			loop = true;
-		}
-	}
+    return stat.st_size;
 }
+
 
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data)
 {
@@ -231,51 +207,48 @@ uint32_t get_tmp_filename(char * fname)
 #define COPY_WORK_BUFFER_SIZE (1024 * 4)
 bool copy_file(char * src, char * dst)
 {
-    FIL * f_src = (FIL *)malloc(sizeof(FIL));
-    FIL * f_dst = (FIL *)malloc(sizeof(FIL));
+    int32_t f_src;
+    int32_t f_dst;
     uint8_t * work_buffer = (uint8_t *) malloc(COPY_WORK_BUFFER_SIZE);
 
-    if (f_src == NULL || f_dst == NULL || work_buffer == NULL)
+    if (work_buffer == NULL)
     {
-        if (f_src) free(f_src);
-        if (f_dst) free(f_dst);
-        if (work_buffer) free(work_buffer);
-
+        free(work_buffer);
         return false;
     }
 
     bool ret = true;
-
-    if (f_open(f_src, src, FA_READ) == FR_OK)
+    f_src = red_open(src, RED_O_RDONLY);
+    if (f_src > 0)
     {
-
-        if (f_open(f_dst, dst, FA_WRITE | FA_CREATE_NEW) == FR_OK)
+        f_dst = red_open(dst, RED_O_WRONLY | RED_O_CREAT);
+        if (f_dst > 0)
         {
-            while (!f_eof(f_src))
+            int32_t br, bw;
+            while(1)
             {
-                UINT br, bw;
+                br = red_read(f_src, work_buffer, COPY_WORK_BUFFER_SIZE);
+                if (br <= 0)
+                    break;
 
-                f_read(f_src, work_buffer, COPY_WORK_BUFFER_SIZE, &br);
-                f_write(f_dst, work_buffer, br, &bw);
+                bw = red_write(f_dst, work_buffer, br);
 
                 ASSERT(bw == br);
             }
-            f_close(f_dst);
+            red_close(f_dst);
         }
         else
         {
             ret = false;
         }
 
-        f_close(f_src);
+        red_close(f_src);
     }
     else
     {
         ret = false;
     }
 
-    free(f_src);
-    free(f_dst);
     free(work_buffer);
 
     return ret;
@@ -283,27 +256,23 @@ bool copy_file(char * src, char * dst)
 
 void copy_dir(char * src, char * dst)
 {
-    FRESULT res;
-    DIR dir;
-    FILINFO fno;
+    red_mkdir(dst);
 
-    f_mkdir(dst);
-
-    res = f_opendir(&dir, src);
-    if (res == FR_OK)
+    REDDIR * dir = red_opendir(src);
+    if (dir != NULL)
     {
         while (true)
         {
-            res = f_readdir(&dir, &fno);
-            if (res != FR_OK || fno.fname[0] == 0)
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry == NULL)
                 break;
 
             char src_path[PATH_LEN] = {0};
-            str_join(src_path, 3, src, "/", fno.fname);
+            str_join(src_path, 3, src, "/", entry->d_name);
             char dst_path[PATH_LEN] = {0};
-            str_join(dst_path, 3, dst, "/", fno.fname);
+            str_join(dst_path, 3, dst, "/", entry->d_name);
 
-            if (fno.fattrib & AM_DIR)
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
             {
                 copy_dir(src_path, dst_path);
             }
@@ -313,103 +282,84 @@ void copy_dir(char * src, char * dst)
             }
         }
 
-        f_closedir(&dir);
+        red_closedir(dir);
     }
 }
 
 void copy_dir_when_absent(char * src, char * dst)
 {
-    FRESULT res;
-    DIR dir;
-    FILINFO fno;
+    red_mkdir(dst);
 
-    f_mkdir(dst);
-
-    res = f_opendir(&dir, src);
-    if (res == FR_OK)
+    REDDIR * dir = red_opendir(src);
+    if (dir != NULL)
     {
         while (true)
         {
-            res = f_readdir(&dir, &fno);
-            if (res != FR_OK || fno.fname[0] == 0)
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry == NULL)
                 break;
 
             char src_path[PATH_LEN] = {0};
-            str_join(src_path, 3, src, "/", fno.fname);
+            str_join(src_path, 3, src, "/", entry->d_name);
             char dst_path[PATH_LEN] = {0};
-            str_join(dst_path, 3, dst, "/", fno.fname);
+            str_join(dst_path, 3, dst, "/", entry->d_name);
 
-            if (fno.fattrib & AM_DIR)
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
             {
-            	if (!file_exists(dst_path))
-            		copy_dir(src_path, dst_path);
+                if (!file_exists(dst_path))
+                    copy_dir(src_path, dst_path);
             }
             else
             {
-            	if (!file_exists(dst_path))
-            		copy_file(src_path, dst_path);
+                if (!file_exists(dst_path))
+                    copy_file(src_path, dst_path);
             }
         }
 
-        f_closedir(&dir);
+        red_closedir(dir);
     }
 }
 
-FRESULT f_delete_node (
-    TCHAR* path,    /* Path name buffer with the sub-directory to delete */
-    UINT sz_buff,  /* Size of path name buffer (items) */
-	bool preserve_root
-)
+
+void remove_dir_rec(char * path, bool remove)
 {
-    UINT i, j;
-    FRESULT fr;
-    DIR dir;
+    REDDIR * dir = red_opendir(path);
+    if (dir != NULL)
+    {
+        while (true)
+        {
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry == NULL)
+                break;
 
-    FILINFO fno;    /* Name read buffer */
+            char work_path[PATH_LEN] = {0};
+            str_join(work_path, 3, path, "/", entry->d_name);
 
-    fr = f_opendir(&dir, path); /* Open the directory */
-    if (fr != FR_OK) return fr;
-
-    for (i = 0; path[i]; i++) ; /* Get current path length */
-    path[i++] = _T('/');
-
-    for (;;) {
-        fr = f_readdir(&dir, &fno);  /* Get a directory item */
-        if (fr != FR_OK || !fno.fname[0]) break;   /* End of directory? */
-        j = 0;
-        do {    /* Make a path name */
-            if (i + j >= sz_buff) { /* Buffer over flow? */
-                fr = FR_NO_PATH; break;    /* Fails with 100 when buffer overflow */
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
+            {
+                remove_dir_rec(work_path, true);
             }
-            path[i + j] = fno.fname[j];
-        } while (fno.fname[j++]);
-        if (fno.fattrib & AM_DIR) {    /* Item is a directory */
-            fr = f_delete_node(path, sz_buff, false);
-        } else {                        /* Item is a file */
-            fr = f_unlink(path);
+            else
+            {
+                red_unlink(work_path);
+            }
         }
-        if (fr != FR_OK) break;
+
+        red_closedir(dir);
+
+        if (remove)
+            red_unlink(path);
     }
-
-    path[--i] = 0;  /* Restore the path name */
-    f_closedir(&dir);
-
-    if (fr == FR_OK && !preserve_root) fr = f_unlink(path);  /* Delete the empty directory */
-    return fr;
 }
 
 void clear_dir(char * path)
 {
-    char path_buff[PATH_LEN];
-    strcpy(path_buff, path);
-    f_delete_node(path_buff, sizeof(path_buff), true);
+    remove_dir_rec(path, false);
 }
 
 void remove_dir(char * path)
 {
-    char path_buff[PATH_LEN];
-    strcpy(path_buff, path);
-    f_delete_node(path_buff, sizeof(path_buff), false);
+    remove_dir_rec(path, true);
 }
 
 bool read_value(char * data, char * key, char * value, uint16_t value_len)
@@ -496,25 +446,41 @@ float table_cos(uint16_t angle)
 
 bool file_exists(char * path)
 {
-    FILINFO fno;
-    return (f_stat(path, &fno) == FR_OK);
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        red_close(f);
+        return true;
+    }
+    return false;
 }
+
 
 void touch(char * path)
 {
-	FIL f;
-    f_open(&f, path, FA_CREATE_ALWAYS);
-    f_close(&f);
+	int32_t f;
+    f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+    red_close(f);
 }
 
-bool file_isdir(char * path)
+char * red_gets(char * buff, uint16_t buff_len, int32_t fp)
 {
-    FILINFO fno;
-    if (f_stat(path, &fno) == FR_OK)
+    uint32_t start_pos = red_lseek(fp, 0, RED_SEEK_CUR);
+    int32_t rd = red_read(fp, buff, buff_len - 1);
+    if (rd == 0)
     {
-    	return fno.fattrib & AM_DIR;
+        return NULL;
     }
-    return false;
+    else
+    {
+        char * ptr = strchr(buff, '\n');
+        if (ptr != NULL)
+            *(++ptr) = '\0';
+
+        red_lseek(fp, start_pos + strlen(buff), RED_SEEK_SET);
+    }
+
+    return buff;
 }
 
 uint8_t nmea_checksum(char *s)

@@ -9,7 +9,6 @@
 
 #include "common.h"
 
-#include "fatfs.h"
 
 #include "fc/fc.h"
 
@@ -20,13 +19,15 @@
 #include "drivers/rev.h"
 #include "drivers/nvm.h"
 
-#include "gui/widgets/pages.h"
+//#include "gui/widgets/pages.h"
 
 #include "drivers/esp/esp.h"
 #include "drivers/gnss/gnss_thread.h"
 #include "drivers/sensors/mems_thread.h"
 #include "gui/gui_thread.h"
 #include "gui/map/map_thread.h"
+
+#include "gui/tasks/page/pages.h"
 
 #include "etc/epoch.h"
 #include "lvgl/lvgl.h"
@@ -231,12 +232,17 @@ void thread_system_start(void *argument)
 
     //start debug thread
     start_thread(thread_debug);
+    gui_create_lock();
+    config_set_bool(&config.debug.use_serial, true);
 
     //wait for debug thread
     while (!debug_thread_ready) taskYIELD();
 
     osDelay(100);
 	pwr_init();
+
+    //init PSRAM
+    PSRAM_init();
 
 	//init sd card
 	sd_init();
@@ -246,9 +252,6 @@ void thread_system_start(void *argument)
 
 	//load config
 	config_load_all();
-
-	//init PSRAM
-	PSRAM_init();
 
 	uint8_t sec, min, hour, day, wday, month;
 	uint16_t year;
@@ -263,8 +266,6 @@ void thread_system_start(void *argument)
     rev_get_sw_string(tmp);
     INFO("FW stm: %s\n\n", tmp);
 
-    gui_create_lock();
-
 	//start tasks
 	INFO("Starting tasks...");
 	start_thread(thread_gui);
@@ -272,6 +273,14 @@ void thread_system_start(void *argument)
     start_thread(thread_mems);
     start_thread(thread_gnss);
     start_thread(thread_esp);
+
+    //run when the pages are not the active page, eg. after sd_format
+    if (gui.task.actual != &gui_pages)
+    {
+        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_NONE);
+        //run start animation and fw update relates stuff like release note and bootloader update
+        pages_splash_show();
+    }
 
 	//init FC
 	fc_init();

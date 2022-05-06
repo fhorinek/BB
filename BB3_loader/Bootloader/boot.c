@@ -5,6 +5,7 @@
  *      Author: horinek
  */
 
+#include <usb_mode.h>
 #include "common.h"
 
 #include "drivers/sd.h"
@@ -13,12 +14,13 @@
 #include "nvm.h"
 
 #include "gfx.h"
-#include "msc.h"
 #include "flash.h"
 #include "pwr_mng.h"
 
 #include "drivers/bq25895.h"
 #include "drivers/led.h"
+
+extern volatile UINT _tx_thread_preempt_disable;
 
 void app_deinit()
 {
@@ -26,10 +28,8 @@ void app_deinit()
 	INFO("Bootloader deinit");
 	HAL_Delay(2);
 
-	MX_GPIO_Deinit();
-
-	//MX_DMA_Init();
-	HAL_DMA_DeInit(tft_dma);
+	//PSRAM
+	HAL_OSPI_DeInit(&hospi1);
 
 	//MX_SDMMC1_SD_Init();
 	sd_unmount();
@@ -38,11 +38,14 @@ void app_deinit()
 	//void MX_MDMA_Init();
 	HAL_MDMA_DeInit(&hmdma_mdma_channel40_sdmmc1_end_data_0);
 
+	//disable ThreadX Pre-emption
+	_tx_thread_preempt_disable++;
+
 	//MX_FMC_Init();
 	HAL_SRAM_DeInit(&hsram1);
 
-	//MX_FATFS_Init();
-	FATFS_UnLinkDriver(SDPath);
+    //MX_DMA_Init();
+    HAL_DMA_DeInit(tft_dma);
 
 	//MX_TIM2_Init();
 //    HAL_TIM_PWM_DeInit(disp_timer);
@@ -56,11 +59,24 @@ void app_deinit()
     HAL_UART_DeInit(&huart4);
     HAL_UART_DeInit(&huart7);
 
-	//MX_USB_DEVICE_Init();
-	//in usb loop
-
 	//MX_CRC_Init();
 	HAL_CRC_DeInit(&hcrc);
+
+    //MX_I2C2_Init();
+    HAL_I2C_DeInit(&hi2c2);
+
+    //MX_TIM15_Init();
+    HAL_TIM_PWM_DeInit(&htim15);
+    HAL_TIM_Base_DeInit(&htim15);
+
+    //MX_UART4_Init();
+    HAL_UART_DeInit(&huart4);
+
+    //MX_RNG_Init();
+    HAL_RNG_DeInit(&hrng);
+
+    //MX_GPIO_Init();
+    MX_GPIO_Deinit();
 
 	//main power off
 	GpioSetDirection(VCC_MAIN_EN, INPUT, GPIO_NOPULL);
@@ -68,13 +84,11 @@ void app_deinit()
 	HAL_SuspendTick();
 }
 
-#define POWER_ON_USB    		0
-#define POWER_ON_BUTTON			1
-#define POWER_ON_TORCH  		2
-#define POWER_ON_BOOST  		3
-#define POWER_ON_REBOOT 		4
+uint8_t power_on_mode;
 
-uint8_t app_poweroff()
+void PeriphCommonClock_Config(void);
+
+void app_poweroff()
 {
 	uint8_t boot_type = BOOT_SHOW;
 	if (no_init_check())
@@ -84,23 +98,18 @@ uint8_t app_poweroff()
         no_init_update();
 
         if (boot_type == BOOT_REBOOT)
-            return POWER_ON_REBOOT;
+        {
+            power_on_mode = POWER_ON_REBOOT;
+            return;
+        }
     }
-    if (boot_type == BOOT_SHOW)
-        return POWER_ON_USB;
+//    if (boot_type == BOOT_SHOW)
+//        return POWER_ON_USB;
 
     //main power on
     GpioWrite(VCC_MAIN_EN, HIGH);
 
     HAL_Delay(100);
-
-//    bq25895_init();
-//    max17260_init();
-//
-////    //enable boost for negotiator
-////    GpioWrite(BQ_OTG, HIGH);
-////    //enable alt charger
-////    GpioWrite(ALT_CH_EN, LOW);
 
     pwr_init();
     GpioWrite(BQ_OTG, LOW);
@@ -112,7 +121,10 @@ uint8_t app_poweroff()
     //charge port connected, but charging is not done
     if (pwr.charge_port > PWR_CHARGE_NONE
     		&& !(pwr.charge_port == PWR_CHARGE_DONE && boot_type == BOOT_CHARGE))
-        return POWER_ON_USB;
+    {
+        power_on_mode = POWER_ON_USB;
+        return;
+    }
 
     bool bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
 
@@ -121,25 +133,43 @@ uint8_t app_poweroff()
         //usb connected, but charging is not done
         if (HAL_GPIO_ReadPin(USB_VBUS) == HIGH
         		&& !(pwr.data_port == PWR_DATA_CHARGE_DONE && boot_type == BOOT_CHARGE))
-            return POWER_ON_USB;
+        {
+            power_on_mode = POWER_ON_USB;
+            return;
+        }
 
         //usb disconnected, but charging was done
         if (HAL_GPIO_ReadPin(USB_VBUS) == LOW
         		&& pwr.data_port == PWR_DATA_CHARGE_DONE
 				&& boot_type == BOOT_CHARGE)
-            return POWER_ON_USB;
+        {
+            power_on_mode = POWER_ON_USB;
+            return;
+        }
 
         if (bq_irq)
-            return POWER_ON_USB;
+        {
+            power_on_mode = POWER_ON_USB;
+            return;
+        }
 
         if (button_hold_2(BT1, 150))
-            return POWER_ON_TORCH;
+        {
+            power_on_mode = POWER_ON_TORCH;
+            return;
+        }
 
         if (button_hold_2(BT3, 150))
-            return POWER_ON_BUTTON;
+        {
+            power_on_mode = POWER_ON_BUTTON;
+            return;
+        }
 
         if (button_hold_2(BT4, 150))
-            return POWER_ON_BOOST;
+        {
+            power_on_mode = POWER_ON_BOOST;
+            return;
+        }
 
         //do not sleep if button is pressed
         if (button_pressed(BT1) || button_pressed(BT3) || button_pressed(BT4))
@@ -150,7 +180,11 @@ uint8_t app_poweroff()
         GpioWrite(VCC_MAIN_EN, LOW);
         GpioWrite(DISP_BCKL, LOW);
 
-        HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+        HAL_SuspendTick();
+
+        //Wait for interrupt
+       // SCB->VTOR = 0x8000000;
+        //HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
         //check right after wake up IRQ is only 256us long
         bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;
@@ -159,7 +193,7 @@ uint8_t app_poweroff()
         SystemClock_Config();
 
         //PeriphCommonClock not used in this clock configuration
-//        PeriphCommonClock_Config();
+        PeriphCommonClock_Config();
     }
 }
 
@@ -377,14 +411,12 @@ void bat_check_step()
 	}
 }
 
-void app_main(uint8_t power_on_mode)
+void app_main_entry(ULONG id)
 {
-	bool updated = false;
-	bool skip_crc = false;
-
 	debug_enable();
 
-	INFO("Bootloader init");
+	INFO("Bootloader init %u", power_on_mode);
+
 
     //main power on
     GpioWrite(VCC_MAIN_EN, HIGH);
@@ -399,12 +431,6 @@ void app_main(uint8_t power_on_mode)
     if (power_on_mode != POWER_ON_USB)
     {
     	bat_check_step();
-    }
-
-    if (button_pressed(BT2) && button_pressed(BT5))
-    {
-    	format_loop();
-    	app_sleep();
     }
 
     if (power_on_mode == POWER_ON_TORCH)
@@ -426,46 +452,47 @@ void app_main(uint8_t power_on_mode)
     	key_combo(GFX_STARTUP_APP, BT3);
     }
 
-    //check for FORMAT file
-    if (sd_mount())
+    PSRAM_init();
+    sd_init();
+
+    if (button_pressed(BT2) && button_pressed(BT5))
     {
-    	if (file_exists(DEV_MODE_FILE))
-    		development_mode = true;
+        format_loop();
+        //app_sleep();
+    }
 
-    	bool format = file_exists(FORMAT_FILE);
+    if (sd_mount() == false)
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+        button_confirm(BT3);
+        app_sleep();
+    }
 
-    	sd_unmount();
-
-    	if (format)
-    	{
-    		sd_format();
-    	}
+    if (file_exists(DEV_MODE_FILE))
+    {
+        development_mode = true;
     }
 
 	if (power_on_mode == POWER_ON_USB)
 	{
-	    //if usb mode exited with usb disconnect, power off
-	    if (!msc_loop())
-	    {
+	    if (!usb_mode_loop())
 	        app_sleep();
-	    }
 	}
 
-    if (sd_mount())
-    {
-        updated = flash_loop();
+    bool updated = false;
+    bool skip_crc = false;
 
-        if (file_exists(SKIP_CRC_FILE))
-        {
-            WARN("CRC check override!");
-            skip_crc = true;
-        }
-    }
-    else
+    INFO("app_continue");
+
+    if (file_exists(SKIP_CRC_FILE))
     {
-        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
-        button_confirm(BT3);
+        WARN("CRC check override!");
+        skip_crc = true;
     }
+
+    updated = flash_loop();
+
+    INFO("flash_loop done");
 
     if (flash_verify() || skip_crc)
     {
@@ -482,13 +509,13 @@ void app_main(uint8_t power_on_mode)
         }
         else
         {
-			app_deinit();
+            app_deinit();
 
-		    no_init_check();
-		    no_init->boot_type = BOOT_SHOW;
-		    no_init_update();
+            no_init_check();
+            no_init->boot_type = BOOT_SHOW;
+            no_init_update();
 
-			Bootloader_JumpToApplication();
+            Bootloader_JumpToApplication();
         }
     }
     else

@@ -30,6 +30,8 @@ void system_i2c_write8(uint8_t adr, uint8_t reg, uint8_t val)
     HAL_I2C_Mem_Write(sys_i2c, adr, reg, I2C_MEMADD_SIZE_8BIT, &val, 1, I2C_TIMEOUT);
 }
 
+static uint16_t recover_cnt = 0;
+
 uint16_t system_i2c_read16(uint8_t adr, uint8_t reg)
 {
 	uint16_t tmp;
@@ -38,8 +40,11 @@ uint16_t system_i2c_read16(uint8_t adr, uint8_t reg)
 
 	if (ret != HAL_OK)
 	{
-		//todo restart i2c
-//		sys_i2c
+		//Restart i2c
+        WARN("Timeout, trying to recover system i2c (%lu)", ++recover_cnt);
+        HAL_I2C_Init(sys_i2c);
+
+        HAL_I2C_Mem_Read(sys_i2c, adr, reg, I2C_MEMADD_SIZE_8BIT, (uint8_t *)&tmp, 2, I2C_TIMEOUT);
 	}
 
 

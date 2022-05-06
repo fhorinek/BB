@@ -17,7 +17,7 @@ void config_new_version_cb()
 {
     if (file_exists(PATH_NEW_FW))
     {
-        f_unlink(PATH_NEW_FW);
+        red_unlink(PATH_NEW_FW);
 
         release_note_show();
 
@@ -26,7 +26,7 @@ void config_new_version_cb()
             statusbar_msg_add(STATUSBAR_MSG_INFO, "Bootloader successfully updated!");
         }
 
-        f_unlink(PATH_BL_FW_AUTO);
+        red_unlink(PATH_BL_FW_AUTO);
     }
 }
 

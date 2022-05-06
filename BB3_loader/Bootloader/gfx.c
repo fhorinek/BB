@@ -232,7 +232,7 @@ void gfx_draw_status(uint8_t status, const char * message)
                 else
                 {
                     strcpy(text, "output");
-                    sprintf(sub_text, "%0.2f W", pwr.boost_output / 1000.0);
+                    snprintf(sub_text, sizeof(sub_text), "%0.2f W", pwr.boost_output / 1000.0);
                 }
             }
         break;
@@ -384,7 +384,7 @@ void gfx_draw_status(uint8_t status, const char * message)
 			if (pwr.fuel_gauge.battery_percentage >= 100)
 				strcpy(text, "Full");
 			else
-				sprintf(text, "%u%%", pwr.fuel_gauge.battery_percentage);
+				snprintf(text, sizeof(text), "%u%%", pwr.fuel_gauge.battery_percentage);
 
 	        gfx_color = GFX_BLACK;
 	        gfx_draw_text(TFT_WIDTH / 2, BAT_Y1 + BAT_H / 2 - gfx_desc->height / 2, text, MF_ALIGN_CENTER, gfx_desc);
@@ -452,7 +452,7 @@ void gfx_draw_progress(float val)
 	tft_refresh_buffer(0, GFX_PROGRESS_TOP, 239, 399);
 }
 
-#define USB_ACTIVITY_TIMEOUT	200
+#define USB_ACTIVITY_TIMEOUT	1000
 #define USB_ACTIVITY_BLINK		500
 
 bool gfx_draw_anim()
@@ -481,17 +481,17 @@ bool gfx_draw_anim()
         break;
         case(GFX_STATUS_CHARGE_DATA):
             strcpy(left_icon, "4");
-        	if (pwr.data_usb_activity - HAL_GetTick() < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
+        	if (HAL_GetTick() - pwr.data_usb_activity < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
         		strcpy(right_icon, "");
         	else
         		strcpy(right_icon, "0");
         break;
         case(GFX_STATUS_NONE_DATA):
             strcpy(left_icon, "");
-    	if (pwr.data_usb_activity - HAL_GetTick() < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
-    		strcpy(right_icon, "4");
-    	else
-            strcpy(right_icon, "04");
+            if (HAL_GetTick() - pwr.data_usb_activity < USB_ACTIVITY_TIMEOUT && ((HAL_GetTick() % USB_ACTIVITY_BLINK) > USB_ACTIVITY_BLINK / 2))
+                strcpy(right_icon, "4");
+            else
+                strcpy(right_icon, "04");
         break;
         case(GFX_STATUS_NONE_CHARGE):
             strcpy(left_icon, "");
@@ -521,26 +521,26 @@ bool gfx_draw_anim()
 			else
 				strcpy(mode, "SDP");
 
-			sprintf(cc, "%s %u%u", mode, (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
+			snprintf(cc, sizeof(cc), "%s %u%u", mode, (pwr.cc_conf & 0b10) >> 1, (pwr.cc_conf & 0b01));
 			gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48, cc, MF_ALIGN_RIGHT, gfx_desc);
 
 			if (gfx_status == GFX_STATUS_NONE_BOOST)
 			{
 				char boost[8];
-				sprintf(boost, "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
+				snprintf(boost, sizeof(boost), "%0.2fV", 4.55 + pwr.boost_volt * 0.064);
 				gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 25, boost, MF_ALIGN_RIGHT, gfx_desc);
 			}
 		}
 
 		char tmp[16];
-		sprintf(tmp, "%+d mA", pwr.fuel_gauge.bat_current);
+		snprintf(tmp, sizeof(tmp), "%+d mA", pwr.fuel_gauge.bat_current);
 		gfx_draw_text(TFT_WIDTH - 10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 50, tmp, MF_ALIGN_RIGHT, gfx_desc);
 
-		sprintf(tmp, "%0.2fV", pwr.fuel_gauge.bat_voltage / 100.0);
+		snprintf(tmp, sizeof(tmp), "%0.2fV", pwr.fuel_gauge.bat_voltage / 100.0);
 		gfx_draw_text(10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 50, tmp, MF_ALIGN_LEFT, gfx_desc);
-		sprintf(tmp, "%u%%", pwr.fuel_gauge.battery_percentage);
+		snprintf(tmp, sizeof(tmp), "%u%%", pwr.fuel_gauge.battery_percentage);
 		gfx_draw_text(10, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 - 25, tmp, MF_ALIGN_LEFT, gfx_desc);
-		sprintf(tmp, "%u/%u", pwr.fuel_gauge.bat_cap, pwr.fuel_gauge.bat_cap_full);
+		snprintf(tmp, sizeof(tmp), "%u/%u", pwr.fuel_gauge.bat_cap, pwr.fuel_gauge.bat_cap_full);
 		gfx_draw_text(TFT_WIDTH / 2, TFT_HEIGHT - GFX_ANIM_TOP - gfx_desc->height - 48 + 50, tmp, MF_ALIGN_CENTER, gfx_desc);
     }
 

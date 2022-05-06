@@ -142,7 +142,7 @@ void fc_reset()
     circling_reset();
 }
 
-static osTimerId fc_timer;
+static osTimerId_t fc_timer;
 
 void fc_init()
 {

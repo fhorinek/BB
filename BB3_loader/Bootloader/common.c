@@ -2,6 +2,13 @@
 
 bool development_mode = false;
 
+//usable without IRQ
+uint32_t HAL_GetTick(void)
+{
+  return sys_timer->Instance->CNT / 8;
+}
+
+
 bool button_pressed(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
     return HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == LOW;
@@ -82,8 +89,21 @@ bool button_hold(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 
 bool file_exists(char * path)
 {
-    FILINFO fno;
-    return (f_stat(path, &fno) == FR_OK);
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        red_close(f);
+        return true;
+    }
+    return false;
+}
+
+uint64_t file_size(int32_t file)
+{
+    REDSTAT stat;
+    red_fstat(file, &stat);
+
+    return stat.st_size;
 }
 
 void GpioSetDirection(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint16_t direction, uint16_t pull)
@@ -126,52 +146,63 @@ int16_t complement2_16bit(uint16_t in)
 	return in;
 }
 
-FRESULT f_delete_node (
-    TCHAR* path,    /* Path name buffer with the sub-directory to delete */
-    UINT sz_buff  /* Size of path name buffer (items) */
-)
+//not using memcpy to prevent unaligned access
+void str_join(char * dst, uint8_t cnt, ...)
 {
-    UINT i, j;
-    FRESULT fr;
-    DIR dir;
+    va_list vl;
+    va_start(vl, cnt);
 
-    FILINFO fno;    /* Name read buffer */
+    //move to end
+    char * ptr = dst + strlen(dst);
 
-    fr = f_opendir(&dir, path); /* Open the directory */
-    if (fr != FR_OK) return fr;
-
-    for (i = 0; path[i]; i++) ; /* Get current path length */
-    path[i++] = _T('/');
-
-    for (;;) {
-        fr = f_readdir(&dir, &fno);  /* Get a directory item */
-        if (fr != FR_OK || !fno.fname[0]) break;   /* End of directory? */
-        j = 0;
-        do {    /* Make a path name */
-            if (i + j >= sz_buff) { /* Buffer over flow? */
-                fr = FR_NO_PATH; break;    /* Fails with 100 when buffer overflow */
-            }
-            path[i + j] = fno.fname[j];
-        } while (fno.fname[j++]);
-        if (fno.fattrib & AM_DIR) {    /* Item is a directory */
-            fr = f_delete_node(path, sz_buff);
-        } else {                        /* Item is a file */
-            fr = f_unlink(path);
+    for (uint8_t i=0; i < cnt; i++)
+    {
+        char * val = va_arg(vl, char *);
+        while(*val != 0)
+        {
+            *ptr = *val;
+            ptr++;
+            val++;
         }
-        if (fr != FR_OK) break;
     }
+    va_end(vl);
+    *ptr = 0;
+}
 
-    path[--i] = 0;  /* Restore the path name */
-    f_closedir(&dir);
 
-    if (fr == FR_OK) fr = f_unlink(path);  /* Delete the empty directory */
-    return fr;
+void remove_dir_rec(char * path, bool remove)
+{
+    REDDIR * dir = red_opendir(path);
+    if (dir != NULL)
+    {
+        while (true)
+        {
+            REDDIRENT * entry = red_readdir(dir);
+            if (entry == NULL)
+                break;
+
+            char work_path[PATH_LEN] = {0};
+            str_join(work_path, 3, path, "/", entry->d_name);
+
+            if (RED_S_ISDIR(entry->d_stat.st_mode))
+            {
+                remove_dir_rec(work_path, true);
+            }
+            else
+            {
+                red_unlink(work_path);
+            }
+        }
+
+        red_closedir(dir);
+
+        if (remove)
+            red_unlink(path);
+    }
 }
 
 void clear_dir(char * path)
 {
-    char path_buff[512];
-    strcpy(path_buff, path);
-    f_delete_node(path_buff, sizeof(path_buff));
+    remove_dir_rec(path, false);
 }
 

@@ -9,7 +9,6 @@
 
 #include "gfx.h"
 
-#include "fatfs.h"
 #include "lib/stm32-bootloader/bootloader.h"
 #include "lib/esp-flasher/flasher.h"
 
@@ -19,21 +18,23 @@ extern CRC_HandleTypeDef hcrc;
 
 bool flash_loop()
 {
-	FIL update_file;
 	bool firmware_updated = false;
 	bool keep_file = false;
 
 	//Flash new FW
-	uint8_t res = f_open(&update_file, UPDATE_FILE, FA_READ);
-	if (res == FR_OK)
+//    uint8_t res = f_open(&update_file, UPDATE_FILE, FA_READ);
+
+    int32_t update_file = red_open(UPDATE_FILE, RED_O_RDONLY);
+	if (update_file > 0)
 	{
 		INFO("Update file found on sd card!");
 		file_header_t hdr;
 
-		UINT br;
-		UINT bw;
+		int32_t br;
+		int32_t bw;
 
-		f_read(&update_file, &hdr, sizeof(hdr), &br);
+//		f_read(&update_file, &hdr, sizeof(hdr), &br);
+		red_read(update_file, &hdr, sizeof(hdr));
 
 		INFO("file build number %lu.%u.%u", hdr.build_number, hdr.build_testing, hdr.build_release);
 		INFO("device build number %lu.%u.%u", nvm->app.build_number, nvm->app.build_testing, nvm->app.build_release);
@@ -41,7 +42,7 @@ bool flash_loop()
         gfx_draw_status(GFX_STATUS_UPDATE, "Checking the file");
         gfx_draw_progress(0);
 
-        flasher_ret_t ret = check_update_file(&update_file);
+        flasher_ret_t ret = check_update_file(update_file);
 
         if (ret != flasher_ok)
         {
@@ -75,18 +76,21 @@ bool flash_loop()
                 Bootloader_FlashBegin(APP_ADDRESS);
 
                 //skip app header
-                f_lseek(&update_file, sizeof(file_header_t));
+//                f_lseek(&update_file, sizeof(file_header_t));
+                red_lseek(update_file, sizeof(file_header_t), RED_SEEK_SET);
 
                 chunk_header_t chunk;
                 for (;;)
                 {
-                    ASSERT(f_read(&update_file, &chunk, sizeof(chunk), &br) == FR_OK);
+//                    ASSERT(f_read(&update_file, &chunk, sizeof(chunk), &br) == FR_OK);
+                    ASSERT(red_read(update_file, &chunk, sizeof(chunk)) >= 0);
 
                     if (chunk.addr == CHUNK_STM_ADDR)
                         break;
 
                     //skip chunk
-                    f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
+//                    f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
+                    red_lseek(update_file, flasher_aligned(chunk.size), RED_SEEK_CUR);
                 }
 
                 bool write_error = false;
@@ -100,7 +104,8 @@ bool flash_loop()
                     if (to_read > COPY_WORK_BUFFER_SIZE)
                         to_read = COPY_WORK_BUFFER_SIZE;
 
-                    f_read(&update_file, buff, to_read, &br);
+//                    f_read(&update_file, buff, to_read, &br);
+                    br = red_read(update_file, buff, to_read);
 
                     pos += br;
 
@@ -112,7 +117,8 @@ bool flash_loop()
                             break;
                         }
                     }
-                    gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
+//                    gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
+                    gfx_draw_progress(red_lseek(update_file, 0, RED_SEEK_CUR) / (float)file_size(update_file));
                 }
 
                 if (write_error)
@@ -154,15 +160,16 @@ bool flash_loop()
 
                 clear_dir(ASSET_PATH);
 
-                f_mkdir(SYSTEM_PATH);
-                f_mkdir(ASSET_PATH);
+                red_mkdir(SYSTEM_PATH);
+                red_mkdir(ASSET_PATH);
 
                 strcpy(cwd, ASSET_PATH);
 
                 gfx_draw_status(GFX_STATUS_UPDATE, "Copying assets");
 
                 //rewind
-                f_lseek(&update_file, sizeof(file_header_t));
+//                f_lseek(&update_file, sizeof(file_header_t));
+                red_lseek(update_file, sizeof(file_header_t), RED_SEEK_SET);
 
                 chunk_header_t chunk;
                 chunk_header_t last_chunk;
@@ -171,7 +178,8 @@ bool flash_loop()
 
                 for (;;)
                 {
-                    ASSERT(f_read(&update_file, &chunk, sizeof(chunk), &br) == FR_OK);
+                    br = red_read(update_file, &chunk, sizeof(chunk));
+                    ASSERT(br >= 0);
 
                     //EOF check
                     if (br == 0)
@@ -180,7 +188,7 @@ bool flash_loop()
                     if (!(chunk.addr & CHUNK_FS_MASK))
                     {
                         //skip chunk
-                        f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
+                        red_lseek(update_file, flasher_aligned(chunk.size), RED_SEEK_CUR);
                         continue;
                     }
 
@@ -206,16 +214,18 @@ bool flash_loop()
                     if (mask == CHUNK_DIR_TYPE)
                     {
                         INFO("creating dir %s", fname);
-                        f_mkdir(fname);
-                        gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
+                        red_mkdir(fname);
+//                        gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
+                        gfx_draw_progress(red_lseek(update_file, 0, RED_SEEK_CUR) / (float)file_size(update_file));
                     }
 
                     if (mask == CHUNK_FILE_TYPE)
                     {
-                        FIL af;
+                        int32_t af;
 
                         INFO("creating file %s", fname);
-                        if (f_open(&af, fname, FA_CREATE_ALWAYS | FA_WRITE) == FR_OK)
+//                        if (f_open(&af, fname, FA_CREATE_ALWAYS | FA_WRITE) == FR_OK)
+                        if ((af = red_open(fname, RED_O_CREAT | RED_O_WRONLY)) > 0)
                         {
                             uint32_t pos = 0;
                             uint8_t buff[COPY_WORK_BUFFER_SIZE];
@@ -226,26 +236,32 @@ bool flash_loop()
                                 if (to_read > COPY_WORK_BUFFER_SIZE)
                                     to_read = COPY_WORK_BUFFER_SIZE;
 
-                                f_read(&update_file, buff, to_read, &br);
-                                gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
-
+//                                f_read(&update_file, buff, to_read, &br);
+                                br = red_read(update_file, buff, to_read);
+//                                gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
+                                gfx_draw_progress(red_lseek(update_file, 0, RED_SEEK_CUR) / (float)file_size(update_file));
 
                                 pos += br;
-                                f_write(&af, buff, br, &bw);
+//                                f_write(&af, buff, br, &bw);
+                                bw = red_write(af, buff, br);
                                 ASSERT(br == bw);
                             }
 
-                            f_close(&af);
+                            red_close(af);
 
                             //if not size is not aligned
                             uint8_t diff = flasher_aligned(chunk.size) - chunk.size;
                             if (diff)
-                                f_lseek(&update_file, f_tell(&update_file) + diff);
+                            {
+//                                f_lseek(&update_file, f_tell(&update_file) + diff);
+                                red_lseek(update_file, diff, RED_SEEK_CUR);
+                            }
                         }
                         else
                         {
                             WARN("Could not create file %s", fname);
-                            f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
+//                            f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
+                            red_lseek(update_file, flasher_aligned(chunk.size), RED_SEEK_CUR);
                         }
                     }
 
@@ -262,7 +278,7 @@ bool flash_loop()
             }
             else
             {
-                if (esp_flash_write_file(&update_file) != flasher_ok)
+                if (esp_flash_write_file(update_file) != flasher_ok)
                 {
                     gfx_draw_status(GFX_STATUS_ERROR, "Writing ESP failed!");
 
@@ -275,10 +291,10 @@ bool flash_loop()
         }
 
 
-		f_close(&update_file);
+        red_close(update_file);
 
 		if (!file_exists(KEEP_FW_FILE) && !keep_file)
-		    f_unlink(UPDATE_FILE);
+		    red_unlink(UPDATE_FILE);
 	}
 
 	return firmware_updated;
