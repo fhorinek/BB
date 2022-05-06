@@ -326,7 +326,7 @@ void bsod_list_readdir(int32_t file, char * path, uint8_t level)
             }
             else
             {
-                snprintf(buff + level, sizeof(buff) - level, "\t%-30s %llu\n", entry->d_name, entry->d_stat.st_size);
+                snprintf(buff + level, sizeof(buff) - level, "\t%-30s %lu\n", entry->d_name, (uint32_t)entry->d_stat.st_size);
                 red_write(file, buff, strlen(buff));
             }
         }

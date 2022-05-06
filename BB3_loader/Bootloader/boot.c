@@ -84,13 +84,7 @@ void app_deinit()
 	HAL_SuspendTick();
 }
 
-#define POWER_ON_USB    		0
-#define POWER_ON_BUTTON			1
-#define POWER_ON_TORCH  		2
-#define POWER_ON_BOOST  		3
-#define POWER_ON_REBOOT 		4
-
-static uint8_t power_on_mode;
+uint8_t power_on_mode;
 
 void PeriphCommonClock_Config(void);
 
@@ -499,8 +493,6 @@ void app_main_entry(ULONG id)
     updated = flash_loop();
 
     INFO("flash_loop done");
-
-
 
     if (flash_verify() || skip_crc)
     {

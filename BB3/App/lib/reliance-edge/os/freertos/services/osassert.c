@@ -31,7 +31,7 @@
 #if REDCONF_ASSERTS == 1
 
 #if REDCONF_OUTPUT == 1
-#include <stdio.h>
+#include "common.h"
 #endif
 
 
@@ -46,14 +46,7 @@ void RedOsAssertFail(
     const char *pszFileName,
     uint32_t    ulLineNum)
 {
-  #if REDCONF_OUTPUT == 1
-    (void)printf("Assertion failed in \"%s\" at line %u\n\r",
-        (pszFileName == NULL) ? "" : pszFileName, (unsigned)ulLineNum);
-  #endif
-
-    while(true)
-    {
-    }
+    bsod_msg("[RED] Assertion failed in \"%s\" at line %u", (pszFileName == NULL) ? "" : pszFileName, (unsigned)ulLineNum);
 }
 
 #endif

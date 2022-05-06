@@ -467,17 +467,17 @@ char * red_gets(char * buff, uint16_t buff_len, int32_t fp)
 {
     uint32_t start_pos = red_lseek(fp, 0, RED_SEEK_CUR);
     int32_t rd = red_read(fp, buff, buff_len - 1);
-    if (rd == buff_len - 1)
+    if (rd == 0)
     {
-        char * ptr = strchr(buff, '\n');
-        if (ptr != NULL)
-            *ptr = '\0';
-
-        red_lseek(fp, start_pos + strlen(buff) + 1, RED_SEEK_SET);
+        return NULL;
     }
     else
     {
-        buff[buff_len - 1] = '\0';
+        char * ptr = strchr(buff, '\n');
+        if (ptr != NULL)
+            *(++ptr) = '\0';
+
+        red_lseek(fp, start_pos + strlen(buff), RED_SEEK_SET);
     }
 
     return buff;

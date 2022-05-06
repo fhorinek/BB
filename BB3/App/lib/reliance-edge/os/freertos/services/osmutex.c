@@ -31,14 +31,10 @@
 
 #include <redfs.h>
 
-#if REDCONF_TASK_COUNT > 1U
-
-
 static SemaphoreHandle_t xMutex;
-#if defined(configSUPPORT_STATIC_ALLOCATION) && (configSUPPORT_STATIC_ALLOCATION == 1)
 static StaticSemaphore_t xMutexBuffer;
-#endif
 
+extern bool sd_failsafe;
 
 /** @brief Initialize the mutex.
 
@@ -53,6 +49,9 @@ static StaticSemaphore_t xMutexBuffer;
 */
 REDSTATUS RedOsMutexInit(void)
 {
+    if (sd_failsafe)
+        return 0;
+
     REDSTATUS ret = 0;
 
   #if defined(configSUPPORT_STATIC_ALLOCATION) && (configSUPPORT_STATIC_ALLOCATION == 1)
@@ -91,6 +90,9 @@ REDSTATUS RedOsMutexInit(void)
 */
 REDSTATUS RedOsMutexUninit(void)
 {
+    if (sd_failsafe)
+        return 0;
+
     vSemaphoreDelete(xMutex);
     xMutex = NULL;
 
@@ -106,6 +108,9 @@ REDSTATUS RedOsMutexUninit(void)
 */
 void RedOsMutexAcquire(void)
 {
+    if (sd_failsafe)
+        return;
+
     while(xSemaphoreTake(xMutex, portMAX_DELAY) != pdTRUE)
     {
     }
@@ -123,12 +128,13 @@ void RedOsMutexAcquire(void)
 */
 void RedOsMutexRelease(void)
 {
+    if (sd_failsafe)
+        return;
+
     BaseType_t xSuccess;
 
     xSuccess = xSemaphoreGive(xMutex);
     REDASSERT(xSuccess == pdTRUE);
     (void)xSuccess;
 }
-
-#endif
 

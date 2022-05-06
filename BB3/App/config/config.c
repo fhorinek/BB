@@ -236,7 +236,7 @@ void config_load(cfg_entry_t * structure, char * path)
 		__align char buff[256];
 		uint16_t line = 0;
 
-		while (red_gets(buff, sizeof(buff), &f) != NULL)
+		while (red_gets(buff, sizeof(buff), f) != NULL)
 		{
 			line++;
 

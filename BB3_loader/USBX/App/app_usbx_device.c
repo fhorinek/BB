@@ -177,6 +177,9 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
 
   /* USER CODE BEGIN MX_USBX_Device_MEM_POOL */
 
+  //do not init usb when not needed
+  if (power_on_mode != POWER_ON_BOOST && power_on_mode != POWER_ON_USB)
+      return;
   /* USER CODE END MX_USBX_Device_MEM_POOL */
 
   /* USER CODE BEGIN MX_USBX_Device_Init */

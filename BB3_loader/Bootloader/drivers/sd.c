@@ -13,7 +13,7 @@
 static TX_SEMAPHORE sd_semaphore;
 static TX_SEMAPHORE sd_dma_semaphore;
 
-uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
     uint8_t ret = HAL_OK;
 
@@ -53,7 +53,7 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
     return ret;
 }
 
-uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
+uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
     uint8_t ret = HAL_OK;
 

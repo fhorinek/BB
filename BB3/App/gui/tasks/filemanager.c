@@ -327,7 +327,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         while (cnt < FM_FILE_MAX_COUNT)
         {
             REDDIRENT * entry = red_readdir(dir);
-            if (entry != NULL)
+            if (entry == NULL)
             	break;
 
             //hide system files

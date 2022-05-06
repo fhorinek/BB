@@ -110,7 +110,7 @@ void upload_crash_reports(void *arg)
         while (true)
         {
             REDDIRENT * entry = red_readdir(dir);
-            if (entry != NULL)
+            if (entry == NULL)
                 break;
 
             // Check for files that start with PATH_CRASH_BUNDLE

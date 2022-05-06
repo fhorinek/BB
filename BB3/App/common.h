@@ -136,7 +136,9 @@ const osThreadAttr_t FUNC ## _attr = {  \
 };
 
 #define start_thread(FUNC)  \
-    FUNC = osThreadNew(FUNC ## _start, NULL, &FUNC ## _attr);
+    if (FUNC == NULL) { \
+        FUNC = osThreadNew(FUNC ## _start, NULL, &FUNC ## _attr); \
+    }
 
 //RTOS Threads
 extern osThreadId_t thread_debug;
@@ -148,6 +150,7 @@ extern osThreadId_t thread_esp;
 extern osThreadId_t thread_esp_spi;
 extern osThreadId_t thread_usb;
 
+extern const osThreadAttr_t thread_gui_attr;
 extern const osThreadAttr_t thread_esp_spi_attr;
 extern const osThreadAttr_t thread_map_attr;
 extern const osThreadAttr_t thread_esp_attr;
@@ -219,6 +222,9 @@ extern osThreadId_t SystemHandle;
 #define KEEP_FW_FILE    "KEEP_FW"
 
 #define DEVEL_ACTIVE    (file_exists(DEV_MODE_FILE))
+
+#define STRATO_HOME_SSID    "Strato"
+#define STRATO_HOME_PASS    "skybean_strato"
 
 //simple functions
 uint8_t hex_to_num(uint8_t c);

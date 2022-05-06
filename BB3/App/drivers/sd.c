@@ -1,17 +1,30 @@
 
 #include "sd.h"
 
+#include "gui/sd_format.h"
+
+bool sd_failsafe = false;
+
 osSemaphoreId_t sd_semaphore;
 osSemaphoreId_t sd_dma_semaphore;
 
 
-#define SD_DMA_TIMEOUT					150
+#define SD_DMA_TIMEOUT       150
+#define SD_TIMEOUT           1000
 
-uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
+    if (sd_failsafe)
+    {
+        uint8_t status = HAL_SD_ReadBlocks(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks, SD_TIMEOUT);
+        FAULT("sd_read_blocks %08X %u = %u", ReadAddr, NumOfBlocks, status);
+
+        return status;
+    }
+
     uint8_t ret = HAL_OK;
 
-//    INFO("BSP_SD_ReadBlocks_DMA %08X %u", ReadAddr, NumOfBlocks);
+//    INFO("sd_read_blocks %08X %u", ReadAddr, NumOfBlocks);
 
     osSemaphoreAcquire(sd_semaphore, WAIT_INF);
 
@@ -21,7 +34,7 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
     {
         //WARN("Read error %08lX %u ret = %u", ReadAddr, NumOfBlocks, status);
 
-        osSemaphoreRelease(&sd_semaphore);
+        osSemaphoreRelease(sd_semaphore);
         ret = HAL_ERROR;
     }
     else
@@ -43,15 +56,36 @@ uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOf
         }
     }
 
-    osSemaphoreRelease(&sd_semaphore);
+    osSemaphoreRelease(sd_semaphore);
     return ret;
 }
 
-uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
+uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
+    if (sd_failsafe)
+    {
+        uint8_t status = HAL_SD_WriteBlocks(&hsd1, (uint8_t *)pData, WriteAddr, NumOfBlocks, SD_TIMEOUT);
+
+        FAULT("sd_write_blocks %08X %u", WriteAddr, NumOfBlocks);
+        if (status != HAL_OK)
+        {
+            FAULT(" error %u %X", status, hsd1.ErrorCode);
+        }
+        else
+        {
+            //wait for op to finish
+            while(HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER);
+        }
+
+
+
+        return status;
+
+    }
+
     uint8_t ret = HAL_OK;
 
-//    INFO("BSP_SD_WriteBlocks_DMA %08X %u", WriteAddr, NumOfBlocks);
+//    INFO("sd_write_blocks %08X %u", WriteAddr, NumOfBlocks);
 
     osSemaphoreAcquire(sd_semaphore, WAIT_INF);
 
@@ -61,7 +95,7 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
     {
         //WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
 
-        osSemaphoreRelease(&sd_semaphore);
+        osSemaphoreRelease(sd_semaphore);
         ret = HAL_ERROR;
     }
     else
@@ -83,7 +117,7 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t Num
         }
     }
 
-    osSemaphoreRelease(&sd_semaphore);
+    osSemaphoreRelease(sd_semaphore);
     return ret;
 }
 
@@ -110,6 +144,23 @@ void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
 }
 
 
+void sd_init_failsafe()
+{
+    sd_failsafe = true;
+
+    red_umount("");
+    red_uninit();
+
+    MX_SDMMC1_SD_Init();
+
+    red_init();
+    int32_t err = red_mount("");
+    if (err != 0)
+    {
+        FAULT("Error failsafe re-mounting, %d", err);
+    }
+}
+
 void sd_init()
 {
     sd_semaphore = osSemaphoreNew(1, 0, NULL);
@@ -120,9 +171,6 @@ void sd_init()
 
     MX_SDMMC1_SD_Init();
 
-    HAL_SD_CardInfoTypeDef card_info;
-    HAL_SD_GetCardInfo(&hsd1, &card_info);
-
     osSemaphoreRelease(sd_semaphore);
 
     red_init();
@@ -131,7 +179,8 @@ void sd_init()
 
     if (err != 0)
     {
-        ERR("Error mounting");
+        ERR("Error mounting, %d", err);
+        sd_format_dialog();
     }
 
 	//create file system structure
@@ -148,22 +197,16 @@ void sd_init()
     //config
 	red_mkdir(PATH_CONFIG_DIR);
 
-	//configs are in flash memory default will be available
 	//config/pilots
     red_mkdir(PATH_PILOT_DIR);
     //config/profiles
     red_mkdir(PATH_PROFILE_DIR);
 
     //config/pages
-	if (red_mkdir(PATH_PAGES_DIR) == 0)
-	{
-		red_mkdir(PATH_PAGES_DIR "/default");
-		copy_dir(PATH_DEFAULTS_DIR "/pages", PATH_PAGES_DIR "/default");
-	}
+	red_mkdir(PATH_PAGES_DIR);
 
     //config/vario
     red_mkdir(PATH_VARIO_DIR);
-	copy_dir_when_absent(PATH_DEFAULTS_DIR "/vario", PATH_VARIO_DIR);
 
     //system
     red_mkdir(PATH_SYSTEM_DIR);
@@ -172,6 +215,11 @@ void sd_init()
     //system/temp
     if (red_mkdir(PATH_TEMP_DIR) != 0)
         clear_dir(PATH_TEMP_DIR);
+
+    //system/assets
+    red_mkdir(PATH_ASSET_DIR);
+    //system/assets/defaults
+    red_mkdir(PATH_DEFAULTS_DIR);
 
     //system/cache
     red_mkdir(PATH_CACHE_DIR);

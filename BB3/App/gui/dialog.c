@@ -187,6 +187,18 @@ void dialog_progress_set_subtitle(char * text)
     lv_label_set_text(label, text);
 }
 
+void dialog_set_text(char * text)
+{
+    lv_obj_t * cont = lv_obj_get_child_back(gui.dialog.window, NULL);
+    if (cont == NULL)
+        return;
+
+    lv_obj_t * title = lv_obj_get_child_back(cont, NULL);
+    lv_obj_t * obj = lv_obj_get_child_back(cont, title);
+
+    lv_label_set_text(obj, text);
+}
+
 void dialog_close()
 {
 	gui_lock_acquire();

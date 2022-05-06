@@ -248,7 +248,7 @@ void page_settings_fm_rename_cb(uint8_t res, void * opt_data)
         }
         else
         {
-            f_rename(old_path, new_path);
+            red_rename(old_path, new_path);
 
             //refresh
             page_settings_open_fm(false);
@@ -596,11 +596,14 @@ static uint16_t hidden_pages_cnt()
     str_join(path, 3, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile));
 
     REDDIR * dir = red_opendir(path);
+    if (dir == NULL)
+        return 0;
+
     uint16_t cnt = 0;
     while (true)
     {
         REDDIRENT * entry = red_readdir(dir);
-        if (entry != NULL)
+        if (entry == NULL)
             break;
 
         char name[64];

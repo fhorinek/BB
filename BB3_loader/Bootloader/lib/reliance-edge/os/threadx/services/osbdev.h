@@ -158,7 +158,7 @@ static REDSTATUS DiskRead(
 
     if(IS_ALIGNED_PTR(pBuffer, sizeof(uint32_t)))
     {
-        bSdError = BSP_SD_ReadBlocks_DMA(pBuffer, ullSectorStart, ulSectorCount);
+        bSdError = sd_read_blocks(pBuffer, ullSectorStart, ulSectorCount);
 
         if(bSdError != HAL_OK)
         {
@@ -177,7 +177,7 @@ static REDSTATUS DiskRead(
 
         for(ulSectorIdx = 0U; ulSectorIdx < ulSectorCount; ulSectorIdx++)
         {
-            bSdError = BSP_SD_ReadBlocks_DMA(gaulAlignedBuffer, ullSectorStart + ulSectorIdx, 1U);
+            bSdError = sd_read_blocks(gaulAlignedBuffer, ullSectorStart + ulSectorIdx, 1U);
 
             if(bSdError != HAL_OK)
             {
@@ -234,7 +234,7 @@ static REDSTATUS DiskWrite(
 
     if(IS_ALIGNED_PTR(pBuffer, sizeof(uint32_t)))
     {
-        bSdError = BSP_SD_WriteBlocks_DMA(CAST_AWAY_CONST(void, pBuffer), ullSectorStart,  ulSectorCount);
+        bSdError = sd_write_blocks(CAST_AWAY_CONST(void, pBuffer), ullSectorStart,  ulSectorCount);
 
         if(bSdError != HAL_OK)
         {
@@ -257,7 +257,7 @@ static REDSTATUS DiskWrite(
 
             RedMemCpy(gaulAlignedBuffer, &pbBuffer[ulSectorIdx * ulSectorSize], ulSectorSize);
 
-            bSdError = BSP_SD_WriteBlocks_DMA(gaulAlignedBuffer, ullSectorStart + ulSectorIdx, 1U);
+            bSdError = sd_write_blocks(gaulAlignedBuffer, ullSectorStart + ulSectorIdx, 1U);
 
             if(bSdError != HAL_OK)
             {

@@ -198,11 +198,13 @@ void db_insert(char * path, char * key, char * value)
             if (strcmp(buff + strlen(key) + 1, value) == 0)
             {
                 //value is the same (nothing to update)
+                red_close(f);
                 return;
             }
             else
             {
                 //value differs, remove old record
+                //remove line also close the file
                 db_remove_line(f, path, pos, strlen(buff) + 1);
                 f = red_open(path, RED_O_WRONLY | RED_O_APPEND);
             }

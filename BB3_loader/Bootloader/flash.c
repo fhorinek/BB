@@ -178,9 +178,8 @@ bool flash_loop()
 
                 for (;;)
                 {
-//                    ASSERT(f_read(&update_file, &chunk, sizeof(chunk), &br) == FR_OK);
-                    ASSERT(red_read(update_file, &chunk, sizeof(chunk)) == sizeof(chunk));
-
+                    br = red_read(update_file, &chunk, sizeof(chunk));
+                    ASSERT(br >= 0);
 
                     //EOF check
                     if (br == 0)
@@ -189,7 +188,6 @@ bool flash_loop()
                     if (!(chunk.addr & CHUNK_FS_MASK))
                     {
                         //skip chunk
-//                        f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
                         red_lseek(update_file, flasher_aligned(chunk.size), RED_SEEK_CUR);
                         continue;
                     }
@@ -280,7 +278,7 @@ bool flash_loop()
             }
             else
             {
-                if (esp_flash_write_file(&update_file) != flasher_ok)
+                if (esp_flash_write_file(update_file) != flasher_ok)
                 {
                     gfx_draw_status(GFX_STATUS_ERROR, "Writing ESP failed!");
 

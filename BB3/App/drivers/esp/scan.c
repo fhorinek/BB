@@ -16,27 +16,42 @@ void esp_scan_cb(proto_wifi_scan_res_t * network)
 {
     if (network == NULL) //scan end
     {
-        uint8_t best_index = 0xFF;
-
-        for (uint8_t i = 0; i < scan_index; i++)
+        if (file_exists(PATH_NETWORK_DB))
         {
-            if (db_exists(PATH_NETWORK_DB, esp_scan_list[i].ssid))
-            {
-                if (best_index == 0xFF)
-                    best_index = i;
+            uint8_t best_index = 0xFF;
 
-                if (esp_scan_list[best_index].rssi < esp_scan_list[i].rssi)
-                    best_index = i;
+            for (uint8_t i = 0; i < scan_index; i++)
+            {
+                if (db_exists(PATH_NETWORK_DB, esp_scan_list[i].ssid))
+                {
+                    if (best_index == 0xFF)
+                        best_index = i;
+
+                    if (esp_scan_list[best_index].rssi < esp_scan_list[i].rssi)
+                        best_index = i;
+                }
+            }
+
+            if (best_index != 0xFF)
+            {
+                char pass[PROTO_WIFI_PASS_LEN];
+
+                db_query(PATH_NETWORK_DB, esp_scan_list[best_index].ssid, pass, sizeof(pass));
+                esp_wifi_connect(esp_scan_list[best_index].mac, esp_scan_list[best_index].ssid, pass, esp_scan_list[best_index].ch);
+            }
+        }
+        else
+        {
+            for (uint8_t i = 0; i < scan_index; i++)
+            {
+                if (strcmp(esp_scan_list[i].ssid, STRATO_HOME_SSID) == 0)
+                {
+                    esp_wifi_connect(esp_scan_list[i].mac, STRATO_HOME_SSID, STRATO_HOME_PASS, esp_scan_list[i].ch);
+                    break;
+                }
             }
         }
 
-        if (best_index != 0xFF)
-        {
-            char pass[PROTO_WIFI_PASS_LEN];
-
-            db_query(PATH_NETWORK_DB, esp_scan_list[best_index].ssid, pass, sizeof(pass));
-            esp_wifi_connect(esp_scan_list[best_index].mac, esp_scan_list[best_index].ssid, pass, esp_scan_list[best_index].ch);
-        }
 
         scan_auto_timer = HAL_GetTick() + SCAN_TIMEOUT;
 

@@ -11,6 +11,7 @@
 
 #include "drivers/rtc.h"
 #include "drivers/rev.h"
+#include "drivers/sd.h"
 
 static int32_t file;
 static bool file_open = false;
@@ -160,7 +161,7 @@ void CrashCatcher_DumpStart(const Crash_Object * info)
 {
     bsod_crash_start(info);
 
-//    SD_FailSafe_init();
+    sd_init_failsafe();
 
     red_mkdir(PATH_CRASH_DIR);
 
@@ -200,9 +201,6 @@ void CrashCatcher_DumpMemory(const void* pvMemory, CrashCatcherElementSizes elem
     if (res != 0)
         FAULT("f_sync, res = %d (%u)", res, dbg_cnt);
 }
-
-
-
 
 CrashCatcherReturnCodes CrashCatcher_DumpEnd(void)
 {

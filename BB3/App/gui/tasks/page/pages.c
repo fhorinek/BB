@@ -724,7 +724,7 @@ void pages_load(char * filename, int8_t anim)
 
 static lv_obj_t * pages_init(lv_obj_t * par)
 {
-    if (gui.task.last != NULL || gui.task.last == &gui_pages)
+    if (gui.task.last != NULL)
         config_store_all();
 
     local->selector = NULL;
@@ -746,20 +746,47 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	snprintf(path, sizeof(path), "%s/%s", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
 	if (!file_exists(path) || local->pages_cnt == 0)
 	{
+	    //make profile dir
+	    red_mkdir(path);
+
 	    //copy default layouts
 		char def[PATH_LEN];
 		snprintf(def, sizeof(def), "%s/defaults/pages", PATH_ASSET_DIR);
-		copy_dir(def, path);
 
-		//set default pages
-        config_set_text(&profile.ui.page[0], "basic");
-        config_set_text(&profile.ui.page[1], "thermal");
+		if (file_exists(def))
+		{
+	        copy_dir(def, path);
 
-        config_set_text(&profile.ui.autoset.take_off, "basic");
-        config_set_text(&profile.ui.autoset.circle, "thermal");
-        config_set_text(&profile.ui.autoset.glide, "basic");
+            //set default pages
+	        uint8_t cnt = 0;
 
-        local->pages_cnt = pages_get_count();
+	        snprintf(path, sizeof(path), "%s/%s/basic.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
+	        if (file_exists(path))
+	        {
+                config_set_text(&profile.ui.page[cnt], "basic");
+                config_set_text(&profile.ui.autoset.take_off, "basic");
+                config_set_text(&profile.ui.autoset.glide, "basic");
+
+                cnt++;
+	        }
+
+            snprintf(path, sizeof(path), "%s/%s/thermal.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
+            if (file_exists(path))
+            {
+                config_set_text(&profile.ui.page[cnt], "thermal");
+                config_set_text(&profile.ui.autoset.circle, "thermal");
+                cnt++;
+            }
+
+            local->pages_cnt = cnt;
+        }
+	}
+
+	if (local->pages_cnt == 0)
+	{
+	    config_set_text(&profile.ui.page[0], "default");
+	    page_create("default");
+	    local->pages_cnt = 1;
 	}
 
 	local->actual_page = config_get_int(&profile.ui.page_last);

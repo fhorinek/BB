@@ -25,7 +25,6 @@
 #include "i2c.h"
 #include "mdma.h"
 #include "octospi.h"
-#include "sdmmc.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -121,7 +120,6 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C2_Init();
   MX_OCTOSPI1_Init();
-  MX_SDMMC1_SD_Init();
   MX_SPI1_Init();
   MX_UART4_Init();
   MX_TIM3_Init();

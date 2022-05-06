@@ -189,7 +189,7 @@ void clear_dir(char * path);
 
 #define PATH_LEN    128
 
-#define UPDATE_FILE 	"STRATO.FW"
+#define UPDATE_FILE 	"strato.fw"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"
 #define SKIP_CRC_FILE   "SKIP_CRC"
@@ -210,5 +210,13 @@ void bat_check_step();
 
 void app_sleep();
 void app_main_entry(ULONG id);
+
+#define POWER_ON_USB            0
+#define POWER_ON_BUTTON         1
+#define POWER_ON_TORCH          2
+#define POWER_ON_BOOST          3
+#define POWER_ON_REBOOT         4
+
+extern uint8_t power_on_mode;
 
 #endif /* INC_COMMON_H_ */

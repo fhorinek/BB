@@ -82,7 +82,8 @@ flasher_ret_t check_update_file(int32_t file)
                 to_read = COPY_WORK_BUFFER_SIZE;
 
 //            ASSERT(f_read(file, buff, to_read, &br) == FR_OK);
-            ASSERT(red_read(file, buff, to_read) == to_read);
+            br = red_read(file, buff, to_read);
+            ASSERT(br == to_read);
 
             crc = HAL_CRC_Accumulate(&hcrc, (uint32_t *)buff, br);
 
@@ -239,7 +240,12 @@ flasher_ret_t esp_flash_write_file(int32_t file)
         DBG("Writing 0x%08X %8u %s", chunk.addr, chunk.size, chunk.name);
 
         char text[64];
+        strncpy(text, chunk.name, sizeof(text));
         snprintf(text, sizeof(text), "ESP %s", chunk.name);
+        char * dot_pos = strstr(text, ".bin");
+        if (dot_pos != NULL)
+            *dot_pos = 0;
+
         gfx_draw_status(GFX_STATUS_UPDATE, text);
 
         err = esp_loader_flash_start(chunk.addr, chunk.size, ESP_PACKET_SIZE);
@@ -255,8 +261,8 @@ flasher_ret_t esp_flash_write_file(int32_t file)
             if (to_read > ESP_PACKET_SIZE)
                 to_read = ESP_PACKET_SIZE;
 
-            //ASSERT(f_read(file, work_buff, to_read, &br) == FR_OK);
-            ASSERT(red_read(file, work_buff, to_read) >= 0);
+            br = red_read(file, work_buff, to_read);
+            ASSERT(br >= 0);
 
             gfx_draw_progress(red_lseek(file, 0, RED_SEEK_CUR) / (float)file_size(file));
 
