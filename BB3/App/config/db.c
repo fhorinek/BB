@@ -11,6 +11,30 @@
 #define DB_LINE_LEN             128
 #define DB_WORK_BUFFER_SIZE     2048
 
+static int32_t loaded_file = 0;
+static char loaded_file_path[PATH_LEN] = {0};
+
+bool db_open_read(char * path)
+{
+    if (strcmp(path, loaded_file_path) != 0)
+    {
+        if (loaded_file != 0)
+            red_close(loaded_file);
+
+        loaded_file = red_open(path, RED_O_RDONLY);
+        if (loaded_file < 0)
+        {
+            loaded_file = 0;
+            loaded_file_path[0] = 0;
+            return false;
+        }
+
+        strcpy(loaded_file_path, path);
+    }
+
+    return true;
+}
+
 int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
 {
     uint32_t pos = 0;
@@ -33,14 +57,11 @@ int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
 bool db_exists(char * path, char * key)
 {
     char buff[DB_LINE_LEN];
-    int32_t f = red_open(path, RED_O_RDONLY);
-
     bool ret = false;
 
-    if (f > 0)
+    if (db_open_read(path))
     {
-        ret = db_locate(f, key, buff, sizeof(buff)) >= 0;
-        red_close(f);
+        ret = db_locate(loaded_file, key, buff, sizeof(buff)) >= 0;
     }
 
     return ret;
@@ -52,16 +73,13 @@ bool db_query(char * path, char * key, char * value, uint16_t value_len)
 
     int32_t pos = -1;
 
-
-    int32_t f = red_open(path, RED_O_RDONLY);
-    if (f > 0)
+    if (db_open_read(path))
     {
-        pos = db_locate(f, key, buff, sizeof(buff));
-        red_close(f);
+        pos = db_locate(loaded_file, key, buff, sizeof(buff));
     }
     else
     {
-        ERR("Could not open file '%s', res = %d", path, f);
+        ERR("Could not open file '%s', res = %d", path, loaded_file);
     }
 
     //line starting with key found!
@@ -223,31 +241,4 @@ void db_insert_int(char * path, char * key, int16_t value)
     char buff[8];
     snprintf(buff, sizeof(buff), "%d", value);
     db_insert(path, key, buff);
-}
-
-void db_dump(char * path)
-{
-    char buff[DB_LINE_LEN];
-
-    INFO("Dumping file: %s", path);
-
-    int32_t f = f_open(&f, path, RED_O_RDONLY);
-
-    if (f > 0)
-    {
-        uint16_t i = 0;
-        while (f_gets(buff, sizeof(buff), &f) != NULL)
-        {
-            buff[strlen(buff) - 1] = 0;
-            INFO("\t%03u: %s", i, buff);
-            i++;
-        }
-
-        INFO("End of file");
-        f_close(&f);
-    }
-    else
-    {
-        INFO("Unable to open");
-    }
 }
