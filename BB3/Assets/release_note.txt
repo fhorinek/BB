@@ -1,11 +1,9 @@
-Crash reports are now automaticaly uploaded to the server.
-
 Added:
-* Crash report upload via wifi
-* Auto reboot if crash report are enabled
-* FANET on map (alpha)
-* Sort in filemanager
-* Hidden ext in filemanager
+* Migration assistant FAT->RED
 
-Known issues:
-* SD card filesystem corruption, working on it hard
+Changed:
+* Reliance Edge FS
+* USB protocol MTP
+
+Fixed:
+* Stuck at power off
