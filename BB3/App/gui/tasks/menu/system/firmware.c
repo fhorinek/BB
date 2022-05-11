@@ -42,6 +42,7 @@ void firmware_update_progress_cb(uint8_t res, void * data)
 void firmware_update_worker(char * path)
 {
     red_unlink(UPDATE_FILE);
+    copy_file(path, UPDATE_FILE);
     system_reboot();
 
     vTaskDelete(NULL);

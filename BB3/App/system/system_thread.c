@@ -224,6 +224,17 @@ void cmd_step()
 
 #define POWER_OFF_TIMEOUT   500
 
+//this function will be run from GUI thread an system thread request
+void gui_set_start_page()
+{
+    if (gui.task.actual != &gui_pages)
+    {
+        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_NONE);
+        //run start animation and fw update relates stuff like release note and bootloader update
+        pages_splash_show();
+    }
+}
+
 void thread_system_start(void *argument)
 {
     //Enabling main power
@@ -274,15 +285,7 @@ void thread_system_start(void *argument)
     start_thread(thread_gnss);
     start_thread(thread_esp);
 
-    //run when the pages are not the active page, eg. after sd_format
-    gui_lock_acquire();
-    if (gui.task.actual != &gui_pages)
-    {
-        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_NONE);
-        //run start animation and fw update relates stuff like release note and bootloader update
-        pages_splash_show();
-    }
-    gui_lock_release();
+    gui_inject_function(gui_set_start_page);
 
 	//init FC
 	fc_init();

@@ -76,7 +76,7 @@ void tft_delay(uint16_t delay)
 #endif
 }
 
-bool tft_buffer_copy()
+NO_OPTI bool tft_buffer_copy()
 {
     if (HAL_DMA_GetState(tft_dma) != HAL_DMA_STATE_READY)
     {

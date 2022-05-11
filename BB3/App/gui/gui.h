@@ -110,6 +110,8 @@ typedef struct
 
 } map_chunk_t;
 
+typedef void (* gui_injected_function_t)();
+
 typedef struct
 {
     char * name;
@@ -133,7 +135,7 @@ typedef struct
 	struct
 	{
 		gui_task_t * last;
-		gui_task_t * actual;
+        gui_task_t * actual;
 		void * last_memory;
 
 		uint16_t loop_period;
@@ -241,8 +243,9 @@ typedef struct
 	} dbg;
 
 	osSemaphoreId_t lock;
+	xQueueHandle page_queue;
 
-	xQueueHandle queue;
+	gui_injected_function_t injected_function;
 
 	uint8_t take_screenshot;
 	uint8_t fps;
@@ -265,6 +268,8 @@ void gui_stop();
 void gui_take_screenshot();
 void gui_lock_acquire();
 void gui_lock_release();
+
+void gui_inject_function(gui_injected_function_t f);
 
 void release_note_show();
 
