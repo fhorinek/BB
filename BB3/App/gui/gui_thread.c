@@ -282,6 +282,12 @@ void thread_gui_start(void *argument)
 		osSemaphoreAcquire(gui.lock, WAIT_INF);
 		gui_lock_owner = xTaskGetCurrentTaskHandle();
 
+		if (gui.injected_function != NULL)
+		{
+		    gui.injected_function();
+		    gui.injected_function = NULL;
+		}
+
 		delay = lv_task_handler();
 
 		gui_lock_owner = NULL;

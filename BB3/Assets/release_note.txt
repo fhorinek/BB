@@ -7,3 +7,4 @@ Changed:
 
 Fixed:
 * Stuck at power off
+* Stuck after migration

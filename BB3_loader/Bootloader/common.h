@@ -204,6 +204,8 @@ void clear_dir(char * path);
 
 #define IN_BOOTLOADER
 
+#define NO_OPTI __attribute__((optimize("O0")))
+
 extern bool development_mode;
 
 void bat_check_step();

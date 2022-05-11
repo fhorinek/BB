@@ -137,6 +137,17 @@ lv_obj_t * gui_task_create(gui_task_t * task)
 	return screen;
 }
 
+//request gui thread to run function from its context
+void gui_inject_function(gui_injected_function_t f)
+{
+    gui_lock_acquire();
+    while (gui.injected_function != NULL)
+    {
+        osDelay(10);
+    }
+    gui.injected_function = f;
+    gui_lock_release();
+}
 
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 {
@@ -230,7 +241,7 @@ void gui_init()
 {
     gui.take_screenshot = false;
     gui.dialog.active = false;
-    gui.queue = xQueueCreate(GUI_QUEUE_SIZE, sizeof(void *));
+    gui.page_queue = xQueueCreate(GUI_QUEUE_SIZE, sizeof(void *));
     dbg_overlay_init();
 	gui_init_styles();
 

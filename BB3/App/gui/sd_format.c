@@ -201,16 +201,17 @@ void sd_format_worker(void * param)
 
     if (res == FR_OK)
     {
-        ram_file_t * first = malloc(sizeof(ram_file_t));
-        first->path = NULL;
-        first->data = NULL;
+        ram_file_t first;
+        first.path = NULL;
+        first.data = NULL;
+        first.next = NULL;
 
         dialog_set_text("Storing config");
 
         if (res == FR_OK)
         {
             strcpy(path, PATH_ASSET_DIR);
-            ram_file_t * last = files_to_ram(first, path);
+            ram_file_t * last = files_to_ram(&first, path);
 
             strcpy(path, PATH_CONFIG_DIR);
             last = files_to_ram(last, path);
@@ -229,7 +230,7 @@ void sd_format_worker(void * param)
             if(red_mount("") == 0)
             {
                 dialog_set_text("Restoring config");
-                files_from_ram(first->next);
+                files_from_ram(first.next);
             }
             else
             {
