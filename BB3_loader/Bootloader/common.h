@@ -186,6 +186,8 @@ void gui_set_torch(uint8_t val);
 void system_reboot();
 
 void clear_dir(char * path);
+void remove_dir(char * path);
+bool file_is_dir(char * path);
 
 #define PATH_LEN    128
 

@@ -477,10 +477,14 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
     _ux_utility_unicode_to_string(object->ux_device_class_pima_object_filename, (UCHAR *)name);
 
     *object_handle = mtp_get_handle(parent_object_handle, name);
+    INFO(" handle %08X", *object_handle);
+
+    object->ux_device_class_pima_object_parent_object = parent_object_handle;
 
     char path[PATH_LEN];
     if (mtp_construct_path(path, *object_handle))
     {
+        INFO(" path '%s', format %04", path, object->ux_device_class_pima_object_format);
         if (object->ux_device_class_pima_object_format == UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION)
         {
             if (red_mkdir(path) != 0)
@@ -490,6 +494,7 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
         {
             mtp_new_object_handle = *object_handle;
             mtp_new_object_size = object->ux_device_class_pima_object_compressed_size;
+            INFO(" size '%u'", mtp_new_object_size);
         }
 
         return UX_SUCCESS;
@@ -598,9 +603,18 @@ static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG obj
             mtp_file_write_handle = 0;
         }
 
-        if (red_unlink(path) == 0)
+        if (file_exists(path))
         {
-            mtp_handle_delete(object_handle);
+            if (file_is_dir(path))
+            {
+                remove_dir(path);
+            }
+            else
+            {
+                red_unlink(path);
+                mtp_handle_delete(object_handle);
+            }
+
             return UX_SUCCESS;
         }
     }
