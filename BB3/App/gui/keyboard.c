@@ -39,7 +39,7 @@ static const lv_btnmatrix_ctrl_t default_kb_ctrl_uc_map[] = {
 };
 
 static const char * default_kb_map_spec[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", LV_SYMBOL_BACKSPACE, "\n",
-                                                   "abc", "+", "-", "/", "*", "=", "%", "!", "?", "#", "<", ">", "\n",
+                                                   "abc", "+", "-", "/", "*", "=", "%", "!", "?", "##", "<", ">", "\n",
                                                    "\\",  "@", "$", "(", ")", "{", "}", "[", "]", ";", "\"", "'", "\n",
                                                    COLOR_CLOSE, LV_SYMBOL_LEFT, " ", LV_SYMBOL_RIGHT, COLOR_APPLY, ""
                                                   };
