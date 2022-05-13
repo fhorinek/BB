@@ -8,3 +8,4 @@ Changed:
 Fixed:
 * Stuck at power off
 * Stuck after migration
+* MTP subdir access on Windows
