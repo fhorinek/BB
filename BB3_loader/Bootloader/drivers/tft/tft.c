@@ -38,33 +38,33 @@ uint8_t tft_controller_type;
 
 TX_SEMAPHORE tft_dma_semaphore;
 
-void tft_write_register(uint16_t command, uint16_t data)
+NO_OPTI void tft_write_register(uint16_t command, uint16_t data)
 {
-    *tft_register = command;
-    tft_ram[0] = data;
+	((uint16_t volatile *)tft_register)[0] = command;
+	((uint16_t volatile *)tft_ram)[0] = data;
 }
 
-uint16_t tft_read_register(uint16_t command)
+NO_OPTI uint16_t tft_read_register(uint16_t command)
 {
-    *tft_register = command;
+	((uint16_t volatile *)tft_register)[0] = command;
     uint16_t mem[2];
     //dummy read
-    mem[0] = tft_ram[0];
+    mem[0] = ((uint16_t volatile *)tft_ram)[0];
     //real read
-    mem[1] = tft_ram[1];
+    mem[1] = ((uint16_t volatile *)tft_ram)[1];
 
     return mem[1];
 }
 
 
-void tft_write_command(uint16_t command)
+NO_OPTI void tft_write_command(uint16_t command)
 {
-    *tft_register = command;
+	((uint16_t volatile *)tft_register)[0] = command;
 }
 
-void tft_write_data(uint16_t data)
+NO_OPTI void tft_write_data(uint16_t data)
 {
-    tft_ram[0] = data;
+    ((uint16_t volatile *)tft_ram)[0] = data;
 }
 
 void tft_delay(uint16_t delay)
@@ -105,7 +105,7 @@ NO_OPTI bool tft_buffer_copy()
     return true;
 }
 
-void tft_irq_display_te()
+NO_OPTI void tft_irq_display_te()
 {
     if (tft_buffer_ready)
     {

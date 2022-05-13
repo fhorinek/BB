@@ -6,7 +6,7 @@
  *
  *  Frame buffer resides in main memory
  *  Display GRAM is mapped via FMC
- *  Data transfer starts during blanking time (when TE goes high) and buffer is mofified
+ *  Data transfer starts during blanking time (when TE goes high) and buffer is modified
  *  Transfer is done via DMA, it must ends before TE goes low
  *  blanking time can be modified via reg 0x2b
  *
@@ -86,7 +86,7 @@ void tft_init_ili9327()
     tft_write_command(0x29); //set_display_on / display on
 }
 
-void tft_set_window_ili9327(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+NO_OPTI void tft_set_window_ili9327(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
     tft_write_command(0x2a);
     tft_write_data(x1 >> 8);

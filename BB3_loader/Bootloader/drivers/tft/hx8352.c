@@ -55,7 +55,7 @@ void tft_init_hx8352()
 	tft_write_register(0x28, 0x3C); //display on //GON=1, DTE=1, D=3
 }
 
-void tft_set_window_hx8352(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+NO_OPTI void tft_set_window_hx8352(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
 	tft_write_register(0x02, x1 >> 8);
 	tft_write_register(0x03, x1 & 0xFF);

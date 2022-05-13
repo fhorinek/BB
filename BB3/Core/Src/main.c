@@ -312,7 +312,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-    FAULT("Program stopped in Error_Handler");
+    bsod_msg("Program stopped in Error_Handler");
     taskDISABLE_INTERRUPTS();
 	while(1);
 
