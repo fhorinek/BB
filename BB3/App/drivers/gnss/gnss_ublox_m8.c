@@ -232,6 +232,18 @@ static void ublox_command(uint8_t command)
 
 }
 
+extern uint32_t gnss_next_pps;
+
+void ublox_handle_itow(uint32_t iTOW)
+{
+    if (gnss_next_pps != 0)
+        return;
+
+    int32_t delta = 1000 - (iTOW % 1000);
+    gnss_next_pps = HAL_GetTick() + delta;
+    DBG("iTow: %lu, delta %lu, next_pss %lu", iTOW, delta, gnss_next_pps);
+}
+
 bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 {
 	DBG("Handle NAV");
@@ -251,6 +263,8 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 		} ubx_nav_posllh_t;
 
 		ubx_nav_posllh_t * ubx_nav_posllh = (ubx_nav_posllh_t *)msg_payload;
+
+        ublox_handle_itow(ubx_nav_posllh->iTOW);
 
 		FC_ATOMIC_ACCESS
 		{
@@ -313,6 +327,8 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		ubx_nav_status_t * ubx_nav_status = (ubx_nav_status_t *)msg_payload;
 
+//        ublox_handle_itow(ubx_nav_status->iTOW);
+
 		FC_ATOMIC_ACCESS
 		{
 			switch (ubx_nav_status->gpsFix)
@@ -358,6 +374,8 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 		} ubx_nav_timeutc_t;
 
 		ubx_nav_timeutc_t * ubx_nav_timeutc = (ubx_nav_timeutc_t *)msg_payload;
+
+//        ublox_handle_itow(ubx_nav_timeutc->iTOW);
 
 		if ((ubx_nav_timeutc->valid & 0b00000111) == 0b00000111)
 		{
@@ -481,7 +499,7 @@ static char ublox_start_word[] = "$GNRMC";
 
 void ublox_parse(uint8_t b)
 {
-	DBG(">> %c %u", b, b);
+//	DBG(">> %c %u", b, b);
 
 	static __align uint8_t msg_payload[1024];
 

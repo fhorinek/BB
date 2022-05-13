@@ -552,7 +552,7 @@ void fanet_parse(uint8_t c)
 		else
 		{
 			parser_buffer[parser_buffer_index] = 0;
-			DBG(">>> %s", parser_buffer);
+//			DBG(">>> %s", parser_buffer);
 
 			if (start_with(parser_buffer, "FN"))
 			{
@@ -618,6 +618,8 @@ void fanet_transmit_message(uint8_t type, fanet_addr_t dest, uint8_t len, uint8_
 
 	fanet_send(line);
 }
+
+extern uint32_t gnss_next_pps;
 
 void fanet_step()
 {
@@ -703,7 +705,17 @@ void fanet_step()
         //if enabled tracking etc...
         if (fanet_next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix == 3)
         {
-            fanet_next_transmit_tracking = HAL_GetTick() + FANET_TX_TRACKING_PERIOD;
+            int32_t delta = gnss_next_pps - HAL_GetTick();
+
+            if (delta > FANET_TX_TRACKING_PERIOD / 2)
+            {
+                fanet_next_transmit_tracking = gnss_next_pps - 40; //40 measured offset
+            }
+            else
+            {
+                fanet_next_transmit_tracking = HAL_GetTick() + FANET_TX_TRACKING_PERIOD;
+            }
+            gnss_next_pps = 0;
 
             fanet_transmit_pos();
         }

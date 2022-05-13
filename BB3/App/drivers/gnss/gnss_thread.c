@@ -14,6 +14,8 @@
 #include "fc/neighbors.h"
 #include "fc/navigation.h"
 
+uint32_t gnss_next_pps = 0;
+
 void gnss_uart_rx_irq_ht()
 {
 	osThreadFlagsSet(thread_gnss, 0x01);
@@ -41,7 +43,6 @@ void thread_gnss_start(void *argument)
 	ublox_init();
 
 	fanet_init();
-
 
 	while (!system_power_off)
 	{
