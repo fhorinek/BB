@@ -173,10 +173,10 @@ void gfx_init()
 {
 	tft_init();
 
-	tft_test_pattern();
-	tft_refresh_buffer(0, 0, 239, 399);
-	led_set_backlight(GFX_BACKLIGHT);
-	while(1);
+//	tft_test_pattern();
+//	tft_refresh_buffer(0, 0, 239, 399);
+//	led_set_backlight(GFX_BACKLIGHT);
+//	while(1);
 
 	gfx_text = mf_find_font("Roboto_Bold28");
 	gfx_desc = mf_find_font("Roboto_Light28");
