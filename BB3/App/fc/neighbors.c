@@ -108,8 +108,7 @@ void neighbors_update(neighbor_t new_data)
 		nb->longitude = new_data.longitude;
 		nb->alititude = new_data.alititude;
 		nb->heading = new_data.heading;
-		nb->flags = (nb->flags & 0xF0) | (new_data.flags & 0x0F);
-		nb->flags |= NB_HAVE_POS;
+		nb->flags = new_data.flags;
 		nb->timestamp = HAL_GetTick() / 1000;
 
 		neighbors_update_distance(nb);

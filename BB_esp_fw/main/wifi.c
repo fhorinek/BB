@@ -59,11 +59,11 @@ void wifi_ip_events(void * null, esp_event_base_t event_base, int32_t event_id, 
 	}
 }
 
-void wifi_eth_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{
-	INFO("unhandled ETH EVENT: %s %d", event_base, event_id);
-
-}
+//void wifi_eth_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
+//{
+//	INFO("unhandled ETH EVENT: %s %d", event_base, event_id);
+//
+//}
 
 void wifi_wifi_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
@@ -179,7 +179,7 @@ void wifi_init()
 
     esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_wifi_events, NULL, NULL);
     esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID, wifi_ip_events, NULL, NULL);
-    esp_event_handler_instance_register(ETH_EVENT, ESP_EVENT_ANY_ID, wifi_eth_events, NULL, NULL);
+//    esp_event_handler_instance_register(ETH_EVENT, ESP_EVENT_ANY_ID, wifi_eth_events, NULL, NULL);
 
     print_free_memory("esp_wifi_init");
 

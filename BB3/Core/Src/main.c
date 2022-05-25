@@ -22,6 +22,7 @@
 #include "cmsis_os.h"
 #include "crc.h"
 #include "dma.h"
+#include "dma2d.h"
 #include "i2c.h"
 #include "mdma.h"
 #include "octospi.h"
@@ -126,6 +127,7 @@ int main(void)
   MX_CRC_Init();
   MX_TIM17_Init();
   MX_TIM15_Init();
+  MX_DMA2D_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

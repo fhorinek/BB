@@ -102,14 +102,21 @@ void upload_slot_cancel(uint8_t data_id)
     }
 }
 
-upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callback, void *context)
+upload_slot_t* upload_slot_create(char * file_path, upload_slot_callback_t callback, void *context)
 {
     ASSERT(callback != NULL);
 
-    upload_slot_t *slot = NULL;
-    REDSTAT file_info;
+    upload_slot_t * slot = NULL;
 
-    if (red_fstat(file_path, &file_info) == -1)
+    uint32_t fsize;
+
+    int32_t f = red_open(file_path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        fsize = file_size(f);
+        red_close(f);
+    }
+    else
     {
         WARN("Upload slot: Failed to retrieve file size");
         return NULL;
@@ -130,7 +137,7 @@ upload_slot_t* upload_slot_create(char *file_path, upload_slot_callback_t callba
         slot->data_id = i;
         slot->callback = callback;
         slot->context = context;
-        slot->file_size = file_info.st_size;
+        slot->file_size = fsize;
         slot->transmitted_size = 0;
         slot->timestamp = HAL_GetTick();
         slot->canceled = false;

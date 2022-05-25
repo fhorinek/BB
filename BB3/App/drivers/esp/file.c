@@ -61,6 +61,7 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 			if (free_space < packet->chunk_size + sizeof(proto_spi_header_t))
 			{
 				esp_spi_release_buffer(0);
+				osDelay(1);
 				continue;
 			}
 

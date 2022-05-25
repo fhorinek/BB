@@ -39,7 +39,7 @@ bool fc_lock_acquire()
 
     TaskHandle_t prev_lock_owner = fc_lock_owner;
 
-    osStatus_t stat = osSemaphoreAcquire(fc.lock, wait);
+    osStatus_t stat = osMutexAcquire(fc.lock, wait);
     if (stat == osErrorTimeout)
     {
         bsod_msg("Not able to acquire fc.lock in time from task '%s' blocked by task '%s'!",
@@ -59,7 +59,7 @@ bool fc_lock_acquire()
 bool fc_lock_release()
 {
     fc_lock_owner = NULL;
-    osSemaphoreRelease(fc.lock);
+    osMutexRelease(fc.lock);
 
     return false;
 }
@@ -147,7 +147,7 @@ static osTimerId_t fc_timer;
 void fc_init()
 {
     //create released semaphore
-    fc.lock = osSemaphoreNew(1, 1, NULL);
+    fc.lock = osMutexNew(NULL);
     vQueueAddToRegistry(fc.lock, "fc.lock");
 
 	INFO("Flight computer init");

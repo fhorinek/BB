@@ -130,9 +130,13 @@ void tft_irq_dma_done(DMA_HandleTypeDef *DmaHandle)
 
     if (tft_normal_mode)
     {
-    	//osThreadFlagsSet(thread_gui, 0x01);
-        gui_disp_ready();
+    	osThreadFlagsSet(thread_gui, 0x01);
     }
+}
+
+void tft_wait_to_finish_dma()
+{
+    osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
 }
 
 void tft_wait_for_buffer()
@@ -167,7 +171,7 @@ void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
 
     if (tft_normal_mode)
     {
-//    	osThreadFlagsWait(0x01, osFlagsWaitAny, WAIT_INF);
+        gui_disp_ready();
     }
     else
     {

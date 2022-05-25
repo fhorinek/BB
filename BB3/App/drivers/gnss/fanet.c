@@ -1,4 +1,4 @@
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "fanet.h"
 
@@ -331,7 +331,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			uint8_t hdg = data[10];
 
 			//flags
-			uint8_t flags = (NB_AIRCRAFT_TYPE_MASK & (data[7] >> 4)) | NB_IS_FLYING;
+			uint8_t flags = (NB_AIRCRAFT_TYPE_MASK & (data[7] >> 4)) | NB_IS_FLYING | NB_HAVE_POS;
 			if (data[7] & 0b10000000)
 				flags |= NB_ONLINE_TRACKING;
 
@@ -388,7 +388,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			int32_t lon = (tmp.s32 / 46603.0) * GNSS_MUL;
 
 			//flags
-			uint8_t flags = NB_GROUND_TYPE_MASK & (data[6] >> 4);
+			uint8_t flags = NB_GROUND_TYPE_MASK & (data[6] >> 4) | NB_HAVE_POS;
 			if (data[6] & 0b00000001)
 				flags |= NB_ONLINE_TRACKING;
 
@@ -397,6 +397,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			nb.latitude = lat;
 			nb.longitude = lon;
 			nb.flags = flags;
+			nb.heading = 0;
 
 			neighbors_update(nb);
 		}

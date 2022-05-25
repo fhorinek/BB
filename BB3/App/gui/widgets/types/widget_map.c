@@ -12,8 +12,6 @@
 
 #include "etc/geo_calc.h"
 
-#include "gui/images/arrow/arrow.h"
-
 REGISTER_WIDGET_ISUE(Map,
     "Map",
     WIDGET_MIN_W,
@@ -45,8 +43,6 @@ static bool static_init = false;
 static lv_style_t static_label = {0};
 static lv_style_t fanet_label = {0};
 
-LV_IMG_DECLARE(arrow_new);
-LV_IMG_DECLARE(pg_icon);
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 {
@@ -108,7 +104,7 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
 
     local->arrow = lv_img_create(slot->obj, NULL);
-    lv_img_set_src(local->arrow, &arrow_new);
+    lv_img_set_src(local->arrow, &img_map_arrow);
     lv_obj_align(local->arrow, slot->obj, LV_ALIGN_CENTER, 0, 0);
     lv_img_set_antialias(local->arrow, true);
 }
@@ -262,7 +258,7 @@ static void Map_update(widget_slot_t * slot)
     }
     else
     {
-    	if (fc.gnss.ground_speed > 2)
+    	if (fc.gnss.ground_speed > FC_SPEED_MOVING)
 		{
     		lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
 			lv_obj_set_hidden(local->arrow, false);
@@ -298,7 +294,6 @@ static void Map_update(widget_slot_t * slot)
     					if (local->fanet_icons[t] == NULL && local->fanet_labels[t] == NULL)
     					{
     						local->fanet_icons[t] = lv_img_create(slot->obj, NULL);
-    						lv_img_set_src(local->fanet_icons[t], &pg_icon);
     						lv_img_set_antialias(local->fanet_icons[t], true);
 
     						local->fanet_labels[t] = lv_label_create(slot->obj, NULL);
@@ -306,10 +301,23 @@ static void Map_update(widget_slot_t * slot)
     						lv_label_set_align(local->fanet_labels[t], LV_LABEL_ALIGN_LEFT);
     					}
 
+    					if (fc.fanet.neighbor[i].flags & NB_IS_FLYING)
+    					{
+                            lv_img_set_src(local->fanet_icons[t], &img_fanet_glider);
+                            lv_img_set_angle(local->fanet_icons[t], fc.fanet.neighbor[i].heading * 14); // ~ 360/255 * 10
+    					}
+    					else
+                        {
+                            lv_img_set_src(local->fanet_icons[t], &img_fanet_hike);
+                            lv_img_set_angle(local->fanet_icons[t], 0); // ~ 360/255 * 10
+                        }
+
+
     					lv_label_set_text(local->fanet_labels[t], label_value);
 
     					lv_obj_align(local->fanet_icons[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2, y - slot->h / 2);
-    					lv_img_set_angle(local->fanet_icons[t], fc.fanet.neighbor[i].heading * 14); // ~ 360/255 * 10
+
+
     					lv_obj_align(local->fanet_labels[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2 + 35, y - slot->h / 2);
     					lv_obj_set_hidden(local->fanet_icons[t], false);
     					lv_obj_set_hidden(local->fanet_labels[t], false);
@@ -417,10 +425,10 @@ static void Map_edit(widget_slot_t * slot, uint8_t action)
 
 		int8_t diff = 0;
 		if (action == WIDGET_ACTION_LEFT)
-			diff = -1;
+			diff = +1;
 
 		if (action == WIDGET_ACTION_RIGHT)
-			diff = 1;
+			diff = -1;
 
 		if (diff != 0)
 		{

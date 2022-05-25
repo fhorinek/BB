@@ -109,7 +109,7 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_IMG_GLIDER uint8_t glider_map[] = {
 #endif
 };
 
-const lv_img_dsc_t glider = {
+const lv_img_dsc_t img_glider_icon = {
   .header.cf = LV_IMG_CF_TRUE_COLOR,
   .header.always_zero = 0,
   .header.reserved = 0,

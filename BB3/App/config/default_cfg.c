@@ -311,6 +311,9 @@ flight_profile_t profile =
         entry_int("gr_dura", 20, 5, 120),
         //circle_timeout
         entry_int("circle_timeout", 15, 5, 120),
+        //compensate_wind
+        entry_bool("wind_comp", false),
+
     },
 
     //vario

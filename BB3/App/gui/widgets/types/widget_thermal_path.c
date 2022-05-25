@@ -10,7 +10,7 @@
 #include "etc/geo_calc.h"
 
 #define THERMAL_DOTS_POSITIONS 60
-#define THERMAL_DOT_SIZE 6
+#define THERMAL_DOT_SIZE 10
 #define THERMAL_HISTORY_STEP (1000 / FC_HISTORY_PERIOD)
 #define THERMAL_ZOOM_THRESHOLD_GS 18.0 // GS above zoom
 
@@ -25,8 +25,6 @@ REGISTER_WIDGET_IU
     lv_obj_t * thermals[THERMAL_DOTS_POSITIONS];
 
     lv_obj_t * arrow;
-
-    lv_point_t arrow_points[WIDGET_ARROW_POINTS];
 );
 
 static bool static_init = false;
@@ -52,7 +50,10 @@ static void TTrace_init(lv_obj_t * base, widget_slot_t * slot)
 		 lv_obj_set_hidden(local->thermals[i], true);
 	 }
 
-    local->arrow = widget_add_arrow(base, slot, local->arrow_points, NULL, NULL);
+    local->arrow = lv_img_create(slot->obj, NULL);
+    lv_img_set_src(local->arrow, &img_map_arrow);
+    lv_obj_align(local->arrow, slot->obj, LV_ALIGN_CENTER, 0, 0);
+    lv_img_set_antialias(local->arrow, true);
 }
 
 static void TTrace_update(widget_slot_t * slot)
@@ -63,7 +64,6 @@ static void TTrace_update(widget_slot_t * slot)
     	int32_t curr_lon = fc.gnss.longtitude;
 
     	int16_t x, y;
-    	uint8_t zoom = (fc.flight.circling ? 1 : 2);
 
     	int16_t i = THERMAL_HISTORY_STEP * 2; // skip last 2 history positions
 		int16_t t = THERMAL_DOTS_POSITIONS;
@@ -77,34 +77,47 @@ static void TTrace_update(widget_slot_t * slot)
 
 			int32_t point_lat = h_pos->lat;
 			int32_t point_lon = h_pos->lon;
-//			if (fc.wind.valid)
-//			{
-//			    //time in s
-//			    //wind speed is in m/s
-//			    //dist is in km
-//			    float time = (fc.gnss.altitude_above_ellipsiod - h_pos->gnss_alt) / (h_pos->vario / 100.0);
-//			    float dist = (fc.wind.speed / 1000.0) * time;
-//			    geo_destination(point_lat, point_lon, fc.wind.direction + 180, dist, &point_lat, &point_lon);
-//			}
-			geo_to_pix_w_h(curr_lon, curr_lat, zoom, point_lon, point_lat, &x, &y, slot->w, slot->h);
+			if (fc.wind.valid && config_get_bool(&profile.flight.compensate_wind))
+			{
+			    //time in s
+			    //wind speed is in m/s
+			    //dist is in km
+			    float time = (fc.gnss.altitude_above_ellipsiod - h_pos->gnss_alt) / (h_pos->vario / 100.0);
+			    float dist = (fc.wind.speed / 1000.0) * time;
+			    geo_destination(point_lat, point_lon, fc.wind.direction + 180, dist, &point_lat, &point_lon);
+			}
+			geo_to_pix_w_h(curr_lon, curr_lat, 0, point_lon, point_lat, &x, &y, slot->w, slot->h);
 
 			lv_color_t c = LV_COLOR_SILVER;
 
-			if (h_pos->vario < -60) {
-				c = LV_COLOR_GRAY;
-			} else if (h_pos->vario < 0) {
-				c = LV_COLOR_SILVER;
-			} else if (h_pos->vario < 50) {
-				c = LV_COLOR_MAKE(0x11, 0xcc, 0x11);
-			} else if (h_pos->vario < 100) {
-				c = LV_COLOR_MAKE(0x00, 0xAF, 0x00);
-			} else if (h_pos->vario < 150) {
-				c = LV_COLOR_GREEN;
-			} else if (h_pos->vario < 220) {
-				c = LV_COLOR_MAKE(0xFF, 0x6F, 0x00);
-			} else if (h_pos->vario >= 250) {
-				c = LV_COLOR_MAKE(0xFF, 0x1A, 0x00);
-			}
+            if (h_pos->vario < -60)
+            {
+                c = LV_COLOR_GRAY;
+            }
+            else if (h_pos->vario < 0)
+            {
+                c = LV_COLOR_SILVER;
+            }
+            else if (h_pos->vario < 50)
+            {
+                c = LV_COLOR_MAKE(0x11, 0xcc, 0x11);
+            }
+            else if (h_pos->vario < 100)
+            {
+                c = LV_COLOR_MAKE(0x00, 0xAF, 0x00);
+            }
+            else if (h_pos->vario < 150)
+            {
+                c = LV_COLOR_GREEN;
+            }
+            else if (h_pos->vario < 220)
+            {
+                c = LV_COLOR_MAKE(0xFF, 0x6F, 0x00);
+            }
+            else if (h_pos->vario >= 250)
+            {
+                c = LV_COLOR_MAKE(0xFF, 0x1A, 0x00);
+            }
 
             t--;
 
@@ -119,8 +132,12 @@ static void TTrace_update(widget_slot_t * slot)
 
             lv_obj_set_size(local->thermals[t], size, size);
 
+            uint16_t m = 2; //TODO: adaptive zoom
+
 			lv_obj_set_hidden(local->thermals[t], false);
-			lv_obj_align(local->thermals[t], local->arrow, LV_ALIGN_CENTER, x - slot->w / 2, y - slot->h / 2);
+			lv_obj_align(local->thermals[t], local->arrow, LV_ALIGN_CENTER,
+			        (x - slot->w / 2) * m,
+			        (y - slot->h / 2) * m);
 
 
 			if (t == 0)
@@ -134,7 +151,7 @@ static void TTrace_update(widget_slot_t * slot)
 	}
 	else
 	{
-        widget_arrow_rotate_size(local->arrow, local->arrow_points, fc.gnss.heading, 40);
+	    lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
         lv_obj_set_hidden(local->arrow, false);
 	}
 }

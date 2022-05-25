@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-//#define DEBUG_LEVEL DBG_DEBUG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"
@@ -1142,11 +1142,11 @@ bool tile_validate_sources(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat
 
         uint8_t tmp_magic = 0;
 
-        snprintf(path, sizeof(path), "%s/%s.hgt", PATH_TOPO_DIR, name);
+        snprintf(path, sizeof(path), "%s/%s.HGT", PATH_TOPO_DIR, name);
         if (file_exists(path))
             tmp_magic = CACHE_HAVE_AGL;
 
-        snprintf(path, sizeof(path), "%s/%s.map", PATH_MAP_DIR, name);
+        snprintf(path, sizeof(path), "%s/%s.MAP", PATH_MAP_DIR, name);
         int32_t f = red_open(path, RED_O_RDONLY);
         if (f > 0)
         {

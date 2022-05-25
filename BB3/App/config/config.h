@@ -133,6 +133,7 @@ typedef struct
         cfg_entry_t acc_duration;
         cfg_entry_t gr_duration;
         cfg_entry_t circle_timeout;
+        cfg_entry_t compensate_wind;
     }
     flight;
 

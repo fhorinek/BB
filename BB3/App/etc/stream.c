@@ -94,8 +94,8 @@ void stream_parse(stream_t *stream, uint8_t data)
             if (stream->lenght > stream->buffer_size)
             {
                 ERR("Stream message %u is larger than buffer size %u", stream->lenght, stream->buffer_size);
-                stream->lenght = stream->buffer_size;
-                stream->handler(stream->packet_type, stream->buffer, stream->lenght, stream_res_error);
+//                stream->lenght = stream->buffer_size;
+//                stream->handler(stream->packet_type, stream->buffer, stream->lenght, stream_res_error);
                 stream->state = stream_idle;
                 stream->lenght = 0;
                 break;

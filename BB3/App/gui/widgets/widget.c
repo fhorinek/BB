@@ -418,8 +418,6 @@ void widget_destroy_edit_overlay(lv_obj_t * base)
     pages_unlock_widget();
 }
 
-#include "gui/images/glider/glider-20x21.h"
-
 static bool static_init = false;
 static lv_draw_line_dsc_t line_alt1;     // for horizontal line1
 static lv_draw_line_dsc_t line_alt2;     // for horizontal line2
@@ -491,117 +489,125 @@ void widget_add_graph(lv_obj_t * base, widget_slot_t * slot, graph_t *graph)
  * @param values_min the minimum value to be found in "values".
  * @param values_max the maximum value to be found in "values".
  */
-void widget_update_graph(widget_slot_t * slot, graph_t * graph, float values[], int values_num, float values_min, float values_max)
+void widget_update_graph(widget_slot_t *slot, graph_t *graph, float values[], int values_num, float values_min, float values_max)
 {
-	float values_diff = values_max - values_min;
-	DBG("widget_update_graph: values_num=%d, values_min=%f, values_max=%f, values_diff=%f", values_num, values_min, values_max, values_diff);
+    float values_diff = values_max - values_min;
+    DBG("widget_update_graph: values_num=%d, values_min=%f, values_max=%f, values_diff=%f", values_num, values_min, values_max, values_diff);
 
-	int canvas_h = lv_obj_get_height(graph->canvas);
-	int canvas_w = lv_obj_get_width(graph->canvas);
-	int track_w = canvas_w - glider.header.w;        // the track area is smaller than canvas, as the glider is right of the track
-	int track_h = canvas_h - glider.header.h;        // the track area is smaller than canvas, as the glider/2 must be above/below track.
-	int track_off_y = glider.header.h / 2;           // this is the offset of the track area in the canvas to have room for glider icon.
+    int canvas_h = lv_obj_get_height(graph->canvas);
+    int canvas_w = lv_obj_get_width(graph->canvas);
+    int track_w = canvas_w - img_glider_icon.header.w; // the track area is smaller than canvas, as the glider is right of the track
+    int track_h = canvas_h - img_glider_icon.header.h; // the track area is smaller than canvas, as the glider/2 must be above/below track.
+    int track_off_y = img_glider_icon.header.h / 2; // this is the offset of the track area in the canvas to have room for glider icon.
 
-	if (!widget_flag_is_set(slot, wf_hide_icon))
+    if (!widget_flag_is_set(slot, wf_hide_icon))
+    {
+        track_w = canvas_w - img_glider_icon.header.w; // the track area is smaller than canvas, as the glider is right of the track
+        track_h = canvas_h - img_glider_icon.header.h; // the track area is smaller than canvas, as the glider/2 must be above/below track.
+        track_off_y = img_glider_icon.header.h / 2; // this is the offset of the track area in the canvas to have room for glider icon.
+    }
+    else
+    {
+        track_w = canvas_w; // the track area is smaller than canvas, as the glider is right of the track
+        track_h = canvas_h; // the track area is smaller than canvas, as the glider/2 must be above/below track.
+        track_off_y = 0; // this is the offset of the track area in the canvas to have room for glider icon.
+    }
+
+    lv_point_t p[2];
+    lv_point_t line_p[2];
+
+    lv_canvas_fill_bg(graph->canvas, LV_COLOR_BLACK, LV_OPA_COVER);
+
+    if (values_diff > 0.1 && values_num > 1)
+    {
+        int i = 0;
+
+        /*
+         * [1] Draw horizonal (altitude) lines
+         */
+        lv_draw_line_dsc_t *line_horiz_dsc;
+
+        // Prepare line start and end point for horizontal line over canvas:
+        line_p[0].x = 0;
+        line_p[1].x = canvas_w - 1;
+
+        bool first_label = true;           // To find the first label
+        bool label_drawn = false;          // have we drawn any label?
+        lv_point_t label_pos;              // the position of the current label
+        char label_buffer[20];             // the text shown on the label
+        lv_point_t first_label_pos = { 0 };  // the position of the lowest label
+        char first_label_buffer[20];       // the text of the lowest label
+
+        for (int y = ((int) values_min / graph->line_alt1_step + 1) * graph->line_alt1_step;
+                y < values_max; y += graph->line_alt1_step)
         {
-	    track_w = canvas_w - glider.header.w;        // the track area is smaller than canvas, as the glider is right of the track
-	    track_h = canvas_h - glider.header.h;        // the track area is smaller than canvas, as the glider/2 must be above/below track.
-	    track_off_y = glider.header.h / 2;           // this is the offset of the track area in the canvas to have room for glider icon.
-        } else {
-	    track_w = canvas_w;        // the track area is smaller than canvas, as the glider is right of the track
-	    track_h = canvas_h;        // the track area is smaller than canvas, as the glider/2 must be above/below track.
-	    track_off_y = 0;           // this is the offset of the track area in the canvas to have room for glider icon.
+            if (y % graph->line_alt3_step == 0)
+                line_horiz_dsc = &line_alt3;
+            else if (y % graph->line_alt2_step == 0)
+                line_horiz_dsc = &line_alt2;
+            else
+                line_horiz_dsc = &line_alt1;
+
+            line_p[0].y = line_p[1].y = track_off_y + track_h - ((y - values_min) * track_h / values_diff);
+            lv_canvas_draw_line(graph->canvas, line_p, 2, line_horiz_dsc);
+
+            label_pos.x = 10;
+            label_pos.y = line_p[0].y - lv_font_montserrat_12.line_height + lv_font_montserrat_12.base_line - 1;
+            sprintf(label_buffer, graph->line_label_format, y);
+
+            if (y % graph->line_alt2_step == 0)
+            {
+                label_drawn = true;
+                lv_canvas_draw_text(graph->canvas, label_pos.x, label_pos.y, 100, &label_dsc, label_buffer, LV_LABEL_ALIGN_LEFT);
+            }
+            else
+            {
+                if (first_label)
+                {
+                    strcpy(first_label_buffer, label_buffer);
+                    first_label_pos = label_pos;
+                    first_label = false;
+                }
+            }
         }
 
-	lv_point_t p[2];
-	lv_point_t line_p[2];
+        if (!label_drawn && !first_label)
+        {
+            // This is a special case: we have not given any labels, so fallback to print label on lowest line
+            lv_canvas_draw_text(graph->canvas, first_label_pos.x, first_label_pos.y, 100, &label_dsc, first_label_buffer, LV_LABEL_ALIGN_LEFT);
+        }
 
-	lv_canvas_fill_bg(graph->canvas, LV_COLOR_BLACK, LV_OPA_COVER);
+        /*
+         * [2] Draw track
+         */
 
-	if ( values_diff > 0.1 && values_num > 1)
-	{
-		int i = 0;
+        lv_draw_line_dsc_t line_dsc;
 
-		/*
-		 * [1] Draw horizonal (altitude) lines
-		 */
-		lv_draw_line_dsc_t *line_horiz_dsc;
+        lv_draw_line_dsc_init(&line_dsc);
+        line_dsc.width = 2;
 
-		// Prepare line start and end point for horizontal line over canvas:
-		line_p[0].x = 0;
-		line_p[1].x = canvas_w - 1;
+        p[0].x = track_w - 1;
+        p[0].y = track_off_y + track_h - ((values[0] - values_min) * track_h / values_diff);
 
-		bool first_label = true;           // To find the first label
-		bool label_drawn = false;          // have we drawn any label?
-		lv_point_t label_pos;              // the position of the current label
-		char label_buffer[20];             // the text shown on the label
-		lv_point_t first_label_pos = {0};  // the position of the lowest label
-		char first_label_buffer[20];       // the text of the lowest label
+        if (!widget_flag_is_set(slot, wf_hide_icon))
+            lv_canvas_draw_img(graph->canvas, p[0].x + 1, p[0].y - img_glider_icon.header.h / 2, &img_glider_icon, &glider_dsc);
 
-		for ( int y = ((int)values_min/graph->line_alt1_step + 1)*graph->line_alt1_step; y < values_max ; y += graph->line_alt1_step)
-		{
-				if ( y % graph->line_alt3_step == 0 )      line_horiz_dsc = &line_alt3;
-				else if ( y % graph->line_alt2_step == 0 ) line_horiz_dsc = &line_alt2;
-				else                                         line_horiz_dsc = &line_alt1;
+        for (i = 1; i < values_num; i++)
+        {
+            int value_diff;
 
-				line_p[0].y = line_p[1].y = track_off_y + track_h - ((y - values_min) * track_h / values_diff);
-				lv_canvas_draw_line(graph->canvas, line_p, 2, line_horiz_dsc);
+            value_diff = values[i - 1] - values[i];
+            line_dsc.color = get_vario_color(value_diff * 100);
 
-				label_pos.x = 10;
-				label_pos.y = line_p[0].y - lv_font_montserrat_12.line_height + lv_font_montserrat_12.base_line - 1;
-				sprintf(label_buffer, graph->line_label_format, y);
+            p[1].x = track_w - i * track_w / values_num;
+            p[1].y = track_off_y + track_h - ((values[i] - values_min) * track_h / values_diff);
+            // DBG("i=%d values[i]=%f x1/y1=%d/%d x2/y2=%d/%d", i, values[i], p[0].x, p[0].y, p[1].x, p[1].y);
 
-				if ( y % graph->line_alt2_step == 0 )
-				{
-					label_drawn = true;
-					lv_canvas_draw_text(graph->canvas, label_pos.x, label_pos.y, 100, &label_dsc, label_buffer, LV_LABEL_ALIGN_LEFT);
-				} else {
-					if ( first_label )
-					{
-						strcpy(first_label_buffer, label_buffer);
-						first_label_pos = label_pos;
-						first_label = false;
-					}
-				}
-		}
+            lv_canvas_draw_line(graph->canvas, p, 2, &line_dsc);
 
-		if ( !label_drawn && !first_label )
-		{
-			// This is a special case: we have not given any labels, so fallback to print label on lowest line
-			lv_canvas_draw_text(graph->canvas, first_label_pos.x, first_label_pos.y, 100, &label_dsc, first_label_buffer, LV_LABEL_ALIGN_LEFT);
-		}
-
-		/*
-		 * [2] Draw track
-		 */
-
-		lv_draw_line_dsc_t line_dsc;
-
-		lv_draw_line_dsc_init(&line_dsc);
-		line_dsc.width = 2;
-
-		p[0].x = track_w - 1;
-		p[0].y = track_off_y + track_h - ((values[0] - values_min) * track_h / values_diff);
-
-	        if (!widget_flag_is_set(slot, wf_hide_icon))
-	    	    lv_canvas_draw_img(graph->canvas, p[0].x + 1, p[0].y - glider.header.h/2, &glider, &glider_dsc);
-
-		for ( i = 1; i < values_num; i++ )
-		{
-			int value_diff;
-
-			value_diff = values[i-1] - values[i];
-			line_dsc.color = get_vario_color(value_diff * 100);
-
-			p[1].x = track_w - i * track_w / values_num;
-			p[1].y = track_off_y + track_h - ((values[i] - values_min) * track_h / values_diff);
-			// DBG("i=%d values[i]=%f x1/y1=%d/%d x2/y2=%d/%d", i, values[i], p[0].x, p[0].y, p[1].x, p[1].y);
-
-			lv_canvas_draw_line(graph->canvas, p, 2, &line_dsc);
-
-			p[0] = p[1];
-		}
-	}
+            p[0] = p[1];
+        }
+    }
 }
 
 /**

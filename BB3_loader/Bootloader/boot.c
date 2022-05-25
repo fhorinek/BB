@@ -184,7 +184,7 @@ void app_poweroff()
 
         //Wait for interrupt
        // SCB->VTOR = 0x8000000;
-        //HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+        HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
         //check right after wake up IRQ is only 256us long
         bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;

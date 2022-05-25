@@ -47,7 +47,7 @@ void gui_save_screen()
  * 'lv_flush_ready()' has to be called when finished
  * This function is required only when LV_VDB_SIZE != 0 in lv_conf.h*/
 static lv_disp_drv_t * last_dsp_drv = NULL;
-void gui_disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * color_p)
+void gui_disp_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * color_p)
 {
     last_dsp_drv = drv;
 
@@ -165,6 +165,9 @@ static TaskHandle_t gui_lock_owner = NULL;
 
 void gui_lock_acquire()
 {
+    while(gui.lock == NULL)
+        osDelay(10);
+
 	if (xTaskGetCurrentTaskHandle() != thread_gui)
 	{
 	    uint32_t start = HAL_GetTick();
@@ -174,7 +177,8 @@ void gui_lock_acquire()
 
         TaskHandle_t prev_lock_owner = gui_lock_owner;
 
-	    osStatus_t stat = osSemaphoreAcquire(gui.lock, wait);
+//        osStatus_t stat = osSemaphoreAcquire(gui.lock, wait);
+        osStatus_t stat = osMutexAcquire(gui.lock, wait);
 	    if (stat == osErrorTimeout)
 	    {
 	        bsod_msg("Not able to acquire gui.lock in time from task '%s' blocked by task '%s'!",
@@ -196,21 +200,39 @@ void gui_lock_release()
 	{
 
         gui_lock_owner = NULL;
-		osSemaphoreRelease(gui.lock);
+        osMutexRelease(gui.lock);
 	}
 }
 
 void gui_create_lock()
 {
     //Create lock for lvgl
-    gui.lock = osSemaphoreNew(1, 0, NULL);
-    vQueueAddToRegistry(gui.lock, "gui.lock");
+//    gui.lock = osSemaphoreNew(1, 0, NULL);
+    gui.lock = NULL;
     //lock is active on create
+}
+
+void gui_unlock_cb()
+{
+    osMutexRelease(gui.lock);
+    //Force unlock GUI thread
+    osMutexAcquire(gui.lock, WAIT_INF);
+}
+
+void gui_disp_wait_cb(struct _disp_drv_t * disp_drv)
+{
+    osMutexRelease(gui.lock);
+    tft_wait_to_finish_dma();
+    osMutexAcquire(gui.lock, WAIT_INF);
 }
 
 void thread_gui_start(void *argument)
 {
     system_wait_for_handle(&thread_gui);
+
+    gui.lock = osMutexNew(NULL);
+    osMutexAcquire(gui.lock, WAIT_INF);
+    vQueueAddToRegistry(gui.lock, "gui.lock");
 
 	INFO("Started");
 
@@ -234,7 +256,8 @@ void thread_gui_start(void *argument)
 
 	disp_drv.hor_res = TFT_WIDTH;
 	disp_drv.ver_res = TFT_HEIGHT;
-	disp_drv.flush_cb = gui_disp_flush;
+	disp_drv.flush_cb = gui_disp_flush_cb;
+	disp_drv.wait_cb = gui_disp_wait_cb;
 	disp_drv.buffer = &disp_buf;
 
 	disp_drv.clean_dcache_cb = gui_clean_dcache;
@@ -260,12 +283,14 @@ void thread_gui_start(void *argument)
 
     INFO("GUI ready");
 
-    osSemaphoreRelease(gui.lock);
+    osMutexRelease(gui.lock);
 
     uint32_t delay;
     uint32_t last_tick = 0;
     uint32_t frame_duration = 0;
     uint8_t frame_counter = 0;
+
+    lv_task_create(gui_unlock_cb, 200, LV_TASK_PRIO_HIGHEST, NULL);
 
     while (!system_power_off)
 	{
@@ -279,7 +304,7 @@ void thread_gui_start(void *argument)
 		    gui.take_screenshot = 0;
 		}
 
-		osSemaphoreAcquire(gui.lock, WAIT_INF);
+		osMutexAcquire(gui.lock, WAIT_INF);
 		gui_lock_owner = xTaskGetCurrentTaskHandle();
 
 		if (gui.injected_function != NULL)
@@ -291,9 +316,10 @@ void thread_gui_start(void *argument)
 		delay = lv_task_handler();
 
 		gui_lock_owner = NULL;
-		osSemaphoreRelease(gui.lock);
+		osMutexRelease(gui.lock);
 
-		osDelay(max(10, delay));
+		//do not starve idle
+		osDelay(max(1, delay));
 
 		if (config_get_bool(&config.debug.lvgl_info))
 		{
@@ -304,13 +330,11 @@ void thread_gui_start(void *argument)
 
             if (frame_counter == FPS_SAMPLES)
             {
-                gui.fps = 1000 / (frame_duration / FPS_SAMPLES);
+                gui.fps = 1000 / max(1, (frame_duration / FPS_SAMPLES));
                 frame_counter = 0;
                 frame_duration = 0;
             }
 		}
-
-
 	}
 
     INFO("Done");

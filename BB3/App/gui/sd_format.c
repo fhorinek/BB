@@ -278,8 +278,9 @@ void sd_format_dialog()
 
     gui_startup_task = &gui_blank;
     start_thread(thread_gui);
-    osSemaphoreAcquire(gui.lock, WAIT_INF);
-    osSemaphoreRelease(gui.lock);
+
+    gui_lock_acquire();
+    gui_lock_release();
 
     dialog_show("Warning", "This firmware is using new method to store data.\n\n"
             "We need to reformat the storage.\n\n"

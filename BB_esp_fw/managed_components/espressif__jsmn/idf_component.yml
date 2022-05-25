@@ -1,5 +1,0 @@
-dependencies:
-  idf:
-    version: '>=4.3'
-description: 'JSMN: minimalistic JSON parser in C'
-version: 1.0.0

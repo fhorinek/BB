@@ -11,6 +11,8 @@
 #include "common.h"
 #include "lib/lvgl/lvgl.h"
 
+#include "gui/images/images.h"
+
 typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint16_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
 typedef bool (* gui_ctx_cb_t)(uint8_t, lv_obj_t *);

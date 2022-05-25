@@ -10,9 +10,10 @@
 
 static osTimerId_t dbg_overlay_timer = NULL;
 
-#define TIMER_PERIOD    500
+#define TIMER_PERIOD    2000
 #define ITEM_HEIGHT 15
 
+bool overlay_task_pending = false;
 
 static int compare(const void * a, const void * b)
 {
@@ -114,6 +115,8 @@ void dbg_overlay_tasks_update(uint8_t * packet)
 
     free(packet);
 
+    overlay_task_pending = false;
+
     vTaskDelete(NULL);
 }
 
@@ -156,11 +159,20 @@ static void get_stm_tasks(void * param)
 
 void dbg_overlay_tasks_step()
 {
+    if (overlay_task_pending)
+        return;
+
     if (config_get_select(&config.debug.tasks) == DBG_TASK_ESP)
+    {
+        overlay_task_pending = true;
         protocol_send(PROTO_GET_TASKS, NULL, 0);
+    }
 
     if (config_get_select(&config.debug.tasks) == DBG_TASK_STM)
+    {
+        overlay_task_pending = true;
         xTaskCreate((TaskFunction_t)get_stm_tasks, "get_stm_tasks", 1024 * 2, NULL, 24, NULL);
+    }
 }
 
 void dbg_overlay_tasks_create()
@@ -175,6 +187,8 @@ void dbg_overlay_tasks_create()
 
     }
     gui_lock_release();
+
+    overlay_task_pending = false;
 
     if (dbg_overlay_timer == NULL)
         dbg_overlay_timer = osTimerNew(dbg_overlay_tasks_step, osTimerPeriodic, NULL, NULL);
@@ -234,5 +248,6 @@ void dbg_overlay_init()
 {
     gui.dbg.tasks = NULL;
     gui.dbg.lv_info = NULL;
+    overlay_task_pending = false;
 }
 

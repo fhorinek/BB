@@ -12,6 +12,13 @@ osSemaphoreId_t sd_dma_semaphore;
 #define SD_DMA_TIMEOUT       150
 #define SD_TIMEOUT           1000
 
+void sd_reinit()
+{
+    HAL_SD_DeInit(&hsd1);
+    osDelay(100);
+    MX_SDMMC1_SD_Init();
+}
+
 uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
     if (sd_failsafe)
@@ -43,7 +50,7 @@ uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
         if (status != osOK)
         {
             WARN("Read timeout %08lX %u err = %X", ReadAddr, NumOfBlocks, status);
-            MX_SDMMC1_SD_Init();
+            sd_reinit();
             ret = HAL_ERROR;
         }
         else
@@ -62,6 +69,8 @@ uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 
 uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
+    static uint8_t err_cnt = 0;
+
     if (sd_failsafe)
     {
         uint8_t status = HAL_SD_WriteBlocks(&hsd1, (uint8_t *)pData, WriteAddr, NumOfBlocks, SD_TIMEOUT);
@@ -77,8 +86,6 @@ uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlock
             while(HAL_SD_GetCardState(&hsd1) != HAL_SD_CARD_TRANSFER);
         }
 
-
-
         return status;
 
     }
@@ -93,18 +100,28 @@ uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlock
 
     if (status != HAL_OK)
     {
-        //WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
+        WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
 
         osSemaphoreRelease(sd_semaphore);
         ret = HAL_ERROR;
+
+        err_cnt++;
+        if (err_cnt >= 3)
+        {
+            sd_reinit();
+        }
     }
     else
     {
+        err_cnt = 0;
+
         status = osSemaphoreAcquire(sd_dma_semaphore, SD_DMA_TIMEOUT);
         if (status != osOK)
         {
             WARN("Write timeout %08lX %u err = %X", WriteAddr, NumOfBlocks, status);
-            MX_SDMMC1_SD_Init();
+
+            sd_reinit();
+
             ret = HAL_ERROR;
         }
         else

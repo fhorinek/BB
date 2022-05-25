@@ -1,0 +1,12 @@
+Added:
+* Migration assistant FAT->RED
+* Fanet status messages sync with pps
+
+Changed:
+* Reliance Edge FS
+* USB protocol MTP
+
+Fixed:
+* Stuck at power off
+* Stuck after migration
+* MTP subdir access on Windows

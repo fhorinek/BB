@@ -140,7 +140,7 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_IMG_ARROW_NEW uint8_t arrow_new_map[] 
 #endif
 };
 
-const lv_img_dsc_t arrow_new = {
+const lv_img_dsc_t img_map_arrow = {
   .header.cf = LV_IMG_CF_TRUE_COLOR_ALPHA,
   .header.always_zero = 0,
   .header.reserved = 0,

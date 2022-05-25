@@ -28,6 +28,8 @@
 #define FC_KM_TO_MILE		(0.621371)
 #define FC_FEET_IN_MILE		(5280)
 
+#define FC_SPEED_MOVING     (2)         //in m/s
+
 #define GNSS_NUMBER_OF_SATS		32
 
 #define GNSS_GPS				0
@@ -81,6 +83,7 @@ typedef struct
 #define NB_NAME_LEN				19
 #define NB_TOO_FAR				0xFFFF
 #define NB_TOO_OLD				120
+
 
 typedef struct
 {

@@ -72,7 +72,7 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_IMG_PG_ICON uint8_t pg_icon_map[] = {
 #endif
 };
 
-const lv_img_dsc_t pg_icon = {
+const lv_img_dsc_t img_fanet_glider = {
   .header.cf = LV_IMG_CF_TRUE_COLOR_ALPHA,
   .header.always_zero = 0,
   .header.reserved = 0,

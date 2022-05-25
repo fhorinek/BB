@@ -204,9 +204,6 @@ void page_edit_remove_cb(dialog_result_t res, void * data)
 
 void page_edit_go_to_widget_list(uint8_t widget_index)
 {
-    if (local->changed)
-        widgets_save_to_file(&local->page, local->page_name);
-
     //switch task
     gui_switch_task(&gui_widget_list, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
     widget_list_set_page_name(local->page_name, local->page_index);
@@ -232,7 +229,7 @@ void page_edit_set_focus(uint8_t index)
 	local->focus_index = index;
 
 	if (local->selector != NULL)
-		lv_obj_del(local->selector);
+		lv_obj_del_async(local->selector);
 
 	local->selector = lv_obj_create(obj, NULL);
 
@@ -289,9 +286,6 @@ static void page_edit_event_cb(lv_obj_t * obj, lv_event_t event)
         case (LV_EVENT_CANCEL):
             if (local->mode == mode_select)
             {
-                if (local->changed)
-                    widgets_save_to_file(&local->page, local->page_name);
-
                 gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
                 page_settings_set_page_name(local->page_name, local->page_index);
             }
@@ -462,7 +456,10 @@ void page_edit_modify_widget(widget_t * w, uint8_t widget_index)
     }
     else
     {
-        lv_obj_del(local->page.widget_slots[widget_index].obj);
+        lv_obj_del_async(local->page.widget_slots[widget_index].obj);
+        if (local->focus_index == widget_index)
+            local->selector = NULL;
+
         widgets_change(&local->page, widget_index, w);
         page_edit_set_focus(widget_index);
     }
@@ -563,6 +560,9 @@ static void page_edit_loop()
 
 static void page_edit_stop()
 {
+   if (local->changed)
+       widgets_save_to_file(&local->page, local->page_name);
+
    lv_style_reset(&local->label_style);
    lv_style_reset(&local->border_style);
 

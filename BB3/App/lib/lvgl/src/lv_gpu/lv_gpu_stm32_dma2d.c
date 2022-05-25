@@ -239,7 +239,7 @@ static void dma2d_wait(void)
 {
     lv_disp_t * disp = _lv_refr_get_disp_refreshing();
     while(DMA2D->CR & DMA2D_CR_START_Msk) {
-        if(disp->driver.wait_cb) disp->driver.wait_cb(&disp->driver);
+        if(disp->driver.gpu_wait_cb) disp->driver.gpu_wait_cb(&disp->driver);
     }
 }
 

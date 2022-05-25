@@ -30,6 +30,7 @@ void tft_color_fill(uint16_t color);
 void tft_refresh_buffer(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t * buffer);
 void tft_wait_for_buffer();
 void tft_irq_display_te();
+void tft_wait_to_finish_dma();
 
 void tft_write_register(uint16_t command, uint16_t data);
 void tft_write_command(uint16_t command);

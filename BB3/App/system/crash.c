@@ -125,13 +125,13 @@ void crash_store_info(const Crash_Object * info)
 
         if (CFSR & SCB_CFSR_BFARVALID_Msk)
         {
-            snprintf(buff, sizeof(buff), "  bus_status: '%08lX'", SCB->BFAR);
+            snprintf(buff, sizeof(buff), "  bus_status: '%08lX'\n", SCB->BFAR);
             WRITE(buff);
         }
 
         if (CFSR & SCB_CFSR_MMARVALID_Msk)
         {
-            snprintf(buff, sizeof(buff), "  memory_management_status: '%08lX'", SCB->MMFAR);
+            snprintf(buff, sizeof(buff), "  memory_management_status: '%08lX'\n", SCB->MMFAR);
             WRITE(buff);
         }
 
