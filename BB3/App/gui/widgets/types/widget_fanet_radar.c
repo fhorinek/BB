@@ -13,7 +13,7 @@
 
 
 
-REGISTER_WIDGET_ISU
+REGISTER_WIDGET_ISUE
 (
     FanetRadar,
     "FANET - radar",
@@ -101,6 +101,8 @@ static void FanetRadar_stop(widget_slot_t * slot)
         ps_free(local->cbuf);
 }
 
+static uint16_t zoom_levels[] = {100, 200, 500, 1000, 1500, 2500, 3000, 5000};
+
 static void FanetRadar_update(widget_slot_t * slot)
 {
 	char label_value[50];
@@ -122,14 +124,16 @@ static void FanetRadar_update(widget_slot_t * slot)
 
 	uint8_t distance_units = config_get_select(&config.units.distance);
 
-	sprintf(label_value, "1 %s", (distance_units == DISTANCE_METERS) ? "km" : "mi");
-	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
+	float zoom = zoom_levels[config_get_int(&profile.fanet.radar_zoom)] / 1000.0;
 
-	sprintf(label_value, "3 %s", (distance_units == DISTANCE_METERS) ? "km" : "mi");
-	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius * 2, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
+	sprintf(label_value, "%0.1f", zoom * 1);
+	lv_canvas_draw_text(local->canvas, slot->w / 2 - 25, slot->h / 2 - local->base_radius, 50, &label_dsc, label_value, LV_LABEL_ALIGN_CENTER);
 
-	sprintf(label_value, "5 %s", (distance_units == DISTANCE_METERS) ? "km" : "mi");
-	lv_canvas_draw_text(local->canvas, slot->w / 2 - 12, slot->h / 2 - local->base_radius * 3, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
+	sprintf(label_value, "%0.1f", zoom * 3);
+	lv_canvas_draw_text(local->canvas, slot->w / 2 - 25, slot->h / 2 - local->base_radius * 2, 50, &label_dsc, label_value, LV_LABEL_ALIGN_CENTER);
+
+	sprintf(label_value, "%0.1f %s", zoom * 5, (distance_units == DISTANCE_METERS) ? "km" : "mi");
+	lv_canvas_draw_text(local->canvas, slot->w / 2 - 25, slot->h / 2 - local->base_radius * 3, 50, &label_dsc, label_value, LV_LABEL_ALIGN_CENTER);
 
 	if (fc.gnss.fix > 0)
 	{
@@ -143,7 +147,7 @@ static void FanetRadar_update(widget_slot_t * slot)
 				int16_t bearing = 0;
 				int32_t radius;
 				uint32_t dist;
-				float step = 1000.0;
+				float step = 1000.0 * zoom;
 
 				dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.fanet.neighbor[i].latitude, fc.fanet.neighbor[i].longitude, use_fai, &bearing) / 100;
 
@@ -167,9 +171,7 @@ static void FanetRadar_update(widget_slot_t * slot)
                 icon_dsc.pivot.x = icon->header.w / 2;
                 icon_dsc.pivot.y = icon->header.h / 2;
 
-				format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
 
-				snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);
 
 				if (dist < (step))
 				{
@@ -191,7 +193,21 @@ static void FanetRadar_update(widget_slot_t * slot)
 				lv_coord_t x = radius * cos(to_radians(bearing - 90)) + slot->w / 2 - icon->header.w / 2;
 				lv_coord_t y = radius * sin(to_radians(bearing - 90)) + slot->h / 2 - icon->header.h / 2;
 
-				lv_canvas_draw_text(local->canvas, x + icon->header.w, y - 5, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
+                if (config_get_bool(&profile.fanet.show_labels))
+                {
+                    format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
+
+                    if (strlen(fc.fanet.neighbor[i].name) > 0)
+                    {
+                        snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);
+                    }
+                    else
+                    {
+                        strncpy(label_value, buffer, sizeof(label_value));
+                    }
+
+                    lv_canvas_draw_text(local->canvas, x + icon->header.w, y - 5, 50, &label_dsc, label_value, LV_LABEL_ALIGN_LEFT);
+                }
 
 				lv_canvas_draw_img(local->canvas, x, y, icon, &icon_dsc);
 			}
@@ -220,3 +236,30 @@ static void FanetRadar_update(widget_slot_t * slot)
         }
 	}
 }
+
+static void FanetRadar_edit(widget_slot_t * slot, uint8_t action)
+{
+
+    if (action == WIDGET_ACTION_LEFT || action == WIDGET_ACTION_RIGHT)
+    {
+        int8_t diff = 0;
+        if (action == WIDGET_ACTION_LEFT)
+            diff = +1;
+
+        if (action == WIDGET_ACTION_RIGHT)
+            diff = -1;
+
+        if (diff != 0)
+        {
+            int16_t zoom = config_get_int(&profile.fanet.radar_zoom);
+            int16_t new = zoom + diff;
+            config_set_int(&profile.fanet.radar_zoom, new);
+
+            widget_reset_edit_overlay_timer();
+            local->fanet_magic = 0;
+        }
+
+    }
+
+}
+

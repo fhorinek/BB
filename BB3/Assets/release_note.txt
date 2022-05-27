@@ -1,12 +1,15 @@
 Added:
 * Migration assistant FAT->RED
 * Fanet status messages sync with pps
+* FANET radar zoom levels
 
 Changed:
 * Reliance Edge FS
 * USB protocol MTP
+* GUI speed improvments
 
 Fixed:
 * Stuck at power off
 * Stuck after migration
 * MTP subdir access on Windows
+* Power drain in power off state

@@ -20,6 +20,7 @@ static lv_obj_t * fanet_settings_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Enable FLARM", &profile.fanet.flarm, NULL);
     gui_list_auto_entry(list, "Airborne type", &profile.fanet.air_type, NULL);
     gui_list_auto_entry(list, "Ground type", &profile.fanet.ground_type, NULL);
+    gui_list_auto_entry(list, "Show labels", &profile.fanet.show_labels, NULL);
 
     local->id = gui_list_info_add_entry(list, "FANET ID", "");
     local->ver = gui_list_info_add_entry(list, "FANET Firmware", "");

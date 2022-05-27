@@ -101,6 +101,8 @@ typedef struct
         cfg_entry_t flarm;
         cfg_entry_t air_type;
         cfg_entry_t ground_type;
+        cfg_entry_t radar_zoom;
+        cfg_entry_t show_labels;
     } fanet;
 
     struct

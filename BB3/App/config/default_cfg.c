@@ -264,8 +264,12 @@ flight_profile_t profile =
 		entry_bool("flarm", true),
 		//air_type
 		entry_select("fa_air", FANET_AIRCRAFT_TYPE_PARAGLIDER, fanet_air_type),
-		//air_type
-		entry_select("fa_ground", FANET_GROUND_TYPE_WALKING, fanet_ground_type),
+        //air_type
+        entry_select("fa_ground", FANET_GROUND_TYPE_WALKING, fanet_ground_type),
+        //radar_zoom
+        entry_int("fa_zoom", 2, 0, 7),
+        //use_labes
+        entry_bool("fa_labels", true),
     },
 
     //flight
