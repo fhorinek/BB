@@ -187,6 +187,8 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths.799972285" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../Core/Inc"/>
+									<listOptionValue builtIn="false" value="../App/lib/SysView/Config"/>
+									<listOptionValue builtIn="false" value="../App/lib/SysView/SEGGER"/>
 									<listOptionValue builtIn="false" value="/home/horinek/git/SkyDrop_vali/skydrop_vali/src"/>
 									<listOptionValue builtIn="false" value="../App/fc/logger"/>
 									<listOptionValue builtIn="false" value="../App"/>

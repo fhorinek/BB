@@ -1,6 +1,0 @@
-[submodule "BB3/App/lib/lvgl"]
-	path = BB3/App/lib/lvgl
-	url = https://github.com/fhorinek/lvgl.git
-[submodule "BB3/App/lib/memfault-firmware-sdk"]
-	path = BB3/App/lib/memfault-firmware-sdk
-	url = https://github.com/memfault/memfault-firmware-sdk.git

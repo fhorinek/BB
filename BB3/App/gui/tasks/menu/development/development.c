@@ -26,7 +26,10 @@ void development_trigger()
 //    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
 
 //    INFO("This should break me %u", 1 / 0);
-    FASSERT(0);
+
+    statusbar_msg_add(STATUSBAR_MSG_INFO, "FUCK");
+
+    //FASSERT(0);
 }
 
 static void development_loop()
