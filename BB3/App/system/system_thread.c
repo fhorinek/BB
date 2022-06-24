@@ -32,8 +32,10 @@
 #include "etc/epoch.h"
 #include "lvgl/lvgl.h"
 
+#include "SEGGER_SYSVIEW.h"
+
 //RTOS Tasks
-define_thread("Debug", thread_debug, 2024, osPriorityHigh);
+define_thread("Debug", thread_debug, 2024, osPriorityRealtime);
 define_thread("GUI", thread_gui, 4096, osPriorityLow);
 define_thread("Map", thread_map, 2048, osPriorityIdle);
 define_thread("GNSS", thread_gnss, 2048, osPriorityNormal);
@@ -276,6 +278,9 @@ void thread_system_start(void *argument)
     INFO("HW rev: %02X", rev_get_hw());
     rev_get_sw_string(tmp);
     INFO("FW stm: %s\n\n", tmp);
+
+    //Sysview
+    SEGGER_SYSVIEW_Start();
 
 	//start tasks
 	INFO("Starting tasks...");

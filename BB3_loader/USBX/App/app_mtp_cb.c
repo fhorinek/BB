@@ -16,6 +16,60 @@
 
 #include "ux_api.h"
 
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint64_t default_value[2];
+    uint32_t group_code;
+    uint8_t form;
+} object_prop_desc_uint128_t;
+
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint64_t default_value;
+    uint32_t group_code;
+    uint8_t form;
+} object_prop_desc_uint64_t;
+
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint32_t default_value;
+    uint32_t group_code;
+    uint8_t form;
+} object_prop_desc_uint32_t;
+
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint16_t default_value;
+    uint32_t group_code;
+    uint8_t form;
+} object_prop_desc_uint16_t;
+
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint8_t default_value;
+    uint32_t group_code;
+    uint8_t form;
+} object_prop_desc_str_t;
+
+typedef struct {
+    uint16_t property_code;
+    uint16_t datatype;
+    uint8_t get_set;
+    uint8_t default_value;
+    uint8_t current_value;
+    uint8_t form;
+} device_prop_desc_uint8_t;
+
 #define MAX_HANDLES     1024
 
 #define HANDLE_DELETED  0xFFFFFFFF
@@ -109,6 +163,14 @@ handle_node_t * mtp_handle_get_node(uint32_t handle)
     return handle_to_filename[handle];
 }
 
+void mtp_rename_handle(uint32_t handle, char * name)
+{
+    handle_node_t * n = mtp_handle_get_node(handle);
+    ps_free(n->name);
+    n->name = (char *) ps_malloc(strlen(name) + 1);
+    strcpy(n->name, name);
+}
+
 uint32_t mtp_handle_get_parent(uint32_t handle)
 {
     handle &= ~HANDLE_OFFSET;
@@ -199,12 +261,6 @@ static UINT mtp_device_cancel(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima)
     return UX_SUCCESS;
 }
 
-typedef struct {
-    uint16_t property_code;
-    uint16_t datatype;
-    uint8_t get_set;
-} device_prop_desc_t;
-
 
 static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG device_property, UCHAR **device_prop_dataset, ULONG *device_prop_dataset_length)
 {
@@ -214,20 +270,17 @@ static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
     {
         case (UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL):
         {
-            device_prop_desc_t * payload = (device_prop_desc_t *)&mtp_buffer;
+            device_prop_desc_uint8_t * payload = (device_prop_desc_uint8_t *)&mtp_buffer;
 
             payload->property_code = UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL;
             payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT8;
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
-            mtp_buffer[sizeof(device_prop_desc_t) + 0] = 0; //default
-            mtp_buffer[sizeof(device_prop_desc_t) + 1] = pwr.fuel_gauge.battery_percentage; //current
-            mtp_buffer[sizeof(device_prop_desc_t) + 2] = 1; //form
-            mtp_buffer[sizeof(device_prop_desc_t) + 3] = 0; //min
-            mtp_buffer[sizeof(device_prop_desc_t) + 4] = 100; //max
-            mtp_buffer[sizeof(device_prop_desc_t) + 5] = 1; //step
+            payload->default_value = 0;
+            payload->current_value = pwr.fuel_gauge.battery_percentage;
+            payload->form = 0x00;
 
             *device_prop_dataset = (UCHAR *)payload;
-            *device_prop_dataset_length = sizeof(device_prop_desc_t) + 6;
+            *device_prop_dataset_length = sizeof(device_prop_desc_uint8_t);
         }
         break;
 
@@ -246,8 +299,14 @@ static UINT mtp_device_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 
     switch (device_property)
     {
-        case (UX_DEVICE_CLASS_PIMA_DEV_PROP_DEVICE_FRIENDLY_NAME):
-            *device_prop_value_length = 0;
+        case (UX_DEVICE_CLASS_PIMA_DEV_PROP_BATTERY_LEVEL):
+        {
+            uint8_t * bat = (uint8_t *)mtp_buffer;
+
+            *bat = pwr.fuel_gauge.battery_percentage;
+            *device_prop_value = (UCHAR *)bat;
+            *device_prop_value_length = sizeof(uint8_t);
+        }
         break;
 
         default:
@@ -390,15 +449,20 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
             }
         }
 
-        INFO(" %s %lu", mtp_handle_get_node(object_handle)->name, (uint32_t)stat.st_size);
-
         UX_SLAVE_CLASS_PIMA_OBJECT * payload = (UX_SLAVE_CLASS_PIMA_OBJECT *)mtp_buffer;
         memset(payload, 0, sizeof(UX_SLAVE_CLASS_PIMA_OBJECT));
 
         if (RED_S_ISDIR(stat.st_mode))
+        {
             payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION;
+            stat.st_size = 0;
+        }
         else
-            payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_TEXT;
+        {
+            payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED;
+        }
+
+        INFO(" %s %lu", mtp_handle_get_node(object_handle)->name, (uint32_t)stat.st_size);
 
         payload->ux_device_class_pima_object_storage_id = pima->ux_device_class_pima_storage_id;
         payload->ux_device_class_pima_object_protection_status = UX_DEVICE_CLASS_PIMA_OPS_NO_PROTECTION;
@@ -484,7 +548,7 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
     char path[PATH_LEN];
     if (mtp_construct_path(path, *object_handle))
     {
-        INFO(" path '%s', format %04", path, object->ux_device_class_pima_object_format);
+        INFO(" path '%s', format %04X", path, object->ux_device_class_pima_object_format);
         if (object->ux_device_class_pima_object_format == UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION)
         {
             if (red_mkdir(path) != 0)
@@ -622,55 +686,21 @@ static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG obj
     return UX_ERROR;
 }
 
-typedef struct {
-    uint16_t property_code;
-    uint16_t datatype;
-    uint8_t get_set;
-    uint64_t default_value[2];
-    uint32_t group_code;
-    uint8_t form;
-} object_prop_desc_uint128_t;
-
-typedef struct {
-    uint16_t property_code;
-    uint16_t datatype;
-    uint8_t get_set;
-    uint64_t default_value;
-    uint32_t group_code;
-    uint8_t form;
-} object_prop_desc_uint64_t;
-
-typedef struct {
-    uint16_t property_code;
-    uint16_t datatype;
-    uint8_t get_set;
-    uint32_t default_value;
-    uint32_t group_code;
-    uint8_t form;
-} object_prop_desc_uint32_t;
-
-typedef struct {
-    uint16_t property_code;
-    uint16_t datatype;
-    uint8_t get_set;
-    uint16_t default_value;
-    uint32_t group_code;
-    uint8_t form;
-} object_prop_desc_uint16_t;
 
 
-static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR **object_prop_dataset, ULONG *object_prop_dataset_length)
+
+static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_property, ULONG object_format, UCHAR **object_prop_dataset, ULONG *object_prop_dataset_length)
 {
-    INFO("mtp_object_prop_desc_get prop=%04X format=%04X", object_handle, object_property);
+    INFO("mtp_object_prop_desc_get prop=%04X format=%04X", object_property, object_format);
 
-    switch (object_handle)
+    switch (object_property)
     {
         case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE):
         {
             //every object size is 0
             object_prop_desc_uint64_t * payload = (object_prop_desc_uint64_t *)&mtp_buffer;
 
-            payload->property_code = object_handle;
+            payload->property_code = object_property;
             payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT64;
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
             payload->default_value = 0;
@@ -687,7 +717,7 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
         {
             object_prop_desc_uint32_t * payload = (object_prop_desc_uint32_t *)&mtp_buffer;
 
-            payload->property_code = object_handle;
+            payload->property_code = object_property;
             payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT64;
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
             payload->default_value = pima->ux_device_class_pima_storage_id;
@@ -699,20 +729,37 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
         }
         break;
 
-        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME):
-        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME):
-        {
-            object_prop_desc_uint16_t * payload = (object_prop_desc_uint16_t *)&mtp_buffer;
 
-            payload->property_code = object_handle;
-            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT16;
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME):
+            {
+                object_prop_desc_str_t * payload = (object_prop_desc_str_t *)&mtp_buffer;
+
+                payload->property_code = object_property;
+                payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_STR;
+                payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GETSET;
+                payload->default_value = 0;
+                payload->group_code = 0;
+                payload->form = 0x00;
+
+                *object_prop_dataset = (UCHAR *)payload;
+                *object_prop_dataset_length = sizeof(object_prop_desc_str_t);
+                break;
+            }
+
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_DISPLAY_NAME):
+        {
+            object_prop_desc_str_t * payload = (object_prop_desc_str_t *)&mtp_buffer;
+
+            payload->property_code = object_property;
+            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_STR;
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
-            payload->default_value = REDCONF_NAME_MAX;
+            payload->default_value = 0;
             payload->group_code = 0;
             payload->form = 0x00;
 
             *object_prop_dataset = (UCHAR *)payload;
-            *object_prop_dataset_length = sizeof(object_prop_desc_uint16_t);
+            *object_prop_dataset_length = sizeof(object_prop_desc_str_t);
             break;
         }
 
@@ -720,7 +767,7 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
         {
             object_prop_desc_uint128_t * payload = (object_prop_desc_uint128_t *)&mtp_buffer;
 
-            payload->property_code = object_handle;
+            payload->property_code = object_property;
             payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT128;
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
             payload->default_value[0] = 0;
@@ -734,7 +781,7 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
         }
 
         default:
-            WARN("object_handle not handled");
+            WARN("object_property not handled");
             return UX_ERROR;
     }
 
@@ -751,7 +798,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 
     switch (object_property)
     {
-        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_STORAGEID):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_STORAGEID):
         {
             uint32_t * id = (uint32_t *)mtp_buffer;
 
@@ -761,7 +808,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         }
         break;
 
-        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE):
         {
             uint64_t * size = (uint64_t *)mtp_buffer;
             if (mtp_construct_path(path, object_handle))
@@ -789,18 +836,19 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         }
         break;
 
-        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME):
-        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_DISPLAY_NAME):
         {
             UCHAR * name = (UCHAR *)mtp_handle_get_node(object_handle)->name;
 
             _ux_utility_string_to_unicode(name, mtp_buffer);
             *object_prop_value = (UCHAR *)mtp_buffer;
-            *object_prop_value_length = strlen((char *)name) * 2 + 1;
+            *object_prop_value_length = strlen((char *)name) * 2 + 2 + 1;
         }
         break;
 
-        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT):
         {
             uint16_t * type = (uint16_t *)mtp_buffer;
             if (mtp_construct_path(path, object_handle))
@@ -812,7 +860,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
                     red_fstat(f, &stat);
                     red_close(f);
 
-                    *type = stat.st_mode == RED_S_IFDIR ? UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION : UX_DEVICE_CLASS_PIMA_OFC_TEXT;
+                    *type = stat.st_mode == RED_S_IFDIR ? UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION : UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED;
                     *object_prop_value = (UCHAR *)type;
                     *object_prop_value_length = sizeof(uint16_t);
                 }
@@ -828,7 +876,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         }
         break;
 
-        case(UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER):
         {
             if (mtp_construct_path(path, object_handle))
             {
@@ -841,7 +889,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 
                     memcpy(mtp_buffer, &stat.st_ino, 16);
                     *object_prop_value = (UCHAR *)mtp_buffer;
-                    *object_prop_value_length = sizeof(uint16_t);
+                    *object_prop_value_length = 16;
                 }
                 else
                 {
@@ -867,6 +915,31 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 static UINT mtp_object_prop_value_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR *object_prop_value, ULONG object_prop_value_length)
 {
     INFO("mtp_object_prop_value_set");
+
+    switch(object_property)
+    {
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_DISPLAY_NAME):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME):
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME):
+        {
+            char old_path[PATH_LEN];
+            mtp_construct_path(old_path, object_handle);
+            char new_path[PATH_LEN];
+            mtp_construct_path(new_path, mtp_handle_get_parent(object_handle));
+            strcat(new_path, "/");
+
+            char new_name[REDCONF_NAME_MAX];
+            _ux_utility_unicode_to_string(object_prop_value, (UCHAR *)new_name);
+            strcat(new_path, new_name);
+
+            red_rename(old_path, new_path);
+            mtp_rename_handle(object_handle, new_name);
+
+            return UX_SUCCESS;
+        }
+        break;
+    }
+
     return UX_ERROR;
 }
 
@@ -893,31 +966,33 @@ static UCHAR storage_desc[] = "Internal storage";
 static UCHAR volume_label[] = "";
 
 static USHORT supported_image_formats_list[] = {
-        UX_DEVICE_CLASS_PIMA_OFC_TEXT,
+        UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED,
         UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION,
         0
 };
 
 static USHORT object_properties_list[] = {
-        UX_DEVICE_CLASS_PIMA_OFC_TEXT,
-        7,
+        UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED,
+        8,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_STORAGEID,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE,
-        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_DISPLAY_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER,
 
         UX_DEVICE_CLASS_PIMA_OFC_ASSOCIATION,
-        7,
+        8,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_STORAGEID,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_SIZE,
-        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_DISPLAY_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FILE_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_NAME,
         UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT,
+        UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PERSISTENT_UNIQUE_OBJECT_IDENTIFIER,
         0
 };
 

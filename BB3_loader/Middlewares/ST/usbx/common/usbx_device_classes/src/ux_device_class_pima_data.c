@@ -100,8 +100,8 @@ USHORT _ux_device_class_pima_supported_operations[] =            {
 #ifdef UX_PIMA_WITH_MTP_SUPPORT                                                        
                                                                 UX_DEVICE_CLASS_PIMA_OC_GET_OBJECT_PROPS_SUPPORTED,
                                                                 UX_DEVICE_CLASS_PIMA_OC_GET_OBJECT_PROP_DESC,
-//                                                                UX_DEVICE_CLASS_PIMA_OC_GET_OBJECT_PROP_VALUE,
-//                                                                UX_DEVICE_CLASS_PIMA_OC_SET_OBJECT_PROP_VALUE,
+                                                                UX_DEVICE_CLASS_PIMA_OC_GET_OBJECT_PROP_VALUE,
+                                                                UX_DEVICE_CLASS_PIMA_OC_SET_OBJECT_PROP_VALUE,
 //                                                                UX_DEVICE_CLASS_PIMA_OC_GET_OBJECT_REFERENCES,
 //                                                                UX_DEVICE_CLASS_PIMA_OC_SET_OBJECT_REFERENCES,
 

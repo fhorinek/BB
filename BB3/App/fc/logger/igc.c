@@ -240,7 +240,9 @@ void igc_start_write()
 		uint8_t step = 1000 / FC_HISTORY_PERIOD;
 
 		uint32_t now = fc_get_utc_time();
-		for (int16_t i = fc.history.size / step; i > 0; i--)
+		uint16_t start = fc.history.size / step;
+		uint16_t end = max(0, start - (60 * step));
+		for (int16_t i = start; i > end; i--)
 		{
 			uint16_t index = (fc.history.index + FC_HISTORY_SIZE - i * step) % FC_HISTORY_SIZE;
 
