@@ -75,13 +75,6 @@ static bootloader_res_t fatfs_bootloader_update(char * path)
 			return bl_file_invalid;
 		}
 
-        if (nvm->bootloader == hdr.build_number)
-        {
-            ERR("Already up-to-date");
-            f_close(&f);
-            return bl_same_version;
-        }
-
 		if (f_size(&f) != hdr.size + sizeof(hdr))
 		{
 			ERR("Unexpected file size");
@@ -352,11 +345,14 @@ void sd_migrate_worker(void * param)
     if (res == FR_OK)
     {
     	bootloader_res_t bl_res = fatfs_bootloader_update(PATH_BL_FW_AUTO);
-    	if (!(bl_res == bl_update_ok || bl_res == bl_same_version))
+    	if (bl_res != bl_update_ok)
     	{
-            dialog_show("Error", "Unable to update bootloader", dialog_confirm, migrate_fail_cb);
+            dialog_show("Error", "Unable to update bootloader.\nRe-install the update file.", dialog_confirm, migrate_fail_cb);
             vTaskSuspend(NULL);
     	}
+
+    	dialog_set_text("Bootloader updated");
+    	osDelay(1000);
 
         ram_file_t first;
         first.path = NULL;
@@ -379,6 +375,7 @@ void sd_migrate_worker(void * param)
             f_mount(NULL, "", 0);
         }
         free(fs);
+        osDelay(1000);
 
         dialog_set_text("Formating storage");
         INFO("Formating storage to RED");
@@ -388,6 +385,7 @@ void sd_migrate_worker(void * param)
             {
                 dialog_set_text("Restoring config");
                 files_from_ram(first.next);
+                osDelay(1000);
             }
             else
             {
@@ -419,9 +417,9 @@ void sd_migrate_cb(uint8_t res, void * data)
 {
     if (res == dialog_res_yes)
     {
-		dialog_show("Migrating", "please wait", dialog_progress, NULL);
+		dialog_show("Migrating", "Updating bootloader", dialog_progress, NULL);
 		dialog_progress_spin();
-		xTaskCreate((TaskFunction_t)sd_migrate_worker, "sd_format_worker", 1024 * 2, NULL, 24, NULL);
+		xTaskCreate((TaskFunction_t)sd_migrate_worker, "sd_migrate", 1024 * 2, NULL, 24, NULL);
 	}
     else
     {
