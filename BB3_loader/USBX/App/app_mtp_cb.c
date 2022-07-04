@@ -68,6 +68,9 @@ typedef struct {
     uint8_t default_value;
     uint8_t current_value;
     uint8_t form;
+    uint8_t form_min;
+    uint8_t form_max;
+    uint8_t form_step;
 } device_prop_desc_uint8_t;
 
 #define MAX_HANDLES     1024
@@ -277,7 +280,10 @@ static UINT mtp_device_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
             payload->default_value = 0;
             payload->current_value = pwr.fuel_gauge.battery_percentage;
-            payload->form = 0x00;
+            payload->form = 0x01;
+            payload->form_min = 0x00;
+            payload->form_max = 0x64;
+            payload->form_step = 1;
 
             *device_prop_dataset = (UCHAR *)payload;
             *device_prop_dataset_length = sizeof(device_prop_desc_uint8_t);
@@ -540,6 +546,7 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
     char name[128];
     _ux_utility_unicode_to_string(object->ux_device_class_pima_object_filename, (UCHAR *)name);
 
+    INFO(" parent %08X", parent_object_handle);
     *object_handle = mtp_get_handle(parent_object_handle, name);
     INFO(" handle %08X", *object_handle);
 
@@ -718,7 +725,7 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
             object_prop_desc_uint32_t * payload = (object_prop_desc_uint32_t *)&mtp_buffer;
 
             payload->property_code = object_property;
-            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT64;
+            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT32;
             payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
             payload->default_value = pima->ux_device_class_pima_storage_id;
             payload->group_code = 0;
@@ -779,6 +786,22 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
             *object_prop_dataset_length = sizeof(object_prop_desc_uint128_t);
             break;
         }
+
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT):
+	    {
+            object_prop_desc_uint32_t * payload = (object_prop_desc_uint32_t *)&mtp_buffer;
+
+            payload->property_code = object_property;
+            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT32;
+            payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
+            payload->default_value = 0;
+            payload->group_code = 0;
+            payload->form = 0x00;
+
+            *object_prop_dataset = (UCHAR *)payload;
+            *object_prop_dataset_length = sizeof(object_prop_desc_uint32_t);
+        	break;
+	    }
 
         default:
             WARN("object_property not handled");
@@ -903,6 +926,16 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
         }
         break;
 
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT):
+        {
+        	uint32_t * parent = (uint32_t *)mtp_buffer;
+            *parent = mtp_handle_get_node(object_handle)->parent;
+
+            *object_prop_value = (UCHAR *)mtp_buffer;
+            *object_prop_value_length = sizeof(uint32_t);
+        }
+        break;
+
         default:
             WARN("object_property not handled");
             return UX_ERROR;
@@ -914,7 +947,7 @@ static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, U
 
 static UINT mtp_object_prop_value_set(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR *object_prop_value, ULONG object_prop_value_length)
 {
-    INFO("mtp_object_prop_value_set");
+    INFO("mtp_object_prop_value_set %08X, %04X", object_handle, object_property);
 
     switch(object_property)
     {

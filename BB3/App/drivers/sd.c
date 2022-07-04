@@ -1,7 +1,7 @@
 
+#include <gui/sd_migrate.h>
 #include "sd.h"
 
-#include "gui/sd_format.h"
 
 bool sd_failsafe = false;
 
@@ -197,7 +197,7 @@ void sd_init()
     if (err != 0)
     {
         ERR("Error mounting, %d", err);
-        sd_format_dialog();
+        sd_migrate_dialog();
     }
 
 	//create file system structure

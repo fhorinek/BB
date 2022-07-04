@@ -85,7 +85,7 @@ void system_reboot()
     start_power_off = true;
 }
 
-void system_reboot_bl()
+void system_reboot_hard()
 {
 	NVIC_SystemReset();
 }

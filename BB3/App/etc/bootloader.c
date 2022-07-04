@@ -9,14 +9,6 @@
 
 #include "drivers/nvm.h"
 
-typedef struct
-{
-	uint32_t build_number;
-	uint32_t size;
-	uint32_t reserved;
-	uint32_t crc;
-} bootloader_header_t;
-
 bootloader_res_t bootloader_update(char * path)
 {
 	//TODO: check batery voltage before
