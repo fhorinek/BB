@@ -296,7 +296,7 @@ if args.publish:
 
     os.system("git add -A")
     os.system("git commit -m 'Build numbers update for %s'" % build)
-    os.system("git tag '%s'" % build)
+    os.system("git tag -f '%s'" % build)
 
 print("Done for build " + build)
 
