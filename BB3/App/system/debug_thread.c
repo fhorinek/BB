@@ -330,7 +330,7 @@ void thread_debug_start(void *argument)
             	//open
             	if (!debug_file_open)
             	{
-            	    debug_file = red_open(DEBUG_FILE, RED_O_WRONLY | RED_O_APPEND);
+            		debug_file = red_open(DEBUG_FILE, RED_O_WRONLY | RED_O_APPEND | RED_O_CREAT);
             		debug_file_open = true;
             	}
 
