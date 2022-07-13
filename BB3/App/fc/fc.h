@@ -187,10 +187,13 @@ typedef struct
 
     struct
     {
-        uint32_t start_time;
-        uint32_t duration;
+        uint32_t start_time;            // in ms from HAL_GetTick
+        uint32_t duration;              // in seconds
       	uint32_t odometer;              // in cm
-
+      	int16_t max_alt;                // in meter
+		int16_t min_alt;                // in meter
+        int16_t max_climb;              // in cm/s
+        int16_t max_sink;               // in cm/s
 
         float avg_heading_change;
 
@@ -346,10 +349,10 @@ typedef struct
 
 	struct
 	{
-        float altitude1;
+        float altitude1;    // in m
         float altitude2;
         float pressure;
-        float vario;
+        float vario;        // in m/s
         float avg_vario;
         float gr_vario;
 

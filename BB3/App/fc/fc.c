@@ -6,6 +6,8 @@
  */
 #define DEBUG_LEVEL	DEBUG_DBG
 
+#include <inttypes.h>
+
 #include "fc.h"
 
 #include "kalman.h"
@@ -138,6 +140,10 @@ void fc_reset()
 	fc.agl.agl = AGL_INVALID;
 
 	fc.flight.odometer = 0;
+	fc.flight.max_alt = -32678;
+ 	fc.flight.min_alt = 32677;
+ 	fc.flight.max_climb = 0;
+ 	fc.flight.max_sink = 0;
 
     circling_reset();
 }
@@ -211,11 +217,24 @@ void fc_takeoff()
     notification_send(notify_take_off);
 }
 
+void fc_save_stats()
+{
+	// fc_get_utc_time() casted to uint32_t as ARM's printf does not support 64 bit integer.
+	logger_comment(" SKYBEAN-START-UTC-s: %" PRIu32, (uint32_t)fc_get_utc_time() - fc.flight.duration);
+	logger_comment(" SKYBEAN-DURATION-s: %" PRIu32, fc.flight.duration);
+ 	logger_comment(" SKYBEAN-ALT-MAX-m: %" PRId16, fc.flight.max_alt);
+ 	logger_comment(" SKYBEAN-ALT-MIN-m: %" PRId16, fc.flight.min_alt);
+ 	logger_comment(" SKYBEAN-CLIMB-MAX-cm: %" PRId16, fc.flight.max_climb);
+ 	logger_comment(" SKYBEAN-SINK-MAX-cm: %" PRId16, fc.flight.max_sink);
+ 	logger_comment(" SKYBEAN-ODO-m: %" PRIu32, fc.flight.odometer/100);   // cm to m
+}
+
 void fc_landing()
 {
     INFO("Landing");
     fc.flight.duration = (HAL_GetTick() - fc.flight.start_time) / 1000;
     fc.flight.mode = flight_landed;
+    fc_save_stats();
 
     fc_reset();
 
@@ -291,6 +310,12 @@ void fc_step()
                 check = true;
             }
         }
+
+        if (fc.fused.altitude1 > fc.flight.max_alt) 	fc.flight.max_alt = fc.fused.altitude1;
+        if (fc.fused.altitude1 < fc.flight.min_alt) 	fc.flight.min_alt = fc.fused.altitude1;
+        int16_t t_vario = fc.fused.vario * 100;         // meter/s -> cm/s
+        if (t_vario > fc.flight.max_climb) 	fc.flight.max_climb = t_vario;
+        if (t_vario < fc.flight.max_sink) 	fc.flight.max_sink = t_vario;
 
         if (check)
         {
