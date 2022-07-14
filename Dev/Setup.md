@@ -90,18 +90,18 @@ installing the above tools.
 
 Start by downloading an official firmware file (preferably latest
 version) and extract all files contained. Copy all necessary files to
-BB_esp_fw and you are done. The following instructions use version 260
-as an example. Please replace 260 by the latest version:
+BB_esp_fw and you are done. The following instructions use version R.274.0.0
+as an example. Please replace "R.274.0.0" by the latest version:
 
-    cd ~/git/BB3/Utilities/Bundle
-    wget "https://strato.skybean.eu/fw/release/260/strato.fw"
+    cd ~/git/BB/Utilities/Bundle
+    wget "https://strato.skybean.eu/fw/release/R.274.0.0/strato.fw"
     ./unpack_fw.py strato.fw
     mkdir ../../BB_esp_fw/build
-    cp -a R0000260/{BB_esp_fw.bin,bootloader.bin,partition-table.bin,storage.bin} ../../BB_esp_fw/build
+    cp -a R.274.0.0/{firmware.bin,bootloader.bin,partition-table.bin,storage.bin} ../../BB_esp_fw/build
     cat > ../../BB_esp_fw/build/flash_args <<EOF
     --flash_mode dio --flash_freq 80m --flash_size 16MB
     0x00001000 bootloader.bin
-    0x00010000 BB_esp_fw.bin
+    0x00010000 firmware.bin
     0x00008000 partition-table.bin
     0x00A10000 storage.bin
     EOF
