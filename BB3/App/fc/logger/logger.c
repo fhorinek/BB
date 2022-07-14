@@ -34,6 +34,23 @@ void logger_start()
 		csv_start();
 }
 
+/**
+ * printf-like function to send output to the GPS log .
+ *
+ * \param format a printf-like format string 
+ **/ 
+void logger_comment(const char *format, ...)
+{
+ 	va_list arp;
+ 	char text[80];
+
+  	va_start(arp, format);
+ 	vsnprintf(text, sizeof(text), format, arp);
+ 	va_end(arp);
+
+  	igc_comment(text);
+    // Add additional loggers here, if available.
+}
 
 void logger_stop()
 {
