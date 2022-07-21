@@ -7,6 +7,7 @@ Changed:
 * Reliance Edge FS
 * USB protocol MTP
 * GUI speed improvments
+* MTP handles count increase
 
 Fixed:
 * Stuck at power off
