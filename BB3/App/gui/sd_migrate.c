@@ -419,7 +419,7 @@ void sd_migrate_cb(uint8_t res, void * data)
     {
 		dialog_show("Migrating", "Updating bootloader", dialog_progress, NULL);
 		dialog_progress_spin();
-		xTaskCreate((TaskFunction_t)sd_migrate_worker, "sd_migrate", 1024 * 2, NULL, 24, NULL);
+		xTaskCreate((TaskFunction_t)sd_migrate_worker, "sd_migrate", 1024 * 4, NULL, 24, NULL);
 	}
     else
     {
