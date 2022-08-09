@@ -237,7 +237,7 @@ void statusbar_step()
 		uint8_t s;
 
 		rtc_get_time(&h, &m, &s);
-		char buff[8];
+		char buff[16];
 		format_time(buff, h, m);
 		lv_label_set_text(gui.statusbar.time, buff);
 	}

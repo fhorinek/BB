@@ -30,6 +30,15 @@ void format_date(char * buff, uint8_t day, uint8_t month, uint16_t year)
     }
 }
 
+/**
+ * Give a time representation of given hour and min
+ * depending on time format choosen by user:
+ * "23:59" or "11:59 pm"
+ *
+ * @param buff the buffer receiving the result (at least 9 bytes including \0)
+ * @param hour the hour to print
+ * @param min the minute to print
+ */
 void format_time(char * buff, uint8_t hour, uint8_t min)
 {
     if (config_get_bool(&config.units.time24))
