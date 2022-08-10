@@ -74,6 +74,8 @@ static float lat_mult[] = {
 	2.00017772298141,
 };
 
+// number of elements inside lat_mult array:
+#define LAT_MULT_NUM_ELEMENTS (sizeof(lat_mult)/sizeof(float))
 
 static void get_kx_ky(float lat, float * kx, float * ky)
 {
@@ -122,7 +124,7 @@ void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_
     uint16_t zoom_p = pow(2, min(zoom, 15));
 
 	*step_x = (zoom_p * (int64_t)GNSS_MUL) / MAP_DIV_CONST;
-	uint8_t lat_i = min(61, abs(lat / GNSS_MUL));
+	uint8_t lat_i = min(LAT_MULT_NUM_ELEMENTS - 1, abs(lat / GNSS_MUL));
 	*step_y = (zoom_p * (int64_t)GNSS_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
 
