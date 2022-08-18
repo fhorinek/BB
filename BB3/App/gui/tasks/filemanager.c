@@ -371,11 +371,11 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         {
             if (local->flags & FM_FLAG_SORT_NAME)
             {
-                qsort(local->filenames, cnt, PATH_LEN, fm_sort_name);
+                qsort(local->filenames, cnt, sizeof(fm_record_cache_t), fm_sort_name);
             }
             if (local->flags & FM_FLAG_SORT_DATE)
             {
-                qsort(local->filenames, cnt, PATH_LEN, fm_sort_date);
+                qsort(local->filenames, cnt, sizeof(fm_record_cache_t), fm_sort_date);
             }
             for ( int i = 0; i < cnt; i++ )
             {
