@@ -1,7 +1,5 @@
 # SkyBean Strato
 
-TEST please do not merge
-
 This is offical source code repositary for SkyBean Strato
 
 * [Firmware repo](https://strato.skybean.eu/fw/)
