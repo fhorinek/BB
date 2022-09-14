@@ -232,7 +232,7 @@ void igc_start_write()
 	igc_writeline(line);
 #endif
 
-	igc_comment("pre flight buffer");
+	igc_comment("pre flight buffer start");
 
 	//write buffer
 	FC_ATOMIC_ACCESS
@@ -249,12 +249,12 @@ void igc_start_write()
 			fc_pos_history_t * pos = &fc.history.positions[index];
 
 			bool valid = pos->flags & FC_POS_GNSS_3D;
-
-			igc_write_b(now - i, pos->lat, pos->lon, pos->gnss_alt, valid, pos->baro_alt);
+			if ( valid ) 
+			  igc_write_b(now - i, pos->lat, pos->lon, pos->gnss_alt, valid, pos->baro_alt);
 		}
 	}
 
-	igc_comment("buffer end");
+	igc_comment("pre flight buffer end");
 
 
 }
