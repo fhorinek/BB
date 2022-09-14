@@ -187,6 +187,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
+#define PATH_LOG_CACHE_DIR  PATH_CACHE_DIR "/logs"
 
 #define PATH_CRASH_DIR      "crash"
 #define PATH_CRASH_DUMP     PATH_CRASH_DIR "/dump.bin"
