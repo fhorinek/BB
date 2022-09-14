@@ -362,6 +362,43 @@ char * gui_list_switch_get_title(lv_obj_t * obj)
 	return lv_label_get_text(label);
 }
 
+/**
+ * Add a single line containing two labels with text. The label with "text" is
+ * left aligned and "value" is right aligned. Can be used to show some data, e.g.
+ *
+ *     Duration       10.2min
+ *     Start            08:32
+ *     End              08:42
+ *
+ *  @param list the list to add the element to
+ *  @param text left aligned
+ *  @param value right aligned
+ *  @return the newly created lv_obj_t
+ */ 
+lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text, const char * value)
+{
+	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
+	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
+	//lv_page_glue_obj(entry, true);
+
+	lv_obj_t * label1 = lv_label_create(entry, NULL);
+	lv_label_set_text(label1, text);
+	lv_obj_align(label1, entry, LV_ALIGN_IN_LEFT_MID, lv_obj_get_style_pad_left(entry, LV_CONT_PART_MAIN), 0);
+	lv_obj_set_auto_realign(label1, true);
+
+	lv_obj_t * label2 = lv_label_create(entry, NULL);
+	lv_label_set_text(label2, value);
+	lv_obj_align(label2, entry, LV_ALIGN_IN_RIGHT_MID, -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN), 0);
+	lv_obj_set_auto_realign(label2, true);
+
+	//lv_obj_set_focus_parent(sw, true);
+
+	lv_obj_set_event_cb(entry, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, entry);
+
+	return entry;
+}
 
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value)
 {

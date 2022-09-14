@@ -83,6 +83,13 @@ void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lon)
 	}
 }
 
+/**
+ * Format a vario value into a string for display to user, e.g. "2.0".
+ * There is no unit after the number.
+ *
+ * @param val the buffer receiving the output
+ * @param in the vario value in "meter/s"
+ */
 void format_vario(char * val, float in)
 {
     int16_t value;
@@ -103,6 +110,11 @@ void format_vario(char * val, float in)
     sprintf(val, "%0.1f", value / 10.0);
 }
 
+/**
+ * Format a vario value's unit into a string for display to user, e.g. "m/s".
+ *
+ * @param val the buffer receiving the output
+ */
 void format_vario_units(char * units)
 {
     switch (config_get_select(&config.units.vario))
@@ -119,6 +131,12 @@ void format_vario_units(char * units)
     }
 }
 
+/**
+ * Format a vario value into a string for display to user, e.g. "2.0 m/s".
+ *
+ * @param val the buffer receiving the output
+ * @param in the vario value in "meter/s"
+ */
 void format_vario_with_units(char * buff, float in)
 {
 	char val[16];
@@ -242,6 +260,12 @@ void format_altitude_with_units_2(char * buff, float in, uint8_t units)
     sprintf(buff, "%s %s", val, uni);
 }
 
+/**
+ * Format a distance according to user configuration, e.g. "10.34km"
+ *
+ * @param buf the buffer receiving the string representation
+ * @param in the distance in meter.
+ */
 void format_distance_with_units(char * buf, float in)
 {
     switch (config_get_select(&config.units.distance))
