@@ -14,7 +14,7 @@ lv_obj_t * gui_list_get_entry(uint16_t index)
 	lv_obj_t * child = NULL;
 	while(1)
 	{
-	    child = lv_obj_get_child_back(gui.list.object, child);
+	    child = lv_obj_get_child_back(gui.list.content, child);
 
 	    if (index == 0)
 	    	return child;
@@ -31,7 +31,7 @@ uint16_t gui_list_index(lv_obj_t * obj)
 	//get top parent
 	lv_obj_t * top = obj;
 
-	while (top->parent != gui.list.object)
+	while (top->parent != gui.list.content)
 	{
 		top = top->parent;
 		if (top == NULL)
@@ -43,7 +43,7 @@ uint16_t gui_list_index(lv_obj_t * obj)
 	lv_obj_t * child = NULL;
 	while (1)
 	{
-		child = lv_obj_get_child_back(gui.list.object, child);
+		child = lv_obj_get_child_back(gui.list.content, child);
 		if (child == top)
 			break;
 
@@ -115,7 +115,7 @@ void gui_list_store_pos(gui_task_t * task)
 {
     task->last_menu_pos = GUI_LIST_NO_LAST_POS;
 
-    if (gui.list.object != NULL)
+    if (gui.list.content != NULL)
     {
         lv_obj_t * focused = lv_group_get_focused(gui.input.group);
         if (focused != NULL)
@@ -129,7 +129,6 @@ static uint8_t level = 0;
 
 bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
 {
-    INFO("gui_focus_child %u", level++);
     if (lv_obj_get_group(parent) != NULL)
     {
         lv_group_focus_obj(parent);
@@ -152,7 +151,7 @@ bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
 
 void gui_list_retrive_pos(gui_task_t * task)
 {
-	if (gui.list.object == NULL)
+	if (gui.list.content == NULL)
 		return;
 
 	if (task->last_menu_pos == GUI_LIST_NO_LAST_POS)
@@ -179,11 +178,17 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back
 	lv_win_set_layout(win, LV_LAYOUT_PRETTY_MID);
 
 	//object that hold list entries
-	gui.list.object = lv_obj_get_child(lv_win_get_content(win), NULL);
+	gui.list.list = win;
+	gui.list.content = lv_obj_get_child(lv_win_get_content(win), NULL);
 	gui.list.callback = cb;
 	gui.list.back = back;
 
 	return win;
+}
+
+void gui_list_set_title(lv_obj_t * list, const char * title)
+{
+	lv_win_set_title(list, title);
 }
 
 lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)

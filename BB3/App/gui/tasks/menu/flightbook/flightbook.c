@@ -20,9 +20,11 @@
 
 #include "etc/format.h"
 
-REGISTER_TASK_I(flightbook);
-
-char flightbook_flight_filename[PATH_LEN];
+void flightbook_flights_open_fm(bool anim)
+{
+    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
+    filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
+}
 
 static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
 {
@@ -33,7 +35,7 @@ static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
         red_unlink(path);                                                                                                                   
 
         char name[PATH_LEN];
-        filemanager_get_filename_no_ext(name, path);                                                                                        
+        filemanager_get_filename(name, path);
 
         char text[64];
         snprintf(text, sizeof(text), "Flight '%s' deleted", name);
@@ -46,30 +48,31 @@ static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
 
 bool flightbook_flights_fm_cb(uint8_t event, char * path)
 {
-    char name[strlen(path) + 1];
-    filemanager_get_filename(name, path);
-
     switch (event)
     {
         case FM_CB_SELECT:
+        case (0):
         {
-            strcpy(flightbook_flight_filename, path);
-            //char text[64];
-            //snprintf(text, sizeof(text), "Flight '%s'", name);
+        	uint8_t fm_level = filemanager_get_current_level();
             gui_switch_task(&gui_flightbook_flight, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+            flightbook_flight_open(path, fm_level);
             return false;
         }
 
         case FM_CB_FOCUS_FILE:
         {
             ctx_clear();
+            ctx_add_option(LV_SYMBOL_EYE_OPEN " View");
             ctx_add_option(LV_SYMBOL_TRASH " Delete");
             ctx_show();
             break;
         }
 
-        case (0): //delete
+        case (1): //delete
         {
+            char name[strlen(path) + 1];
+            filemanager_get_filename(name, path);
+
             char text[64];
             sniprintf(text, sizeof(text), "Do you want to remove flight '%s'", name);
             dialog_show("Confirm", text, dialog_yes_no, flightbook_fm_remove_cb);
@@ -82,29 +85,11 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
     return true;
 }
 
-void flightbook_flights_open_fm(bool anim)
+
+
+void flightbook_open()
 {
-    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
-    filemanager_open(PATH_LOGS_DIR, 0, &gui_flightbook, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE, flightbook_flights_fm_cb);
+    flightbook_flights_open_fm(true);
 }
 
-static bool flights_cb(lv_obj_t * obj, lv_event_t event)
-{
-    if (event == LV_EVENT_CLICKED)
-    {
-        flightbook_flights_open_fm(true);
-        return false;
-    }
-    return true;
-}
-
-static lv_obj_t * flightbook_init(lv_obj_t * par)
-{
-	lv_obj_t * list = gui_list_create(par, "Flight book", &gui_settings, NULL);
-
-	lv_obj_t * flights = gui_list_info_add_entry(list, "Flights", "Browse");
-	gui_config_entry_add(flights, CUSTOM_CB, flights_cb);
-
-	return list;
-}
 

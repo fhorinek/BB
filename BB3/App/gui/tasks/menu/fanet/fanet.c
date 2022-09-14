@@ -41,7 +41,7 @@ static void fanet_loop()
 		//add new entry
 		while (local->cnt < fc.fanet.neighbors_size)
 		{
-			gui_list_info_add_entry(gui.list.object, "", "");
+			gui_list_info_add_entry(gui.list.content, "", "");
 			local->cnt++;
 		}
 

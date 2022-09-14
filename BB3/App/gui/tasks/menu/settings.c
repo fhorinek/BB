@@ -26,13 +26,23 @@
 
 REGISTER_TASK_I(settings);
 
+static bool open_flightbook(lv_obj_t * obj, lv_event_t event)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		flightbook_open();
 
+		//supress default handler
+		return false;
+	}
+	return true;
+}
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
 
-	gui_list_auto_entry(list, "Flightbook", NEXT_TASK, &gui_flightbook);
+	gui_list_auto_entry(list, "Flightbook", CUSTOM_CB, open_flightbook);
 	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);

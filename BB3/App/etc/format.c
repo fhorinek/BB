@@ -272,24 +272,24 @@ void format_distance_with_units(char * buf, float in)
     {
         case(DISTANCE_METERS):
             if (in < 1000) //1km
-                sprintf(buf, "%0.0fm", in);
+                sprintf(buf, "%0.0f m", in);
             else if (in < 10000) //10km
-                sprintf(buf, "%0.2fkm", in / 1000.0);
+                sprintf(buf, "%0.2f km", in / 1000.0);
             else if (in < 100000) //100km
-                sprintf(buf, "%0.1fkm", in / 1000.0);
+                sprintf(buf, "%0.1f km", in / 1000.0);
             else
-                sprintf(buf, "%0.0fkm", in / 1000.0);
+                sprintf(buf, "%0.0f km", in / 1000.0);
         break;
 
         case(DISTANCE_MILES):
         {
             float mi = (in / 1000.0) * FC_KM_TO_MILE;
             if (in < 1.0) //1mi
-                sprintf(buf, "%0.0fft", mi * 5280);
+                sprintf(buf, "%0.0f ft", mi * 5280);
             if (in < 10.0) //10mi
-                sprintf(buf, "%0.1fmi", mi);
+                sprintf(buf, "%0.1f mi", mi);
             else
-                sprintf(buf, "%0.0fmi", mi);
+                sprintf(buf, "%0.0f mi", mi);
         }
         break;
 
@@ -302,18 +302,18 @@ void format_distance_with_units2(char * buf, float in)
 	{
 		case(DISTANCE_METERS):
 			if (in < 1000) //1km
-				sprintf(buf, "%0.0fm", in);
+				sprintf(buf, "%0.0f m", in);
 			else
-				sprintf(buf, "%0.0fkm", in / 1000.0);
+				sprintf(buf, "%0.0f km", in / 1000.0);
 		break;
 
 		case(DISTANCE_MILES):
 		{
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (in < 1.0) //1mi
-				sprintf(buf, "%0.0fft", mi * 5280);
+				sprintf(buf, "%0.0f ft", mi * 5280);
 			else
-				sprintf(buf, "%0.0fmi", mi);
+				sprintf(buf, "%0.0f mi", mi);
 		}
 		break;
 

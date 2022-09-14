@@ -27,7 +27,7 @@ void development_trigger()
 
 //    INFO("This should break me %u", 1 / 0);
 
-    statusbar_msg_add(STATUSBAR_MSG_INFO, "FUCK");
+    statusbar_msg_add(STATUSBAR_MSG_INFO, "development_trigger");
 
     //FASSERT(0);
 }

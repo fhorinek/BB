@@ -107,7 +107,7 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
 
     if (gui.dialog.type == dialog_progress)
     {
-        if (key == LV_KEY_ESC)
+        if (key == LV_KEY_ESC && gui.dialog.cb != NULL)
             dialog_stop(dialog_res_cancel, dialog_opt_data);
     }
 

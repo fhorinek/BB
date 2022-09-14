@@ -239,7 +239,7 @@ flight_profile_t profile =
         //last_lon
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
-		entry_big_int("last_lon", 0, big_int_max_range),
+		entry_big_int("last_lat", 0, big_int_max_range),
 
 		//autoset
 		{
