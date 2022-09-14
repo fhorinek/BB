@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL	DEBUG_DBG
+// #define DEBUG_LEVEL	DEBUG_DBG
 
 #include "logger.h"
 
@@ -159,7 +159,7 @@ void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
 	if (f_stat->start_time == FS_NO_DATA)
 	{
 		// Fallback: this is an old file without comments, so read data out of files
-	    sprintf(line, "/aaa" PATH_LOG_CACHE_DIR "/%s", filename + 5);
+	    sprintf(line, PATH_LOG_CACHE_DIR "/%s", filename + 5);
 		fp_cache = red_open(line, RED_O_RDONLY);
 		if ( fp_cache >= 0 )
 		{
