@@ -19,13 +19,25 @@
 #include "gui/tasks/menu/flight/flight.h"
 #include "gui/tasks/menu/map.h"
 #include "gui/tasks/menu/audio.h"
+#include "gui/game/space-invaders/spaceinvaders.h"
 
 #include "gui/gui_list.h"
 #include "etc/format.h"
 
 REGISTER_TASK_I(settings);
 
+static bool spaceinvaders_cb(lv_obj_t * obj, lv_event_t event)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		spaceinvaders_start();
 
+		//supress default handler
+		return false;
+	}
+
+	return true;
+}
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
@@ -40,6 +52,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);
 	gui_list_auto_entry(list, "Bluetooth", NEXT_TASK, &gui_bluetooth);
 	gui_list_auto_entry(list, "Wi-Fi", NEXT_TASK, &gui_wifi);
+	gui_list_auto_entry(list, "Space Invaders!", CUSTOM_CB, &spaceinvaders_cb);
 	gui_list_auto_entry(list, "System", NEXT_TASK, &gui_system);
 
 	if (DEVEL_ACTIVE)

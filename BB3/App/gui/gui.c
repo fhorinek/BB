@@ -23,6 +23,8 @@
 
 #include "gui/dbg_overlay.h"
 
+#include "game/space-invaders/spaceinvaders.h"
+
 gui_t gui;
 
 //LV_FONT_DECLARE(lv_font_montserrat_14);
@@ -283,6 +285,8 @@ void gui_init()
 void gui_loop()
 {
 	static uint32_t next_update = 0;
+
+	spaceinvaders_loop();
 
 	if (next_update < HAL_GetTick())
 	{
