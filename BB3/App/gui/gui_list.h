@@ -55,6 +55,8 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text);
 void gui_list_text_set_value(lv_obj_t * obj, char * text);
 const char * gui_list_text_get_value(lv_obj_t * obj);
 
+lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text, const char * value);
+
 lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_t color);
 void gui_list_note_set_text(lv_obj_t * obj, char * text);
 

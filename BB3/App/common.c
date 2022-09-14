@@ -1,4 +1,8 @@
+// #define DEBUG_LEVEL	DEBUG_DBG
+
 #include "common.h"
+#include "etc/format.h"
+#include <inttypes.h>
 
 uint8_t hex_to_num(uint8_t c)
 {
@@ -516,4 +520,49 @@ void str_join(char * dst, uint8_t cnt, ...)
     *ptr = 0;
 }
 
+/**
+ * Read a single line from the given file.
+ *
+ * @param line Pointer to read buffer to store the read line
+ * @param len Size of the read buffer in bytes. Must be larger than "1".
+ * @param file the file to read from
+ *
+ * @return line if reading was successfull otherwise NULL
+ */
+char *file_gets(char *line, int len, int32_t file)
+{
+	int pos = 0;
+	int32_t ret = 0;
+	int32_t off;
+
+	ret = red_read(file, line, len);
+	if (ret <= 0) return NULL;             // EOF
+
+	while(pos < ret)
+	{
+		if (line[pos] == '\r')
+		{
+			line[pos] = 0;
+
+			off = -(ret - pos) + 2;          // CR+NL
+			red_lseek(file, (int64_t)off, RED_SEEK_CUR);
+
+			return line;
+		}
+		if (line[pos] == '\n')
+		{
+			line[pos] = 0;
+
+			off = -(ret - pos) + 1;         // NL
+			red_lseek(file, (int64_t)off, RED_SEEK_CUR);
+
+			return line;
+		}
+		pos++;
+	}
+
+	line[pos-1] = 0;
+
+	return line;
+}
 

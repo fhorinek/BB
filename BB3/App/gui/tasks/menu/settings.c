@@ -17,6 +17,7 @@
 #include <gui/tasks/menu/wifi/wifi.h>
 #include "gui/tasks/page/pages.h"
 #include "gui/tasks/menu/flight/flight.h"
+#include "gui/tasks/menu/flightbook/flightbook.h"
 #include "gui/tasks/menu/map.h"
 #include "gui/tasks/menu/audio.h"
 
@@ -31,6 +32,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
 
+	gui_list_auto_entry(list, "Flightbook", NEXT_TASK, &gui_flightbook);
 	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
