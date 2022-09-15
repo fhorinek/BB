@@ -242,8 +242,6 @@ void sd_init()
     red_mkdir(PATH_CACHE_DIR);
     //system/cache/map
     red_mkdir(PATH_MAP_CACHE_DIR);
-    //system/cache/logs
-    red_mkdir(PATH_LOG_CACHE_DIR);
 }
 
 void sd_deinit()

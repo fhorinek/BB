@@ -140,6 +140,7 @@ void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
 {
 	int32_t fp, fp_cache;
 	char line[PATH_LEN];
+	char *p;
 
 	// Set defaults, if nothing could be found in the file:
 	f_stat->start_time = FS_NO_DATA;
@@ -159,7 +160,14 @@ void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
 	if (f_stat->start_time == FS_NO_DATA)
 	{
 		// Fallback: this is an old file without comments, so read data out of files
-	    sprintf(line, PATH_LOG_CACHE_DIR "/%s", filename + 5);
+	  sprintf(line, PATH_LOG_CACHE_DIR "/%s", filename + 5);
+
+	  // make directory and its parents:
+	  p = strrchr(line, '/');
+	  *p = 0;
+	  red_mkdirs(line);
+	  *p = '/';
+
 		fp_cache = red_open(line, RED_O_RDONLY);
 		if ( fp_cache >= 0 )
 		{

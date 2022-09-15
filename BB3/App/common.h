@@ -243,9 +243,12 @@ int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
 
 bool file_exists(char * path);
+bool file_isdir(char *path);
+
 void touch(char * path);
 uint64_t file_size(int32_t file);
 char * red_gets(char * buff, uint16_t buff_len, int32_t fp);
+int red_mkdirs(char *dir);
 
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data);
 uint32_t calc_crc32(uint32_t * data, uint32_t size);
