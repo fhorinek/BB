@@ -30,10 +30,7 @@ static bool spaceinvaders_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CLICKED)
 	{
-		spaceinvaders_start();
-
-		//supress default handler
-		return false;
+		gui_switch_task(&gui_spaceinvaders, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
 
 	return true;
