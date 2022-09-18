@@ -15,6 +15,8 @@ typedef bool (* filemanager_cb_t)(uint8_t, char *);
 DECLARE_TASK(filemanager);
 void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t flags, filemanager_cb_t cb);
 
+uint8_t filemanager_get_current_level();
+
 bool filemanager_get_filename_no_ext(char * dst, char * path);
 bool filemanager_get_filename(char * dst, char * path);
 bool filemanager_get_path(char * dst, char * path);

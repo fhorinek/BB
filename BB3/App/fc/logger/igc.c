@@ -1,10 +1,12 @@
-//#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DEBUG_DBG
+
 #include "igc.h"
 
 #include "fc/fc.h"
 #include "sha256.h"
 #include "etc/epoch.h"
 #include "etc/timezone.h"
+#include "etc/geo_calc.h"
 #include "drivers/rev.h"
 #include "drivers/rtc.h"
 
@@ -317,4 +319,93 @@ void igc_stop()
 		igc_started = false;
 	}
 	fc.logger.igc = fc_logger_off;
+}
+
+/**
+ * Read the next B record from a IGC file and return the position.
+ *
+ * @param igc_log_read_file a file handle of the log file to parse
+ * @param flight_pos a pointer to the flight position to store the values
+ *
+ * @return true if a position was found or false on EOF
+ */
+bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos)
+{
+	char line[80];
+	static int16_t month, day, year;
+
+	while(file_gets(line, sizeof(line), igc_log_read_file) != NULL)
+	{
+		if (strstr(line, "HFDTE") == line)
+		{
+			day   = atoi_n(line+5, 2);
+			month = atoi_n(line+7, 2);
+			year  = atoi_n(line+9, 2) + 2000;
+		}
+		if (line[0] == 'B')
+		{
+			int hour = atoi_n(line+1, 2);
+			int min  = atoi_n(line+3, 2);
+			int sec  = atoi_n(line+5, 2);
+
+			//DBG("B timedate %02d.%02d.%04d %02d:%02d.%02d", day, month, year, hour, min, sec);
+
+			flight_pos->timestamp = datetime_to_epoch(sec, min, hour, day, month, year);
+
+			//DBG("B timestamp %ld", flight_pos->timestamp);
+			int DD = atoi_n(line+7, 2);
+			int MM = atoi_n(line+9, 2);
+			int mmm = atoi_n(line+11, 3);
+			int milli_min = MM * 1000 + mmm;
+			flight_pos->lat = DD * GNSS_MUL + (milli_min * GNSS_MUL / 60000);
+			if (line[14] == 'S') flight_pos->lat = -flight_pos->lat;
+			flight_pos->lon = atoi_n(line+15, 3) * GNSS_MUL + atoi_n(line+18, 5) * GNSS_MUL / 60000;
+			if (line[24] == 'W') flight_pos->lon = -flight_pos->lon;
+
+			flight_pos->baro_alt = atoi_n(line+25, 5);
+			flight_pos->gnss_alt = atoi_n(line+30, 5);
+
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Read the flight statistics from a igc file. This is done by
+ * parsing the IGC file opened with "fp".
+ *
+ * @param fp a file handle of the log file to parse
+ * @param f_stat a pointer to the flight statistics to store the values
+ */
+void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
+{
+	flight_pos_t first_pos, last_pos, pos;
+	int16_t raise;
+
+	f_stat->max_climb = 0;
+	f_stat->max_sink = 0;
+	f_stat->min_alt = INT16_MAX;
+	f_stat->max_alt = 0;
+
+	igc_read_next_pos(fp, &first_pos);
+
+	f_stat->start_time = first_pos.timestamp;
+
+	last_pos = first_pos;
+	while ( igc_read_next_pos(fp, &pos) )
+	{
+		f_stat->odo += geo_distance(last_pos.lat, last_pos.lon, pos.lat, pos.lon, false, NULL);
+
+		raise = (pos.baro_alt - last_pos.baro_alt) * 100;   // meter to cm
+		f_stat->max_climb = max(f_stat->max_climb, raise);
+		f_stat->max_sink = min(f_stat->max_sink, raise);
+
+		f_stat->max_alt = max(f_stat->max_alt, pos.baro_alt);
+		f_stat->min_alt = min(f_stat->min_alt, pos.baro_alt);
+
+		last_pos = pos;
+	}
+
+	f_stat->duration = last_pos.timestamp - f_stat->start_time;
 }

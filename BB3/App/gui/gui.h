@@ -156,7 +156,8 @@ typedef struct
 	//list
 	struct
 	{
-		lv_obj_t * object;
+		lv_obj_t * list;
+		lv_obj_t * content;
 		gui_list_task_cb_t callback;
 		gui_task_t * back;
 		config_entry_ll_t * entry_list;

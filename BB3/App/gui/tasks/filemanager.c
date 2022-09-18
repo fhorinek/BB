@@ -161,6 +161,13 @@ static void filemanager_dummy_cb(lv_obj_t * obj, lv_event_t event)
     }
 }
 
+//only call in filemanager callbacks, when filemanager is active task!
+uint8_t filemanager_get_current_level()
+{
+	ASSERT(gui.task.actual == &gui_filemanager);
+	return local->level;
+}
+
 static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CANCEL)
@@ -185,7 +192,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		if (RED_S_ISDIR(file->mode))
 		{
 			//we are switching to the same task
-			//"local" variable will belong to new task now
+			//"local" variable will belong to new task after gui_switch_task
 			gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 			filemanager_open(new_path, old->level + 1, old->back, old->flags, old->cb);
 		}

@@ -83,6 +83,13 @@ void format_gnss_datum(char * slat, char * slon, int32_t lat, int32_t lon)
 	}
 }
 
+/**
+ * Format a vario value into a string for display to user, e.g. "2.0".
+ * There is no unit after the number.
+ *
+ * @param val the buffer receiving the output
+ * @param in the vario value in "meter/s"
+ */
 void format_vario(char * val, float in)
 {
     int16_t value;
@@ -103,6 +110,11 @@ void format_vario(char * val, float in)
     sprintf(val, "%0.1f", value / 10.0);
 }
 
+/**
+ * Format a vario value's unit into a string for display to user, e.g. "m/s".
+ *
+ * @param val the buffer receiving the output
+ */
 void format_vario_units(char * units)
 {
     switch (config_get_select(&config.units.vario))
@@ -119,6 +131,12 @@ void format_vario_units(char * units)
     }
 }
 
+/**
+ * Format a vario value into a string for display to user, e.g. "2.0 m/s".
+ *
+ * @param val the buffer receiving the output
+ * @param in the vario value in "meter/s"
+ */
 void format_vario_with_units(char * buff, float in)
 {
 	char val[16];
@@ -242,30 +260,36 @@ void format_altitude_with_units_2(char * buff, float in, uint8_t units)
     sprintf(buff, "%s %s", val, uni);
 }
 
+/**
+ * Format a distance according to user configuration, e.g. "10.34km"
+ *
+ * @param buf the buffer receiving the string representation
+ * @param in the distance in meter.
+ */
 void format_distance_with_units(char * buf, float in)
 {
     switch (config_get_select(&config.units.distance))
     {
         case(DISTANCE_METERS):
             if (in < 1000) //1km
-                sprintf(buf, "%0.0fm", in);
+                sprintf(buf, "%0.0f m", in);
             else if (in < 10000) //10km
-                sprintf(buf, "%0.2fkm", in / 1000.0);
+                sprintf(buf, "%0.2f km", in / 1000.0);
             else if (in < 100000) //100km
-                sprintf(buf, "%0.1fkm", in / 1000.0);
+                sprintf(buf, "%0.1f km", in / 1000.0);
             else
-                sprintf(buf, "%0.0fkm", in / 1000.0);
+                sprintf(buf, "%0.0f km", in / 1000.0);
         break;
 
         case(DISTANCE_MILES):
         {
             float mi = (in / 1000.0) * FC_KM_TO_MILE;
             if (in < 1.0) //1mi
-                sprintf(buf, "%0.0fft", mi * 5280);
+                sprintf(buf, "%0.0f ft", mi * 5280);
             if (in < 10.0) //10mi
-                sprintf(buf, "%0.1fmi", mi);
+                sprintf(buf, "%0.1f mi", mi);
             else
-                sprintf(buf, "%0.0fmi", mi);
+                sprintf(buf, "%0.0f mi", mi);
         }
         break;
 
@@ -278,18 +302,18 @@ void format_distance_with_units2(char * buf, float in)
 	{
 		case(DISTANCE_METERS):
 			if (in < 1000) //1km
-				sprintf(buf, "%0.0fm", in);
+				sprintf(buf, "%0.0f m", in);
 			else
-				sprintf(buf, "%0.0fkm", in / 1000.0);
+				sprintf(buf, "%0.0f km", in / 1000.0);
 		break;
 
 		case(DISTANCE_MILES):
 		{
 			float mi = (in / 1000.0) * FC_KM_TO_MILE;
 			if (in < 1.0) //1mi
-				sprintf(buf, "%0.0fft", mi * 5280);
+				sprintf(buf, "%0.0f ft", mi * 5280);
 			else
-				sprintf(buf, "%0.0fmi", mi);
+				sprintf(buf, "%0.0f mi", mi);
 		}
 		break;
 

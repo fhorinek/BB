@@ -14,7 +14,7 @@ lv_obj_t * gui_list_get_entry(uint16_t index)
 	lv_obj_t * child = NULL;
 	while(1)
 	{
-	    child = lv_obj_get_child_back(gui.list.object, child);
+	    child = lv_obj_get_child_back(gui.list.content, child);
 
 	    if (index == 0)
 	    	return child;
@@ -31,7 +31,7 @@ uint16_t gui_list_index(lv_obj_t * obj)
 	//get top parent
 	lv_obj_t * top = obj;
 
-	while (top->parent != gui.list.object)
+	while (top->parent != gui.list.content)
 	{
 		top = top->parent;
 		if (top == NULL)
@@ -43,7 +43,7 @@ uint16_t gui_list_index(lv_obj_t * obj)
 	lv_obj_t * child = NULL;
 	while (1)
 	{
-		child = lv_obj_get_child_back(gui.list.object, child);
+		child = lv_obj_get_child_back(gui.list.content, child);
 		if (child == top)
 			break;
 
@@ -115,7 +115,7 @@ void gui_list_store_pos(gui_task_t * task)
 {
     task->last_menu_pos = GUI_LIST_NO_LAST_POS;
 
-    if (gui.list.object != NULL)
+    if (gui.list.content != NULL)
     {
         lv_obj_t * focused = lv_group_get_focused(gui.input.group);
         if (focused != NULL)
@@ -129,7 +129,6 @@ static uint8_t level = 0;
 
 bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
 {
-    INFO("gui_focus_child %u", level++);
     if (lv_obj_get_group(parent) != NULL)
     {
         lv_group_focus_obj(parent);
@@ -152,7 +151,7 @@ bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
 
 void gui_list_retrive_pos(gui_task_t * task)
 {
-	if (gui.list.object == NULL)
+	if (gui.list.content == NULL)
 		return;
 
 	if (task->last_menu_pos == GUI_LIST_NO_LAST_POS)
@@ -179,11 +178,17 @@ lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back
 	lv_win_set_layout(win, LV_LAYOUT_PRETTY_MID);
 
 	//object that hold list entries
-	gui.list.object = lv_obj_get_child(lv_win_get_content(win), NULL);
+	gui.list.list = win;
+	gui.list.content = lv_obj_get_child(lv_win_get_content(win), NULL);
 	gui.list.callback = cb;
 	gui.list.back = back;
 
 	return win;
+}
+
+void gui_list_set_title(lv_obj_t * list, const char * title)
+{
+	lv_win_set_title(list, title);
 }
 
 lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
@@ -362,6 +367,43 @@ char * gui_list_switch_get_title(lv_obj_t * obj)
 	return lv_label_get_text(label);
 }
 
+/**
+ * Add a single line containing two labels with text. The label with "text" is
+ * left aligned and "value" is right aligned. Can be used to show some data, e.g.
+ *
+ *     Duration       10.2min
+ *     Start            08:32
+ *     End              08:42
+ *
+ *  @param list the list to add the element to
+ *  @param text left aligned
+ *  @param value right aligned
+ *  @return the newly created lv_obj_t
+ */ 
+lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text, const char * value)
+{
+	lv_obj_t * entry = lv_cont_create(list, NULL);
+	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
+	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
+	//lv_page_glue_obj(entry, true);
+
+	lv_obj_t * label1 = lv_label_create(entry, NULL);
+	lv_label_set_text(label1, text);
+	lv_obj_align(label1, entry, LV_ALIGN_IN_LEFT_MID, lv_obj_get_style_pad_left(entry, LV_CONT_PART_MAIN), 0);
+	lv_obj_set_auto_realign(label1, true);
+
+	lv_obj_t * label2 = lv_label_create(entry, NULL);
+	lv_label_set_text(label2, value);
+	lv_obj_align(label2, entry, LV_ALIGN_IN_RIGHT_MID, -lv_obj_get_style_pad_right(entry, LV_CONT_PART_MAIN), 0);
+	lv_obj_set_auto_realign(label2, true);
+
+	//lv_obj_set_focus_parent(sw, true);
+
+	lv_obj_set_event_cb(entry, gui_list_event_cb);
+    lv_group_add_obj(gui.input.group, entry);
+
+	return entry;
+}
 
 lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value)
 {

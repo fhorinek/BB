@@ -73,7 +73,7 @@ typedef struct {
     uint8_t form_step;
 } device_prop_desc_uint8_t;
 
-#define MAX_HANDLES     (1024 * 100)
+#define MAX_HANDLES     (1024 * 50)
 
 #define HANDLE_DELETED  0xFFFFFFFF
 #define HANDLE_CLEAR    NULL

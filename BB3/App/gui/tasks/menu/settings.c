@@ -17,6 +17,7 @@
 #include <gui/tasks/menu/wifi/wifi.h>
 #include "gui/tasks/page/pages.h"
 #include "gui/tasks/menu/flight/flight.h"
+#include "gui/tasks/menu/flightbook/flightbook.h"
 #include "gui/tasks/menu/map.h"
 #include "gui/tasks/menu/audio.h"
 #include "gui/game/space-invaders/spaceinvaders.h"
@@ -32,7 +33,17 @@ static bool spaceinvaders_cb(lv_obj_t * obj, lv_event_t event)
 	{
 		gui_switch_task(&gui_spaceinvaders, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 	}
+}
 
+static bool open_flightbook(lv_obj_t * obj, lv_event_t event)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		flightbook_open();
+
+		//supress default handler
+		return false;
+	}
 	return true;
 }
 
@@ -40,6 +51,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
 
+	gui_list_auto_entry(list, "Flightbook", CUSTOM_CB, open_flightbook);
 	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);

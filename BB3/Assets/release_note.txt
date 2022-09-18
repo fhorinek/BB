@@ -2,6 +2,8 @@ Added:
 * Migration assistant FAT->RED
 * Fanet status messages sync with pps
 * FANET radar zoom levels
+* Flight book: select flight,
+  show basic statistics
 
 Changed:
 * Reliance Edge FS

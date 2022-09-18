@@ -23,6 +23,7 @@ void gui_list_init();
 void gui_list_event_cb(lv_obj_t * obj, lv_event_t event);
 
 lv_obj_t * gui_list_create(lv_obj_t * par, const char * title, gui_task_t * back, gui_list_task_cb_t cb);
+void gui_list_set_title(lv_obj_t * list, const char * title);
 
 lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool value);
 bool gui_list_switch_get_value(lv_obj_t * entry);
@@ -54,6 +55,8 @@ lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height);
 lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text);
 void gui_list_text_set_value(lv_obj_t * obj, char * text);
 const char * gui_list_text_get_value(lv_obj_t * obj);
+
+lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text, const char * value);
 
 lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_t color);
 void gui_list_note_set_text(lv_obj_t * obj, char * text);

@@ -220,13 +220,18 @@ void fc_takeoff()
 void fc_save_stats()
 {
 	// fc_get_utc_time() casted to uint32_t as ARM's printf does not support 64 bit integer.
-	logger_comment(" SKYBEAN-START-UTC-s: %" PRIu32, (uint32_t)fc_get_utc_time() - fc.flight.duration);
-	logger_comment(" SKYBEAN-DURATION-s: %" PRIu32, fc.flight.duration);
- 	logger_comment(" SKYBEAN-ALT-MAX-m: %" PRId16, fc.flight.max_alt);
- 	logger_comment(" SKYBEAN-ALT-MIN-m: %" PRId16, fc.flight.min_alt);
- 	logger_comment(" SKYBEAN-CLIMB-MAX-cm: %" PRId16, fc.flight.max_climb);
- 	logger_comment(" SKYBEAN-SINK-MAX-cm: %" PRId16, fc.flight.max_sink);
- 	logger_comment(" SKYBEAN-ODO-m: %" PRIu32, fc.flight.odometer/100);   // cm to m
+	flight_stats_t f_stat;
+
+	f_stat.start_time = (uint32_t)fc_get_utc_time() - fc.flight.duration;
+	f_stat.duration = fc.flight.duration;
+	f_stat.max_alt = fc.flight.max_alt;
+	f_stat.min_alt = fc.flight.min_alt;
+	f_stat.max_climb = fc.flight.max_climb;
+	f_stat.max_sink = fc.flight.max_sink;
+	f_stat.odo = fc.flight.odometer/100;     // cm to m
+
+	logger_write_flight_stats(f_stat);
+
 }
 
 void fc_landing()

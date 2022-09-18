@@ -106,7 +106,7 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
 
     if (entry == NULL)
     {
-        entry = gui_list_info_add_entry(gui.list.object, network->name, params);
+        entry = gui_list_info_add_entry(gui.list.content, network->name, params);
 
         //new
         safe_memcpy(local->nets[local->size].mac, network->mac, 6);
