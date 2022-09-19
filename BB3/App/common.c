@@ -290,6 +290,37 @@ void copy_dir(char * src, char * dst)
     }
 }
 
+/**
+ * Create the given directories including all parent directories.
+ * Similar to "mkdir -p".
+ *
+ * @param the directory to create (including parents)
+ * 
+ * @return 0 on success, -1 otherwise
+ */
+int red_mkdirs(char *dir)
+{
+  char *p;
+  char buffer[PATH_LEN];
+
+  p = strchr(dir, '/');
+  while ( p != NULL ) 
+    {
+      size_t len;
+
+      len = p - dir;
+      memcpy(buffer, dir, len);
+      buffer[len] = 0;
+      if ( !file_isdir(buffer) )
+    		  if ( red_mkdir(buffer) != 0 ) return -1;
+      p = strchr(p + 1, '/');
+    }
+
+  if ( red_mkdir(dir) != 0 ) return -1;
+
+  return 0;
+}
+
 void copy_dir_when_absent(char * src, char * dst)
 {
     red_mkdir(dst);
@@ -459,6 +490,18 @@ bool file_exists(char * path)
     return false;
 }
 
+bool file_isdir(char *path)
+{
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        REDSTAT stat;
+        red_fstat(f, &stat);
+        red_close(f);
+        return RED_S_ISDIR(stat.st_mode);
+    }
+    return false;
+}
 
 void touch(char * path)
 {
