@@ -23,19 +23,22 @@ static void confirm_devel_ch(uint8_t res, void * data)
 
 static void confirm_channel(uint8_t res, void * data)
 {
-    if (config_get_select(&config.system.fw_channel) == FW_DEVEL)
+    char fw_str[20];
+    rev_get_sw_string(fw_str);
+
+    if (fw_str[0] == 'D')
     {
         if (!DEVEL_ACTIVE)
         {
             dialog_show(LV_SYMBOL_WARNING " Warning " LV_SYMBOL_WARNING,
-                    "Your device is currently set to development firmware channel.\n\n"
-                    "Firmware on this channel is highly unstable and should be used only by developers.\n\n"
-                    "We highly encourage you to switch to testing branch.",
+                    "Your device is currently running a development firmware.\n\n"
+                    "It may be highly unstable and should be used only by developers or testers.\n\n"
+                    "We highly encourage you to switch to an official released version.",
                     dialog_yes_no, confirm_devel_ch);
         }
     }
 
-    if (config_get_select(&config.system.fw_channel) == FW_TESTING)
+    if (fw_str[0] == 'T')
     {
         //TODO: switch to release
     }
