@@ -261,7 +261,7 @@ typedef struct
 void gui_set_group_focus(lv_obj_t * obj);
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim);
 
-void gui_set_loop_period(uint16_t period);
+uint16_t gui_set_loop_period(uint16_t period);
 void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb);
 
 void gui_init();
