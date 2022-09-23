@@ -353,13 +353,9 @@ bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos)
 			flight_pos->timestamp = datetime_to_epoch(sec, min, hour, day, month, year);
 
 			//DBG("B timestamp %ld", flight_pos->timestamp);
-			int DD = atoi_n(line+7, 2);
-			int MM = atoi_n(line+9, 2);
-			int mmm = atoi_n(line+11, 3);
-			int milli_min = MM * 1000 + mmm;
-			flight_pos->lat = DD * GNSS_MUL + (milli_min * GNSS_MUL / 60000);
+			flight_pos->lat = atoi_n(line+7, 2) * GNSS_MUL + atoi_n(line+9, 5) * (GNSS_MUL / 60000);
 			if (line[14] == 'S') flight_pos->lat = -flight_pos->lat;
-			flight_pos->lon = atoi_n(line+15, 3) * GNSS_MUL + atoi_n(line+18, 5) * GNSS_MUL / 60000;
+			flight_pos->lon = atoi_n(line+15, 3) * GNSS_MUL + atoi_n(line+18, 5) * (GNSS_MUL / 60000);
 			if (line[24] == 'W') flight_pos->lon = -flight_pos->lon;
 
 			flight_pos->baro_alt = atoi_n(line+25, 5);
