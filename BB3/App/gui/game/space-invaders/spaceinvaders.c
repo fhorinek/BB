@@ -25,7 +25,6 @@
 
 REGISTER_TASK_IL(spaceinvaders,
 		lv_obj_t *background;
-		uint16_t previous_gui_period;
 
 	    // HAL_GetTick when next move should be made:
 	    uint32_t alien_move_next, rocket_move_next, bomb_move_next;
@@ -393,7 +392,7 @@ lv_obj_t * spaceinvaders_init(lv_obj_t * par)
             LV_STATE_DEFAULT, LV_COLOR_BLUE);
     
     gui_set_dummy_event_cb(par, tank_event_cb);
-    local->previous_gui_period = gui_set_loop_period(1);
+    gui_set_loop_period(1);
 
     local->rocket = lv_img_create(local->background, NULL);
     lv_img_set_src(local->rocket, &rocket_img);
@@ -416,8 +415,6 @@ lv_obj_t * spaceinvaders_init(lv_obj_t * par)
  */
 static void game_stop()
 {
-    gui_set_loop_period(local->previous_gui_period);
-
     for (int i = 0; i < ALIEN_NUM; i++)
         lv_obj_del(local->alien[i]);
 

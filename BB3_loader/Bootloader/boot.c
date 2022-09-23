@@ -107,16 +107,54 @@ void app_poweroff()
 //        return POWER_ON_USB;
 
     //main power on
-    GpioWrite(VCC_MAIN_EN, HIGH);
+	while (1)
+	{
+		MX_GPIO_Init();
+		MX_DMA_Init();
+		MX_I2C2_Init();
+		MX_TIM5_Init();
 
-    HAL_Delay(100);
+		GpioWrite(VCC_MAIN_EN, HIGH);
 
-    pwr_init();
-    GpioWrite(BQ_OTG, LOW);
-    bq25895_batfet_off();
+		GpioSetDirection(DISP_BCKL, OUTPUT, GPIO_NOPULL);
+	    GpioWrite(DISP_BCKL, HIGH);
 
+	    HAL_Delay(100); //zachovat!!
 
-    HAL_I2C_DeInit(&hi2c2);
+	    GpioWrite(DISP_BCKL, LOW);
+
+		pwr_init();
+		GpioWrite(BQ_OTG, LOW);
+		bq25895_batfet_off();
+
+		HAL_I2C_DeInit(&hi2c2);
+
+		if (pwr.fuel_gauge.bat_voltage < 350)
+		{
+			//alt ch on, main power off, backlight off
+			GpioWrite(ALT_CH_EN, LOW);
+			GpioWrite(VCC_MAIN_EN, LOW);
+			GpioWrite(DISP_BCKL, LOW);
+
+			HAL_SuspendTick();
+
+			//Wait for interrupt
+			// SCB->VTOR = 0x8000000;
+			HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+			// ---- SLEEPING ----
+
+			//restore system clock
+			SystemClock_Config();
+
+			//PeriphCommonClock not used in this clock configuration
+			PeriphCommonClock_Config();
+		}
+		else
+		{
+			break;
+		}
+	}
 
     //charge port connected, but charging is not done
     if (pwr.charge_port > PWR_CHARGE_NONE
@@ -183,8 +221,10 @@ void app_poweroff()
         HAL_SuspendTick();
 
         //Wait for interrupt
-       // SCB->VTOR = 0x8000000;
+        // SCB->VTOR = 0x8000000;
         HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+        // ---- SLEEPING ----
 
         //check right after wake up IRQ is only 256us long
         bq_irq = HAL_GPIO_ReadPin(BQ_INT) == LOW;

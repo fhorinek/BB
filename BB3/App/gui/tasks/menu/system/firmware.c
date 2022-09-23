@@ -45,6 +45,7 @@ void firmware_update_worker(char * path)
     copy_file(path, UPDATE_FILE);
     system_reboot();
 
+    free(path);
     vTaskDelete(NULL);
 }
 
@@ -135,7 +136,7 @@ void firmware_update_info_cb(uint8_t res, download_slot_t * ds)
             }
             else
             {
-                snprintf(msg, sizeof(msg), "Download firmware %s?", local->new_fw);
+                snprintf(msg, sizeof(msg), "Download firmware\n%s?", local->new_fw);
                 dialog_show("Firmware update", msg, dialog_yes_no, firmware_update_question_cb);
             }
         }
@@ -176,7 +177,7 @@ bool manual_install_fm_cb(uint8_t event, char * path)
             return true;
         path++;
 
-        snprintf(text, sizeof(text), "Install version %s", path);
+        snprintf(text, sizeof(text), "Install version\n%s", path);
 
         dialog_show("Start update?", text, dialog_yes_no, firmware_update_apply_cb);
         char * opt_data = malloc(strlen(path) + 1);

@@ -141,7 +141,7 @@ void pwr_step()
 					{
 						INFO("Resetting ALT charger");
 						GpioWrite(ALT_CH_EN, HIGH);
-						HAL_Delay(10);
+						HAL_Delay(500);
 						GpioWrite(ALT_CH_EN, LOW);
 					}
             	}

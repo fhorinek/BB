@@ -23,8 +23,6 @@
 
 #include "gui/dbg_overlay.h"
 
-#include "game/space-invaders/spaceinvaders.h"
-
 gui_t gui;
 
 //LV_FONT_DECLARE(lv_font_montserrat_14);
@@ -43,15 +41,10 @@ gui_task_t * gui_startup_task = &gui_pages;
  * Set the speed of the GUI loop in HAL ticks.
  *
  * @param period the next period in HAL ticks
- *
- * @return the previous period.
  */
-uint16_t gui_set_loop_period(uint16_t period)
+void gui_set_loop_period(uint16_t period)
 {
-	uint16_t previous_period = gui.task.loop_period;
     gui.task.loop_period = period;
-
-    return previous_period;
 }
 
 void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb)

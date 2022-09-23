@@ -98,11 +98,6 @@ int main(void)
   PeriphCommonClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_I2C2_Init();
-  MX_TIM5_Init();
-
   app_poweroff();
 
   /* USER CODE END SysInit */

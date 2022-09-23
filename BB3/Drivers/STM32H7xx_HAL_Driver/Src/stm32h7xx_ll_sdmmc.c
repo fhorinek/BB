@@ -560,6 +560,10 @@ uint32_t SDMMC_CmdReadSingleBlock(SDMMC_TypeDef *SDMMCx, uint32_t ReadAdd)
   */
 uint32_t SDMMC_CmdReadMultiBlock(SDMMC_TypeDef *SDMMCx, uint32_t ReadAdd)
 {
+  //disable IRQ
+  uint32_t maskReg = SDMMCx->MASK;
+  SDMMCx->MASK = 0;
+
   SDMMC_CmdInitTypeDef  sdmmc_cmdinit;
   uint32_t errorstate;
 
@@ -573,6 +577,9 @@ uint32_t SDMMC_CmdReadMultiBlock(SDMMC_TypeDef *SDMMCx, uint32_t ReadAdd)
 
   /* Check for error conditions */
   errorstate = SDMMC_GetCmdResp1(SDMMCx, SDMMC_CMD_READ_MULT_BLOCK, SDMMC_CMDTIMEOUT);
+
+  //reeable IRQ
+  SDMMCx->MASK = maskReg;
 
   return errorstate;
 }
@@ -608,6 +615,11 @@ uint32_t SDMMC_CmdWriteSingleBlock(SDMMC_TypeDef *SDMMCx, uint32_t WriteAdd)
   */
 uint32_t SDMMC_CmdWriteMultiBlock(SDMMC_TypeDef *SDMMCx, uint32_t WriteAdd)
 {
+  //disable IRQ
+  uint32_t maskReg = SDMMCx->MASK;
+  SDMMCx->MASK = 0;
+
+
   SDMMC_CmdInitTypeDef  sdmmc_cmdinit;
   uint32_t errorstate;
 
@@ -621,6 +633,9 @@ uint32_t SDMMC_CmdWriteMultiBlock(SDMMC_TypeDef *SDMMCx, uint32_t WriteAdd)
 
   /* Check for error conditions */
   errorstate = SDMMC_GetCmdResp1(SDMMCx, SDMMC_CMD_WRITE_MULT_BLOCK, SDMMC_CMDTIMEOUT);
+
+  //reeable IRQ
+  SDMMCx->MASK = maskReg;
 
   return errorstate;
 }

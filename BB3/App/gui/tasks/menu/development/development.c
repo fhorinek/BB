@@ -10,6 +10,8 @@
 #include "drivers/gnss/gnss_ublox_m8.h"
 #include "gui/statusbar.h"
 
+#include "gui/game/space-invaders/spaceinvaders.h"
+
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
     lv_obj_t * trigger;
@@ -95,6 +97,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
     gui_list_auto_entry(list, "FANET force update", &config.debug.fanet_update, NULL);
     gui_list_auto_entry(list, "Show LVGL info", &config.debug.lvgl_info, NULL);
+	gui_list_auto_entry(list, "Space Invaders!", NEXT_TASK, &gui_spaceinvaders);
 
 	return list;
 }
