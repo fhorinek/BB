@@ -36,6 +36,9 @@ uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
         if (status != TX_SUCCESS)
         {
             WARN("Read timeout %08lX %u err = %X", ReadAddr, NumOfBlocks, status);
+            __HAL_RCC_SDMMC1_FORCE_RESET();
+            __HAL_RCC_SDMMC1_RELEASE_RESET();
+
             MX_SDMMC1_SD_Init();
             ret = HAL_ERROR;
         }
@@ -76,6 +79,9 @@ uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlock
         if (status != TX_SUCCESS)
         {
             WARN("Write timeout %08lX %u err = %X", WriteAddr, NumOfBlocks, status);
+            __HAL_RCC_SDMMC1_FORCE_RESET();
+            __HAL_RCC_SDMMC1_RELEASE_RESET();
+
             MX_SDMMC1_SD_Init();
             ret = HAL_ERROR;
         }
