@@ -13,7 +13,7 @@
 #include <gui/game/space-invaders/images/rocket_img.h>
 #include <gui/game/space-invaders/images/tank_img.h>
 #include "gui/gui.h"
-#include "gui/tasks/menu/settings.h"
+#include "gui/tasks/menu/development/development.h"
 
 #define ALIEN_NUM_X 5             // Number of aliens in X direction
 #define ALIEN_NUM_Y 5             // Number of aliens in Y direction
@@ -23,7 +23,7 @@
 
 #define SCORE_HEIGHT 30           // Height of the score line
 
-REGISTER_TASK_IL(spaceinvaders,
+REGISTER_TASK_ILS(spaceinvaders,
 		lv_obj_t *background;
 
 	    // HAL_GetTick when next move should be made:
@@ -46,8 +46,6 @@ REGISTER_TASK_IL(spaceinvaders,
 	    int level;
 	    int lives;
 );
-
-static void game_stop();
 
 /**
  * Delay the movement of all aliens/bombs/rocket by the given amount of milliseconds.
@@ -183,9 +181,12 @@ static void tank_hit()
 	lv_img_set_src(local->tank, &explosion_img);
 	lv_obj_set_hidden(local->rocket, true);
 	local->lives--;
-	if (local->lives == 0)
-		game_stop();
 	clear_bombs();
+	if (local->lives == 0)
+	{
+		//game end
+		gui_switch_task(&gui_development, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+	}
 	delay_aliens(1500);
 }
 
@@ -329,7 +330,7 @@ static void tank_event_cb(lv_obj_t *obj, lv_event_t event) {
 
     switch (event) {
     case LV_EVENT_CANCEL:
-    	game_stop();
+    	gui_switch_task(&gui_development, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
     	break;
     case LV_EVENT_CLICKED:
     	shoot = true;
@@ -371,7 +372,7 @@ static void start_next_level()
 /**
  * Called at the beginning of the game to allocate all resources.
  */
-lv_obj_t * spaceinvaders_init(lv_obj_t * par)
+static lv_obj_t * spaceinvaders_init(lv_obj_t * par)
 {
     local->level = 0;
     local->lives = 3;
@@ -413,7 +414,7 @@ lv_obj_t * spaceinvaders_init(lv_obj_t * par)
 /**
  * Called at the end of the game and frees up all resources.
  */
-static void game_stop()
+static void spaceinvaders_stop()
 {
     for (int i = 0; i < ALIEN_NUM; i++)
         lv_obj_del(local->alien[i]);
@@ -425,15 +426,13 @@ static void game_stop()
     lv_obj_del(local->tank);
     lv_obj_del(local->score_label);
     lv_obj_del(local->background);
-
-	gui_switch_task(&gui_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 }
 
 /**
  * This is the game loop, that has to be called as often as possible.
  * Every call will move the game one step further.
  */
-void spaceinvaders_loop()
+static void spaceinvaders_loop()
 
 {
     char label[100];
