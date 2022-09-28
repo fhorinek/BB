@@ -28,6 +28,4 @@ typedef struct flight_pos
 bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos);
 void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat);
 
-extern int32_t my_lat, my_lon;
-
 #endif /* FC_LOGGER_IGC_H_ */
