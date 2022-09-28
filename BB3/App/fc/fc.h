@@ -211,6 +211,7 @@ typedef struct
         int16_t start_alt;
     	int32_t start_lat;
     	int32_t start_lon;
+	int32_t min_lat, max_lat, min_lon, max_lon;
 
       	uint32_t takeoff_distance;				// in m
       	int16_t takeoff_bearing;

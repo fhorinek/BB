@@ -10,7 +10,9 @@
 
 #define DEBUG_LEVEL	DEBUG_DBG
 
+#include <inttypes.h>
 #include "flightbook_flight.h"
+#include "flightbook_flight_map.h"
 
 #include "gui/tasks/menu/settings.h"
 #include "gui/tasks/menu/flightbook/flightbook.h"
@@ -125,6 +127,8 @@ void flightbook_flight_read_task(char * path)
 
 void flightbook_flight_open(char * path, uint8_t fm_level)
 {
+	strcpy(flightbook_flight_map_path, path);
+
 	filemanager_get_path(local->fm_return_path, path);
 	local->fm_return_level = fm_level;
 
@@ -146,6 +150,7 @@ static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "", NULL, flightbook_flight_cb);
 
+	gui_list_auto_entry(list, "Show on map", NEXT_TASK, &gui_flightbook_flight_map);
 
 	return list;
 }

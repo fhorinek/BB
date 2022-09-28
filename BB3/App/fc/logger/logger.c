@@ -37,14 +37,16 @@ static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
 				  " SKYBEAN-ALT-MIN-m: %" PRId16 "\n"
 				  " SKYBEAN-CLIMB-MAX-cm: %" PRId16 "\n"
 				  " SKYBEAN-SINK-MAX-cm: %" PRId16 "\n"
-				  " SKYBEAN-ODO-m: %" PRIu32 "\n",
+				  " SKYBEAN-ODO-m: %" PRIu32 "\n"
+				  " SKYBEAN-BBOX: %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
 				  f_stat->start_time,
 				  f_stat->duration,
 				  f_stat->max_alt,
 				  f_stat->min_alt,
 				  f_stat->max_climb,
 				  f_stat->max_sink,
-				  f_stat->odo);
+				  f_stat->odo / 100,  // cm in m
+				  f_stat->min_lat, f_stat->max_lat, f_stat->min_lon, f_stat->max_lon);
 }
 
 /**
@@ -123,6 +125,22 @@ static void read_stats_from_file(int32_t fp, flight_stats_t *f_stat)
 		if ( p != NULL )
 		{
 			f_stat->odo = atol(p + 15) * 100;   // meter in cm
+			continue;
+		}
+
+		p = strstr(line, "SKYBEAN-BBOX: ");
+		if ( p != NULL )
+		{
+			char *saveptr;
+			p = strtok_r(p + 14, " ", &saveptr);
+			f_stat->min_lat = atol(p);
+			p = strtok_r(NULL, " ", &saveptr);
+			f_stat->max_lat = atol(p);
+			p = strtok_r(NULL, " ", &saveptr);
+			f_stat->min_lon = atol(p);
+			p = strtok_r(NULL, " ", &saveptr);
+			f_stat->max_lon = atol(p);
+			
 			continue;
 		}
 	}
