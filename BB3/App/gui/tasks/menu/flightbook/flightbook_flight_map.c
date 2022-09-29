@@ -18,7 +18,6 @@
 #include "fc/logger/igc.h"
 #include "etc/format.h"
 #include "etc/geo_calc.h"
-#include "gui/lv_line_color.h"
 
 lv_color_t get_vario_color(int gain);
 lv_color_t get_vario_color2(int gain);
@@ -55,9 +54,6 @@ lv_obj_t * flightbook_flight_map_init(lv_obj_t * par)
     int pos_num = 0;
     int16_t x, y;
     REDSTAT pStat;
-
-	dialog_show("Analysing...", flightbook_flight_map_path, dialog_progress, NULL);
-	dialog_progress_spin();
 
 	map = map_obj_init(par, &local->data);
 
@@ -137,8 +133,6 @@ lv_obj_t * flightbook_flight_map_init(lv_obj_t * par)
     lv_obj_set_style_local_line_width(line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 3);
 
     red_close(fp);
-
-	dialog_close();
 
     gui_set_dummy_event_cb(par, flightbook_flight_map_cb);
 
