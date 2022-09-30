@@ -1216,6 +1216,12 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 				line_draw.color = brush_draw.color;
 			}
 
+			//if is the polygon transparent, increase line width
+			if (actual->pen_width & BRUSH_TRANSPARENT_FLAG)
+			{
+			    line_draw.width = max(line_draw.width, 2);
+			}
+
 			lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * (actual->number_of_points + 1));
 			for (uint16_t j = 0; j < actual->number_of_points; j++)
 			{
