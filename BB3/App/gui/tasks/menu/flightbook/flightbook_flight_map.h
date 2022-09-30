@@ -5,7 +5,6 @@
 
 DECLARE_TASK(flightbook_flight_map);
 
-extern char flightbook_flight_map_path[PATH_LEN];
-
+void flightbook_flight_map_load(char * path, uint8_t fm_return_level);
 
 #endif /* GUI_FLIGHTBOOK_FLIGHT_MAP_H_ */

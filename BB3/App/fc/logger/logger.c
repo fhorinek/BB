@@ -6,7 +6,6 @@
  */
 
 // #define DEBUG_LEVEL	DEBUG_DBG
-
 #include "logger.h"
 
 #include <inttypes.h>
@@ -17,9 +16,12 @@
 #include "igc.h"
 #include "csv.h"
 
+#define STATS_VERSION		2
+#define STATS_TOTAL_RECORDS	9
+
 fc_logger_status_t logger_state()
 {
-	return (fc.logger.igc > fc.logger.csv ? fc.logger.igc : fc.logger.csv);
+    return (fc.logger.igc > fc.logger.csv ? fc.logger.igc : fc.logger.csv);
 }
 
 /**
@@ -31,22 +33,24 @@ fc_logger_status_t logger_state()
  */
 static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
 {
-  sprintf(buffer, " SKYBEAN-START-UTC-s: %" PRIu32 "\n"
-		  	  	  " SKYBEAN-DURATION-s: %" PRIu32 "\n"
-				  " SKYBEAN-ALT-MAX-m: %" PRId16 "\n"
-				  " SKYBEAN-ALT-MIN-m: %" PRId16 "\n"
-				  " SKYBEAN-CLIMB-MAX-cm: %" PRId16 "\n"
-				  " SKYBEAN-SINK-MAX-cm: %" PRId16 "\n"
-				  " SKYBEAN-ODO-m: %" PRIu32 "\n"
-				  " SKYBEAN-BBOX: %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
-				  f_stat->start_time,
-				  f_stat->duration,
-				  f_stat->max_alt,
-				  f_stat->min_alt,
-				  f_stat->max_climb,
-				  f_stat->max_sink,
-				  f_stat->odo / 100,  // cm in m
-				  f_stat->min_lat, f_stat->max_lat, f_stat->min_lon, f_stat->max_lon);
+    sprintf(buffer, " SKYBEAN-STATS: %u\n"
+                    " SKYBEAN-START-UTC-s: %" PRIu32 "\n"
+                    " SKYBEAN-DURATION-s: %" PRIu32 "\n"
+                    " SKYBEAN-ALT-MAX-m: %" PRId16 "\n"
+                    " SKYBEAN-ALT-MIN-m: %" PRId16 "\n"
+                    " SKYBEAN-CLIMB-MAX-cm: %" PRId16 "\n"
+                    " SKYBEAN-SINK-MAX-cm: %" PRId16 "\n"
+                    " SKYBEAN-ODO-m: %" PRIu32 "\n"
+                    " SKYBEAN-BBOX: %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
+                    STATS_VERSION,
+                    f_stat->start_time,
+                    f_stat->duration,
+                    f_stat->max_alt,
+                    f_stat->min_alt,
+                    f_stat->max_climb,
+                    f_stat->max_sink,
+                    f_stat->odo / 100,  // cm in m
+                    f_stat->min_lat, f_stat->max_lat, f_stat->min_lon, f_stat->max_lon);
 }
 
 /**
@@ -57,10 +61,10 @@ static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
  */
 void logger_write_flight_stats(flight_stats_t f_stat)
 {
-  char buffer[200];
+    char buffer[200];
 
-  flight_stats_to_text(&f_stat, buffer);
-  logger_comment(buffer);
+    flight_stats_to_text(&f_stat, buffer);
+    logger_comment(buffer);
 }
 
 /**
@@ -69,81 +73,107 @@ void logger_write_flight_stats(flight_stats_t f_stat)
  *
  * @param fp the file pointer to read from
  * @param f_stat a pointer to the flight statistics to save
+ *
+ * return false if not all parameters are found or stats are wrong version
  */
-static void read_stats_from_file(int32_t fp, flight_stats_t *f_stat)
+static bool read_stats_from_file(int32_t fp, flight_stats_t *f_stat)
 {
-  char line[80];
-  char *p;
-  
-  while(1)
-	{
-		if ( file_gets(line, sizeof(line), fp) == NULL ) break;
+    char line[80];
+    char *p;
 
-		p = strstr(line, "SKYBEAN-START-UTC-s: ");
-		if ( p != NULL )
-		{
-			f_stat->start_time = atol(p + 21);
-			continue;
-		}
+    uint8_t records = 0;
 
-		p = strstr(line, "SKYBEAN-DURATION-s: ");
-		if ( p != NULL )
-		{
-			f_stat->duration = atol(p + 20);
-			continue;
-		}
+    while (1)
+    {
+        if (file_gets(line, sizeof(line), fp) == NULL)
+            break;
 
-		p = strstr(line, "SKYBEAN-ALT-MAX-m: ");
-		if ( p != NULL )
-		{
-			f_stat->max_alt = atoi(p + 19);
-			continue;
-		}
+        p = strstr(line, "SKYBEAN-STATS: ");
+        if (p != NULL)
+        {
+            uint8_t stats_version = atoi(p + 15);
+            if (stats_version != STATS_VERSION)
+                break;
 
-		p = strstr(line, "SKYBEAN-ALT-MIN-m: ");
-		if ( p != NULL )
-		{
-			f_stat->min_alt = atoi(p + 19);
-			continue;
-		}
+            records++;
+            continue;
+        }
 
-		p = strstr(line, "SKYBEAN-CLIMB-MAX-cm: ");
-		if ( p != NULL )
-		{
-			f_stat->max_climb = atoi(p + 22);
-			continue;
-		}
+        p = strstr(line, "SKYBEAN-START-UTC-s: ");
+        if (p != NULL)
+        {
+            f_stat->start_time = atol(p + 21);
+            records++;
+            continue;
+        }
 
-		p = strstr(line, "SKYBEAN-SINK-MAX-cm: ");
-		if ( p != NULL )
-		{
-			f_stat->max_sink = atoi(p + 21);
-			continue;
-		}
+        p = strstr(line, "SKYBEAN-DURATION-s: ");
+        if (p != NULL)
+        {
+            f_stat->duration = atol(p + 20);
+            records++;
+            continue;
+        }
 
-		p = strstr(line, "SKYBEAN-ODO-m: ");
-		if ( p != NULL )
-		{
-			f_stat->odo = atol(p + 15) * 100;   // meter in cm
-			continue;
-		}
+        p = strstr(line, "SKYBEAN-ALT-MAX-m: ");
+        if (p != NULL)
+        {
+            f_stat->max_alt = atoi(p + 19);
+            records++;
+            continue;
+        }
 
-		p = strstr(line, "SKYBEAN-BBOX: ");
-		if ( p != NULL )
-		{
-			char *saveptr;
-			p = strtok_r(p + 14, " ", &saveptr);
-			f_stat->min_lat = atol(p);
-			p = strtok_r(NULL, " ", &saveptr);
-			f_stat->max_lat = atol(p);
-			p = strtok_r(NULL, " ", &saveptr);
-			f_stat->min_lon = atol(p);
-			p = strtok_r(NULL, " ", &saveptr);
-			f_stat->max_lon = atol(p);
-			
-			continue;
-		}
-	}
+        p = strstr(line, "SKYBEAN-ALT-MIN-m: ");
+        if (p != NULL)
+        {
+            f_stat->min_alt = atoi(p + 19);
+            records++;
+            continue;
+        }
+
+        p = strstr(line, "SKYBEAN-CLIMB-MAX-cm: ");
+        if (p != NULL)
+        {
+            f_stat->max_climb = atoi(p + 22);
+            records++;
+            continue;
+        }
+
+        p = strstr(line, "SKYBEAN-SINK-MAX-cm: ");
+        if (p != NULL)
+        {
+            f_stat->max_sink = atoi(p + 21);
+            records++;
+            continue;
+        }
+
+        p = strstr(line, "SKYBEAN-ODO-m: ");
+        if (p != NULL)
+        {
+            f_stat->odo = atol(p + 15) * 100;   // meter in cm
+            records++;
+            continue;
+        }
+
+        p = strstr(line, "SKYBEAN-BBOX: ");
+        if (p != NULL)
+        {
+            char *saveptr;
+            p = strtok_r(p + 14, " ", &saveptr);
+            f_stat->min_lat = atol(p);
+            p = strtok_r(NULL, " ", &saveptr);
+            f_stat->max_lat = atol(p);
+            p = strtok_r(NULL, " ", &saveptr);
+            f_stat->min_lon = atol(p);
+            p = strtok_r(NULL, " ", &saveptr);
+            f_stat->max_lon = atol(p);
+            records++;
+
+            continue;
+        }
+    }
+
+    return records == STATS_TOTAL_RECORDS;
 }
 
 /**
@@ -156,75 +186,86 @@ static void read_stats_from_file(int32_t fp, flight_stats_t *f_stat)
  */
 void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
 {
-	int32_t fp, fp_cache;
-	char line[PATH_LEN];
-	char *p;
+    int32_t fp, fp_cache;
+    char path[PATH_LEN];
+    char *p;
 
-	// Set defaults, if nothing could be found in the file:
-	f_stat->start_time = FS_NO_DATA;
-	f_stat->duration = FS_NO_DATA;
-	f_stat->max_alt = FS_NO_DATA;
-	f_stat->min_alt = FS_NO_DATA;
-	f_stat->max_climb = FS_NO_DATA;
-	f_stat->max_sink = FS_NO_DATA;
-	f_stat->odo = FS_NO_DATA;
+    // Set defaults, if nothing could be found in the file:
+    f_stat->start_time = FS_NO_DATA;
+    f_stat->duration = FS_NO_DATA;
+    f_stat->max_alt = FS_NO_DATA;
+    f_stat->min_alt = FS_NO_DATA;
+    f_stat->max_climb = FS_NO_DATA;
+    f_stat->max_sink = FS_NO_DATA;
+    f_stat->odo = FS_NO_DATA;
 
-	fp = red_open(filename, RED_O_RDONLY);
-	if ( fp < 0 ) return;
+    fp = red_open(filename, RED_O_RDONLY);
+    if (fp < 0)
+        return;
 
-	red_lseek(fp, -512, RED_SEEK_END);    	// Read from the end of the file
-	read_stats_from_file(fp, f_stat);
+    red_lseek(fp, -512, RED_SEEK_END);    	// Read from the end of the file
+    bool stats_valid = read_stats_from_file(fp, f_stat);
 
-	if (f_stat->start_time == FS_NO_DATA)
-	{
-		// Fallback: this is an old file without comments, so read data out of files
-	  sprintf(line, PATH_LOG_CACHE_DIR "/%s", filename + 5);
+    if (!stats_valid)
+    {
+        // Fallback: this is an old file without comments, so read data out of files
+        sprintf(path, PATH_LOG_CACHE_DIR "/%s", filename + 5);
 
-	  // make directory and its parents:
-	  p = strrchr(line, '/');
-	  *p = 0;
-	  red_mkdirs(line);
-	  *p = '/';
+        // make directory and its parents:
+        p = strrchr(path, '/');
+        *p = 0;
+        red_mkdirs(path);
+        *p = '/';
 
-		fp_cache = red_open(line, RED_O_RDONLY);
-		if ( fp_cache >= 0 )
-		{
-		    // There is already a cache file for flight statistics
-		    read_stats_from_file(fp_cache, f_stat);
-		    red_close(fp_cache);
-		} else {
-			// no cache file, so parse IGC directly...
-		    red_lseek(fp, 0, RED_SEEK_SET);
-		    igc_read_flight_stats(fp, f_stat);
+        bool cache_valid = false;
 
-		    // ... and store values in the cache file for next reads
-		    fp_cache = red_open(line, RED_O_WRONLY | RED_O_CREAT);
-		    if ( fp_cache >= 0 )
-		    {
-		    	char buffer[200];
-			
-		    	flight_stats_to_text(f_stat, buffer);
-		    	red_write(fp_cache, buffer, strlen(buffer));
-		    	red_close(fp_cache);
-		    }
-		}
-	}
-	red_close(fp);
+        fp_cache = red_open(path, RED_O_RDONLY);
+        if (fp_cache >= 0)
+        {
+            // There is already a cache file for flight statistics
+            cache_valid = read_stats_from_file(fp_cache, f_stat);
+            red_close(fp_cache);
+
+            if (!cache_valid)
+            {
+                red_unlink(path);
+            }
+        }
+
+        if (!cache_valid)
+        {
+            // no cache file, so parse IGC directly...
+            red_lseek(fp, 0, RED_SEEK_SET);
+            igc_read_flight_stats(fp, f_stat);
+
+            // ... and store values in the cache file for next reads
+            fp_cache = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+            if (fp_cache >= 0)
+            {
+                char buffer[200];
+
+                flight_stats_to_text(f_stat, buffer);
+                red_write(fp_cache, buffer, strlen(buffer));
+                red_close(fp_cache);
+            }
+        }
+    }
+    red_close(fp);
 }
 
 void logger_init()
 {
-	igc_init();
-	csv_init();
+    igc_init();
+    csv_init();
 }
 
 void logger_start()
 {
-	if (config_get_bool(&profile.flight.logger.igc))
-		igc_start();
+    if (config_get_bool(&profile.flight.logger.igc))
+        igc_start();
 
-	if (config_get_bool(&profile.flight.logger.csv))
-		csv_start();
+    if (config_get_bool(&profile.flight.logger.csv))
+        csv_start();
 }
 
 /**
@@ -233,31 +274,31 @@ void logger_start()
  * result in multiple lines to be printed into the log.
  *
  * \param format a printf-like format string 
- **/ 
+ **/
 void logger_comment(const char *format, ...)
 {
- 	va_list arp;
- 	char text[300];
-	char *saveptr;
-	char *pch;
-	
-  	va_start(arp, format);
- 	vsnprintf(text, sizeof(text), format, arp);
- 	va_end(arp);
+    va_list arp;
+    char text[300];
+    char *saveptr;
+    char *pch;
 
-	// If text contains multiple lines (delimited by "\n"), then break them
-	// into multiple calls to igc_comment (whatever).
-	pch = strtok_r (text,"\n", &saveptr);
-	while (pch != NULL)
-	  {
-	    igc_comment(pch);
-	    // Add additional loggers here, if available.
-	    pch = strtok_r(NULL, "\n", &saveptr);
-	  }
+    va_start(arp, format);
+    vsnprintf(text, sizeof(text), format, arp);
+    va_end(arp);
+
+    // If text contains multiple lines (delimited by "\n"), then break them
+    // into multiple calls to igc_comment (whatever).
+    pch = strtok_r(text, "\n", &saveptr);
+    while (pch != NULL)
+    {
+        igc_comment(pch);
+        // Add additional loggers here, if available.
+        pch = strtok_r(NULL, "\n", &saveptr);
+    }
 }
 
 void logger_stop()
 {
-	igc_stop();
-	csv_stop();
+    igc_stop();
+    csv_stop();
 }

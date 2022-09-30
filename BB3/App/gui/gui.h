@@ -252,7 +252,8 @@ typedef struct
 
 	uint8_t take_screenshot;
 	uint8_t fps;
-	uint8_t _pad[2];
+	bool restrict_gui_speed;
+	uint8_t _pad[1];
 
 } gui_t;
 
@@ -271,6 +272,8 @@ void gui_stop();
 void gui_take_screenshot();
 void gui_lock_acquire();
 void gui_lock_release();
+
+void gui_low_priority(bool val);
 
 void gui_inject_function(gui_injected_function_t f);
 
