@@ -14,6 +14,7 @@
 #define DBG_INFO	1
 #define DBG_WARN	2
 #define DBG_ERROR	3
+#define DBG_RAW		0xFF
 
 #ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL DBG_INFO
@@ -23,9 +24,11 @@
 
 #if DEBUG_LEVEL <= DBG_DEBUG
 #define DBG(...)    debug_send(DBG_DEBUG, __VA_ARGS__)
+#define RAW(...)    debug_send(DBG_RAW, __VA_ARGS__)
 #define DUMP(data, len) debug_dump(data, len)
 #else
 #define DBG(...)
+#define RAW(...)
 #define DUMP(data, len)
 #endif
 

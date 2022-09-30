@@ -164,7 +164,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
     uint32_t pos = ((uint32_t) x + num_points_x * (uint32_t) ((num_points_y - y) - 1)) * 2;
 //    DBG("agl_get_alt: lat=%ld, lon=%ld; x=%d, y=%d; pos=%ld", lat, lon, x, y, pos);
 
-    ASSERT(red_lseek(files_cache[file_index], pos, RED_SEEK_SET) == 0);
+    ASSERT(red_lseek(files_cache[file_index], pos, RED_SEEK_SET) == pos);
     ASSERT(red_read(files_cache[file_index], tmp, 4) == 4);
 
     //switch big endian to little
@@ -181,7 +181,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 
     //seek to opposite position
     pos -= num_points_x * 2;
-    ASSERT(red_lseek(files_cache[file_index], pos, RED_SEEK_SET) == 0);
+    ASSERT(red_lseek(files_cache[file_index], pos, RED_SEEK_SET) == pos);
     ASSERT(red_read(files_cache[file_index], tmp, 4) == 4);
 
     //switch big endian to little

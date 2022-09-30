@@ -271,7 +271,7 @@ void igc_tick_cb(void * arg)
 
 		if ((last_timestamp >= timestamp) && (abs(last_timestamp - timestamp) < 10))
 		{
-			DBG("last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
+			DBG("IGC last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
 			return;
 		}
 
@@ -383,6 +383,10 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 	f_stat->max_sink = 0;
 	f_stat->min_alt = INT16_MAX;
 	f_stat->max_alt = 0;
+    f_stat->max_lat = INT32_MIN;
+    f_stat->max_lon = INT32_MIN;
+    f_stat->min_lat = INT32_MAX;
+    f_stat->min_lon = INT32_MAX;
 
 	igc_read_next_pos(fp, &first_pos);
 
@@ -399,6 +403,11 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 
 		f_stat->max_alt = max(f_stat->max_alt, pos.baro_alt);
 		f_stat->min_alt = min(f_stat->min_alt, pos.baro_alt);
+
+        f_stat->min_lat = min(f_stat->min_lat, pos.lat);                                                                                                          
+        f_stat->max_lat = max(f_stat->max_lat, pos.lat);                                                                                                          
+        f_stat->min_lon = min(f_stat->min_lon, pos.lon);                                                                                                        
+        f_stat->max_lon = max(f_stat->max_lon, pos.lon);                                                                                                        
 
 		last_pos = pos;
 	}

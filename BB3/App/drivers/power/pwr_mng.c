@@ -50,7 +50,7 @@ bool pwr_step()
 				{
 					INFO("Resetting ALT charger");
 					GpioWrite(ALT_CH_EN, HIGH);
-					osDelay(10);
+					osDelay(100);
 					GpioWrite(ALT_CH_EN, LOW);
 				}
         	}

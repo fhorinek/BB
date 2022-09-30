@@ -10,7 +10,9 @@
 
 #define DEBUG_LEVEL	DEBUG_DBG
 
+#include <inttypes.h>
 #include "flightbook_flight.h"
+#include "flightbook_flight_map.h"
 
 #include "gui/tasks/menu/settings.h"
 #include "gui/tasks/menu/flightbook/flightbook.h"
@@ -28,29 +30,36 @@
 #include "etc/epoch.h"
 
 REGISTER_TASK_I(flightbook_flight,
-	char fm_return_path[PATH_LEN];
+	char file_path[PATH_LEN];
 	uint8_t fm_return_level;
 );
 
+//this overload the standard gui list function, so we can return correct filemanager level
 static bool flightbook_flight_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
     if (event == LV_EVENT_CANCEL)
     {
         gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-        filemanager_open(local->fm_return_path, local->fm_return_level, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
+        char return_path[PATH_LEN];
+        filemanager_get_path(return_path, local->file_path);
+        filemanager_open(return_path, local->fm_return_level, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
+
+        //do not handle cancel event
         return false;
     }
+
+    //other events handle normally
     return true;
 }
 
-void flightbook_flight_read_task(char * path)
+void flightbook_flight_read_task(char * param)
 {
 	char value[64];
 	flight_stats_t f_stat;
 
 	DBG("flightbook_flight_read_task");
 
-	filemanager_get_filename(value, path);
+	filemanager_get_filename(value, local->file_path);
 
 	lv_obj_t * list = gui.list.list;
 
@@ -58,8 +67,7 @@ void flightbook_flight_read_task(char * path)
 
 	DBG("FILENAME: %s", value);
 
-	logger_read_flight_stats(path, &f_stat);
-	free(path);
+	logger_read_flight_stats(local->file_path, &f_stat);
 
 	gui_lock_acquire();
 
@@ -119,33 +127,46 @@ void flightbook_flight_read_task(char * path)
 	gui_lock_release();
 
 	dialog_close();
+	gui_low_priority(false);
 
     vTaskDelete(NULL);
 }
 
 void flightbook_flight_open(char * path, uint8_t fm_level)
 {
-	filemanager_get_path(local->fm_return_path, path);
+	strcpy(local->file_path, path);
 	local->fm_return_level = fm_level;
 
-	char file[64];
+	char file[REDCONF_NAME_MAX];
 	filemanager_get_filename(file, path);
 	dialog_show("Analysing...", file, dialog_progress, NULL);
 	dialog_progress_spin();
+	gui_low_priority(true);
 
-	//need to allocate memory for path
-	// input parameter *path of this function will be reused, before the new task start
-	// flightbook_flight_read_task will need to free it
-	char * tmp_path = (char *)malloc(strlen(path) + 1);
-	strcpy(tmp_path, path);
-	xTaskCreate((TaskFunction_t)flightbook_flight_read_task, "fb_read_task", 1024 * 2, tmp_path, osPriorityIdle + 1, NULL);
+	xTaskCreate((TaskFunction_t)flightbook_flight_read_task, "fb_read_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
 }
 
+static bool flightbook_flight_map_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
+{
+	if (event == LV_EVENT_PRESSED)
+	{
+		//this is standard method how to pass extra parameter to task
+		//1. Switch to task, so the local memory is allocated for the new task
+		gui_switch_task(&gui_flightbook_flight_map, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+		//2. Call custom function specific to target task to pass parameters
+		flightbook_flight_map_load(local->file_path, local->fm_return_level);
+
+		return false;
+	}
+	return true;
+}
 
 static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "", NULL, flightbook_flight_cb);
 
+	//we want to use custom callback so we can pass another parameters
+	gui_list_auto_entry(list, "Show on map", CUSTOM_CB, flightbook_flight_map_cb);
 
 	return list;
 }

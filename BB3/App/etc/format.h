@@ -33,6 +33,8 @@ void format_altitude_2(char * buff, float in, uint8_t units);
 void format_altitude_units_2(char * buff, uint8_t units);
 void format_altitude_with_units_2(char * buff, float in, uint8_t units);
 
+void format_FL_with_altitude_with_units(char * buff, float in);
+
 void format_altitude_gain_2(char * buff, float in, uint8_t units);
 void format_altitude_gain(char * buff, float in);
 

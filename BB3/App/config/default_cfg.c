@@ -348,6 +348,43 @@ flight_profile_t profile =
 		entry_bool("show_fanet", false),
 	},
 
+	//airspace
+	{
+		//filename
+		entry_text("airspace", "", AIRSPACE_NAME_LEN, 0),
+		//display
+		{
+			//above
+			entry_int("as_bellow_fl", 250, 0, 550),
+			//restricted
+			entry_bool("as_rest", true),
+			//danger
+			entry_bool("as_danger", true),
+			//prohibited
+			entry_bool("as_pros", true),
+			//class_A
+			entry_bool("as_A", true),
+			//class_B
+			entry_bool("as_B", true),
+			//class_C
+			entry_bool("as_C", false),
+			//class_D
+			entry_bool("as_D", false),
+			//glider_prohibited
+			entry_bool("as_gp", true),
+			//ctr
+			entry_bool("as_ctr", true),
+			//tmz
+			entry_bool("as_tmz", true),
+			//rmz
+			entry_bool("as_rmz", true),
+			//wave_window
+			entry_bool("as_ww", false),
+			//undefined
+			entry_bool("as_undef", false),
+		},
+	},
+
 	//audio
 	{
 		//a2dp_volume

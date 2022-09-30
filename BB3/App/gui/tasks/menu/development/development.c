@@ -9,6 +9,7 @@
 #include "gui/dialog.h"
 #include "drivers/gnss/gnss_ublox_m8.h"
 #include "gui/statusbar.h"
+#include "fc/airspaces/airspace.h"
 
 #include "gui/game/space-invaders/spaceinvaders.h"
 
@@ -20,6 +21,17 @@ REGISTER_TASK_IL(development,
 );
 
 
+void development_trigger_tast(void * param)
+{
+	while(1)
+	{
+	    INFO("Copy start");
+	    red_unlink("/big2");
+	    copy_file("/big1", "/big2");
+	    INFO("Copy end");
+	}
+}
+
 void development_trigger()
 {
     INFO("Development fake trigger");
@@ -27,9 +39,11 @@ void development_trigger()
 
 //    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
 
-//    INFO("This should break me %u", 1 / 0);
+ //   xTaskCreate((TaskFunction_t)development_trigger_tast, "dev_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
 
     statusbar_msg_add(STATUSBAR_MSG_INFO, "development_trigger");
+
+
 
     //FASSERT(0);
 }

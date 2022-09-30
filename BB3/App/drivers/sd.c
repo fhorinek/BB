@@ -14,6 +14,10 @@ osSemaphoreId_t sd_dma_semaphore;
 
 void sd_reinit()
 {
+	ERR(" ** sd_reinit **");
+    __HAL_RCC_SDMMC1_FORCE_RESET();
+    __HAL_RCC_SDMMC1_RELEASE_RESET();
+
     HAL_SD_DeInit(&hsd1);
     osDelay(100);
     MX_SDMMC1_SD_Init();
@@ -146,13 +150,13 @@ void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
 
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
-	DBG("TxC");
+//	INFO("TxC");
     osSemaphoreRelease(sd_dma_semaphore);
 }
 
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
-	DBG("TxR");
+//	INFO("TxR");
     osSemaphoreRelease(sd_dma_semaphore);
 }
 
@@ -170,6 +174,9 @@ void sd_init_failsafe()
 
     red_umount("");
     red_uninit();
+
+    __HAL_RCC_SDMMC1_FORCE_RESET();
+    __HAL_RCC_SDMMC1_RELEASE_RESET();
 
     MX_SDMMC1_SD_Init();
 

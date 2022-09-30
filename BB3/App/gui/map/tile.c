@@ -877,9 +877,6 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
         }
     }
 
-    lv_draw_rect_dsc_t poly_draw;
-    lv_draw_rect_dsc_init(&poly_draw);
-
     lv_draw_line_dsc_t line_draw;
     lv_draw_line_dsc_init(&line_draw);
     lv_draw_line_dsc_t warn_line_draw;
@@ -1100,7 +1097,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
     return mh->magic & CACHE_HAVE_MAP_MASK;
 }
 
-void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom,  uint8_t * magic, uint8_t chunk_index)
+void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * magic, uint8_t chunk_index)
 {
     //draw map map
     //TODO: draw loaded first like hagl
@@ -1166,6 +1163,103 @@ bool tile_validate_sources(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat
 }
 
 
+void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom)
+{
+	if (!fc.airspaces.valid)
+		return;
+
+	uint32_t timer = HAL_GetTick();
+	INFO("Airspace start");
+
+    //TODO: Lock airspace list
+    airspace_record_t * actual = fc.airspaces.list;
+
+	lv_draw_line_dsc_t brush_draw;
+	lv_draw_line_dsc_init(&brush_draw);
+	brush_draw.opa = LV_OPA_20;
+
+	lv_draw_line_dsc_t line_draw;
+	lv_draw_line_dsc_init(&line_draw);
+	line_draw.opa = LV_OPA_70;
+
+
+    while (actual != NULL)
+    {
+
+    	if (((lon1 < actual->bbox.longitude1 && actual->bbox.longitude1 < lon2)
+    			|| (lon1 < actual->bbox.longitude2 && actual->bbox.longitude2 < lon2)
+				|| (lon1 > actual->bbox.longitude1 && actual->bbox.longitude2 > lon2))
+    		&& ((lat1 > actual->bbox.latitude1 && actual->bbox.latitude1 > lat2)
+    			|| (lat1 > actual->bbox.latitude2 && actual->bbox.latitude2 > lat2)
+				|| (lat1 < actual->bbox.latitude1 && actual->bbox.latitude2 < lat2)))
+		{
+    		DBG("Drawing %s", actual->name);
+
+			if (actual->brush.full != 0)
+			{
+				brush_draw.color = actual->brush;
+			}
+			else
+			{
+				//TODO: color by type
+				brush_draw.color = LV_COLOR_RED;
+			}
+
+			if ((actual->pen_width & PEN_WIDTH_MASK) != 0)
+			{
+				line_draw.width = actual->pen_width & PEN_WIDTH_MASK;
+				line_draw.color = actual->pen;
+			}
+			else
+			{
+				line_draw.width = 1;
+				line_draw.color = brush_draw.color;
+			}
+
+			//if is the polygon transparent, increase line width
+			if (actual->pen_width & BRUSH_TRANSPARENT_FLAG)
+			{
+			    line_draw.width = max(line_draw.width, 2);
+			}
+
+			lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * (actual->number_of_points + 1));
+			for (uint16_t j = 0; j < actual->number_of_points; j++)
+			{
+				int32_t plon, plat;
+
+				plon = actual->points[j].longitude;
+				plat = actual->points[j].latitude;
+
+				points[j].x = ((int64_t)plon - (int64_t)lon1) / step_x;
+				points[j].y = ((int64_t)lat1 - (int64_t)plat) / step_y;
+
+//				RAW("points.append([%d, %d])", points[j].x, points[j].y);
+			}
+
+			//close the loop
+			points[actual->number_of_points].x = points[0].x;
+			points[actual->number_of_points].y = points[0].y;
+
+			if (!(actual->pen_width & BRUSH_TRANSPARENT_FLAG))
+				draw_polygon(gui.map.canvas, points, actual->number_of_points + 1, &brush_draw);
+
+			gui_lock_acquire();
+			lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
+			gui_lock_release();
+
+			free(points);
+		}
+    	else
+    	{
+    		DBG("Skiping %s", actual->name);
+    	}
+
+    	actual = actual->next;
+    }
+
+    INFO("Airspace done (%u)", HAL_GetTick() - timer);
+}
+
 bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
     gui.map.chunks[index].ready = false;
@@ -1219,6 +1313,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
             if (pass)
             {
                 int32_t br = red_read(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
+
                 if (br != MAP_BUFFER_SIZE)
                 {
                     WARN("Cache body size not valid");
@@ -1258,11 +1353,14 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
     if (pass)
     {
+        //assign chunk to canvas
+        lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+        tile_draw_airspace(lon1, lat1, lon2, lat2, step_x, step_y, zoom);
+
         gui.map.chunks[index].center_lon = c_lon;
         gui.map.chunks[index].center_lat = c_lat;
         gui.map.chunks[index].zoom = zoom;
         gui.map.chunks[index].ready = true;
-
         gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
         return true;
@@ -1355,12 +1453,12 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     red_close(f);
 
     DBG("duration %u ms", HAL_GetTick() - start);
+    tile_draw_airspace(lon1, lat1, lon2, lat2, step_x, step_y, zoom);
 
     gui.map.chunks[index].center_lon = c_lon;
     gui.map.chunks[index].center_lat = c_lat;
     gui.map.chunks[index].zoom = zoom;
     gui.map.chunks[index].ready = true;
-
     gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
     return true;

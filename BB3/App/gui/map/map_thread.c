@@ -14,9 +14,41 @@
 
 #define MAP_BUFFER_SIZE	(MAP_W * MAP_H * sizeof(lv_color_t))
 
+// This is the center of the map to load with the given zoom factor
+static int32_t map_static_latitude, map_static_longitude;
+static uint8_t map_static_zoom;
+static bool map_static;
+
+/**
+ * Tell map_thread what tiles to load and give the static position and zoom
+ * factor. In "static" mode, this position will be used instead of GPS.
+ *
+ * @param latitude latitude of the center point of the map
+ * @param longitude longitude of the center point of the map
+ * @param zoom the zoom factor of the map
+ */
+void map_set_static_pos(int32_t latitude, int32_t longitude, uint8_t zoom)
+{
+	map_static_latitude = latitude;
+	map_static_longitude = longitude;
+	map_static_zoom = zoom;
+	map_static = true;
+}
+
+/**
+ * Tell map thread to take current GPS position and configured zoom mode
+ * for loading tiles.
+ */
+void map_set_automatic_pos()
+{
+	map_static = false;
+}
+
 void map_init()
 {
-    for (uint8_t i = 0; i < 9; i++)
+	map_set_automatic_pos();
+
+	for (uint8_t i = 0; i < 9; i++)
     {
     	gui.map.chunks[i].buffer = ps_malloc(MAP_BUFFER_SIZE);
     	gui.map.chunks[i].ready = false;
@@ -35,6 +67,29 @@ void map_init()
 
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
+
+    if (strlen(config_get_text(&profile.airspace.filename)) > 0)
+    {
+		char path[PATH_LEN];
+		snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
+
+		uint16_t loaded;
+		uint16_t hidden;
+		uint32_t mem_used;
+
+		fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, false);
+		if (fc.airspaces.list != NULL)
+		{
+			fc.airspaces.valid = true;
+			fc.airspaces.loaded = loaded;
+			fc.airspaces.hidden = hidden;
+			fc.airspaces.mem_used = mem_used;
+		}
+		else
+		{
+			config_set_text(&profile.airspace.filename, "");
+		}
+    }
 }
 
 void thread_map_start(void *argument)
@@ -50,21 +105,30 @@ void thread_map_start(void *argument)
     {
     	int32_t disp_lat;
     	int32_t disp_lon;
+    	uint8_t zoom;
 
-        if (fc.gnss.fix == 0)
+    	if ( map_static )
     	{
-        	disp_lat = config_get_big_int(&profile.ui.last_lat);
-        	disp_lon = config_get_big_int(&profile.ui.last_lon);
+    		disp_lat = map_static_latitude;
+    		disp_lon = map_static_longitude;
+    		zoom = map_static_zoom;
     	}
-        else
-        {
-        	disp_lat = fc.gnss.latitude;
-        	disp_lon = fc.gnss.longtitude;
-        }
+    	else
+    	{
+    		if (fc.gnss.fix == 0)
+    		{
+    			disp_lat = config_get_big_int(&profile.ui.last_lat);
+    			disp_lon = config_get_big_int(&profile.ui.last_lon);
+    		}
+    		else
+    		{
+    			disp_lat = fc.gnss.latitude;
+    			disp_lon = fc.gnss.longtitude;
+    		}
+            zoom = config_get_int(&profile.map.zoom_flight);
+    	}
 
         uint8_t old_magic = gui.map.magic;
-
-        uint8_t zoom = config_get_int(&profile.map.zoom_flight);
 
     	int32_t step_x;
     	int32_t step_y;
@@ -166,7 +230,7 @@ void thread_map_start(void *argument)
 
 		if (gui.map.magic == old_magic)
 		{
-			osDelay(1000);
+			osDelay(200);
 		}
 
     }
