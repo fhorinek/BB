@@ -9,6 +9,7 @@
 #include "gui/dialog.h"
 #include "drivers/gnss/gnss_ublox_m8.h"
 #include "gui/statusbar.h"
+#include "fc/airspaces/airspace.h"
 
 #include "gui/game/space-invaders/spaceinvaders.h"
 
@@ -38,9 +39,11 @@ void development_trigger()
 
 //    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
 
-    xTaskCreate((TaskFunction_t)development_trigger_tast, "dev_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+ //   xTaskCreate((TaskFunction_t)development_trigger_tast, "dev_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
 
     statusbar_msg_add(STATUSBAR_MSG_INFO, "development_trigger");
+
+
 
     //FASSERT(0);
 }

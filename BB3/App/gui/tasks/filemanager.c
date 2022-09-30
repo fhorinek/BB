@@ -273,12 +273,12 @@ static int fm_sort_name(const void * a, const void * b)
     fm_record_cache_t * file_a = (fm_record_cache_t *)a;
     fm_record_cache_t * file_b = (fm_record_cache_t *)b;
 
-    if (RED_S_ISDIR(file_a->mode) && RED_S_ISDIR(file_b->mode))
+    if (RED_S_ISDIR(file_a->mode) == RED_S_ISDIR(file_b->mode))
         return strcmp(file_a->name, file_b->name);
     if (RED_S_ISDIR(file_a->mode) && !RED_S_ISDIR(file_b->mode))
         return +1;
     if (!RED_S_ISDIR(file_a->mode) && RED_S_ISDIR(file_b->mode))
-        return +1;
+        return -1;
     return 0;
 }
 
@@ -406,6 +406,11 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             }
         }
 
+	}
+	else
+	{
+        gui_list_note_add_entry(local->list, "Directory not found", LIST_NOTE_COLOR);
+        gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 	}
 }
 

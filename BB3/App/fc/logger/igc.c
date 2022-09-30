@@ -271,7 +271,7 @@ void igc_tick_cb(void * arg)
 
 		if ((last_timestamp >= timestamp) && (abs(last_timestamp - timestamp) < 10))
 		{
-			DBG("last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
+			DBG("IGC last_timestamp %lu, timestamp %lu", last_timestamp, timestamp);
 			return;
 		}
 

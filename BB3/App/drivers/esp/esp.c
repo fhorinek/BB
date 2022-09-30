@@ -106,6 +106,7 @@ void esp_init()
 
 void esp_deinit()
 {
+	DBG("esp_deinit()");
 	fc.esp.mode = esp_off;
 	fc.esp.state = 0;
     HAL_UART_DeInit(esp_uart);

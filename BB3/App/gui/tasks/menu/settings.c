@@ -20,6 +20,7 @@
 #include "gui/tasks/menu/flightbook/flightbook.h"
 #include "gui/tasks/menu/map.h"
 #include "gui/tasks/menu/audio.h"
+#include "gui/tasks/menu/airspace/airspace.h"
 
 #include "gui/gui_list.h"
 #include "etc/format.h"
@@ -48,6 +49,7 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
 	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_audio);
 	gui_list_auto_entry(list, "Map", NEXT_TASK, &gui_map);
+	gui_list_auto_entry(list, "Airspaces", NEXT_TASK, &gui_airspace);
 	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
 	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);
 	gui_list_auto_entry(list, "Bluetooth", NEXT_TASK, &gui_bluetooth);

@@ -212,6 +212,8 @@ extern osThreadId_t SystemHandle;
 #define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
 #define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
 
+#define PATH_AIRSPACE_DIR   "airspace"
+
 #define IMU_LOG         "imu.csv"
 #define DEBUG_FILE		"debug.log"
 #define UPDATE_FILE 	"STRATO.FW"
@@ -231,6 +233,7 @@ extern osThreadId_t SystemHandle;
 uint8_t hex_to_num(uint8_t c);
 bool start_with(char * s1, const char * s2);
 char * find_comma(char * str);
+uint32_t strlen_noend(char * str);
 
 uint16_t atoi_c(char * str);
 float atoi_f(char * str);

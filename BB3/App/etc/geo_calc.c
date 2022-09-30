@@ -242,3 +242,50 @@ uint32_t geo_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bo
 
     return dist;
 }
+
+bool lines_common_point(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+		int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+		int32_t * px, int32_t * py)
+{
+	int64_t d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+	if (d == 0)
+		return false;
+
+	*px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d;
+	*py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4))/ d;
+
+    return true;
+}
+
+bool point_in_box(int32_t px, int32_t py, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+{
+	if (x1 > x2)
+	{
+		int32_t t = x2;
+		x2 = x1;
+		x1 = t;
+	}
+
+	if (y1 > y2)
+	{
+		int32_t t = y2;
+		y2 = y1;
+		y1 = t;
+	}
+
+    return px >= x1 && px <= x2 && py >= y1 && py <= y2;
+}
+
+bool lines_intersection(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+		int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+		int32_t * px, int32_t * py)
+{
+	if (!lines_common_point(x1, y1, x2, y2, x3, y3, x4, y4, px, py))
+		//lines are parallel
+		return false;
+
+	return point_in_box(*px, *py, x1, y1, x2, y2) && point_in_box(*px, *py, x3, y3, x4, y4);
+}
+
+

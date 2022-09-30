@@ -609,3 +609,14 @@ char *file_gets(char *line, int len, int32_t file)
 	return line;
 }
 
+uint32_t strlen_noend(char * str)
+{
+	uint32_t res = 0;
+	while(*str != '\r' && *str != '\n' && *str != '\0')
+	{
+		res++;
+		str++;
+	}
+
+	return res;
+}

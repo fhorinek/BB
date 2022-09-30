@@ -10,6 +10,8 @@
 
 #include "common.h"
 #include "drivers/nvm.h"
+#include "fc/airspaces/airspace.h"
+
 #include "drivers/esp/protocol_def.h"
 #include "drivers/esp/protocol.h"
 #include "drivers/esp/esp.h"
@@ -27,6 +29,7 @@
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
 #define FC_KM_TO_MILE		(0.621371)
 #define FC_FEET_IN_MILE		(5280)
+#define FC_NM_TO_KM			(1.852)
 
 #define FC_SPEED_MOVING     (2)         //in m/s
 
@@ -397,6 +400,19 @@ typedef struct
         bool valid;
         uint8_t _pad[3];
 	} wind;
+
+	struct
+	{
+		airspace_record_t * list;
+
+		uint16_t loaded;
+		uint16_t hidden;
+		uint32_t mem_used;
+
+		bool valid;
+		uint8_t _pad[3];
+
+	} airspaces;
 } fc_t;
 
 extern fc_t fc;

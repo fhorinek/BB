@@ -44,6 +44,8 @@
 
 #define PILOT_NAME_LEN		64
 
+#define AIRSPACE_NAME_LEN   64
+
 #define BLUETOOTH_NAME_LEN      16
 #define BLUETOOTH_PIN_LEN       8
 
@@ -156,6 +158,31 @@ typedef struct
         cfg_entry_t alt_range;
         cfg_entry_t show_fanet;
 	} map;
+
+	struct
+	{
+		cfg_entry_t filename;
+		struct
+		{
+			cfg_entry_t below;
+			cfg_entry_t restricted;
+			cfg_entry_t danger;
+			cfg_entry_t prohibited;
+			cfg_entry_t class_A;
+			cfg_entry_t class_B;
+			cfg_entry_t class_C;
+			cfg_entry_t class_D;
+			cfg_entry_t class_E;
+			cfg_entry_t class_F;
+			cfg_entry_t class_G;
+			cfg_entry_t glider_prohibited;
+			cfg_entry_t ctr;
+			cfg_entry_t tmz;
+			cfg_entry_t rmz;
+			cfg_entry_t wave_window;
+			cfg_entry_t undefined;
+		} display;
+	} airspace;
 
 	struct
 	{

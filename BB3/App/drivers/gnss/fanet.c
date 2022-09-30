@@ -388,7 +388,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			int32_t lon = (tmp.s32 / 46603.0) * GNSS_MUL;
 
 			//flags
-			uint8_t flags = NB_GROUND_TYPE_MASK & (data[6] >> 4) | NB_HAVE_POS;
+			uint8_t flags = (NB_GROUND_TYPE_MASK & (data[6] >> 4)) | NB_HAVE_POS;
 			if (data[6] & 0b00000001)
 				flags |= NB_ONLINE_TRACKING;
 

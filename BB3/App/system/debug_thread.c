@@ -117,30 +117,6 @@ void debug_fault(const char *format, ...)
 
     HAL_UART_Transmit(debug_uart, (uint8_t *)debug_tx_buffer, total_lenght, 100);
 
-//    if (config_get_bool(&config.debug.use_file))
-//    {
-//        static bool no_dma_sd_init = false;
-//        if (no_dma_sd_init == false)
-//        {
-//            SD_FailSafe_init();
-//            no_dma_sd_init = true;
-//        }
-//
-//        UINT bw;
-//
-//        //open
-//        if (!debug_file_open)
-//        {
-//            f_open(&debug_file, DEBUG_FILE, FA_OPEN_APPEND | FA_WRITE);
-//            debug_file_open = true;
-//        }
-//
-//        //write
-//        f_write(&debug_file, (uint8_t *)debug_tx_buffer, total_lenght, &bw);
-//        //sync
-//        f_sync(&debug_file);
-//    }
-
     osSemaphoreRelease(debug_dma_done);
 }
 
@@ -166,7 +142,15 @@ void debug_send(uint8_t type, const char *format, ...)
         name = "BOOT";
     }
 
-    uint16_t head_lenght = snprintf(msg, sizeof(msg), "\n[%lu][%s][%c] ", HAL_GetTick(), name, debug_label[type]);
+    uint16_t head_lenght;
+    if (type != DBG_RAW)
+    {
+    	head_lenght = snprintf(msg, sizeof(msg), "\n[%lu][%s][%c] ", HAL_GetTick(), name, debug_label[type]);
+    }
+    else
+    {
+    	head_lenght = snprintf(msg, sizeof(msg), "\n");
+    }
 
     //Message boddy
     va_start(arp, format);

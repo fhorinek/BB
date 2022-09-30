@@ -260,6 +260,15 @@ void format_altitude_with_units_2(char * buff, float in, uint8_t units)
     sprintf(buff, "%s %s", val, uni);
 }
 
+void format_FL_with_altitude_with_units(char * buff, float in)
+{
+    char val[16];
+    char uni[4];
+    format_altitude(val, (in * 100) / FC_METER_TO_FEET);
+    format_altitude_units(uni);
+    uint16_t in_i = in;
+    sprintf(buff, "FL%03u %s%s", in_i, val, uni);
+}
 /**
  * Format a distance according to user configuration, e.g. "10.34km"
  *

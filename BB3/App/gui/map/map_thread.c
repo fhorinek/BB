@@ -35,6 +35,29 @@ void map_init()
 
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
+
+    if (strlen(config_get_text(&profile.airspace.filename)) > 0)
+    {
+		char path[PATH_LEN];
+		snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
+
+		uint16_t loaded;
+		uint16_t hidden;
+		uint32_t mem_used;
+
+		fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, false);
+		if (fc.airspaces.list != NULL)
+		{
+			fc.airspaces.valid = true;
+			fc.airspaces.loaded = loaded;
+			fc.airspaces.hidden = hidden;
+			fc.airspaces.mem_used = mem_used;
+		}
+		else
+		{
+			config_set_text(&profile.airspace.filename, "");
+		}
+    }
 }
 
 void thread_map_start(void *argument)
@@ -166,7 +189,7 @@ void thread_map_start(void *argument)
 
 		if (gui.map.magic == old_magic)
 		{
-			osDelay(1000);
+			osDelay(200);
 		}
 
     }

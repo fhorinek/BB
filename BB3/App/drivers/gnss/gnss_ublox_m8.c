@@ -278,8 +278,11 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 			fc.gnss.new_sample = 0xFF;
 		}
 
-		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-		config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+		if (fc.gnss.fix > 0)
+		{
+			config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
+			config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+		}
 
 		return true;
 	}
