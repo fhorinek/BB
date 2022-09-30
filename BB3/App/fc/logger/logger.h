@@ -27,6 +27,8 @@ typedef struct flight_stats
 
 	int16_t max_climb;      // in cm/s
 	int16_t max_sink;       // in cm/s
+
+        int32_t min_lat, max_lat, min_lon, max_lon;
 } flight_stats_t;
 
 void logger_init();

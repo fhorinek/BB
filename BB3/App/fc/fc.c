@@ -144,6 +144,10 @@ void fc_reset()
  	fc.flight.min_alt = 32677;
  	fc.flight.max_climb = 0;
  	fc.flight.max_sink = 0;
+	fc.flight.min_lat = INT32_MAX;
+	fc.flight.max_lat = INT32_MIN;
+	fc.flight.min_lon = INT32_MAX;
+	fc.flight.max_lon = INT32_MIN;
 
     circling_reset();
 }
@@ -229,6 +233,10 @@ void fc_save_stats()
 	f_stat.max_climb = fc.flight.max_climb;
 	f_stat.max_sink = fc.flight.max_sink;
 	f_stat.odo = fc.flight.odometer/100;     // cm to m
+	f_stat.min_lat = fc.flight.min_lat;
+	f_stat.max_lat = fc.flight.max_lat;
+	f_stat.min_lon = fc.flight.min_lon;
+	f_stat.max_lon = fc.flight.max_lon;
 
 	logger_write_flight_stats(f_stat);
 
@@ -321,6 +329,13 @@ void fc_step()
         int16_t t_vario = fc.fused.vario * 100;         // meter/s -> cm/s
         if (t_vario > fc.flight.max_climb) 	fc.flight.max_climb = t_vario;
         if (t_vario < fc.flight.max_sink) 	fc.flight.max_sink = t_vario;
+            if (fc.gnss.fix == 3)
+{
+        fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
+        fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
+        fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.longtitude);
+        fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
+}
 
         if (check)
         {

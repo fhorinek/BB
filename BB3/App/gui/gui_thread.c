@@ -226,6 +226,11 @@ void gui_disp_wait_cb(struct _disp_drv_t * disp_drv)
     osMutexAcquire(gui.lock, WAIT_INF);
 }
 
+void gui_low_priority(bool val)
+{
+    gui.restrict_gui_speed = val;
+}
+
 void thread_gui_start(void *argument)
 {
     system_wait_for_handle(&thread_gui);
@@ -318,8 +323,10 @@ void thread_gui_start(void *argument)
 		gui_lock_owner = NULL;
 		osMutexRelease(gui.lock);
 
-		//do not starve idle
-		osDelay(max(1, delay));
+		//do not starve idle, allow more time for processing
+		uint16_t stay_idle_time = gui.restrict_gui_speed ? 100 : 1;
+
+		osDelay(max(stay_idle_time, delay));
 
 		if (config_get_bool(&config.debug.lvgl_info))
 		{
