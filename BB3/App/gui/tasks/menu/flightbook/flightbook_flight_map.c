@@ -3,6 +3,8 @@
  *
  *  Created on: Feb 27, 2022
  *      Author: tilmann@bubecks.de
+ *
+ *  This display a track of a IGC on a map and in an altitude graph.
  */
 
 #define DEBUG_LEVEL	DEBUG_DBG
@@ -15,52 +17,135 @@
 #include "gui/map/map_obj.h"
 #include "gui/map/map_thread.h"
 #include "fc/fc.h"
+#include "fc/agl.h"
 #include "fc/logger/igc.h"
+#include "drivers/tft/tft.h"
 #include "etc/format.h"
 #include "etc/geo_calc.h"
 #include "gui/dialog.h"
 #include "gui/tasks/filemanager.h"
+#include "cloud_img.h"
 
-lv_color_t get_vario_color(int gain);
-lv_color_t get_vario_color2(int gain);
+// Unable to include "widget.h" here, as this messes up with "local" variable.
+// So write down external declaration here:
+extern lv_color_t get_vario_color(int gain);
 
-#define TRACK_NUM_POINTS 50
+// How many points should we display? This is used for the track on the map and also for the altitude chart.
+// Please make sure, that ALT_POINT_MULT is an integer (without fraction). To ensure this, TRACK_NUM_POINTS
+// must be a divisior of TFT_WIDTH.
+#define TRACK_NUM_POINTS 60
+
+// If we have TRACK_NUM_POINTS in altitude chart, then each point has a distance of ALT_POINT_MULT
+#define ALT_POINT_MULT (TFT_WIDTH/TRACK_NUM_POINTS)
+
+// How many clouds do we want?
+#define CLOUD_NUM 3
 
 REGISTER_TASK_ILS(flightbook_flight_map,
-		map_obj_data_t data;
 
+		// This is data for the map
+		map_obj_data_t data;
 		int32_t lat_center, lon_center;
 		uint8_t zoom;
 
-		lv_point_t points[TRACK_NUM_POINTS];
+		// The number of points used for the track.
 		uint16_t points_num;
 
-		lv_obj_t *lines[TRACK_NUM_POINTS];
+		// This is the track on the map. As we use vario colors,
+		// we have multiple lines between two points in different colors.
+		lv_point_t points_track[TRACK_NUM_POINTS];
+		lv_obj_t *lines_track[TRACK_NUM_POINTS - 1];
+		// This is the black line inside the colored track to clearly show the track.
+		lv_obj_t *line_track;
 
+		// This is the lv_obj to display the altitude graph below map
+		lv_obj_t *graph_alt;
+
+		// This is the line in the altitude graph to show the track
+		lv_point_t points_alt[TRACK_NUM_POINTS];
+		lv_obj_t *line_alt;
+
+		// This is to show the ground. We draw a vertical line at
+		// every x coordinate from groundlevel down to the lower end of the widget.
+		lv_obj_t *lines_ground[TRACK_NUM_POINTS];
+		lv_point_t points_ground[TRACK_NUM_POINTS][2];
+
+		// This is the position of the arrow/line if the user uses left/right
+		// to navigate through the track. 0 <= arrow_pos <= points_num
+		uint8_t arrow_pos;
+
+		// The image of the arrow on the map showing current position
+		lv_obj_t *arrow;
+
+		// The vertical red line in the altitude graph showing current position
+		lv_point_t points_arrow_line[2];
+		lv_obj_t *arrow_line;
+
+		// This stored the altitude at the track points to show in label
+		int16_t altitude[TRACK_NUM_POINTS];
+
+		// The label showing the current position statistics.
+		lv_obj_t *label;
+		char label_text[50];
+
+		// The clouds in the sky
+		lv_obj_t *clouds[CLOUD_NUM];
+
+		// Flag to indicate, that track is read and graphs are ready to be shown.
+		bool initialized;
+
+		// The previos position in filemanager to restore
 		char file_path[PATH_LEN];
 		uint8_t fm_return_level;
 );
 
 void flightbook_flight_map_cb(lv_obj_t * obj, lv_event_t event)
 {
-	if (event == LV_EVENT_CANCEL) {
+    uint32_t key = 0;
+
+    switch (event) {
+    case LV_EVENT_CANCEL:
 		gui_switch_task(&gui_flightbook_flight, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 		//filemanager_get_current_level is only valid during filemanager callbacks
 		//flightbook_flight_open(flightbook_flight_map_path, filemanager_get_current_level());
 		flightbook_flight_open(local->file_path, local->fm_return_level);
-	}
+    	break;
+    case LV_EVENT_KEY:
+        key = *((uint32_t*) lv_event_get_data());
+        if ((key == LV_KEY_RIGHT) && local->arrow_pos < local->points_num - 1) {
+            local->arrow_pos++;
+        } else if ((key == LV_KEY_LEFT) && local->arrow_pos > 0) {
+            local->arrow_pos--;
+        }
+    }
 }
 
 void flightbook_flight_map_load_task(void * param)
 {
 	int32_t fp;
     flight_stats_t f_stat;
-    lv_obj_t *line;
     flight_pos_t pos;
     int16_t w, h;
     uint32_t pos_num = 0;
     int16_t x, y;
     REDSTAT pStat;
+    lv_obj_t *par;
+    lv_coord_t graph_height;
+    int16_t min_alt = INT16_MAX, max_alt = INT16_MIN;
+
+    local->arrow_pos = 0;
+
+    // Map is 3/4 of the vertical size and altitude graph is 1/4 below.
+    // Create objects and set sizes/position:
+	gui_lock_acquire();
+    par = lv_obj_get_parent(local->data.map);
+	lv_obj_set_size(local->data.map,  lv_obj_get_width(par), lv_obj_get_height(par) * 3 / 4);
+	local->graph_alt = lv_obj_create(par, NULL);
+	graph_height = lv_obj_get_height(par) - lv_obj_get_height(local->data.map);
+	lv_obj_set_size(local->graph_alt,  lv_obj_get_width(par), graph_height);
+	lv_obj_set_pos(local->graph_alt, 0, lv_obj_get_height(local->data.map));
+	lv_obj_set_style_local_bg_color(local->graph_alt, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_make(150, 150, 255));
+	gui_lock_release();
 
     logger_read_flight_stats(local->file_path, &f_stat);
 
@@ -100,7 +185,8 @@ void flightbook_flight_map_load_task(void * param)
     int i = 0;
     pos_num = 0;
     float next_pos = step;
-    int16_t previous_gnss_alt;
+    int16_t previous_baro_alt;
+    int16_t groundlevel;
 
     while ( igc_read_next_pos(fp, &pos) )
     {
@@ -109,39 +195,109 @@ void flightbook_flight_map_load_task(void * param)
     	{
     		next_pos += step;
     		geo_to_pix_w_h(local->lon_center, local->lat_center, local->zoom, pos.lon, pos.lat, &x, &y, w, h);
-    		local->points[i].x = x;
-    		local->points[i].y = y;
+    		local->points_track[i].x = x;
+    		local->points_track[i].y = y;
+
+    		groundlevel = agl_get_alt(pos.lat, pos.lon, true);
+    		min_alt = min(min_alt, pos.baro_alt); min_alt = min(min_alt, groundlevel);
+    		max_alt = max(max_alt, pos.baro_alt); max_alt = max(max_alt, groundlevel);
+
+    		local->points_alt[i].x = i * ALT_POINT_MULT;
+    		local->points_alt[i].y = pos.baro_alt;
+
+    		local->points_ground[i][0].x = local->points_alt[i].x;
+    		local->points_ground[i][0].y = groundlevel;
+    		local->points_ground[i][1].x = local->points_alt[i].x;
+    		local->points_ground[i][1].y = graph_height;
+
+    		local->altitude[i] = pos.baro_alt;
+
     		if ( i > 0 )
     		{
     			lv_obj_t *line;
     			int16_t alt_diff;
 
-    			alt_diff = pos.gnss_alt - previous_gnss_alt;
+    			alt_diff = pos.baro_alt - previous_baro_alt;
 
-    			//calling anything with lv_ prefix outside GUI thread require GUI lock, othervise we can corrupt LVGL memory
+    			//calling anything with lv_ prefix outside GUI thread require GUI lock, otherwise we can corrupt LVGL memory
     			gui_lock_acquire();
     			line = lv_line_create(local->data.map, NULL);
-    			lv_line_set_points(line, &local->points[i-1], 2);
+    			lv_line_set_points(line, &local->points_track[i-1], 2);
     			lv_obj_set_style_local_line_color(line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, get_vario_color((int)(alt_diff / step * 100)));
     			lv_obj_set_style_local_line_width(line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 11);
     			gui_lock_release();
 
-    			local->lines[i-1] = line;
+    			local->lines_track[i-1] = line;
     		}
-    		previous_gnss_alt = pos.gnss_alt;
+    		previous_baro_alt = pos.baro_alt;
     		i++;
     	}
     }
     local->points_num = i;
 
+    red_close(fp);
+
 	gui_lock_acquire();
-    line = lv_line_create(local->data.map, NULL);
-    lv_line_set_points(line, &local->points[0], local->points_num);
-    lv_obj_set_style_local_line_color(line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
-    lv_obj_set_style_local_line_width(line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 3);
+
+	// create black line showing track on map:
+	local->line_track = lv_line_create(local->data.map, NULL);
+	lv_line_set_points(local->line_track, &local->points_track[0], local->points_num);
+	lv_obj_set_style_local_line_color(local->line_track, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_obj_set_style_local_line_width(local->line_track, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 3);
+
+	// Create arrow on map:
+	local->arrow = lv_img_create(local->data.map, NULL);
+	lv_img_set_src(local->arrow, &img_map_arrow);
+	lv_img_set_antialias(local->arrow, true);
+
+	for ( i = 0; i <= local->points_num; i++ )
+	{
+		// scale altitude lines according to size of graph:
+		local->points_alt[i].y = graph_height - (lv_coord_t)(local->points_alt[i].y - min_alt) * (int32_t)graph_height / (max_alt - min_alt );               // int32_t is against integer overflow
+		local->points_ground[i][0].y = graph_height - (lv_coord_t)(local->points_ground[i][0].y - min_alt) * (int32_t)graph_height / (max_alt - min_alt ); // int32_t is against integer overflow;
+
+		// create vertical ground line
+		local->lines_ground[i] = lv_line_create(local->graph_alt, NULL);
+		lv_line_set_points(local->lines_ground[i], &local->points_ground[i][0], 2);
+		lv_obj_set_style_local_line_color(local->lines_ground[i], LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
+		lv_obj_set_style_local_line_width(local->lines_ground[i], LV_LINE_PART_MAIN, LV_STATE_DEFAULT, ALT_POINT_MULT);
+	}
+
+	srandom((int)HAL_GetTick());
+	for ( i = 0; i < CLOUD_NUM; i++ )
+	{
+		local->clouds[i] = lv_img_create(local->graph_alt, NULL);
+		lv_img_set_src(local->clouds[i], &cloud_img);
+		lv_obj_set_pos(local->clouds[i], (lv_coord_t)(random() % TFT_WIDTH), (lv_coord_t)(random() % 20));
+		lv_obj_set_style_local_image_recolor_opa(local->clouds[i], LV_IMG_PART_MAIN,
+					 LV_STATE_DEFAULT, LV_OPA_COVER);
+			 lv_obj_set_style_local_image_recolor(local->clouds[i], LV_IMG_PART_MAIN,
+					 LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	}
+
+	// create track line in altitude graph:
+	local->line_alt = lv_line_create(local->graph_alt, NULL);
+	lv_line_set_points(local->line_alt, &local->points_alt[0], local->points_num);
+	lv_obj_set_style_local_line_color(local->line_alt, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_obj_set_style_local_line_width(local->line_alt, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 2);
+
+	// Create vertical red line on altitude graph:
+	local->arrow_line = lv_line_create(local->graph_alt, NULL);
+	local->points_arrow_line[0].x = local->points_arrow_line[0].y = local->points_arrow_line[1].x = local->points_arrow_line[1].y = 0;
+	lv_line_set_points(local->arrow_line, &local->points_arrow_line[0], 2);
+	lv_obj_set_style_local_line_color(local->arrow_line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+	lv_obj_set_style_local_line_width(local->arrow_line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 2);
+	lv_obj_set_style_local_line_dash_gap(local->arrow_line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 5);
+	lv_obj_set_style_local_line_dash_width(local->arrow_line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 10);
+
+	// Create label:
+	local->label = lv_label_create(local->graph_alt, NULL);
+	lv_obj_align(local->label, local->graph_alt, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
+	lv_obj_set_style_local_text_color(local->label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+
 	gui_lock_release();
 
-    red_close(fp);
+	local->initialized = true;
 
     dialog_close();
     gui_low_priority(false);
@@ -169,25 +325,61 @@ lv_obj_t * flightbook_flight_map_init(lv_obj_t * par)
 {
 	lv_obj_t *map;
 
+	local->initialized = false;
+
 	map = map_obj_init(par, &local->data);
 
     gui_set_dummy_event_cb(par, flightbook_flight_map_cb);
 
-	return map;
+    return map;
 }
 
 void flightbook_flight_map_loop()
 {
-    // disp_lat = 449996718; disp_lon = 130009586;   // Bassano
-    //disp_lat=  485547480; disp_lon =  93919890;   // Hohenneuffen
-	//           479964285 480000036                      90035779
+    double dy, dx;
+
     map_set_static_pos(local->lat_center, local->lon_center, local->zoom);
     map_obj_loop(&local->data, local->lat_center, local->lon_center);
+
+	if (!local->initialized ) return;
+
+	// Set arrow and rotate into right direction
+    lv_obj_set_pos(local->arrow, local->points_track[local->arrow_pos].x - img_map_arrow.header.w/2, local->points_track[local->arrow_pos].y - img_map_arrow.header.h/2);
+    dx = local->points_track[local->arrow_pos].x - local->points_track[local->arrow_pos + 1].x;
+    dy = local->points_track[local->arrow_pos].y - local->points_track[local->arrow_pos + 1].y;
+    int16_t angle = (int16_t)(atan2(dy, dx) * (180/M_PI) + 270) % 360;
+    lv_img_set_angle(local->arrow, (int16_t)(angle * 10.0));
+
+    // set vertical line in altitude graph
+    local->points_arrow_line[0].x = local->points_alt[local->arrow_pos].x;
+    local->points_arrow_line[0].y = 0;
+    local->points_arrow_line[1].x = local->points_alt[local->arrow_pos].x;
+    local->points_arrow_line[1].y = lv_obj_get_height(local->graph_alt);
+    lv_line_set_points(local->arrow_line, &local->points_arrow_line[0], 2);
+
+    // display label
+    format_altitude_with_units(local->label_text, (float)local->altitude[local->arrow_pos]);
+    strcat(local->label_text, "\nAMSL");
+    lv_label_set_text(local->label, local->label_text);
+    lv_obj_align(local->label, local->graph_alt, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
+
+    // Move clouds:
+    static uint32_t next_cloud_move = 0;
+    uint32_t now = HAL_GetTick();
+    if ( now > next_cloud_move )
+    {
+    	next_cloud_move = now + 100;
+		for ( int i = 0; i < CLOUD_NUM; i++ )
+		{
+			lv_coord_t x = lv_obj_get_x(local->clouds[i]);
+			x += 1 + random() % 3;
+			if ( x > TFT_WIDTH ) x = -cloud_img.header.w;
+			lv_obj_set_x(local->clouds[i], x);
+		}
+    }
 }
 
 void flightbook_flight_map_stop()
 {
     map_set_automatic_pos();
 }
-
-
