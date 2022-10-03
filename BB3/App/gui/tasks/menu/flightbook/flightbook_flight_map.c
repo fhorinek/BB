@@ -127,6 +127,7 @@ void flightbook_flight_map_load_task(void * param)
     flight_pos_t pos;
     int16_t w, h;
     uint32_t pos_num = 0;
+    uint32_t approx_pos_num;
     int16_t x, y;
     REDSTAT pStat;
     lv_obj_t *par;
@@ -173,24 +174,33 @@ void flightbook_flight_map_load_task(void * param)
     // Use filesize to approximately get number of "B" records:
     red_fstat(fp, &pStat);
     // 450 is header/footer size and 36 is size of 1 B Record:
-    pos_num = (pStat.st_size - 450) / 36;
-    if ( pos_num < 0 ) pos_num = 1;
+    approx_pos_num = (pStat.st_size - 450) / 36;
+    if ( approx_pos_num < 0 ) approx_pos_num = 1;
 
     float step = 0;
-    if ( pos_num < TRACK_NUM_POINTS )
+    if ( approx_pos_num < TRACK_NUM_POINTS )
     	step = 1.0;
     else
-    	step = (float)pos_num / TRACK_NUM_POINTS;
+    	step = (float)approx_pos_num / TRACK_NUM_POINTS;
 
     int i = 0;
     pos_num = 0;
     float next_pos = step;
     int16_t previous_baro_alt;
     int16_t groundlevel;
+    int16_t percent;
+    int16_t last_percent = 0;
 
     while ( igc_read_next_pos(fp, &pos) )
     {
     	pos_num++;
+    	percent = pos_num * 100 / approx_pos_num;
+    	if (percent > last_percent + 5)
+    	{
+    		last_percent = percent;
+    		dialog_progress_set_progress((uint8_t)percent);
+    	}
+
     	if ( pos_num >= next_pos )
     	{
     		next_pos += step;
