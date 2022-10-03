@@ -18,6 +18,7 @@
 #include "gui/tasks/page/pages.h"
 #include "gui/tasks/menu/flight/flight.h"
 #include "gui/tasks/menu/flightbook/flightbook.h"
+#include "gui/tasks/menu/flightbook/flightbook_statistics.h"
 #include "gui/tasks/menu/map.h"
 #include "gui/tasks/menu/audio.h"
 #include "gui/tasks/menu/airspace/airspace.h"
@@ -39,11 +40,28 @@ static bool open_flightbook(lv_obj_t * obj, lv_event_t event)
 	return true;
 }
 
+static bool open_flightbook_stat(lv_obj_t * obj, lv_event_t event)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		//this is standard method how to pass extra parameter to task
+		//1. Switch to task, so the local memory is allocated for the new task
+		gui_switch_task(&gui_flightbook_statistics, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+		//2. Call custom function specific to target task to pass parameters
+		flightbook_statistics_load(NULL, NULL);
+
+		//supress default handler
+		return false;
+	}
+	return true;
+}
+
 lv_obj_t * settings_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
 
 	gui_list_auto_entry(list, "Flightbook", CUSTOM_CB, open_flightbook);
+	gui_list_auto_entry(list, "Flightbook Statistics", CUSTOM_CB, open_flightbook_stat);
 	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
 	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);

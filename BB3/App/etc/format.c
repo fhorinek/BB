@@ -4,6 +4,8 @@
 #include "etc/epoch.h"
 #include "drivers/rev.h"
 
+char *month_names[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
 void format_date_epoch(char * buff, uint64_t epoch)
 {
 	uint8_t sec, min, hour, day, wday, month;
@@ -29,6 +31,23 @@ void format_date(char * buff, uint8_t day, uint8_t month, uint16_t year)
 
     }
 }
+
+void format_date_DM(char * buff, uint8_t day, uint8_t month)
+{
+    switch (config_get_select(&config.units.date))
+    {
+        case(DATE_DDMMYYYY):
+            sprintf(buff, "%02u.%02u.", day, month);
+        break;
+        case(DATE_MMDDYYYY):
+            sprintf(buff, "%02u/%02u", month, day);
+        break;
+        case(DATE_YYYYMMDD):
+            sprintf(buff, "%02u-%02u", day, month);
+        break;
+    }
+}
+
 
 /**
  * Give a time representation of given hour and min
