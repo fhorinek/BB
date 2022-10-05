@@ -420,5 +420,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         gui_list_note_add_entry(local->list, "Directory not found", LIST_NOTE_COLOR);
         gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 	}
+
+	local->cb(FM_CB_APPEND, "");
 }
 
