@@ -4,6 +4,7 @@
  *  Created on: May 4, 2020
  *      Author: horinek
  */
+#define DEBUG_LEVEL DBG_DEBUG
 #include "config.h"
 #include "gui/widgets/widgets.h"
 
