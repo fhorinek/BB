@@ -64,8 +64,8 @@ void flightbook_flight_map_load_task(void * param)
 
     logger_read_flight_stats(local->file_path, &f_stat);
 
-    local->lat_center = (f_stat.min_lat + f_stat.max_lat) / 2;
-    local->lon_center = (f_stat.min_lon + f_stat.max_lon) / 2;
+    local->lat_center = ((int64_t)f_stat.min_lat + f_stat.max_lat) / 2;
+    local->lon_center = ((int64_t)f_stat.min_lon + f_stat.max_lon) / 2;
 
     DBG("lat_max %ld lon_max %ld", f_stat.max_lat, f_stat.max_lon);
     DBG("lat_min %ld lon_min %ld", f_stat.min_lat, f_stat.min_lon);
