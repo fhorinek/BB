@@ -20,10 +20,21 @@
 
 #include "etc/format.h"
 
+static bool callback_f(lv_obj_t * obj, lv_event_t event)
+{
+	if (event == LV_EVENT_CLICKED)
+	{
+		dialog_show("hello", "custom cb", dialog_confirm, NULL);
+		return false;
+	}
+	return false;
+}
+
 void flightbook_flights_open_fm(bool anim)
 {
     gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
     filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
+    gui_list_auto_entry(gui.list.list, "Statistics", CUSTOM_CB, callback_f);
 }
 
 static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
