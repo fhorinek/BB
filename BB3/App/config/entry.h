@@ -10,12 +10,12 @@
 
 #include "common.h"
 
-#define ENTRY_BOOL		0	//0-1
-#define ENTRY_INT16     1   //int16_t
-#define ENTRY_INT32     2   //int32_t
-#define ENTRY_FLOAT		3	//float
-#define ENTRY_TEXT		4	//char[]
-#define ENTRY_SELECT	5	//uint8_t
+#define ENTRY_BOOL		0xA0	//0-1
+#define ENTRY_INT16     0xA1   //int16_t
+#define ENTRY_INT32     0xA2   //int32_t
+#define ENTRY_FLOAT		0xA3	//float
+#define ENTRY_TEXT		0xA4	//char[]
+#define ENTRY_SELECT	0xA5	//uint8_t
 //#define ENTRY_END		0xFF
 
 

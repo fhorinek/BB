@@ -77,7 +77,6 @@ typedef struct {
 
 #define HANDLE_DELETED  0xFFFFFFFF
 #define HANDLE_CLEAR    NULL
-#define HANDLE_OFFSET   0x80000000
 
 #define PATH_LEN        128
 
@@ -91,7 +90,7 @@ static char file_deleted[] = "";
 
 static handle_node_t * handle_to_filename[MAX_HANDLES];
 
-static uint32_t handle_new_index = 0;
+static uint32_t handle_new_index = 1;
 
 static int32_t mtp_file = 0;
 static uint32_t mtp_file_read_handle = 0;
@@ -105,9 +104,7 @@ static bool mtp_cancel = false;
 
 bool mtp_construct_path(char * path, uint32_t handle)
 {
-    handle &= ~HANDLE_OFFSET;
-
-    if (handle == 0x7FFFFFFF)
+    if (handle == 0)
     {
         strcpy(path, "");
         return true;
@@ -129,15 +126,13 @@ bool mtp_construct_path(char * path, uint32_t handle)
 
 uint32_t mtp_get_handle(uint32_t parent, char * name)
 {
-    parent &= ~HANDLE_OFFSET;
-
-    for (uint32_t i = 0 ; i < handle_new_index; i++)
+    for (uint32_t i = 1 ; i < handle_new_index; i++)
     {
         if (handle_to_filename[i]->parent == parent)
         {
             if (strcmp(handle_to_filename[i]->name, name) == 0)
             {
-                return i | HANDLE_OFFSET;
+                return i;
             }
         }
     }
@@ -155,12 +150,11 @@ uint32_t mtp_get_handle(uint32_t parent, char * name)
     handle_new_index++;
     ASSERT(handle_new_index < MAX_HANDLES);
 
-    return handle | HANDLE_OFFSET;
+    return handle;
 }
 
 handle_node_t * mtp_handle_get_node(uint32_t handle)
 {
-    handle &= ~HANDLE_OFFSET;
     ASSERT(handle < MAX_HANDLES);
 
     return handle_to_filename[handle];
@@ -176,16 +170,14 @@ void mtp_rename_handle(uint32_t handle, char * name)
 
 uint32_t mtp_handle_get_parent(uint32_t handle)
 {
-    handle &= ~HANDLE_OFFSET;
     ASSERT(handle < MAX_HANDLES);
 
-    return handle_to_filename[handle]->parent | HANDLE_OFFSET;
+    return handle_to_filename[handle]->parent;
 }
 
 //handle should not be reused if the object is removed
 void mtp_handle_delete(uint32_t handle)
 {
-    handle &= ~HANDLE_OFFSET;
     ASSERT(handle < MAX_HANDLES);
 
     if (handle_to_filename[handle]->name != file_deleted)
@@ -217,7 +209,7 @@ void mtp_activate(void * param)
     INFO("mtp_activate %p", param);
     mtp_pima = NULL;
 
-    handle_new_index = 0;
+    handle_new_index = 1;
 
     for (uint32_t i = 0; i < MAX_HANDLES; i++)
     {
@@ -244,7 +236,7 @@ void mtp_deactivate(void * param)
         }
     }
 
-    handle_new_index = 0;
+    handle_new_index = 1;
 }
 
 
@@ -386,6 +378,9 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
         ULONG *object_handles_array,
         ULONG object_handles_max_number)
 {
+	if (object_handles_association == 0xFFFFFFFF)
+		object_handles_association = 0;
+
     INFO("mtp_object_handles_get %04X", object_handles_association);
 
     mtp_port_active();
@@ -545,6 +540,9 @@ static UINT mtp_object_info_send(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UX_SLA
 
     char name[128];
     _ux_utility_unicode_to_string(object->ux_device_class_pima_object_filename, (UCHAR *)name);
+
+	if (parent_object_handle == 0xFFFFFFFF)
+		parent_object_handle = 0;
 
     INFO(" parent %08X", parent_object_handle);
     *object_handle = mtp_get_handle(parent_object_handle, name);
@@ -786,6 +784,22 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
             *object_prop_dataset_length = sizeof(object_prop_desc_uint128_t);
             break;
         }
+
+        case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_OBJECT_FORMAT):
+	    {
+            object_prop_desc_uint16_t * payload = (object_prop_desc_uint16_t *)&mtp_buffer;
+
+            payload->property_code = object_property;
+            payload->datatype = UX_DEVICE_CLASS_PIMA_TYPES_UINT16;
+            payload->get_set = UX_DEVICE_CLASS_PIMA_OBJECT_PROPERTY_DATASET_VALUE_GET;
+            payload->default_value = UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED;
+            payload->group_code = 0;
+            payload->form = 0x00;
+
+            *object_prop_dataset = (UCHAR *)payload;
+            *object_prop_dataset_length = sizeof(object_prop_desc_uint16_t);
+        	break;
+	    }
 
         case (UX_DEVICE_CLASS_PIMA_OBJECT_PROP_PARENT_OBJECT):
 	    {

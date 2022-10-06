@@ -10,7 +10,7 @@
 
 #include "gui/gui.h"
 
-void flightbook_open();
+void flightbook_open(bool from_left);
 bool flightbook_flights_fm_cb(uint8_t event, char * path);
 
 #endif /* GUI_FLIGHTBOOK_H_ */

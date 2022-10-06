@@ -226,6 +226,7 @@ void gui_disp_wait_cb(struct _disp_drv_t * disp_drv)
     osMutexAcquire(gui.lock, WAIT_INF);
 }
 
+//restricts gui drawing performance
 void gui_low_priority(bool val)
 {
     gui.restrict_gui_speed = val;
@@ -343,6 +344,8 @@ void thread_gui_start(void *argument)
             }
 		}
 	}
+
+    gui_stop();
 
     INFO("Done");
     osThreadSuspend(thread_gui);

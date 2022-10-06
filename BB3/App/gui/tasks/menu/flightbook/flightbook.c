@@ -9,6 +9,7 @@
 
 #include "flightbook.h"
 #include "flightbook_flight.h"
+#include "flightbook_statistics.h"
 
 #include "gui/tasks/menu/settings.h"
 #include "gui/tasks/filemanager.h"
@@ -20,9 +21,25 @@
 
 #include "etc/format.h"
 
-void flightbook_flights_open_fm(bool anim)
+static bool open_flightbook_stat(lv_obj_t * obj, lv_event_t event)
 {
-    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
+	if (event == LV_EVENT_CLICKED)
+	{
+		//this is standard method how to pass extra parameter to task
+		//1. Switch to task, so the local memory is allocated for the new task
+		gui_switch_task(&gui_flightbook_statistics, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+		//2. Call custom function specific to target task to pass parameters
+		flightbook_statistics_load(NULL, NULL);
+	}
+
+	//supress default handler
+	return false;
+}
+
+void flightbook_flights_open_fm(bool anim, bool from_left)
+{
+	lv_scr_load_anim_t anim_dir = from_left ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_MOVE_RIGHT;
+    gui_switch_task(&gui_filemanager, (anim) ? anim_dir : LV_SCR_LOAD_ANIM_NONE);
     filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
 }
 
@@ -41,7 +58,7 @@ static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
         snprintf(text, sizeof(text), "Flight '%s' deleted", name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);                                                                                        
 
-        flightbook_flights_open_fm(false);   // refresh
+        flightbook_flights_open_fm(false, true);   // refresh
     }
     free(opt_data);
 }
@@ -50,6 +67,12 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
 {
     switch (event)
     {
+    	//called after the list is populated with files
+    	case FM_CB_APPEND:
+    		if (filemanager_get_current_level() == 0)
+    			gui_list_auto_entry(gui.list.list, "Flight statistics", CUSTOM_CB, open_flightbook_stat);
+		break;
+
         case FM_CB_SELECT:
         case (0):
         {
@@ -87,9 +110,9 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
 
 
 
-void flightbook_open()
+void flightbook_open(bool from_left)
 {
-    flightbook_flights_open_fm(true);
+    flightbook_flights_open_fm(true, from_left);
 }
 
 

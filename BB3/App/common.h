@@ -216,7 +216,7 @@ extern osThreadId_t SystemHandle;
 
 #define IMU_LOG         "imu.csv"
 #define DEBUG_FILE		"debug.log"
-#define UPDATE_FILE 	"STRATO.FW"
+#define UPDATE_FILE 	"strato.fw"
 #define DEV_MODE_FILE   "DEV_MODE"
 #define FORMAT_FILE   	"FORMAT"
 #define SKIP_CRC_FILE   "SKIP_CRC"

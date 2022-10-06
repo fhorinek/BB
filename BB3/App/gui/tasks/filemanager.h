@@ -27,6 +27,7 @@ bool filemanager_get_path(char * dst, char * path);
 #define FM_CB_FOCUS_DIR     0xF3
 #define FM_CB_FILTER        0xF4
 #define FM_CB_CANCEL        0xF5
+#define FM_CB_APPEND        0xF6
 
 #define FM_FLAG_FILTER      0b00000001
 #define FM_FLAG_FOCUS       0b00000010

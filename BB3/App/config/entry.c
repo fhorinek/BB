@@ -121,6 +121,9 @@ void entry_get_str(char * buff, cfg_entry_t * e)
 				}
 			}
 			break;
+		default:
+			bsod_msg("Invalid entry in config.h");
+		break;
 	}
 
 	len = strlen(buff);
@@ -157,6 +160,13 @@ void config_init(cfg_entry_t * structure)
             case(ENTRY_INT32):
                 config_set_big_int(entry, entry->value.s32);
                 break;
+
+            case(ENTRY_BOOL):
+            case(ENTRY_FLOAT):
+				break;
+
+            default:
+    			bsod_msg("Invalid entry in config.h");
 		}
 	}
 }
