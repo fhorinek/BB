@@ -14,6 +14,7 @@
 #include "fc/fc.h"
 #include "fc/agl.h"
 #include "etc/geo_calc.h"
+#include "gui/polygon.h"
 
 #define MAP_BUFFER_SIZE (MAP_W * MAP_H * sizeof(lv_color_t))
 
@@ -90,8 +91,6 @@ typedef struct
 //#define MAP_SHADE_MAG   0
 
 #define BLUR_SIZE   3
-
-void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc);
 
 void write_buffer(char * path, void * buffer, uint32_t len)
 {
@@ -1085,7 +1084,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             }
 //          INFO("draw_poly(points)\n");
 
-            draw_polygon(gui.map.canvas, points, number_of_points, &line_draw);
+            draw_polygon(gui.map.canvas, points, number_of_points, &line_draw, MAP_H);
 
             free(points);
         }
@@ -1241,7 +1240,7 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 			points[actual->number_of_points].y = points[0].y;
 
 			if (!(actual->pen_width & BRUSH_TRANSPARENT_FLAG))
-				draw_polygon(gui.map.canvas, points, actual->number_of_points + 1, &brush_draw);
+				draw_polygon(gui.map.canvas, points, actual->number_of_points + 1, &brush_draw, MAP_H);
 
 			gui_lock_acquire();
 			lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
