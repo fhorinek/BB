@@ -29,7 +29,7 @@ fc_logger_status_t logger_state()
  * multiple lines.
  *
  * @param f_stat the flight statistics to convert
- * @param buffer the buffer to hold the data [at least 100 bytes]
+ * @param buffer the buffer to hold the data [at least 300 bytes]
  */
 static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
 {
@@ -61,7 +61,7 @@ static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
  */
 void logger_write_flight_stats(flight_stats_t f_stat)
 {
-    char buffer[200];
+    char buffer[300];
 
     flight_stats_to_text(&f_stat, buffer);
     logger_comment(buffer);
@@ -242,7 +242,7 @@ void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
             fp_cache = red_open(path, RED_O_WRONLY | RED_O_CREAT);
             if (fp_cache >= 0)
             {
-                char buffer[200];
+                char buffer[300];
 
                 flight_stats_to_text(f_stat, buffer);
                 red_write(fp_cache, buffer, strlen(buffer));
