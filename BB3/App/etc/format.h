@@ -14,7 +14,10 @@
 #define DATE_MMDDYYYY   1
 #define DATE_YYYYMMDD   2
 
+extern char *month_names[12];
+
 void format_date(char * buf, uint8_t day, uint8_t month, uint16_t year);
+void format_date_DM(char * buff, uint8_t day, uint8_t month);
 void format_date_epoch(char * buff, uint64_t epoch);
 void format_time(char * buf, uint8_t hour, uint8_t min);
 
