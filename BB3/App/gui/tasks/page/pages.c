@@ -320,7 +320,6 @@ void pages_anim_splash_out_cb(lv_anim_t * a)
 	}
 
 	pages_stop();
-	gui_stop();
 	system_poweroff();
 }
 

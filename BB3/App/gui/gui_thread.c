@@ -344,6 +344,8 @@ void thread_gui_start(void *argument)
 		}
 	}
 
+    gui_stop();
+
     INFO("Done");
     osThreadSuspend(thread_gui);
 }

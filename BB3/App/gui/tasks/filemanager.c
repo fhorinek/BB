@@ -45,6 +45,7 @@ REGISTER_TASK_IS(filemanager,
 
 	uint8_t flags;
 	uint8_t level;
+	uint16_t filenames_count;
 );
 
 static char filemanager_active_fname[32];
@@ -182,6 +183,10 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 	if (event == LV_EVENT_CLICKED)
 	{
+		//additional item, use default handler
+		if (index >= local->filenames_count)
+			return true;
+
 	    fm_record_cache_t * file = &local->filenames[index];
 
 		char new_path[PATH_LEN];
@@ -241,6 +246,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		}
 	}
 
+	//Suppress default handler
 	return false;
 }
 
@@ -325,6 +331,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	local->level = level;
 	local->back = back;
 	local->cb = cb;
+	local->filenames_count = 0;
 	strncpy(local->path, path, PATH_LEN);
 
 	REDDIR * dir = red_opendir(path);
@@ -364,6 +371,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             local->filenames[cnt].date = entry->d_stat.st_atime;
             local->filenames[cnt].mode = entry->d_stat.st_mode;
             strncpy(&local->filenames[cnt].name, entry->d_name, REDCONF_NAME_MAX);
+            local->filenames_count++;
 
             cnt++;
         }
@@ -412,5 +420,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         gui_list_note_add_entry(local->list, "Directory not found", LIST_NOTE_COLOR);
         gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 	}
+
+	local->cb(FM_CB_APPEND, "");
 }
 

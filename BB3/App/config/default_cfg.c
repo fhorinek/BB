@@ -370,6 +370,12 @@ flight_profile_t profile =
 			entry_bool("as_C", false),
 			//class_D
 			entry_bool("as_D", false),
+			//class_E
+			entry_bool("as_E", false),
+			//class_F
+			entry_bool("as_F", false),
+			//class_G
+			entry_bool("as_G", false),
 			//glider_prohibited
 			entry_bool("as_gp", true),
 			//ctr
