@@ -588,7 +588,7 @@ void flightbook_statistics_loop()
                 sprintf(title_text, "Hours %s", period_title);
             break;
             case DATATYPE_NUM:
-                strcpy(text, "Distace");
+                strcpy(text, "Distance");
                 sprintf(title_text, "Flights %s", period_title);
             break;
             case DATATYPE_ODO:

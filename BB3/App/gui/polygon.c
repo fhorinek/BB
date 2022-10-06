@@ -6,7 +6,6 @@
  */
 
 #include "common.h"
-#include "etc/geo_calc.h"
 #include "gui/gui.h"
 
 typedef struct
@@ -19,7 +18,7 @@ typedef struct
 
 
 
-void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc)
+void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc, lv_coord_t max_height)
 {
     polygon_edge_t * edges = (polygon_edge_t * ) malloc(sizeof(polygon_edge_t) * number_of_points);
 
@@ -98,7 +97,7 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
 
         uint16_t * active = (uint16_t *) malloc(sizeof(uint16_t) * edge_cnt);
 
-        for (int16_t scan_line = scan_start; scan_line <= MAP_H; scan_line++)
+        for (int16_t scan_line = scan_start; scan_line <= max_height; scan_line++)
         {
             //get active
             uint16_t active_cnt = 0;
