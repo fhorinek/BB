@@ -181,12 +181,12 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
         	filemanager_back();
 	}
 
+	//appended item, use default handler
+	if (index >= local->filenames_count)
+		return true;
+
 	if (event == LV_EVENT_CLICKED)
 	{
-		//additional item, use default handler
-		if (index >= local->filenames_count)
-			return true;
-
 	    fm_record_cache_t * file = &local->filenames[index];
 
 		char new_path[PATH_LEN];
