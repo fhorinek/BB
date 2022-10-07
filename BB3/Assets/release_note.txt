@@ -3,6 +3,7 @@ Added:
 * Fanet status messages sync with pps
 * FANET radar zoom levels
 * Flight book with map
+* Flight statistics
 * Basic airspace support
 
 Changed:

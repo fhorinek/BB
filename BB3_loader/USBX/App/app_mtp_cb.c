@@ -4,7 +4,6 @@
  *  Created on: Apr 5, 2022
  *      Author: horinek
  */
-
 #include "app_mtp_cb.h"
 #include "common.h"
 
@@ -104,6 +103,7 @@ static bool mtp_cancel = false;
 
 bool mtp_construct_path(char * path, uint32_t handle)
 {
+
     if (handle == 0)
     {
         strcpy(path, "");
@@ -148,6 +148,7 @@ uint32_t mtp_get_handle(uint32_t parent, char * name)
     handle_to_filename[handle] = n;
 
     handle_new_index++;
+
     ASSERT(handle_new_index < MAX_HANDLES);
 
     return handle;

@@ -34,9 +34,10 @@ static uint32_t ps_malloc_used_chunks;
 static uint32_t ps_malloc_used_bytes;
 
 #ifdef IN_BOOTLOADER
-    #define PS_LOCK_INIT
-    #define PS_LOCK_ACQUIRE
-    #define PS_LOCK_RELEASE
+    static TX_SEMAPHORE psram_lock;
+    #define PS_LOCK_INIT    tx_semaphore_create(&psram_lock, "psram_lock", 0);
+    #define PS_LOCK_ACQUIRE tx_semaphore_get(&psram_lock, TX_WAIT_FOREVER);
+    #define PS_LOCK_RELEASE tx_semaphore_put(&psram_lock);
 #else
     osSemaphoreId_t psram_lock;
     #define PS_LOCK_INIT psram_lock = osSemaphoreNew(1, 0, NULL); vQueueAddToRegistry(psram_lock, "psram_lock");
@@ -162,6 +163,9 @@ ps_malloc_header_t * ps_malloc_next_free(ps_malloc_header_t * start, uint32_t mi
     ps_malloc_header_t * act = start;
 
     bool loop = false;
+
+//    DBG("ps_malloc_next_free %u %u %u", PS_IS_FREE(act), PS_SIZE(act), min_size);
+
     while (!PS_IS_FREE(act) || PS_SIZE(act) < min_size)
     {
         act = (void *)act + PS_SIZE(act) + sizeof(ps_malloc_header_t);
@@ -211,13 +215,19 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 
 	void * ret = NULL;
 
+//	DBG("ps_malloc_real requested_size = %u", requested_size);
+
     if (requested_size == 0)
         return NULL;
 
     //round to next multiple of 4
     requested_size = (requested_size + 3) & ~3;
 
+//    DBG("ps_malloc_index = %X", ps_malloc_index);
+
     ps_malloc_index = ps_malloc_next_free(ps_malloc_index, requested_size);
+
+//    DBG("ps_malloc_index = %X", ps_malloc_index);
 
     if (ps_malloc_index != NULL)
     {
@@ -280,7 +290,7 @@ void ps_free(void * ptr)
     //free actual chunk
     ps_malloc_header_t * hdr = ptr - sizeof(ps_malloc_header_t);
 
-    DBG("PS_free ptr: %08X size: %lu prev %08X", ptr, PS_SIZE(hdr), hdr->prev_header);
+//    DBG("PS_free ptr: %08X size: %lu prev %08X", ptr, PS_SIZE(hdr), hdr->prev_header);
 
     if (PS_IS_FREE(hdr))
     {
@@ -293,7 +303,7 @@ void ps_free(void * ptr)
     //merge next
     ps_malloc_header_t * next = (void *)hdr + PS_SIZE(hdr) + sizeof(ps_malloc_header_t);
 
-    DBG("   next: %08X size: %lu prev %08X", next + sizeof(ps_malloc_header_t), PS_SIZE(next), next->prev_header);
+//    DBG("   next: %08X size: %lu prev %08X", next + sizeof(ps_malloc_header_t), PS_SIZE(next), next->prev_header);
 
     if (next <= (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE - sizeof(ps_malloc_header_t)))
     {
@@ -308,6 +318,7 @@ void ps_free(void * ptr)
 
             //relink next chunk
             next = (void *)next + PS_SIZE(next) + sizeof(ps_malloc_header_t);
+
             if (next <= (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE - sizeof(ps_malloc_header_t)))
                 next->prev_header = hdr;
             else
@@ -325,21 +336,27 @@ void ps_free(void * ptr)
     //join prev
     ps_malloc_header_t * prev = hdr->prev_header;
 
-    DBG("   prev: %08X size: %lu prev %08X", prev + sizeof(ps_malloc_header_t), PS_SIZE(prev), prev->prev_header);
+//    DBG("   prev: %08X size: %lu prev %08X", prev + sizeof(ps_malloc_header_t), PS_SIZE(prev), prev->prev_header);
 
-    if (prev != NULL && PS_IS_FREE(prev))
+//    bool prev_is_not_null = prev != NULL;
+//
+//    if (prev_is_not_null)
+    if (prev != NULL)
     {
-        prev->chunk_size = PS_SIZE(prev) + PS_SIZE(hdr) + sizeof(ps_malloc_header_t);
-        PS_FREE_CHUNK(prev);
+        if (PS_IS_FREE(prev))
+        {
+            prev->chunk_size = PS_SIZE(prev) + PS_SIZE(hdr) + sizeof(ps_malloc_header_t);
+            PS_FREE_CHUNK(prev);
 
-        if (ps_malloc_index == hdr)
-            ps_malloc_index = prev;
+            if (ps_malloc_index == hdr)
+                ps_malloc_index = prev;
 
-        if (next != NULL)
-            next->prev_header = prev;
+            if (next != NULL)
+                next->prev_header = prev;
 
-        ps_malloc_used_bytes -= sizeof(ps_malloc_header_t);
-        ps_malloc_used_chunks -= 1;
+            ps_malloc_used_bytes -= sizeof(ps_malloc_header_t);
+            ps_malloc_used_chunks -= 1;
+        }
     }
 
 //    ps_malloc_info();
