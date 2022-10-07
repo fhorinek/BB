@@ -157,6 +157,7 @@ typedef struct
         cfg_entry_t blur;
         cfg_entry_t alt_range;
         cfg_entry_t show_fanet;
+        cfg_entry_t show_glider_trail;
 	} map;
 
 	struct

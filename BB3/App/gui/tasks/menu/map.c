@@ -44,6 +44,7 @@ static lv_obj_t * map_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
     gui_list_auto_entry(list, "Clear cache", CUSTOM_CB, map_cc_cb);
     gui_list_auto_entry(list, "Show FANET on map", &profile.map.show_fanet, NULL);
+    gui_list_auto_entry(list, "Show trail", &profile.map.show_glider_trail, NULL);
 
     return list;
 }
