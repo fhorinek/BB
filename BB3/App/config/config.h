@@ -41,6 +41,7 @@
 #define PAGE_NAME_LEN       16
 #define VARIO_PROFILE_LEN   16
 #define PAGE_MAX_COUNT	    10
+#define SHORTCUT_NAME_LEN        12
 
 #define PILOT_NAME_LEN		64
 
@@ -86,6 +87,8 @@ typedef struct
         cfg_entry_t page_last;
         cfg_entry_t last_lon;
         cfg_entry_t last_lat;
+        cfg_entry_t shortcut_left;
+        cfg_entry_t shortcut_right;
 
         struct
         {

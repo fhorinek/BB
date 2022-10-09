@@ -23,6 +23,8 @@
 
 #include "etc/bootloader.h"
 
+#include "shortcuts/actions.h"
+
 extern const lv_img_dsc_t tile;
 
 #define MENU_TIMEOUT	2000
@@ -88,6 +90,10 @@ REGISTER_TASK_ILS(pages,
 	//pages
 	page_layout_t * page;
 	page_layout_t * page_old;
+
+	//shortcuts
+	shortcut_item_t * shrt_left;
+	shortcut_item_t * shrt_right;
 
 	uint8_t pages_cnt;
 	uint8_t actual_page;
@@ -397,12 +403,6 @@ void pages_create_menu(lv_obj_t * base)
 	lv_label_set_text(local->butt_layout, LV_SYMBOL_LIST);
 	lv_obj_align_origo(local->butt_layout, NULL, LV_ALIGN_IN_TOP_MID, MENU_RADIUS / 2, MENU_HEIGHT / 4);
 
-	//TODO: shortcut 1
-	local->butt_short1 = lv_label_create(local->left_menu, NULL);
-	lv_label_set_text(local->butt_short1, "");
-	lv_obj_align_origo(local->butt_short1, NULL, LV_ALIGN_CENTER, MENU_RADIUS / 2, MENU_HEIGHT / 5);
-
-
 	local->right_menu = lv_cont_create(base, NULL);
 	lv_obj_add_style(local->right_menu, LV_CONT_PART_MAIN, &local->menu_style);
 	lv_obj_set_pos(local->right_menu, LV_HOR_RES, LV_VER_RES - MENU_HEIGHT - GUI_STATUSBAR_HEIGHT);
@@ -412,10 +412,6 @@ void pages_create_menu(lv_obj_t * base)
 	lv_label_set_text(local->butt_settings, LV_SYMBOL_SETTINGS);
 	lv_obj_align_origo(local->butt_settings, NULL, LV_ALIGN_IN_TOP_MID, -MENU_RADIUS / 2, MENU_HEIGHT / 4);
 
-	//TODO: shortcut 2
-	local->butt_short2 = lv_label_create(local->right_menu, NULL);
-	lv_label_set_text(local->butt_short2, "");
-	lv_obj_align_origo(local->butt_short2, NULL, LV_ALIGN_CENTER, -MENU_RADIUS / 2, MENU_HEIGHT / 5);
 
 
 	local->center_menu = lv_cont_create(base, NULL);
@@ -427,6 +423,33 @@ void pages_create_menu(lv_obj_t * base)
 
 	local->butt_power = lv_label_create(local->center_menu, NULL);
 	lv_label_set_text(local->butt_power, LV_SYMBOL_POWER);
+
+
+
+    //shortcut 1
+    char icon[SHORTCUT_ICON_LEN];
+    char text[SHORTCUT_LABEL_LEN];
+
+    local->shrt_left = shortcuts_get_from_name(config_get_text(&profile.ui.shortcut_left));
+    if (local->shrt_left == NULL)
+        local->shrt_left = &shortcut_actions[0];
+
+    local->shrt_left->icon(icon, text);
+
+    local->butt_short1 = lv_label_create(local->left_menu, NULL);
+    lv_label_set_text(local->butt_short1, icon);
+    lv_obj_align_origo(local->butt_short1, NULL, LV_ALIGN_CENTER, MENU_RADIUS / 2, MENU_HEIGHT / 5);
+
+    //shortcut 2
+    local->shrt_right = shortcuts_get_from_name(config_get_text(&profile.ui.shortcut_right));
+    if (local->shrt_right == NULL)
+        local->shrt_right = &shortcut_actions[1];
+
+    local->shrt_right->icon(icon, text);
+    local->butt_short2 = lv_label_create(local->right_menu, NULL);
+    lv_label_set_text(local->butt_short2, icon);
+    lv_obj_align_origo(local->butt_short2, NULL, LV_ALIGN_CENTER, -MENU_RADIUS / 2, MENU_HEIGHT / 5);
+
 
 	local->indicator = lv_cont_create(base, NULL);
 	lv_obj_set_style_local_bg_opa(local->indicator, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
@@ -579,6 +602,14 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     				gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
     				page_settings_set_page_name(local->page_name, local->actual_page);
     			break;
+                case(LV_KEY_ESC):
+                    if (local->shrt_left != NULL)
+                        local->shrt_left->action();
+                break;
+                case(LV_KEY_HOME):
+                    if (local->shrt_right != NULL)
+                        local->shrt_right->action();
+                break;
         		}
         	}
         	else if (local->state == MENU_IDLE)
@@ -727,6 +758,8 @@ static lv_obj_t * pages_init(lv_obj_t * par)
         config_store_all();
 
     local->selector = NULL;
+    local->shrt_left = NULL;
+    local->shrt_right = NULL;
 
 	lv_obj_set_style_local_bg_color(par, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
@@ -820,7 +853,6 @@ static void pages_loop()
         //defocus old
         if (local->active_widget != NULL)
         {
-//        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
         	page_focus_widget(NULL);
         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
         	local->active_widget = NULL;
@@ -834,7 +866,6 @@ static void pages_loop()
         //defocus old
         if (local->active_widget != NULL)
         {
-//        	local->active_widget->obj->signal_cb(local->active_widget->obj, LV_SIGNAL_DEFOCUS, NULL);
         	page_focus_widget(NULL);
         	widgets_edit(local->active_widget, WIDGET_ACTION_DEFOCUS);
 

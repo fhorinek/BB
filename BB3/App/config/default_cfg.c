@@ -240,6 +240,10 @@ flight_profile_t profile =
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
 		entry_big_int("last_lat", 0, big_int_max_range),
+        //shortcut_left
+        entry_text("shrt_l", "add_left", SHORTCUT_NAME_LEN, 0),
+        //shortcut_right
+        entry_text("shrt_r", "add_right", SHORTCUT_NAME_LEN, 0),
 
 		//autoset
 		{
