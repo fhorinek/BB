@@ -118,6 +118,7 @@ uint16_t year;
         float values[ROW_NUM];// the values shown in each row
 
         lv_obj_t *label_total;// The label showing the total
+        lv_obj_t *label_average;   // The average value
         lv_obj_t *label_period;// label explaining, what period will be next
         lv_obj_t *label_type;// label explaing, what datatype will be next
         );
@@ -326,9 +327,10 @@ static void summarize_data()
     int i;
     float max_value = 0;
     float total = 0;
+    int total_flights = 0;
     float value;
     int index;
-    char text[30];
+    char text[30], text2[30];
 
     // clear all values
     for (i = 0; i < ROW_NUM; i++)
@@ -356,6 +358,8 @@ static void summarize_data()
             }
             local->values[index] += value;
             max_value = max(max_value, local->values[index]);
+
+            total_flights += local->stats[i].start_num;
         }
     }
 
@@ -423,15 +427,20 @@ static void summarize_data()
         case DATATYPE_ODO:
             strcpy(text, "Total: ");
             format_distance_with_units2(text + 7, total * 1000);
+            strcpy(text2, "Average per flight: ");
+            format_distance_with_units2(text2 + 20, total * 1000 / total_flights);
         break;
         case DATATYPE_HOURS:
             sprintf(text, "Total: %.1f hours", total);
+            sprintf(text2, "Average per flight: %.1f hours", total / total_flights);
         break;
         case DATATYPE_NUM:
             sprintf(text, "Total: %.0f flights", total);
+            text2[0] = 0;
         break;
     }
     lv_label_set_text(local->label_total, text);
+    lv_label_set_text(local->label_average, text2);
 }
 
 void flightbook_statistics_load_task(void *param)
@@ -535,6 +544,10 @@ lv_obj_t* flightbook_statistics_init(lv_obj_t *par)
     local->label_total = lv_label_create(chart, NULL);
     lv_obj_set_pos(local->label_total, 0, (ROW_NUM + 1) * 20);
     lv_label_set_text(local->label_total, "");
+
+    local->label_average = lv_label_create(chart, NULL);
+    lv_obj_set_pos(local->label_average, 0, (ROW_NUM + 2) * 20);
+    lv_label_set_text(local->label_average, "");
 
     local->label_type = lv_label_create(par, NULL);
     lv_obj_align(local->label_type, par, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
