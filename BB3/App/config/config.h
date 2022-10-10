@@ -69,6 +69,18 @@
 #define MAP_ALT_RANGE_NORMAL    1
 #define MAP_ALT_RANGE_ALPS      2
 
+#define MAP_ZOOM_RANGE_FIT       -1
+#define MAP_ZOOM_RANGE_250m      0
+#define MAP_ZOOM_RANGE_500m      1
+#define MAP_ZOOM_RANGE_1km       2
+#define MAP_ZOOM_RANGE_2km       3
+#define MAP_ZOOM_RANGE_4km       4
+#define MAP_ZOOM_RANGE_8km       5
+#define MAP_ZOOM_RANGE_16km      6
+#define MAP_ZOOM_RANGE_32km      7
+#define MAP_ZOOM_RANGE_64km      8
+#define MAP_ZOOM_RANGE_LAST      8
+
 typedef struct
 {
     cfg_entry_t name;

@@ -31,5 +31,6 @@ void fc_recorder_exit(void);
 void fc_recorder_step(int32_t lat, int32_t lon, int16_t altitude_m);
 void fc_recorder_init(void);
 void fc_recorder_reset(void);
+void fc_recorder_get_bbox(int32_t *min_lat, int32_t *max_lat, int32_t *min_lon, int32_t *max_lon);
 
 #endif /* FC_RECORDER_H_ */

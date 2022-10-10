@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+// #define DEBUG_LEVEL DBG_DEBUG
 
 #include "gui/widgets/widget.h"
 #include "gui/map/map_thread.h"
@@ -113,10 +113,10 @@ void compute_trail(int32_t disp_lat, int32_t disp_lon, int16_t zoom, widget_slot
 			if ( point_i >= POINT_NUM) break;
 		}
 		if ( point_i > 2 )
-			lv_line_set_points(local->line, local->p, point_i - 1);
+			lv_line_set_points(local->line, local->p, point_i);
 	}
 
-#if 0
+#if DEBUG_LEVEL == DBG_DEBUG
 	DBG("compute_trail: %d points, recorder %d", point_i, p_num);
 	for ( int i = 0; i < point_i; i++ )
 	{
@@ -129,21 +129,67 @@ static void Map_update(widget_slot_t * slot)
 {
     int32_t disp_lat;
     int32_t disp_lon;
-    int16_t zoom = config_get_int(&profile.map.zoom_flight);
+    int32_t glider_lat, glider_lon;
+    lv_point_t glider_pos;
+    int32_t fc_rec_max_lat, fc_rec_max_lon, fc_rec_min_lat, fc_rec_min_lon;
 
     if (fc.gnss.fix == 0)
     {
-        disp_lat = config_get_big_int(&profile.ui.last_lat);
-        disp_lon = config_get_big_int(&profile.ui.last_lon);
+        glider_lat = config_get_big_int(&profile.ui.last_lat);
+        glider_lon = config_get_big_int(&profile.ui.last_lon);
     }
     else
     {
-        disp_lat = fc.gnss.latitude;
-        disp_lon = fc.gnss.longtitude;
+        glider_lat = fc.gnss.latitude;
+        glider_lon = fc.gnss.longtitude;
+    }
+
+    lv_coord_t w = lv_obj_get_width(local->data.map);
+    lv_coord_t h = lv_obj_get_height(local->data.map);
+
+    int16_t zoom = config_get_int(&profile.map.zoom_flight);
+    if ( zoom < 0 )     // Fit to track
+    {
+        // Get bounding box and compute center
+        fc_recorder_get_bbox(&fc_rec_min_lat, &fc_rec_max_lat, &fc_rec_min_lon, &fc_rec_max_lon);
+
+        fc_rec_min_lat = min(fc_rec_min_lat, glider_lat);
+        fc_rec_max_lat = max(fc_rec_max_lat, glider_lat);
+        fc_rec_min_lon = min(fc_rec_min_lon, glider_lon);
+        fc_rec_max_lon = max(fc_rec_max_lon, glider_lon);
+
+        disp_lat = ((int64_t)fc_rec_min_lat + fc_rec_max_lat) / 2;
+        disp_lon = ((int64_t)fc_rec_min_lon + fc_rec_max_lon) / 2;
+
+        DBG("lat_max %ld lon_max %ld", fc_rec_max_lat, fc_rec_max_lon);
+        DBG("lat_min %ld lon_min %ld", fc_rec_min_lat, fc_rec_min_lon);
+        DBG("lat_c %ld lon_c %ld", disp_lat, disp_lon);
+
+        // find right scaling:
+        int16_t x,y;
+        for (zoom = 0; zoom <= MAP_ZOOM_RANGE_LAST; zoom++)
+        {
+            geo_to_pix_w_h(disp_lon, disp_lat, zoom, fc_rec_max_lon, fc_rec_max_lat, &x, &y, w, h);
+            if ( x < 0 || x >= w || y < 0 || y >= h) continue;
+            geo_to_pix_w_h(disp_lon, disp_lat, zoom, fc_rec_min_lon, fc_rec_min_lat, &x, &y, w, h);
+            if ( x < 0 || x >= w || y < 0 || y >= h) continue;
+            break;
+        }
+
+        map_set_static_pos(disp_lat, disp_lon, zoom);
+        geo_to_pix_w_h(disp_lon, disp_lat, zoom, glider_lon, glider_lat, &glider_pos.x, &glider_pos.y, w, h);
+    }
+    else
+    {
+        map_set_automatic_pos();
+        glider_pos.x = w / 2;
+        glider_pos.y = h / 2;
+        disp_lat = glider_lat;
+        disp_lon = glider_lon;
     }
 
 	map_obj_loop(&local->data, disp_lat, disp_lon);
-	map_obj_glider_loop(&local->data);
+	map_obj_glider_loop(&local->data, glider_pos);
 	map_obj_fanet_loop(&local->data, disp_lat, disp_lon, zoom);
 
 	if ( config_get_bool(&profile.map.show_glider_trail) )
@@ -151,13 +197,21 @@ static void Map_update(widget_slot_t * slot)
 
     if (local->edit != NULL)
      {
-     	lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
-     	lv_obj_t * zoom = lv_obj_get_child(base, lv_obj_get_child(base, NULL));
       	char buff[32];
-      	uint16_t zoom_p = pow(2, config_get_int(&profile.map.zoom_flight));
-      	int32_t guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
-      	format_distance_with_units2(buff, guide_m);
-     	lv_label_set_text(zoom, buff);
+      	int16_t zoom = config_get_int(&profile.map.zoom_flight);
+        if ( zoom >= 0 )
+        {
+            uint16_t zoom_p = pow(2, zoom);
+            int32_t guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
+            format_distance_with_units2(buff, guide_m);
+        }
+        else
+        {
+            strcpy(buff, "Fit to track");
+        }
+        lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
+        lv_obj_t * label_zoom = lv_obj_get_child(base, lv_obj_get_child(base, NULL));
+     	lv_label_set_text(label_zoom, buff);
      }
 }
 

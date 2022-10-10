@@ -23,6 +23,8 @@ static fc_rec_entry_t *current_rec_entry;
 /** A HAL_GetTick() value, where the record should go to the next recording entry. */
 static int32_t next_recording_timestamp;
 
+static int32_t fc_rec_max_lat, fc_rec_max_lon, fc_rec_min_lat, fc_rec_min_lon;
+
 /**
  * Reset the flight recorder to the beginning of the recording memory.
  * */
@@ -30,6 +32,11 @@ void fc_recorder_reset()
 {
 	current_rec_entry = rec_memory;
 	next_recording_timestamp = 0;
+
+	fc_rec_max_lat = INT32_MIN;
+	fc_rec_max_lon = INT32_MIN;
+	fc_rec_min_lat = INT32_MAX;
+	fc_rec_min_lon = INT32_MAX;
 }
 
 /**
@@ -69,8 +76,21 @@ void fc_recorder_step(int32_t lat, int32_t lon, int16_t altitude_m)
 			current_rec_entry->lat = lat;
 			current_rec_entry->lon = lon;
 			current_rec_entry->altitude_m = altitude_m;
+
+             fc_rec_min_lat = min(fc_rec_min_lat, lat);
+             fc_rec_max_lat = max(fc_rec_max_lat, lat);
+             fc_rec_min_lon = min(fc_rec_min_lon, lon);
+             fc_rec_max_lon = max(fc_rec_max_lon, lon);
 		}
 	}
+}
+
+void fc_recorder_get_bbox(int32_t *min_lat, int32_t *max_lat, int32_t *min_lon, int32_t *max_lon)
+{
+    *min_lat = fc_rec_min_lat;
+    *max_lat = fc_rec_max_lat;
+    *min_lon = fc_rec_min_lon;
+    *max_lon = fc_rec_max_lon;
 }
 
 /**

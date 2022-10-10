@@ -19,6 +19,8 @@ static int32_t map_static_latitude, map_static_longitude;
 static uint8_t map_static_zoom;
 static bool map_static;
 
+int map_thread_count = 0;
+
 /**
  * Tell map_thread what tiles to load and give the static position and zoom
  * factor. In "static" mode, this position will be used instead of GPS.
@@ -106,6 +108,8 @@ void thread_map_start(void *argument)
     	int32_t disp_lat;
     	int32_t disp_lon;
     	uint8_t zoom;
+
+    	map_thread_count++;
 
     	if ( map_static )
     	{

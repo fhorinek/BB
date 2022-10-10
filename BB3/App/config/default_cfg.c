@@ -217,6 +217,32 @@ cfg_entry_param_select_t map_alt_range_select[] =
     SELECT_END
 };
 
+cfg_entry_param_select_t map_zoom_range_select[] =
+{
+    {MAP_ZOOM_RANGE_FIT, "Fit to Track"},
+    {MAP_ZOOM_RANGE_250m, "250 m"},
+    {MAP_ZOOM_RANGE_500m, "500 m"},
+    {MAP_ZOOM_RANGE_1km,  "1 km"},
+    {MAP_ZOOM_RANGE_2km,  "2 km"},
+    {MAP_ZOOM_RANGE_4km,  "4 km"},
+    {MAP_ZOOM_RANGE_8km,  "8 km"},
+    {MAP_ZOOM_RANGE_16km, "16 km"},
+    {MAP_ZOOM_RANGE_32km, "32 km"},
+    {MAP_ZOOM_RANGE_64km, "64 km"},
+    SELECT_END
+};
+
+#define MAP_ZOOM_RANGE_FIT       -1
+#define MAP_ZOOM_RANGE_250m      0
+#define MAP_ZOOM_RANGE_500m      1
+#define MAP_ZOOM_RANGE_1km       2
+#define MAP_ZOOM_RANGE_2km       3
+#define MAP_ZOOM_RANGE_4km       4
+#define MAP_ZOOM_RANGE_8km       5
+#define MAP_ZOOM_RANGE_16km      6
+#define MAP_ZOOM_RANGE_32km      7
+#define MAP_ZOOM_RANGE_64km      8
+
 flight_profile_t profile =
 {
     //ui
@@ -339,7 +365,7 @@ flight_profile_t profile =
 	//map
 	{
         //zoom_flight
-        entry_int("zoom_flight", 3, 0, 8),
+        entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, -1, MAP_ZOOM_RANGE_LAST),
         //zoom_flight
         entry_bool("map_blur", true),
         //alt_range
@@ -402,7 +428,7 @@ flight_profile_t profile =
 		//vario_volume
 		entry_int("vario_volume", 100, 0, 100),
 		//master_volume
-		entry_int("master_volume", 75, 0, 100),
+		entry_int("master_volume", 0, 0, 100),
 		//tts_alerts
 		entry_bool("tts_alerts", false),
 	},
