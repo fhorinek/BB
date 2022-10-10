@@ -22,6 +22,7 @@ typedef struct fc_rec_entry
 {
 	int32_t lat, lon;
 	int16_t altitude_m;
+        uint8_t _align[2];
 } fc_rec_entry_t;
 
 fc_rec_entry_t *fc_recorder_get_start(void);

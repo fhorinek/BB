@@ -12,6 +12,7 @@
 #include <inttypes.h>
 
 #include "fc.h"
+#include "etc/geo_calc.h"
 
 /** Pointer to the memory to save the positions. */
 static fc_rec_entry_t *rec_memory;
@@ -56,6 +57,9 @@ void fc_recorder_step(int32_t lat, int32_t lon, int16_t altitude_m)
 			fc_rec_entry_t *previous = current_rec_entry - 1;
 			if ( previous->lat == lat && previous->lon == lon && previous->altitude_m == altitude_m )
 				// Yes, identical. Do nothing and return.
+				return;
+			uint32_t distance = geo_distance(lat, lon, previous->lat, previous->lon, false, NULL);
+			if ( distance < 500 ) 
 				return;
 		}
 
