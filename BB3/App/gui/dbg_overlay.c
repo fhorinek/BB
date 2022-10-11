@@ -230,9 +230,7 @@ void dbg_overlay_step()
         lv_mem_monitor_t mem;
         lv_mem_monitor(&mem);
 
-        extern int map_thread_count;
-
-        lv_label_set_text_fmt(gui.dbg.lv_info, "%u fps %u%%\n%lu free\n%d", gui.fps, 100 - mem.used_pct, mem.free_size, map_thread_count);
+        lv_label_set_text_fmt(gui.dbg.lv_info, "%u fps %u%%\n%lu free", gui.fps, 100 - mem.used_pct, mem.free_size);
         lv_obj_move_foreground(gui.dbg.lv_info);
     }
     else
