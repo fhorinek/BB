@@ -346,6 +346,8 @@ flight_profile_t profile =
         entry_select("map_range", MAP_ALT_RANGE_NORMAL, map_alt_range_select),
 		//show_fanet
 		entry_bool("show_fanet", false),
+		//show_glider_trail
+		entry_bool("show_glider_trail", true),
 	},
 
 	//airspace
