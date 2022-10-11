@@ -221,6 +221,9 @@ void sd_init()
     //map
     red_mkdir(PATH_MAP_DIR);
 
+    //airspace
+    red_mkdir(PATH_AIRSPACE_DIR);
+
     //config
 	red_mkdir(PATH_CONFIG_DIR);
 
