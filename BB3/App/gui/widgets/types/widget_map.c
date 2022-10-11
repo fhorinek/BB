@@ -148,6 +148,12 @@ static void Map_update(widget_slot_t * slot)
     lv_coord_t h = lv_obj_get_height(local->data.map);
 
     int16_t zoom = config_get_int(&profile.map.zoom_flight);
+    if ( zoom < 0 && fc_recorder_get_recorded_number() == 0 )
+	{
+    	// We have "fit to track" but there is no track:
+		zoom = 3;
+	}
+
     if ( zoom < 0 )     // Fit to track
     {
         // Get bounding box and compute center
