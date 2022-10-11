@@ -20,4 +20,9 @@ void pages_lock_reset();
 void gui_page_set_mode(cfg_entry_t * cfg);
 void gui_page_set_next(cfg_entry_t * cfg);
 
+void pages_set_left_shrt(char * new_shrt);
+void pages_set_right_shrt(char * new_shrt);
+
+void pages_popup(char * message);
+
 #endif /* GUI_PAGES_H_ */

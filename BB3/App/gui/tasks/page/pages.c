@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-
+#define DEBUG_LEVEL DBG_DEBUG
 #include <gui/tasks/menu/settings.h>
 #include "pages.h"
 
@@ -24,6 +24,7 @@
 #include "etc/bootloader.h"
 
 #include "shortcuts/actions.h"
+#include "shortcuts/shortcuts.h"
 
 extern const lv_img_dsc_t tile;
 
@@ -56,6 +57,14 @@ extern const lv_img_dsc_t tile;
 
 #define MENU_ANIM_TIME		500
 #define SPLASH_ANIM_TIME	1000
+
+#define BUTTON_NONE         0
+#define BUTTON_OFF          10
+#define BUTTON_SHRT_LEFT    11
+#define BUTTON_SHRT_RIGHT   12
+
+#define ACTION_EXEC_HOLD    600
+#define ACTION_CHANGE_CNT   12
 
 REGISTER_TASK_ILS(pages,
 	//on / off mask
@@ -95,10 +104,15 @@ REGISTER_TASK_ILS(pages,
 	shortcut_item_t * shrt_left;
 	shortcut_item_t * shrt_right;
 
+	shortcut_item_t * shrt_action;
+	lv_obj_t * shrt_label;
+	uint32_t shrt_execute;
+
 	uint8_t pages_cnt;
 	uint8_t actual_page;
 
-	uint8_t pwr_off_button_cnt;
+	uint8_t button_cnt;
+	uint8_t button_type;
 
 	char page_name[PAGE_NAME_LEN + 1];
 );
@@ -139,6 +153,14 @@ void gui_page_set_next(cfg_entry_t * cfg)
 		 WARN("Cannot switch page due to gui.page_queue full");
 	 }
 }
+
+void pages_popup(char * message)
+{
+    lv_label_set_text(local->label, message);
+    lv_obj_fade_in(local->label, GUI_INDICATOR_ANIM, 0);
+    lv_obj_fade_out(local->label, GUI_INDICATOR_ANIM, GUI_LABEL_DELAY);
+}
+
 
 void gui_page_set_mode(cfg_entry_t * cfg)
 {
@@ -200,9 +222,7 @@ void gui_page_set_mode(cfg_entry_t * cfg)
 
 		if (label != NULL)
 		{
-			lv_label_set_text(local->label, label);
-			lv_obj_fade_in(local->label, GUI_INDICATOR_ANIM, 0);
-			lv_obj_fade_out(local->label, GUI_INDICATOR_ANIM, GUI_LABEL_DELAY);
+			pages_popup(label);
 		}
 
 		gui_lock_release();
@@ -438,7 +458,8 @@ void pages_create_menu(lv_obj_t * base)
 
     local->butt_short1 = lv_label_create(local->left_menu, NULL);
     lv_label_set_text(local->butt_short1, icon);
-    lv_obj_align_origo(local->butt_short1, NULL, LV_ALIGN_CENTER, MENU_RADIUS / 2, MENU_HEIGHT / 5);
+    lv_obj_align_origo(local->butt_short1, NULL, LV_ALIGN_CENTER, MENU_RADIUS / 2, MENU_HEIGHT / 3);
+    lv_obj_set_auto_realign(local->butt_short1, true);
 
     //shortcut 2
     local->shrt_right = shortcuts_get_from_name(config_get_text(&profile.ui.shortcut_right));
@@ -448,8 +469,8 @@ void pages_create_menu(lv_obj_t * base)
     local->shrt_right->icon(icon, text);
     local->butt_short2 = lv_label_create(local->right_menu, NULL);
     lv_label_set_text(local->butt_short2, icon);
-    lv_obj_align_origo(local->butt_short2, NULL, LV_ALIGN_CENTER, -MENU_RADIUS / 2, MENU_HEIGHT / 5);
-
+    lv_obj_align_origo(local->butt_short2, NULL, LV_ALIGN_CENTER, -MENU_RADIUS / 2, MENU_HEIGHT / 3);
+    lv_obj_set_auto_realign(local->butt_short2, true);
 
 	local->indicator = lv_cont_create(base, NULL);
 	lv_obj_set_style_local_bg_opa(local->indicator, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
@@ -502,8 +523,68 @@ void pages_unlock_widget()
 	local->timer = HAL_GetTick() + MENU_TIMEOUT;
 }
 
+static void pages_shrt_event(shortcut_item_t * shrt, uint8_t button, lv_obj_t * label, shortcut_get_name_cb_t cb, char * title)
+{
+    if (shrt != NULL)
+    {
+        local->timer = HAL_GetTick() + MENU_TIMEOUT;
+        local->shrt_execute = HAL_GetTick() + ACTION_EXEC_HOLD;
+
+        if (local->button_type == button)
+        {
+            local->button_cnt++;
+
+            if (local->button_cnt > 2)
+            {
+                if (local->button_cnt % 4 > 1)
+                {
+                    lv_label_set_text(label, LV_SYMBOL_EDIT);
+                }
+                else
+                {
+                    char icon[SHORTCUT_ICON_LEN];
+                    char text[SHORTCUT_LABEL_LEN];
+
+                    shrt->icon(icon, text);
+
+                    lv_label_set_text(label, icon);
+                }
+
+            }
+
+            if (local->button_cnt > ACTION_CHANGE_CNT)
+            {
+                gui_switch_task(&gui_shortcuts, LV_SCR_LOAD_ANIM_MOVE_TOP);
+                shortcut_set_slot(cb, title, (char *)shrt->name);
+            }
+        }
+        else
+        {
+            //arm action
+            local->button_type = button;
+            local->button_cnt = 0;
+            local->shrt_action = shrt;
+            local->shrt_label = label;
+        }
+    }
+}
+
+void pages_set_left_shrt(char * new_shrt)
+{
+    config_set_text(&profile.ui.shortcut_left, new_shrt);
+    gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
+}
+
+void pages_set_right_shrt(char * new_shrt)
+{
+    config_set_text(&profile.ui.shortcut_right, new_shrt);
+    gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
+}
+
 static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 {
+    DBG("event %u", event);
+
     switch(event)
     {
         case LV_EVENT_LONG_PRESSED_REPEAT:
@@ -511,17 +592,21 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
             if (local->state == MENU_SHOW)
             {
                 local->timer = HAL_GetTick() + MENU_TIMEOUT;
-                local->pwr_off_button_cnt++;
-                if (local->pwr_off_button_cnt > 2)
-                    lv_obj_set_hidden(local->butt_power, local->pwr_off_button_cnt % 2);
-                if (local->pwr_off_button_cnt > 15)
-                    pages_power_off();
+                if (local->button_type == BUTTON_OFF)
+                {
+                    local->button_cnt++;
+                    if (local->button_cnt > 2)
+                        lv_obj_set_hidden(local->butt_power, local->button_cnt % 2);
+                    if (local->button_cnt > 15)
+                        pages_power_off();
+                }
             }
         }
         break;
 
         case LV_EVENT_RELEASED:
         {
+            local->button_type = BUTTON_NONE;
             if (local->state == MENU_SHOW)
             {
                 lv_obj_set_hidden(local->butt_power, false);
@@ -534,7 +619,8 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
         	if (local->state == MENU_IDLE)
         	{
         		pages_menu_show();
-                local->pwr_off_button_cnt = 0;
+                local->button_cnt = 0;
+                local->button_type = BUTTON_OFF;
         	}
         	else if (local->state == MENU_EDIT_WIDGET)
         	{
@@ -603,12 +689,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     				page_settings_set_page_name(local->page_name, local->actual_page);
     			break;
                 case(LV_KEY_ESC):
-                    if (local->shrt_left != NULL)
-                        local->shrt_left->action();
+                    pages_shrt_event(local->shrt_left, BUTTON_SHRT_LEFT, local->butt_short1, pages_set_left_shrt, "Left menu shortcut");
                 break;
                 case(LV_KEY_HOME):
-                    if (local->shrt_right != NULL)
-                        local->shrt_right->action();
+                    pages_shrt_event(local->shrt_right, BUTTON_SHRT_RIGHT, local->butt_short2, pages_set_right_shrt, "Right menu shortcut");
                 break;
         		}
         	}
@@ -761,6 +845,13 @@ static lv_obj_t * pages_init(lv_obj_t * par)
     local->shrt_left = NULL;
     local->shrt_right = NULL;
 
+    local->shrt_execute = 0;
+    local->shrt_action = NULL;
+    local->shrt_label = NULL;
+
+    local->button_cnt = 0;
+    local->button_type = BUTTON_NONE;
+
 	lv_obj_set_style_local_bg_color(par, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
 	gui_set_dummy_event_cb(par, pages_event_cb);
@@ -840,6 +931,7 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	return par;
 }
 
+
 static void pages_loop()
 {
 
@@ -887,6 +979,35 @@ static void pages_loop()
     {
 		gui_page_set_mode(next_page);
     }
+
+	if (local->shrt_action != NULL && local->shrt_execute < HAL_GetTick())
+	{
+	    local->shrt_execute = 0;
+
+        bool show_label = local->shrt_action->action();
+
+        char icon[SHORTCUT_ICON_LEN];
+        char text[SHORTCUT_LABEL_LEN];
+        local->shrt_action->icon(icon, text);
+
+        if (show_label)
+        {
+            char label[SHORTCUT_ICON_LEN + SHORTCUT_LABEL_LEN + 2];
+            snprintf(label, sizeof(label), "%s %s", icon, text);
+
+            pages_popup(label);
+        }
+
+        if (local->shrt_label != NULL)
+        {
+            lv_label_set_text(local->shrt_label, icon);
+        }
+
+	    local->shrt_action = NULL;
+	    local->shrt_label = NULL;
+
+	    pages_menu_hide();
+	}
 }
 
 static void pages_stop()

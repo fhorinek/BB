@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-typedef void (* shortcut_action_t)();
+typedef bool (* shortcut_action_t)();
 typedef bool (* shortcut_icon_t)(char * icon, char * label);
 
 #define SHORTCUT_ICON_LEN   4
