@@ -92,7 +92,6 @@ lv_obj_t * map_obj_init(lv_obj_t * par, map_obj_data_t *local)
  */
 void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 {
-
     if (local->magic != gui.map.magic)
     {
 //    	DBG("Widget set to index %u", gui.map.disp_buffer);
@@ -216,6 +215,28 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 
             lv_obj_align_mid(local->poi[i], local->image[gui.map.poi[i].chunk], LV_ALIGN_IN_TOP_LEFT, x, y);
         }
+    }
+}
+
+/**
+ * Return the screen position of the master tile. This can be used to 
+ * find out, whether the map has been moved by comparing this position
+ * with a previous position.
+ *
+ * @param local the pointer to the map_obj_data_t
+ * @param p a pointer to a lv_point_t where x/y is stored. If there is
+ *          no master_tile, then position INT16_MAX/INT16_MAX is returned.
+ */
+void map_get_master_tile_xy(map_obj_data_t *local, lv_point_t *p)
+{
+    if (local->master_tile != 0xFF)
+    {
+    	*p = local->offsets[local->master_tile];
+    }
+    else
+    {
+    	p->x = INT16_MAX;
+    	p->y = INT16_MAX;
     }
 }
 

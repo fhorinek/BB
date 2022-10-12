@@ -25,6 +25,7 @@
 #include "fc/navigation.h"
 #include "fc/circling.h"
 #include "fc/wind.h"
+#include "fc/recorder.h"
 
 #include "gui/tasks/page/pages.h"
 #include "etc/notifications.h"
@@ -169,7 +170,7 @@ void fc_init()
 
     osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
 
-
+    fc_recorder_init();
 	fc_reset();
 	logger_init();
 	telemetry_init();
@@ -187,6 +188,7 @@ void fc_deinit()
 	telemetry_stop();
 	osTimerStop(fc.history.timer);
 	osTimerStop(fc_timer);
+	fc_recorder_exit();
 }
 
 void fc_takeoff()
@@ -215,6 +217,7 @@ void fc_takeoff()
 
     fanet_set_mode();
     logger_start();
+    fc_recorder_reset();
 
     gui_page_set_next(&profile.ui.autoset.take_off);
 
@@ -329,13 +332,14 @@ void fc_step()
         int16_t t_vario = fc.fused.vario * 100;         // meter/s -> cm/s
         if (t_vario > fc.flight.max_climb) 	fc.flight.max_climb = t_vario;
         if (t_vario < fc.flight.max_sink) 	fc.flight.max_sink = t_vario;
-            if (fc.gnss.fix == 3)
-{
-        fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
-        fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
-        fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.longtitude);
-        fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
-}
+        if (fc.gnss.fix == 3)
+		{
+			fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
+			fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
+			fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.latitude);
+			fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
+	        fc_recorder_step(fc.gnss.latitude, fc.gnss.longtitude, (int16_t)fc.fused.altitude1);
+		}
 
         if (check)
         {

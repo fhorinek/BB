@@ -6,12 +6,18 @@
  */
 
 #define DEBUG_LEVEL DBG_DEBUG
+
 #include "gui/widgets/widget.h"
 #include "gui/map/map_thread.h"
 #include "gui/map/tile.h"
 #include "gui/map/map_obj.h"
+#include "fc/recorder.h"
+
+#include <inttypes.h>
 
 #include "etc/geo_calc.h"
+
+#define POINT_NUM 100
 
 REGISTER_WIDGET_ISUE(Map,
     "Map",
@@ -23,6 +29,12 @@ REGISTER_WIDGET_ISUE(Map,
 	lv_obj_t *edit;
 	uint8_t action_cnt;
 	uint32_t last_action;
+
+	int16_t previous_pnum;
+	lv_point_t previous_mastertile_pos;
+
+	lv_point_t p[POINT_NUM];
+	lv_obj_t *line;
 );
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
@@ -32,10 +44,86 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
     local->edit = NULL;
     local->last_action = 0;
     local->action_cnt = 0;
+    local->line = NULL;
+    local->previous_pnum = INT16_MAX;
 
     map_obj_init(slot->obj, &local->data);
+
+	local->line = lv_line_create(local->data.map, NULL);
+	lv_obj_set_style_local_line_color(local->line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLUE);
+	lv_obj_set_style_local_line_width(local->line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 3);
 }
 
+/**
+ * Show a trail after the glider on the map.
+ *
+ * @param disp_lat the latitude of the center of the map
+ * @param disp_lon the longitude of the center of the map
+ * @param zoom current zoom level
+ * @param slot the slot of the widget
+ */
+void compute_trail(int32_t disp_lat, int32_t disp_lon, int16_t zoom, widget_slot_t * slot)
+{
+	fc_rec_entry_t *p, *p_start;
+	size_t p_num;
+	float p_i, step;
+	int point_i;
+	int16_t x,y;
+	int16_t w,h;
+	bool line_changed;
+	lv_point_t mastertile_pos;
+
+	line_changed = false;
+
+	// Check if flight recorder has changed or map has changed
+	p_num = fc_recorder_get_recorded_number();
+	if ( p_num != local->previous_pnum ) 
+		line_changed = true;
+	else
+	{
+		map_get_master_tile_xy(local, &mastertile_pos);
+		if ( local->previous_mastertile_pos.x != mastertile_pos.x ||
+			 local->previous_mastertile_pos.y != mastertile_pos.y )
+		{
+			line_changed = true;
+			local->previous_mastertile_pos = mastertile_pos;
+		}
+	}
+
+	if ( line_changed )
+	{
+		p_start = fc_recorder_get_start();
+		step = (float)p_num / POINT_NUM;
+		if ( step < 1 ) step = 1;
+		point_i = 0;
+
+		w = lv_obj_get_width(local->data.map);
+		h = lv_obj_get_height(local->data.map);
+
+		for ( p_i = 0; p_i < p_num; p_i += step )
+		{
+			p = p_start + (int)p_i;
+
+			//DBG("lon: %" PRId32 " lat %" PRId32, p->lon, p->lat);
+			geo_to_pix_w_h(disp_lon, disp_lat, zoom, p->lon, p->lat, &x, &y, w, h);
+
+			local->p[point_i].x = x;
+			local->p[point_i].y = y;
+			point_i++;
+			if ( point_i >= POINT_NUM) break;
+		}
+		if ( point_i > 2 )
+			lv_line_set_points(local->line, local->p, point_i - 1);
+	}
+
+#if 0
+	DBG("compute_trail: %d points, recorder %d", point_i, p_num);
+	for ( int i = 0; i < point_i; i++ )
+	{
+		DBG("P%d %d,%d", i, local->p[i].x, local->p[i].y);
+	}
+#endif
+}
 
 static void Map_update(widget_slot_t * slot)
 {
@@ -57,6 +145,9 @@ static void Map_update(widget_slot_t * slot)
 	map_obj_loop(&local->data, disp_lat, disp_lon);
 	map_obj_glider_loop(&local->data);
 	map_obj_fanet_loop(&local->data, disp_lat, disp_lon, zoom);
+
+	if ( config_get_bool(&profile.map.show_glider_trail) )
+		compute_trail(disp_lat, disp_lon, zoom, slot);
 
     if (local->edit != NULL)
      {
