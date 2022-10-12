@@ -524,7 +524,15 @@ char * red_gets(char * buff, uint16_t buff_len, int32_t fp)
         if (ptr != NULL)
             *(++ptr) = '\0';
 
-        red_lseek(fp, start_pos + strlen(buff), RED_SEEK_SET);
+        uint16_t str_len = strlen(buff);
+
+        if (str_len == 0)
+        {
+            //File corrupted!
+            return GETS_CORRUPTED;
+        }
+
+        red_lseek(fp, start_pos + str_len, RED_SEEK_SET);
     }
 
     return buff;

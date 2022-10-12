@@ -10,6 +10,7 @@
 #include "fc/fc.h"
 #include "etc/geo_calc.h"
 #include "gui/dialog.h"
+#include "gui/statusbar.h"
 
 
 bool airspace_point(char * line, int32_t * lon, int32_t * lat)
@@ -184,6 +185,13 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
         {
             if ((line = red_gets(mem_line, sizeof(mem_line), f)) == NULL)
                 break;
+
+            if (line == GETS_CORRUPTED)
+            {
+                WARN("Airspace file corrupted");
+                statusbar_msg_add(STATUSBAR_MSG_ERROR, "Airspace file corrupted");
+                break;
+            }
 
             if (gui)
             {

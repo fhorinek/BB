@@ -6,6 +6,7 @@
  */
 
 #include "widgets.h"
+#include "gui/statusbar.h"
 
 bool widgets_save_to_file(page_layout_t * page, char * layout_name)
 {
@@ -71,6 +72,13 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
         char * line = red_gets(buff, sizeof(buff), f);
         if (line == NULL)
             break;
+
+        if (line == NULL)
+        {
+            statusbar_msg_add(STATUSBAR_MSG_ERROR, "Airspace file corrupted");
+            break;
+        }
+
         line[strlen(line) - 1] = 0;
 
         char key[16];
