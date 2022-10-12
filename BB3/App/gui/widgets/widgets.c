@@ -75,7 +75,7 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 
         if (line == NULL)
         {
-            statusbar_msg_add(STATUSBAR_MSG_ERROR, "Airspace file corrupted");
+            statusbar_msg_add(STATUSBAR_MSG_ERROR, "Page file corrupted");
             break;
         }
 
