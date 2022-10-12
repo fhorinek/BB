@@ -229,6 +229,8 @@ extern osThreadId_t SystemHandle;
 #define STRATO_HOME_SSID    "Strato"
 #define STRATO_HOME_PASS    "skybean_strato"
 
+#define GETS_CORRUPTED      ((char *)INT32_MIN)
+
 //simple functions
 uint8_t hex_to_num(uint8_t c);
 bool start_with(char * s1, const char * s2);

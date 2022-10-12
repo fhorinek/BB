@@ -237,8 +237,16 @@ void config_load(cfg_entry_t * structure, char * path)
 		__align char buff[256];
 		uint16_t line = 0;
 
-		while (red_gets(buff, sizeof(buff), f) != NULL)
+		char * ret;
+
+		while ((ret = red_gets(buff, sizeof(buff), f)) != NULL)
 		{
+		    if (ret == GETS_CORRUPTED)
+		    {
+		        WARN("Config file corrupted");
+		        break;
+		    }
+
 			line++;
 
 			//remove \n

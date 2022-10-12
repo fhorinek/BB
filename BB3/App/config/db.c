@@ -35,13 +35,64 @@ bool db_open_read(char * path)
     return true;
 }
 
+int32_t db_repair(int32_t fp)
+{
+    red_lseek(fp, 0, RED_SEEK_SET);
+
+    char tmp_path[PATH_LEN];
+    get_tmp_filename(tmp_path);
+
+    int32_t tp = red_open(tmp_path, RED_O_WRONLY | RED_O_CREAT);
+
+    char in_line[256];
+    char out_line[256];
+
+    while(1)
+    {
+        int32_t rd = red_read(fp, in_line, sizeof(in_line));
+        if (rd == 0)
+        {
+            break;
+        }
+
+        uint16_t j = 0;
+        for (uint16_t i = 0; i < rd; i++)
+        {
+            if (in_line[i] < 32 && in_line[i] != '\n' && in_line[i] != '\t')
+                continue;
+
+            out_line[j] = in_line[i];
+            j++;
+        }
+
+        red_write(tp, out_line, j);
+    }
+
+    red_close(tp);
+    red_close(fp);
+
+    red_unlink(loaded_file_path);
+    red_rename(tmp_path, loaded_file_path);
+
+    loaded_file = red_open(loaded_file_path, RED_O_RDONLY);
+
+    return loaded_file;
+}
+
 int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
 {
     uint32_t pos = 0;
     red_lseek(fp, 0, RED_SEEK_SET);
 
-    while (red_gets(buff, buffer_size, fp) != NULL)
+    char * ret;
+
+    while ((ret = red_gets(buff, buffer_size, fp)) != NULL)
     {
+        if (ret == GETS_CORRUPTED)
+        {
+            fp = db_repair(fp);
+        }
+
         if (strstr(buff, key) == buff
                 && (buff[strlen(key)] == DB_SEPARATOR || buff[strlen(key)] == DB_OLD_SEPARATOR))
         {
