@@ -37,25 +37,14 @@ static bool shrt_add_right_icon(char * icon, char * label)
 }
 
 
-static void shrt_no_action_action() {}
+static bool shrt_no_action_action()
+{
+    return false;
+}
+
 static bool shrt_no_action_icon(char * icon, char * label)
 {
     strcpy(icon, "");
     strcpy(label, "No action");
     return true;
 }
-
-static bool shrt_dummy_action()
-{
-    dialog_show("Dummy", "Dummy action", dialog_confirm, NULL);
-
-    return false;
-}
-
-static bool shrt_dummy_icon(char * icon, char * label)
-{
-    strcpy(icon, LV_SYMBOL_STOP);
-    strcpy(label, "Dummy action");
-    return true;
-}
-

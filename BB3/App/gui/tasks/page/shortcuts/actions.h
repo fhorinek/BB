@@ -13,7 +13,7 @@
 typedef bool (* shortcut_action_t)();
 typedef bool (* shortcut_icon_t)(char * icon, char * label);
 
-#define SHORTCUT_ICON_LEN   4
+#define SHORTCUT_ICON_LEN   6
 #define SHORTCUT_LABEL_LEN  32
 
 typedef struct

@@ -28,6 +28,25 @@
  * then register the action:
  *
  * REGISTER_ACTION(<name>) //max len of <name> is SHORTCUT_NAME_LEN
+ *
+ *
+ * To add icon go to Utilities/Fonts/montserrat_16_ext:
+ *
+ * Example: add bluetooth-off icon
+ *
+ * 1. Go to https://materialdesignicons.com/ and search for "bluetooth"
+ * 2. Find name of the icon 'bluetooth-off'
+ * 3. Get the utf value for the icon. I am using FontForge (Edit->Select->Select by Wildcard)
+ * 4. Click on the icon, write down U+F00B2 => code is 0xF00B2
+ *
+ * add your icon to icons.txt
+ * bluetooth-off        0xF00B2
+ *
+ * install lv_font_conv tool
+ * > npm i lv_font_conv -g
+ *
+ * regenerate font (working directory Utilities/Fonts/montserrat_16_ext)
+ * > ./generate.py
  */
 
 
@@ -36,6 +55,8 @@
 
 //add_left, add_right, no_action, dummy
 #include "dummy.inc"
+
+//wifi_tgl, bt_tgl
 #include "wireless.inc"
 
 //Actions register list
@@ -43,7 +64,7 @@ shortcut_item_t shortcut_actions[] = {
     REGISTER_ACTION(add_left),
     REGISTER_ACTION(add_right),
     REGISTER_ACTION(no_action),
-    REGISTER_ACTION(dummy),
 
     REGISTER_ACTION(wifi_tgl),
+    REGISTER_ACTION(bt_tgl),
 };

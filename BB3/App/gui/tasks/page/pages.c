@@ -719,6 +719,12 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 							config_get_bool(&config.display.page_anim) ? PAGE_ANIM_FROM_LEFT : PAGE_ANIM_NONE);
     			break;
 
+                case(LV_KEY_ESC):
+                    pages_shrt_event(local->shrt_left, BUTTON_SHRT_LEFT, local->butt_short1, pages_set_left_shrt, "Left menu shortcut");
+                break;
+                case(LV_KEY_HOME):
+                    pages_shrt_event(local->shrt_right, BUTTON_SHRT_RIGHT, local->butt_short2, pages_set_right_shrt, "Right menu shortcut");
+                break;
 
         		}
         	}
@@ -821,6 +827,7 @@ void pages_load(char * filename, int8_t anim)
     {
 	    //page loaded
         widgets_init_page(local->page, local->mask);
+
     }
 	else
 	{

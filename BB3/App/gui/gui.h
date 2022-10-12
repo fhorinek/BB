@@ -12,6 +12,7 @@
 #include "lib/lvgl/lvgl.h"
 
 #include "gui/images/images.h"
+#include "gui/fonts/md_icons.h"
 
 typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint16_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);

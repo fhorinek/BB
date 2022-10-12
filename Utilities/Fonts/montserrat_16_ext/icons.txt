@@ -1,0 +1,18 @@
+plus-circle         0xF0417
+minus-circle        0xF0376
+volume-plus         0xF075D
+volume-minus        0xF075E
+volume-mute         0xF075F
+wifi                0xF05A9
+wifi-off            0xF05AA
+bluetooth           0xF00AF
+bluetooth-off       0xF00B2
+broadcast           0xF1720
+broadcast-off       0xF1721
+play-circle         0xF040C
+stop-circle         0xF0666
+battery-charging    0xF0084
+flashlight          0xF0244
+flashlight-off      0xF0245
+
+
