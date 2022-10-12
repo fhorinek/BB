@@ -188,7 +188,6 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
 
             if (line == GETS_CORRUPTED)
             {
-                WARN("Airspace file corrupted");
                 statusbar_msg_add(STATUSBAR_MSG_ERROR, "Airspace file corrupted");
                 break;
             }
