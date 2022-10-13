@@ -151,7 +151,7 @@ static void Map_update(widget_slot_t * slot)
     if ( zoom < 0 && fc_recorder_get_recorded_number() == 0 )
 	{
     	// We have "fit to track" but there is no track:
-		zoom = 3;
+		zoom = MAP_ZOOM_RANGE_2km;
 	}
 
     if ( zoom < 0 )     // Fit to track
@@ -182,17 +182,16 @@ static void Map_update(widget_slot_t * slot)
             break;
         }
 
-        map_set_static_pos(disp_lat, disp_lon, zoom);
         geo_to_pix_w_h(disp_lon, disp_lat, zoom, glider_lon, glider_lat, &glider_pos.x, &glider_pos.y, w, h);
     }
     else
     {
-        map_set_automatic_pos();
         glider_pos.x = w / 2;
         glider_pos.y = h / 2;
         disp_lat = glider_lat;
         disp_lon = glider_lon;
     }
+    map_set_static_pos(disp_lat, disp_lon, zoom);
 
 	map_obj_loop(&local->data, disp_lat, disp_lon);
 	map_obj_glider_loop(&local->data, glider_pos);
