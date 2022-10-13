@@ -77,6 +77,8 @@ typedef int16_t lv_coord_t;
 /* Complier prefix for a big array declaration */
 #  define LV_MEM_ATTR   __attribute__((section(".dtcmram")))
 
+//#define  LV_ATTRIBUTE_FAST_MEM  __attribute__((section(".itcmram")))
+
 /* Set an address for the memory pool instead of allocating it as an array.
  * Can be in external SRAM too. */
 #  define LV_MEM_ADR          0

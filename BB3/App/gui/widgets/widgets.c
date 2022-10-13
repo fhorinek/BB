@@ -7,18 +7,25 @@
 
 #include "widgets.h"
 #include "gui/statusbar.h"
+#include "gui/tasks/page/shortcuts/actions.h"
 
 bool widgets_save_to_file(page_layout_t * page, char * layout_name)
 {
     char path[PATH_LEN];
 
     snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
-    char buff[32];
+    char buff[64];
 
     int32_t f = red_open(path, RED_O_WRONLY | RED_O_TRUNC | RED_O_CREAT);
     if (f > 0)
     {
         int8_t len = snprintf(buff, sizeof(buff), "widgets=%u\n", page->number_of_widgets);
+        red_write(f, buff, len);
+
+        len = snprintf(buff, sizeof(buff), "shrt_left=%s\n", page->shrt_left->name);
+        red_write(f, buff, len);
+
+        len = snprintf(buff, sizeof(buff), "shrt_right=%s\n", page->shrt_right->name);
         red_write(f, buff, len);
 
         for (uint8_t i = 0; i < page->number_of_widgets; i++)
@@ -66,6 +73,9 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
     page->number_of_widgets = 0;
     page->base = NULL;
     page->widget_slots = NULL;
+
+    page->shrt_left = ACTION_NO_ACTION;
+    page->shrt_right = ACTION_NO_ACTION;
 
     for (;;)
     {
@@ -120,6 +130,14 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
                 ERR("Number of widgets already set");
             }
             continue;
+        }
+        else if (strcmp(key, "shrt_left") == 0)
+        {
+            page->shrt_left = shortcuts_get_from_name(value);
+        }
+        else if (strcmp(key, "shrt_right") == 0)
+        {
+            page->shrt_right = shortcuts_get_from_name(value);
         }
 
         unsigned int id;
@@ -277,6 +295,23 @@ void widgets_init_page(page_layout_t * page, lv_obj_t * par)
     {
         widgets_add_page_empty_label(page);
     }
+
+    char icon[SHORTCUT_ICON_LEN];
+    char label[SHORTCUT_LABEL_LEN];
+
+    page->shrt_left->icon(icon, label);
+
+    page->shrt_left_but = lv_label_create(page->base, NULL);
+    lv_label_set_text(page->shrt_left_but, icon);
+    lv_obj_align(page->shrt_left_but, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 5, -5);
+    lv_obj_set_auto_realign(page->shrt_left_but, true);
+
+    page->shrt_right->icon(icon, label);
+
+    page->shrt_right_but = lv_label_create(page->base, NULL);
+    lv_label_set_text(page->shrt_right_but, icon);
+    lv_obj_align(page->shrt_right_but, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -5, -5);
+    lv_obj_set_auto_realign(page->shrt_right_but, true);
 }
 
 

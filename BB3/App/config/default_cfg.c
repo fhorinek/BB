@@ -11,6 +11,7 @@
 #include "etc/timezone.h"
 #include "etc/format.h"
 #include "drivers/gnss/fanet.h"
+#include "gui/map/map_thread.h"
 
 cfg_entry_param_select_t date_format_select[] =
 {
@@ -240,6 +241,10 @@ flight_profile_t profile =
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
 		entry_big_int("last_lat", 0, big_int_max_range),
+        //shortcut_left
+        entry_text("shrt_l", "add_left", SHORTCUT_NAME_LEN, 0),
+        //shortcut_right
+        entry_text("shrt_r", "add_right", SHORTCUT_NAME_LEN, 0),
 
 		//autoset
 		{
@@ -267,7 +272,7 @@ flight_profile_t profile =
         //air_type
         entry_select("fa_ground", FANET_GROUND_TYPE_WALKING, fanet_ground_type),
         //radar_zoom
-        entry_int("fa_zoom", 2, 0, 7),
+        entry_int("fa_zoom", 2, MAP_ZOOM_MIN, MAP_ZOOM_MAX),
         //use_labes
         entry_bool("fa_labels", true),
     },

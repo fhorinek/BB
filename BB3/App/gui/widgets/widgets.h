@@ -12,6 +12,7 @@
 #include "gui/gui.h"
 #include "../../lib/lvgl/lvgl.h"
 #include "widget_flags.h"
+#include "gui/tasks/page/shortcuts/actions.h"
 
 #define DECLARE_WIDGET(name)	extern widget_t widget_ ## name
 #define LIST_WIDGET(name)       &widget_ ## name
@@ -193,6 +194,13 @@ typedef struct _widget_slot_t
 typedef struct
 {
 	lv_obj_t * base;
+
+	lv_obj_t * shrt_left_but;
+    lv_obj_t * shrt_right_but;
+
+    shortcut_item_t * shrt_left;
+    shortcut_item_t * shrt_right;
+
 	widget_slot_t * widget_slots;
 
     uint8_t number_of_widgets;

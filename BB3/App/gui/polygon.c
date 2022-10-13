@@ -96,8 +96,9 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
         int16_t scan_start = edges[0].y_min;
 
         uint16_t * active = (uint16_t *) malloc(sizeof(uint16_t) * edge_cnt);
+        lv_img_dsc_t * img_dsc = lv_canvas_get_img(canvas);
 
-        for (int16_t scan_line = scan_start; scan_line <= max_height; scan_line++)
+        for (int16_t scan_line = scan_start; scan_line <= max_height - 1; scan_line++)
         {
             //get active
             uint16_t active_cnt = 0;
@@ -142,7 +143,42 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
             if (active_cnt == 0)
                 break;
 
-            //draw active
+#if 1
+            //Faster method not bothering lvgl
+            for (uint16_t i = 0; i < active_cnt; i += 2)
+            {
+                if (scan_line >= 0)
+                {
+                    int16_t e1 = edges[active[i + 0]].x_val;
+                    int16_t e2 = edges[active[i + 1]].x_val;
+
+                    int16_t x_start, x_width;
+
+                    if (e1 < e2)
+                    {
+                        x_start = max(e1, 0);
+                        x_width = min(e2, img_dsc->header.w - 1) - x_start;
+                    }
+                    else
+                    {
+                        x_start = max(e2, 0);
+                        x_width = min(e1, img_dsc->header.w - 1) - x_start;
+                    }
+
+                    uint32_t index = img_dsc->header.w * scan_line + x_start;
+                    lv_color_t * color = &((lv_color_t *)img_dsc->data)[index];
+
+                    for (int16_t x = 0; x <= x_width; x++)
+                    {
+                        *color = lv_color_mix(draw_desc->color, *color, draw_desc->opa);
+                        color++;
+                    }
+                }
+
+                edges[active[i + 0]].x_val += edges[active[i + 0]].slope;
+                edges[active[i + 1]].x_val += edges[active[i + 1]].slope;
+            }
+#else
             lv_point_t line_points[2];
             for (uint16_t i = 0; i < active_cnt; i++)
             {
@@ -155,12 +191,12 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
                     gui_lock_acquire();
                     lv_canvas_draw_line(canvas, line_points, 2, draw_desc);
                     gui_lock_release();
-
 //                  INFO("plt.plot((%d,%d),(%d,%d),c=ac)", line_points[0].x, line_points[1].x, -line_points[0].y, -line_points[1].y);
                 }
 
                 edges[active[i]].x_val += edges[active[i]].slope;
             }
+#endif
         }
 
         free(active);

@@ -41,6 +41,7 @@
 #define PAGE_NAME_LEN       16
 #define VARIO_PROFILE_LEN   16
 #define PAGE_MAX_COUNT	    10
+#define SHORTCUT_NAME_LEN   16
 
 #define PILOT_NAME_LEN		64
 
@@ -81,6 +82,10 @@
 #define MAP_ZOOM_RANGE_64km      8
 #define MAP_ZOOM_RANGE_LAST      8
 
+#define MAP_ZOOM_MIN    0
+#define MAP_ZOOM_MAX    7
+
+
 typedef struct
 {
     cfg_entry_t name;
@@ -98,6 +103,8 @@ typedef struct
         cfg_entry_t page_last;
         cfg_entry_t last_lon;
         cfg_entry_t last_lat;
+        cfg_entry_t shortcut_left;
+        cfg_entry_t shortcut_right;
 
         struct
         {
