@@ -227,11 +227,11 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
  * @param p a pointer to a lv_point_t where x/y is stored. If there is
  *          no master_tile, then position INT16_MAX/INT16_MAX is returned.
  */
-void map_get_master_tile_xy(map_obj_data_t *local, lv_point_t *p)
+void map_get_master_tile_xy(map_obj_data_t * map, lv_point_t *p)
 {
-    if (local->master_tile != 0xFF)
+    if (map->master_tile != 0xFF)
     {
-    	*p = local->offsets[local->master_tile];
+    	*p = map->offsets[map->master_tile];
     }
     else
     {

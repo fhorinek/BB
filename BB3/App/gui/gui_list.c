@@ -125,8 +125,6 @@ void gui_list_store_pos(gui_task_t * task)
     }
 }
 
-static uint8_t level = 0;
-
 bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
 {
     if (lv_obj_get_group(parent) != NULL)
@@ -142,7 +140,6 @@ bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
             return false;
         if (gui_focus_child(child, NULL))
         {
-            level--;
             return true;
         }
     }
@@ -160,7 +157,6 @@ void gui_list_retrive_pos(gui_task_t * task)
 	lv_obj_t * obj = gui_list_get_entry(task->last_menu_pos);
 	if (obj != NULL)
 	{
-	    level = 0;
 	    gui_focus_child(obj, NULL);
 	}
 }

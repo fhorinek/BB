@@ -33,10 +33,10 @@ void shortcut_set_slot(shortcut_get_name_cb_t cb, char * title, char * actual)
         {
             char label[SHORTCUT_ICON_LEN + SHORTCUT_LABEL_LEN + 2];
             snprintf(label, sizeof(label), "%s %s", icon, text);
-            gui_list_text_add_entry(gui.list.list, label);
+            lv_obj_t * e = gui_list_text_add_entry(gui.list.list, label);
 
             if (strcmp(actual, shortcut_actions[i].name) == 0)
-                gui_list_set_pos(&gui_shortcuts, index);
+                gui_focus_child(e, NULL);
 
             index++;
         }
@@ -70,7 +70,9 @@ static bool shortcuts_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
                     snprintf(label, sizeof(label), "%s %s", icon, text);
                     if (strcmp(name, label) == 0)
                     {
-                        local->cb(shortcut_actions[i].name);
+                        local->cb((char *)shortcut_actions[i].name);
+                        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
+
                         break;
                     }
                 }

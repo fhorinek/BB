@@ -60,8 +60,10 @@ extern const lv_img_dsc_t tile;
 
 #define BUTTON_NONE         0
 #define BUTTON_OFF          10
-#define BUTTON_SHRT_LEFT    11
-#define BUTTON_SHRT_RIGHT   12
+#define BUTTON_MENU_LEFT    11
+#define BUTTON_MENU_RIGHT   12
+#define BUTTON_PAGE_LEFT    13
+#define BUTTON_PAGE_RIGHT   14
 
 #define ACTION_EXEC_HOLD    600
 #define ACTION_CHANGE_CNT   12
@@ -144,6 +146,8 @@ void page_focus_widget(lv_obj_t * obj)
         lv_obj_set_style_local_border_opa(local->selector, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
 
         lv_obj_move_foreground(obj);
+        lv_obj_move_foreground(local->page->shrt_left_but);
+        lv_obj_move_foreground(local->page->shrt_right_but);
     }
 }
 
@@ -452,7 +456,7 @@ void pages_create_menu(lv_obj_t * base)
 
     local->shrt_left = shortcuts_get_from_name(config_get_text(&profile.ui.shortcut_left));
     if (local->shrt_left == NULL)
-        local->shrt_left = &shortcut_actions[0];
+        local->shrt_left = ACTION_ADD_LEFT;
 
     local->shrt_left->icon(icon, text);
 
@@ -464,7 +468,7 @@ void pages_create_menu(lv_obj_t * base)
     //shortcut 2
     local->shrt_right = shortcuts_get_from_name(config_get_text(&profile.ui.shortcut_right));
     if (local->shrt_right == NULL)
-        local->shrt_right = &shortcut_actions[1];
+        local->shrt_right = ACTION_ADD_RIGHT;
 
     local->shrt_right->icon(icon, text);
     local->butt_short2 = lv_label_create(local->right_menu, NULL);
@@ -569,22 +573,34 @@ static void pages_shrt_event(shortcut_item_t * shrt, uint8_t button, lv_obj_t * 
     }
 }
 
-void pages_set_left_shrt(char * new_shrt)
+void pages_set_menu_left_shrt(char * new_shrt)
 {
     config_set_text(&profile.ui.shortcut_left, new_shrt);
-    gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
 }
 
-void pages_set_right_shrt(char * new_shrt)
+void pages_set_menu_right_shrt(char * new_shrt)
 {
     config_set_text(&profile.ui.shortcut_right, new_shrt);
-    gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
+}
+
+void pages_set_page_left_shrt(char * new_shrt)
+{
+    page_layout_t page;
+    widgets_load_from_file(&page, pages_get_name(local->actual_page));
+    page.shrt_left = shortcuts_get_from_name(new_shrt);
+    widgets_save_to_file(&page, pages_get_name(local->actual_page));
+}
+
+void pages_set_page_right_shrt(char * new_shrt)
+{
+    page_layout_t page;
+    widgets_load_from_file(&page, pages_get_name(local->actual_page));
+    page.shrt_right = shortcuts_get_from_name(new_shrt);
+    widgets_save_to_file(&page, pages_get_name(local->actual_page));
 }
 
 static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 {
-    DBG("event %u", event);
-
     switch(event)
     {
         case LV_EVENT_LONG_PRESSED_REPEAT:
@@ -689,10 +705,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     				page_settings_set_page_name(local->page_name, local->actual_page);
     			break;
                 case(LV_KEY_ESC):
-                    pages_shrt_event(local->shrt_left, BUTTON_SHRT_LEFT, local->butt_short1, pages_set_left_shrt, "Left menu shortcut");
+                    pages_shrt_event(local->shrt_left, BUTTON_MENU_LEFT, local->butt_short1, pages_set_menu_left_shrt, "Menu left shortcut");
                 break;
                 case(LV_KEY_HOME):
-                    pages_shrt_event(local->shrt_right, BUTTON_SHRT_RIGHT, local->butt_short2, pages_set_right_shrt, "Right menu shortcut");
+                    pages_shrt_event(local->shrt_right, BUTTON_MENU_RIGHT, local->butt_short2, pages_set_menu_right_shrt, "Menu right shortcut");
                 break;
         		}
         	}
@@ -720,10 +736,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     			break;
 
                 case(LV_KEY_ESC):
-                    pages_shrt_event(local->shrt_left, BUTTON_SHRT_LEFT, local->butt_short1, pages_set_left_shrt, "Left menu shortcut");
+                    pages_shrt_event(local->page->shrt_left, BUTTON_PAGE_LEFT, local->page->shrt_left_but, pages_set_page_left_shrt, "Page left shortcut");
                 break;
                 case(LV_KEY_HOME):
-                    pages_shrt_event(local->shrt_right, BUTTON_SHRT_RIGHT, local->butt_short2, pages_set_right_shrt, "Right menu shortcut");
+                    pages_shrt_event(local->page->shrt_right, BUTTON_PAGE_RIGHT, local->page->shrt_right_but, pages_set_page_right_shrt, "Page right shortcut");
                 break;
 
         		}
@@ -991,13 +1007,13 @@ static void pages_loop()
 	{
 	    local->shrt_execute = 0;
 
-        bool show_label = local->shrt_action->action();
-
         char icon[SHORTCUT_ICON_LEN];
         char text[SHORTCUT_LABEL_LEN];
         local->shrt_action->icon(icon, text);
 
-        if (show_label)
+        bool show_popup = local->shrt_action->action();
+
+        if (show_popup)
         {
             char label[SHORTCUT_ICON_LEN + SHORTCUT_LABEL_LEN + 2];
             snprintf(label, sizeof(label), "%s %s", icon, text);
@@ -1005,15 +1021,17 @@ static void pages_loop()
             pages_popup(label);
         }
 
-        if (local->shrt_label != NULL)
-        {
-            lv_label_set_text(local->shrt_label, icon);
-        }
+        shortcut_update_icon(local->butt_short1, local->shrt_left);
+        shortcut_update_icon(local->butt_short2, local->shrt_right);
+        shortcut_update_icon(local->page->shrt_left_but, local->page->shrt_left);
+        shortcut_update_icon(local->page->shrt_right_but, local->page->shrt_right);
 
 	    local->shrt_action = NULL;
 	    local->shrt_label = NULL;
+	    local->button_type = BUTTON_NONE;
 
-	    pages_menu_hide();
+	    if (local->state == MENU_SHOW)
+	        pages_menu_hide();
 	}
 }
 

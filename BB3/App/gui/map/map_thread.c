@@ -228,6 +228,16 @@ void thread_map_start(void *argument)
     		}
     	}
 
+        //draw airspace
+        for (uint8_t i = 0; i < 9; i++)
+        {
+            if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
+            {
+                tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                break;
+            }
+        }
+
 		if (gui.map.magic == old_magic)
 		{
 			osDelay(200);

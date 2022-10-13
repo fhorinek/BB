@@ -59,12 +59,24 @@
 //wifi_tgl, bt_tgl
 #include "wireless.inc"
 
+//map_zoom_plus, map_zoom_mins
+#include "map.inc"
+
+//flight_start
+#include "flight.inc"
+
 //Actions register list
 shortcut_item_t shortcut_actions[] = {
+    //add_left and add_right must stay at the top
     REGISTER_ACTION(add_left),
     REGISTER_ACTION(add_right),
     REGISTER_ACTION(no_action),
 
     REGISTER_ACTION(wifi_tgl),
     REGISTER_ACTION(bt_tgl),
+
+    REGISTER_ACTION(map_zoom_in),
+    REGISTER_ACTION(map_zoom_out),
+
+    REGISTER_ACTION(flight_start),
 };

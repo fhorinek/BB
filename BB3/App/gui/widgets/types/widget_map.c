@@ -26,7 +26,7 @@ REGISTER_WIDGET_ISUE(Map,
 	0,
 
 	map_obj_data_t data;
-	lv_obj_t *edit;
+	lv_obj_t * edit;
 	uint8_t action_cnt;
 	uint32_t last_action;
 
@@ -81,7 +81,7 @@ void compute_trail(int32_t disp_lat, int32_t disp_lon, int16_t zoom, widget_slot
 		line_changed = true;
 	else
 	{
-		map_get_master_tile_xy(local, &mastertile_pos);
+		map_get_master_tile_xy(&local->data, &mastertile_pos);
 		if ( local->previous_mastertile_pos.x != mastertile_pos.x ||
 			 local->previous_mastertile_pos.y != mastertile_pos.y )
 		{

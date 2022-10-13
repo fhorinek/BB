@@ -34,7 +34,9 @@ void igc_writeline_2(char * line, bool sign)
 	snprintf(new_line, sizeof(new_line), "%s\r\n", line);
 	l += 2;
 
-	ASSERT(red_write(igc_log_file, new_line, l) == l);
+	int32_t wr = red_write(igc_log_file, new_line, l);
+
+	ASSERT(wr == l);
 	ASSERT(red_sync() == 0);
 
 #ifndef IGC_NO_PRIVATE_KEY

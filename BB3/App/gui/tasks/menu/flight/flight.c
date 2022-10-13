@@ -8,6 +8,7 @@
 #include "gui/gui_list.h"
 #include "etc/format.h"
 
+
 REGISTER_TASK_I(flight);
 
 static gui_list_slider_options_t dura_opt = {

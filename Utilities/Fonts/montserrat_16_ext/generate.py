@@ -55,9 +55,21 @@ f = open(rel_path + "md_icons.h", "w")
 f.write(header)
 f.close()
 
+output = "%slv_font_montserrat_%u_ext.c" % (rel_path, size)
 
-cmd += " -o %slv_font_montserrat_%u_ext.c" % (rel_path, size)
+cmd += " -o %s" % output 
 
 os.system(cmd)
+
+#hacky way to fix geometry
+data = open(output, "r").read()
+data = data.replace(".line_height = 24,", ".line_height = 18,")
+data = data.replace(".base_line = 5,", ".base_line = 3,")
+
+f = open(output, "w")
+f.write(data)
+f.close()
+
+
 
 

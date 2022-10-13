@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"
@@ -1262,6 +1262,7 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
     gui.map.chunks[index].ready = false;
+    gui.map.chunks[index].airspace = false;
     gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
     char tile_path[PATH_LEN];
@@ -1352,10 +1353,6 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
     if (pass)
     {
-        //assign chunk to canvas
-        lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
-        tile_draw_airspace(lon1, lat1, lon2, lat2, step_x, step_y, zoom);
-
         gui.map.chunks[index].center_lon = c_lon;
         gui.map.chunks[index].center_lat = c_lat;
         gui.map.chunks[index].zoom = zoom;
@@ -1373,6 +1370,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
     //invalidate
     gui.map.chunks[index].ready = false;
+    gui.map.chunks[index].airspace = false;
     gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
     char tile_path[PATH_LEN];
@@ -1447,18 +1445,46 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
             red_write(f, gui.map.poi[i].name, name_len);
         }
     }
-
-
     red_close(f);
 
-    DBG("duration %u ms", HAL_GetTick() - start);
-    tile_draw_airspace(lon1, lat1, lon2, lat2, step_x, step_y, zoom);
+    DBG("Tile generating duration %u ms", HAL_GetTick() - start);
 
     gui.map.chunks[index].center_lon = c_lon;
     gui.map.chunks[index].center_lat = c_lat;
     gui.map.chunks[index].zoom = zoom;
     gui.map.chunks[index].ready = true;
     gui.map.magic = (gui.map.magic + 1) % 0xFF;
+
+    return true;
+}
+
+bool tile_airspace(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
+{
+    char tile_path[PATH_LEN];
+    int32_t c_lon, c_lat;
+
+    tile_get_cache(lon, lat, zoom, &c_lon, &c_lat, tile_path);
+
+    int32_t step_x;
+    int32_t step_y;
+    geo_get_steps(c_lat, zoom, &step_x, &step_y);
+
+    //get bbox
+    uint32_t map_w = MAP_W * step_x;
+    uint32_t map_h = (MAP_H * step_y);
+    int32_t lon1 = c_lon - map_w / 2;
+    int32_t lon2 = c_lon + map_w / 2;
+    int32_t lat1 = c_lat + map_h / 2;
+    int32_t lat2 = c_lat - map_h / 2;
+
+    //assign chunk to canvas
+    lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+
+    tile_draw_airspace(lon1, lat1, lon2, lat2, step_x, step_y, zoom);
+
+    gui.map.magic = (gui.map.magic + 1) % 0xFF;
+
+    gui.map.chunks[index].airspace = true;
 
     return true;
 }

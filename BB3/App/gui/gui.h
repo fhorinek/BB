@@ -108,8 +108,7 @@ typedef struct
     uint8_t zoom;
     bool ready;
     bool not_used;
-
-    uint8_t _pad[1];
+    bool airspace;
 
 } map_chunk_t;
 

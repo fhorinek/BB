@@ -41,7 +41,7 @@
 #define PAGE_NAME_LEN       16
 #define VARIO_PROFILE_LEN   16
 #define PAGE_MAX_COUNT	    10
-#define SHORTCUT_NAME_LEN   12
+#define SHORTCUT_NAME_LEN   16
 
 #define PILOT_NAME_LEN		64
 
@@ -69,6 +69,9 @@
 #define MAP_ALT_RANGE_FLAT      0
 #define MAP_ALT_RANGE_NORMAL    1
 #define MAP_ALT_RANGE_ALPS      2
+
+#define MAP_ZOOM_MIN    0
+#define MAP_ZOOM_MAX    7
 
 typedef struct
 {

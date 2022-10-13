@@ -11,6 +11,8 @@
 #include "gui/tasks/page/pages.h"
 #include "gui/dialog.h"
 
+#include "fc/fc.h"
+
 #include "shortcuts.h"
 
 //actions definitions
@@ -21,6 +23,15 @@ uint16_t shortcuts_get_number()
     return sizeof(shortcut_actions) / sizeof(shortcut_item_t);
 }
 
+void shortcut_update_icon(lv_obj_t * label, shortcut_item_t * shrt)
+{
+    char icon[SHORTCUT_ICON_LEN];
+    char text[SHORTCUT_LABEL_LEN];
+    shrt->icon(icon, text);
+
+    lv_label_set_text(label, icon);
+}
+
 shortcut_item_t * shortcuts_get_from_name(char * name)
 {
     for (uint16_t i = 0; i < shortcuts_get_number(); i++)
@@ -29,5 +40,5 @@ shortcut_item_t * shortcuts_get_from_name(char * name)
             return &shortcut_actions[i];
     }
 
-    return NULL;
+    return ACTION_NO_ACTION;
 }
