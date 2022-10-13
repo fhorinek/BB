@@ -35,7 +35,7 @@ typedef struct map_obj_data {
 
 lv_obj_t * map_obj_init(lv_obj_t * par, map_obj_data_t *map_data);
 void map_obj_loop(map_obj_data_t *map_data, int32_t disp_lat, int32_t disp_lon);
-void map_obj_glider_loop(map_obj_data_t *map_data);
+void map_obj_glider_loop(map_obj_data_t *map_data, lv_point_t glider_pos);
 void map_obj_fanet_loop(map_obj_data_t *map_data, int32_t disp_lat, int32_t disp_lon, uint16_t zoom);
 void map_get_master_tile_xy(map_obj_data_t *map_data, lv_point_t *p);
 #endif /* GUI_MAP_MAP_OBJ_H_ */

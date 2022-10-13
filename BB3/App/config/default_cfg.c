@@ -339,7 +339,7 @@ flight_profile_t profile =
 	//map
 	{
         //zoom_flight
-        entry_int("zoom_flight", 3, 0, 8),
+        entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, -1, MAP_ZOOM_RANGE_LAST),
         //zoom_flight
         entry_bool("map_blur", true),
         //alt_range

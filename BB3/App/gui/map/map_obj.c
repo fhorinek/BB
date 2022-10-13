@@ -22,6 +22,8 @@ static bool static_init = false;
 static lv_style_t static_label = {0};
 static lv_style_t fanet_label = {0};
 
+#define DOT_RADIUS 10
+
 /**
  * Initialize the MAP object inside the given parent. All necessary data is stored
  * in "local" which has to be allocated by the caller. Typically this will be done
@@ -245,7 +247,7 @@ void map_get_master_tile_xy(map_obj_data_t *local, lv_point_t *p)
  *
  * @param local the map data
  */
-void map_obj_glider_loop(map_obj_data_t *local)
+void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
 {
 	if ( local->arrow == NULL )
 	{
@@ -255,10 +257,10 @@ void map_obj_glider_loop(map_obj_data_t *local)
 	    lv_img_set_antialias(local->arrow, true);
 
 	    local->dot = lv_obj_create(local->map, NULL);
-	    lv_obj_set_size(local->dot, 10, 10);
+	    lv_obj_set_size(local->dot, DOT_RADIUS, DOT_RADIUS);
 	    lv_obj_align(local->dot, local->map, LV_ALIGN_CENTER, 0, 0);
 	    lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-	    lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
+	    lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, DOT_RADIUS / 2);
 	}
 
 	if (fc.gnss.fix == 0)
@@ -268,7 +270,9 @@ void map_obj_glider_loop(map_obj_data_t *local)
     }
     else
     {
-    	if (fc.gnss.ground_speed > FC_SPEED_MOVING)
+        lv_obj_set_pos(local->arrow, glider_pos.x - img_map_arrow.header.w/2, glider_pos.y- img_map_arrow.header.h/2);
+        lv_obj_set_pos(local->dot, glider_pos.x - DOT_RADIUS/2, glider_pos.y - DOT_RADIUS/2);
+        if (fc.gnss.ground_speed > FC_SPEED_MOVING)
 		{
     		lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
 			lv_obj_set_hidden(local->arrow, false);
