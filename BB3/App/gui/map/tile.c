@@ -723,6 +723,12 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
         uint32_t map_size = file_size(map_data);
         map_cache = ps_malloc(map_size);
 
+        if (map_cache == NULL)
+        {
+            ERR("Unable to allocate memory");
+            return NULL;
+        }
+
         if (map_size != red_read(map_data, map_cache, map_size))
         {
             ERR("Map data invalid size");
