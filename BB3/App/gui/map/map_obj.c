@@ -19,8 +19,8 @@
 #include "etc/geo_calc.h"
 
 static bool static_init = false;
-static lv_style_t static_label = {0};
-static lv_style_t fanet_label = {0};
+static lv_style_t static_label = { 0 };
+static lv_style_t fanet_label = { 0 };
 
 #define DOT_RADIUS 10
 
@@ -34,7 +34,7 @@ static lv_style_t fanet_label = {0};
  *
  * @return the map object just created.
  */
-lv_obj_t * map_obj_init(lv_obj_t * par, map_obj_data_t *local)
+lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
 {
     if (!static_init)
     {
@@ -44,11 +44,11 @@ lv_obj_t * map_obj_init(lv_obj_t * par, map_obj_data_t *local)
         lv_style_init(&fanet_label);
         lv_style_set_text_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
         lv_style_set_bg_opa(&fanet_label, LV_STATE_DEFAULT, LV_OPA_50);
-    	lv_style_set_bg_blend_mode(&fanet_label, LV_STATE_DEFAULT, LV_BLEND_MODE_NORMAL);
-    	lv_style_set_bg_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    	lv_style_set_radius(&fanet_label, LV_STATE_DEFAULT, 4);
-    	lv_style_set_text_font(&fanet_label, LV_STATE_DEFAULT, LV_THEME_DEFAULT_FONT_SMALL);
-    	lv_style_set_pad_left(&fanet_label, LV_STATE_DEFAULT, 2);
+        lv_style_set_bg_blend_mode(&fanet_label, LV_STATE_DEFAULT, LV_BLEND_MODE_NORMAL);
+        lv_style_set_bg_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+        lv_style_set_radius(&fanet_label, LV_STATE_DEFAULT, 4);
+        lv_style_set_text_font(&fanet_label, LV_STATE_DEFAULT, LV_THEME_DEFAULT_FONT_SMALL);
+        lv_style_set_pad_left(&fanet_label, LV_STATE_DEFAULT, 2);
 
         static_init = true;
     }
@@ -62,21 +62,27 @@ lv_obj_t * map_obj_init(lv_obj_t * par, map_obj_data_t *local)
 
     for (uint8_t i = 0; i < 9; i++)
     {
-		local->image[i] = lv_canvas_create(local->map, NULL);
-		lv_obj_set_size(local->image[i], MAP_W, MAP_H);
+        local->image[i] = lv_canvas_create(local->map, NULL);
+        lv_obj_set_size(local->image[i], MAP_W, MAP_H);
 
-		while(gui.map.chunks[i].buffer == NULL)
-		{
-			osDelay(1);
-		}
-		lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
-		lv_obj_set_hidden(local->image[i], true);
-	}
+        while (gui.map.chunks[i].buffer == NULL)
+        {
+            osDelay(1);
+        }
+        lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+        lv_obj_set_hidden(local->image[i], true);
+    }
 
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
     {
         local->poi[i] = NULL;
         local->poi_magic[i] = 0xFF;
+    }
+
+    for (uint8_t i = 0; i < NB_NUMBER_IN_MEMORY; i++)
+    {
+        local->fanet_icons[i] = NULL;
+        local->fanet_labels[i] = NULL;
     }
 
     local->dot = NULL;
@@ -139,7 +145,8 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             else
             {
                 local->offsets[i].x = x - local->offsets[local->master_tile].x;
-                local->offsets[i].y = y - local->offsets[local->master_tile].y;;
+                local->offsets[i].y = y - local->offsets[local->master_tile].y;
+                ;
             }
         }
 
@@ -150,7 +157,7 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
                 //create
                 if (local->poi[i] == NULL)
                 {
-                    lv_obj_t * l = lv_label_create(local->map, NULL);
+                    lv_obj_t *l = lv_label_create(local->map, NULL);
                     lv_obj_add_style(l, LV_LABEL_PART_MAIN, &static_label);
                     lv_label_set_text(l, gui.map.poi[i].name);
 
@@ -180,7 +187,6 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
         }
         local->magic = gui.map.magic;
     }
-
 
     if (local->master_tile != 0xFF)
     {
@@ -249,12 +255,12 @@ void map_get_master_tile_xy(map_obj_data_t * map, lv_point_t *p)
  */
 void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
 {
-	if ( local->arrow == NULL )
-	{
-		local->arrow = lv_img_create(local->map, NULL);
-	    lv_img_set_src(local->arrow, &img_map_arrow);
-	    lv_obj_align(local->arrow, local->map, LV_ALIGN_CENTER, 0, 0);
-	    lv_img_set_antialias(local->arrow, true);
+    if (local->arrow == NULL)
+    {
+        local->arrow = lv_img_create(local->map, NULL);
+        lv_img_set_src(local->arrow, &img_map_arrow);
+        lv_obj_align(local->arrow, local->map, LV_ALIGN_CENTER, 0, 0);
+        lv_img_set_antialias(local->arrow, true);
 
 	    local->dot = lv_obj_create(local->map, NULL);
 	    lv_obj_set_size(local->dot, DOT_RADIUS, DOT_RADIUS);
@@ -263,10 +269,10 @@ void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
 	    lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, DOT_RADIUS / 2);
 	}
 
-	if (fc.gnss.fix == 0)
+    if (fc.gnss.fix == 0)
     {
-    	lv_obj_set_hidden(local->arrow, true);
-    	lv_obj_set_hidden(local->dot, true);
+        lv_obj_set_hidden(local->arrow, true);
+        lv_obj_set_hidden(local->dot, true);
     }
     else
     {
@@ -288,87 +294,87 @@ void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
 
 void map_obj_fanet_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon, uint16_t zoom)
 {
-    	if (config_get_bool(&profile.map.show_fanet))
-   	    {
-   			if (fc.fanet.neighbors_magic != local->fanet_magic && fc.gnss.fix > 0)
-   			{
-   				char label_value[50];
-   				char buffer[32];
+    if (config_get_bool(&profile.map.show_fanet))
+    {
+        if (fc.fanet.neighbors_magic != local->fanet_magic && fc.gnss.fix > 0)
+        {
+            char label_value[50];
+            char buffer[32];
 
-    			int8_t t = 0;
+            int8_t t = 0;
 
-    			for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
-    			{
-    				if (fc.fanet.neighbor[i].flags & NB_HAVE_POS)
-    				{
-    					int16_t x, y;
+            for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
+            {
+                if (fc.fanet.neighbor[i].flags & NB_HAVE_POS)
+                {
+                    int16_t x, y;
 
-    					geo_to_pix_w_h(disp_lon, disp_lat, zoom, fc.fanet.neighbor[i].longitude, fc.fanet.neighbor[i].latitude, &x, &y, lv_obj_get_width(local->map), lv_obj_get_height(local->map));
+                    geo_to_pix_w_h(disp_lon, disp_lat, zoom, fc.fanet.neighbor[i].longitude, fc.fanet.neighbor[i].latitude, &x, &y, lv_obj_get_width(local->map), lv_obj_get_height(local->map));
 
-    					if (local->fanet_icons[t] == NULL && local->fanet_labels[t] == NULL)
-    					{
-    						local->fanet_icons[t] = lv_img_create(local->map, NULL);
-    						lv_img_set_antialias(local->fanet_icons[t], true);
+                    if (local->fanet_icons[t] == NULL && local->fanet_labels[t] == NULL)
+                    {
+                        local->fanet_icons[t] = lv_img_create(local->map, NULL);
+                        lv_img_set_antialias(local->fanet_icons[t], true);
 
-    		                if (config_get_bool(&profile.fanet.show_labels))
-    		                {
-                                local->fanet_labels[t] = lv_label_create(local->map, NULL);
-                                lv_obj_add_style(local->fanet_labels[t], LV_LABEL_PART_MAIN, &fanet_label);
-                                lv_label_set_align(local->fanet_labels[t], LV_LABEL_ALIGN_LEFT);
-    		                }
-    		                else
-    		                {
-    		                    local->fanet_labels[t] = NULL;
-    		                }
-    					}
-
-    					if (fc.fanet.neighbor[i].flags & NB_IS_FLYING)
-    					{
-                            lv_img_set_src(local->fanet_icons[t], &img_fanet_glider);
-                            lv_img_set_angle(local->fanet_icons[t], fc.fanet.neighbor[i].heading * 14); // ~ 360/255 * 10
-    					}
-    					else
+                        if (config_get_bool(&profile.fanet.show_labels))
                         {
-                            lv_img_set_src(local->fanet_icons[t], &img_fanet_hike);
-                            lv_img_set_angle(local->fanet_icons[t], 0); // ~ 360/255 * 10
+                            local->fanet_labels[t] = lv_label_create(local->map, NULL);
+                            lv_obj_add_style(local->fanet_labels[t], LV_LABEL_PART_MAIN, &fanet_label);
+                            lv_label_set_align(local->fanet_labels[t], LV_LABEL_ALIGN_LEFT);
+                        }
+                        else
+                        {
+                            local->fanet_labels[t] = NULL;
+                        }
+                    }
+
+                    if (fc.fanet.neighbor[i].flags & NB_IS_FLYING)
+                    {
+                        lv_img_set_src(local->fanet_icons[t], &img_fanet_glider);
+                        lv_img_set_angle(local->fanet_icons[t], fc.fanet.neighbor[i].heading * 14); // ~ 360/255 * 10
+                    }
+                    else
+                    {
+                        lv_img_set_src(local->fanet_icons[t], &img_fanet_hike);
+                        lv_img_set_angle(local->fanet_icons[t], 0); // ~ 360/255 * 10
+                    }
+
+                    if (local->fanet_labels[t] != NULL)
+                    {
+                        format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
+                        if (strlen(fc.fanet.neighbor[i].name) > 0)
+                        {
+                            snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);
+                        }
+                        else
+                        {
+                            strncpy(label_value, buffer, sizeof(label_value));
                         }
 
+                        lv_label_set_text(local->fanet_labels[t], label_value);
+                        lv_obj_align(local->fanet_labels[t], local->arrow, LV_ALIGN_CENTER, x - lv_obj_get_width(local->map) / 2 + 35, y - lv_obj_get_height(local->map) / 2);
+                        lv_obj_set_hidden(local->fanet_labels[t], false);
+                    }
 
-    	                if (local->fanet_labels[t] != NULL)
-    	                {
-                            format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
-                            if (strlen(fc.fanet.neighbor[i].name) > 0)
-                            {
-                                snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);
-                            }
-                            else
-                            {
-                                strncpy(label_value, buffer, sizeof(label_value));
-                            }
+                    lv_obj_align(local->fanet_icons[t], local->arrow, LV_ALIGN_CENTER, x - lv_obj_get_width(local->map) / 2, y - lv_obj_get_height(local->map) / 2);
 
-    	                    lv_label_set_text(local->fanet_labels[t], label_value);
-                            lv_obj_align(local->fanet_labels[t], local->arrow, LV_ALIGN_CENTER, x - lv_obj_get_width(local->map) / 2 + 35, y - lv_obj_get_height(local->map) / 2);
-                            lv_obj_set_hidden(local->fanet_labels[t], false);
-    	                }
+                    lv_obj_set_hidden(local->fanet_icons[t], false);
+                    t++;
+                }
+            }
 
-    					lv_obj_align(local->fanet_icons[t], local->arrow, LV_ALIGN_CENTER, x - lv_obj_get_width(local->map) / 2, y - lv_obj_get_height(local->map) / 2);
-
-
-     					lv_obj_set_hidden(local->fanet_icons[t], false);
-    					t++;
-    				}
-    			}
-
-    			for (uint8_t i = t; i < NB_NUMBER_IN_MEMORY; i++) {
-    				if (local->fanet_icons[i] != NULL && local->fanet_labels[i] != NULL) {
-    				    lv_obj_set_hidden(local->fanet_icons[i], true);
-    				    if (local->fanet_labels[t] != NULL)
-    				    {
-    				        lv_obj_set_hidden(local->fanet_labels[i], true);
-    				    }
-    				}
-    			}
-    		}
-    		local->fanet_magic = fc.fanet.neighbors_magic;
-   	    }
+            for (uint8_t i = t; i < NB_NUMBER_IN_MEMORY; i++)
+            {
+                if (local->fanet_icons[i] != NULL && local->fanet_labels[i] != NULL)
+                {
+                    lv_obj_set_hidden(local->fanet_icons[i], true);
+                    if (local->fanet_labels[t] != NULL)
+                    {
+                        lv_obj_set_hidden(local->fanet_labels[i], true);
+                    }
+                }
+            }
+        }
+        local->fanet_magic = fc.fanet.neighbors_magic;
+    }
 }
