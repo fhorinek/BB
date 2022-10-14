@@ -66,53 +66,52 @@ bool fc_lock_release()
     return false;
 }
 
-void fc_history_record_cb(void * arg)
+void fc_history_record_cb(void *arg)
 {
 //	DBG("fc_history_record_cb");
 
-	__align fc_pos_history_t pos;
-	memset(&pos, 0, sizeof(pos));
+    __align fc_pos_history_t pos;
+    memset(&pos, 0, sizeof(pos));
 
-	if (fc.fused.status == fc_dev_ready)
-	{
-		pos.flags |= FC_POS_HAVE_BARO;
-		pos.baro_alt = fc_press_to_alt(fc.fused.pressure, 101325);
-		pos.vario = fc.fused.vario * 100;
-	}
+    if (fc.fused.status == fc_dev_ready)
+    {
+        pos.flags |= FC_POS_HAVE_BARO;
+        pos.baro_alt = fc_press_to_alt(fc.fused.pressure, 101325);
+        pos.vario = fc.fused.vario * 100;
+    }
 
-	if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready)
-	{
-		pos.lat = fc.gnss.latitude;
-		pos.lon = fc.gnss.longtitude;
-		pos.ground_hdg = fc.gnss.heading;
-		pos.ground_spd = fc.gnss.ground_speed * 100;
-		if (fc.gnss.fix == 3)
-		{
-			pos.gnss_alt = fc.gnss.altitude_above_ellipsiod;
-			pos.flags |= FC_POS_GNSS_3D;
-		}
-		else
-		{
-			pos.flags |= FC_POS_GNSS_2D;
-		}
-	}
+    if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready)
+    {
+        pos.lat = fc.gnss.latitude;
+        pos.lon = fc.gnss.longtitude;
+        pos.ground_hdg = fc.gnss.heading;
+        pos.ground_spd = fc.gnss.ground_speed * 100;
+        if (fc.gnss.fix == 3)
+        {
+            pos.gnss_alt = fc.gnss.altitude_above_ellipsiod;
+            pos.flags |= FC_POS_GNSS_3D;
+        }
+        else
+        {
+            pos.flags |= FC_POS_GNSS_2D;
+        }
+    }
 
-	if (fc.imu.status == fc_dev_ready)
-	{
-		pos.flags |= FC_POS_HAVE_ACC;
-		pos.accel = fc.imu.acc_total * 1000;
-	}
+    if (fc.imu.status == fc_dev_ready)
+    {
+        pos.flags |= FC_POS_HAVE_ACC;
+        pos.accel = fc.imu.acc_total * 1000;
+    }
 
-	FC_ATOMIC_ACCESS
-	{
-	    safe_memcpy(&fc.history.positions[fc.history.index], &pos, sizeof(pos));
-		fc.history.index = (fc.history.index + 1) % FC_HISTORY_SIZE;
+    FC_ATOMIC_ACCESS
+        {
+        safe_memcpy(&fc.history.positions[fc.history.index], &pos, sizeof(pos));
+        fc.history.index = (fc.history.index + 1) % FC_HISTORY_SIZE;
 
-		if (fc.history.size < FC_HISTORY_SIZE)
-			fc.history.size++;
-	}
+        if (fc.history.size < FC_HISTORY_SIZE)
+            fc.history.size++;
+    }
 }
-
 
 void fc_reset()
 {
@@ -128,26 +127,26 @@ void fc_reset()
 
     if (fc.flight.mode != flight_landed)
     {
-    	fc.flight.start_lat = INVALID_INT32;
-    	fc.flight.start_lon = INVALID_INT32;
+        fc.flight.start_lat = INVALID_INT32;
+        fc.flight.start_lon = INVALID_INT32;
     }
 
     fc.history.index = 0;
     fc.history.size = 0;
 
     fc.fused.glide_ratio = NAN;
-	fc.agl.ground_height = AGL_INVALID;
-	fc.agl.agl = AGL_INVALID;
+    fc.agl.ground_height = AGL_INVALID;
+    fc.agl.agl = AGL_INVALID;
 
-	fc.flight.odometer = 0;
-	fc.flight.max_alt = -32678;
- 	fc.flight.min_alt = 32677;
- 	fc.flight.max_climb = 0;
- 	fc.flight.max_sink = 0;
-	fc.flight.min_lat = INT32_MAX;
-	fc.flight.max_lat = INT32_MIN;
-	fc.flight.min_lon = INT32_MAX;
-	fc.flight.max_lon = INT32_MIN;
+    fc.flight.odometer = 0;
+    fc.flight.max_alt = -32678;
+    fc.flight.min_alt = 32677;
+    fc.flight.max_climb = 0;
+    fc.flight.max_sink = 0;
+    fc.flight.min_lat = INT32_MAX;
+    fc.flight.max_lat = INT32_MIN;
+    fc.flight.min_lon = INT32_MAX;
+    fc.flight.max_lon = INT32_MIN;
 
     circling_reset();
 }
@@ -160,33 +159,32 @@ void fc_init()
     fc.lock = osMutexNew(NULL);
     vQueueAddToRegistry(fc.lock, "fc.lock");
 
-	INFO("Flight computer init");
+    INFO("Flight computer init");
 
-	vario_profile_load(config_get_text(&profile.vario.profile));
+    vario_profile_load(config_get_text(&profile.vario.profile));
 
-	fc.history.positions = (fc_pos_history_t *) ps_malloc(sizeof(fc_pos_history_t) * FC_HISTORY_SIZE);
-	fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
+    fc.history.positions = (fc_pos_history_t*) ps_malloc(sizeof(fc_pos_history_t) * FC_HISTORY_SIZE);
+    fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
 
     osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
 
+    fc_reset();
+    logger_init();
+    telemetry_init();
+    wind_init();
 
-	fc_reset();
-	logger_init();
-	telemetry_init();
-	wind_init();
-
-	fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
-	osTimerStart(fc_timer, FC_STEP_PERIOD);
+    fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
+    osTimerStart(fc_timer, FC_STEP_PERIOD);
 
 }
 
 void fc_deinit()
 {
-	INFO("Flight computer deinit");
-	logger_stop();
-	telemetry_stop();
-	osTimerStop(fc.history.timer);
-	osTimerStop(fc_timer);
+    INFO("Flight computer deinit");
+    logger_stop();
+    telemetry_stop();
+    osTimerStop(fc.history.timer);
+    osTimerStop(fc_timer);
 }
 
 void fc_takeoff()
@@ -197,15 +195,15 @@ void fc_takeoff()
 
     if (fc.gnss.fix == 3)
     {
-		fc.flight.start_lat = fc.gnss.latitude;
-		fc.flight.start_lon = fc.gnss.longtitude;
-		fc.flight.takeoff_distance = 0;
+        fc.flight.start_lat = fc.gnss.latitude;
+        fc.flight.start_lon = fc.gnss.longtitude;
+        fc.flight.takeoff_distance = 0;
     }
     else
     {
-    	fc.flight.start_lat = INVALID_INT32;
-    	fc.flight.start_lon = INVALID_INT32;
-    	fc.flight.takeoff_distance = INVALID_UINT32;
+        fc.flight.start_lat = INVALID_INT32;
+        fc.flight.start_lon = INVALID_INT32;
+        fc.flight.takeoff_distance = INVALID_UINT32;
     }
 
     fc.autostart.timestamp = HAL_GetTick();
@@ -223,22 +221,22 @@ void fc_takeoff()
 
 void fc_save_stats()
 {
-	// fc_get_utc_time() casted to uint32_t as ARM's printf does not support 64 bit integer.
-	flight_stats_t f_stat;
+    // fc_get_utc_time() casted to uint32_t as ARM's printf does not support 64 bit integer.
+    flight_stats_t f_stat;
 
-	f_stat.start_time = (uint32_t)fc_get_utc_time() - fc.flight.duration;
-	f_stat.duration = fc.flight.duration;
-	f_stat.max_alt = fc.flight.max_alt;
-	f_stat.min_alt = fc.flight.min_alt;
-	f_stat.max_climb = fc.flight.max_climb;
-	f_stat.max_sink = fc.flight.max_sink;
-	f_stat.odo = fc.flight.odometer/100;     // cm to m
-	f_stat.min_lat = fc.flight.min_lat;
-	f_stat.max_lat = fc.flight.max_lat;
-	f_stat.min_lon = fc.flight.min_lon;
-	f_stat.max_lon = fc.flight.max_lon;
+    f_stat.start_time = (uint32_t) fc_get_utc_time() - fc.flight.duration;
+    f_stat.duration = fc.flight.duration;
+    f_stat.max_alt = fc.flight.max_alt;
+    f_stat.min_alt = fc.flight.min_alt;
+    f_stat.max_climb = fc.flight.max_climb;
+    f_stat.max_sink = fc.flight.max_sink;
+    f_stat.odo = fc.flight.odometer / 100;     // cm to m
+    f_stat.min_lat = fc.flight.min_lat;
+    f_stat.max_lat = fc.flight.max_lat;
+    f_stat.min_lon = fc.flight.min_lon;
+    f_stat.max_lon = fc.flight.max_lon;
 
-	logger_write_flight_stats(f_stat);
+    logger_write_flight_stats(f_stat);
 
 }
 
@@ -263,15 +261,15 @@ void fc_landing()
 void fc_step()
 {
     if (fc.flight.mode == flight_wait_to_takeoff
-    		|| fc.flight.mode == flight_landed)
+            || fc.flight.mode == flight_landed)
     {
         if (config_get_bool(&profile.flight.auto_take_off.alt_change_enabled))
         {
             if (abs(fc.autostart.altitude - fc.fused.altitude1) >
-                config_get_int(&profile.flight.auto_take_off.alt_change_value))
+                    config_get_int(&profile.flight.auto_take_off.alt_change_value))
             {
-            	if (!fc.autostart.wait_for_manual_change)
-            		fc_takeoff();
+                if (!fc.autostart.wait_for_manual_change)
+                    fc_takeoff();
             }
         }
 
@@ -280,7 +278,7 @@ void fc_step()
             if (fc.gnss.fix == 3)
             {
                 if (fc.gnss.ground_speed >
-                    config_get_int(&profile.flight.auto_take_off.speed_value))
+                        config_get_int(&profile.flight.auto_take_off.speed_value))
                 {
                     fc_takeoff();
                 }
@@ -303,7 +301,7 @@ void fc_step()
         if (config_get_bool(&profile.flight.auto_landing.alt_change_enabled))
         {
             if (abs(fc.autostart.altitude - fc.fused.altitude1) >
-                config_get_int(&profile.flight.auto_landing.alt_change_value))
+                    config_get_int(&profile.flight.auto_landing.alt_change_value))
             {
                 fc.autostart.timestamp = HAL_GetTick();
                 fc.autostart.altitude = fc.fused.altitude1;
@@ -316,7 +314,7 @@ void fc_step()
             if (fc.gnss.fix == 3)
             {
                 if (fc.gnss.ground_speed >
-                    config_get_int(&profile.flight.auto_landing.speed_value))
+                        config_get_int(&profile.flight.auto_landing.speed_value))
                 {
                     fc.autostart.timestamp = HAL_GetTick();
                 }
@@ -324,18 +322,24 @@ void fc_step()
             }
         }
 
-        if (fc.fused.altitude1 > fc.flight.max_alt) 	fc.flight.max_alt = fc.fused.altitude1;
-        if (fc.fused.altitude1 < fc.flight.min_alt) 	fc.flight.min_alt = fc.fused.altitude1;
+        if (fc.fused.altitude1 > fc.flight.max_alt)
+            fc.flight.max_alt = fc.fused.altitude1;
+
+        if (fc.fused.altitude1 < fc.flight.min_alt)
+            fc.flight.min_alt = fc.fused.altitude1;
+
         int16_t t_vario = fc.fused.vario * 100;         // meter/s -> cm/s
-        if (t_vario > fc.flight.max_climb) 	fc.flight.max_climb = t_vario;
-        if (t_vario < fc.flight.max_sink) 	fc.flight.max_sink = t_vario;
-            if (fc.gnss.fix == 3)
-{
-        fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
-        fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
-        fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.longtitude);
-        fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
-}
+        if (t_vario > fc.flight.max_climb)
+            fc.flight.max_climb = t_vario;
+        if (t_vario < fc.flight.max_sink)
+            fc.flight.max_sink = t_vario;
+        if (fc.gnss.fix == 3)
+        {
+            fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
+            fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
+            fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.longtitude);
+            fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
+        }
 
         if (check)
         {
@@ -348,81 +352,81 @@ void fc_step()
 
     }
 
-	//glide ratio
-	//when you have GNSS, baro and speed is higher than 2km/h and you are sinking <= -0.01
-	if (fc.gnss.fix == 3
-			&& fc.fused.status == fc_dev_ready
-			&& fc.gnss.ground_speed > FC_GLIDE_MIN_SPEED
-			&& fc.fused.gr_vario <= FC_GLIDE_MIN_SINK)
-	{
-		fc.fused.glide_ratio = fc.gnss.ground_speed  / abs(fc.fused.gr_vario);
-	}
-	else
-	{
-		fc.fused.glide_ratio = NAN;
-	}
+    //glide ratio
+    //when you have GNSS, baro and speed is higher than 2km/h and you are sinking <= -0.01
+    if (fc.gnss.fix == 3
+            && fc.fused.status == fc_dev_ready
+            && fc.gnss.ground_speed > FC_GLIDE_MIN_SPEED
+            && fc.fused.gr_vario <= FC_GLIDE_MIN_SINK)
+    {
+        fc.fused.glide_ratio = fc.gnss.ground_speed / abs(fc.fused.gr_vario);
+    }
+    else
+    {
+        fc.fused.glide_ratio = NAN;
+    }
 
-	navigation_step();
-	circling_step();
-	agl_step();
-	wind_step();
+    navigation_step();
+    circling_step();
+    agl_step();
+    wind_step();
 }
 
-void fc_device_status(char * buff, fc_device_status_t status)
+void fc_device_status(char *buff, fc_device_status_t status)
 {
-    switch(status)
+    switch (status)
     {
-        case(fc_dev_init):
+        case (fc_dev_init):
             strcpy(buff, "Device init");
         break;
 
-        case(fc_dev_ready):
+        case (fc_dev_ready):
             strcpy(buff, "Device ready");
         break;
 
-        case(fc_dev_error):
+        case (fc_dev_error):
             strcpy(buff, "Device error");
         break;
 
-        case(fc_device_not_calibrated):
+        case (fc_device_not_calibrated):
             strcpy(buff, "Not calibrated");
         break;
 
-        case(fc_dev_off):
+        case (fc_dev_off):
             strcpy(buff, "Device disabled");
         break;
 
         default:
-        break;
+            break;
     }
 }
 
 void fc_set_time(uint32_t datetime)
 {
-	uint8_t hour;
-	uint8_t minute;
-	uint8_t second;
-	uint8_t day;
-	uint8_t month;
-	uint16_t year;
-	uint8_t wday;
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    uint8_t day;
+    uint8_t month;
+    uint16_t year;
+    uint8_t wday;
 
-	datetime_from_epoch(datetime, &second, &minute, &hour, &day, &wday, &month, &year);
+    datetime_from_epoch(datetime, &second, &minute, &hour, &day, &wday, &month, &year);
 
-	rtc_set_time(hour, minute, second);
-	rtc_set_date(day, wday, month, year);
+    rtc_set_time(hour, minute, second);
+    rtc_set_date(day, wday, month, year);
 }
 
 void fc_set_time_from_utc(uint32_t datetime)
 {
-	int64_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
-	fc_set_time(datetime + delta);
+    int64_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
+    fc_set_time(datetime + delta);
 }
 
 uint64_t fc_get_utc_time()
 {
-	int64_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
-	return rtc_get_epoch() - delta;
+    int64_t delta = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
+    return rtc_get_epoch() - delta;
 }
 
 float fc_alt_to_qnh(float alt, float pressure)
@@ -442,11 +446,11 @@ float fc_alt_to_press(float alt, float qnh)
 
 void fc_manual_alt1_change(float val)
 {
-	kalman_configure(val);
+    kalman_configure(val);
 
     if (fc.flight.mode != flight_flight)
     {
-    	fc.autostart.altitude = val;
-    	fc.autostart.wait_for_manual_change = true;
+        fc.autostart.altitude = val;
+        fc.autostart.wait_for_manual_change = true;
     }
 }

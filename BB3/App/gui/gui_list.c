@@ -26,6 +26,24 @@ lv_obj_t * gui_list_get_entry(uint16_t index)
 	}
 }
 
+uint16_t gui_list_size()
+{
+    uint16_t cnt = 1;
+
+    lv_obj_t * child = NULL;
+    while (1)
+    {
+        child = lv_obj_get_child_back(gui.list.content, child);
+
+        if (child == NULL)
+            return cnt;
+
+        cnt++;
+    }
+
+    return cnt;
+}
+
 uint16_t gui_list_index(lv_obj_t * obj)
 {
 	//get top parent

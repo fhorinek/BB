@@ -471,6 +471,7 @@ void flightbook_statistics_load_task(void *param)
 
     gui_low_priority(false);
 
+    RedTaskUnregister();
     vTaskDelete(NULL);
 }
 

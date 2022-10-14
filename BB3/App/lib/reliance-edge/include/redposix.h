@@ -198,6 +198,9 @@ char *red_getcwd(char *pszBuffer, uint32_t ulBufferSize);
 #endif
 REDSTATUS *red_errnoptr(void);
 
+void RedTaskUnregister();
+uint32_t RedTaskRegistered();
+
 #endif /* REDCONF_API_POSIX */
 
 

@@ -6,17 +6,31 @@
 
 REGISTER_TASK_I(map);
 
+static void map_cc_task(void * param)
+{
+    clear_dir(PATH_MAP_CACHE_DIR);
+    for (uint8_t i = 0; i < 9; i++)
+    {
+        gui.map.chunks[i].ready = false;
+    }
+    gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
-void map_cc_dialog_cb(uint8_t res, void * data)
+    gui_low_priority(false);
+    dialog_close();
+
+    RedTaskUnregister();
+    vTaskDelete(NULL);
+}
+
+static void map_cc_dialog_cb(uint8_t res, void * data)
 {
     if (res == dialog_res_yes)
     {
-        clear_dir(PATH_MAP_CACHE_DIR);
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-        gui.map.magic = (gui.map.magic + 1) % 0xFF;
+        dialog_show("Clearing map cache", "Please wait", dialog_progress, NULL);
+        dialog_progress_spin();
+        gui_low_priority(true);
+
+        xTaskCreate((TaskFunction_t)map_cc_task, "map_cc_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
     }
 }
 
@@ -42,7 +56,7 @@ static lv_obj_t * map_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Zoom", &profile.map.zoom_flight, NULL);
     gui_list_auto_entry(list, "Terrain type", &profile.map.alt_range, NULL);
     gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
-    gui_list_auto_entry(list, "Clear cache", CUSTOM_CB, map_cc_cb);
+    gui_list_auto_entry(list, "Clear map cache", CUSTOM_CB, map_cc_cb);
     gui_list_auto_entry(list, "Show FANET on map", &profile.map.show_fanet, NULL);
 
     return list;

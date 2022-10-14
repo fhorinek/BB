@@ -6,7 +6,7 @@
  *
  * The filemanager allows the user to navigate through a file directory, select files and
  * offer additional functionality in a context menu. Here is an overview on how to use it.
- * See specific functions for more detailled information.
+ * See specific functions for more detailed information.
  *
  *
  * To open a filemanager on a specific directory you first "gui_switch_task" to the gui_filemanager
@@ -46,9 +46,21 @@ REGISTER_TASK_IS(filemanager,
 	uint8_t flags;
 	uint8_t level;
 	uint16_t filenames_count;
+	uint32_t inode;
 );
 
-static char filemanager_active_fname[32];
+static char filemanager_active_fname[REDCONF_NAME_MAX];
+
+#define FILEMANAGER_HISTORY     8
+
+typedef struct {
+    uint32_t used;
+    uint32_t inode;
+    uint16_t pos;
+    uint8_t _pad[2];
+} fm_history_node;
+
+static fm_history_node filemanager_history[FILEMANAGER_HISTORY] = {0};
 
 //dst should point to valid space in memory with size at least as path
 bool filemanager_get_filename_no_ext(char * dst, char * path)
@@ -169,6 +181,49 @@ uint8_t filemanager_get_current_level()
 	return local->level;
 }
 
+uint16_t filemanager_retrive_inode_pos(uint32_t inode)
+{
+    for (uint8_t i = 0; i < FILEMANAGER_HISTORY; i++)
+    {
+        if (filemanager_history[i].inode == inode)
+        {
+            return filemanager_history[i].pos;
+        }
+    }
+
+    return 0;
+}
+
+void filemanager_store_inode_pos(uint32_t inode, uint16_t pos)
+{
+    //find inode record
+    for (uint8_t i = 0; i < FILEMANAGER_HISTORY; i++)
+    {
+        if (filemanager_history[i].inode == inode)
+        {
+            filemanager_history[i].pos = pos;
+            filemanager_history[i].used = HAL_GetTick();
+            return;
+        }
+    }
+
+    //find oldest or unused
+    uint32_t oldest = 0xFFFFFFFF;
+    uint8_t index = 0;
+    for (uint8_t i = 0; i < FILEMANAGER_HISTORY; i++)
+    {
+        if (oldest > filemanager_history[i].used)
+        {
+            oldest = filemanager_history[i].used;
+            index = i;
+        }
+    }
+
+    filemanager_history[index].inode = inode;
+    filemanager_history[index].pos = pos;
+    filemanager_history[index].used = HAL_GetTick();
+}
+
 static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CANCEL)
@@ -230,6 +285,16 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
                 local->cb(FM_CB_FOCUS_DIR, new_path);
             else
                 local->cb(FM_CB_FOCUS_FILE, new_path);
+        }
+
+        //store actual file position
+        if (local->inode != 0) //only after local->inode is set at the end of the filemanager_open
+        {
+            lv_obj_t * focused = lv_group_get_focused(gui.input.group);
+            if (focused != NULL)
+            {
+                filemanager_store_inode_pos(local->inode, gui_list_index(focused));
+            }
         }
 	}
 
@@ -332,11 +397,13 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	local->back = back;
 	local->cb = cb;
 	local->filenames_count = 0;
+	local->inode = 0;
 	strncpy(local->path, path, PATH_LEN);
 
 	REDDIR * dir = red_opendir(path);
 	if (dir != NULL)
 	{
+
 		uint16_t cnt = 0;
         while (cnt < FM_FILE_MAX_COUNT)
         {
@@ -422,5 +489,42 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	}
 
 	local->cb(FM_CB_APPEND, "");
+
+    //get dir inode
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        REDSTAT stat;
+        red_fstat(f, &stat);
+        red_close(f);
+
+        local->inode = stat.st_ino;
+    }
+
+	if (local->inode != 0)
+	{
+        //focus previous position
+        uint16_t last_pos = filemanager_retrive_inode_pos(local->inode);
+        lv_obj_t * obj = gui_list_get_entry(last_pos);
+        if (obj != NULL)
+        {
+            gui_focus_child(obj, NULL);
+        }
+        else if (last_pos > 0)
+        {
+            obj = gui_list_get_entry(gui_list_size() - 1);
+            if (obj != NULL)
+            {
+                gui_focus_child(obj, NULL);
+            }
+        }
+	}
+}
+
+//reopen filemanager in the same dir, useful when removing or adding files
+void filemanager_refresh()
+{
+    gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_NONE);
+    filemanager_open(old->path, old->level, old->back, old->flags, old->cb);
 }
 

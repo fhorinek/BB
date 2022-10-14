@@ -12,8 +12,6 @@
 
 REGISTER_TASK_I(profiles);
 
-void profile_pilot_open_fm(bool anim);
-
 void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
 {
     char * path = opt_data;
@@ -29,7 +27,7 @@ void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
-        profile_pilot_open_fm(false);
+        filemanager_refresh();
     }
 
     free(path);
@@ -63,7 +61,7 @@ void profile_pilot_fm_rename_cb(uint8_t res, void * opt_data)
             red_rename(old_path, new_path);
 
             //refresh
-            profile_pilot_open_fm(false);
+            filemanager_refresh();
         }
 
     }
@@ -148,7 +146,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
                 copy_file(path, new_path);
 
                 //refresh
-                profile_pilot_open_fm(false);
+                filemanager_refresh();
                 break;
             }
             break;
@@ -174,23 +172,17 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
     return true;
 }
 
-void profile_pilot_open_fm(bool anim)
-{
-    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
-    filemanager_open(PATH_PILOT_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, profiles_pilot_fm_cb);
-}
-
 static bool profiles_pilot_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        profile_pilot_open_fm(true);
+        gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+        filemanager_open(PATH_PILOT_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, profiles_pilot_fm_cb);
+
         return false;
     }
     return true;
 }
-
-void profile_profile_open_fm(bool anim);
 
 void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
 {
@@ -211,7 +203,7 @@ void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
-        profile_profile_open_fm(false);
+        filemanager_refresh();
     }
 
     free(opt_data);
@@ -252,7 +244,7 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
             red_rename(old_path, new_path);
 
             //refresh
-            profile_profile_open_fm(false);
+            filemanager_refresh();
         }
 
     }
@@ -350,7 +342,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
                 copy_dir(old_path, new_path);
 
                 //refresh
-                profile_profile_open_fm(false);
+                filemanager_refresh();
                 break;
             }
             break;
@@ -376,17 +368,12 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
     return true;
 }
 
-void profile_profile_open_fm(bool anim)
-{
-    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
-    filemanager_open(PATH_PROFILE_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, profiles_profile_fm_cb);
-}
-
 static bool profiles_flight_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        profile_profile_open_fm(true);
+        gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+        filemanager_open(PATH_PROFILE_DIR, 0, &gui_profiles, FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, profiles_profile_fm_cb);
         return false;
     }
     return true;

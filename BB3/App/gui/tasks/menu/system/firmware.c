@@ -46,6 +46,7 @@ void firmware_update_worker(char * path)
     system_reboot();
 
     free(path);
+    RedTaskUnregister();
     vTaskDelete(NULL);
 }
 
