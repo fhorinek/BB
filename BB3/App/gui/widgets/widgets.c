@@ -57,15 +57,15 @@ void widget_dimension_check(widget_slot_t * ws)
 
 bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 {
+    page->number_of_widgets = 0;
+    page->base = NULL;
+    page->widget_slots = NULL;
+
     if (!file_exists(path))
         return false;
 
     int32_t f = red_open(path, RED_O_RDONLY);
     char buff[32];
-
-    page->number_of_widgets = 0;
-    page->base = NULL;
-    page->widget_slots = NULL;
 
     for (;;)
     {
