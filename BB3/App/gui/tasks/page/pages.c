@@ -26,6 +26,8 @@
 #include "shortcuts/actions.h"
 #include "shortcuts/shortcuts.h"
 
+#include <private_key.h>
+
 extern const lv_img_dsc_t tile;
 
 #define MENU_TIMEOUT	2000
@@ -948,6 +950,10 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 
 	local->state = MENU_IDLE;
 	local->active_widget = NULL;
+
+    #ifdef IGC_NO_PRIVATE_KEY
+	    statusbar_msg_add(STATUSBAR_MSG_WARN, "IGC key missing!");
+    #endif
 
 	gui_set_loop_period(50);
 
