@@ -129,6 +129,7 @@ void flightbook_flight_read_task(char * param)
 	dialog_close();
 	gui_low_priority(false);
 
+	RedTaskUnregister();
     vTaskDelete(NULL);
 }
 

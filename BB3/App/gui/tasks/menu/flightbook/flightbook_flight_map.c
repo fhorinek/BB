@@ -375,6 +375,7 @@ void flightbook_flight_map_load_task(void * param)
     dialog_close();
     gui_low_priority(false);
 
+    RedTaskUnregister();
 	vTaskDelete(NULL);
 }
 

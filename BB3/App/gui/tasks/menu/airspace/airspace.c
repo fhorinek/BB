@@ -41,10 +41,12 @@ void airspace_load_task(void * param)
     	fc.airspaces.hidden = hidden;
     	fc.airspaces.mem_used = mem_used;
     }
+    gui_low_priority(false);
     dialog_close();
 
     gui_switch_task(&gui_airspace, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 
+    RedTaskUnregister();
     vTaskDelete(NULL);
 }
 
@@ -59,6 +61,8 @@ bool airspace_fm_cb(uint8_t event, char * path)
 
     	dialog_show("Loading airspace...", tmp, dialog_progress, NULL);
     	dialog_progress_spin();
+
+    	gui_low_priority(true);
 
         xTaskCreate((TaskFunction_t)airspace_load_task, "airspace_load_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
         return false;
