@@ -1,19 +1,15 @@
 Added:
-* Migration assistant FAT->RED
-* Fanet status messages sync with pps
-* FANET radar zoom levels
+* Basic airspace support
 * Flight book with map
 * Flight statistics
-* Basic airspace support
+* FANET radar zoom levels
+* Space invaders (in dev menu)
 
 Changed:
 * Reliance Edge FS
 * USB protocol MTP
-* GUI speed improvments
-* MTP handles count increase
 
 Fixed:
-* Stuck at power off
-* Stuck after migration
-* MTP subdir access on Windows
-* Power drain in power off state
+* Fanet status messages sync with pps
+
+
