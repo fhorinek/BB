@@ -89,6 +89,8 @@ void gui_list_set_pos(gui_task_t * task, uint16_t pos);
 void gui_list_store_pos(gui_task_t * task);
 void gui_list_retrive_pos(gui_task_t * task);
 
+uint16_t gui_list_size();
+
 #define LIST_NOTE_COLOR LV_COLOR_ORANGE
 
 //last created list

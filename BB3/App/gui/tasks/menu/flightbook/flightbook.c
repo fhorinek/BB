@@ -36,13 +36,6 @@ static bool open_flightbook_stat(lv_obj_t * obj, lv_event_t event)
 	return false;
 }
 
-void flightbook_flights_open_fm(bool anim, bool from_left)
-{
-	lv_scr_load_anim_t anim_dir = from_left ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_MOVE_RIGHT;
-    gui_switch_task(&gui_filemanager, (anim) ? anim_dir : LV_SCR_LOAD_ANIM_NONE);
-    filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
-}
-
 static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
 {
     char * path = opt_data;
@@ -58,7 +51,7 @@ static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
         snprintf(text, sizeof(text), "Flight '%s' deleted", name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);                                                                                        
 
-        flightbook_flights_open_fm(false, true);   // refresh
+        filemanager_refresh();
     }
     free(opt_data);
 }
@@ -69,6 +62,7 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
     {
     	//called after the list is populated with files
     	case FM_CB_APPEND:
+    	    //only in root dir
     		if (filemanager_get_current_level() == 0)
     			gui_list_auto_entry(gui.list.list, "Flight statistics", CUSTOM_CB, open_flightbook_stat);
 		break;
@@ -112,7 +106,8 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
 
 void flightbook_open(bool from_left)
 {
-    flightbook_flights_open_fm(true, from_left);
+    gui_switch_task(&gui_filemanager, from_left ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+    filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
 }
 
 

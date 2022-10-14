@@ -92,6 +92,7 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 
 
 	free(packet);
+	RedTaskUnregister();
     vTaskDelete(NULL);
 }
 

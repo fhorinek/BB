@@ -191,7 +191,7 @@
 									<listOptionValue builtIn="false" value="../Core/Inc"/>
 									<listOptionValue builtIn="false" value="../App/lib/SysView/Config"/>
 									<listOptionValue builtIn="false" value="../App/lib/SysView/SEGGER"/>
-									<listOptionValue builtIn="false" value="/home/horinek/git/SkyDrop_vali/skydrop_vali/src"/>
+									<listOptionValue builtIn="false" value="/home/horinek/dev/strato/SkyDrop_vali/skydrop_vali/src"/>
 									<listOptionValue builtIn="false" value="../App/fc/logger"/>
 									<listOptionValue builtIn="false" value="../App"/>
 									<listOptionValue builtIn="false" value="../App/lib"/>

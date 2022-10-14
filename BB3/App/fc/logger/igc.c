@@ -344,7 +344,7 @@ bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos)
 			month = atoi_n(line+7, 2);
 			year  = atoi_n(line+9, 2) + 2000;
 		}
-		if (line[0] == 'B')
+		else if (line[0] == 'B' && line[61] == 'A') //valid B-record
 		{
 			int hour = atoi_n(line+1, 2);
 			int min  = atoi_n(line+3, 2);

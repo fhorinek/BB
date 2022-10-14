@@ -410,6 +410,7 @@ void sd_migrate_worker(void * param)
     osSemaphoreRelease(lock);
     osSemaphoreDelete(lock);
 
+    RedTaskUnregister();
     vTaskDelete(NULL);
 }
 

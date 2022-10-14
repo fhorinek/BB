@@ -117,6 +117,7 @@ void dbg_overlay_tasks_update(uint8_t * packet)
 
     overlay_task_pending = false;
 
+    RedTaskUnregister();
     vTaskDelete(NULL);
 }
 
@@ -154,6 +155,7 @@ static void get_stm_tasks(void * param)
 
     xTaskCreate((TaskFunction_t)dbg_overlay_tasks_update, "dbg_overlay_update", 1024 * 2, (void *)proto_buff, 24, NULL);
 
+    RedTaskUnregister();
     vTaskDelete(NULL);
 }
 
@@ -219,18 +221,18 @@ void dbg_overlay_step()
         if (gui.dbg.lv_info == NULL)
         {
             gui.dbg.lv_info = lv_label_create(lv_layer_sys(), NULL);
-            lv_obj_align(gui.dbg.lv_info, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+            lv_obj_align(gui.dbg.lv_info, NULL, LV_ALIGN_IN_TOP_RIGHT, 0, GUI_STATUSBAR_HEIGHT);
             lv_obj_set_auto_realign(gui.dbg.lv_info, true);
             lv_obj_set_style_local_bg_color(gui.dbg.lv_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
             lv_obj_set_style_local_text_color(gui.dbg.lv_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-            lv_obj_set_style_local_bg_opa(gui.dbg.lv_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_COVER);
+            lv_obj_set_style_local_bg_opa(gui.dbg.lv_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_70);
             lv_obj_set_style_local_pad_left(gui.dbg.lv_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 2);
         }
 
         lv_mem_monitor_t mem;
         lv_mem_monitor(&mem);
 
-        lv_label_set_text_fmt(gui.dbg.lv_info, "%u fps %u%%\n%lu free", gui.fps, 100 - mem.used_pct, mem.free_size);
+        lv_label_set_text_fmt(gui.dbg.lv_info, "RT %u/%u\n%u fps %u%%\n%lu free", RedTaskRegistered(), REDCONF_TASK_COUNT,  gui.fps, 100 - mem.used_pct, mem.free_size);
         lv_obj_move_foreground(gui.dbg.lv_info);
     }
     else

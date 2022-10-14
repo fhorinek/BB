@@ -36,11 +36,11 @@ REGISTER_TASK_I(page_settings,
 bool page_settings_load_page_fm_cb(uint8_t event, char * path);
 void page_settings_close_preview();
 
-void page_settings_open_fm(bool anim)
+void page_settings_open_fm()
 {
     page_settings_close_preview();
 
-    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
+    gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
     char path[PATH_LEN] = {0};
     str_join(path, 3, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile));
     filemanager_open(path, 0, &gui_pages, FM_FLAG_FILTER | FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, page_settings_load_page_fm_cb);
@@ -251,7 +251,8 @@ void page_settings_fm_rename_cb(uint8_t res, void * opt_data)
             red_rename(old_path, new_path);
 
             //refresh
-            page_settings_open_fm(false);
+            page_settings_close_preview();
+            filemanager_refresh();
         }
 
     }
@@ -276,7 +277,8 @@ void page_settings_fm_remove_cb(uint8_t res, void * opt_data)
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
-        page_settings_open_fm(false);
+        page_settings_close_preview();
+        filemanager_refresh();
     }
 
     free(path);
@@ -429,7 +431,8 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
                 copy_file(path, new_path);
 
                 //refresh
-                page_settings_open_fm(false);
+                page_settings_close_preview();
+                filemanager_refresh();
                 break;
             }
             break;
@@ -454,7 +457,7 @@ static bool page_settings_load_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        page_settings_open_fm(true);
+        page_settings_open_fm();
 
         return false;
     }

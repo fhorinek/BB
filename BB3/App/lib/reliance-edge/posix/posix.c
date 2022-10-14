@@ -3710,6 +3710,47 @@ static REDSTATUS TaskRegister(
 
     return ret;
 }
+
+void RedTaskUnregister()
+{
+    uint32_t    ulTaskId = RedOsTaskId();
+    uint32_t    ulIdx;
+
+    REDASSERT(ulTaskId != 0U);
+
+    RedOsMutexAcquire();
+
+    for(ulIdx = 0U; ulIdx < REDCONF_TASK_COUNT; ulIdx++)
+    {
+        if(gaTask[ulIdx].ulTaskId == ulTaskId)
+        {
+            gaTask[ulIdx].ulTaskId = 0U;
+            break;
+        }
+    }
+
+    RedOsMutexRelease();
+}
+
+uint32_t RedTaskRegistered()
+{
+    uint32_t    ulIdx;
+    uint32_t    cnt = 0;
+
+    RedOsMutexAcquire();
+
+    for(ulIdx = 0U; ulIdx < REDCONF_TASK_COUNT; ulIdx++)
+    {
+        if(gaTask[ulIdx].ulTaskId != 0)
+        {
+            cnt++;
+        }
+    }
+
+    RedOsMutexRelease();
+
+    return cnt;
+}
 #endif /* REDCONF_TASK_COUNT > 1U */
 
 
