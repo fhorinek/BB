@@ -148,13 +148,13 @@ static void Map_update(widget_slot_t * slot)
     lv_coord_t h = lv_obj_get_height(local->data.map);
 
     int16_t zoom = config_get_int(&profile.map.zoom_flight);
-    if ( zoom < 0 && fc_recorder_get_recorded_number() == 0 )
+    if (config_get_bool(&profile.map.zoom_fit) && fc_recorder_get_recorded_number() == 0 )
 	{
     	// We have "fit to track" but there is no track:
 		zoom = MAP_ZOOM_RANGE_2km;
 	}
 
-    if ( zoom < 0 )     // Fit to track
+    if (config_get_bool(&profile.map.zoom_fit))     // Fit to track
     {
         // Get bounding box and compute center
         fc_recorder_get_bbox(&fc_rec_min_lat, &fc_rec_max_lat, &fc_rec_min_lon, &fc_rec_max_lon);
@@ -203,9 +203,10 @@ static void Map_update(widget_slot_t * slot)
     if (local->edit != NULL)
      {
       	char buff[32];
-      	int16_t zoom = config_get_int(&profile.map.zoom_flight);
-        if ( zoom >= 0 )
+
+        if (!config_get_bool(&profile.map.zoom_fit))
         {
+            int16_t zoom = config_get_int(&profile.map.zoom_flight);
             uint16_t zoom_p = pow(2, zoom);
             int32_t guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
             format_distance_with_units2(buff, guide_m);
@@ -214,6 +215,7 @@ static void Map_update(widget_slot_t * slot)
         {
             strcpy(buff, "Fit to track");
         }
+
         lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
         lv_obj_t * label_zoom = lv_obj_get_child(base, lv_obj_get_child(base, NULL));
      	lv_label_set_text(label_zoom, buff);
@@ -239,12 +241,6 @@ static void Map_edit(widget_slot_t * slot, uint8_t action)
         }
 
         return;
-    }
-
-    if (action == WIDGET_ACTION_MIDDLE)
-    {
-    	widget_destroy_edit_overlay(local->edit);
-    	local->edit = NULL;
     }
 
     if (action == WIDGET_ACTION_LEFT || action == WIDGET_ACTION_RIGHT || action == WIDGET_ACTION_HOLD)
@@ -290,6 +286,12 @@ static void Map_edit(widget_slot_t * slot, uint8_t action)
 		//INFO("AC %u %lu", local->action_cnt, HAL_GetTick() - local->last_action);
 
 		local->last_action = HAL_GetTick();
+
+	    if (action == WIDGET_ACTION_HOLD)
+	    {
+	        config_set_bool(&profile.map.zoom_fit, !config_get_bool(&profile.map.zoom_fit));
+	        widget_reset_edit_overlay_timer();
+	    }
 
 		int8_t diff = 0;
 		if (action == WIDGET_ACTION_LEFT)

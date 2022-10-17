@@ -165,13 +165,16 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
                         x_width = min(e1, img_dsc->header.w - 1) - x_start;
                     }
 
-                    uint32_t index = img_dsc->header.w * scan_line + x_start;
-                    lv_color_t * color = &((lv_color_t *)img_dsc->data)[index];
-
-                    for (int16_t x = 0; x <= x_width; x++)
+                    if (x_width > 0)
                     {
-                        *color = lv_color_mix(draw_desc->color, *color, draw_desc->opa);
-                        color++;
+                        uint32_t index = img_dsc->header.w * scan_line + x_start;
+                        lv_color_t * color = &((lv_color_t *)img_dsc->data)[index];
+
+                        for (int16_t x = 0; x <= x_width; x++)
+                        {
+                            *color = lv_color_mix(draw_desc->color, *color, draw_desc->opa);
+                            color++;
+                        }
                     }
                 }
 
