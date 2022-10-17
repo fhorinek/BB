@@ -52,6 +52,8 @@ extern const lv_img_dsc_t tile;
 #define PAGE_SWITCH_LEFT	9
 #define PAGE_SWITCH_RIGHT	10
 
+#define PAGE_STOP           11
+
 
 #define PAGE_ANIM_FROM_LEFT		-1
 #define PAGE_ANIM_NONE			0
@@ -243,6 +245,11 @@ void gui_page_set_mode(cfg_entry_t * cfg)
 
 void pages_menu_anim_cb(void * obj, lv_anim_value_t val)
 {
+    if (local->state == PAGE_STOP)
+    {
+        return;
+    }
+
 	lv_style_set_bg_opa(&local->menu_style, LV_STATE_DEFAULT, val * 5);
 	lv_obj_set_x(local->left_menu, val - MENU_RADIUS - MENU_WIDTH);
 	lv_obj_set_x(local->right_menu, LV_HOR_RES - val);
@@ -276,9 +283,13 @@ void pages_splash_anim_cb(void * obj, lv_anim_value_t val)
 
 void pages_anim_menu_in_cb(lv_anim_t * a)
 {
+    if (local->state == PAGE_STOP)
+    {
+        return;
+    }
+
 	local->state = MENU_SHOW;
 	local->timer = HAL_GetTick() + MENU_TIMEOUT;
-	return;
 }
 
 void pages_menu_show()
@@ -1043,6 +1054,7 @@ static void pages_loop()
 
 static void pages_stop()
 {
+    local->state = PAGE_STOP;
 	lv_style_reset(&local->menu_style);
 
 	widgets_deinit_page(local->page);
