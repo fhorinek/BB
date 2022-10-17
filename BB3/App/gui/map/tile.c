@@ -1251,9 +1251,9 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 			if (!(actual->pen_width & BRUSH_TRANSPARENT_FLAG))
 				draw_polygon(gui.map.canvas, points, actual->number_of_points + 1, &brush_draw, MAP_H);
 
-//			gui_lock_acquire();
-//			//lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
-//			gui_lock_release();
+            gui_lock_acquire();
+            lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
+            gui_lock_release();
 
 			free(points);
 		}
