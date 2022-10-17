@@ -4,6 +4,9 @@
 #include "gui/dialog.h"
 #include "gui/gui_list.h"
 
+#include "etc/geo_calc.h"
+#include "etc/format.h"
+
 REGISTER_TASK_I(map);
 
 static void map_cc_task(void * param)
@@ -48,12 +51,26 @@ static bool map_cc_cb(lv_obj_t * obj, lv_event_t event)
 }
 
 
+static void format_zoom(char * buff, float in)
+{
+    int16_t zoom = config_get_int(&profile.map.zoom_flight);
+    uint16_t zoom_p = pow(2, zoom);
+    float guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
+    format_distance_with_units2(buff, guide_m);
+}
+
+static gui_list_slider_options_t scale_opt = {
+    .disp_multi = 1,
+    .step = 1,
+    .format = format_zoom,
+};
 
 static lv_obj_t * map_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Map", &gui_settings, NULL);
 
-    gui_list_auto_entry(list, "Zoom", &profile.map.zoom_flight, NULL);
+    gui_list_auto_entry(list, "Map scale", &profile.map.zoom_flight, &scale_opt);
+    gui_list_auto_entry(list, "Zoom to fit track", &profile.map.zoom_fit, NULL);
     gui_list_auto_entry(list, "Terrain type", &profile.map.alt_range, NULL);
     gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
     gui_list_auto_entry(list, "Clear map cache", CUSTOM_CB, map_cc_cb);

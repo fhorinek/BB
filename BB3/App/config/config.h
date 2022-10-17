@@ -70,7 +70,7 @@
 #define MAP_ALT_RANGE_NORMAL    1
 #define MAP_ALT_RANGE_ALPS      2
 
-#define MAP_ZOOM_RANGE_FIT       -1
+#define MAP_ZOOM_RANGE_FIRST      0
 #define MAP_ZOOM_RANGE_250m      0
 #define MAP_ZOOM_RANGE_500m      1
 #define MAP_ZOOM_RANGE_1km       2
@@ -81,10 +81,6 @@
 #define MAP_ZOOM_RANGE_32km      7
 #define MAP_ZOOM_RANGE_64km      8
 #define MAP_ZOOM_RANGE_LAST      8
-
-#define MAP_ZOOM_MIN    0
-#define MAP_ZOOM_MAX    7
-
 
 typedef struct
 {
@@ -173,6 +169,7 @@ typedef struct
     struct
 	{
         cfg_entry_t zoom_flight;
+        cfg_entry_t zoom_fit;
         cfg_entry_t blur;
         cfg_entry_t alt_range;
         cfg_entry_t show_fanet;

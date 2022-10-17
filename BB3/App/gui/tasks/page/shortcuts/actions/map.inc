@@ -13,7 +13,7 @@ static bool shrt_map_zoom_in_icon(char * icon, char * label)
 {
     int16_t zoom = config_get_int(&profile.map.zoom_flight);
 
-    if (zoom > 0)
+    if (zoom > MAP_ZOOM_RANGE_FIRST)
         strcpy(icon, MD_PLUS_CIRCLE);
     else
         strcpy(icon, "");
@@ -37,7 +37,7 @@ static bool shrt_map_zoom_out_icon(char * icon, char * label)
 {
     int16_t zoom = config_get_int(&profile.map.zoom_flight);
 
-    if (zoom <= MAP_ZOOM_MAX)
+    if (zoom <= MAP_ZOOM_RANGE_LAST)
         strcpy(icon, MD_MINUS_CIRCLE);
     else
         strcpy(icon, "");

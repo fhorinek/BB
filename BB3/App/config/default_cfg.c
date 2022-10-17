@@ -272,7 +272,7 @@ flight_profile_t profile =
         //air_type
         entry_select("fa_ground", FANET_GROUND_TYPE_WALKING, fanet_ground_type),
         //radar_zoom
-        entry_int("fa_zoom", 2, MAP_ZOOM_MIN, MAP_ZOOM_MAX),
+        entry_int("fa_zoom", 2, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
         //use_labes
         entry_bool("fa_labels", true),
     },
@@ -344,7 +344,9 @@ flight_profile_t profile =
 	//map
 	{
         //zoom_flight
-        entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, -1, MAP_ZOOM_RANGE_LAST),
+        entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
+        //zoom_fit
+        entry_bool("zoom_fit", false),
         //zoom_flight
         entry_bool("map_blur", true),
         //alt_range

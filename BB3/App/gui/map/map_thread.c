@@ -140,7 +140,7 @@ void thread_map_start(void *argument)
 
     	int32_t c_lon;
     	int32_t c_lat;
-    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat);
+    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat, &step_lon, &step_lat);
 
     	typedef struct
     	{
@@ -211,10 +211,12 @@ void thread_map_start(void *argument)
     	{
     		if (tiles[i].reload)
     		{
+                gui_low_priority(true);
     			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
     			{
     				tiles[i].reload = false;
     			}
+                gui_low_priority(false);
     		}
     	}
 
@@ -223,7 +225,9 @@ void thread_map_start(void *argument)
     	{
     		if (tiles[i].reload)
     		{
+    		    gui_low_priority(true);
     			tile_generate(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                gui_low_priority(false);
     			break;
     		}
     	}
@@ -233,7 +237,9 @@ void thread_map_start(void *argument)
         {
             if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
             {
+                gui_low_priority(true);
                 tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                gui_low_priority(false);
                 break;
             }
         }
