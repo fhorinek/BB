@@ -107,6 +107,8 @@ void firmware_update_question_cb(uint8_t res, void * data)
     {
         char url[128];
 
+        fc_landing();
+
         snprintf(url, sizeof(url), "%s/%s/fw/%s", config_get_text(&config.system.server_url), config_get_select_text(&config.system.fw_channel), local->new_fw);
 
         local->slot_id = esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, firmware_update_get_file_cb);
