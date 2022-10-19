@@ -94,6 +94,8 @@ static bool widget_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 static lv_obj_t * widget_list_init(lv_obj_t * par)
 {
+    help_set_base("Widgets");
+
 	lv_obj_t * list = gui_list_create(par, "Select widget", NULL, widget_list_cb);
 
 	lv_obj_set_y(list, WIDGET_LIST_PREV_HEIGHT);

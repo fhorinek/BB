@@ -381,6 +381,7 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 	flight_pos_t first_pos, last_pos, pos;
 	int16_t raise;
 
+	f_stat->odo = 0;
 	f_stat->max_climb = 0;
 	f_stat->max_sink = 0;
 	f_stat->min_alt = INT16_MAX;
@@ -413,6 +414,9 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 
 		last_pos = pos;
 	}
+
+	if (f_stat->min_alt == INT16_MAX)
+	    f_stat->min_alt  = FS_NO_DATA;
 
 	f_stat->duration = last_pos.timestamp - f_stat->start_time;
 }

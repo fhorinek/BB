@@ -40,7 +40,9 @@ static bool bluetooth_unpair(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * bluetooth_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Bluetooth", &gui_settings, NULL);
+    help_set_base("Bluetooth");
+
+    lv_obj_t * list = gui_list_create(par, "Bluetooth", &gui_settings, NULL);
 
 	local-> info = gui_list_info_add_entry(list, "", "");
 

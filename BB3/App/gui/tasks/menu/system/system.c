@@ -42,6 +42,8 @@ static bool restore_cb(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * system_init(lv_obj_t * par)
 {
+    help_set_base("System");
+
     lv_obj_t * list = gui_list_create(par, "System", &gui_settings, NULL);
 
     gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);

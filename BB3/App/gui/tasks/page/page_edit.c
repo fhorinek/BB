@@ -51,6 +51,8 @@ REGISTER_TASK_ILS(page_edit,
 	uint8_t page_index;
 );
 
+static char help_id[] = "Editor";
+
 #define PAGE_EDIT_ADD_NEW   0xFF
 
 void page_edit_set_focus(uint8_t index);
@@ -326,15 +328,32 @@ static void page_edit_event_cb(lv_obj_t * obj, lv_event_t event)
 						else
 							page_edit_move_widget(&local->page.widget_slots[local->focus_index ], -1);
                     break;
-
-                    case(LV_KEY_HOME):
-						page_edit_ctx_open(0);
-                    break;
                 }
         	}
 
         }
 		break;
+
+        case LV_EVENT_KEY_RELEASED:
+        {
+            uint32_t key = *((uint32_t*) lv_event_get_data());
+            if (key == LV_KEY_HOME && local->page.number_of_widgets > 0)
+            {
+                page_edit_ctx_open(0);
+            }
+        }
+        break;
+
+        case LV_EVENT_KEY_LONG_PRESSED:
+        {
+            uint32_t key = *((uint32_t*) lv_event_get_data());
+            if (key == LV_KEY_HOME)
+            {
+                if (help_avalible(help_id))
+                    help_show(help_id);
+            }
+        }
+        break;
     }
 
 }
@@ -542,6 +561,9 @@ static lv_obj_t * page_edit_init(lv_obj_t * par)
     //ctx menu
     ctx_show();
     ctx_set_cb(page_edit_ctx_cb);
+
+    help_set_base("Page");
+    help_show_icon_if_avalible(help_id);
 
     //dummy cb
     gui_set_dummy_event_cb(par, page_edit_event_cb);

@@ -44,6 +44,8 @@ static void wifi_loop()
 
 static lv_obj_t * wifi_init(lv_obj_t * par)
 {
+    help_set_base("Wifi");
+
 	lv_obj_t * list = gui_list_create(par, "WiFi settings", &gui_settings, wifi_cb);
 
 	gui_list_auto_entry(list, "Enable",	&profile.wifi.enabled, NULL);

@@ -134,6 +134,8 @@ bool page_autoset_event_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 lv_obj_t * page_autoset_init(lv_obj_t * par)
 {
+    help_set_base("Page/Autoset");
+
 	lv_obj_t * list = gui_list_create(par, "Page autoset", NULL, page_autoset_event_cb);
 
 	local->note = gui_list_note_add_entry(list, "", LV_COLOR_BLACK);

@@ -7,6 +7,8 @@ REGISTER_TASK_I(pilot);
 
 static lv_obj_t * pilot_init(lv_obj_t * par)
 {
+    help_set_base("Pilot");
+
 	lv_obj_t * list = gui_list_create(par, "Pilot", &gui_profiles, NULL);
 
     gui_list_auto_entry(list, "Pilot name", &pilot.name, NULL);

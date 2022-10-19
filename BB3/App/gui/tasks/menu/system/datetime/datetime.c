@@ -105,7 +105,7 @@ void datetime_loop()
 
 lv_obj_t * datetime_init(lv_obj_t * par)
 {
-	DBG("settings init");
+	help_set_base("System/Time");
 
 	lv_obj_t * list = gui_list_create(par, "Time & date", &gui_system, datetime_cb);
 

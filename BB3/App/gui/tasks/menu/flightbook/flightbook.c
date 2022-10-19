@@ -60,7 +60,12 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
 {
     switch (event)
     {
-    	//called after the list is populated with files
+        //called after the list is populated with files
+        case FM_CB_INIT:
+            help_set_base("Flightbook");
+        break;
+
+        //called after the list is populated with files
     	case FM_CB_APPEND:
     	    //only in root dir
     		if (filemanager_get_current_level() == 0)

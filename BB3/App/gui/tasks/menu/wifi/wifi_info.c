@@ -32,6 +32,8 @@ static void wifi_info_loop()
 
 static lv_obj_t * wifi_info_init(lv_obj_t * par)
 {
+    help_set_base("Wifi/Info");
+
 	lv_obj_t * list = gui_list_create(par, "Network info", &gui_wifi, NULL);
 
     local->sta_ip = gui_list_info_add_entry(list, "Client IP", "");

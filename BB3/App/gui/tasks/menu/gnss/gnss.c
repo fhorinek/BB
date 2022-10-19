@@ -31,6 +31,8 @@ static bool gnss_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 lv_obj_t * gnss_init(lv_obj_t * par)
 {
+    help_set_base("GNSS");
+
 	lv_obj_t * list = gui_list_create(par, "GNSS Settings", &gui_settings, gnss_cb);
 
 	local->label_status = gui_list_info_add_entry(list, "Status", "");

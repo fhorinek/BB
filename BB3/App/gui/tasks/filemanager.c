@@ -298,7 +298,12 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
         }
 	}
 
-	if (event == LV_EVENT_KEY)
+    if (event == LV_EVENT_KEY_LONG_PRESSED)
+    {
+        return true;
+    }
+
+	if (event == LV_EVENT_KEY_RELEASED)
 	{
 		uint32_t key = *((uint32_t *) lv_event_get_data());
 		if (key == LV_KEY_HOME && ctx_is_active())
@@ -400,6 +405,8 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	local->inode = 0;
 	strncpy(local->path, path, PATH_LEN);
 
+    local->cb(FM_CB_INIT, path);
+
 	REDDIR * dir = red_opendir(path);
 	if (dir != NULL)
 	{
@@ -488,7 +495,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 	}
 
-	local->cb(FM_CB_APPEND, "");
+	local->cb(FM_CB_APPEND, path);
 
     //get dir inode
     int32_t f = red_open(path, RED_O_RDONLY);

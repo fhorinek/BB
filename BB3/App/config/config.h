@@ -301,6 +301,7 @@ typedef struct
         cfg_entry_t crash_dump;
         cfg_entry_t crash_reporting;
         cfg_entry_t crash_reporting_url;
+        cfg_entry_t help_show_id;
 	} debug;
 } config_t;
 

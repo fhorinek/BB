@@ -86,6 +86,8 @@ static bool shortcuts_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 lv_obj_t * shortcuts_init(lv_obj_t * parent)
 {
+    help_set_base("Shortcuts");
+
     lv_obj_t * list = gui_list_create(parent, "", NULL, shortcuts_cb);
     return list;
 }

@@ -382,6 +382,8 @@ static bool profiles_flight_cb(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * profiles_init(lv_obj_t * par)
 {
+    help_set_base("Profile");
+
 	lv_obj_t * list = gui_list_create(par, "Pilot & Flight profile", &gui_settings, NULL);
 
 //	gui_list_auto_entry(list, "Ask on startup", &config.ask_on_start, NULL);

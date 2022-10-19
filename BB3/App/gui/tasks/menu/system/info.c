@@ -87,6 +87,8 @@ void info_loop()
 
 lv_obj_t * info_init(lv_obj_t * par)
 {
+    help_set_base("System/Info");
+
 	local->click_cnt = 0;
 
     lv_obj_t * list = gui_list_create(par, "Device info", &gui_system, NULL);

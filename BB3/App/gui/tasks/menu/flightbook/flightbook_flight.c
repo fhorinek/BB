@@ -164,6 +164,8 @@ static bool flightbook_flight_map_cb(lv_obj_t * obj, lv_event_t event, uint16_t 
 
 static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 {
+    help_set_base("Flightbook/Flight");
+
 	lv_obj_t * list = gui_list_create(par, "", NULL, flightbook_flight_cb);
 
 	//we want to use custom callback so we can pass another parameters

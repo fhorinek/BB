@@ -67,7 +67,9 @@ static gui_list_slider_options_t scale_opt = {
 
 static lv_obj_t * map_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Map", &gui_settings, NULL);
+    help_set_base("Map");
+
+    lv_obj_t * list = gui_list_create(par, "Map", &gui_settings, NULL);
 
     gui_list_auto_entry(list, "Map scale", &profile.map.zoom_flight, &scale_opt);
     gui_list_auto_entry(list, "Zoom to fit track", &profile.map.zoom_fit, NULL);

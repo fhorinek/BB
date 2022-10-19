@@ -18,6 +18,8 @@ gui_list_slider_options_t vol_opt = {
 
 static lv_obj_t * audio_init(lv_obj_t * par)
 {
+    help_set_base("Audio");
+
 	lv_obj_t * list = gui_list_create(par, "Audio", &gui_settings, NULL);
 
 	gui_list_auto_entry(list, "Master volume", &profile.audio.master_volume, &vol_opt);

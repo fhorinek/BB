@@ -186,6 +186,9 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
+#define PATH_HELP_DIR       PATH_SYSTEM_DIR "/help"
+
+
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
 #define PATH_LOG_CACHE_DIR  PATH_CACHE_DIR "/logs"
 
@@ -311,6 +314,11 @@ do { \
     } \
 } while(0);
 
+
+#define IS_DIGIT(c) ((c) - '0' <= 9U)
+#define IS_ALPHA(c) ((c) >= 'A' && (c) <= 'z')
+#define IS_UPPER(c) ((c) >= 'A' && (c) <= 'Z')
+#define TO_LOWER(c) ((c) + 'a' - 'A')
 
 #include "system/debug_thread.h"
 #include "system/bsod.h"

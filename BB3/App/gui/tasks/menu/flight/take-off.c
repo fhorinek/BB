@@ -29,6 +29,8 @@ static gui_list_slider_options_t time_param = {
 
 static lv_obj_t * take_off_init(lv_obj_t * par)
 {
+    help_set_base("Flight/Takeoff");
+
 	lv_obj_t * list = gui_list_create(par, "Automatic Take-off", &gui_flight, NULL);
 
 	gui_list_auto_entry(list, "Use altitude", &profile.flight.auto_take_off.alt_change_enabled, NULL);

@@ -215,6 +215,8 @@ static bool firmware_serial_release_note_cb(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * firmware_init(lv_obj_t * par)
 {
+    help_set_base("System/Firmware");
+
     lv_obj_t * list = gui_list_create(par, "Device firmware", &gui_system, NULL);
 
     char rev_str[20];
