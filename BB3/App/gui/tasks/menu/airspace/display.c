@@ -17,6 +17,8 @@ static gui_list_slider_options_t show_bellow_opt = {
 
 static lv_obj_t * aispace_display_init(lv_obj_t * par)
 {
+    help_set_base("Airspace/Display");
+
 	lv_obj_t * list = gui_list_create(par, "Enabled airspaces", &gui_airspace, NULL);
 
 	gui_list_auto_entry(list, "Class A", &profile.airspace.display.class_A, NULL);

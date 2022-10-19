@@ -552,5 +552,7 @@ config_t config =
         entry_bool("dbg_crash_reporting", true),
         //crash reporting URL
         entry_text("dbg_crash_url", "https://strato.skybean.eu/metrics/crash", CRASH_REPORTING_URL_LEN, 0),
+        //help_show_id
+        entry_bool("dbg_help", false),
 	},
 };

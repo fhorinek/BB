@@ -17,5 +17,6 @@
 #define MD_BATTERY_CHARGING 	"\xf3\xb0\x82\x84"
 #define MD_FLASHLIGHT       	"\xf3\xb0\x89\x84"
 #define MD_FLASHLIGHT_OFF   	"\xf3\xb0\x89\x85"
+#define MD_HELP_CIRCLE      	"\xf3\xb0\x8b\x97"
 
 #endif

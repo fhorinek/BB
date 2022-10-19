@@ -6,6 +6,7 @@
 #include "fc/airspaces/airspace.h"
 #include "fc/fc.h"
 #include "gui/tasks/page/pages.h"
+#include "gui/dialog.h"
 
 REGISTER_TASK_I(airspace);
 
@@ -113,6 +114,8 @@ static bool airspace_unload_cb(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * airspace_init(lv_obj_t * par)
 {
+    help_set_base("Airspace");
+
 	lv_obj_t * list = gui_list_create(par, "Airspace settings", &gui_settings, NULL);
 
 	if (strlen(config_get_text(&profile.airspace.filename)) == 0)

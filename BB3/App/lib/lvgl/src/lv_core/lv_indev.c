@@ -646,8 +646,19 @@ static void indev_encoder_proc(lv_indev_t * i, lv_indev_data_t * data)
             /*Send the ESC as a normal KEY*/
             lv_group_send_data(g, LV_KEY_ESC);
 
+            //strato custom signal for release
+            lv_event_send(indev_obj_act, LV_EVENT_KEY_PRESSED, &data->key);
+
+
             lv_event_send(indev_obj_act, LV_EVENT_CANCEL, NULL);
             if(indev_reset_check(&i->proc)) return;
+        }
+        else if(data->key == LV_KEY_HOME) {
+            //strato custom signal for pressing
+            lv_event_send(indev_obj_act, LV_EVENT_KEY_PRESSED, &data->key);
+
+            lv_group_send_data(g, data->key);
+            return;
         }
         /*Just send other keys to the object (e.g. 'A' or `LV_GROUP_KEY_RIGHT`)*/
         else {
@@ -680,6 +691,9 @@ static void indev_encoder_proc(lv_indev_t * i, lv_indev_data_t * data)
                     lv_event_send(indev_obj_act, LV_EVENT_LONG_PRESSED, NULL);
                     if(indev_reset_check(&i->proc)) return;
 //                }
+            } else if(data->key == LV_KEY_HOME || data->key == LV_KEY_ESC) {
+                //Strato custom signal for long press
+                lv_event_send(indev_obj_act, LV_EVENT_KEY_LONG_PRESSED, &data->key);
             }
 
             i->proc.long_pr_sent = 1;
@@ -756,6 +770,11 @@ static void indev_encoder_proc(lv_indev_t * i, lv_indev_data_t * data)
             else if(editable && !g->editing && !i->proc.long_pr_sent) {
                 lv_group_set_editing(g, true); /*Set edit mode*/
             }
+        }
+        else if(data->key == LV_KEY_HOME || data->key == LV_KEY_ESC)
+        {
+            //Strato custom signal for release
+            lv_event_send(indev_obj_act, LV_EVENT_KEY_RELEASED, &data->key);
         }
 
         i->proc.pr_timestamp = 0;

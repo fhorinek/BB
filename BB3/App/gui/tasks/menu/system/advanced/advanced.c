@@ -132,6 +132,8 @@ static bool advanced_crash_cb(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * advanced_init(lv_obj_t * par)
 {
+    help_set_base("System/Advanced");
+
     lv_obj_t * list = gui_list_create(par, "Advanced settings", &gui_system, NULL);
 
     if (fc.imu.status != fc_dev_ready)

@@ -6,6 +6,8 @@ REGISTER_TASK_I(units);
 
 lv_obj_t * units_init(lv_obj_t * par)
 {
+    help_set_base("System/Units");
+
     lv_obj_t * list = gui_list_create(par, "Units", &gui_system, NULL);
 
     gui_list_auto_entry(list, "Altitude", &config.units.altitude, NULL);

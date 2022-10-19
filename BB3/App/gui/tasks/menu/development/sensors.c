@@ -24,6 +24,8 @@ REGISTER_TASK_IL(sensors,
 
 lv_obj_t * sensors_init(lv_obj_t * par)
 {
+    help_set_base("Development/Sens");
+
 	lv_obj_t * list = gui_list_create(par, "Sensors", &gui_development, NULL);
 
     char value[32];

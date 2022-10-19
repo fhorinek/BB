@@ -19,6 +19,7 @@
 #include "drivers/tft/tft.h"
 
 #include "gui/dialog.h"
+
 #include "drivers/rev.h"
 
 #include "gui/dbg_overlay.h"
@@ -157,6 +158,7 @@ void gui_inject_function(gui_injected_function_t f)
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 {
 	gui_list_store_pos(gui.task.actual);
+	help_unset();
 
 	gui.input.focus = NULL;
 
@@ -186,8 +188,8 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 	gui_set_loop_period(GUI_DEFAULT_LOOP_SPEED);
 
 	//init new screen
+    gui.task.actual = next;
 	lv_obj_t * screen = gui_task_create(next);
-	gui.task.actual = next;
 
 	//switch screens
 	lv_scr_load_anim(screen, anim, GUI_TASK_SW_ANIMATION, 0, true);
@@ -249,6 +251,8 @@ void gui_init()
     gui.page_queue = xQueueCreate(GUI_QUEUE_SIZE, sizeof(void *));
     dbg_overlay_init();
 	gui_init_styles();
+
+    help_init_gui();
 
 	//create statusbar
 	statusbar_create();

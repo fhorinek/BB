@@ -11,6 +11,8 @@
 #include "common.h"
 #include "lib/lvgl/lvgl.h"
 
+#include "gui/help/help.h"
+
 #include "gui/images/images.h"
 #include "gui/fonts/md_icons.h"
 
@@ -174,6 +176,14 @@ typedef struct
         bool active;
         uint8_t _pad[1];
 	} dialog;
+
+	//help
+	struct
+	{
+        lv_obj_t * window;
+        lv_group_t * group;
+        lv_obj_t * icon;
+	} help;
 
 	//statusbar
 	struct

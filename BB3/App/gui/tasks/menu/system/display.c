@@ -20,6 +20,8 @@ static gui_list_slider_options_t back_param =
 
 lv_obj_t * display_init(lv_obj_t * par)
 {
+    help_set_base("System/Display");
+
 	lv_obj_t * list = gui_list_create(par, "Display Settings", &gui_system, NULL);
 
 	gui_list_auto_entry(list, "Brightness", &config.display.backlight, &back_param);

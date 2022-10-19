@@ -14,6 +14,8 @@ REGISTER_TASK_IL(fanet_settings,
 
 static lv_obj_t * fanet_settings_init(lv_obj_t * par)
 {
+    help_set_base("FANET/Settings");
+
 	lv_obj_t * list = gui_list_create(par, "FANET settings", &gui_fanet, NULL);
 
     gui_list_auto_entry(list, "Enable FANET", &profile.fanet.enabled, NULL);

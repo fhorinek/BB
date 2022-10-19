@@ -42,6 +42,8 @@ static bool open_flightbook(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * settings_init(lv_obj_t * par)
 {
+    help_set_base("Settings");
+
 	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
 
 	gui_list_auto_entry(list, "Flightbook", CUSTOM_CB, open_flightbook);

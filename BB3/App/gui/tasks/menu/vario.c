@@ -64,7 +64,9 @@ static bool vario_profile_cb(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * vario_settings_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Vario settings", &gui_settings, NULL);
+    help_set_base("Vario");
+
+    lv_obj_t * list = gui_list_create(par, "Vario settings", &gui_settings, NULL);
 
 	gui_list_auto_entry(list, "Audio only in flight", &profile.vario.in_flight, NULL);
 	gui_list_auto_entry(list, "Accelerometer gain", &profile.vario.acc_gain, &acc_opt);

@@ -22,6 +22,8 @@ static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 static lv_obj_t * fanet_init(lv_obj_t * par)
 {
+    help_set_base("FANET");
+
 	local->cnt = 0;
 	local->magic = 0;
 

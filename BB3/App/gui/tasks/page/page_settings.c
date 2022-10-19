@@ -635,6 +635,8 @@ static uint16_t hidden_pages_cnt()
 
 static lv_obj_t * page_settings_init(lv_obj_t * par)
 {
+    help_set_base("Page/Settings");
+
     static_prev_par = NULL;
     static_prev_mode = false;
     uint8_t page_cnt = pages_get_count();
