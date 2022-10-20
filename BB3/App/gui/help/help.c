@@ -43,7 +43,7 @@ void help_set_base(char * base_id)
     strcat(help_path, base_id);
 
     INFO("help base_id: %s", help_path);
-    red_mkdir(help_path);
+    red_mkdirs(help_path);
 }
 
 void help_title_to_id(char * id, char * title)
@@ -58,14 +58,33 @@ void help_title_to_id(char * id, char * title)
         if (c == '\0')
             break;
 
-        if (IS_DIGIT(c) || IS_ALPHA(c) || c == ' ')
+        //digit or alpha is ok
+        if (IS_DIGIT(c) || IS_ALPHA(c))
         {
             id[i] = c;
             i++;
         }
+
+        //space is ok
+        if (c == ' ')
+        {
+            if (i != 0) //but not at the beginning
+            {
+                if (id[i - 1] != ' ') //or more spaces together
+                {
+                    id[i] = c;
+                    i++;
+                }
+            }
+        }
+
         r++;
     }
     id[i] = '\0';
+
+    //remove trailing space
+    if (id[i - 1] == ' ')
+        id[i - 1] = '\0';
 }
 
 
@@ -103,7 +122,7 @@ bool help_show_icon_if_avalible_from_title(char * title)
     char id[HELP_ID_LEN];
     help_title_to_id(id, title);
 
-    if (help_avalible(id))
+    if (strlen(id) > 0 && help_avalible(id))
     {
         help_icon_show();
         return true;
@@ -120,7 +139,7 @@ bool help_show_icon_if_avalible(char * id)
     if (help_path[0] == 0)
         return false;
 
-    if (help_avalible(id))
+    if (strlen(id) > 0 && help_avalible(id))
     {
         help_icon_show();
         return true;

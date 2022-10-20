@@ -108,7 +108,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "ESP Watchdog", &config.debug.esp_wdt, NULL);
     gui_list_auto_entry(list, "Show tasks", &config.debug.tasks, NULL);
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
-    gui_list_auto_entry(list, "Show help ids", &config.debug.help_show_id, NULL);
+    gui_list_auto_entry(list, "Add help entries", &config.debug.help_show_id, NULL);
     gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
     gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
     gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);

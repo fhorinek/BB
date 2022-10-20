@@ -301,6 +301,7 @@ void pages_menu_show()
 	lv_obj_set_hidden(local->butt_power, false);
 	lv_anim_set_time(&a, MENU_ANIM_TIME);
 	lv_anim_set_exec_cb(&a, pages_menu_anim_cb);
+	lv_anim_set_var(&a, local->center_menu);
 	lv_anim_set_values(&a, 0, MENU_WIDTH);
 	lv_anim_start(&a);
 	local->state = MENU_IN;
@@ -319,6 +320,7 @@ void pages_menu_hide()
 
 	lv_anim_set_time(&a, MENU_ANIM_TIME);
 	lv_anim_set_exec_cb(&a, pages_menu_anim_cb);
+	lv_anim_set_var(&a, local->center_menu);
 	lv_anim_set_values(&a, MENU_WIDTH, 0);
 	lv_anim_start(&a);
 	local->state = MENU_OUT;
@@ -344,6 +346,7 @@ void pages_splash_show()
 
 	lv_anim_set_time(&a, SPLASH_ANIM_TIME);
 	lv_anim_set_exec_cb(&a, pages_splash_anim_cb);
+	lv_anim_set_var(&a, local->center_menu);
 
 	lv_anim_set_values(&a, lv_obj_get_height(local->mask) / 2, 0);
 	local->mask_param = NULL;
@@ -374,6 +377,7 @@ void pages_splash_hide()
 
 	lv_anim_set_time(&a, SPLASH_ANIM_TIME);
 	lv_anim_set_exec_cb(&a, pages_splash_anim_cb);
+	lv_anim_set_var(&a, local->center_menu);
 
 	lv_anim_set_values(&a, 0, lv_obj_get_height(local->mask) / 2);
 	local->mask_param = NULL;
@@ -829,6 +833,7 @@ void pages_load(char * filename, int8_t anim)
 
 		lv_anim_set_values(&a, LV_HOR_RES * anim, 0);
 		lv_anim_set_exec_cb(&a, pages_switch_anim_cb);
+		lv_anim_set_var(&a, local->center_menu);
 		lv_anim_start(&a);
 		if (anim == PAGE_ANIM_FROM_LEFT)
 			local->state = PAGE_SWITCH_LEFT;
