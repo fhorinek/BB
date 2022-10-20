@@ -186,8 +186,6 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
-#define PATH_HELP_DIR       PATH_SYSTEM_DIR "/help"
-
 
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
 #define PATH_LOG_CACHE_DIR  PATH_CACHE_DIR "/logs"
@@ -207,6 +205,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_BL_FW_MANUAL   "bootloader.fw"
 #define PATH_FANET_FW       PATH_ASSET_DIR "/fanet.xlb"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
+#define PATH_HELP_DIR       PATH_ASSET_DIR "/help"
 #define PATH_TTS_DIR        PATH_ASSET_DIR "/tts/en"
 
 #define PATH_TOPO_DIR       "agl"

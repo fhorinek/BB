@@ -242,8 +242,6 @@ void sd_init()
     red_mkdir(PATH_SYSTEM_DIR);
     //system/fw
     red_mkdir(PATH_FW_DIR);
-    //system/help
-    red_mkdir(PATH_HELP_DIR);
     //system/temp
     if (red_mkdir(PATH_TEMP_DIR) != 0)
         clear_dir(PATH_TEMP_DIR);
@@ -252,6 +250,8 @@ void sd_init()
     red_mkdir(PATH_ASSET_DIR);
     //system/assets/defaults
     red_mkdir(PATH_DEFAULTS_DIR);
+    //system/assets/help
+    red_mkdir(PATH_HELP_DIR);
 
     //system/cache
     red_mkdir(PATH_CACHE_DIR);
