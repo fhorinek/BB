@@ -46,6 +46,8 @@
 #include "config/db.h"
 #include "common_gpio.h"
 
+// lvgl_i18n
+#include "lv_i18n/lv_i18n.h"
 
 typedef union
 {
