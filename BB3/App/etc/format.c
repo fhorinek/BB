@@ -116,6 +116,7 @@ void format_vario(char * val, float in)
     switch (config_get_select(&config.units.vario))
     {
         case(VARIO_MPS):
+        default:
             value = in * 10;
         break;
         case(VARIO_KN):
@@ -171,11 +172,13 @@ void format_altitude_2(char * buff, float in, uint8_t units)
 
     switch (units)
     {
-        case(ALTITUDE_M):
-            val = in;
-        break;
         case(ALTITUDE_FT):
             val = FC_METER_TO_FEET * in;
+        break;
+
+        case(ALTITUDE_M):
+        default:
+            val = in;
         break;
     }
 
@@ -189,11 +192,13 @@ void format_altitude(char * buff, float in)
 
     switch (config_get_select(&config.units.altitude))
     {
-        case(ALTITUDE_M):
-            val = in;
-        break;
         case(ALTITUDE_FT):
             val = FC_METER_TO_FEET * in;
+        break;
+
+        case(ALTITUDE_M):
+        default:
+            val = in;
         break;
     }
 
@@ -206,11 +211,13 @@ void format_altitude_gain_2(char * buff, float in, uint8_t units)
 
     switch (units)
     {
-        case(ALTITUDE_M):
-            val = in;
-        break;
         case(ALTITUDE_FT):
             val = FC_METER_TO_FEET * in;
+        break;
+
+        case(ALTITUDE_M):
+        default:
+            val = in;
         break;
     }
 
@@ -224,12 +231,15 @@ void format_altitude_gain(char * buff, float in)
 
     switch (config_get_select(&config.units.altitude))
     {
-        case(ALTITUDE_M):
-            val = in;
-        break;
         case(ALTITUDE_FT):
             val = FC_METER_TO_FEET * in;
         break;
+
+        case(ALTITUDE_M):
+        default:
+            val = in;
+        break;
+
     }
 
     sprintf(buff, "%+d", val);
@@ -431,6 +441,7 @@ void format_speed_2(char * val, float in, char * format)
     switch (config_get_select(&config.units.speed))
     {
         case(SPEED_KMH):
+        default:
             value = in * FC_MPS_TO_KPH;
         break;
         case(SPEED_MPH):
@@ -454,6 +465,7 @@ void format_speed(char * val, float in)
     switch (config_get_select(&config.units.speed))
     {
         case(SPEED_KMH):
+        default:
             value = in * FC_MPS_TO_KPH;
         break;
         case(SPEED_MPH):

@@ -115,6 +115,7 @@ void bq25895_step()
 
     uint8_t reg_12 = system_i2c_read8(BQ_ADR, 0x12);
     uint16_t vbus_mamps = reg_12 * 50;
+    (void)vbus_mamps;
 
     if (chrg_status == 0b11)
     {

@@ -444,7 +444,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 
             local->filenames[cnt].date = entry->d_stat.st_atime;
             local->filenames[cnt].mode = entry->d_stat.st_mode;
-            strncpy(&local->filenames[cnt].name, entry->d_name, REDCONF_NAME_MAX);
+            strncpy(local->filenames[cnt].name, entry->d_name, REDCONF_NAME_MAX);
             local->filenames_count++;
 
             cnt++;

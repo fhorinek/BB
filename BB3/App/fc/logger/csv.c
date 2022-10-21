@@ -48,7 +48,7 @@ void csv_write_data()
 
 void csv_start_write()
 {
-	char line[83];
+	char line[100];
 
 	//create file
 	char path[PATH_LEN];

@@ -67,7 +67,7 @@ flasher_ret_t check_update_file(int32_t file)
         }
 
 
-        uint32_t crc;
+        uint32_t crc = 0;
 
         //reset crc unit
         __HAL_CRC_DR_RESET(&hcrc);
@@ -100,7 +100,7 @@ flasher_ret_t check_update_file(int32_t file)
 
         if (chunk.addr != CHUNK_STM_ADDR)
         {
-			crc = HAL_CRC_Accumulate(&hcrc, chunk.name, sizeof(chunk.name));
+			crc = HAL_CRC_Accumulate(&hcrc, (uint32_t *)chunk.name, sizeof(chunk.name));
 			crc = HAL_CRC_Accumulate(&hcrc, &chunk.addr, sizeof(chunk.addr));
 			crc = HAL_CRC_Accumulate(&hcrc, &chunk.size, sizeof(chunk.size));
         }

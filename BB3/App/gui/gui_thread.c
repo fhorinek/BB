@@ -166,7 +166,9 @@ static TaskHandle_t gui_lock_owner = NULL;
 void gui_lock_acquire()
 {
     while(gui.lock == NULL)
+    {
         osDelay(10);
+    }
 
 	if (xTaskGetCurrentTaskHandle() != thread_gui)
 	{
