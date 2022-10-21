@@ -672,35 +672,6 @@ void pages_load(char * filename, int8_t anim)
 	//create new base layer for widgets
 	local->page = (page_layout_t *) malloc(sizeof(page_layout_t));
 
-	if (anim != PAGE_ANIM_NONE)
-	{
-		//create anim
-		lv_anim_t a;
-		lv_anim_init(&a);
-		lv_anim_set_ready_cb(&a, pages_anim_page_switch_cb);
-
-		lv_anim_set_values(&a, LV_HOR_RES * anim, 0);
-		lv_anim_set_exec_cb(&a, pages_switch_anim_cb);
-		lv_anim_start(&a);
-		if (anim == PAGE_ANIM_FROM_LEFT)
-			local->state = PAGE_SWITCH_LEFT;
-		else
-			local->state = PAGE_SWITCH_RIGHT;
-
-	}
-	else
-	{
-		//no animation just delete old page
-		if (local->page_old != NULL)
-		{
-		    widgets_deinit_page(local->page_old);
-
-			lv_obj_del(local->page_old->base);
-			free(local->page_old);
-			local->page_old = NULL;
-		}
-	}
-
 	pages_indicator_show();
 
 	strncpy(local->page_name, filename, sizeof(local->page_name));
@@ -719,8 +690,36 @@ void pages_load(char * filename, int8_t anim)
 		lv_label_set_align(label, LV_LABEL_ALIGN_CENTER);
 	}
 
-
 	lv_obj_move_background(local->page->base);
+
+    if (anim != PAGE_ANIM_NONE)
+    {
+        //create anim
+        lv_anim_t a;
+        lv_anim_init(&a);
+        lv_anim_set_ready_cb(&a, pages_anim_page_switch_cb);
+
+        lv_anim_set_values(&a, LV_HOR_RES * anim, 0);
+        lv_anim_set_exec_cb(&a, pages_switch_anim_cb);
+        lv_anim_start(&a);
+        if (anim == PAGE_ANIM_FROM_LEFT)
+            local->state = PAGE_SWITCH_LEFT;
+        else
+            local->state = PAGE_SWITCH_RIGHT;
+
+    }
+    else
+    {
+        //no animation just delete old page
+        if (local->page_old != NULL)
+        {
+            widgets_deinit_page(local->page_old);
+
+            lv_obj_del(local->page_old->base);
+            free(local->page_old);
+            local->page_old = NULL;
+        }
+    }
 }
 
 static lv_obj_t * pages_init(lv_obj_t * par)
