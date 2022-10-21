@@ -34,7 +34,7 @@ static lv_obj_t * fanet_settings_init(lv_obj_t * par)
 
 static void fanet_settings_loop()
 {
-    char value[32];
+    char value[64];
 
     if (fc.fanet.flarm_expires == 0)
     {

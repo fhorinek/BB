@@ -320,7 +320,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 
 #define LV_FONT_CUSTOM_DECLARE  LV_FONT_DECLARE(lv_font_montserrat_16_ext);
 
-#define LV_THEME_DEFAULT_INCLUDE            <stdint.h>      /*Include a header for the init. function*/
+#define LV_THEME_DEFAULT_INCLUDE            "lib/lv_theme_skybean.h"      /*Include a header for the init. function*/
 #define LV_THEME_DEFAULT_INIT               lv_theme_skybean_init
 #define LV_THEME_DEFAULT_COLOR_PRIMARY      LV_COLOR_WHITE
 #define LV_THEME_DEFAULT_COLOR_SECONDARY    LV_COLOR_GREEN

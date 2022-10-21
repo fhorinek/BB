@@ -56,7 +56,7 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 	char name[PROTO_BT_DEV_NAME_LEN];
 
 	char * tag[] = {"A2DP", "SPP", "BLE"};
-	uint8_t index;
+	uint8_t index = 0;
 
 	if (strlen(packet->dev_name) != 0)
 	{
@@ -100,10 +100,10 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 
 	if (packet->mode & PROTO_BT_MODE_DISCONNECTED)
 	{
-		if (packet->mode & PROTO_BT_MODE_A2DP)
+        if (packet->mode & PROTO_BT_MODE_A2DP)
 		{
 			fc.esp.state &= ~ESP_STATE_BT_A2DP;
-			index = 0;
+            index = 0;
 		}
 
 		if (packet->mode & PROTO_BT_MODE_SPP)
