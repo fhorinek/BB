@@ -6,6 +6,7 @@
 #include "fc/airspaces/airspace.h"
 #include "fc/fc.h"
 #include "gui/tasks/page/pages.h"
+#include "gui/dialog.h"
 
 REGISTER_TASK_I(airspace);
 
@@ -129,7 +130,7 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 		{
 			char tmp[64];
 			snprintf(tmp, sizeof(tmp),
-					"Loaded airspaces: %u\nHidden: %u\nMemory used: %u",
+					"Loaded airspaces: %u\nHidden: %u\nMemory used: %lu",
 					fc.airspaces.loaded, fc.airspaces.hidden, fc.airspaces.mem_used);
 
 			gui_list_info_add_entry(list, "Debug Info", tmp);

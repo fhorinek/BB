@@ -55,6 +55,7 @@ void thread_gnss_start(void *argument)
 		DBG(" ---- Sleep start ---- ");
 		int ret = osThreadFlagsWait(0x01, osFlagsWaitAny, 10);
 		DBG(" ---- Sleep end (%d) ---- ", ret);
+		(void)ret;
 	}
 
     INFO("Done");

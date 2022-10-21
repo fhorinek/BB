@@ -9,7 +9,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lvgl/lv_conf_internal.h"
+#include "lvgl/lvgl.h"
 
 /*********************
  *      DEFINES

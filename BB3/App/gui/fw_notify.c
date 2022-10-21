@@ -11,6 +11,8 @@
 #include "drivers/rev.h"
 
 #include "drivers/esp/download/slot.h"
+#include "drivers/esp/protocol.h"
+
 
 void update_info_cb(uint8_t res, download_slot_t * ds)
 {

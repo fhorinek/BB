@@ -252,7 +252,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 
 //        INFO("Clearing %08X - %08X (%lu) %u", memory_address, memory_address + requested_size, requested_size);
 
-        FASSERT(memory_address >= PSRAM_ADDR && memory_address + requested_size < PSRAM_ADDR + PSRAM_SIZE);
+        FASSERT(memory_address >= (void *)PSRAM_ADDR && memory_address + requested_size < (void *)PSRAM_ADDR + PSRAM_SIZE);
         memset(memory_address, 0x00, requested_size);
 
         ret = memory_address;
