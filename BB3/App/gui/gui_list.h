@@ -63,8 +63,9 @@ void gui_list_note_set_text(lv_obj_t * obj, char * text);
 
 lv_obj_t * gui_list_spacer_add_entry(lv_obj_t * list, uint16_t height);
 
-
 lv_obj_t * gui_list_get_entry(uint16_t index);
+uint16_t gui_list_index(lv_obj_t * obj);
+bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child);
 
 void gui_config_entry_clear();
 void gui_config_entry_add(lv_obj_t * obj, cfg_entry_t * entry, void * params);
@@ -76,9 +77,9 @@ config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj);
 
 lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params);
 void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params);
+void gui_config_entry_textbox_cancel(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params);
-
 void gui_config_config_cb(cfg_entry_t * entry);
 
 void gui_list_set_pos(gui_task_t * task, uint16_t pos);

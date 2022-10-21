@@ -75,7 +75,7 @@ static void clear_bombs()
  */
 static bool is_exploded(lv_obj_t *obj)
 {
-    lv_img_dsc_t *src = lv_img_get_src(obj);
+    lv_img_dsc_t *src = (lv_img_dsc_t *)lv_img_get_src(obj);
 
     return (src == &explosion_img);
 }
@@ -89,14 +89,14 @@ static void restart_aliens() {
             alien = local->alien[x + ALIEN_NUM_X * y];
             switch (y) {
             case 0:
-                image = &alien_1_img;
+                image = (lv_img_dsc_t *)&alien_1_img;
                 break;
             case 1:
             case 2:
-                image = &alien_2_img;
+                image = (lv_img_dsc_t *)&alien_2_img;
                 break;
             default:
-                image = &alien_3_img;
+                image = (lv_img_dsc_t *)&alien_3_img;
                 break;
             }
             lv_img_set_src(alien, image);
@@ -230,7 +230,7 @@ static void move_aliens() {
             lv_color_t color;
             lv_coord_t height;
 
-            lv_img_dsc_t *src = lv_img_get_src(alien);
+            lv_img_dsc_t *src = (lv_img_dsc_t *)lv_img_get_src(alien);
 
             // Switch sprite image:
             lv_img_set_offset_y(alien, src->header.h / 2
