@@ -288,6 +288,7 @@ void gui_low_priority(bool val);
 void gui_inject_function(gui_injected_function_t f);
 
 void release_note_show();
+void gui_load_language();
 
 #define GUI_QUEUE_SIZE 			2
 #define GUI_TASK_SW_ANIMATION	250

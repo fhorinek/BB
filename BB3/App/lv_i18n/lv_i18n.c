@@ -20,6 +20,11 @@ static inline uint32_t op_t(uint32_t val) { UNUSED(val); return 0; }
 static lv_i18n_phrase_t de_de_singulars[] = {
     {"Flightbook", "Flugbuch"},
     {"Airspaces", "Lufträume"},
+    {"Language", "Sprache"},
+    {"Display Settings", "Display-Einstellungen"},
+    {"Brightness", "Helligkeit"},
+    {"Page animation", "Seitenanimation"},
+    {"Battery percent", "Batterieprozent"},
     {NULL, NULL} // End mark
 };
 
@@ -43,8 +48,13 @@ static const lv_i18n_lang_t de_de_lang = {
 };
 
 static lv_i18n_phrase_t sk_sk_singulars[] = {
-    {"Flightbook", "Letová knižka"},
-    {"Airspaces", "vzdušné priestory"},
+    {"Flightbook", "Letové záznamy"},
+    {"Airspaces", "Vzdušné priestory"},
+    {"Language", "Jazyk"},
+    {"Display Settings", "Nastavenie displeja"},
+    {"Brightness", "Jas"},
+    {"Page animation", "Animácie stránok"},
+    {"Battery percent", "Percentá batérie"},
     {NULL, NULL} // End mark
 };
 
@@ -147,7 +157,7 @@ static const char * __lv_i18n_get_text_core(lv_i18n_phrase_t * trans, const char
  * @param msg_id message ID
  * @return the translation of `msg_id` on the set local
  */
-const char * lv_i18n_get_text(const char * msg_id)
+char * lv_i18n_get_text(const char * msg_id)
 {
     if(current_lang == NULL) return msg_id;
 

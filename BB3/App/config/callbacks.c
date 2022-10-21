@@ -164,6 +164,12 @@ static void updates_cb(cfg_entry_t * entry)
         statusbar_set_icon(BAR_ICON_FW, I_HIDE);
 }
 
+static void language_cb(cfg_entry_t * entry)
+{
+    gui_load_language();
+}
+
+
 cfg_callback_pair_t config_callbacks[] =
 {
     {&config.device_name, dev_name_cb},
@@ -188,6 +194,7 @@ cfg_callback_pair_t config_callbacks[] =
     {&profile.fanet.air_type, flarm_config_cb},
     {&profile.fanet.ground_type, flarm_config_cb},
     {&pilot.online_track, flarm_config_cb},
+    {&config.display.language, language_cb}
 };
 
 static bool config_callbacks_enabled = true;

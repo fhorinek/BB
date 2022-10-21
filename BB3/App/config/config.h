@@ -82,6 +82,10 @@
 #define MAP_ZOOM_RANGE_64km      8
 #define MAP_ZOOM_RANGE_LAST      8
 
+#define LANG_EN                  0
+#define LANG_DE                  1
+#define LANG_SK                  2
+
 typedef struct
 {
     cfg_entry_t name;
@@ -258,6 +262,7 @@ typedef struct
         cfg_entry_t backlight_timeout;
         cfg_entry_t bat_per;
         cfg_entry_t page_anim;
+        cfg_entry_t language;
     } display;
 
     struct

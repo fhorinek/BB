@@ -263,13 +263,11 @@ void thread_system_start(void *argument)
     //rtc init
     rtc_init();
 
-    // lv_i18n init
-    lv_i18n_init(lv_i18n_language_pack);
-
 	//load config
 	config_load_all();
 
-	lv_i18n_set_locale("de-DE");
+	//load language
+	gui_load_language();
 
 	uint8_t sec, min, hour, day, wday, month;
 	uint16_t year;
