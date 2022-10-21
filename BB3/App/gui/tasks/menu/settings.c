@@ -44,23 +44,23 @@ lv_obj_t * settings_init(lv_obj_t * par)
 {
     help_set_base("Settings");
 
-	lv_obj_t * list = gui_list_create(par, "Strato settings", &gui_pages, NULL);
+	lv_obj_t * list = gui_list_create(par, _("Strato settings"), &gui_pages, NULL);
 
 	gui_list_auto_entry(list, _("Flightbook"), CUSTOM_CB, open_flightbook);
-	gui_list_auto_entry(list, "Pilot & Flight profile", NEXT_TASK, &gui_profiles);
-	gui_list_auto_entry(list, "Vario", NEXT_TASK, &gui_vario_settings);
-	gui_list_auto_entry(list, "Flight", NEXT_TASK, &gui_flight);
-	gui_list_auto_entry(list, "Audio", NEXT_TASK, &gui_audio);
-	gui_list_auto_entry(list, "Map", NEXT_TASK, &gui_map);
+	gui_list_auto_entry(list, _("Pilot & Flight profile"), NEXT_TASK, &gui_profiles);
+	gui_list_auto_entry(list, _("Vario"), NEXT_TASK, &gui_vario_settings);
+	gui_list_auto_entry(list, _("Flight"), NEXT_TASK, &gui_flight);
+	gui_list_auto_entry(list, _("Audio"), NEXT_TASK, &gui_audio);
+	gui_list_auto_entry(list, _("Map"), NEXT_TASK, &gui_map);
 	gui_list_auto_entry(list, _("Airspaces"), NEXT_TASK, &gui_airspace);
-	gui_list_auto_entry(list, "FANET", NEXT_TASK, &gui_fanet);
-	gui_list_auto_entry(list, "GNSS", NEXT_TASK, &gui_gnss);
-	gui_list_auto_entry(list, "Bluetooth", NEXT_TASK, &gui_bluetooth);
-	gui_list_auto_entry(list, "Wi-Fi", NEXT_TASK, &gui_wifi);
-	gui_list_auto_entry(list, "System", NEXT_TASK, &gui_system);
+	gui_list_auto_entry(list, _("FANET"), NEXT_TASK, &gui_fanet);
+	gui_list_auto_entry(list, _("GNSS"), NEXT_TASK, &gui_gnss);
+	gui_list_auto_entry(list, _("Bluetooth"), NEXT_TASK, &gui_bluetooth);
+	gui_list_auto_entry(list, _("Wi-Fi"), NEXT_TASK, &gui_wifi);
+	gui_list_auto_entry(list, _("System"), NEXT_TASK, &gui_system);
 
 	if (DEVEL_ACTIVE)
-		gui_list_auto_entry(list, "Development", NEXT_TASK, &gui_development);
+		gui_list_auto_entry(list, _("Development"), NEXT_TASK, &gui_development);
 
 	return list;
 }

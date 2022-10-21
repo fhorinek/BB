@@ -54,7 +54,7 @@ int lv_i18n_set_locale(const char * l_name);
  * @param msg_id message ID
  * @return the translation of `msg_id` on the set local
  */
-const char * lv_i18n_get_text(const char * msg_id);
+char * lv_i18n_get_text(const char * msg_id);
 
 /**
  * Get the translation from a message ID and apply the language's plural rule to get correct form
