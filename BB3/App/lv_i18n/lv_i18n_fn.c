@@ -1,5 +1,7 @@
-#include "lv_i18n_fix.h"
+#define DEBUG_LEVEL DBG_DEBUG
 
+#include "lv_i18n_fix.h"
+#include "system/bsod.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Define plural operands
@@ -75,12 +77,40 @@ int lv_i18n_set_locale(const char * l_name)
 static const char * __lv_i18n_get_text_core(lv_i18n_phrase_t * trans, const char * msg_id)
 {
     uint16_t i;
-    for(i = 0; trans[i].msg_id != NULL; i++) {
-        if(trans[i].msg_id == msg_id) {
-            /*The msg_id has found. Check the translation*/
-            if(trans[i].translation) return trans[i].translation;
-        }
+    extern char *bsod_strato_crashed;
+
+    // We expect the compiler to merge all string constants. We check, if
+    // this is really done. If strings are merged, then the address is identical
+    // and comparison is true. This allows for fast strcmp by using ==.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress"
+    if ( bsod_strato_crashed == "** Strato Crashed **" )
+    	{
+		for(i = 0; trans[i].msg_id != NULL; i++) {
+			if(trans[i].msg_id == msg_id) {
+				/*The msg_id has found. Check the translation*/
+				if(trans[i].translation) return trans[i].translation;
+			}
+		}
     }
+    else
+    {
+    	// Strings are not merged. Fall back to slow strcmp.
+		static bool warn_printed = false;
+		if ( !warn_printed )
+			{
+				WARN("lv_i18n strcmp is necessary!");
+				warn_printed = true;
+			}
+
+		for(i = 0; trans[i].msg_id != NULL; i++) {
+			if(strcmp(trans[i].msg_id, msg_id) == 0) {
+				/*The msg_id has found. Check the translation*/
+				if(trans[i].translation) return trans[i].translation;
+			}
+		}
+    }
+#pragma GCC diagnostic pop
 
     return NULL;
 }
