@@ -11,7 +11,7 @@ def pipeline_countries():
     print("  source OSM")
     print("  path %s" % target_file)
 
-    script = "countries.overpass"
+    script = "countries.overpassql"
     
     print("Executing script %s" % script)
 
