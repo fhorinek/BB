@@ -262,6 +262,11 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 
     osSemaphoreRelease(psram_lock);
 
+    if (ret == NULL)
+    {
+        bsod_msg("Unable to allocate more memory.");
+    }
+
     return ret;
 }
 

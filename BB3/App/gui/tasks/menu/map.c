@@ -48,6 +48,19 @@ static bool map_cc_cb(lv_obj_t * obj, lv_event_t event)
 }
 
 
+static bool map_help_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        dialog_show("Help", "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.", dialog_confirm, NULL);
+
+        //supress default handler
+        return false;
+    }
+
+    return true;
+}
+
 
 static lv_obj_t * map_init(lv_obj_t * par)
 {
@@ -58,6 +71,7 @@ static lv_obj_t * map_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
     gui_list_auto_entry(list, "Clear map cache", CUSTOM_CB, map_cc_cb);
     gui_list_auto_entry(list, "Show FANET on map", &profile.map.show_fanet, NULL);
+    gui_list_auto_entry(list, "Help", CUSTOM_CB, map_help_cb);
 
     return list;
 }
