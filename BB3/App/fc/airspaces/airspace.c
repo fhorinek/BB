@@ -524,21 +524,24 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
         }
 
 		//finalize last airspace here
-		if (actual->airspace_class == ac_hidden || actual->number_of_points == 0)
-		{
-			prev->next = NULL;
-			if (actual->name != NULL)
-				ps_free(actual->name);
-			if (actual->number_of_points)
-				free(actual->points);
-			ps_free(actual);
+        if (actual != NULL)
+        {
+            if (actual->airspace_class == ac_hidden || actual->number_of_points == 0)
+            {
+                prev->next = NULL;
+                if (actual->name != NULL)
+                    ps_free(actual->name);
+                if (actual->number_of_points)
+                    free(actual->points);
+                ps_free(actual);
 
-			(*hidden)++;
-		}
-		else
-		{
-			(*mem_used) += airspace_finalise(actual);
-		}
+                (*hidden)++;
+            }
+            else
+            {
+                (*mem_used) += airspace_finalise(actual);
+            }
+        }
 		red_close(f);
     }
     else

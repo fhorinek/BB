@@ -31,19 +31,35 @@ void airspace_load_task(void * param)
 	snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
 
     fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, true);
-    if (fc.airspaces.list != NULL)
-    {
-    	fc.airspaces.valid = true;
-    	for (uint8_t i = 0; i < 9; i++)
-    	{
-    		gui.map.chunks[i].ready = false;
-    	}
-    	fc.airspaces.loaded = loaded;
-    	fc.airspaces.hidden = hidden;
-    	fc.airspaces.mem_used = mem_used;
-    }
+
     gui_low_priority(false);
     dialog_close();
+
+    if (fc.airspaces.list != NULL)
+    {
+        fc.airspaces.valid = true;
+        for (uint8_t i = 0; i < 9; i++)
+        {
+            gui.map.chunks[i].ready = false;
+        }
+        fc.airspaces.loaded = loaded;
+        fc.airspaces.hidden = hidden;
+        fc.airspaces.mem_used = mem_used;
+    }
+    else
+    {
+        dialog_show("Error", "No airspace loaded.\n\nAre you using OpenAir format?", dialog_confirm, NULL);
+        fc.airspaces.valid = false;
+        for (uint8_t i = 0; i < 9; i++)
+        {
+            gui.map.chunks[i].ready = false;
+        }
+        fc.airspaces.loaded = 0;
+        fc.airspaces.hidden = 0;
+        fc.airspaces.mem_used = 0;
+
+        config_set_text(&profile.airspace.filename, "");
+    }
 
     gui_switch_task(&gui_airspace, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 
@@ -112,6 +128,19 @@ static bool airspace_unload_cb(lv_obj_t * obj, lv_event_t event)
 	return true;
 }
 
+static bool airspace_help_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        dialog_show("Help", "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org", dialog_confirm, NULL);
+
+        //supress default handler
+        return false;
+    }
+
+    return true;
+}
+
 static lv_obj_t * airspace_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Airspace settings", &gui_settings, NULL);
@@ -138,7 +167,7 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 	}
 
 	gui_list_auto_entry(list, "Enabled classes", NEXT_TASK, &gui_aispace_display);
-
+    gui_list_auto_entry(list, "Help", CUSTOM_CB, airspace_help_cb);
 
 	return list;
 }
