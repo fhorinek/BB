@@ -77,14 +77,13 @@ int lv_i18n_set_locale(const char * l_name)
 static const char * __lv_i18n_get_text_core(lv_i18n_phrase_t * trans, const char * msg_id)
 {
     uint16_t i;
-    extern char *bsod_strato_crashed;
 
     // We expect the compiler to merge all string constants. We check, if
     // this is really done. If strings are merged, then the address is identical
     // and comparison is true. This allows for fast strcmp by using ==.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress"
-    if ( bsod_strato_crashed == "** Strato Crashed **" )
+    if ( bsod_strato_crashed_msg == BSOD_STRATO_CRASHED_MESSAGE )
     	{
 		for(i = 0; trans[i].msg_id != NULL; i++) {
 			if(trans[i].msg_id == msg_id) {
