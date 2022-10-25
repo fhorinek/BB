@@ -85,7 +85,7 @@ bool fanet_update_firmware()
 
         while (len)
         {
-            uint32_t to_send = min(len, sizeof(chunk.payload));
+            int32_t to_send = min(len, sizeof(chunk.payload));
 
             //read next block
             if (read_next)

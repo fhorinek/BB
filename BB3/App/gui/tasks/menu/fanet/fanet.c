@@ -14,6 +14,7 @@ REGISTER_TASK_IL(fanet,
 
 static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
 
 	return true;
 }

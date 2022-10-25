@@ -247,8 +247,10 @@ void debug_read_bytes(uint8_t * buff, uint16_t len)
 
 
 
-void thread_debug_start(void *argument)
+void thread_debug_start(void * argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_debug);
 
     debug_dma_done = osSemaphoreNew(1, 0, NULL);

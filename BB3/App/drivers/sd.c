@@ -144,18 +144,24 @@ uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlock
 
 void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
 {
+    UNUSED(hsd);
+
 	DBG("Abort");
     osSemaphoreRelease(sd_dma_semaphore);
 }
 
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
+    UNUSED(hsd);
+
 //	INFO("TxC");
     osSemaphoreRelease(sd_dma_semaphore);
 }
 
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
+    UNUSED(hsd);
+
 //	INFO("TxR");
     osSemaphoreRelease(sd_dma_semaphore);
 }

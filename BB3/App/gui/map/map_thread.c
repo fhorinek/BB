@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-//#define DEBUG_LEVEL DEBUG_DBG
+//#define DEBUG_LEVEL DBG_DEBUG
 #include "map_thread.h"
 #include "tile.h"
 
@@ -94,6 +94,8 @@ void map_init()
 
 void thread_map_start(void *argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_map);
 
     INFO("Started");

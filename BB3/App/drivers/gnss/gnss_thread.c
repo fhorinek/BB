@@ -34,8 +34,10 @@ void gnss_uart_rx_irq_idle()
 	DBG("GNSS RX IDLE");
 }
 
-void thread_gnss_start(void *argument)
+void thread_gnss_start(void * argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_gnss);
 
 	INFO("Started");

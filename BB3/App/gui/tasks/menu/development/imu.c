@@ -32,6 +32,8 @@ REGISTER_TASK_IL(imu,
 
 static bool imu_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
+
     if (event == LV_EVENT_CLICKED)
     {
         if (obj == local->log)

@@ -34,6 +34,8 @@ ms_sensor_data_t ms_aux = {.addr  = MS5611_AUX_ADDR};;
 
 void thread_mems_start(void *argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_mems);
 
 	INFO("MEMS started");

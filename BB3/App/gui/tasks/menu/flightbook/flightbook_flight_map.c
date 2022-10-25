@@ -7,7 +7,7 @@
  *  This display a track of a IGC on a map and in an altitude graph.
  */
 
-#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DBG_DEBUG
 
 #include <gui/tasks/menu/flightbook/flightbook_flight_map.h>
 #include <gui/tasks/menu/flightbook/flightbook_flight.h>

@@ -289,7 +289,7 @@ void str_join(char * dst, uint8_t cnt, ...);
 
 #define simple_memcpy(dst, src, len) \
 do { \
-    for (size_t __simple_memcpy_i = 0; __simple_memcpy_i < len; __simple_memcpy_i++) \
+    for (size_t __simple_memcpy_i = 0; __simple_memcpy_i < (size_t)len; __simple_memcpy_i++) \
         ((uint8_t *)dst)[__simple_memcpy_i] = ((uint8_t *)src)[__simple_memcpy_i]; \
 } while(0);
 

@@ -8,7 +8,7 @@
  *      After calling IT transfer the source task will suspend until IT is done
  */
 
-#define DEBUG_LEVEL DEBUG_DBG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "mems_i2c.h"
 

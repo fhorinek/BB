@@ -70,6 +70,8 @@ void page_austoset_dialog_cb(uint8_t res, void * data)
 
 bool page_autoset_event_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
+
 	switch(event)
 	{
 		case (LV_EVENT_CANCEL):

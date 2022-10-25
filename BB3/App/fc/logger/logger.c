@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-// #define DEBUG_LEVEL	DEBUG_DBG
+// #define DEBUG_LEVEL	DBG_DEBUG
 #include "logger.h"
 
 #include <inttypes.h>

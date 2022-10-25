@@ -31,6 +31,9 @@ typedef struct _ram_file_s
 
 static void migrate_fail_cb(uint8_t res, void * data)
 {
+    UNUSED(data);
+    UNUSED(res);
+
     system_reboot_hard();
 }
 
@@ -40,15 +43,6 @@ static bool fatfs_file_exists(char * path)
     return (f_stat(path, &fno) == FR_OK);
 }
 
-static FIL * f = NULL;
-
-void fatfs_bl_clean()
-{
-	if (f != NULL)
-	{
-
-	}
-}
 
 static bootloader_res_t fatfs_bootloader_update(char * path)
 {
@@ -100,7 +94,6 @@ static bootloader_res_t fatfs_bootloader_update(char * path)
             if (br == 0)
             {
                 ERR("Unexpected eof at %lu", pos);
-                fatfs_bl_clean();
                 ps_free(buff);
                 return bl_file_invalid;
             }
@@ -215,7 +208,7 @@ ram_file_t * files_to_ram(ram_file_t * prev, char * path)
                 FIL f;
                 UINT br;
 
-                FRESULT res = f_open(&f, buff, FA_READ);
+                res = f_open(&f, buff, FA_READ);
 
                 if (res == FR_OK)
                 {
@@ -316,7 +309,7 @@ void files_from_ram(ram_file_t * first)
             if (actual->size > 0)
             {
                 int32_t bw = red_write(f, actual->data, actual->size);
-                if (bw != actual->size)
+                if (bw != (int32_t)actual->size)
                     ERR("Unable to write %u != %d, err %d", actual->size, bw, red_errno);
             }
             red_close(f);
@@ -416,6 +409,8 @@ void sd_migrate_worker(void * param)
 
 void sd_migrate_cb(uint8_t res, void * data)
 {
+    UNUSED(data);
+
     if (res == dialog_res_yes)
     {
 		dialog_show("Migrating", "Updating bootloader", dialog_progress, NULL);

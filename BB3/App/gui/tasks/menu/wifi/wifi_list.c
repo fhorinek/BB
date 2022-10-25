@@ -1,5 +1,5 @@
 
-#define DEBUG_LEVEL DEBUG_DBG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include <gui/tasks/menu/wifi/wifi_list.h>
 

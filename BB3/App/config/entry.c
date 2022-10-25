@@ -45,10 +45,12 @@ void entry_set_str(cfg_entry_t * e, char * value)
 				{
 					config_set_select(e, s->value);
 					DBG(">select %s = %u (%s)", e->name_id, s->value, s->name_id);
-					return;
+                    return;
 				}
 			}
 		}
+    return;
+
 	case(ENTRY_TEXT):
 		config_set_text(e, value);
 		DBG(">text %s = '%s'", e->name_id, e->value.str);

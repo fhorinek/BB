@@ -13,6 +13,8 @@ REGISTER_TASK_IL(wifi,
 
 static bool wifi_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
+
 	if (event == LV_EVENT_CLICKED)
 	{
 		if (obj == local->network)

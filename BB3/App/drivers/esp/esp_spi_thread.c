@@ -4,7 +4,7 @@
  *  Created on: 4. 12. 2020
  *      Author: horinek
  */
-#define DEBUG_LEVEL    DEBUG_DBG
+#define DEBUG_LEVEL    DBG_DEBUG
 
 #include "esp.h"
 #include "drivers/esp/protocol.h"
@@ -106,6 +106,8 @@ void esp_parse_spi(uint8_t * data, uint16_t len)
 
 void thread_esp_spi_start(void * argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_esp_spi);
 
     spi_buffer_access = osSemaphoreNew(1, 0, NULL);

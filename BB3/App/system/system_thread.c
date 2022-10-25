@@ -237,8 +237,10 @@ void gui_set_start_page()
     }
 }
 
-void thread_system_start(void *argument)
+void thread_system_start(void * argument)
 {
+    UNUSED(argument);
+
     //Enabling main power
     GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
     GpioWrite(VCC_MAIN_EN, HIGH);

@@ -1317,7 +1317,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
             if (pass)
             {
-                int32_t br = red_read(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
+                br = red_read(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
 
                 if (br != MAP_BUFFER_SIZE)
                 {

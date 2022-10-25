@@ -155,7 +155,7 @@ void airspace_free(airspace_record_t * as)
 	}
 }
 
-airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used, bool gui)
+airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used, bool use_gui)
 {
     INFO("airspace_load %s", path);
 
@@ -192,7 +192,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
                 break;
             }
 
-            if (gui)
+            if (use_gui)
             {
             	pos += strlen(line);
 

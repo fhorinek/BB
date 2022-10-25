@@ -186,7 +186,7 @@ void CrashCatcher_DumpMemory(const void* pvMemory, CrashCatcherElementSizes elem
     if (!file_open)
         return;
 
-    uint32_t len = elementCount * elementSize;
+    int32_t len = elementCount * elementSize;
     total_size += len;
 
     int32_t res;

@@ -4,7 +4,7 @@
  *  Created on: May 6, 2020
  *      Author: horinek
  */
-#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DBG_DEBUG
 
 #include <inttypes.h>
 

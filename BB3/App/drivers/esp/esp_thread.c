@@ -8,8 +8,10 @@ void esp_uart_rx_irq_cb()
 	osThreadFlagsSet(thread_esp, 0x01);
 }
 
-void thread_esp_start(void *argument)
+void thread_esp_start(void * argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_esp);
 
 	INFO("Started");
