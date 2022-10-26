@@ -26,7 +26,7 @@ static void DToff_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "TO distance");
+    	widget_add_title(base, slot, _("TO distance"));
 
     if (widget_flag_is_set(slot, wf_units_hide))
     {
@@ -54,7 +54,7 @@ static void DToff_update(widget_slot_t * slot)
     }
     else
     {
-    	strcpy(value, "No\nstart\npos");
+    	strcpy(value, _("No\nstart\npos"));
 
     	if (local->units != NULL)
     		lv_label_set_text(local->units, "");

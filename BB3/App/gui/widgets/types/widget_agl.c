@@ -42,9 +42,9 @@ static void Agl_update(widget_slot_t * slot)
     char value[16];
 
     if (fc.gnss.fix == 0)
-    	strcpy(value, "No\nGNSS");
+    	strcpy(value, _("No\nGNSS"));
     else if (fc.agl.agl == AGL_INVALID)
-        strcpy(value, "No TOPO\ndata");
+        strcpy(value, _("No TOPO\ndata"));
     else
         format_altitude(value, fc.agl.agl);
 

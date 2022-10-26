@@ -31,9 +31,9 @@ static void TimeDate_init(lv_obj_t * base, widget_slot_t * slot)
     if (!widget_flag_is_set(slot, wf_label_hide))
     {
         if (widget_flag_is_set(slot, wf_alt_unit))
-        	title = "Time/Date";
+        	title = _("Time/Date");
         else
-        	title = "Time";
+        	title = _("Time");
     	widget_add_title(base, slot, title);
     }
 

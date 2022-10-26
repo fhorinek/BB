@@ -23,7 +23,7 @@ static void CompHdg_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Compass");
+    	widget_add_title(base, slot, _("Compass"));
 
     local->value = widget_add_value(base, slot, NULL, NULL);
 
@@ -33,7 +33,7 @@ static void CompHdg_update(widget_slot_t * slot)
 {
     if (fc.imu.status == fc_device_not_calibrated)
     {
-		lv_label_set_text(local->value, "Need\nCalib.");
+		lv_label_set_text(local->value, _("Need\nCalib."));
     }
     else
     {

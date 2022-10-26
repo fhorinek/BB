@@ -26,7 +26,7 @@ static void CompArrow_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Compass");
+    	widget_add_title(base, slot, _("Compass"));
 
     local->text = widget_add_value(base, slot, NULL, NULL);
     local->arrow = widget_add_arrow(base, slot, local->points, NULL, NULL);
@@ -36,7 +36,7 @@ static void CompArrow_update(widget_slot_t * slot)
 {
 	if (fc.imu.status == fc_device_not_calibrated)
 	{
-		lv_label_set_text(local->text, "Need\nCalib.");
+		lv_label_set_text(local->text, _("Need\nCalib."));
 		widget_update_font_size(local->text);
 		lv_obj_set_hidden(local->arrow, true);
 		lv_obj_set_hidden(local->text, false);

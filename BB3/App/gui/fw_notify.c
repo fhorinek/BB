@@ -30,7 +30,7 @@ void update_info_cb(uint8_t res, download_slot_t * ds)
             rev_get_sw_string(rev_str);
             if (!(strncmp(rev_str, new_fw, strlen(rev_str)) == 0 || strlen(new_fw) == 0))
             {
-                snprintf(msg, sizeof(msg), "New firmware\n %s is available.", new_fw);
+                snprintf(msg, sizeof(msg), _("New firmware\n %s is available."), new_fw);
                 statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
                 statusbar_set_icon(BAR_ICON_FW, I_GREEN);
             }

@@ -47,12 +47,12 @@ static bool info_serial_cb(lv_obj_t * obj, lv_event_t event)
     		if (DEVEL_ACTIVE)
     		{
     			red_unlink(DEV_MODE_FILE);
-    			statusbar_msg_add(STATUSBAR_MSG_INFO, "Developer mode disabled");
+    			statusbar_msg_add(STATUSBAR_MSG_INFO, _("Developer mode disabled"));
     		}
     		else
     		{
     			touch(DEV_MODE_FILE);
-    			statusbar_msg_add(STATUSBAR_MSG_INFO, "Developer mode enabled");
+    			statusbar_msg_add(STATUSBAR_MSG_INFO, _("Developer mode enabled"));
     		}
 
     	}
@@ -91,17 +91,17 @@ lv_obj_t * info_init(lv_obj_t * par)
 
 	local->click_cnt = 0;
 
-    lv_obj_t * list = gui_list_create(par, "Device info", &gui_system, NULL);
+    lv_obj_t * list = gui_list_create(par, _("Device info"), &gui_system, NULL);
 
     char value[32];
     lv_obj_t * obj;
 
     snprintf(value, sizeof(value), "%08lX", rev_get_short_id());
-    obj = gui_list_info_add_entry(list, "Serial number", value);
+    obj = gui_list_info_add_entry(list, _("Serial number"), value);
     gui_config_entry_add(obj, CUSTOM_CB, info_serial_cb);
 
     snprintf(value, sizeof(value), "%02X", rev_get_hw());
-    gui_list_info_add_entry(list, "Hardware revision", value);
+    gui_list_info_add_entry(list, _("Hardware revision"), value);
 
     local->fanet = gui_list_info_add_entry(list, "FANET ID", "");
     local->sta_mac = gui_list_info_add_entry(list, "Wi-Fi MAC", "");
