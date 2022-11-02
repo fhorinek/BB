@@ -19,6 +19,7 @@
 typedef struct flight_stats
 {
 	uint32_t start_time;    // in seconds since epoch UTC
+	int32_t  tz_offset;     // timezone offset in seconds
 	uint32_t duration;      // in seconds
 	uint32_t odo;           // in cm
 

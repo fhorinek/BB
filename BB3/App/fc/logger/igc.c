@@ -344,6 +344,10 @@ bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos)
 			month = atoi_n(line+7, 2);
 			year  = atoi_n(line+9, 2) + 2000;
 		}
+		else if (strstr(line, "HFTZNTIMEZONE") == line)
+		{
+			flight_pos->tz_offset = (int32_t)(atof(line+14) * 3600);
+		}
 		else if (line[0] == 'B' && line[61] == 'A') //valid B-record
 		{
 			int hour = atoi_n(line+1, 2);
@@ -394,6 +398,7 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 	igc_read_next_pos(fp, &first_pos);
 
 	f_stat->start_time = first_pos.timestamp;
+	f_stat->tz_offset = first_pos.tz_offset;
 
 	last_pos = first_pos;
 	while ( igc_read_next_pos(fp, &pos) )

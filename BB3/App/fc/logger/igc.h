@@ -19,6 +19,7 @@ void igc_comment(char * text);
 typedef struct flight_pos
 {
 	uint64_t timestamp;
+	int32_t tz_offset;
 	int32_t lat, lon;
 	int16_t gnss_alt;
 	int16_t baro_alt;
