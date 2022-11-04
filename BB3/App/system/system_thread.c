@@ -243,7 +243,10 @@ void thread_system_start(void *argument)
     GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
     GpioWrite(VCC_MAIN_EN, HIGH);
 
-    //start debug thread
+	//init sd card
+	sd_init();
+
+	//start debug thread
     start_thread(thread_debug);
     gui_create_lock();
     config_set_bool(&config.debug.use_serial, true);
@@ -257,8 +260,6 @@ void thread_system_start(void *argument)
     //init PSRAM
     PSRAM_init();
 
-	//init sd card
-	sd_init();
 
     //rtc init
     rtc_init();
