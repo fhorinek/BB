@@ -229,6 +229,7 @@ void fc_save_stats()
     flight_stats_t f_stat;
 
     f_stat.start_time = (uint32_t) fc_get_utc_time() - fc.flight.duration;
+    f_stat.tz_offset = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
     f_stat.duration = fc.flight.duration;
     f_stat.max_alt = fc.flight.max_alt;
     f_stat.min_alt = fc.flight.min_alt;

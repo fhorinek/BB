@@ -75,7 +75,7 @@ void flightbook_flight_read_task(char * param)
 	{
 		uint8_t sec, min, hour, day, wday, month;
 		uint16_t year;
-		datetime_from_epoch(f_stat.start_time, &sec, &min, &hour, &day, &wday, &month, &year);
+		datetime_from_epoch(f_stat.start_time + f_stat.tz_offset, &sec, &min, &hour, &day, &wday, &month, &year);
 
 		format_date(value, day, month, year);
 		gui_list_text2_add_entry(list, "Date", value);
@@ -85,7 +85,7 @@ void flightbook_flight_read_task(char * param)
 
 		if (f_stat.duration != FS_NO_DATA )
 		{
-			datetime_from_epoch(f_stat.start_time + f_stat.duration, &sec, &min, &hour, &day, &wday, &month, &year);
+			datetime_from_epoch(f_stat.start_time + f_stat.tz_offset + f_stat.duration, &sec, &min, &hour, &day, &wday, &month, &year);
 			format_time(value, hour, min);
 			gui_list_text2_add_entry(list, "Landing", value);
 
