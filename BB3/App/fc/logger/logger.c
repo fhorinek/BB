@@ -16,7 +16,7 @@
 #include "igc.h"
 #include "csv.h"
 
-#define STATS_VERSION		2
+#define STATS_VERSION		3
 #define STATS_TOTAL_RECORDS	10
 
 fc_logger_status_t logger_state()
