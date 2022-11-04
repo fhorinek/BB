@@ -218,6 +218,14 @@ cfg_entry_param_select_t map_alt_range_select[] =
     SELECT_END
 };
 
+cfg_entry_param_select_t language_select[] =
+{
+    {LANG_EN, "English"},
+    {LANG_DE, "Deutsch"},
+    {LANG_SK, "Slovensky"},
+    SELECT_END
+};
+
 flight_profile_t profile =
 {
     //ui
@@ -482,6 +490,8 @@ config_t config =
         entry_bool("bat_per", false),
 		//page_anim
         entry_bool("page_anim", true),
+        //language
+        entry_select("language", LANG_EN, language_select),
     },
 
     //time

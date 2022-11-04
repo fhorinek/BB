@@ -20,4 +20,7 @@ void bsod_crash_fail();
 extern char * bsod_msg_ptr;
 #define BSOD_MSG_SIZE   256
 
+extern char *bsod_strato_crashed_msg;
+#define BSOD_STRATO_CRASHED_MESSAGE "** Strato Crashed **"
+
 #endif /* SYSTEM_BSOD_H_ */

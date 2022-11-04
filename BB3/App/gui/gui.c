@@ -57,6 +57,27 @@ void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb)
     lv_obj_set_event_cb(dummy, event_cb);
 }
 
+void gui_load_language()
+{
+    uint8_t id = config_get_select(&config.display.language);
+
+    lv_i18n_init(lv_i18n_language_pack);
+
+    switch (id)
+    {
+        case(LANG_DE):
+            lv_i18n_set_locale("de-DE");
+        break;
+
+        case(LANG_SK):
+            lv_i18n_set_locale("sk-SK");
+        break;
+
+        default:
+            __lv_i18n_reset();
+        break;
+    }
+}
 
 void gui_set_group_focus(lv_obj_t * obj)
 {
