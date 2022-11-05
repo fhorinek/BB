@@ -437,17 +437,17 @@ static void summarize_data()
     switch (local->datatype)
     {
         case DATATYPE_ODO:
-            strcpy(text, "Total: ");
+            strcpy(text, _("Total: "));
             format_distance_with_units2(text + 7, total * 1000);
-            strcpy(text2, "Average per flight: ");
+            strcpy(text2, _("Average per flight: "));
             format_distance_with_units2(text2 + 20, total * 1000 / total_flights);
         break;
         case DATATYPE_HOURS:
-            sprintf(text, "Total: %.1f hours", total);
-            sprintf(text2, "Average per flight: %.1f hours", total / total_flights);
+            sprintf(text, _("Total: %.1f hours"), total);
+            sprintf(text2, _("Average per flight: %.1f hours"), total / total_flights);
         break;
         case DATATYPE_NUM:
-            sprintf(text, "Total: %.0f flights", total);
+            sprintf(text, _("Total: %.0f flights"), total);
             text2[0] = 0;
         break;
     }
@@ -487,7 +487,7 @@ void flightbook_statistics_load_task(void *param)
 
     if (i >= STATS_NUM)
     {
-        dialog_show("Too Many Flight", "You have too many flights to handle in statistics. Please remove some.", dialog_confirm, NULL);
+        dialog_show(_("Too Many Flights"), _("You have too many flights to handle in statistics. Please remove some."), dialog_confirm, NULL);
     }
 
     gui_low_priority(false);
@@ -498,7 +498,7 @@ void flightbook_statistics_load_task(void *param)
 
 void flightbook_statistics_load()
 {
-    dialog_show("Reading...", PATH_LOGS_DIR, dialog_progress, NULL);
+    dialog_show(_("Reading..."), PATH_LOGS_DIR, dialog_progress, NULL);
     dialog_progress_spin();
     gui_low_priority(true);
 
@@ -594,15 +594,15 @@ void flightbook_statistics_loop()
         switch (local->period)
         {
             case PERIOD_ALL_YEARS:
-                strcpy(text, "Year");
-                sprintf(period_title, "yearly");
+                strcpy(text, _("Year"));
+                sprintf(period_title, _("yearly"));
             break;
             case PERIOD_MONTHES_IN_YEAR:
-                strcpy(text, "Days");
+                strcpy(text, _("Days"));
                 sprintf(period_title, "%d", local->year);
             break;
             case PERIOD_DAYS_IN_MONTH:
-                strcpy(text, "Total");
+                strcpy(text, _("Total"));
                 sprintf(period_title, "%d/%02d", local->year, local->month);
             break;
         }
@@ -613,16 +613,16 @@ void flightbook_statistics_loop()
         switch (local->datatype)
         {
             case DATATYPE_HOURS:
-                strcpy(text, "Flights");
-                sprintf(title_text, "Hours %s", period_title);
+                strcpy(text, _("Flights"));
+                sprintf(title_text, _("Hours %s"), period_title);
             break;
             case DATATYPE_NUM:
-                strcpy(text, "Distance");
-                sprintf(title_text, "Flights %s", period_title);
+                strcpy(text, _("Distance"));
+                sprintf(title_text, _("Flights %s"), period_title);
             break;
             case DATATYPE_ODO:
-                strcpy(text, "Time");
-                sprintf(title_text, "Distance %s", period_title);
+                strcpy(text, _("Time"));
+                sprintf(title_text, _("Distance %s"), period_title);
             break;
         }
 

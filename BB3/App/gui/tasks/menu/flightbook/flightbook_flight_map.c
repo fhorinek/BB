@@ -387,7 +387,7 @@ void flightbook_flight_map_load(char * path, uint8_t fm_return_level)
 
 	char file[REDCONF_NAME_MAX];
 	filemanager_get_filename(file, path);
-	dialog_show("Reading...", file, dialog_progress, NULL);
+	dialog_show(_("Reading..."), file, dialog_progress, NULL);
 	dialog_progress_spin();
 	gui_low_priority(true);
 
