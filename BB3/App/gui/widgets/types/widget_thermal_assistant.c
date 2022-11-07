@@ -28,7 +28,7 @@ static void TAss_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Thermal assistant");
+    	widget_add_title(base, slot, _("Thermal assistant"));
 
     local->text = widget_add_value(base, slot, NULL, NULL);
 
@@ -127,7 +127,7 @@ static void TAss_update(widget_slot_t * slot)
     else
     {
         lv_obj_set_hidden(local->arrow, true);
-        lv_label_set_text(local->text, "Not\ncircling");
+        lv_label_set_text(local->text, _("Not\ncircling"));
         widget_update_font_size_box(local->text, slot->w / 2, slot->h / 2);
 
         for (uint8_t i = 0; i < 8; i++)

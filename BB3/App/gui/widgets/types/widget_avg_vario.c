@@ -26,7 +26,7 @@ static void Avg_init(lv_obj_t * base, widget_slot_t * slot)
     if (!widget_flag_is_set(slot, wf_label_hide))
     {
 		char title[16];
-		sprintf(title, "Avg (%us)", config_get_int(&profile.vario.avg_duration));
+		sprintf(title, _("Avg (%us)"), config_get_int(&profile.vario.avg_duration));
 		widget_add_title(base, slot, title);
     }
 

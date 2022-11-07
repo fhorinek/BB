@@ -23,7 +23,7 @@ static void GHdgPoints_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "GHdg");
+    	widget_add_title(base, slot, _("GHdg"));
 
     local->value = widget_add_value(base, slot, NULL, NULL);
 
@@ -34,7 +34,7 @@ static void GHdgPoints_update(widget_slot_t * slot)
     char value[8];
     if (fc.gnss.fix == 0)
     {
-    	strcpy(value, "No\nGNSS");
+    	strcpy(value, _("No\nGNSS"));
     	lv_label_set_text(local->value, value);
     }
     else

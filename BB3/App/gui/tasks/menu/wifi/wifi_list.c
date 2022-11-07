@@ -175,7 +175,7 @@ static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	    if (obj == local->info)
 	    {
 	        local->new_scan = true;
-	        gui_list_text_set_value(local->info, "Scanning...");
+	        gui_list_text_set_value(local->info, _("Scanning..."));
 	        esp_wifi_start_scan(wifi_list_update);
 	    }
 	    else
@@ -215,13 +215,13 @@ static lv_obj_t * wifi_list_init(lv_obj_t * par)
     local->new_scan = true;
     esp_wifi_start_scan(wifi_list_update);
 
-	lv_obj_t * list = gui_list_create(par, "Select network", &gui_wifi, wifi_list_cb);
+	lv_obj_t * list = gui_list_create(par, _("Select network"), &gui_wifi, wifi_list_cb);
 
     local->spinner = lv_spinner_create(par, NULL);
     lv_obj_set_size(local->spinner, 100, 100);
     lv_obj_align(local->spinner, NULL, LV_ALIGN_CENTER, 0, 0);
 
-    local->info = gui_list_text_add_entry(list, "Scanning...");
+    local->info = gui_list_text_add_entry(list, _("Scanning..."));
 
 	return list;
 }

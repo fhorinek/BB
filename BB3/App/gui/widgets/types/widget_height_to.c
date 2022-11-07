@@ -17,7 +17,7 @@ static void HeightTO_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Take-off");
+    	widget_add_title(base, slot, _("Take-off"));
 
     char tmp[8];
     char * units = tmp;

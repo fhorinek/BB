@@ -19,22 +19,22 @@ void dialog_downloads_error(uint8_t res)
 {
     if (res == DOWNLOAD_SLOT_NOT_FOUND)
     {
-        dialog_show("Error", "No slot available", dialog_confirm, NULL);
+        dialog_show(_("Error"), _("No slot available"), dialog_confirm, NULL);
     }
 
     if (res == DOWNLOAD_SLOT_NO_CONNECTION)
     {
-        dialog_show("Error", "Not connected!", dialog_confirm, NULL);
+        dialog_show(_("Error"), _("Not connected!"), dialog_confirm, NULL);
     }
 
     if (res == DOWNLOAD_SLOT_NOT_FOUND)
     {
-        dialog_show("Error", "Resource not found!", dialog_confirm, NULL);
+        dialog_show(_("Error"), _("Resource not found!"), dialog_confirm, NULL);
     }
 
     if (res == DOWNLOAD_SLOT_TIMEOUT)
     {
-        dialog_show("Error", "Connection timeout!", dialog_confirm, NULL);
+        dialog_show(_("Error"), _("Connection timeout!"), dialog_confirm, NULL);
     }
 }
 

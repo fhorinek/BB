@@ -60,7 +60,7 @@ bool airspace_fm_cb(uint8_t event, char * path)
 
         config_set_text(&profile.airspace.filename, tmp);
 
-    	dialog_show("Loading airspace...", tmp, dialog_progress, NULL);
+    	dialog_show(_("Loading airspace..."), tmp, dialog_progress, NULL);
     	dialog_progress_spin();
 
     	gui_low_priority(true);
@@ -116,30 +116,30 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 {
     help_set_base("Airspace");
 
-	lv_obj_t * list = gui_list_create(par, "Airspace settings", &gui_settings, NULL);
+	lv_obj_t * list = gui_list_create(par, _("Airspace settings"), &gui_settings, NULL);
 
 	if (strlen(config_get_text(&profile.airspace.filename)) == 0)
 	{
-		gui_list_auto_entry(list, "Load airspace", CUSTOM_CB, airspace_load_cb);
+		gui_list_auto_entry(list, _("Load airspace"), CUSTOM_CB, airspace_load_cb);
 	}
 	else
 	{
-		lv_obj_t * obj = gui_list_info_add_entry(list, "Load airspace", config_get_text(&profile.airspace.filename));
+		lv_obj_t * obj = gui_list_info_add_entry(list, _("Load airspace"), config_get_text(&profile.airspace.filename));
 		gui_config_entry_add(obj, CUSTOM_CB, airspace_load_cb);
-		gui_list_auto_entry(list, "Unload airspace", CUSTOM_CB, airspace_unload_cb);
+		gui_list_auto_entry(list, _("Unload airspace"), CUSTOM_CB, airspace_unload_cb);
 
 		if (DEVEL_ACTIVE)
 		{
 			char tmp[64];
 			snprintf(tmp, sizeof(tmp),
-					"Loaded airspaces: %u\nHidden: %u\nMemory used: %lu",
+					_("Loaded airspaces: %u\nHidden: %u\nMemory used: %lu"),
 					fc.airspaces.loaded, fc.airspaces.hidden, fc.airspaces.mem_used);
 
 			gui_list_info_add_entry(list, "Debug Info", tmp);
 		}
 	}
 
-	gui_list_auto_entry(list, "Enabled classes", NEXT_TASK, &gui_aispace_display);
+	gui_list_auto_entry(list, _("Enabled classes"), NEXT_TASK, &gui_aispace_display);
 
 
 	return list;

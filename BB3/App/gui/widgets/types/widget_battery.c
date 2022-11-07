@@ -37,15 +37,15 @@ static void Battery_update(widget_slot_t * slot)
     if (local->sub_text)
     {
         if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
-            lv_label_set_text(local->sub_text, "weak chrg.");
+            lv_label_set_text(local->sub_text, _("weak chrg."));
         else if (pwr.charger.charge_port == PWR_CHARGE_SLOW)
-            lv_label_set_text(local->sub_text, "slow chrg.");
+            lv_label_set_text(local->sub_text, _("slow chrg."));
         else if (pwr.charger.charge_port == PWR_CHARGE_FAST)
-            lv_label_set_text(local->sub_text, "fast chrg.");
+            lv_label_set_text(local->sub_text, _("fast chrg."));
         else if (pwr.charger.charge_port == PWR_CHARGE_QUICK)
-            lv_label_set_text(local->sub_text, "quick chrg.");
+            lv_label_set_text(local->sub_text, _("quick chrg."));
         else if (pwr.data_port == PWR_DATA_CHARGE)
-            lv_label_set_text(local->sub_text, "slow chrg.");
+            lv_label_set_text(local->sub_text, _("slow chrg."));
         else
             lv_label_set_text(local->sub_text, "");
     }
