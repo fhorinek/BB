@@ -1,4 +1,4 @@
-#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DBG_DEBUG
 
 #include "igc.h"
 
@@ -166,7 +166,7 @@ void igc_start_write()
 	snprintf(path, sizeof(path), "%s/%04u.%02u", PATH_LOGS_DIR, year, month);
 	red_mkdir(path);
 	snprintf(path, sizeof(path), "%s/%04u.%02u/%04u.%02u.%02u %02u.%02u.igc", PATH_LOGS_DIR, year, month, year, month, day, hour, min);
-	igc_log_file = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+	igc_log_file = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
 	DBG("IGC OPEN %s, res = %d", path, igc_log_file);
 	if (igc_log_file < 0)
 		return;

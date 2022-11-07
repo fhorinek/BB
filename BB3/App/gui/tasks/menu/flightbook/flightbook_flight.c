@@ -8,7 +8,7 @@
  *      Author: tilmann@bubecks.de
  */
 
-#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DBG_DEBUG
 
 #include <inttypes.h>
 #include "flightbook_flight.h"
@@ -37,6 +37,8 @@ REGISTER_TASK_I(flightbook_flight,
 //this overload the standard gui list function, so we can return correct filemanager level
 static bool flightbook_flight_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
+
     if (event == LV_EVENT_CANCEL)
     {
         gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
@@ -149,6 +151,8 @@ void flightbook_flight_open(char * path, uint8_t fm_level)
 
 static bool flightbook_flight_map_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
+
 	if (event == LV_EVENT_PRESSED)
 	{
 		//this is standard method how to pass extra parameter to task

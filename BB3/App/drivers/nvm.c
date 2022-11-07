@@ -15,7 +15,7 @@ void nvm_update(nvm_data_t * data)
 
     if ((nvm->app.size + BL_SIZE) / SECTOR_SIZE >= 256)
     {
-        last_sector = (uint8_t *) malloc(SECTOR_SIZE);
+        last_sector = (uint8_t *) tmalloc(SECTOR_SIZE);
         memcpy(last_sector, (uint8_t *)LAST_SECTOR_ADDR, SECTOR_SIZE - NVM_SIZE);
         memcpy(last_sector + SECTOR_SIZE - NVM_SIZE, data, NVM_SIZE);
         start_addr = 0;
@@ -49,12 +49,12 @@ void nvm_update(nvm_data_t * data)
     HAL_FLASH_Lock();
 
     if (last_sector != (uint8_t *)data)
-        free(last_sector);
+        tfree(last_sector);
 }
 
 void nvm_update_imu_calibration(imu_calibration_t * calib)
 {
-    nvm_data_t * new_nvm = (nvm_data_t *) malloc(sizeof(nvm_data_t));
+    nvm_data_t * new_nvm = (nvm_data_t *) tmalloc(sizeof(nvm_data_t));
 
     memcpy(new_nvm, nvm, sizeof(nvm_data_t));
     if (calib != NULL)
@@ -69,19 +69,19 @@ void nvm_update_imu_calibration(imu_calibration_t * calib)
 
     nvm_update(new_nvm);
 
-    free(new_nvm);
+    tfree(new_nvm);
 }
 
 void nvm_update_bootloader(uint32_t build_number)
 {
-    nvm_data_t * new_nvm = (nvm_data_t *) malloc(sizeof(nvm_data_t));
+    nvm_data_t * new_nvm = (nvm_data_t *) tmalloc(sizeof(nvm_data_t));
 
     memcpy(new_nvm, nvm, sizeof(nvm_data_t));
     new_nvm->bootloader = build_number;
 
     nvm_update(new_nvm);
 
-    free(new_nvm);
+    tfree(new_nvm);
 }
 
 bool nvm_load_imu_calibration(imu_calibration_t * calib)

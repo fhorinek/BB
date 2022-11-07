@@ -30,7 +30,7 @@ void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
         filemanager_refresh();
     }
 
-    free(path);
+    tfree(path);
 }
 
 void profile_pilot_fm_rename_cb(uint8_t res, void * opt_data)
@@ -66,7 +66,7 @@ void profile_pilot_fm_rename_cb(uint8_t res, void * opt_data)
 
     }
 
-    free(old_path);
+    tfree(old_path);
 }
 
 bool profiles_pilot_fm_cb(uint8_t event, char * path)
@@ -126,7 +126,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
         {
             dialog_add_opt_param(name);
             dialog_show("Rename", "Set new pilot profile name", dialog_textarea, profile_pilot_fm_rename_cb);
-            char * opt_data = malloc(strlen(path) + 1);
+            char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data(opt_data);
             break;
@@ -162,7 +162,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
                 char text[64];
                 sniprintf(text, sizeof(text), "Do you want to remove pilot profile '%s'", name);
                 dialog_show("Confirm", text, dialog_yes_no, profiles_pilot_fm_remove_cb);
-                char * opt_data = malloc(strlen(path) + 1);
+                char * opt_data = tmalloc(strlen(path) + 1);
                 strcpy(opt_data, path);
                 dialog_add_opt_data((void *)opt_data);
             }
@@ -206,7 +206,7 @@ void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
         filemanager_refresh();
     }
 
-    free(opt_data);
+    tfree(opt_data);
 }
 
 void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
@@ -249,7 +249,7 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
 
     }
 
-    free(old_path);
+    tfree(old_path);
 }
 
 bool profiles_profile_fm_cb(uint8_t event, char * path)
@@ -315,7 +315,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
         {
             dialog_add_opt_param(name);
             dialog_show("Rename", "Set new flight profile name", dialog_textarea, profile_profile_fm_rename_cb);
-            char * opt_data = malloc(strlen(path) + 1);
+            char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data(opt_data);
             break;
@@ -358,7 +358,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
                 char text[64];
                 sniprintf(text, sizeof(text), "Do you want to remove flight profile '%s'", name);
                 dialog_show("Confirm", text, dialog_yes_no, profiles_profile_fm_remove_cb);
-                char * opt_data = malloc(strlen(path) + 1);
+                char * opt_data = tmalloc(strlen(path) + 1);
                 strcpy(opt_data, path);
                 dialog_add_opt_data((void *)opt_data);
             }

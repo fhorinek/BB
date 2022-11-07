@@ -1,4 +1,4 @@
-//#define DEBUG_LEVEL	DEBUG_DBG
+//#define DEBUG_LEVEL	DBG_DEBUG
 #include "csv.h"
 
 #include "fc/fc.h"
@@ -67,7 +67,7 @@ void csv_start_write()
 	snprintf(path, sizeof(path), "%s/%04u.%02u", PATH_LOGS_DIR, year, month);
 	red_mkdir(path);
 	snprintf(path, sizeof(path), "%s/%04u.%02u/%04u.%02u.%02u %02u.%02u.csv", PATH_LOGS_DIR, year, month, year, month, day, hour, min);
-	csv_log_file = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+	csv_log_file = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
 
 	DBG("CSV OPEN %s, res = %u", path, csv_log_file);
 	ASSERT(csv_log_file > 0);

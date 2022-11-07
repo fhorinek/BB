@@ -1,5 +1,5 @@
 
-#define DEBUG_LEVEL DEBUG_DBG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "timeset.h"
 
@@ -20,6 +20,8 @@ REGISTER_TASK_I(timeset,
 
 static bool timeset_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    UNUSED(index);
+
     if (event == LV_EVENT_CANCEL)
     {
         lv_obj_t * o = lv_group_get_focused(gui.input.group);

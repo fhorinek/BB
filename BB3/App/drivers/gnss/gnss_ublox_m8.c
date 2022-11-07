@@ -91,7 +91,7 @@ static void gnss_set_baudrate(uint32_t baud)
 
 static void ublox_send(uint8_t class, uint8_t id, uint8_t len, uint8_t * payload)
 {
-	uint8_t * buff = (uint8_t *)malloc(len + 8);
+	uint8_t * buff = (uint8_t *)tmalloc(len + 8);
 	byte2 blen;
 
 	//sync word
@@ -129,7 +129,7 @@ static void ublox_send(uint8_t class, uint8_t id, uint8_t len, uint8_t * payload
 
 	HAL_UART_Transmit(gnss_uart, buff, len + 8, 100);
 
-	free(buff);
+	tfree(buff);
 }
 
 static void ublox_command(uint8_t command)

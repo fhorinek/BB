@@ -30,7 +30,7 @@ static void download_slot_free(uint8_t data_id)
         if (download_slot[data_id]->data != NULL)
         {
             red_close(((download_slot_file_data_t *)download_slot[data_id]->data)->f);
-            free(download_slot[data_id]->data);
+            tfree(download_slot[data_id]->data);
         }
     }
 
@@ -40,7 +40,7 @@ static void download_slot_free(uint8_t data_id)
             ps_free(download_slot[data_id]->data);
     }
 
-    free(download_slot[data_id]);
+    tfree(download_slot[data_id]);
 
     download_slot[data_id] = NULL;
 }
@@ -134,7 +134,7 @@ uint8_t download_slot_create(uint8_t type, download_slot_cb_t cb)
     }
     else
     {
-        download_slot_t * ds = (download_slot_t *)malloc(sizeof(download_slot_t));
+        download_slot_t * ds = (download_slot_t *)tmalloc(sizeof(download_slot_t));
 
         ds->cb = cb;
         ds->type = type;
@@ -183,10 +183,10 @@ void download_slot_process_info(proto_download_info_t * info)
 							ds->size = info->size;
 							ds->pos = 0;
 
-							download_slot_file_data_t * data = (download_slot_file_data_t *) malloc(sizeof(download_slot_file_data_t));
+							download_slot_file_data_t * data = (download_slot_file_data_t *) tmalloc(sizeof(download_slot_file_data_t));
 							char path[TEMP_NAME_LEN];
 							data->tmp_id = get_tmp_filename(path);
-							data->f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+							data->f = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
 
 							if (data->f < 0)
 							{

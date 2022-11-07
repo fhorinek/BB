@@ -45,6 +45,7 @@
 #include "config/config.h"
 #include "config/db.h"
 #include "common_gpio.h"
+#include "etc/tmalloc.h"
 
 // lvgl_i18n
 #include "lv_i18n/lv_i18n_fix.h"
@@ -105,6 +106,8 @@ typedef struct
     float q2;
     float q3;
 } quaternion_t;
+
+#define DTCM_SECTION __attribute__((section(".dtcmram")))
 
 #define BLINK(A)                (HAL_GetTick() % A > (A / 2))
 #define min(a,b)                ((a)<(b)?(a):(b))
@@ -188,7 +191,6 @@ extern osThreadId_t SystemHandle;
 #define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
 #define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
 #define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
-
 #define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
 #define PATH_LOG_CACHE_DIR  PATH_CACHE_DIR "/logs"
 
@@ -293,7 +295,7 @@ void str_join(char * dst, uint8_t cnt, ...);
 
 #define simple_memcpy(dst, src, len) \
 do { \
-    for (size_t __simple_memcpy_i = 0; __simple_memcpy_i < len; __simple_memcpy_i++) \
+    for (size_t __simple_memcpy_i = 0; __simple_memcpy_i < (size_t)len; __simple_memcpy_i++) \
         ((uint8_t *)dst)[__simple_memcpy_i] = ((uint8_t *)src)[__simple_memcpy_i]; \
 } while(0);
 

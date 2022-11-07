@@ -10,12 +10,12 @@ void rb_init(rb_handle_t * rb, uint32_t size)
 	rb->write_index = 0;
 	rb->read_index = 0;
 
-	rb->data = malloc(size);
+	rb->data = tmalloc(size);
 }
 
 void rb_free(rb_handle_t * rb)
 {
-	free(rb->data);
+	tfree(rb->data);
 }
 
 

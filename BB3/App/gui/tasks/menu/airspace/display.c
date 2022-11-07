@@ -5,7 +5,9 @@
 
 #include "etc/format.h"
 
-REGISTER_TASK_I(aispace_display);
+REGISTER_TASK_IS(airspace_display,
+        bool change;
+);
 
 static gui_list_slider_options_t show_bellow_opt = {
 	.disp_multi = 1,
@@ -13,13 +15,20 @@ static gui_list_slider_options_t show_bellow_opt = {
 	.format = format_FL_with_altitude_with_units,
 };
 
-
-
-static lv_obj_t * aispace_display_init(lv_obj_t * par)
+bool airspace_display_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
-    help_set_base("Airspace/Display");
+    if (event == LV_EVENT_VALUE_CHANGED)
+        local->change = true;
 
-	lv_obj_t * list = gui_list_create(par, "Enabled airspaces", &gui_airspace, NULL);
+    return true;
+}
+
+
+static lv_obj_t * airspace_display_init(lv_obj_t * par)
+{
+    local->change = false;
+
+	lv_obj_t * list = gui_list_create(par, "Enabled airspaces", &gui_airspace, airspace_display_cb);
 
 	gui_list_auto_entry(list, "Class A", &profile.airspace.display.class_A, NULL);
 	gui_list_auto_entry(list, "Class B", &profile.airspace.display.class_B, NULL);
@@ -42,5 +51,11 @@ static lv_obj_t * aispace_display_init(lv_obj_t * par)
 	return list;
 }
 
-
+static void airspace_display_stop()
+{
+    if (local->change)
+    {
+        airspace_reload_parallel();
+    }
+}
 

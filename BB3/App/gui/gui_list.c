@@ -629,7 +629,7 @@ void gui_config_entry_clear()
 	{
 		config_entry_ll_t * actual = next;
 		next = actual->next;
-		free(actual);
+		tfree(actual);
 	}
 
 	gui.list.entry_list = NULL;
@@ -637,7 +637,7 @@ void gui_config_entry_clear()
 
 void gui_config_entry_add(lv_obj_t * obj, cfg_entry_t * entry, void * params)
 {
-	config_entry_ll_t * item = (config_entry_ll_t *) malloc(sizeof(config_entry_ll_t));
+	config_entry_ll_t * item = (config_entry_ll_t *) tmalloc(sizeof(config_entry_ll_t));
 	item->obj = obj;
 	item->entry = entry;
 	item->params = params;
@@ -755,7 +755,7 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 			{
 				uint8_t cnt = config_get_select_cnt(entry);
 
-				char * options = (char *) malloc(cnt * 32);
+				char * options = (char *) tmalloc(cnt * 32);
 				options[0] = 0;
 				for (uint8_t i = 0; i < cnt; i++)
 				{
@@ -767,7 +767,7 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 				options[strlen(options) - 1] = 0;
 
 				obj = gui_list_dropdown_add_entry(list, name, options, config_get_select(entry));
-				free(options);
+				tfree(options);
 				break;
 			}
 

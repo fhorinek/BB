@@ -117,7 +117,7 @@ void end_last_task()
 
 		if (gui.task.last_memory != NULL)
 		{
-			free(gui.task.last_memory);
+			tfree(gui.task.last_memory);
 			gui.task.last_memory = NULL;
 		}
 	}
@@ -144,7 +144,7 @@ lv_obj_t * gui_task_create(gui_task_t * task)
     //allocate memory for local task
     if (task->local_vars_size > 0)
     {
-    	*task->local_vars = malloc(task->local_vars_size);
+    	*task->local_vars = tmalloc(task->local_vars_size);
     	ASSERT(*task->local_vars != NULL);
     }
     else

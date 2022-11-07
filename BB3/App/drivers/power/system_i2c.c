@@ -1,5 +1,5 @@
 
-#define DEBUG_LEVEL DEBUG_DBG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "system_i2c.h"
 

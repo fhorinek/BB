@@ -245,6 +245,8 @@ void gui_low_priority(bool val)
 
 void thread_gui_start(void *argument)
 {
+    UNUSED(argument);
+
     system_wait_for_handle(&thread_gui);
 
     gui.lock = osMutexNew(NULL);

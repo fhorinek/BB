@@ -18,7 +18,7 @@
 
 #define PS_GET_ADDR(H) ((void *)H + sizeof(ps_malloc_header_t))
 
-#define FILE_NAME_SIZE  32
+#define FILE_NAME_SIZE  16
 
 typedef struct ps_malloc_header
 {
@@ -261,6 +261,11 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 //    ps_malloc_info();
 
     osSemaphoreRelease(psram_lock);
+
+    if (ret == NULL)
+    {
+        bsod_msg("Unable to allocate more memory.");
+    }
 
     return ret;
 }

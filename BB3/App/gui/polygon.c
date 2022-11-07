@@ -20,7 +20,7 @@ typedef struct
 
 void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_points, lv_draw_line_dsc_t * draw_desc, lv_coord_t max_height)
 {
-    polygon_edge_t * edges = (polygon_edge_t * ) malloc(sizeof(polygon_edge_t) * number_of_points);
+    polygon_edge_t * edges = (polygon_edge_t * ) tmalloc(sizeof(polygon_edge_t) * number_of_points);
 
     uint16_t edge_cnt = 0;
 
@@ -202,7 +202,7 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
 #endif
         }
 
-        free(active);
+        tfree(active);
     }
-    free(edges);
+    tfree(edges);
 }

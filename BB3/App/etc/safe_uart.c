@@ -16,7 +16,7 @@ void su_init(safe_uart_t * su, UART_HandleTypeDef * uart, uint32_t buffer_len, u
     su->uart = uart;
     rb_init(&su->rb, buffer_len);
     su->dma_size = dma_len;
-    su->dma_buf = malloc(buffer_len);
+    su->dma_buf = tmalloc(buffer_len);
 
     su->lock = osSemaphoreNew(1, 0, NULL);
     vQueueAddToRegistry(su->lock, "su_lock");

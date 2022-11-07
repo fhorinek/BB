@@ -7,7 +7,7 @@
  *  This display a track of a IGC on a map and in an altitude graph.
  */
 
-#define DEBUG_LEVEL	DEBUG_DBG
+#define DEBUG_LEVEL	DBG_DEBUG
 
 #include <gui/tasks/menu/flightbook/flightbook_flight_map.h>
 #include <gui/tasks/menu/flightbook/flightbook_flight.h>
@@ -220,7 +220,7 @@ void flightbook_flight_map_load_task(void * param)
     int16_t percent;
     int16_t last_percent = 0;
 
-    lv_point_t * points_ground = (lv_point_t *) malloc(sizeof(lv_point_t) * (TRACK_NUM_POINTS + 3));
+    lv_point_t * points_ground = (lv_point_t *) tmalloc(sizeof(lv_point_t) * (TRACK_NUM_POINTS + 3));
 
     while ( igc_read_next_pos(fp, &pos) )
     {
@@ -319,7 +319,7 @@ void flightbook_flight_map_load_task(void * param)
     //polygon is locking gui by itself
 	draw_polygon(local->graph_canvas, points_ground, local->points_num + 3, &dsc, graph_height);
 
-	free(points_ground);
+	tfree(points_ground);
 
 
 

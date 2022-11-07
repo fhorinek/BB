@@ -341,7 +341,7 @@ void bsod_list_flies()
     bsod_draw_text(LEFT_PAD, (bsod_line) * LINE_SIZE, "Listing files...", MF_ALIGN_LEFT);
 
     int32_t file;
-    file = red_open(PATH_CRASH_FILES, RED_O_WRONLY | RED_O_CREAT);
+    file = red_open(PATH_CRASH_FILES, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     if (file < 0)
     {
         FAULT("red_open, res = %u", file);

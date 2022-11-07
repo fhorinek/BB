@@ -4,7 +4,7 @@
  *  Created on: Oct 22, 2020
  *      Author: Lubos
  */
-#define DEBUG_LEVEL DEBUG_DBG
+#define DEBUG_LEVEL DBG_DEBUG
 #include "opt3004.h"
 
 #include "system_i2c.h"

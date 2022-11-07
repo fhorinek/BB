@@ -22,7 +22,7 @@
  * does the main job.
  */
 
-// #define DEBUG_LEVEL	DEBUG_DBG
+// #define DEBUG_LEVEL	DBG_DEBUG
 #include <gui/tasks/menu/flightbook/flightbook_flight_map.h>
 #include <gui/tasks/menu/flightbook/flightbook_statistics.h>
 #include <gui/tasks/menu/flightbook/flightbook_flight.h>
