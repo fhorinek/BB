@@ -42,7 +42,7 @@ int32_t db_repair(int32_t fp)
     char tmp_path[PATH_LEN];
     get_tmp_filename(tmp_path);
 
-    int32_t tp = red_open(tmp_path, RED_O_WRONLY | RED_O_CREAT);
+    int32_t tp = red_open(tmp_path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
 
     char in_line[256];
     char out_line[256];
@@ -186,10 +186,10 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
     red_lseek(fp, 0, RED_SEEK_SET);
     get_tmp_filename(path_new);
 
-    int32_t new = red_open(path_new, RED_O_WRONLY | RED_O_CREAT);
+    int32_t new = red_open(path_new, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     ASSERT(new > 0);
 
-    buff = (char *) malloc(DB_WORK_BUFFER_SIZE);
+    buff = (char *) tmalloc(DB_WORK_BUFFER_SIZE);
     ASSERT(buff != NULL);
 
     uint32_t pos = 0;
@@ -220,7 +220,7 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
         }
     }
 
-    free(buff);
+    tfree(buff);
 
     red_close(fp);
     red_close(new);

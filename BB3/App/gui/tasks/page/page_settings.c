@@ -259,7 +259,7 @@ void page_settings_fm_rename_cb(uint8_t res, void * opt_data)
 
     }
 
-    free(old_path);
+    tfree(old_path);
 }
 
 
@@ -283,7 +283,7 @@ void page_settings_fm_remove_cb(uint8_t res, void * opt_data)
         filemanager_refresh();
     }
 
-    free(path);
+    tfree(path);
 }
 
 void page_settings_close_preview()
@@ -411,7 +411,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
             char text[64];
             sniprintf(text, sizeof(text), "Do you want to remove page '%s'", name);
             dialog_show("Confirm", text, dialog_yes_no, page_settings_fm_remove_cb);
-            char * opt_data = malloc(strlen(path) + 1);
+            char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data((void *)opt_data);
             break;
@@ -444,7 +444,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
         {
             dialog_add_opt_param(name);
             dialog_show("Rename", "Set new page name", dialog_textarea, page_settings_fm_rename_cb);
-            char * opt_data = malloc(strlen(path) + 1);
+            char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data(opt_data);
             break;

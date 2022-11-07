@@ -239,7 +239,7 @@ void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
             igc_read_flight_stats(fp, f_stat);
 
             // ... and store values in the cache file for next reads
-            fp_cache = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+            fp_cache = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
             if (fp_cache >= 0)
             {
                 char buffer[300];

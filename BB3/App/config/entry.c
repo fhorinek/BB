@@ -4,6 +4,7 @@
  *  Created on: May 4, 2020
  *      Author: horinek
  */
+
 //#define DEBUG_LEVEL DBG_DEBUG
 #include "config.h"
 
@@ -129,6 +130,9 @@ void entry_get_str(char * buff, cfg_entry_t * e)
 	}
 
 	len = strlen(buff);
+
+	DBG("> '%s'", buff);
+
 	buff[len] = '\n';
 	buff[len + 1] = 0;
 }
@@ -145,7 +149,7 @@ void config_init(cfg_entry_t * structure)
 
 			case(ENTRY_TEXT):
 			{
-				char * tmp = (char *) malloc(entry->params.u16[0] + 1);
+				char * tmp = (char *) tmalloc(entry->params.u16[0] + 1);
 				strncpy(tmp, (char *)entry->value.cstr, entry->params.u16[0] + 1);
 				entry->value.str = tmp;
 				break;

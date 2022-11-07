@@ -45,7 +45,7 @@
 #include "config/config.h"
 #include "config/db.h"
 #include "common_gpio.h"
-
+#include "etc/tmalloc.h"
 
 typedef union
 {
@@ -103,6 +103,8 @@ typedef struct
     float q2;
     float q3;
 } quaternion_t;
+
+#define DTCM_SECTION __attribute__((section(".dtcmram")))
 
 #define BLINK(A)                (HAL_GetTick() % A > (A / 2))
 #define min(a,b)                ((a)<(b)?(a):(b))
@@ -182,12 +184,13 @@ extern osThreadId_t SystemHandle;
 
 #define PATH_SCREENSHOT     "scrshot"
 
-#define PATH_SYSTEM_DIR     "system"
-#define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
-#define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
-#define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
-#define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
-#define PATH_LOG_CACHE_DIR  PATH_CACHE_DIR "/logs"
+#define PATH_SYSTEM_DIR         "system"
+#define PATH_TEMP_DIR           PATH_SYSTEM_DIR "/temp"
+#define PATH_FW_DIR             PATH_SYSTEM_DIR "/fw"
+#define PATH_CACHE_DIR          PATH_SYSTEM_DIR "/cache"
+#define PATH_MAP_CACHE_DIR      PATH_CACHE_DIR "/map"
+#define PATH_LOG_CACHE_DIR      PATH_CACHE_DIR "/logs"
+#define PATH_AIRSPACE_CACHE_DIR PATH_CACHE_DIR "/airspace"
 
 #define PATH_CRASH_DIR      "crash"
 #define PATH_CRASH_DUMP     PATH_CRASH_DIR "/dump.bin"

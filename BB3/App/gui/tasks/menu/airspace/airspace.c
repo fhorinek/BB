@@ -12,8 +12,9 @@ REGISTER_TASK_I(airspace);
 
 void airspace_load_task(void * param)
 {
-    //TODO: create lock for airspace
     fc.airspaces.valid = false;
+    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
+
     if (fc.airspaces.list != NULL)
     {
     	airspace_free(fc.airspaces.list);
@@ -63,6 +64,8 @@ void airspace_load_task(void * param)
 
     gui_switch_task(&gui_airspace, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 
+    osMutexRelease(fc.airspaces.lock);
+
     RedTaskUnregister();
     vTaskDelete(NULL);
 }
@@ -81,7 +84,7 @@ bool airspace_fm_cb(uint8_t event, char * path)
 
     	gui_low_priority(true);
 
-        xTaskCreate((TaskFunction_t)airspace_load_task, "airspace_load_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+        xTaskCreate((TaskFunction_t)airspace_load_task, "as_load_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
         return false;
     }
 	return true;
@@ -104,22 +107,7 @@ static bool airspace_unload_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CLICKED)
 	{
-        if (fc.airspaces.list != NULL)
-        {
-        	airspace_free(fc.airspaces.list);
-        	fc.airspaces.list = NULL;
-        	fc.airspaces.loaded = 0;
-        	fc.airspaces.hidden = 0;
-        	fc.airspaces.mem_used = 0;
-
-        	for (uint8_t i = 0; i < 9; i++)
-        	{
-        		gui.map.chunks[i].ready = false;
-        	}
-        }
-
-        config_set_text(&profile.airspace.filename, "");
-
+        airspace_unload();
 		gui_switch_task(&gui_airspace, LV_SCR_LOAD_ANIM_NONE);
 
 		//supress default handler
@@ -166,7 +154,7 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 		}
 	}
 
-	gui_list_auto_entry(list, "Enabled classes", NEXT_TASK, &gui_aispace_display);
+	gui_list_auto_entry(list, "Enabled classes", NEXT_TASK, &gui_airspace_display);
     gui_list_auto_entry(list, "Help", CUSTOM_CB, airspace_help_cb);
 
 	return list;

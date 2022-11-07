@@ -53,7 +53,7 @@ static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
 
         filemanager_refresh();
     }
-    free(opt_data);
+    tfree(opt_data);
 }
 
 bool flightbook_flights_fm_cb(uint8_t event, char * path)
@@ -93,7 +93,7 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
             char text[64];
             sniprintf(text, sizeof(text), "Do you want to remove flight '%s'", name);
             dialog_show("Confirm", text, dialog_yes_no, flightbook_fm_remove_cb);
-            char * opt_data = malloc(strlen(path) + 1);
+            char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data((void *)opt_data);
             break;

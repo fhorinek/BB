@@ -82,7 +82,11 @@ typedef struct __airspace_record_t
     struct __airspace_record_t * next;
 } airspace_record_t;
 
+void airspace_create_lock();
 airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used, bool gui);
 void airspace_free(airspace_record_t * as);
+void airspace_reload_parallel_task();
+
+void airspace_unload();
 
 #endif /* FC_AIRSPACES_AIRSPACE_H_ */

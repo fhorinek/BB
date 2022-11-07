@@ -68,28 +68,7 @@ void map_init()
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
 
-    if (strlen(config_get_text(&profile.airspace.filename)) > 0)
-    {
-		char path[PATH_LEN];
-		snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
-
-		uint16_t loaded;
-		uint16_t hidden;
-		uint32_t mem_used;
-
-		fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, false);
-		if (fc.airspaces.list != NULL)
-		{
-			fc.airspaces.valid = true;
-			fc.airspaces.loaded = loaded;
-			fc.airspaces.hidden = hidden;
-			fc.airspaces.mem_used = mem_used;
-		}
-		else
-		{
-			config_set_text(&profile.airspace.filename, "");
-		}
-    }
+    airspace_reload_parallel();
 }
 
 void thread_map_start(void *argument)
@@ -137,12 +116,12 @@ void thread_map_start(void *argument)
     	geo_get_steps(disp_lat, zoom, &step_x, &step_y);
 
     	//get vectors
-    	uint32_t step_lon = MAP_W * step_x;
-    	uint32_t step_lat = MAP_H * step_y;
+    	int32_t step_lon = MAP_W * step_x;
+    	int32_t step_lat = MAP_H * step_y;
 
     	int32_t c_lon;
     	int32_t c_lat;
-    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat);
+    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat, &step_lon, &step_lat);
 
     	typedef struct
     	{

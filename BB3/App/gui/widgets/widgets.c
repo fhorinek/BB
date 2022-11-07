@@ -98,7 +98,7 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
             if (page->widget_slots == NULL)
             {
                 page->number_of_widgets = atoi(value);
-                page->widget_slots = (widget_slot_t *) malloc(sizeof(widget_slot_t) * page->number_of_widgets);
+                page->widget_slots = (widget_slot_t *) tmalloc(sizeof(widget_slot_t) * page->number_of_widgets);
                 ASSERT(page->widget_slots != NULL);
 
                 for (uint8_t i = 0; i < page->number_of_widgets; i++)
@@ -222,7 +222,7 @@ void widget_init(widget_slot_t * ws, lv_obj_t * par)
     //allocate memory for widget
     if (ws->widget->vars_size > 0)
     {
-        ws->vars = malloc(ws->widget->vars_size);
+        ws->vars = tmalloc(ws->widget->vars_size);
         ASSERT(ws->vars != NULL);
     }
     else
@@ -288,7 +288,7 @@ void widget_deinit(widget_slot_t * ws)
 
     //free widget extra memory
     if (ws->vars != NULL)
-        free(ws->vars);
+        tfree(ws->vars);
 }
 
 void widgets_deinit_page(page_layout_t * page)
@@ -305,7 +305,7 @@ void widgets_free(page_layout_t * page)
 {
     //free widget slot pointer memory
     if (page->number_of_widgets > 0)
-        free(page->widget_slots);
+        tfree(page->widget_slots);
 }
 
 bool widgets_editable(page_layout_t * page)
@@ -355,11 +355,11 @@ void widgets_update(page_layout_t * page)
 
 void widgets_add(page_layout_t * page, widget_t * w)
 {
-    widget_slot_t * new_widget_slots = (widget_slot_t *) malloc(sizeof(widget_slot_t) * (page->number_of_widgets + 1));
+    widget_slot_t * new_widget_slots = (widget_slot_t *) tmalloc(sizeof(widget_slot_t) * (page->number_of_widgets + 1));
     if (page->number_of_widgets > 0)
     {
         memcpy(new_widget_slots, page->widget_slots, sizeof(widget_slot_t) * page->number_of_widgets);
-        free(page->widget_slots);
+        tfree(page->widget_slots);
     }
     page->widget_slots = new_widget_slots;
 
@@ -400,11 +400,11 @@ void widgets_remove(page_layout_t * page, uint8_t index)
         widget_slot_t * new_widget_slots = NULL;
         if (page->number_of_widgets > 0)
         {
-            new_widget_slots = (widget_slot_t *) malloc(sizeof(widget_slot_t) * page->number_of_widgets);
+            new_widget_slots = (widget_slot_t *) tmalloc(sizeof(widget_slot_t) * page->number_of_widgets);
             safe_memcpy(new_widget_slots, page->widget_slots, sizeof(widget_slot_t) * page->number_of_widgets);
         }
 
-        free(page->widget_slots);
+        tfree(page->widget_slots);
         page->widget_slots = new_widget_slots;
     }
 

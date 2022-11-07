@@ -94,7 +94,7 @@ upload_slot_t* upload_crash_report(char *bundle_file)
 {
     INFO("Uploading crash report");
 
-    upload_crash_context_t *context = (upload_crash_context_t *) malloc(sizeof(upload_crash_context_t));
+    upload_crash_context_t *context = (upload_crash_context_t *) tmalloc(sizeof(upload_crash_context_t));
     context->status_bar_progress_handle = NULL;
 
     return esp_http_upload(config_get_text(&config.debug.crash_reporting_url), bundle_file, upload_crash_callback, context);

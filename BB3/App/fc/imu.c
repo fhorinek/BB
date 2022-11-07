@@ -253,7 +253,7 @@ void imu_step()
 
         if (fp == 0)
         {
-            fp = red_open(IMU_LOG, RED_O_WRONLY | RED_O_CREAT);
+            fp = red_open(IMU_LOG, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
             snprintf(tmp, sizeof(tmp), "ax,ay,az,,gx,gy,gz,,mx,my,mz\n");
             red_write(fp, tmp, strlen(tmp));
         }

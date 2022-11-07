@@ -40,7 +40,7 @@ void info_get_timestamp(char * buff, size_t buff_size)
 // Records relevant meta data in a yaml format
 void crash_store_info(const Crash_Object * info)
 {
-    file = red_open(PATH_CRASH_INFO, RED_O_WRONLY | RED_O_CREAT);
+    file = red_open(PATH_CRASH_INFO, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     if (file > 0)
     {
         char buff[64];
@@ -167,7 +167,7 @@ void CrashCatcher_DumpStart(const Crash_Object * info)
 
     crash_store_info(info);
 
-    file = red_open(PATH_CRASH_DUMP, RED_O_WRONLY | RED_O_CREAT);
+    file = red_open(PATH_CRASH_DUMP, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     if (file > 0)
     {
         file_open = true;
