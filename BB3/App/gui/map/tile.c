@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"
@@ -96,7 +96,7 @@ void write_buffer(char * path, void * buffer, uint32_t len)
 {
     return;
 
-    int32_t f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+    int32_t f = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     red_write(f, buffer, len);
     red_close(f);
 }
@@ -108,7 +108,7 @@ int16_t * generate_blur_kernel(uint16_t size)
     FASSERT(size % 2 == 1);
     // initialising standard deviation to 1.0
 
-    float * tmp_kernel = malloc(sizeof(float) * size * size);
+    float * tmp_kernel = tmalloc(sizeof(float) * size * size);
     int16_t * kernel = ps_malloc(sizeof(int16_t) * size * size);
 
     uint16_t one_half = size / 2;
@@ -142,7 +142,7 @@ int16_t * generate_blur_kernel(uint16_t size)
 
     write_buffer("kernel.data", kernel, sizeof(int16_t) * size * size);
 
-    free(tmp_kernel);
+    tfree(tmp_kernel);
 
     return kernel;
 }
@@ -163,7 +163,7 @@ lv_color_t * generate_palette_hsv(palete_hsv_point_t * pts, uint8_t cnt, uint16_
         *pal_len += pts[i].steps;
     }
 
-    lv_color_t * palette = malloc(sizeof(lv_color_t) * *pal_len);
+    lv_color_t * palette = tmalloc(sizeof(lv_color_t) * *pal_len);
     uint16_t index = 0;
 
     for (uint8_t i = 0; i < cnt-1; i++)
@@ -632,7 +632,7 @@ void tile_geo_to_pix(uint8_t index, int32_t g_lon, int32_t g_lat, int16_t * x, i
     geo_to_pix(lon, lat, zoom, g_lon, g_lat, x, y);
 }
 
-void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat)
+void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat, int32_t * col_div, int32_t * row_div)
 {
     int32_t step_x;
     int32_t step_y;
@@ -645,23 +645,26 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t *
     uint32_t number_of_cols = 1 + GNSS_MUL / map_w;
     uint32_t number_of_rows = 1 + GNSS_MUL / map_h;
 
-    int32_t col_div = GNSS_MUL / number_of_cols;
-    int32_t row_div = GNSS_MUL / number_of_rows;
+    *col_div = GNSS_MUL / number_of_cols;
+    *row_div = GNSS_MUL / number_of_rows;
 
     if (lat > 0)
-        *c_lat = (lat / GNSS_MUL) * GNSS_MUL + ((lat % GNSS_MUL) / row_div) * row_div + row_div / 2;
+        *c_lat = (lat / GNSS_MUL) * GNSS_MUL + ((lat % GNSS_MUL) / (*row_div)) * (*row_div) + (*row_div) / 2;
     else
-        *c_lat = (lat / GNSS_MUL) * GNSS_MUL + ((lat % GNSS_MUL) / row_div) * row_div - row_div / 2;
+        *c_lat = (lat / GNSS_MUL) * GNSS_MUL + ((lat % GNSS_MUL) / (*row_div)) * (*row_div) - (*row_div) / 2;
 
     if (lon > 0)
-        *c_lon = (lon / GNSS_MUL) * GNSS_MUL + ((lon % GNSS_MUL) / col_div) * col_div + col_div / 2;
+        *c_lon = (lon / GNSS_MUL) * GNSS_MUL + ((lon % GNSS_MUL) / (*col_div)) * (*col_div) + (*col_div) / 2;
     else
-        *c_lon = (lon / GNSS_MUL) * GNSS_MUL + ((lon % GNSS_MUL) / col_div) * col_div - col_div / 2;
+        *c_lon = (lon / GNSS_MUL) * GNSS_MUL + ((lon % GNSS_MUL) / (*col_div)) * (*col_div) - (*col_div) / 2;
 }
 
 void tile_get_cache(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat, char * path)
 {
-    tile_align_to_cache_grid(lon, lat, zoom, c_lon, c_lat);
+    int32_t col_div;
+    int32_t row_div;
+
+    tile_align_to_cache_grid(lon, lat, zoom, c_lon, c_lat, &col_div, &row_div);
 
     sprintf(path, PATH_MAP_CACHE_DIR "/%u/%08lX%08lX", zoom, *c_lon, *c_lat);
 }
@@ -751,7 +754,7 @@ void tile_unload_pois(uint8_t index)
     {
         if (gui.map.poi[i].chunk == index)
         {
-            free(gui.map.poi[i].name);
+            tfree(gui.map.poi[i].name);
             gui.map.poi[i].name = NULL;
             gui.map.poi[i].chunk = 0xFF;
             gui.map.poi_size--;
@@ -792,7 +795,7 @@ bool tile_poi_add(map_poi_t *poi, char *name, uint16_t name_len)
                 gui.map.poi_size++;
                 memcpy(&gui.map.poi[i], poi, sizeof(map_poi_t));
 
-                gui.map.poi[i].name = malloc(name_len + 1);
+                gui.map.poi[i].name = tmalloc(name_len + 1);
                 strncpy(gui.map.poi[i].name, name, name_len);
                 gui.map.poi[i].name[name_len] = 0;
 
@@ -1013,7 +1016,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             {
                 uint16_t number_of_points = *((uint16_t *)(map_cache + actual->feature_addr + 2));
 
-                lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * number_of_points);
+                lv_point_t * points = (lv_point_t *) tmalloc(sizeof(lv_point_t) * number_of_points);
                 for (uint16_t j = 0; j < number_of_points; j++)
                 {
                     int32_t plon, plat;
@@ -1040,7 +1043,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
                 gui_lock_release();
 
-                free(points);
+                tfree(points);
             }
         }
 
@@ -1065,7 +1068,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
 //          INFO("points = []");
 
-            lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * number_of_points);
+            lv_point_t * points = (lv_point_t *) tmalloc(sizeof(lv_point_t) * number_of_points);
             for (uint16_t j = 0; j < number_of_points; j++)
             {
                 int32_t plon, plat;
@@ -1092,7 +1095,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
             draw_polygon(gui.map.canvas, points, number_of_points, &line_draw, MAP_H);
 
-            free(points);
+            tfree(points);
         }
 
         actual = actual->next;
@@ -1227,7 +1230,7 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 			    line_draw.width = max(line_draw.width, 2);
 			}
 
-			lv_point_t * points = (lv_point_t *) malloc(sizeof(lv_point_t) * (actual->number_of_points + 1));
+			lv_point_t * points = (lv_point_t *) tmalloc(sizeof(lv_point_t) * (actual->number_of_points + 1));
 			for (uint16_t j = 0; j < actual->number_of_points; j++)
 			{
 				int32_t plon, plat;
@@ -1252,7 +1255,7 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 			lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
 			gui_lock_release();
 
-			free(points);
+			tfree(points);
 		}
     	else
     	{
@@ -1432,7 +1435,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     red_mkdir(dir_path);
 
     //write cache
-    int32_t f = red_open(tile_path, RED_O_WRONLY | RED_O_CREAT);
+    int32_t f = red_open(tile_path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     red_write(f, &ch, sizeof(cache_header_t));
     red_write(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
 

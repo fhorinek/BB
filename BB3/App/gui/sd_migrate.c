@@ -165,12 +165,12 @@ static bootloader_res_t fatfs_bootloader_update(char * path)
 void ram_file_free(ram_file_t * p)
 {
     if (p->path != NULL)
-        free(p->path);
+        tfree(p->path);
 
     if (p->data != NULL)
         ps_free(p->data);
 
-    free(p);
+    tfree(p);
 }
 
 ram_file_t * files_to_ram(ram_file_t * prev, char * path)
@@ -212,11 +212,11 @@ ram_file_t * files_to_ram(ram_file_t * prev, char * path)
 
                 if (res == FR_OK)
                 {
-                    ram_file_t * actual = malloc(sizeof(ram_file_t));
+                    ram_file_t * actual = tmalloc(sizeof(ram_file_t));
                     if (actual != NULL)
                     {
                         actual->next = NULL;
-                        actual->path = malloc(strlen(buff) + 1);
+                        actual->path = tmalloc(strlen(buff) + 1);
                         actual->size = f_size(&f);
 
                         if (actual->path != NULL)
@@ -245,8 +245,8 @@ ram_file_t * files_to_ram(ram_file_t * prev, char * path)
                                 }
                                 else
                                 {
-                                    free(actual->path);
-                                    free(actual);
+                                    tfree(actual->path);
+                                    tfree(actual);
                                     ERR("Unable to allocate ram_file->data");
                                 }
                             }
@@ -260,7 +260,7 @@ ram_file_t * files_to_ram(ram_file_t * prev, char * path)
                         }
                         else
                         {
-                            free(actual);
+                            tfree(actual);
                             ERR("Unable to allocate ram_file->name");
                         }
                     }
@@ -303,7 +303,7 @@ void files_from_ram(ram_file_t * first)
         }
 
         INFO("Writing %s", actual->path);
-        int32_t f = red_open(actual->path, RED_O_WRONLY | RED_O_CREAT);
+        int32_t f = red_open(actual->path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
         if (f > 0)
         {
             if (actual->size > 0)
@@ -332,7 +332,7 @@ void sd_migrate_worker(void * param)
 
     char path[PATH_LEN];
 
-    FATFS * fs = malloc(sizeof(FATFS));
+    FATFS * fs = tmalloc(sizeof(FATFS));
     FRESULT res = f_mount(fs, "", true);
 
     if (res == FR_OK)
@@ -367,7 +367,7 @@ void sd_migrate_worker(void * param)
 
             f_mount(NULL, "", 0);
         }
-        free(fs);
+        tfree(fs);
         osDelay(1000);
 
         dialog_set_text("Formating storage");

@@ -285,7 +285,7 @@ void config_load(cfg_entry_t * structure, char * path)
 
 void config_store(cfg_entry_t * structure, char * path)
 {
-	int32_t f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+	int32_t f = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
 	INFO("Writing configuration to %s", path);
 
 	if (f < 0)

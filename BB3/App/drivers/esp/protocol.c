@@ -450,7 +450,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         case(PROTO_FS_GET_FILE_REQ):
 		{
 			//create new thread
-			proto_fs_get_file_req_t * packet = (proto_fs_get_file_req_t *) malloc(sizeof(proto_fs_get_file_req_t));
+			proto_fs_get_file_req_t * packet = (proto_fs_get_file_req_t *) tmalloc(sizeof(proto_fs_get_file_req_t));
 			safe_memcpy(packet, data, sizeof(proto_fs_get_file_req_t));
 
 			xTaskCreate((TaskFunction_t)file_send_file, "file_send_file", 1024 * 4, (void *)packet, 24, NULL);
@@ -531,7 +531,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_TASKS_RES):
         {
-            uint8_t * packet = (uint8_t *) malloc(len);
+            uint8_t * packet = (uint8_t *) tmalloc(len);
             safe_memcpy(packet, data, len);
             xTaskCreate((TaskFunction_t)dbg_overlay_tasks_update, "dbg_overlay_update", 1024 * 2, (void *)packet, 24, NULL);
         }

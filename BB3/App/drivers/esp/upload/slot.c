@@ -25,7 +25,8 @@ static void upload_slot_free(uint8_t data_id)
     if (upload_slot[data_id] == NULL)
         return;
 
-    free(upload_slot[data_id]);
+    tfree(upload_slot[data_id]->context);
+    tfree(upload_slot[data_id]);
 
     upload_slot[data_id] = NULL;
 }
@@ -131,7 +132,7 @@ upload_slot_t* upload_slot_create(char * file_path, upload_slot_callback_t callb
     }
     else
     {
-        slot = (upload_slot_t*) malloc(sizeof(upload_slot_t));
+        slot = (upload_slot_t*) tmalloc(sizeof(upload_slot_t));
 
         strncpy(slot->file_path, file_path, UPLOAD_FILE_PATH_LEN);
         slot->data_id = i;

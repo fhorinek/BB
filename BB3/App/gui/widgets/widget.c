@@ -473,7 +473,7 @@ void widget_add_graph(lv_obj_t * base, widget_slot_t * slot, graph_t *graph)
 	}
 
 	graph->canvas = lv_canvas_create(slot->obj, NULL);
-	graph->cbuf = malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(graph->w, graph->h));
+	graph->cbuf = tmalloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(graph->w, graph->h));
 	lv_canvas_set_buffer(graph->canvas, graph->cbuf, graph->w, graph->h, LV_IMG_CF_TRUE_COLOR);
 	lv_obj_set_size(graph->canvas, graph->w, graph->h);
 }
@@ -617,7 +617,7 @@ void widget_update_graph(widget_slot_t *slot, graph_t *graph, float values[], in
  */
 void widget_remove_graph(graph_t * graph)
 {
-	free(graph->cbuf);
+	tfree(graph->cbuf);
 	graph->cbuf = NULL;
 }
 

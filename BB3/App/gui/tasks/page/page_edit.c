@@ -482,7 +482,7 @@ static lv_obj_t * page_edit_init(lv_obj_t * par)
 
     uint8_t grid_points_hor = 2 * (LV_HOR_RES / WIDGET_GRID);
     uint8_t grid_points_ver = 2 * (LV_VER_RES / WIDGET_GRID);
-    local->grid_points = malloc(sizeof(lv_point_t) * (grid_points_hor + grid_points_ver));
+    local->grid_points = tmalloc(sizeof(lv_point_t) * (grid_points_hor + grid_points_ver));
 
     for (uint8_t x = 0; x < grid_points_hor / 2; x++)
     {
@@ -566,7 +566,7 @@ static void page_edit_stop()
    lv_style_reset(&local->label_style);
    lv_style_reset(&local->border_style);
 
-   free(local->grid_points);
+   tfree(local->grid_points);
 
 	widgets_deinit_page(&local->page);
 }

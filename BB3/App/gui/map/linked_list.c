@@ -8,54 +8,56 @@
 
 #include "linked_list.h"
 
+#include "linked_list.h"
+
 void list_add_sorted_unique(uint32_t addr, ll_item_t ** list_start, ll_item_t ** list_end)
 {
-	ll_item_t * add_item(ll_item_t * actual, ll_item_t * last, ll_item_t ** list_end)
-	{
-		ll_item_t * new = (ll_item_t *) malloc(sizeof(ll_item_t));
+    ll_item_t * add_item(ll_item_t * actual, ll_item_t * last, ll_item_t ** list_end)
+    {
+        ll_item_t * new = (ll_item_t *) tmalloc(sizeof(ll_item_t));
 
-		new->feature_addr = addr;
-		new->prev = actual;
-		new->next = last;
+        new->feature_addr = addr;
+        new->prev = actual;
+        new->next = last;
 
-		if (last == NULL)
-			*list_end = new;
-		else
-			last->prev = new;
+        if (last == NULL)
+            *list_end = new;
+        else
+            last->prev = new;
 
-		return new;
-	}
+        return new;
+    }
 
-	ll_item_t * actual = *list_end;
-	ll_item_t * last = NULL;
+    ll_item_t * actual = *list_end;
+    ll_item_t * last = NULL;
 
-	while (true)
-	{
-		if (actual == NULL)
-		{
-			*list_start = add_item(actual, last, list_end);;
-			return;
-		}
+    while (true)
+    {
+        if (actual == NULL)
+        {
+            *list_start = add_item(actual, last, list_end);;
+            return;
+        }
 
-		if(actual->feature_addr < addr)
-		{
-			actual->next = add_item(actual, last, list_end);
-			return;
-		}
+        if(actual->feature_addr < addr)
+        {
+            actual->next = add_item(actual, last, list_end);
+            return;
+        }
 
-		//the addr is already in the list, return
-		if (actual->feature_addr == addr)
-		{
-			return;
-		}
+        //the addr is already in the list, return
+        if (actual->feature_addr == addr)
+        {
+            return;
+        }
 
-		if (actual->feature_addr > addr)
-		{
-			last = actual;
-			actual = actual->prev;
-			continue;
-		}
-	}
+        if (actual->feature_addr > addr)
+        {
+            last = actual;
+            actual = actual->prev;
+            continue;
+        }
+    }
 }
 
 void list_dbg(ll_item_t * list_start)
@@ -98,6 +100,6 @@ void list_free(ll_item_t * list_start, ll_item_t * list_end)
 	{
 		tmp = actual;
 		actual = actual->next;
-		free(tmp);
+		tfree(tmp);
 	}
 }

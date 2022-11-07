@@ -369,7 +369,7 @@ void pages_anim_page_switch_cb(lv_anim_t * a)
 		widgets_deinit_page(local->page_old);
 
 		lv_obj_del(local->page_old->base);
-		free(local->page_old);
+		tfree(local->page_old);
 		local->page_old = NULL;
 	}
 	local->state = MENU_IDLE;
@@ -670,7 +670,7 @@ void pages_load(char * filename, int8_t anim)
 	}
 
 	//create new base layer for widgets
-	local->page = (page_layout_t *) malloc(sizeof(page_layout_t));
+	local->page = (page_layout_t *) tmalloc(sizeof(page_layout_t));
 
 	pages_indicator_show();
 
@@ -716,7 +716,7 @@ void pages_load(char * filename, int8_t anim)
             widgets_deinit_page(local->page_old);
 
             lv_obj_del(local->page_old->base);
-            free(local->page_old);
+            tfree(local->page_old);
             local->page_old = NULL;
         }
     }
@@ -871,5 +871,5 @@ static void pages_stop()
 
 	config_set_int(&profile.ui.page_last, local->actual_page);
 
-	free(local->page);
+	tfree(local->page);
 }

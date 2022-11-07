@@ -113,7 +113,7 @@ void dbg_overlay_tasks_update(uint8_t * packet)
     }
     gui_lock_release();
 
-    free(packet);
+    tfree(packet);
 
     overlay_task_pending = false;
 
@@ -131,7 +131,7 @@ static void get_stm_tasks(void * param)
     cnt = uxTaskGetSystemState(task_status, cnt, &total_time);
 
     uint16_t buff_size = sizeof(proto_tasks_head_t) + sizeof(proto_tasks_item_t) * cnt;
-    uint8_t * proto_buff = malloc(buff_size);
+    uint8_t * proto_buff = tmalloc(buff_size);
 
     proto_tasks_head_t * head = (proto_tasks_head_t *)proto_buff;
     head->number_of_tasks = cnt;

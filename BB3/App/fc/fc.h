@@ -410,6 +410,8 @@ typedef struct
 		uint16_t hidden;
 		uint32_t mem_used;
 
+		osSemaphoreId_t lock;
+
 		bool valid;
 		uint8_t _pad[3];
 

@@ -18,7 +18,7 @@
 
 #define PS_GET_ADDR(H) ((void *)H + sizeof(ps_malloc_header_t))
 
-#define FILE_NAME_SIZE  32
+#define FILE_NAME_SIZE  16
 
 typedef struct ps_malloc_header
 {

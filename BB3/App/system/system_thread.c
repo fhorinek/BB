@@ -138,6 +138,7 @@ void cmd_step()
             INFO("=== Help ===");
             INFO(" s - screenshot");
             INFO(" l - LVGL memory status");
+            INFO(" m - malloc allocation table");
             INFO(" p - PSRAM allocation table");
             INFO(" d - LVGL defragment");
             INFO(" f - Fake gnss data");
@@ -154,6 +155,12 @@ void cmd_step()
         if (c == 'l')
         {
             gui_print_memory();
+        }
+
+        if (c == 'm')
+        {
+            INFO("=== Malloc trace ===");
+            tmalloc_print();
         }
 
         if (c == 'p')
@@ -245,9 +252,13 @@ void thread_system_start(void * argument)
     GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
     GpioWrite(VCC_MAIN_EN, HIGH);
 
+    //start trace malloc
+    tmalloc_init();
+
     //start debug thread
     start_thread(thread_debug);
     gui_create_lock();
+    airspace_create_lock();
     config_set_bool(&config.debug.use_serial, true);
 
     //wait for debug thread
