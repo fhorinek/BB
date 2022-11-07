@@ -187,12 +187,13 @@ extern osThreadId_t SystemHandle;
 
 #define PATH_SCREENSHOT     "scrshot"
 
-#define PATH_SYSTEM_DIR     "system"
-#define PATH_TEMP_DIR       PATH_SYSTEM_DIR "/temp"
-#define PATH_FW_DIR         PATH_SYSTEM_DIR "/fw"
-#define PATH_CACHE_DIR      PATH_SYSTEM_DIR "/cache"
-#define PATH_MAP_CACHE_DIR  PATH_CACHE_DIR "/map"
-#define PATH_LOG_CACHE_DIR  PATH_CACHE_DIR "/logs"
+#define PATH_SYSTEM_DIR         "system"
+#define PATH_TEMP_DIR           PATH_SYSTEM_DIR "/temp"
+#define PATH_FW_DIR             PATH_SYSTEM_DIR "/fw"
+#define PATH_CACHE_DIR          PATH_SYSTEM_DIR "/cache"
+#define PATH_MAP_CACHE_DIR      PATH_CACHE_DIR "/map"
+#define PATH_LOG_CACHE_DIR      PATH_CACHE_DIR "/logs"
+#define PATH_AIRSPACE_CACHE_DIR PATH_CACHE_DIR "/airspace"
 
 #define PATH_CRASH_DIR      "crash"
 #define PATH_CRASH_DUMP     PATH_CRASH_DIR "/dump.bin"

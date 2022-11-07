@@ -95,7 +95,7 @@ void draw_polygon(lv_obj_t * canvas, lv_point_t * points, uint16_t number_of_poi
     {
         int16_t scan_start = edges[0].y_min;
 
-        uint16_t * active = (uint16_t *) malloc(sizeof(uint16_t) * edge_cnt);
+        uint16_t * active = (uint16_t *) tmalloc(sizeof(uint16_t) * edge_cnt);
         lv_img_dsc_t * img_dsc = lv_canvas_get_img(canvas);
 
         for (int16_t scan_line = scan_start; scan_line <= max_height - 1; scan_line++)

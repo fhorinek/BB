@@ -12,6 +12,8 @@
 
 #define HELP_ID_LEN 32
 
+void help_init_gui();
+
 void help_set_base(char * lang_id);
 void help_unset();
 

@@ -98,7 +98,7 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
             char text[64];
             sniprintf(text, sizeof(text), _("Do you want to remove flight '%s'"), name);
             dialog_show(_("Confirm"), text, dialog_yes_no, flightbook_fm_remove_cb);
-            char * opt_data = malloc(strlen(path) + 1);
+            char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data((void *)opt_data);
             break;

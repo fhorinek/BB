@@ -93,7 +93,7 @@ void firmware_update_get_file_cb(uint8_t res, download_slot_t * ds)
         red_unlink(tmp_path);
 
         dialog_show(_("Start update process?"), "", dialog_yes_no, firmware_update_apply_cb);
-        char * opt_data = malloc(strlen(local->new_fw) + 1);
+        char * opt_data = tmalloc(strlen(local->new_fw) + 1);
         strcpy(opt_data, local->new_fw);
         dialog_add_opt_data(opt_data);
     }
@@ -185,7 +185,7 @@ bool manual_install_fm_cb(uint8_t event, char * path)
         snprintf(text, sizeof(text), _("Install version\n%s"), path);
 
         dialog_show(_("Start update?"), text, dialog_yes_no, firmware_update_apply_cb);
-        char * opt_data = malloc(strlen(path) + 1);
+        char * opt_data = tmalloc(strlen(path) + 1);
         strcpy(opt_data, path);
         dialog_add_opt_data(opt_data);
     }
