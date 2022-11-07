@@ -33,12 +33,12 @@ lv_obj_t * gnss_init(lv_obj_t * par)
 {
     help_set_base("GNSS");
 
-	lv_obj_t * list = gui_list_create(par, "GNSS Settings", &gui_settings, gnss_cb);
+	lv_obj_t * list = gui_list_create(par, _("GNSS Settings"), &gui_settings, gnss_cb);
 
-	local->label_status = gui_list_info_add_entry(list, "Status", "");
-	local->label_ttf = gui_list_info_add_entry(list, "TTF", "");
-	local->label_lat = gui_list_info_add_entry(list, "Latitude", "");
-	local->label_lon = gui_list_info_add_entry(list, "Longitude", "");
+	local->label_status = gui_list_info_add_entry(list, _("Status"), "");
+	local->label_ttf = gui_list_info_add_entry(list, _("TTF"), "");
+	local->label_lat = gui_list_info_add_entry(list, _("Latitude"), "");
+	local->label_lon = gui_list_info_add_entry(list, _("Longitude"), "");
 
 	return list;
 }
@@ -61,8 +61,8 @@ void gnss_loop()
         }
         else
         {
-            snprintf(sta, sizeof(sta), "Searching %u/%u", fc.gnss.sat_info.sat_used, fc.gnss.sat_info.sat_total);
-            strcpy(ttf, "Waiting for fix");
+            snprintf(sta, sizeof(sta), _("Searching %u/%u"), fc.gnss.sat_info.sat_used, fc.gnss.sat_info.sat_total);
+            strcpy(ttf, _("Waiting for fix"));
             strcpy(lat, "N/A");
             strcpy(lon, "N/A");
         }

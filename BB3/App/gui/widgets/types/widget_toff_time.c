@@ -26,7 +26,7 @@ static void TimeToTakeoff_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "TO time");
+    	widget_add_title(base, slot, _("TO time"));
 
     if (widget_flag_is_set(slot, wf_units_hide))
     {
@@ -56,12 +56,12 @@ static void TimeToTakeoff_update(widget_slot_t * slot)
     	}
     	else
     	{
-    		strcpy(value, "Turn to\ntakeoff");
+    		strcpy(value, _("Turn to\ntakeoff"));
     	}
     }
     else
     {
-    	strcpy(value, "No\nstart\npos");
+    	strcpy(value, _("No\nstart\npos"));
     }
 
     lv_label_set_text(local->value, value);

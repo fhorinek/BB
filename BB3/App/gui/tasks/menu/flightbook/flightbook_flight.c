@@ -80,50 +80,50 @@ void flightbook_flight_read_task(char * param)
 		datetime_from_epoch(f_stat.start_time + f_stat.tz_offset, &sec, &min, &hour, &day, &wday, &month, &year);
 
 		format_date(value, day, month, year);
-		gui_list_text2_add_entry(list, "Date", value);
+		gui_list_text2_add_entry(list, _("Date"), value);
 
 		format_time(value, hour, min);
-		gui_list_text2_add_entry(list, "Start", value);
+		gui_list_text2_add_entry(list, _("Start"), value);
 
 		if (f_stat.duration != FS_NO_DATA )
 		{
 			datetime_from_epoch(f_stat.start_time + f_stat.tz_offset + f_stat.duration, &sec, &min, &hour, &day, &wday, &month, &year);
 			format_time(value, hour, min);
-			gui_list_text2_add_entry(list, "Landing", value);
+			gui_list_text2_add_entry(list, _("Landing"), value);
 
 			format_duration(value, (float)f_stat.duration);
-			gui_list_text2_add_entry(list, "Duration", value);
+			gui_list_text2_add_entry(list, _("Duration"), value);
 		}
 	}
 
 	if (f_stat.max_alt != FS_NO_DATA )
 	{
 		format_altitude_with_units(value, (float)f_stat.max_alt);
-		gui_list_text2_add_entry(list, "Altitude Max", value);
+		gui_list_text2_add_entry(list, _("Altitude Max"), value);
 	}
 
 	if (f_stat.min_alt != FS_NO_DATA )
 	{
 		format_altitude_with_units(value, (float)f_stat.min_alt);
-		gui_list_text2_add_entry(list, "Altitude Min", value);
+		gui_list_text2_add_entry(list, _("Altitude Min"), value);
 	}
 
 	if (f_stat.max_climb != FS_NO_DATA )
 	{
 		format_vario_with_units(value, (float)f_stat.max_climb / 100.0);   // cm/s in m/s
-		gui_list_text2_add_entry(list, "Max Raise", value);
+		gui_list_text2_add_entry(list, _("Max Raise"), value);
 	}
 
 	if (f_stat.max_sink != FS_NO_DATA )
 	{
 		format_vario_with_units(value, (float)f_stat.max_sink / 100.0);  // cm/s in m/s
-		gui_list_text2_add_entry(list, "Max Sink", value);
+		gui_list_text2_add_entry(list, _("Max Sink"), value);
 	}
 
 	if (f_stat.odo != FS_NO_DATA )
 	{
 		format_distance_with_units(value, f_stat.odo / 100);     // cm to meter
-		gui_list_text2_add_entry(list, "Track length", value);
+		gui_list_text2_add_entry(list, _("Track length"), value);
 	}
 
 	gui_lock_release();
@@ -142,7 +142,7 @@ void flightbook_flight_open(char * path, uint8_t fm_level)
 
 	char file[REDCONF_NAME_MAX];
 	filemanager_get_filename(file, path);
-	dialog_show("Analysing...", file, dialog_progress, NULL);
+	dialog_show(_("Analysing..."), file, dialog_progress, NULL);
 	dialog_progress_spin();
 	gui_low_priority(true);
 
@@ -173,7 +173,7 @@ static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 	lv_obj_t * list = gui_list_create(par, "", NULL, flightbook_flight_cb);
 
 	//we want to use custom callback so we can pass another parameters
-	gui_list_auto_entry(list, "Show on map", CUSTOM_CB, flightbook_flight_map_cb);
+	gui_list_auto_entry(list, _("Show on map"), CUSTOM_CB, flightbook_flight_map_cb);
 
 	return list;
 }

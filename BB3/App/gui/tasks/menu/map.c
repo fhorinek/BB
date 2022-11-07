@@ -29,7 +29,7 @@ static void map_cc_dialog_cb(uint8_t res, void * data)
 {
     if (res == dialog_res_yes)
     {
-        dialog_show("Clearing map cache", "Please wait", dialog_progress, NULL);
+        dialog_show(_("Clearing map cache"), _("Please wait"), dialog_progress, NULL);
         dialog_progress_spin();
         gui_low_priority(true);
 
@@ -41,7 +41,7 @@ static bool map_cc_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CLICKED)
 	{
-		dialog_show("Clear cache", "do you want to clear map cache?", dialog_yes_no, map_cc_dialog_cb);
+		dialog_show(_("Clear cache"), _("do you want to clear map cache?"), dialog_yes_no, map_cc_dialog_cb);
 
 		//supress default handler
 		return false;
@@ -82,14 +82,15 @@ static lv_obj_t * map_init(lv_obj_t * par)
 {
     help_set_base("Map");
 
-    lv_obj_t * list = gui_list_create(par, "Map", &gui_settings, NULL);
+    lv_obj_t * list = gui_list_create(par, _("Map"), &gui_settings, NULL);
 
-    gui_list_auto_entry(list, "Map scale", &profile.map.zoom_flight, &scale_opt);
-    gui_list_auto_entry(list, "Zoom to fit track", &profile.map.zoom_fit, NULL);
-    gui_list_auto_entry(list, "Terrain type", &profile.map.alt_range, NULL);
-    gui_list_auto_entry(list, "Topo blur", &profile.map.blur, NULL);
-    gui_list_auto_entry(list, "Clear map cache", CUSTOM_CB, map_cc_cb);
-    gui_list_auto_entry(list, "Show FANET on map", &profile.map.show_fanet, NULL);
+    gui_list_auto_entry(list, _("Map scale"), &profile.map.zoom_flight, &scale_opt);
+    gui_list_auto_entry(list, _("Zoom to fit track"), &profile.map.zoom_fit, NULL);
+    gui_list_auto_entry(list, _("Terrain type"), &profile.map.alt_range, NULL);
+    gui_list_auto_entry(list, _("Topo blur"), &profile.map.blur, NULL);
+    gui_list_auto_entry(list, _("Clear map cache"), CUSTOM_CB, map_cc_cb);
+    gui_list_auto_entry(list, _("Show FANET on map"), &profile.map.show_fanet, NULL);
+    gui_list_auto_entry(list, _("Show trail"), &profile.map.show_glider_trail, NULL);
 
     return list;
 }

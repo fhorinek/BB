@@ -86,7 +86,7 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 
         if (line == NULL)
         {
-            statusbar_msg_add(STATUSBAR_MSG_ERROR, "Page file corrupted");
+            statusbar_msg_add(STATUSBAR_MSG_ERROR, _("Page file corrupted"));
             break;
         }
 
@@ -264,7 +264,7 @@ lv_obj_t * widgets_add_page_empty_label(page_layout_t * page)
 {
     //page not found
     lv_obj_t * label = lv_label_create(page->base, NULL);
-    lv_label_set_text(label, "Page is empty.");
+    lv_label_set_text(label, _("Page is empty."));
     lv_obj_align_origo(label, NULL, LV_ALIGN_CENTER, 0, 0);
     lv_label_set_align(label, LV_LABEL_ALIGN_CENTER);
     lv_obj_move_background(label);

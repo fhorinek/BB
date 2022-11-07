@@ -381,23 +381,23 @@ void fc_device_status(char *buff, fc_device_status_t status)
     switch (status)
     {
         case (fc_dev_init):
-            strcpy(buff, "Device init");
+            strcpy(buff, _("Device init"));
         break;
 
         case (fc_dev_ready):
-            strcpy(buff, "Device ready");
+            strcpy(buff, _("Device ready"));
         break;
 
         case (fc_dev_error):
-            strcpy(buff, "Device error");
+            strcpy(buff, _("Device error"));
         break;
 
         case (fc_device_not_calibrated):
-            strcpy(buff, "Not calibrated");
+            strcpy(buff, _("Not calibrated"));
         break;
 
         case (fc_dev_off):
-            strcpy(buff, "Device disabled");
+            strcpy(buff, _("Device disabled"));
         break;
 
         default:

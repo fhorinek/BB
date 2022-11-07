@@ -66,15 +66,15 @@ static lv_obj_t * vario_settings_init(lv_obj_t * par)
 {
     help_set_base("Vario");
 
-    lv_obj_t * list = gui_list_create(par, "Vario settings", &gui_settings, NULL);
+    lv_obj_t * list = gui_list_create(par, _("Vario settings"), &gui_settings, NULL);
 
-	gui_list_auto_entry(list, "Audio only in flight", &profile.vario.in_flight, NULL);
-	gui_list_auto_entry(list, "Accelerometer gain", &profile.vario.acc_gain, &acc_opt);
-	gui_list_auto_entry(list, "Lift threshold", &profile.vario.lift, &sink_lift_opt);
-	gui_list_auto_entry(list, "Sink threshold", &profile.vario.sink, &sink_lift_opt);
-	gui_list_auto_entry(list, "Average time", &profile.vario.avg_duration, &avg_opt);
+	gui_list_auto_entry(list, _("Audio only in flight"), &profile.vario.in_flight, NULL);
+	gui_list_auto_entry(list, _("Accelerometer gain"), &profile.vario.acc_gain, &acc_opt);
+	gui_list_auto_entry(list, _("Lift threshold"), &profile.vario.lift, &sink_lift_opt);
+	gui_list_auto_entry(list, _("Sink threshold"), &profile.vario.sink, &sink_lift_opt);
+	gui_list_auto_entry(list, _("Average time"), &profile.vario.avg_duration, &avg_opt);
 
-	lv_obj_t * obj = gui_list_info_add_entry(list, "Vario profile", config_get_text(&profile.vario.profile));
+	lv_obj_t * obj = gui_list_info_add_entry(list, _("Vario profile"), config_get_text(&profile.vario.profile));
 	gui_config_entry_add(obj, CUSTOM_CB, vario_profile_cb);
 
 	return list;

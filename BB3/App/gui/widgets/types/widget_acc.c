@@ -39,7 +39,7 @@ static void Acc_update(widget_slot_t * slot)
 
 	if (fc.imu.status == fc_device_not_calibrated)
 	{
-		strcpy(value, "Need\nCalib.");
+		strcpy(value, _("Need\nCalib."));
 	}
 	else
 	{

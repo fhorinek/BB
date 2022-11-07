@@ -31,13 +31,13 @@ static lv_obj_t * take_off_init(lv_obj_t * par)
 {
     help_set_base("Flight/Takeoff");
 
-	lv_obj_t * list = gui_list_create(par, "Automatic Take-off", &gui_flight, NULL);
+	lv_obj_t * list = gui_list_create(par, _("Automatic Take-off"), &gui_flight, NULL);
 
-	gui_list_auto_entry(list, "Use altitude", &profile.flight.auto_take_off.alt_change_enabled, NULL);
-	gui_list_auto_entry(list, "Change greater then", &profile.flight.auto_take_off.alt_change_value, &alt_param);
-	gui_list_auto_entry(list, "Use ground speed", &profile.flight.auto_take_off.speed_enabled, NULL);
-	gui_list_auto_entry(list, "Exceed speed", &profile.flight.auto_take_off.speed_value, &spd_param);
-	gui_list_auto_entry(list, "Within time", &profile.flight.auto_take_off.timeout, &time_param);
+	gui_list_auto_entry(list, _("Use altitude"), &profile.flight.auto_take_off.alt_change_enabled, NULL);
+	gui_list_auto_entry(list, _("Change greater than"), &profile.flight.auto_take_off.alt_change_value, &alt_param);
+	gui_list_auto_entry(list, _("Use ground speed"), &profile.flight.auto_take_off.speed_enabled, NULL);
+	gui_list_auto_entry(list, _("Exceed speed"), &profile.flight.auto_take_off.speed_value, &spd_param);
+	gui_list_auto_entry(list, _("Within time"), &profile.flight.auto_take_off.timeout, &time_param);
 
 	return list;
 }

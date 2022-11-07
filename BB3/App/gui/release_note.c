@@ -31,9 +31,7 @@ static void confirm_channel(uint8_t res, void * data)
         if (!DEVEL_ACTIVE)
         {
             dialog_show(LV_SYMBOL_WARNING " Warning " LV_SYMBOL_WARNING,
-                    "Your device is currently running a development firmware.\n\n"
-                    "It may be highly unstable and should be used only by developers or testers.\n\n"
-                    "We highly encourage you to switch to an official released version.",
+                    _("Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version."),
                     dialog_yes_no, confirm_devel_ch);
         }
     }
@@ -58,7 +56,7 @@ void release_note_show()
         char title[64];
         char fw_str[20];
         rev_get_sw_string(fw_str);
-        snprintf(title, sizeof(title), "Firmware updated\n to %s", fw_str);
+        snprintf(title, sizeof(title), _("Firmware updated\n to %s"), fw_str);
         dialog_show(title, buff, dialog_release_note, confirm_channel);
     }
 

@@ -84,7 +84,7 @@ void Alt_edit(void * local_ptr, widget_slot_t * slot, uint8_t action, char * tit
 		if (local->edit == NULL)
 		{
 			//create menu
-			local->edit = widget_create_edit_overlay(title, "Set QNH");
+			local->edit = widget_create_edit_overlay(title, _("Set QNH"));
 			lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
 			lv_obj_t * qnh = lv_label_create(base, NULL);
 			lv_obj_set_style_local_text_font(qnh, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[FONT_XL]);

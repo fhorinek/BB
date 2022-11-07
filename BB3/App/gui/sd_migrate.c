@@ -340,11 +340,11 @@ void sd_migrate_worker(void * param)
     	bootloader_res_t bl_res = fatfs_bootloader_update(PATH_BL_FW_AUTO);
     	if (bl_res != bl_update_ok)
     	{
-            dialog_show("Error", "Unable to update bootloader.\nRe-install the update file.", dialog_confirm, migrate_fail_cb);
+            dialog_show(_("Error"), _("Unable to update bootloader.\nRe-install the update file."), dialog_confirm, migrate_fail_cb);
             vTaskSuspend(NULL);
     	}
 
-    	dialog_set_text("Bootloader updated");
+    	dialog_set_text(_("Bootloader updated"));
     	osDelay(1000);
 
         ram_file_t first;
@@ -352,7 +352,7 @@ void sd_migrate_worker(void * param)
         first.data = NULL;
         first.next = NULL;
 
-        dialog_set_text("Storing config");
+        dialog_set_text(_("Storing config"));
 
         if (res == FR_OK)
         {
@@ -370,31 +370,31 @@ void sd_migrate_worker(void * param)
         tfree(fs);
         osDelay(1000);
 
-        dialog_set_text("Formating storage");
+        dialog_set_text(_("Formating storage"));
         INFO("Formating storage to RED");
         if (red_format("") == 0)
         {
             if(red_mount("") == 0)
             {
-                dialog_set_text("Restoring config");
+                dialog_set_text(_("Restoring config"));
                 files_from_ram(first.next);
                 osDelay(1000);
             }
             else
             {
-                dialog_show("Error", "Unable to mount RED volume", dialog_confirm, migrate_fail_cb);
+                dialog_show(_("Error"), _("Unable to mount RED volume"), dialog_confirm, migrate_fail_cb);
                 vTaskSuspend(NULL);
             }
         }
         else
         {
-            dialog_show("Error", "Unable to format storage", dialog_confirm, migrate_fail_cb);
+            dialog_show(_("Error"), _("Unable to format storage"), dialog_confirm, migrate_fail_cb);
             vTaskSuspend(NULL);
         }
     }
     else
     {
-        dialog_show("Error", "Unable to mount FatFs volume", dialog_confirm, migrate_fail_cb);
+        dialog_show("Error", _("Unable to mount FatFs volume"), dialog_confirm, migrate_fail_cb);
         vTaskSuspend(NULL);
     }
 
@@ -413,7 +413,7 @@ void sd_migrate_cb(uint8_t res, void * data)
 
     if (res == dialog_res_yes)
     {
-		dialog_show("Migrating", "Updating bootloader", dialog_progress, NULL);
+		dialog_show(_("Migrating"), _("Updating bootloader"), dialog_progress, NULL);
 		dialog_progress_spin();
 		xTaskCreate((TaskFunction_t)sd_migrate_worker, "sd_migrate", 1024 * 4, NULL, 24, NULL);
 	}
@@ -436,12 +436,12 @@ void sd_migrate_dialog()
     gui_lock_acquire();
     gui_lock_release();
 
-    dialog_show("Warning", "This firmware is using new method to store data.\n\n"
+    dialog_show(_("Warning"), _("This firmware is using new method to store data.\n\n"
             "We need to reformat the storage.\n\n"
             "Your IGC files, maps and AGL will be lost.\n\n"
             "If you need to backup them, press cancel.\n\n"
             "Your configuration will be preserved\n\n"
-            "Continue?\n", dialog_yes_no, sd_migrate_cb);
+            "Continue?\n"), dialog_yes_no, sd_migrate_cb);
 
     osSemaphoreAcquire(lock, WAIT_INF);
 }

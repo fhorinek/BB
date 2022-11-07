@@ -33,29 +33,29 @@ static void wifi_loop()
 	if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
     {
         char msg[16 + sizeof(fc.esp.ssid)];
-        snprintf(msg, sizeof(msg), "Connected to '%s'", fc.esp.ssid);
+        snprintf(msg, sizeof(msg), _("Connected to '%s'"), fc.esp.ssid);
         gui_list_info_set_value(local->network, msg);
     }
     else if (fc.esp.state & ESP_STATE_WIFI_CLIENT)
     {
-        gui_list_info_set_value(local->network, "Select network");
+        gui_list_info_set_value(local->network, _("Select network"));
     }
     else
-        gui_list_info_set_value(local->network, "Disabled");
+        gui_list_info_set_value(local->network, _("Disabled"));
 }
 
 static lv_obj_t * wifi_init(lv_obj_t * par)
 {
     help_set_base("Wifi");
 
-	lv_obj_t * list = gui_list_create(par, "WiFi settings", &gui_settings, wifi_cb);
+	lv_obj_t * list = gui_list_create(par, _("WiFi settings"), &gui_settings, wifi_cb);
 
-	gui_list_auto_entry(list, "Enable",	&profile.wifi.enabled, NULL);
+	gui_list_auto_entry(list, _("Enable"),	&profile.wifi.enabled, NULL);
     local->network = gui_list_info_add_entry(list, "WiFi network", "");
-	gui_list_auto_entry(list, "Access point", &profile.wifi.ap, NULL);
-	gui_list_auto_entry(list, "Device name", &config.device_name, NULL);
-	gui_list_auto_entry(list, "AP password", &config.wifi.ap_pass, NULL);
-    gui_list_auto_entry(list, "Network info", NEXT_TASK, &gui_wifi_info);
+	gui_list_auto_entry(list, _("Access point"), &profile.wifi.ap, NULL);
+	gui_list_auto_entry(list, _("Device name"), &config.device_name, NULL);
+	gui_list_auto_entry(list, _("AP password"), &config.wifi.ap_pass, NULL);
+    gui_list_auto_entry(list, _("Network info"), NEXT_TASK, &gui_wifi_info);
 
 	return list;
 }

@@ -213,7 +213,7 @@ static void Map_update(widget_slot_t * slot)
         }
         else
         {
-            strcpy(buff, "Fit to track");
+            strcpy(buff, _("Fit to track"));
         }
 
         lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
@@ -248,7 +248,7 @@ static void Map_edit(widget_slot_t * slot, uint8_t action)
 		if (local->edit == NULL)
 		{
 			//create menu
-			local->edit = widget_create_edit_overlay("", "Set Zoom Level");
+			local->edit = widget_create_edit_overlay("", _("Set Zoom Level"));
 
             //no anim, make fully transparent
             lv_anim_get(local->edit, NULL);

@@ -23,7 +23,7 @@ static void GSpeed_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "GSpeed");
+    	widget_add_title(base, slot, _("GSpeed"));
 
     char tmp[8];
     char * units = tmp;
@@ -41,7 +41,7 @@ static void GSpeed_update(widget_slot_t * slot)
     char value[8];
     if (fc.gnss.fix == 0)
     {
-    	strcpy(value, "No\nGNSS");
+    	strcpy(value, _("No\nGNSS"));
     }
     else
     {

@@ -41,7 +41,7 @@ static void TTrace_init(lv_obj_t * base, widget_slot_t * slot)
 
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Thermal trace");
+    	widget_add_title(base, slot, _("Thermal trace"));
 
 	 for (uint8_t i = 0; i < THERMAL_DOTS_POSITIONS; i++)
 	 {
