@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-//#define DEBUG_LEVEL DBG_DEBUG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"
@@ -52,7 +52,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       9
+#define CACHE_VERSION       12
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -809,13 +809,13 @@ bool tile_poi_add(map_poi_t *poi, char *name, uint16_t name_len)
     return false;
 }
 
+static uint8_t poi_magic = 0xFF;
 
 uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache, uint8_t chunk_index)
 {
     if (map_cache == NULL)
         return 0;
 
-    static uint8_t poi_magic = 0xFF;
     poi_magic = (poi_magic + 1) % 0xFF;
 
     map_header_t * mh = (map_header_t *)map_cache;
@@ -1294,7 +1294,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 
     if (file_exists(tile_path))
     {
-        DBG("Trying to load from cache");
+        DBG("Trying to load from cache %s", tile_path);
 
         //load from cache
         cache_header_t ch;
@@ -1323,6 +1323,8 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
             {
                 br = red_read(f, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
 
+                poi_magic = (poi_magic + 1) % 0xFF;
+
                 if (br != MAP_BUFFER_SIZE)
                 {
                     WARN("Cache body size not valid");
@@ -1338,13 +1340,15 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
                     poi.chunk = index;
                     poi.type = cp.type;
                     poi.uid = cp.uid;
-                    poi.magic = 0xFF;
+                    poi.magic = poi_magic;
                     poi.x = cp.x;
                     poi.y = cp.y;
 
                     uint16_t name_len = (cp.name_len + 3) & ~3;
                     char name[name_len];
                     red_read(f, name, name_len);
+
+                    DBG("Reading POI %u %u %u %u %s (%u)", cp.uid, cp.x, cp.y, cp.type, name, cp.name_len);
 
                     tile_poi_add(&poi, name, cp.name_len);
 
@@ -1417,7 +1421,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     //draw lines and popygons
     tile_create(lon1, lat1, lon2, lat2, step_x, step_y, zoom, ch.src_files_magic, index);
 
-    DBG("Saving tile to storage");
+    DBG("Saving tile to storage %s", tile_path);
 
     ch.number_of_poi = 0;
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
@@ -1452,6 +1456,8 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
             red_write(f, &cp, sizeof(cache_poi_t));
             uint16_t name_len = (cp.name_len + 3) & ~3;
             red_write(f, gui.map.poi[i].name, name_len);
+
+            DBG("Storing POI %u %u %u %u %s (%u)", cp.uid, cp.x, cp.y, cp.type, gui.map.poi[i].name, cp.name_len);
         }
     }
     red_close(f);
