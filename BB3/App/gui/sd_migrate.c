@@ -436,12 +436,7 @@ void sd_migrate_dialog()
     gui_lock_acquire();
     gui_lock_release();
 
-    dialog_show(_("Warning"), _("This firmware is using new method to store data.\n\n"
-            "We need to reformat the storage.\n\n"
-            "Your IGC files, maps and AGL will be lost.\n\n"
-            "If you need to backup them, press cancel.\n\n"
-            "Your configuration will be preserved\n\n"
-            "Continue?\n"), dialog_yes_no, sd_migrate_cb);
+    dialog_show(_("Warning"), _("This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n"), dialog_yes_no, sd_migrate_cb);
 
     osSemaphoreAcquire(lock, WAIT_INF);
 }

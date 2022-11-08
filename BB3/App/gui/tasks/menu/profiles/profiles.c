@@ -91,10 +91,10 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
         case FM_CB_FOCUS_FILE:
         {
             ctx_clear();
-            ctx_add_option(_(LV_SYMBOL_PLUS " Add new"));
-            ctx_add_option(_(LV_SYMBOL_EDIT " Rename"));
-            ctx_add_option(_(LV_SYMBOL_COPY " Duplicate"));
-            ctx_add_option(_(LV_SYMBOL_TRASH " Delete"));
+            ctx_add_option(LV_SYMBOL_PLUS " Add new");
+            ctx_add_option(LV_SYMBOL_EDIT " Rename");
+            ctx_add_option(LV_SYMBOL_COPY " Duplicate");
+            ctx_add_option(LV_SYMBOL_TRASH " Delete");
             ctx_show();
             break;
         }
@@ -274,10 +274,10 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
         case FM_CB_FOCUS_FILE:
         {
             ctx_clear();
-            ctx_add_option(_(LV_SYMBOL_PLUS " Add new"));
-            ctx_add_option(_(LV_SYMBOL_EDIT " Rename"));
-            ctx_add_option(_(LV_SYMBOL_COPY " Duplicate"));
-            ctx_add_option(_(LV_SYMBOL_TRASH " Delete"));
+            ctx_add_option(LV_SYMBOL_PLUS " Add new");
+            ctx_add_option(LV_SYMBOL_EDIT " Rename");
+            ctx_add_option(LV_SYMBOL_COPY " Duplicate");
+            ctx_add_option(LV_SYMBOL_TRASH " Delete");
             ctx_show();
             break;
         }
