@@ -549,13 +549,13 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
         {
             char msg[128];
 
-            snprintf(msg, sizeof(msg), "Too many files to list\nShowing %u files", FM_FILE_MAX_COUNT);
+            snprintf(msg, sizeof(msg), _("Too many files to list\nShowing %u files"), FM_FILE_MAX_COUNT);
             gui_list_note_add_entry(local->list, msg, LIST_NOTE_COLOR);
         }
 
         if (local->filenames_count == 0)
         {
-            gui_list_note_add_entry(local->list, "Nothing to show", LIST_NOTE_COLOR);
+            gui_list_note_add_entry(local->list, _("Nothing to show"), LIST_NOTE_COLOR);
             gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 
             local->cb(FM_CB_APPEND, "");
@@ -565,7 +565,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             if (local->filenames_count > 20)
             {
                 //start task, creating lvgl object take lot of time
-                dialog_show("Listing files", path, dialog_progress, NULL);
+                dialog_show(_("Listing files"), path, dialog_progress, NULL);
                 dialog_progress_spin();
                 gui_low_priority(true);
 
@@ -580,7 +580,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	}
 	else
 	{
-        gui_list_note_add_entry(local->list, "Directory not found", LIST_NOTE_COLOR);
+        gui_list_note_add_entry(local->list, _("Directory not found"), LIST_NOTE_COLOR);
         gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 
         local->cb(FM_CB_APPEND, "");
