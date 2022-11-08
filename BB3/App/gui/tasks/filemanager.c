@@ -25,6 +25,7 @@
 
 #include "gui/gui_list.h"
 #include "gui/ctx.h"
+#include "gui/dialog.h"
 
 typedef struct
 {
@@ -371,6 +372,98 @@ static int fm_sort_date(const void * a, const void * b)
     return 0;
 }
 
+void filemanager_open_task(void * param)
+{
+    bool separate_task = param;
+
+    if (local->flags & FM_FLAG_SORT_NAME)
+    {
+        qsort(local->filenames, local->filenames_count, sizeof(fm_record_cache_t), fm_sort_name);
+    }
+
+    if (local->flags & FM_FLAG_SORT_DATE)
+    {
+        qsort(local->filenames, local->filenames_count, sizeof(fm_record_cache_t), fm_sort_date);
+    }
+
+    for ( int i = 0; i < local->filenames_count; i++ )
+    {
+        if (separate_task)
+        {
+            dialog_progress_set_progress((i * 100) / local->filenames_count);
+        }
+
+        char name[PATH_LEN];
+        if (RED_S_ISDIR(local->filenames[i].mode))
+        {
+            snprintf(name, sizeof(name), LV_SYMBOL_DIRECTORY " %s", local->filenames[i].name);
+        }
+        else
+        {
+            if (local->flags & FM_FLAG_SHOW_EXT)
+            {
+                strcpy(name, local->filenames[i].name);
+            }
+            else
+            {
+                filemanager_get_filename_no_ext(name, local->filenames[i].name);
+            }
+        }
+
+        gui_lock_acquire();
+        gui_list_text_add_entry(local->list, name);
+        gui_lock_release();
+    }
+
+    gui_lock_acquire();
+
+    local->cb(FM_CB_APPEND, "");
+
+    //get dir inode
+    int32_t f = red_open(local->path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        REDSTAT stat;
+        red_fstat(f, &stat);
+        red_close(f);
+
+        local->inode = stat.st_ino;
+    }
+
+    if (local->inode != 0)
+    {
+        //focus previous position
+        uint16_t last_pos = filemanager_retrive_inode_pos(local->inode);
+        lv_obj_t * obj = gui_list_get_entry(last_pos);
+        if (obj != NULL)
+        {
+            gui_focus_child(obj, NULL);
+        }
+        else if (last_pos > 0)
+        {
+            obj = gui_list_get_entry(gui_list_size() - 1);
+            if (obj != NULL)
+            {
+                gui_focus_child(obj, NULL);
+            }
+        }
+    }
+
+
+    gui_lock_release();
+
+
+    gui_low_priority(false);
+
+    if (separate_task)
+    {
+        dialog_close();
+        RedTaskUnregister();
+        vTaskDelete(NULL);
+    }
+}
+
+
 /**
  * Start a filemanager on the given path and use callback function to control everything.
  *
@@ -408,15 +501,17 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
     local->cb(FM_CB_INIT, path);
 
 	REDDIR * dir = red_opendir(path);
+	bool too_many = true;
 	if (dir != NULL)
 	{
-
-		uint16_t cnt = 0;
-        while (cnt < FM_FILE_MAX_COUNT)
+        while (local->filenames_count < FM_FILE_MAX_COUNT)
         {
             REDDIRENT * entry = red_readdir(dir);
             if (entry == NULL)
+            {
+                too_many = false;
             	break;
+            }
 
             //hide system files
             if (entry->d_name[0] == '.')
@@ -442,49 +537,43 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
                     continue;
             }
 
-            local->filenames[cnt].date = entry->d_stat.st_atime;
-            local->filenames[cnt].mode = entry->d_stat.st_mode;
-            strncpy(local->filenames[cnt].name, entry->d_name, REDCONF_NAME_MAX);
+            local->filenames[local->filenames_count].date = entry->d_stat.st_atime;
+            local->filenames[local->filenames_count].mode = entry->d_stat.st_mode;
+            strncpy(local->filenames[local->filenames_count].name, entry->d_name, REDCONF_NAME_MAX);
             local->filenames_count++;
-
-            cnt++;
         }
+
         red_closedir(dir);
 
-        if (cnt == 0)
+        if (too_many)
+        {
+            char msg[128];
+
+            snprintf(msg, sizeof(msg), "Too many files to list\nShowing %u files", FM_FILE_MAX_COUNT);
+            gui_list_note_add_entry(local->list, msg, LIST_NOTE_COLOR);
+        }
+
+        if (local->filenames_count == 0)
         {
             gui_list_note_add_entry(local->list, "Nothing to show", LIST_NOTE_COLOR);
             gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
+
+            local->cb(FM_CB_APPEND, "");
         }
         else
         {
-            if (local->flags & FM_FLAG_SORT_NAME)
+            if (local->filenames_count > 20)
             {
-                qsort(local->filenames, cnt, sizeof(fm_record_cache_t), fm_sort_name);
+                //start task, creating lvgl object take lot of time
+                dialog_show("Listing files", path, dialog_progress, NULL);
+                dialog_progress_spin();
+                gui_low_priority(true);
+
+                xTaskCreate((TaskFunction_t)filemanager_open_task, "fm_open_task", 1024 * 2, (void *)true, osPriorityIdle + 1, NULL);
             }
-            if (local->flags & FM_FLAG_SORT_DATE)
+            else
             {
-                qsort(local->filenames, cnt, sizeof(fm_record_cache_t), fm_sort_date);
-            }
-            for ( int i = 0; i < cnt; i++ )
-            {
-                char name[PATH_LEN];
-                if (RED_S_ISDIR(local->filenames[i].mode))
-                {
-                    snprintf(name, sizeof(name), LV_SYMBOL_DIRECTORY " %s", local->filenames[i].name);
-                }
-                else
-                {
-                    if (local->flags & FM_FLAG_SHOW_EXT)
-                    {
-                        strcpy(name, local->filenames[i].name);
-                    }
-                    else
-                    {
-                        filemanager_get_filename_no_ext(name, local->filenames[i].name);
-                    }
-                }
-                gui_list_text_add_entry(local->list, name);
+                filemanager_open_task((void *)false);
             }
         }
 
@@ -493,38 +582,8 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	{
         gui_list_note_add_entry(local->list, "Directory not found", LIST_NOTE_COLOR);
         gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
-	}
 
-	local->cb(FM_CB_APPEND, path);
-
-    //get dir inode
-    int32_t f = red_open(path, RED_O_RDONLY);
-    if (f > 0)
-    {
-        REDSTAT stat;
-        red_fstat(f, &stat);
-        red_close(f);
-
-        local->inode = stat.st_ino;
-    }
-
-	if (local->inode != 0)
-	{
-        //focus previous position
-        uint16_t last_pos = filemanager_retrive_inode_pos(local->inode);
-        lv_obj_t * obj = gui_list_get_entry(last_pos);
-        if (obj != NULL)
-        {
-            gui_focus_child(obj, NULL);
-        }
-        else if (last_pos > 0)
-        {
-            obj = gui_list_get_entry(gui_list_size() - 1);
-            if (obj != NULL)
-            {
-                gui_focus_child(obj, NULL);
-            }
-        }
+        local->cb(FM_CB_APPEND, "");
 	}
 }
 

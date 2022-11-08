@@ -256,7 +256,9 @@ typedef struct
 	} dbg;
 
 	osSemaphoreId_t lock;
-	xQueueHandle page_queue;
+    uint32_t last_unlock;
+
+    xQueueHandle page_queue;
 
 	gui_injected_function_t injected_function;
 
@@ -278,6 +280,8 @@ void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb);
 void gui_init();
 void gui_loop();
 void gui_stop();
+
+void gui_yield();
 
 void gui_take_screenshot();
 void gui_lock_acquire();

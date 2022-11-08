@@ -200,8 +200,8 @@ void gui_lock_release()
 {
 	if (xTaskGetCurrentTaskHandle() != thread_gui)
 	{
-
         gui_lock_owner = NULL;
+        gui.last_unlock = HAL_GetTick();
         osMutexRelease(gui.lock);
 	}
 }
@@ -214,15 +214,34 @@ void gui_create_lock()
     //lock is active on create
 }
 
+#define UNLOCK_GUI_EVERY    200
+
+//this function is called from lvgl scheduler every 200ms if possible
+//it prevents starving threads waiting for gui.lock during intensive redraws
+//note: lvgl scheduler is non-Preemptive, unable to interrupt running task
 void gui_unlock_cb()
 {
+    gui.last_unlock = HAL_GetTick();
     osMutexRelease(gui.lock);
     //Force unlock GUI thread
     osMutexAcquire(gui.lock, WAIT_INF);
 }
 
+//Manually release lock during long processing in gui
+//this is last resort as it enable gui to become unresponsive
+//use new freertos task to process lot of data if possible
+void gui_yield()
+{
+    if (gui.last_unlock + UNLOCK_GUI_EVERY < HAL_GetTick())
+    {
+        gui_unlock_cb();
+    }
+}
+
+//unblock gui.lock when we wait for hardware to flush the buffer
 void gui_disp_wait_cb(struct _disp_drv_t * disp_drv)
 {
+    gui.last_unlock = HAL_GetTick();
     osMutexRelease(gui.lock);
     tft_wait_to_finish_dma();
     osMutexAcquire(gui.lock, WAIT_INF);
@@ -304,6 +323,7 @@ void thread_gui_start(void *argument)
 
     INFO("GUI ready");
 
+    gui.last_unlock = HAL_GetTick();
     osMutexRelease(gui.lock);
 
     uint32_t delay;
@@ -311,7 +331,7 @@ void thread_gui_start(void *argument)
     uint32_t frame_duration = 0;
     uint8_t frame_counter = 0;
 
-    lv_task_create(gui_unlock_cb, 200, LV_TASK_PRIO_HIGHEST, NULL);
+    lv_task_create(gui_unlock_cb, UNLOCK_GUI_EVERY, LV_TASK_PRIO_HIGHEST, NULL);
 
     while (!system_power_off)
 	{
@@ -337,6 +357,7 @@ void thread_gui_start(void *argument)
 		delay = lv_task_handler();
 
 		gui_lock_owner = NULL;
+        gui.last_unlock = HAL_GetTick();
 		osMutexRelease(gui.lock);
 
 		//do not starve idle, allow more time for processing
