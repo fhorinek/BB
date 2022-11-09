@@ -192,10 +192,12 @@ void thread_map_start(void *argument)
     	{
     		if (tiles[i].reload)
     		{
+    		    gui_low_priority(true);
     			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
     			{
     				tiles[i].reload = false;
     			}
+    			gui_low_priority(false);
     		}
     	}
 
@@ -204,10 +206,24 @@ void thread_map_start(void *argument)
     	{
     		if (tiles[i].reload)
     		{
+    		    gui_low_priority(true);
     			tile_generate(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+    			gui_low_priority(false);
     			break;
     		}
     	}
+
+        //draw airspace
+        for (uint8_t i = 0; i < 9; i++)
+        {
+            if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
+            {
+                gui_low_priority(true);
+                tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                gui_low_priority(false);
+                break;
+            }
+        }
 
 		if (gui.map.magic == old_magic)
 		{

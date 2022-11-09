@@ -6,6 +6,7 @@
  */
 #include "common.h"
 #include "system/bsod.h"
+#include "tmalloc.h"
 
 uint16_t rtos_counter = 0;
 
@@ -28,4 +29,15 @@ unsigned long getRunTimeCounterValue(void)
 void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
 {
     bsod_msg("RTOS Task '%s' stack overflow!", pcTaskName);
+}
+
+
+void *pvPortMalloc( size_t xWantedSize )
+{
+    return tmalloc( xWantedSize );
+}
+
+void vPortFree( void *pv )
+{
+    tfree( pv );
 }
