@@ -78,8 +78,7 @@ static bool advanced_calib_clear(lv_obj_t * obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
 		dialog_show(_("Reset\ncalibration?"),
-				_("Do you want to clear calibration data for motion sensors?\n"
-				"You will need to redo the calibration for proper device functions."),
+				_("Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions."),
 				dialog_yes_no, advanced_calib_clear_cb);
 
 		//supress default handler
@@ -122,9 +121,7 @@ static bool advanced_crash_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        dialog_show(_("Confirm"), _("This will stop the device and create diagnostic report.\n\n"
-                "We will trigger crash to generate the report.\n\n"
-                "The crash report will be available on your strato via USB massstorage."), dialog_yes_no, advanced_crash_dialog_cb);
+        dialog_show(_("Confirm"), _("This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage."), dialog_yes_no, advanced_crash_dialog_cb);
     }
 
     return true;
