@@ -3,22 +3,6 @@
 #include "lv_i18n_fix.h"
 #include "system/bsod.h"
 
-////////////////////////////////////////////////////////////////////////////////
-// Define plural operands
-// http://unicode.org/reports/tr35/tr35-numbers.html#Operands
-
-// Integer version, simplified
-
-#define UNUSED(x) (void)(x)
-
-static inline uint32_t op_n(int32_t val) { return (uint32_t)(val < 0 ? -val : val); }
-static inline uint32_t op_i(uint32_t val) { return val; }
-// always zero, when decimal part not exists.
-static inline uint32_t op_v(uint32_t val) { UNUSED(val); return 0;}
-static inline uint32_t op_w(uint32_t val) { UNUSED(val); return 0; }
-static inline uint32_t op_f(uint32_t val) { UNUSED(val); return 0; }
-static inline uint32_t op_t(uint32_t val) { UNUSED(val); return 0; }
-
 #include "lv_i18n_data.inc"
 
 ////////////////////////////////////////////////////////////////////////////////
