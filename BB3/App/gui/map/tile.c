@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "linked_list.h"
@@ -54,7 +54,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       31
+#define CACHE_VERSION       32
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -1408,7 +1408,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     tile_get_cache(lon, lat, zoom, &c_lon, &c_lat, tile_path);
 
     uint32_t start = HAL_GetTick();
-    DBG("\n\nGeneating start [%u]", index);
+    INFO("\n\nGeneating start [%u]", index);
 
     int32_t step_x;
     int32_t step_y;
@@ -1478,7 +1478,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     }
     red_close(f);
 
-    DBG("Tile generating duration %u ms", HAL_GetTick() - start);
+    INFO("Tile generating duration %u ms", HAL_GetTick() - start);
 
     gui.map.chunks[index].center_lon = c_lon;
     gui.map.chunks[index].center_lat = c_lat;
