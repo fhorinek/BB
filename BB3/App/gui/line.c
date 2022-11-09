@@ -12,34 +12,31 @@
 #define PI 3.14159265359f
 
 
-float capsuleSDF(float px, float py, float ax, float ay, float bx, float by, float r) {
-    float pax = px - ax, pay = py - ay, bax = bx - ax, bay = by - ay;
-    float h = fmaxf(fminf((pax * bax + pay * bay) / (bax * bax + bay * bay), 1.0f), 0.0f);
-    float dx = pax - bax * h, dy = pay - bay * h;
+static inline float capsuleSDF(lv_coord_t px, lv_coord_t py, lv_coord_t ax, lv_coord_t ay, lv_coord_t bx, lv_coord_t by, float r) {
+    lv_coord_t pax = px - ax, pay = py - ay, bax = bx - ax, bay = by - ay;
+    lv_coord_t top = pax * bax + pay * bay;
+    float bot = bax * bax + bay * bay;
+    float h = fmaxf(fminf(top / (bot), 1.0f), 0.0f);
+    lv_coord_t dx = pax - bax * h, dy = pay - bay * h;
     return sqrtf(dx * dx + dy * dy) - r;
 }
 
 
-void lineSDFAABB(lv_color_t * buf, lv_coord_t w, float ax, float ay, float bx, float by, float r, lv_color_t color)
+static inline void lineSDFAABB(lv_color_t * buf, lv_coord_t w, lv_coord_t ax, lv_coord_t ay, lv_coord_t bx, lv_coord_t by, float r, lv_color_t color)
 {
-    int x0 = (int)floorf(fminf(ax, bx) - r);
-    int x1 = (int) ceilf(fmaxf(ax, bx) + r);
-    int y0 = (int)floorf(fminf(ay, by) - r);
-    int y1 = (int) ceilf(fmaxf(ay, by) + r);
+    lv_coord_t x0 = max(0, min(w - 1, (min(ax, bx) - r)));
+    lv_coord_t x1 = max(0, min(w - 1, (max(ax, bx) + r)));
+    lv_coord_t y0 = max(0, min(w - 1, (min(ay, by) - r)));
+    lv_coord_t y1 = max(0, min(w - 1, (max(ay, by) + r)));
 
-    x0 = max(0, min(w - 1, x0));
-    x1 = max(0, min(w - 1, x1));
-    y0 = max(0, min(w - 1, y0));
-    y1 = max(0, min(w - 1, y1));
-
-    for (int y = y0; y <= y1; y++)
+    for (lv_coord_t y = y0; y <= y1; y++)
     {
-        for (int x = x0; x <= x1; x++)
+        for (lv_coord_t x = x0; x <= x1; x++)
         {
             uint32_t index = w * y + x;
             lv_color_t * pixel = &buf[index];
 
-            uint8_t opa = 255 * fmaxf(fminf(0.5f - capsuleSDF(x, y, ax, ay, bx, by, r), 1.0f), 0.0f);
+            uint8_t opa = 255 * fmaxf(fminf(0.5f - capsuleSDF(x, y, ax, ay, bx, by, r/2.0), 1.0f), 0.0f);
             *pixel = lv_color_mix(color, *pixel, opa);
         }
     }
@@ -59,7 +56,7 @@ void draw_line(lv_obj_t * canvas, const lv_point_t points[], uint32_t point_cnt,
     {
         p2 = points[i];
         lineSDFAABB((lv_color_t *)img_dsc->data, img_dsc->header.w,
-                p1.x, p1.y, p2.x, p2.y, line_draw_dsc->width / 2.0, line_draw_dsc->color);
+                p1.x, p1.y, p2.x, p2.y, line_draw_dsc->width, line_draw_dsc->color);
         p1 = p2;
     }
 

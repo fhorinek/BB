@@ -108,7 +108,7 @@ typedef struct
     bool ready;
     bool not_used;
 
-    uint8_t _pad[1];
+    bool airspace;
 
 } map_chunk_t;
 
@@ -218,7 +218,7 @@ typedef struct
         uint8_t poi_size;
 
         uint8_t magic;
-        uint8_t _pad[1];
+        bool _pad[1];
 	} map;
 
 	//ctx menu

@@ -8,13 +8,13 @@
 
 #include "linked_list.h"
 
-#include "linked_list.h"
+static char malloc_tag[] = "linked_list";
 
 void list_add_sorted_unique(uint32_t addr, ll_item_t ** list_start, ll_item_t ** list_end)
 {
     ll_item_t * add_item(ll_item_t * actual, ll_item_t * last, ll_item_t ** list_end)
     {
-        ll_item_t * new = (ll_item_t *) tmalloc(sizeof(ll_item_t));
+        ll_item_t * new = (ll_item_t *) tmalloc_2(sizeof(ll_item_t), malloc_tag);
 
         new->feature_addr = addr;
         new->prev = actual;
@@ -100,6 +100,6 @@ void list_free(ll_item_t * list_start, ll_item_t * list_end)
 	{
 		tmp = actual;
 		actual = actual->next;
-		tfree(tmp);
+		tfree_2(tmp, malloc_tag, sizeof(ll_item_t));
 	}
 }

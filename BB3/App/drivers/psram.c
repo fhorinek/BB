@@ -197,6 +197,94 @@ void ps_malloc_info()
     INFO("");
 }
 
+typedef struct
+{
+    char file[FILE_NAME_SIZE];
+    uint32_t line;
+    uint32_t cnt;
+    uint32_t total;
+} slot_sumary_t;
+
+#define SUMARY_SLOTS    32
+
+slot_sumary_t * ps_find_sumary_slot(slot_sumary_t * slots, char * file, uint32_t line)
+{
+    for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
+    {
+        if (line == slots[i].line)
+        {
+            if (strcmp(slots[i].file, file) == 0)
+            {
+                return &slots[i];
+            }
+        }
+
+        if (slots[i].file[0] == 0)
+        {
+            strcpy(slots[i].file, file);
+            slots[i].line = line;
+
+            return &slots[i];
+        }
+    }
+
+    return NULL;
+}
+
+void ps_malloc_summary_info()
+{
+    osSemaphoreAcquire(psram_lock, WAIT_INF);
+
+    slot_sumary_t slots[SUMARY_SLOTS] = {0};
+
+    ps_malloc_header_t * act = (ps_malloc_header_t *)PSRAM_ADDR;
+
+    void * last = 0;
+    while (act < (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE))
+    {
+        if (!PS_IS_FREE(act))
+        {
+            slot_sumary_t * s = ps_find_sumary_slot(slots, act->file, 0);
+            if (s != NULL)
+            {
+                s->cnt++;
+                s->total += act->chunk_size;
+            }
+        }
+
+        if (last != act->prev_header)
+        {
+            ERR(" ^^^ Corruption! ^^^");
+            bsod_msg("PSRAM memory corrupted!");
+        }
+
+        last = act;
+        act = (void *)act + PS_SIZE(act) + sizeof(ps_malloc_header_t);
+    }
+
+    osSemaphoreRelease(psram_lock);
+
+    uint32_t total_mem = 0;
+    uint32_t total_slots = 0;
+
+    for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
+    {
+        if (slots[i].file[0] != 0)
+        {
+            INFO(" %3u  %3u  %10u\t%s:%u", i, slots[i].cnt, slots[i].total, slots[i].file, slots[i].line);
+            total_mem += slots[i].total;
+            total_slots += slots[i].cnt;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    INFO("total %u %u/%u (%u%% full)", total_slots, total_mem, PSRAM_SIZE, (total_mem * 100) / PSRAM_SIZE);
+    INFO("");
+}
+
 void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 {
 	osSemaphoreAcquire(psram_lock, WAIT_INF);
@@ -264,6 +352,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 
     if (ret == NULL)
     {
+        ps_malloc_summary_info();
         bsod_msg("Unable to allocate more memory.");
     }
 

@@ -213,11 +213,11 @@ bool copy_file(char * src, char * dst)
 {
     int32_t f_src;
     int32_t f_dst;
-    uint8_t * work_buffer = (uint8_t *) malloc(COPY_WORK_BUFFER_SIZE);
+    uint8_t * work_buffer = (uint8_t *) tmalloc(COPY_WORK_BUFFER_SIZE);
 
     if (work_buffer == NULL)
     {
-        free(work_buffer);
+        tfree(work_buffer);
         return false;
     }
 
@@ -253,7 +253,7 @@ bool copy_file(char * src, char * dst)
         ret = false;
     }
 
-    free(work_buffer);
+    tfree(work_buffer);
 
     return ret;
 }

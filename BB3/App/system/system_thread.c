@@ -139,7 +139,9 @@ void cmd_step()
             INFO(" s - screenshot");
             INFO(" l - LVGL memory status");
             INFO(" m - malloc allocation table");
+            INFO(" n - malloc summary info");
             INFO(" p - PSRAM allocation table");
+            INFO(" i - PSRAM summary info");
             INFO(" d - LVGL defragment");
             INFO(" f - Fake gnss data");
             INFO("");
@@ -163,10 +165,22 @@ void cmd_step()
             tmalloc_print();
         }
 
+        if (c == 'n')
+        {
+            INFO("=== Malloc summary ===");
+            tmalloc_summary_info();
+        }
+
         if (c == 'p')
         {
             INFO("=== PSRAM memory ===");
             ps_malloc_info();
+        }
+
+        if (c == 'i')
+        {
+            INFO("=== PSRAM memory summary ===");
+            ps_malloc_summary_info();
         }
 
         if (c == 'd')
@@ -248,12 +262,15 @@ void thread_system_start(void * argument)
 {
     UNUSED(argument);
 
+    //start trace malloc
+    tmalloc_init();
+
     //Enabling main power
     GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
     GpioWrite(VCC_MAIN_EN, HIGH);
 
-    //start trace malloc
-    tmalloc_init();
+	//init sd card
+	sd_init();
 
     //start debug thread
     start_thread(thread_debug);
@@ -270,8 +287,6 @@ void thread_system_start(void * argument)
     //init PSRAM
     PSRAM_init();
 
-	//init sd card
-	sd_init();
 
     //rtc init
     rtc_init();

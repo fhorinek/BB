@@ -20,12 +20,17 @@ void tmalloc_init();
 #define tmalloc(size) tmalloc_real(size, __FILE_NAME__, __LINE__)
 #define tfree(ptr) tfree_real(ptr, __FILE_NAME__, __LINE__)
 
+#define tmalloc_2(size, slot) tmalloc_real(size, slot, 0xFFFFFFFF)
+#define tfree_2(ptr, slot, size) tfree_real(ptr, slot, -size)
+
+
 //malloc functions with tracing
 void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno);
-void tfree_real(void * ptr, char * name, uint32_t lineno);
+void tfree_real(void * ptr, char * name, int32_t lineno);
 
 //print traced memory
 void tmalloc_print();
+void tmalloc_summary_info();
 
 //tag slots,
 //slot will store the tag number during tmalloc
@@ -40,7 +45,11 @@ void tmalloc_tag_inc();
 #define tmalloc(size)   malloc(size)
 #define tfree(ptr)      free(ptr)
 
+#define tmalloc_2(size, slot) malloc(size)
+#define tfree_2(ptr, slot, size) free(ptr)
+
 #define tmalloc_print() INFO("Trace malloc disabled");
+#define tmalloc_summary_info() INFO("Trace malloc disabled");
 
 #define tmalloc_tag(tag)
 #define tmalloc_tag_inc()
