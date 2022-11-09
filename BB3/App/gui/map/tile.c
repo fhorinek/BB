@@ -14,7 +14,9 @@
 #include "fc/fc.h"
 #include "fc/agl.h"
 #include "etc/geo_calc.h"
+
 #include "gui/polygon.h"
+#include "gui/line.h"
 
 #define MAP_BUFFER_SIZE (MAP_W * MAP_H * sizeof(lv_color_t))
 
@@ -52,7 +54,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       9
+#define CACHE_VERSION       16
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -810,6 +812,8 @@ bool tile_poi_add(map_poi_t *poi, char *name, uint16_t name_len)
 }
 
 
+//#define ALT_LINE
+
 uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache, uint8_t chunk_index)
 {
     if (map_cache == NULL)
@@ -1036,13 +1040,20 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                     points[j].y = py;
                 }
 
+
+#ifdef ALT_LINE
+                if (draw_warning)
+                    draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
+
+                draw_line(gui.map.canvas, points, number_of_points, &line_draw);
+#else
                 gui_lock_acquire();
                 if (draw_warning)
                     lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
 
                 lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
                 gui_lock_release();
-
+#endif
                 tfree(points);
             }
         }
@@ -1251,9 +1262,14 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 			if (!(actual->pen_width & BRUSH_TRANSPARENT_FLAG))
 				draw_polygon(gui.map.canvas, points, actual->number_of_points + 1, &brush_draw, MAP_H);
 
-			gui_lock_acquire();
-			lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
-			gui_lock_release();
+
+#ifdef ALT_LINE
+			draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
+#else
+            gui_lock_acquire();
+            lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
+            gui_lock_release();
+#endif
 
 			tfree(points);
 		}

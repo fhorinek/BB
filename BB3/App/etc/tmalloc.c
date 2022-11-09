@@ -7,6 +7,9 @@
 
 #include "tmalloc.h"
 
+static int32_t total_allocated = 0;
+static osMutexId_t lock;
+
 #ifdef MALLOC_TRACE
 
 #define FILE_NAME_SIZE  16
@@ -20,7 +23,6 @@ typedef struct
     uint16_t tag;
 } mem_slot_t;
 
-static int32_t total_allocated = 0;
 static uint16_t tmalloc_tag_val = 0;
 
 #define NUMBER_OF_SLOTS 2340
@@ -28,7 +30,6 @@ static uint16_t tmalloc_tag_val = 0;
 static DTCM_SECTION mem_slot_t tmalloc_slots[NUMBER_OF_SLOTS] = {0};
 static uint16_t mem_index_next = 0;
 
-static osMutexId_t lock;
 
 void tmalloc_tag(uint16_t tag)
 {
@@ -40,18 +41,6 @@ void tmalloc_tag_inc()
     tmalloc_tag_val++;
 }
 
-
-void tmalloc_init()
-{
-    INFO("Trace malloc enabled");
-
-    lock = osMutexNew(NULL);
-    vQueueAddToRegistry(lock, "tmalloc");
-
-    memset(tmalloc_slots, 0, sizeof(tmalloc_slots));
-
-    osMutexRelease(lock);
-}
 
 static void tmalloc_print_unlocked()
 {
@@ -190,3 +179,17 @@ void tmalloc_print()
 }
 
 #endif
+
+void tmalloc_init()
+{
+    INFO("Trace malloc enabled");
+
+    lock = osMutexNew(NULL);
+    vQueueAddToRegistry(lock, "tmalloc");
+
+#ifdef MALLOC_TRACE
+    memset(tmalloc_slots, 0, sizeof(tmalloc_slots));
+#endif
+
+    osMutexRelease(lock);
+}
