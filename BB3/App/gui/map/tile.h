@@ -21,5 +21,6 @@ uint8_t tile_find_inside(int32_t lon, int32_t lat, uint16_t zoom);
 void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_y);
 bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom);
 void tile_unload_pois(uint8_t index);
+bool tile_airspace(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom);
 
 #endif /* TILE_H_ */
