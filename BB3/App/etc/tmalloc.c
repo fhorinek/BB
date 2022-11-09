@@ -11,10 +11,11 @@
 
 #define FILE_NAME_SIZE  16
 
+
 typedef struct
 {
     void * ptr;
-    char file[FILE_NAME_SIZE];
+    uint32_t file;
     size_t size;
     uint16_t lineno;
     uint16_t tag;
@@ -23,9 +24,12 @@ typedef struct
 static int32_t total_allocated = 0;
 static uint16_t tmalloc_tag_val = 0;
 
-#define NUMBER_OF_SLOTS 2340
+#define NUMBER_OF_SLOTS 4032
+#define NUMBER_OF_FILES 64
 
 static DTCM_SECTION mem_slot_t tmalloc_slots[NUMBER_OF_SLOTS] = {0};
+static DTCM_SECTION char tmalloc_filenames[NUMBER_OF_FILES][FILE_NAME_SIZE] = {0};
+
 static uint16_t mem_index_next = 0;
 
 static osMutexId_t lock;
@@ -45,10 +49,20 @@ void tmalloc_init()
 {
     INFO("Trace malloc enabled");
 
-    lock = osMutexNew(NULL);
+    static StaticSemaphore_t static_mem;
+
+    osMutexAttr_t attr = {
+        .name = "tmalloc",
+        .attr_bits = 0,
+        .cb_mem = &static_mem,
+        .cb_size = sizeof(static_mem),
+    };
+
+    lock = osMutexNew(&attr);
     vQueueAddToRegistry(lock, "tmalloc");
 
     memset(tmalloc_slots, 0, sizeof(tmalloc_slots));
+    memset(tmalloc_filenames, 0, sizeof(tmalloc_filenames));
 
     osMutexRelease(lock);
 }
@@ -63,11 +77,104 @@ static void tmalloc_print_unlocked()
     {
         if (tmalloc_slots[i].size != 0)
         {
-            INFO("%u\t%u\t%08X\t%u\t%s:%u", i, tmalloc_slots[i].tag, tmalloc_slots[i].ptr, tmalloc_slots[i].size, tmalloc_slots[i].file, tmalloc_slots[i].lineno);
+            INFO("%u\t%u\t%08X\t%u\t%s:%u", i, tmalloc_slots[i].tag, tmalloc_slots[i].ptr, tmalloc_slots[i].size, tmalloc_filenames[tmalloc_slots[i].file], tmalloc_slots[i].lineno);
         }
     }
 
     INFO(" =========================");
+}
+
+typedef struct
+{
+    uint16_t file;
+    uint16_t line;
+    uint32_t cnt;
+    uint32_t total;
+} slot_sumary_t;
+
+#define SUMARY_SLOTS    32
+
+slot_sumary_t * tmalloc_find_sumary_slot(slot_sumary_t * slots, uint32_t file, uint16_t line)
+{
+    for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
+    {
+        if (line == slots[i].line)
+        {
+            if (slots[i].file == file)
+            {
+                return &slots[i];
+            }
+        }
+
+        if (slots[i].file == 0xFFFF)
+        {
+            slots[i].file = file;
+            slots[i].line = line;
+
+            return &slots[i];
+        }
+    }
+
+    return NULL;
+}
+
+void tmalloc_summary_info_unlocked()
+{
+    slot_sumary_t slots[SUMARY_SLOTS] = {0};
+
+    for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
+    {
+        slots[i].file = 0xFFFF;
+    }
+
+    for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
+    {
+        if (tmalloc_slots[i].size != 0)
+        {
+            slot_sumary_t * slot = tmalloc_find_sumary_slot(slots, tmalloc_slots[i].file, tmalloc_slots[i].lineno);
+
+            if (slot != NULL)
+            {
+                slot->cnt++;
+                slot->total += tmalloc_slots[i].size;
+            }
+
+        }
+    }
+
+    uint32_t total_mem = 0;
+    uint32_t total_slots = 0;
+
+    for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
+    {
+        if (slots[i].file != 0xFFFF)
+        {
+            INFO(" %3u  %6u  %10u\t%s:%u", i, slots[i].cnt, slots[i].total, tmalloc_filenames[slots[i].file], slots[i].line);
+            total_mem += slots[i].total;
+            total_slots += slots[i].cnt;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    extern uint8_t _end; /* Symbol defined in the linker script */
+    extern uint8_t _estack; /* Symbol defined in the linker script */
+
+    uint32_t total_size = &_estack - &_end;
+
+    INFO("total %u %u/%u (%u%% full)", total_slots, total_mem, total_size, (total_mem * 100) / total_size);
+    INFO("");
+}
+
+void tmalloc_summary_info()
+{
+    osMutexAcquire(lock, WAIT_INF);
+
+    tmalloc_summary_info_unlocked();
+
+    osMutexRelease(lock);
 }
 
 
@@ -82,70 +189,142 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 
     mem_slot_t * slot = NULL;
 
-    uint16_t index;
-
-    for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
+    //Find filename slot
+    uint16_t file_index = 0xFFFF;
+    for (file_index = 0; file_index < NUMBER_OF_FILES; file_index++)
     {
-        index = (mem_index_next + i) % NUMBER_OF_SLOTS;
-
-        if (tmalloc_slots[index].size == 0)
+        if (strcmp(tmalloc_filenames[file_index], name) == 0)
         {
-            slot = &tmalloc_slots[index];
-            mem_index_next = index + 1;
-
             break;
+        }
+
+        if (tmalloc_filenames[file_index][0] == 0)
+        {
+            strncpy(tmalloc_filenames[file_index], name, FILE_NAME_SIZE - 1);
+            tmalloc_filenames[file_index][FILE_NAME_SIZE] = 0;
+            break;
+        }
+    }
+
+    if (file_index == 0xFFFF)
+    {
+        tmalloc_summary_info_unlocked();
+        bsod_msg("Filename slots exhausted %s:%u", name, lineno);
+    }
+
+    //find next free slot
+    if (lineno == 0xFFFFFFFF)
+    {
+        for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
+        {
+            if (tmalloc_slots[i].ptr == name)
+            {
+                slot = &tmalloc_slots[i];
+
+                break;
+            }
+        }
+
+        if (slot == NULL)
+        {
+            for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
+            {
+                if (tmalloc_slots[i].size == 0)
+                {
+                    slot = &tmalloc_slots[i];
+                    slot->size = 0;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
+        {
+            uint16_t index = (mem_index_next + i) % NUMBER_OF_SLOTS;
+
+            if (tmalloc_slots[index].size == 0)
+            {
+                slot = &tmalloc_slots[index];
+                mem_index_next = index + 1;
+
+                break;
+            }
         }
     }
 
     if (slot == NULL)
     {
-        tmalloc_print_unlocked();
+        tmalloc_summary_info_unlocked();
         bsod_msg("Trace slots exhausted %s:%u", name, lineno);
     }
 
-    slot->ptr = malloc(requested_size);
+    void * ptr = malloc(requested_size);
 
-    if (slot->ptr == NULL)
+    if (ptr == NULL)
     {
-        tmalloc_print_unlocked();
-
+        tmalloc_summary_info_unlocked();
         bsod_msg("malloc returned NULL %s:%u", name, lineno);
     }
 
-    requested_size = (requested_size + 3) & ~3;
+    if (lineno == 0xFFFFFFFF)
+    {
+        slot->ptr = name;
+        slot->size += requested_size;
+        slot->lineno = lineno;
+    }
+    else
+    {
+        slot->ptr = ptr;
+        slot->size = requested_size;
+        slot->lineno = lineno;
+    }
 
-    strncpy(slot->file, name, FILE_NAME_SIZE);
-    slot->lineno = lineno;
-    slot->size = requested_size;
+    slot->file = file_index;
     slot->tag = tmalloc_tag_val;
 
     total_allocated += requested_size;
 
     osMutexRelease(lock);
 
-    return slot->ptr;
+    return ptr;
 }
 
-void tfree_real(void * ptr, char * name, uint32_t lineno)
+void tfree_real(void * ptr, char * name, int32_t lineno)
 {
     osMutexAcquire(lock, WAIT_INF);
 
     mem_slot_t * slot = NULL;
 
-    uint16_t i;
-    for (i = 0; i < NUMBER_OF_SLOTS; i++)
+    if (lineno < 0)
     {
-        if (tmalloc_slots[i].ptr == ptr && tmalloc_slots[i].size > 0)
+        for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
         {
-            slot = &tmalloc_slots[i];
+            if (tmalloc_slots[i].ptr == name)
+            {
+                slot = &tmalloc_slots[i];
 
-            break;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
+        {
+            if (tmalloc_slots[i].ptr == ptr && tmalloc_slots[i].size > 0)
+            {
+                slot = &tmalloc_slots[i];
+
+                break;
+            }
         }
     }
 
     if (slot == NULL)
     {
-        for (i = 0; i < NUMBER_OF_SLOTS; i++)
+        for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
         {
             if (tmalloc_slots[i].ptr == ptr)
             {
@@ -163,6 +342,11 @@ void tfree_real(void * ptr, char * name, uint32_t lineno)
         {
             bsod_msg("ptr %08X possible double free? %s:%u", ptr, name, lineno);
         }
+    }
+
+    if (lineno == 0xFFFFFFFF)
+    {
+        slot->size -= lineno;
     }
 
     total_allocated -= slot->size;

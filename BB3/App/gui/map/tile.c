@@ -14,7 +14,9 @@
 #include "fc/fc.h"
 #include "fc/agl.h"
 #include "etc/geo_calc.h"
+
 #include "gui/polygon.h"
+#include "gui/line.h"
 
 #define MAP_BUFFER_SIZE (MAP_W * MAP_H * sizeof(lv_color_t))
 
@@ -52,7 +54,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       12
+#define CACHE_VERSION       32
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -206,7 +208,7 @@ lv_color_t * generate_palette_rgb(palete_rgb_point_t * pts, uint8_t cnt, uint16_
         *pal_len += pts[i].steps;
     }
 
-    lv_color_t * palette = malloc(sizeof(lv_color_t) * *pal_len);
+    lv_color_t * palette = tmalloc(sizeof(lv_color_t) * *pal_len);
     uint16_t index = 0;
 
     for (uint8_t i = 0; i < cnt-1; i++)
@@ -732,7 +734,7 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
             return NULL;
         }
 
-        if (map_size != red_read(map_data, map_cache, map_size))
+        if (map_size != (uint32_t)red_read(map_data, map_cache, map_size))
         {
             ERR("Map data invalid size");
             ps_free(map_cache);
@@ -810,6 +812,8 @@ bool tile_poi_add(map_poi_t *poi, char *name, uint16_t name_len)
 }
 
 static uint8_t poi_magic = 0xFF;
+
+#define ALT_LINE
 
 uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache, uint8_t chunk_index)
 {
@@ -1036,13 +1040,20 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                     points[j].y = py;
                 }
 
+
+#ifdef ALT_LINE
+                if (draw_warning)
+                    draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
+
+                draw_line(gui.map.canvas, points, number_of_points, &line_draw);
+#else
                 gui_lock_acquire();
                 if (draw_warning)
                     lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &warn_line_draw);
 
                 lv_canvas_draw_line(gui.map.canvas, points, number_of_points, &line_draw);
                 gui_lock_release();
-
+#endif
                 tfree(points);
             }
         }
@@ -1251,9 +1262,14 @@ void tile_draw_airspace(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, 
 			if (!(actual->pen_width & BRUSH_TRANSPARENT_FLAG))
 				draw_polygon(gui.map.canvas, points, actual->number_of_points + 1, &brush_draw, MAP_H);
 
+
+#ifdef ALT_LINE
+			draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
+#else
             gui_lock_acquire();
             lv_canvas_draw_line(gui.map.canvas, points, actual->number_of_points + 1, &line_draw);
             gui_lock_release();
+#endif
 
 			tfree(points);
 		}
@@ -1392,7 +1408,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     tile_get_cache(lon, lat, zoom, &c_lon, &c_lat, tile_path);
 
     uint32_t start = HAL_GetTick();
-    DBG("\n\nGeneating start [%u]", index);
+    INFO("\n\nGeneating start [%u]", index);
 
     int32_t step_x;
     int32_t step_y;
@@ -1462,7 +1478,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     }
     red_close(f);
 
-    DBG("Tile generating duration %u ms", HAL_GetTick() - start);
+    INFO("Tile generating duration %u ms", HAL_GetTick() - start);
 
     gui.map.chunks[index].center_lon = c_lon;
     gui.map.chunks[index].center_lat = c_lat;

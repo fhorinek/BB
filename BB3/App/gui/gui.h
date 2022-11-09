@@ -228,7 +228,7 @@ typedef struct
         uint8_t poi_size;
 
         uint8_t magic;
-        uint8_t _pad[1];
+        bool _pad[1];
 	} map;
 
 	//ctx menu

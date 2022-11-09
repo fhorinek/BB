@@ -23,5 +23,6 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom);
 bool tile_airspace(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom);
 
 void tile_unload_pois(uint8_t index);
+bool tile_airspace(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom);
 
 #endif /* TILE_H_ */
