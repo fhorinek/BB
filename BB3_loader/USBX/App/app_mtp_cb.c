@@ -15,6 +15,9 @@
 
 #include "ux_api.h"
 
+#undef DBG
+#define DBG(...)
+
 typedef struct {
     uint16_t property_code;
     uint16_t datatype;
@@ -393,7 +396,7 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
     {
         REDDIR * dir;
 
-        INFO(" listing '%s'", path);
+        DBG(" listing '%s'", path);
         dir = red_opendir(path);
         if (dir != NULL)
         {
@@ -408,7 +411,7 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
                         continue;
 
                     object_handles_array[count + 1] = mtp_get_handle(object_handles_association, info->d_name);
-                    INFO("  %08X %s", object_handles_array[count + 1], info->d_name);
+                    DBG("  %08X %s", object_handles_array[count + 1], info->d_name);
                     count++;
                 }
 
@@ -428,7 +431,7 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
 
 static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, UX_SLAVE_CLASS_PIMA_OBJECT **object)
 {
-    INFO("mtp_object_info_get %08X", object_handle);
+    DBG("mtp_object_info_get %08X", object_handle);
 
     static char path[PATH_LEN];
     REDSTAT stat;
@@ -464,7 +467,7 @@ static UINT mtp_object_info_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG o
             payload->ux_device_class_pima_object_format = UX_DEVICE_CLASS_PIMA_OFC_UNDEFINED;
         }
 
-        INFO(" %s %lu", mtp_handle_get_node(object_handle)->name, (uint32_t)stat.st_size);
+        DBG(" %s %lu", mtp_handle_get_node(object_handle)->name, (uint32_t)stat.st_size);
 
         payload->ux_device_class_pima_object_storage_id = pima->ux_device_class_pima_storage_id;
         payload->ux_device_class_pima_object_protection_status = UX_DEVICE_CLASS_PIMA_OPS_NO_PROTECTION;
@@ -697,7 +700,7 @@ static UINT mtp_object_delete(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG obj
 
 static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_property, ULONG object_format, UCHAR **object_prop_dataset, ULONG *object_prop_dataset_length)
 {
-    INFO("mtp_object_prop_desc_get prop=%04X format=%04X", object_property, object_format);
+    DBG("mtp_object_prop_desc_get prop=%04X format=%04X", object_property, object_format);
 
     switch (object_property)
     {
@@ -830,7 +833,7 @@ static UINT mtp_object_prop_desc_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, UL
 
 static UINT mtp_object_prop_value_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handle, ULONG object_property, UCHAR **object_prop_value, ULONG *object_prop_value_length)
 {
-    INFO("mtp_object_prop_value_get %08X, %04X", object_handle, object_property);
+    DBG("mtp_object_prop_value_get %08X, %04X", object_handle, object_property);
 
     char path[PATH_LEN];
 

@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-//#define MALLOC_TRACE
+#define MALLOC_TRACE
 
 #ifdef MALLOC_TRACE
 
@@ -42,7 +42,7 @@ void tmalloc_tag_inc();
 
 #define tmalloc_init() INFO("Trace malloc disabled");
 
-#define tmalloc(size)   malloc(size)
+#define tmalloc(size)   malloc_check(size, __FILE_NAME__, __LINE__)
 #define tfree(ptr)      free(ptr)
 
 #define tmalloc_2(size, slot) malloc(size)

@@ -30,6 +30,8 @@ static uint16_t tmalloc_tag_val = 0;
 static DTCM_SECTION mem_slot_t tmalloc_slots[NUMBER_OF_SLOTS] = {0};
 static DTCM_SECTION char tmalloc_filenames[NUMBER_OF_FILES][FILE_NAME_SIZE] = {0};
 
+#define MALLOC_HEADER   8
+
 static uint16_t mem_index_next = 0;
 
 static osMutexId_t lock;
@@ -69,19 +71,15 @@ void tmalloc_init()
 
 static void tmalloc_print_unlocked()
 {
-    INFO("  allocated %d (%0.1f KiB)", total_allocated, total_allocated / 1024.0);
-
-    INFO("index\ttag\npointer\tsize\tallocated here");
+    INFO(" slot  tag     addr     size");
 
     for (uint16_t i = 0; i < NUMBER_OF_SLOTS; i++)
     {
         if (tmalloc_slots[i].size != 0)
         {
-            INFO("%u\t%u\t%08X\t%u\t%s:%u", i, tmalloc_slots[i].tag, tmalloc_slots[i].ptr, tmalloc_slots[i].size, tmalloc_filenames[tmalloc_slots[i].file], tmalloc_slots[i].lineno);
+            INFO(" %4u %4u %08X %8u %s:%u", i, tmalloc_slots[i].tag, tmalloc_slots[i].ptr, tmalloc_slots[i].size, tmalloc_filenames[tmalloc_slots[i].file], tmalloc_slots[i].lineno);
         }
     }
-
-    INFO(" =========================");
 }
 
 typedef struct
@@ -142,15 +140,14 @@ void tmalloc_summary_info_unlocked()
         }
     }
 
-    uint32_t total_mem = 0;
     uint32_t total_slots = 0;
 
+    INFO(" slot    cnt       size");
     for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
     {
         if (slots[i].file != 0xFFFF)
         {
-            INFO(" %3u  %6u  %10u\t%s:%u", i, slots[i].cnt, slots[i].total, tmalloc_filenames[slots[i].file], slots[i].line);
-            total_mem += slots[i].total;
+            INFO(" %4u %6u %10u %s:%u", i, slots[i].cnt, slots[i].total, tmalloc_filenames[slots[i].file], slots[i].line);
             total_slots += slots[i].cnt;
         }
         else
@@ -164,7 +161,7 @@ void tmalloc_summary_info_unlocked()
 
     uint32_t total_size = &_estack - &_end;
 
-    INFO("total %u %u/%u (%u%% full)", total_slots, total_mem, total_size, (total_mem * 100) / total_size);
+    INFO("total %u %u/%u (%u%% full)", total_slots, total_allocated, total_size, (total_allocated * 100) / total_size);
     INFO("");
 }
 
@@ -184,7 +181,7 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 
     if (requested_size == 0)
     {
-        bsod_msg("0 size memory requested %s:%u", name, lineno);
+        bsod_msg("zero size memory requested %s:%u", name, lineno);
     }
 
     mem_slot_t * slot = NULL;
@@ -201,7 +198,7 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
         if (tmalloc_filenames[file_index][0] == 0)
         {
             strncpy(tmalloc_filenames[file_index], name, FILE_NAME_SIZE - 1);
-            tmalloc_filenames[file_index][FILE_NAME_SIZE] = 0;
+            tmalloc_filenames[file_index][FILE_NAME_SIZE - 1] = 0;
             break;
         }
     }
@@ -268,6 +265,9 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
         bsod_msg("malloc returned NULL %s:%u", name, lineno);
     }
 
+    //round
+    requested_size = (requested_size + 3) & ~3;
+
     if (lineno == 0xFFFFFFFF)
     {
         slot->ptr = name;
@@ -284,7 +284,7 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     slot->file = file_index;
     slot->tag = tmalloc_tag_val;
 
-    total_allocated += requested_size;
+    total_allocated += requested_size + MALLOC_HEADER;
 
     osMutexRelease(lock);
 
@@ -344,12 +344,13 @@ void tfree_real(void * ptr, char * name, int32_t lineno)
         }
     }
 
-    if (lineno == 0xFFFFFFFF)
+    if (lineno < 0)
     {
-        slot->size -= lineno;
+        uint32_t requested_size = (abs(lineno) + 3) & ~3;
+        slot->size -= requested_size;
     }
 
-    total_allocated -= slot->size;
+    total_allocated -= slot->size + MALLOC_HEADER;
 
     if (total_allocated < 0)
     {
@@ -371,6 +372,19 @@ void tmalloc_print()
     tmalloc_print_unlocked();
 
     osMutexRelease(lock);
+}
+
+#else
+
+void malloc_check(size_t size, char * file, uint32_t lineno)
+{
+    void * ptr = malloc(size);
+    if (ptr == NULL)
+    {
+        bsod_msg("malloc returned NULL %s:%u", name, lineno);
+    }
+
+    return ptr;
 }
 
 #endif

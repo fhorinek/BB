@@ -173,16 +173,16 @@ ps_malloc_header_t * ps_malloc_next_free(ps_malloc_header_t * start, uint32_t mi
     return act;
 }
 
-void ps_malloc_info()
+void ps_malloc_info_unlocked()
 {
     ps_malloc_header_t * act = (ps_malloc_header_t *)PSRAM_ADDR;
 
-    INFO("slot: hdr prev addr size state");
+    INFO(" slot        hdr     prev     addr     size state");
     uint16_t slot = 0;
     void * last = 0;
     while (act < (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE))
     {
-    	INFO("%u: %08X %08X %08X %8lu %s %s:%u", slot, act, act->prev_header,
+    	INFO(" %4u %08X %08X %08X %8lu %s %s:%u", slot, act, act->prev_header,
     	        PS_GET_ADDR(act), PS_SIZE(act), (PS_IS_FREE(act) ? "free" : "used"),
     	        (PS_IS_FREE(act) ? "" : act->file), (PS_IS_FREE(act) ? 0 : act->line));
     	if (last != act->prev_header)
@@ -244,7 +244,7 @@ void ps_malloc_summary_info()
     {
         if (!PS_IS_FREE(act))
         {
-            slot_sumary_t * s = ps_find_sumary_slot(slots, act->file, 0);
+            slot_sumary_t * s = ps_find_sumary_slot(slots, act->file, act->line);
             if (s != NULL)
             {
                 s->cnt++;
@@ -267,11 +267,12 @@ void ps_malloc_summary_info()
     uint32_t total_mem = 0;
     uint32_t total_slots = 0;
 
+    INFO(" slot cnt  memory used");
     for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
     {
         if (slots[i].file[0] != 0)
         {
-            INFO(" %3u  %3u  %10u\t%s:%u", i, slots[i].cnt, slots[i].total, slots[i].file, slots[i].line);
+            INFO(" %4u %3u   %10u  %s:%u", i, slots[i].cnt, slots[i].total, slots[i].file, slots[i].line);
             total_mem += slots[i].total;
             total_slots += slots[i].cnt;
         }
@@ -359,12 +360,27 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     return ret;
 }
 
+void ps_malloc_info()
+{
+    osSemaphoreAcquire(psram_lock, WAIT_INF);
+
+    ps_malloc_info_unlocked();
+
+    osSemaphoreRelease(psram_lock);
+}
+
 void ps_free(void * ptr)
 {
 	osSemaphoreAcquire(psram_lock, WAIT_INF);
 
     //free actual chunk
     ps_malloc_header_t * hdr = ptr - sizeof(ps_malloc_header_t);
+
+    if (hdr->canary != 0xBADC0FFE)
+    {
+        ps_malloc_info_unlocked();
+        bsod_msg("Canary for 0x%lX was corrupted!", ptr);
+    }
 
     DBG("PS_free ptr: %08X size: %lu prev %08X", ptr, PS_SIZE(hdr), hdr->prev_header);
 
@@ -428,7 +444,7 @@ void ps_free(void * ptr)
         ps_malloc_used_chunks -= 1;
     }
 
-//    ps_malloc_info();
+//    ps_malloc_info_unlocked();
 
     osSemaphoreRelease(psram_lock);
 }
