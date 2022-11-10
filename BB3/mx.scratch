@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScratchFile FileVersion="3.0">
+  <FileVersion>3.0</FileVersion>
+  <Workspace>
+    <WorkspaceType>Single-project</WorkspaceType>
+    <WorkspacePath>/home/horinek/dev/strato/BB/BB3/</WorkspacePath>
+    <underRoot>true</underRoot>
+    <TrustZone>0</TrustZone>
+    <HAL_Driver>/home/horinek/STM32Cube/Repository//STM32Cube_FW_H7_V1.10.0</HAL_Driver>
+    <CMSIS>Drivers/CMSIS</CMSIS>
+    <Toolchain>STM32CubeIDE</Toolchain>
+    <IocFile>BB3.ioc</IocFile>
+    <Project>
+      <ProjectName>BB3</ProjectName>
+      <ProjectNature>C</ProjectNature>
+      <Secure />
+      <filestoremove />
+      <sourceEntriesToRemove>
+        <sourceEntry />
+      </sourceEntriesToRemove>
+      <configs>
+        <config>
+          <name>BB3</name>
+          <mainSourceRepo>Core</mainSourceRepo>
+          <sourceStructure>Advanced</sourceStructure>
+          <device>STM32H7A3VITx</device>
+          <cpucore>Arm Cortex-M7</cpucore>
+          <fpu>DP</fpu>
+          <memories>
+            <memory access="xrw" name="DTCMRAM" size="128" start="0x20000000" />
+            <memory access="xrw" name="RAM" size="1024" start="0x24000000" />
+            <memory access="xrw" name="ITCMRAM" size="64" start="0x00000000" />
+            <memory access="rx" name="FLASH" size="2048" start="0x8000000" />
+          </memories>
+          <startup>/home/horinek/STM32Cube/Repository/STM32Cube_FW_H7_V1.10.0/Drivers/CMSIS/Device\ST\STM32H7xx\Source\Templates\gcc\startup_stm32h7a3xx.s</startup>
+          <LinkSettings>
+            <LinkAdditionalLibs />
+          </LinkSettings>
+          <heapSize>0x00</heapSize>
+          <stackSize>0x00</stackSize>
+          <board>custom</board>
+          <debugprobe>swd</debugprobe>
+          <optimization />
+          <Aincludes>
+            <include />
+          </Aincludes>
+          <Adefines />
+          <Cdefines>
+            <define>USE_HAL_DRIVER</define>
+            <define>STM32H7A3xx</define>
+          </Cdefines>
+          <Ldefines />
+          <Cincludes>
+            <include>Core/Inc</include>
+            <include>USB_DEVICE/App</include>
+            <include>USB_DEVICE/Target</include>
+            <include>Drivers/STM32H7xx_HAL_Driver/Inc</include>
+            <include>Drivers/STM32H7xx_HAL_Driver/Inc/Legacy</include>
+            <include>Middlewares/Third_Party/FreeRTOS/Source/include</include>
+            <include>Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2</include>
+            <include>Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F</include>
+            <include>Middlewares/ST/STM32_USB_Device_Library/Core/Inc</include>
+            <include>Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc</include>
+            <include>Drivers/CMSIS/Device/ST/STM32H7xx/Include</include>
+            <include>Drivers/CMSIS/Include</include>
+          </Cincludes>
+          <definestoremove>
+            <Adefines />
+            <Cdefines>
+              <define>USE_FULL_LL_DRIVER</define>
+              <define>MBEDTLS_CONFIG_FILE="mbedtls_config.h"</define>
+            </Cdefines>
+            <Ldefines />
+          </definestoremove>
+          <inctoremove>
+            <Aincludes>
+              <include />
+            </Aincludes>
+            <Cincludes />
+          </inctoremove>
+          <ThreadSafeSupport>
+            <ThreadSafeStrategy>4</ThreadSafeStrategy>
+          </ThreadSafeSupport>
+        </config>
+      </configs>
+      <copyAsReference>false</copyAsReference>
+      <sourceEntries>
+        <sourceEntry>
+          <name>Core</name>
+        </sourceEntry>
+        <sourceEntry>
+          <name>USB_DEVICE</name>
+        </sourceEntry>
+        <sourceEntry>
+          <name>Drivers</name>
+        </sourceEntry>
+        <sourceEntry>
+          <name>Middlewares</name>
+        </sourceEntry>
+      </sourceEntries>
+      <Groups />
+    </Project>
+  </Workspace>
+</ScratchFile>
+
