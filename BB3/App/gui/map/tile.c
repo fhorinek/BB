@@ -8,7 +8,6 @@
 //#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
-#include "linked_list.h"
 #include "map_thread.h"
 
 #include "fc/fc.h"
@@ -17,6 +16,7 @@
 
 #include "gui/polygon.h"
 #include "gui/line.h"
+#include "etc/file_buffer.h"
 
 #define MAP_BUFFER_SIZE (MAP_W * MAP_H * sizeof(lv_color_t))
 
@@ -54,7 +54,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       32
+#define CACHE_VERSION       34
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -677,12 +677,22 @@ void tile_get_filename(char * fn, int32_t lon, int32_t lat)
     agl_get_filename(fn, tmp);
 }
 
-static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
+#define MAP_FILE_BUFFER (2 * 1024 * 1024)
+
+static file_buffer_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 {
     //buffer for map data
-    static uint8_t * map_cache = NULL;
+    static file_buffer_t map_cache;
+    static uint8_t * buffer = NULL;
+
+    if (buffer == NULL)
+    {
+        buffer = ps_malloc(MAP_FILE_BUFFER);
+        file_buffer_init(&map_cache, buffer, MAP_FILE_BUFFER);
+    }
+
     //name of the file in buffer
-    static char map_cache_name[16];
+    static char map_cache_name[16] = {0};
 
     //names used to generate tile
     static char name[4][16];
@@ -698,7 +708,7 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 
     bool loaded = false;
 
-    if (map_cache != NULL)
+    if (file_buffer_is_open(&map_cache))
     {
         if (strcmp(map_cache_name, name[index]) == 0)
         {
@@ -711,43 +721,19 @@ static uint8_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
         char path[PATH_LEN];
         snprintf(path, sizeof(path), "%s/%s.MAP", PATH_MAP_DIR, name[index]);
 
-        int32_t map_data = red_open(path, RED_O_RDONLY);
-        if (map_data < 0)
+        if (!file_buffer_open(&map_cache, path))
         {
             ERR("map file %s not found", name[index]);
             db_insert(PATH_MAP_INDEX, name[index], "W"); //set want flag
             return NULL;
         }
 
-        if (map_cache != NULL)
-        {
-            ps_free(map_cache);
-            map_cache = NULL;
-        }
-
-        uint32_t map_size = file_size(map_data);
-        map_cache = ps_malloc(map_size);
-
-        if (map_cache == NULL)
-        {
-            ERR("Unable to allocate memory");
-            return NULL;
-        }
-
-        if (map_size != (uint32_t)red_read(map_data, map_cache, map_size))
-        {
-            ERR("Map data invalid size");
-            ps_free(map_cache);
-            map_cache = NULL;
-        }
-        red_close(map_data);
-
         //mark name to cache
         strcpy(map_cache_name, name[index]);
     }
 
     //check if this file was already used on this tile
-    return map_cache;
+    return &map_cache;
 }
 
 void tile_unload_pois(uint8_t index)
@@ -815,43 +801,58 @@ static uint8_t poi_magic = 0xFF;
 
 #define ALT_LINE
 
-uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * map_cache, uint8_t chunk_index)
+uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, file_buffer_t * map_cache, uint8_t chunk_index)
 {
     if (map_cache == NULL)
         return 0;
 
     poi_magic = (poi_magic + 1) % 0xFF;
 
-    map_header_t * mh = (map_header_t *)map_cache;
+    map_header_t mh;
+    memcpy(&mh, (map_header_t *)file_buffer_seek(map_cache, 0, sizeof(map_header_t)), sizeof(map_header_t));
 
-//  DBG("file grid is %u x %u", mh->grid_w, mh->grid_h);
+//  DBG("file grid is %u x %u", mh.grid_w, mh.grid_h);
 
-    if ((int64_t)lon1 - (int64_t)mh->longitude < - 300ll * GNSS_MUL)
+    if ((int64_t)lon1 - (int64_t)mh.longitude < - 300ll * GNSS_MUL)
     {
         lon1 += 360ll * GNSS_MUL;
         lon2 += 360ll * GNSS_MUL;
     }
-    if ((int64_t)lon1 - (int64_t)mh->longitude > 300ll * GNSS_MUL)
+    if ((int64_t)lon1 - (int64_t)mh.longitude > 300ll * GNSS_MUL)
     {
         lon1 -= 360ll * GNSS_MUL;
         lon2 -= 360ll * GNSS_MUL;
     }
 
-    int32_t flon = (mh->longitude / GNSS_MUL) * GNSS_MUL;
-    int32_t flat = (mh->latitude / GNSS_MUL) * GNSS_MUL;
+    int32_t flon = (mh.longitude / GNSS_MUL) * GNSS_MUL;
+    int32_t flat = (mh.latitude / GNSS_MUL) * GNSS_MUL;
 
     uint32_t grid_start_addr = sizeof(map_header_t);
 
     //search the grid and locate the features that are visible
-    int32_t gstep_x = GNSS_MUL / mh->grid_w;
-    int32_t gstep_y = GNSS_MUL / mh->grid_h;
+    int32_t gstep_x = GNSS_MUL / mh.grid_w;
+    int32_t gstep_y = GNSS_MUL / mh.grid_h;
 
 //  INFO("rectangle name=disp bbox=%f,%f,%f,%f", lon1 / (float)GNSS_MUL, lat1 / (float)GNSS_MUL, lon2 / (float)GNSS_MUL, lat2 / (float)GNSS_MUL);
 
-    ll_item_t * start = NULL;
-    ll_item_t * end = NULL;
+    uint32_t feature_cnt = 0;
+    for (uint8_t y = 0; y < mh.grid_h; y++)
+    {
+        for (uint8_t x = 0; x < mh.grid_w; x++)
+        {
+            uint32_t grid_addr = grid_start_addr + (y * mh.grid_h + x) * sizeof(map_info_entry_t);
+            map_info_entry_t * in = (map_info_entry_t * )file_buffer_seek(map_cache, grid_addr, sizeof(map_info_entry_t));
+            feature_cnt += in->feature_cnt;
+        }
+    }
 
-    for (uint8_t y = 0; y < mh->grid_h; y++)
+    INFO("total features slots in file %u", feature_cnt);
+    FASSERT(feature_cnt < 200000)
+
+    uint32_t * list = ps_malloc(sizeof(uint32_t) * feature_cnt);
+    uint32_t list_index = 0;
+
+    for (uint8_t y = 0; y < mh.grid_h; y++)
     {
         int32_t glat1 = flat + gstep_y * y;
         int32_t glat2 = glat1 + gstep_y;
@@ -860,7 +861,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 || (glat1 <= lat2 && lat2 <= glat2)
                 || (lat1 >= glat1 && glat2 >= lat2))
         {
-            for (uint8_t x = 0; x < mh->grid_w; x++)
+            for (uint8_t x = 0; x < mh.grid_w; x++)
             {
                 int32_t glon1 = flon + gstep_x * x;
                 int32_t glon2 = glon1 + gstep_x;
@@ -874,20 +875,23 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 //                          glon2 / (float)GNSS_MUL, glat2 / (float)GNSS_MUL);
 
                     //load features
-                    uint32_t grid_addr = grid_start_addr + (y * mh->grid_h + x) * sizeof(map_info_entry_t);
+                    uint32_t grid_addr = grid_start_addr + (y * mh.grid_h + x) * sizeof(map_info_entry_t);
 
-                    map_info_entry_t * in = (map_info_entry_t * )(map_cache + grid_addr);
+                    map_info_entry_t * in = (map_info_entry_t * )file_buffer_seek(map_cache, grid_addr, sizeof(map_info_entry_t));
 
-                    for (uint16_t i = 0; i < in->feature_cnt; i++)
-                    {
-                        uint32_t feature_addr = *((uint32_t *)(map_cache + in->index_addr + 4 * i));
-
-                        list_add_sorted_unique(feature_addr, &start, &end);
-                    }
+                    memcpy(list + list_index, file_buffer_seek(map_cache, in->index_addr, sizeof(uint32_t) * in->feature_cnt), sizeof(uint32_t) * in->feature_cnt);
+                    list_index += in->feature_cnt;
                 }
             }
         }
     }
+
+    int cmpfunc (const void * a, const void * b)
+    {
+       return ( *(int32_t*)a - *(int32_t*)b );
+    }
+
+    qsort(list, list_index, sizeof(uint32_t), cmpfunc);
 
     lv_draw_line_dsc_t line_draw;
     lv_draw_line_dsc_init(&line_draw);
@@ -911,12 +915,17 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 //
 //  lv_canvas_draw_rect(gui.map.canvas, 0, 0, MAP_W, MAP_H, &rect);
 
-    ll_item_t * actual = start;
-
     //draw features
-    while(actual != NULL)
+    uint32_t prev_addr = 0xFFFFFFFF;
+    for (uint32_t i = 0; i < list_index; i++)
     {
-        uint8_t type = *((uint8_t *)(map_cache + actual->feature_addr));
+        uint32_t feature_addr = list[i];
+        if (prev_addr == feature_addr)
+            continue;
+
+        prev_addr = feature_addr;
+
+        uint8_t type = *((uint8_t *)file_buffer_seek(map_cache, feature_addr, sizeof(uint8_t)));
 //      DBG("feature %u type %u", index++, type);
 
 //        if (type == 0 || (type <= 13 && type >= 10)) //place
@@ -932,8 +941,8 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
             if (next_step)
             {
-                int32_t plon = *((int32_t *)(map_cache + actual->feature_addr + 4));
-                int32_t plat = *((int32_t *)(map_cache + actual->feature_addr + 8));
+                int32_t plon = *((int32_t *)file_buffer_seek(map_cache, feature_addr + 4, sizeof(int32_t)));
+                int32_t plat = *((int32_t *)file_buffer_seek(map_cache, feature_addr + 8, sizeof(int32_t)));
 
                 int32_t clon = lon1 + (lon2 - lon1) / 2;
                 int32_t clat = lat1 + (lat2 - lat1) / 2;
@@ -948,13 +957,13 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                     poi.chunk = chunk_index;
                     poi.magic = poi_magic;
                     poi.type = type;
-                    poi.uid = actual->feature_addr;
+                    poi.uid = feature_addr;
 
                     poi.x = x;
                     poi.y = y;
 
-                    uint8_t name_len = *((uint8_t *)(map_cache + actual->feature_addr + 1));
-                    tile_poi_add(&poi, (char *)(map_cache + actual->feature_addr + 12), name_len);
+                    uint8_t name_len = *((uint8_t *)file_buffer_seek(map_cache, feature_addr + 1, sizeof(uint8_t)));
+                    tile_poi_add(&poi, (char *)file_buffer_seek(map_cache, feature_addr + 12, name_len), name_len);
                 }
             }
         }
@@ -1018,15 +1027,15 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
             if (!skip)
             {
-                uint16_t number_of_points = *((uint16_t *)(map_cache + actual->feature_addr + 2));
+                uint16_t number_of_points = *((uint16_t *)file_buffer_seek(map_cache, feature_addr + 2, sizeof(uint16_t)));
 
                 lv_point_t * points = (lv_point_t *) tmalloc(sizeof(lv_point_t) * number_of_points);
                 for (uint16_t j = 0; j < number_of_points; j++)
                 {
                     int32_t plon, plat;
 
-                    plon = *((int32_t *)(map_cache + actual->feature_addr + 4 + 0 + 8 * j));
-                    plat = *((int32_t *)(map_cache + actual->feature_addr + 4 + 4 + 8 * j));
+                    plon = *((int32_t *)file_buffer_seek(map_cache, feature_addr + 4 + 0 + 8 * j, sizeof(int32_t)));
+                    plat = *((int32_t *)file_buffer_seek(map_cache, feature_addr + 4 + 4 + 8 * j, sizeof(int32_t)));
 
                     int64_t px = (int64_t)(plon - lon1) / step_x;
                     int64_t py = (int64_t)(lat1 - plat) / step_y;
@@ -1075,7 +1084,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 line_draw.opa = LV_OPA_50;
             }
 
-            uint16_t number_of_points = *((uint16_t *)(map_cache + actual->feature_addr + 2));
+            uint16_t number_of_points = *((uint16_t *)file_buffer_seek(map_cache, feature_addr + 2, sizeof(uint16_t)));
 
 //          INFO("points = []");
 
@@ -1084,8 +1093,8 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             {
                 int32_t plon, plat;
 
-                plon = *((int32_t *)(map_cache + actual->feature_addr + 4 + 0 + 8 * j));
-                plat = *((int32_t *)(map_cache + actual->feature_addr + 4 + 4 + 8 * j));
+                plon = *((int32_t *)file_buffer_seek(map_cache, feature_addr + 4 + 0 + 8 * j, sizeof(int32_t)));
+                plat = *((int32_t *)file_buffer_seek(map_cache, feature_addr + 4 + 4 + 8 * j, sizeof(int32_t)));
 
                 int16_t px = ((int64_t)plon - (int64_t)lon1) / step_x;
                 int16_t py = ((int64_t)lat1 - (int64_t)plat) / step_y;
@@ -1108,12 +1117,11 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
             tfree(points);
         }
-
-        actual = actual->next;
     }
-    list_free(start, end);
 
-    return mh->magic & CACHE_HAVE_MAP_MASK;
+    ps_free(list);
+
+    return mh.magic & CACHE_HAVE_MAP_MASK;
 }
 
 void tile_create(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, uint8_t * magic, uint8_t chunk_index)
