@@ -531,8 +531,8 @@ config_t config =
         entry_bool("dbg_esp_wdt", true),
         //tasks
         entry_select("dbg_tasks", DBG_TASK_NONE, dbg_task_select),
-		//vario_random
-		entry_bool("dbg_vario_rnd", false),
+		//vario_test
+		entry_bool("dbg_vario_tst", false),
         //lvgl_mem
         entry_bool("dbg_lvgl_info", false),
         //fanet_update

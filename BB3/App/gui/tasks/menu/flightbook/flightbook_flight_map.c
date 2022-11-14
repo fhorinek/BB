@@ -34,7 +34,7 @@ extern lv_color_t get_vario_color(int gain);
 // How many points should we display? This is used for the track on the map and also for the altitude chart.
 // Please make sure, that ALT_POINT_MULT is an integer (without fraction). To ensure this, TRACK_NUM_POINTS
 // must be a divisior of TFT_WIDTH.
-#define TRACK_NUM_POINTS 60
+#define TRACK_NUM_POINTS 120
 
 // If we have TRACK_NUM_POINTS in altitude chart, then each point has a distance of ALT_POINT_MULT
 #define ALT_POINT_MULT (TFT_WIDTH/TRACK_NUM_POINTS)

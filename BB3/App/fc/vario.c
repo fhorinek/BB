@@ -303,30 +303,27 @@ void vario_step()
         }
     }
 
-#if 0
-    static float demo = 0;
-    static bool rising = true;
-
-    if (rising)
-    {
-    	demo += 0.01;
-    	if (demo > 12)
-    		rising = false;
-    }
-    else
-    {
-    	demo -= 0.01;
-    	if (demo < -12)
-    		rising = true;
-    }
-    vario = demo;
-#endif
-
-
     if (!fc.fused.fake)
     {
-        if (config_get_bool(&config.debug.vario_random))
-            vario = ((rand() % 100) / 10.0) - 5.0;
+        if (config_get_bool(&config.debug.vario_test))
+        {
+            static float demo = 0;
+            static bool rising = true;
+
+            if (rising)
+            {
+                demo += 0.01;
+                if (demo > 5)
+                    rising = false;
+            }
+            else
+            {
+                demo -= 0.01;
+                if (demo < -5)
+                    rising = true;
+            }
+            vario = demo;
+        }
 
         fc.fused.vario = vario;
         fc.fused.altitude1 = altitude;

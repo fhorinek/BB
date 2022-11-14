@@ -317,13 +317,19 @@ void thread_debug_start(void * argument)
             	if (!debug_file_open)
             	{
             		debug_file = red_open(DEBUG_FILE, RED_O_WRONLY | RED_O_APPEND | RED_O_CREAT);
-            		debug_file_open = true;
+            		if (debug_file > 0)
+            		{
+            		    debug_file_open = true;
+            		}
             	}
 
-            	//write
-            	red_write(debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
-            	//sync
-            	red_sync();
+            	if (debug_file_open)
+            	{
+                    //write
+                    red_write(debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+                    //sync
+                    red_sync();
+            	}
             }
 
             debug_tx_buffer_lenght -= to_transmit;
