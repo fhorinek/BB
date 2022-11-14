@@ -269,9 +269,6 @@ void thread_system_start(void * argument)
     GpioSetDirection(VCC_MAIN_EN, OUTPUT, GPIO_NOPULL);
     GpioWrite(VCC_MAIN_EN, HIGH);
 
-	//init sd card
-	sd_init();
-
     //start debug thread
     start_thread(thread_debug);
     gui_create_lock();
@@ -284,12 +281,14 @@ void thread_system_start(void * argument)
     osDelay(100);
 	pwr_init();
 
+    //rtc init
+    rtc_init();
+
     //init PSRAM
     PSRAM_init();
 
-
-    //rtc init
-    rtc_init();
+    //init sd card
+    sd_init();
 
 	//load config
 	config_load_all();
@@ -311,7 +310,7 @@ void thread_system_start(void * argument)
     INFO("FW stm: %s\n\n", tmp);
 
     //Sysview
-    SEGGER_SYSVIEW_Start();
+    //SEGGER_SYSVIEW_Start();
 
 	//start tasks
 	INFO("Starting tasks...");

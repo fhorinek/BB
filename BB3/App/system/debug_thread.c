@@ -317,29 +317,18 @@ void thread_debug_start(void * argument)
             	if (!debug_file_open)
             	{
             		debug_file = red_open(DEBUG_FILE, RED_O_WRONLY | RED_O_APPEND | RED_O_CREAT);
-            		if ( debug_file < 0 )
+            		if (debug_file > 0)
             		{
-            			char text[100];
-            			sprintf(text, "Unable to open " DEBUG_FILE " with error %d", red_errno);
-                		//bsod_msg("Unable to open " DEBUG_FILE " with error %d", red_errno);
-                		//bsod_msg(text);
-            		}
-            		else
-            		{
-            		debug_file_open = true;
+            		    debug_file_open = true;
             		}
             	}
 
-            	if ( debug_file_open )
+            	if (debug_file_open)
             	{
-            	//write
-            	int16_t n = red_write(debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
-#if 0
-            	if ( n != to_transmit )
-            		bsod_msg("Unable to write enough bytes to " DEBUG_FILE);
-#endif
-            	//sync
-            	red_sync();
+                    //write
+                    red_write(debug_file, (uint8_t *)(debug_tx_buffer + debug_tx_buffer_read_index), to_transmit);
+                    //sync
+                    red_sync();
             	}
             }
 
