@@ -245,7 +245,7 @@ static void read_dir(char *path)
                 gui_lock_release();
 
                 logger_read_flight_stats(full_path, &f_stat);
-                if (f_stat.start_time != FS_NO_DATA)
+                if (f_stat.start_time != FS_NO_DATA && f_stat.duration > 0)
                 {
                     uint8_t sec, min, hour, day, wday, month;
                     uint16_t year;
@@ -272,6 +272,10 @@ static void read_dir(char *path)
                             break;
                         }
                     }
+                }
+                else
+                {
+                    WARN("Zero length record %s", full_path);
                 }
             }
         }
@@ -374,6 +378,7 @@ static void summarize_data()
             case PERIOD_MONTHES_IN_YEAR:
                 strcpy(label_t, month_names[i]);
             break;
+
             case PERIOD_DAYS_IN_MONTH:
                 oldest_timestamp = local->newest_timestamp - ((ROW_NUM - 1) * 24 * 60 * 60);   // -1 because we want to include "today" as last day
                 this_timestamp = oldest_timestamp + i * (24 * 60 * 60);
@@ -382,6 +387,7 @@ static void summarize_data()
                 datetime_from_epoch(this_timestamp, &sec, &min, &hour, &day, &wday, &month, &year);
                 format_date_DM(label_t, day, month);
             break;
+
             case PERIOD_ALL_YEARS:
                 {
                 uint16_t year = local->year_min + i;

@@ -108,7 +108,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
     gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
     gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
-    gui_list_auto_entry(list, "Vario random test", &config.debug.vario_random, NULL);
+    gui_list_auto_entry(list, "Vario test", &config.debug.vario_test, NULL);
     gui_list_auto_entry(list, "FANET force update", &config.debug.fanet_update, NULL);
     gui_list_auto_entry(list, "Show LVGL info", &config.debug.lvgl_info, NULL);
 	gui_list_auto_entry(list, "Space Invaders!", NEXT_TASK, &gui_spaceinvaders);
