@@ -211,7 +211,7 @@ void fc_takeoff()
 
     fc.flight.mode = flight_flight;
 
-    fanet_set_mode();
+    fanet_set_mode(false);
     logger_start();
 
     gui_page_set_next(&profile.ui.autoset.take_off);
@@ -249,7 +249,7 @@ void fc_landing()
 
     fc_reset();
 
-    fanet_set_mode();
+    fanet_set_mode(false);
     logger_stop();
 
     gui_page_set_next(&profile.ui.autoset.land);
