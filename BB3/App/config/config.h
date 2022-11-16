@@ -41,6 +41,7 @@
 #define PAGE_NAME_LEN       16
 #define VARIO_PROFILE_LEN   16
 #define PAGE_MAX_COUNT	    10
+#define SHORTCUT_NAME_LEN   16
 
 #define PILOT_NAME_LEN		64
 
@@ -69,6 +70,22 @@
 #define MAP_ALT_RANGE_NORMAL    1
 #define MAP_ALT_RANGE_ALPS      2
 
+#define MAP_ZOOM_RANGE_FIRST      0
+#define MAP_ZOOM_RANGE_250m      0
+#define MAP_ZOOM_RANGE_500m      1
+#define MAP_ZOOM_RANGE_1km       2
+#define MAP_ZOOM_RANGE_2km       3
+#define MAP_ZOOM_RANGE_4km       4
+#define MAP_ZOOM_RANGE_8km       5
+#define MAP_ZOOM_RANGE_16km      6
+#define MAP_ZOOM_RANGE_32km      7
+#define MAP_ZOOM_RANGE_64km      8
+#define MAP_ZOOM_RANGE_LAST      8
+
+#define LANG_EN                  0
+#define LANG_DE                  1
+#define LANG_SK                  2
+
 typedef struct
 {
     cfg_entry_t name;
@@ -86,6 +103,8 @@ typedef struct
         cfg_entry_t page_last;
         cfg_entry_t last_lon;
         cfg_entry_t last_lat;
+        cfg_entry_t shortcut_left;
+        cfg_entry_t shortcut_right;
 
         struct
         {
@@ -154,9 +173,11 @@ typedef struct
     struct
 	{
         cfg_entry_t zoom_flight;
+        cfg_entry_t zoom_fit;
         cfg_entry_t blur;
         cfg_entry_t alt_range;
         cfg_entry_t show_fanet;
+        cfg_entry_t show_glider_trail;
 	} map;
 
 	struct
@@ -241,6 +262,7 @@ typedef struct
         cfg_entry_t backlight_timeout;
         cfg_entry_t bat_per;
         cfg_entry_t page_anim;
+        cfg_entry_t language;
     } display;
 
     struct
@@ -284,6 +306,7 @@ typedef struct
         cfg_entry_t crash_dump;
         cfg_entry_t crash_reporting;
         cfg_entry_t crash_reporting_url;
+        cfg_entry_t help_show_id;
 	} debug;
 } config_t;
 

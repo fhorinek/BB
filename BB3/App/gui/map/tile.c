@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-//#define DEBUG_LEVEL DBG_DEBUG
+#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "map_thread.h"

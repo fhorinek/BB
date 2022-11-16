@@ -19,6 +19,7 @@
 #include "drivers/tft/tft.h"
 
 #include "gui/dialog.h"
+
 #include "drivers/rev.h"
 
 #include "gui/dbg_overlay.h"
@@ -56,6 +57,27 @@ void gui_set_dummy_event_cb(lv_obj_t * par, lv_event_cb_t event_cb)
     lv_obj_set_event_cb(dummy, event_cb);
 }
 
+void gui_load_language()
+{
+    uint8_t id = config_get_select(&config.display.language);
+
+    lv_i18n_init(lv_i18n_language_pack);
+
+    switch (id)
+    {
+        case(LANG_DE):
+            lv_i18n_set_locale("de-DE");
+        break;
+
+        case(LANG_SK):
+            lv_i18n_set_locale("sk-SK");
+        break;
+
+        default:
+            __lv_i18n_reset();
+        break;
+    }
+}
 
 void gui_set_group_focus(lv_obj_t * obj)
 {
@@ -157,6 +179,7 @@ void gui_inject_function(gui_injected_function_t f)
 void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 {
 	gui_list_store_pos(gui.task.actual);
+	help_unset();
 
 	gui.input.focus = NULL;
 
@@ -186,8 +209,8 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 	gui_set_loop_period(GUI_DEFAULT_LOOP_SPEED);
 
 	//init new screen
+    gui.task.actual = next;
 	lv_obj_t * screen = gui_task_create(next);
-	gui.task.actual = next;
 
 	//switch screens
 	lv_scr_load_anim(screen, anim, GUI_TASK_SW_ANIMATION, 0, true);
@@ -249,6 +272,8 @@ void gui_init()
     gui.page_queue = xQueueCreate(GUI_QUEUE_SIZE, sizeof(void *));
     dbg_overlay_init();
 	gui_init_styles();
+
+    help_init_gui();
 
 	//create statusbar
 	statusbar_create();

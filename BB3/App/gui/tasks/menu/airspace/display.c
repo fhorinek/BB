@@ -28,7 +28,7 @@ static lv_obj_t * airspace_display_init(lv_obj_t * par)
 {
     local->change = false;
 
-	lv_obj_t * list = gui_list_create(par, "Enabled airspaces", &gui_airspace, airspace_display_cb);
+	lv_obj_t * list = gui_list_create(par, _("Enabled airspaces"), &gui_airspace, airspace_display_cb);
 
 	gui_list_auto_entry(list, "Class A", &profile.airspace.display.class_A, NULL);
 	gui_list_auto_entry(list, "Class B", &profile.airspace.display.class_B, NULL);

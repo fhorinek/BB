@@ -189,7 +189,7 @@ void flightbook_flight_map_load_task(void * param)
     // find right scaling:
     w = lv_obj_get_width(local->data.map);
     h = lv_obj_get_height(local->data.map);
-    for (local->zoom = 0; local->zoom < 10; local->zoom++)
+    for (local->zoom = 0; local->zoom <= MAP_ZOOM_RANGE_LAST; local->zoom++)
     {
     	geo_to_pix_w_h(local->lon_center, local->lat_center, local->zoom, f_stat.max_lon, f_stat.max_lat, &x, &y, w, h);
     	if ( x < 0 || x >= w || y < 0 || y >= h) continue;
@@ -387,7 +387,7 @@ void flightbook_flight_map_load(char * path, uint8_t fm_return_level)
 
 	char file[REDCONF_NAME_MAX];
 	filemanager_get_filename(file, path);
-	dialog_show("Reading...", file, dialog_progress, NULL);
+	dialog_show(_("Reading..."), file, dialog_progress, NULL);
 	dialog_progress_spin();
 	gui_low_priority(true);
 

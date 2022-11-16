@@ -22,6 +22,8 @@ static bool static_init = false;
 static lv_style_t static_label = { 0 };
 static lv_style_t fanet_label = { 0 };
 
+#define DOT_RADIUS 10
+
 /**
  * Initialize the MAP object inside the given parent. All necessary data is stored
  * in "local" which has to be allocated by the caller. Typically this will be done
@@ -98,7 +100,6 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
  */
 void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 {
-
     if (local->magic != gui.map.magic)
     {
 //    	DBG("Widget set to index %u", gui.map.disp_buffer);
@@ -226,11 +227,33 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 }
 
 /**
+ * Return the screen position of the master tile. This can be used to 
+ * find out, whether the map has been moved by comparing this position
+ * with a previous position.
+ *
+ * @param local the pointer to the map_obj_data_t
+ * @param p a pointer to a lv_point_t where x/y is stored. If there is
+ *          no master_tile, then position INT16_MAX/INT16_MAX is returned.
+ */
+void map_get_master_tile_xy(map_obj_data_t * map, lv_point_t *p)
+{
+    if (map->master_tile != 0xFF)
+    {
+    	*p = map->offsets[map->master_tile];
+    }
+    else
+    {
+    	p->x = INT16_MAX;
+    	p->y = INT16_MAX;
+    }
+}
+
+/**
  * Show the glider in the middle of the map.
  *
  * @param local the map data
  */
-void map_obj_glider_loop(map_obj_data_t *local)
+void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
 {
     if (local->arrow == NULL)
     {
@@ -239,12 +262,12 @@ void map_obj_glider_loop(map_obj_data_t *local)
         lv_obj_align(local->arrow, local->map, LV_ALIGN_CENTER, 0, 0);
         lv_img_set_antialias(local->arrow, true);
 
-        local->dot = lv_obj_create(local->map, NULL);
-        lv_obj_set_size(local->dot, 10, 10);
-        lv_obj_align(local->dot, local->map, LV_ALIGN_CENTER, 0, 0);
-        lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-        lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 5);
-    }
+	    local->dot = lv_obj_create(local->map, NULL);
+	    lv_obj_set_size(local->dot, DOT_RADIUS, DOT_RADIUS);
+	    lv_obj_align(local->dot, local->map, LV_ALIGN_CENTER, 0, 0);
+	    lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+	    lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, DOT_RADIUS / 2);
+	}
 
     if (fc.gnss.fix == 0)
     {
@@ -253,17 +276,19 @@ void map_obj_glider_loop(map_obj_data_t *local)
     }
     else
     {
+        lv_obj_set_pos(local->arrow, glider_pos.x - img_map_arrow.header.w/2, glider_pos.y- img_map_arrow.header.h/2);
+        lv_obj_set_pos(local->dot, glider_pos.x - DOT_RADIUS/2, glider_pos.y - DOT_RADIUS/2);
         if (fc.gnss.ground_speed > FC_SPEED_MOVING)
-        {
-            lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
-            lv_obj_set_hidden(local->arrow, false);
-            lv_obj_set_hidden(local->dot, true);
-        }
-        else
-        {
-            lv_obj_set_hidden(local->arrow, true);
-            lv_obj_set_hidden(local->dot, false);
-        }
+		{
+    		lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
+			lv_obj_set_hidden(local->arrow, false);
+			lv_obj_set_hidden(local->dot, true);
+    	}
+    	else
+    	{
+			lv_obj_set_hidden(local->arrow, true);
+			lv_obj_set_hidden(local->dot, false);
+    	}
     }
 }
 

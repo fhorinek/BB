@@ -246,9 +246,9 @@ void statusbar_step()
 		if (BLINK(2000))
 		{
 			if (config_get_bool(&config.time.sync_gnss))
-				lv_label_set_text(gui.statusbar.time, "No GNSS");
+				lv_label_set_text(gui.statusbar.time, _("No GNSS"));
 			else
-				lv_label_set_text(gui.statusbar.time, "Set time");
+				lv_label_set_text(gui.statusbar.time, _("Set time"));
 		}
 		else
 		{

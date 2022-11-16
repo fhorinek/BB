@@ -83,48 +83,45 @@ typedef enum datatype
 
 REGISTER_TASK_ILS(flightbook_statistics,
 
-/**
- * This stores the timestamp of the data to show.
- * It points to the newest data which is typically in the lowest row.
- */
-uint64_t newest_timestamp;
+    /**
+     * This stores the timestamp of the data to show.
+     * It points to the newest data which is typically in the lowest row.
+     */
+    uint64_t newest_timestamp;
 
-/* This is the same date as "newest_timestamp" and converted for easier access. */
-uint16_t year;
-        uint8_t month;
-        uint8_t day;
+    /* This is the same date as "newest_timestamp" and converted for easier access. */
+    uint16_t year;
+    uint8_t month;
+    uint8_t day;
 
-        period_t period;          // What period should be shown?
-        datatype_t datatype;// What data should be shown?
+    period_t period;          // What period should be shown?
+    datatype_t datatype;// What data should be shown?
 
-        lv_obj_t *par;// parent lv_obj_t
+    lv_obj_t *par;// parent lv_obj_t
 
-        bool recalculate;// Set to "true" to trigger a recalculation of the data
+    bool recalculate;// Set to "true" to trigger a recalculation of the data
 
-        bool data_available;// Is the "stats" data available? Set to "true" after asynchronous reader finishes.
-        stat_entry_t *stats;// pointer to flight stat_entry_t in psram
+    bool data_available;// Is the "stats" data available? Set to "true" after asynchronous reader finishes.
+    stat_entry_t *stats;// pointer to flight stat_entry_t in psram
 
-        int year_min, year_max;// The first and last year found in the "stats".
+    int year_min, year_max;// The first and last year found in the "stats".
 
-        lv_obj_t *title;// The title label
+    lv_obj_t *title;// The title label
 
-        lv_obj_t *labels_when[ROW_NUM];// A label describing the day/month/year
+    lv_obj_t *labels_when[ROW_NUM];// A label describing the day/month/year
 
-        lv_obj_t *bars[ROW_NUM];// The bar of each ROW
-        lv_point_t points[ROW_NUM][2];// ... and its points
+    lv_obj_t *bars[ROW_NUM];// The bar of each ROW
+    lv_point_t points[ROW_NUM][2];// ... and its points
 
-        lv_obj_t *labels_value[ROW_NUM];// The label showing the value of the bar as a text
+    lv_obj_t *labels_value[ROW_NUM];// The label showing the value of the bar as a text
 
-        float values[ROW_NUM];// the values shown in each row
+    float values[ROW_NUM];// the values shown in each row
 
-        lv_obj_t *label_total;// The label showing the total
-        lv_obj_t *label_period;// label explaining, what period will be next
-        lv_obj_t *label_type;// label explaing, what datatype will be next
-        );
-
-void flightbook_statistics_options_cb(uint8_t a, void *none)
-{
-}
+    lv_obj_t *label_total;// The label showing the total
+    lv_obj_t *label_average;   // The average value
+    lv_obj_t *label_period;// label explaining, what period will be next
+    lv_obj_t *label_type;// label explaing, what datatype will be next
+);
 
 /**
  * Derive local->day/month/year from local->newest_timestamp.
@@ -172,9 +169,11 @@ static void goto_next_timestamp(int direction)
     compute_YMD();
 }
 
+static char help_id[] = "Statistics Display";
+
 static void flightbook_statistics_cb(lv_obj_t *obj, lv_event_t event)
 {
-    uint32_t key = 0;
+    uint32_t key = *((uint32_t*) lv_event_get_data());
 
     switch (event)
     {
@@ -188,17 +187,10 @@ static void flightbook_statistics_cb(lv_obj_t *obj, lv_event_t event)
                 local->datatype++;
             local->recalculate = true;
         break;
+
         case LV_EVENT_KEY:
-            key = *((uint32_t*) lv_event_get_data());
             switch (key)
             {
-                case LV_KEY_HOME:
-                    if (local->period == PERIOD_Last)
-                        local->period = PERIOD_First;
-                    else
-                        local->period++;
-                    local->recalculate = true;
-                break;
                 case LV_KEY_RIGHT:
                     goto_next_timestamp(1);
                     local->recalculate = true;
@@ -208,6 +200,27 @@ static void flightbook_statistics_cb(lv_obj_t *obj, lv_event_t event)
                     local->recalculate = true;
                 break;
             }
+        break;
+
+        case LV_EVENT_KEY_RELEASED:
+            if (key == LV_KEY_HOME)
+            {
+                if (local->period == PERIOD_Last)
+                    local->period = PERIOD_First;
+                else
+                    local->period++;
+                local->recalculate = true;
+            }
+        break;
+
+        case LV_EVENT_KEY_LONG_PRESSED:
+            if (key == LV_KEY_HOME)
+            {
+                if (help_avalible(help_id))
+                    help_show_from_title(help_id);
+            }
+        break;
+
     }
 }
 
@@ -330,9 +343,10 @@ static void summarize_data()
     int i;
     float max_value = 0;
     float total = 0;
+    int total_flights = 0;
     float value;
     int index;
-    char text[30];
+    char text[30], text2[30];
 
     // clear all values
     for (i = 0; i < ROW_NUM; i++)
@@ -360,6 +374,8 @@ static void summarize_data()
             }
             local->values[index] += value;
             max_value = max(max_value, local->values[index]);
+
+            total_flights += local->stats[i].start_num;
         }
     }
 
@@ -427,17 +443,22 @@ static void summarize_data()
     switch (local->datatype)
     {
         case DATATYPE_ODO:
-            strcpy(text, "Total: ");
+            strcpy(text, _("Total: "));
             format_distance_with_units2(text + 7, total * 1000);
+            strcpy(text2, _("Average per flight: "));
+            format_distance_with_units2(text2 + 20, total * 1000 / total_flights);
         break;
         case DATATYPE_HOURS:
-            sprintf(text, "Total: %.1f hours", total);
+            sprintf(text, _("Total: %.1f hours"), total);
+            sprintf(text2, _("Average per flight: %.1f hours"), total / total_flights);
         break;
         case DATATYPE_NUM:
-            sprintf(text, "Total: %.0f flights", total);
+            sprintf(text, _("Total: %.0f flights"), total);
+            text2[0] = 0;
         break;
     }
     lv_label_set_text(local->label_total, text);
+    lv_label_set_text(local->label_average, text2);
 }
 
 void flightbook_statistics_load_task(void *param)
@@ -472,7 +493,7 @@ void flightbook_statistics_load_task(void *param)
 
     if (i >= STATS_NUM)
     {
-        dialog_show("Too Many Flight", "You have too many flights to handle in statistics. Please remove some.", dialog_confirm, flightbook_statistics_options_cb);
+        dialog_show(_("Too Many Flights"), _("You have too many flights to handle in statistics. Please remove some."), dialog_confirm, NULL);
     }
 
     gui_low_priority(false);
@@ -483,7 +504,7 @@ void flightbook_statistics_load_task(void *param)
 
 void flightbook_statistics_load()
 {
-    dialog_show("Reading...", PATH_LOGS_DIR, dialog_progress, NULL);
+    dialog_show(_("Reading..."), PATH_LOGS_DIR, dialog_progress, NULL);
     dialog_progress_spin();
     gui_low_priority(true);
 
@@ -493,6 +514,9 @@ void flightbook_statistics_load()
 
 lv_obj_t* flightbook_statistics_init(lv_obj_t *par)
 {
+    help_set_base("Flightbook");
+    help_show_icon_if_avalible(help_id);
+
     lv_obj_t *chart;
     int i;
 
@@ -539,8 +563,12 @@ lv_obj_t* flightbook_statistics_init(lv_obj_t *par)
         lv_obj_set_hidden(local->labels_value[i], true);
     }
 
+    local->label_average = lv_label_create(chart, NULL);
+    lv_obj_set_pos(local->label_average, 0, (ROW_NUM + 1) * 20);
+    lv_label_set_text(local->label_average, "");
+
     local->label_total = lv_label_create(chart, NULL);
-    lv_obj_set_pos(local->label_total, 0, (ROW_NUM + 1) * 20);
+    lv_obj_set_pos(local->label_total, 0, (ROW_NUM + 2) * 20);
     lv_label_set_text(local->label_total, "");
 
     local->label_type = lv_label_create(par, NULL);
@@ -572,15 +600,15 @@ void flightbook_statistics_loop()
         switch (local->period)
         {
             case PERIOD_ALL_YEARS:
-                strcpy(text, "Year");
-                sprintf(period_title, "yearly");
+                strcpy(text, _("Year"));
+                sprintf(period_title, _("yearly"));
             break;
             case PERIOD_MONTHES_IN_YEAR:
-                strcpy(text, "Days");
+                strcpy(text, _("Days"));
                 sprintf(period_title, "%d", local->year);
             break;
             case PERIOD_DAYS_IN_MONTH:
-                strcpy(text, "Total");
+                strcpy(text, _("Total"));
                 sprintf(period_title, "%d/%02d", local->year, local->month);
             break;
         }
@@ -591,16 +619,16 @@ void flightbook_statistics_loop()
         switch (local->datatype)
         {
             case DATATYPE_HOURS:
-                strcpy(text, "Flights");
-                sprintf(title_text, "Hours %s", period_title);
+                strcpy(text, _("Flights"));
+                sprintf(title_text, _("Hours %s"), period_title);
             break;
             case DATATYPE_NUM:
-                strcpy(text, "Distance");
-                sprintf(title_text, "Flights %s", period_title);
+                strcpy(text, _("Distance"));
+                sprintf(title_text, _("Flights %s"), period_title);
             break;
             case DATATYPE_ODO:
-                strcpy(text, "Time");
-                sprintf(title_text, "Distance %s", period_title);
+                strcpy(text, _("Time"));
+                sprintf(title_text, _("Distance %s"), period_title);
             break;
         }
 

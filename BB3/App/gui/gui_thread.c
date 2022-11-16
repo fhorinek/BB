@@ -250,7 +250,16 @@ void gui_disp_wait_cb(struct _disp_drv_t * disp_drv)
 //restricts gui drawing performance
 void gui_low_priority(bool val)
 {
-    gui.restrict_gui_speed = val;
+    if (val)
+    {
+        if (gui.restrict_gui_speed < 255)
+            gui.restrict_gui_speed++;
+    }
+    else
+    {
+        if (gui.restrict_gui_speed > 0)
+            gui.restrict_gui_speed--;
+    }
 }
 
 void thread_gui_start(void *argument)
@@ -262,6 +271,8 @@ void thread_gui_start(void *argument)
     gui.lock = osMutexNew(NULL);
     osMutexAcquire(gui.lock, WAIT_INF);
     vQueueAddToRegistry(gui.lock, "gui.lock");
+
+    gui.restrict_gui_speed = 0;
 
 	INFO("Started");
 
@@ -350,7 +361,7 @@ void thread_gui_start(void *argument)
 		osMutexRelease(gui.lock);
 
 		//do not starve idle, allow more time for processing
-		uint16_t stay_idle_time = gui.restrict_gui_speed ? 100 : 1;
+		uint16_t stay_idle_time = (gui.restrict_gui_speed > 0) ? 100 : 1;
 
 		osDelay(max(stay_idle_time, delay));
 

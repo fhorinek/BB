@@ -1,0 +1,302 @@
+sk-SK:
+  Flightbook: Letové záznamy
+  Airspaces: Vzdušné priestory
+  Language: Jazyk
+  Display Settings: Nastavenie displeja
+  Brightness: Jas
+  Page animation: Animácie stránok
+  Battery percent: Percentá batérie
+  Strato settings: Nastavenia
+  Pilot & Flight profile: Profily
+  Vario: Vário
+  Flight: Let
+  Audio: ~
+  Map: Mapa
+  FANET: ~
+  GNSS: ~
+  Bluetooth: ~
+  Wi-Fi: ~
+  System: Systém
+  Development: Vývoj
+  Device init: ~
+  Device ready: ~
+  Device error: ~
+  Not calibrated: ~
+  Device disabled: ~
+  '%s connected (%s)': ~
+  '%s disconnected (%s)': ~
+  '%s paired': ~
+  Bluetooth pairing request: ~
+  pairing failed: ~
+  "Type this passcode\n\n%lu\n\non the other device.": ~
+  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": ~
+  Error: ~
+  No slot available: ~
+  Not connected!: ~
+  Resource not found!: ~
+  Connection timeout!: ~
+  "New firmware\n %s is available.": ~
+  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": ~
+  "Firmware updated\n to %s": ~
+  "Unable to update bootloader.\nRe-install the update file.": ~
+  Bootloader updated: ~
+  Storing config: ~
+  Formating storage: ~
+  Restoring config: ~
+  Unable to mount RED volume: ~
+  Unable to format storage: ~
+  Unable to mount FatFs volume: ~
+  Migrating: ~
+  Updating bootloader: ~
+  Warning: ~
+  No GNSS: ~
+  Set time: ~
+  Master volume: ~
+  Vario volume: ~
+  Sound volume: ~
+  Bluetooth volume: ~
+  TTS alerts: ~
+  Unbind?: ~
+  Enable: ~
+  A2DP Audio: ~
+  SPP Telemetry: ~
+  BLE Telemetry: ~
+  Telemetry protocol: ~
+  Forward GNSS: ~
+  Device name: ~
+  PIN code: ~
+  Unpair all: ~
+  Now visible as: ~
+  Turn on Bluetoth: ~
+  to enable pairing: ~
+  Clearing map cache: ~
+  Please wait: ~
+  Clear cache: ~
+  do you want to clear map cache?: ~
+  Map scale: ~
+  Zoom to fit track: ~
+  Terrain type: ~
+  Topo blur: ~
+  Clear map cache: ~
+  Show FANET on map: ~
+  Show trail: ~
+  Pilot: ~
+  Pilot name: ~
+  Glider type: ~
+  Glider ID: ~
+  Broadcast name: ~
+  Track online: ~
+  Pilot profile '%s' deleted: ~
+  Pilot profile with name '%s' already exist: ~
+  Pilot profile changed to '%s': ~
+  Rename: ~
+  Set new pilot profile name: ~
+  Cannot delete active pilot profile: ~
+  Do you want to remove pilot profile '%s': ~
+  Confirm: ~
+  Flight profile '%s' deleted: ~
+  Flight profile with name '%s' already exist: ~
+  Flight profile changed to '%s': ~
+  Set new flight profile name: ~
+  Cannot delete active flight profile: ~
+  Do you want to remove flight profile '%s': ~
+  "Reset\ncalibration?": ~
+  Clear debug file: ~
+  Advanced settings: ~
+  Calibration data not valid: ~
+  Calibrate sensors: ~
+  Recalibrate Gyroscope: ~
+  Recalibrate Accelerometer: ~
+  Recalibrate Magnetometer: ~
+  Reset calibration: ~
+  Create diagnostic report: ~
+  Crash reports: ~
+  Auto crash upload: ~
+  Debug to file: ~
+  Clear debug.log: ~
+  "Calibrating\ngyroscope": ~
+  Please keep the device steady: ~
+  'Level the device, display must be pointing up': ~
+  'Level the device, display must be pointing down': ~
+  "Calibrating\nmagnetometer": ~
+  Rotate the device 3 times while pointing display up: ~
+  Rotate the device 3 times while pointing usb ports down: ~
+  "Calibrating\naccelerometer": ~
+  'Level the device, the arrow must be pointing up': ~
+  Set date: ~
+  Time & date: ~
+  Time: ~
+  Date: ~
+  Daylight saving time: ~
+  Time zone: ~
+  Sync with GNSS: ~
+  Updating: ~
+  Start update process?: ~
+  Downloading firmware: ~
+  Up to date: ~
+  You are using the latest firmware: ~
+  "Download firmware\n%s?": ~
+  Firmware update: ~
+  Checking for updates: ~
+  "Install version\n%s": ~
+  Start update?: ~
+  Device firmware: ~
+  Firmware ver. %s: ~
+  Release note: ~
+  Check for updates: ~
+  Notify for new fw: ~
+  Firmware channel: ~
+  Manual firmware install: ~
+  Bootloader version: ~
+  Developer mode disabled: ~
+  Developer mode enabled: ~
+  Device info: ~
+  Serial number: ~
+  Hardware revision: ~
+  Do you want to restore factory settings?: ~
+  Display: ~
+  Units: ~
+  Advanced: ~
+  Firmware: ~
+  Restore factory settings: ~
+  Altitude: ~
+  Speed: ~
+  Distance: ~
+  Variometer: ~
+  Date format: ~
+  Use 24h time: ~
+  Position: ~
+  Earth model: ~
+  GNSS Altitude: ~
+  Vario settings: ~
+  Audio only in flight: ~
+  Accelerometer gain: ~
+  Lift threshold: ~
+  Sink threshold: ~
+  Average time: ~
+  Vario profile: ~
+  Network info: ~
+  Client IP: ~
+  Client MAC: ~
+  Access point IP: ~
+  Access point MAC: ~
+  Scanning...: ~
+  Select network: ~
+  Connected to '%s': ~
+  Disabled: ~
+  WiFi settings: ~
+  Access point: ~
+  AP password: ~
+  "Need\nCalib.": ~
+  "No\nGNSS": ~
+  "No TOPO\ndata": ~
+  Set QNH: ~
+  Avg (%us): ~
+  weak chrg.: ~
+  slow chrg.: ~
+  fast chrg.: ~
+  quick chrg.: ~
+  Compass: ~
+  Flight time: ~
+  wait: ~
+  Start: ~
+  ready: ~
+  in flight: ~
+  landed: ~
+  Glide (%us): ~
+  GAltitude: ~
+  GHdg: ~
+  GSpeed: ~
+  Take-off: ~
+  Fit to track: ~
+  Set Zoom Level: ~
+  Odometer reset: ~
+  Thermal assistant: ~
+  "Not\ncircling": ~
+  Thermal gain: ~
+  Thermal trace: ~
+  Thermal time: ~
+  Time/Date: ~
+  TO distance: ~
+  "No\nstart\npos": ~
+  TO direction: ~
+  TO time: ~
+  "Turn to\ntakeoff": ~
+  Wind dir: ~
+  Wind spd: ~
+  Page file corrupted: ~
+  Page is empty.: ~
+  Loading airspace...: ~
+  Airspace settings: ~
+  Load airspace: ~
+  Unload airspace: ~
+  Enabled classes: ~
+  Enabled airspaces: ~
+  FANET neighbors: ~
+  Settings: ~
+  FANET settings: ~
+  Enable FANET: ~
+  Enable FLARM: ~
+  Airborne type: ~
+  Ground type: ~
+  Show labels: ~
+  FLARM expires: ~
+  '%s in %ld days': ~
+  '%s EXPIRED!': ~
+  Flight settings: ~
+  Altitude change +/-%s: ~
+  "\n or ": ~
+  Speed > %s: ~
+  Automatic Take-off: ~
+  Altitude within +/-%s: ~
+  "\n and ": ~
+  Speed < %s: ~
+  Automatic Landing: ~
+  Glide ratio time: ~
+  G-meter time: ~
+  Circling timeout: ~
+  Use wind in trace: ~
+  Enable IGC log: ~
+  Enable CSV log: ~
+  Use altitude: ~
+  Stay within: ~
+  Use ground speed: ~
+  Be slower than: ~
+  Within time: ~
+  Change greater than: ~
+  Exceed speed: ~
+  Reading...: ~
+  Landing: ~
+  Duration: ~
+  Altitude Max: ~
+  Altitude Min: ~
+  Max Raise: ~
+  Max Sink: ~
+  Track length: ~
+  Analysing...: ~
+  Show on map: ~
+  'Total: ': ~
+  'Average per flight: ': ~
+  'Total: %.1f hours': ~
+  'Average per flight: %.1f hours': ~
+  'Total: %.0f flights': ~
+  Too Many Flights: ~
+  You have too many flights to handle in statistics. Please remove some.: ~
+  Year: ~
+  yearly: ~
+  Days: ~
+  Total: ~
+  Flights: ~
+  Hours %s: ~
+  Flights %s: ~
+  Distance %s: ~
+  Flight '%s' deleted: ~
+  Flight statistics: ~
+  Do you want to remove flight '%s': ~
+  GNSS Settings: ~
+  Status: ~
+  TTF: ~
+  Latitude: ~
+  Longitude: ~
+  Searching %u/%u: ~
+  Waiting for fix: ~

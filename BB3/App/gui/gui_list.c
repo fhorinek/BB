@@ -87,19 +87,71 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
 
 	gui_task_t * back_task = gui.list.back;
 
+	//is there custom list callback?
 	if (gui.list.callback != NULL)
-		default_handler = gui.list.callback(child, event, index);
+	{
+	    default_handler = gui.list.callback(child, event, index);
+	}
+
+	//try to get label text for help system
+	static uint8_t help_key_cnt = 0;
+	static bool help_avalible = false;
+
+    if (event == LV_EVENT_FOCUSED)
+    {
+        help_key_cnt = 0;
+        lv_obj_t * label = lv_obj_get_child_back(child, NULL);
+        if (label != NULL)
+        {
+            lv_obj_type_t buf;
+            lv_obj_get_type(label, &buf);
+
+            if (strcmp(buf.type[0], "lv_label") == 0)
+            {
+                help_avalible = help_show_icon_if_avalible_from_title(lv_label_get_text(label));
+            }
+        }
+    }
+
+    if (event == LV_EVENT_KEY && help_avalible)
+    {
+        int32_t key = *((uint32_t*) lv_event_get_data());
+
+        if (key == LV_KEY_HOME)
+        {
+            help_key_cnt++;
+            if(help_key_cnt > 5)
+            {
+                help_key_cnt = 0;
+                lv_obj_t * label = lv_obj_get_child_back(child, NULL);
+                if (label != NULL)
+                {
+                    lv_obj_type_t buf;
+                    lv_obj_get_type(label, &buf);
+
+                    if (strcmp(buf.type[0], "lv_label") == 0)
+                    {
+                        help_show_from_title(lv_label_get_text(label));
+                    }
+                }
+            }
+        }
+    }
 
 	if (default_handler)
 	{
 		//update config entry
 		config_entry_ll_t * entry = gui_config_entry_find(child);
+
+		//handle items coupled with configuration items
 		if (entry != NULL)
 		{
 			if (entry->entry == CUSTOM_CB)
 			{
-				bool cont = ((gui_list_task_cb_t)entry->params)(child, event, index);
-				if (!cont)
+				bool handle_event = ((gui_list_task_cb_t)entry->params)(child, event, index);
+
+				//if custom callback return false do not continue
+				if (!handle_event)
 					return;
 			}
 
@@ -143,8 +195,6 @@ void gui_list_store_pos(gui_task_t * task)
     }
 }
 
-static uint8_t level = 0;
-
 bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
 {
     if (lv_obj_get_group(parent) != NULL)
@@ -160,7 +210,6 @@ bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child)
             return false;
         if (gui_focus_child(child, NULL))
         {
-            level--;
             return true;
         }
     }
@@ -178,7 +227,6 @@ void gui_list_retrive_pos(gui_task_t * task)
 	lv_obj_t * obj = gui_list_get_entry(task->last_menu_pos);
 	if (obj != NULL)
 	{
-	    level = 0;
 	    gui_focus_child(obj, NULL);
 	}
 }
@@ -215,7 +263,6 @@ lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -244,7 +291,6 @@ lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_PRETTY_MID);
-	//lv_page_glue_obj(entry, true);
 
 	uint16_t w = lv_obj_get_width_fit(entry);
 
@@ -297,7 +343,6 @@ lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -355,7 +400,6 @@ lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool va
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
-	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -428,7 +472,6 @@ lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * va
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
-	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -455,28 +498,24 @@ lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * va
 
 void gui_list_info_set_value(lv_obj_t * obj, char * value)
 {
-	//switch widget is last added child
 	lv_obj_t * label = lv_obj_get_child_back(obj, lv_obj_get_child_back(obj, NULL));
 	lv_label_set_text(label, value);
 }
 
 void gui_list_info_set_name(lv_obj_t * obj, char * value)
 {
-	//switch widget is second last added child
 	lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
 	lv_label_set_text(label, value);
 }
 
 char * gui_list_info_get_value(lv_obj_t * obj)
 {
-    //switch widget is last added child
     lv_obj_t * label = lv_obj_get_child_back(obj, lv_obj_get_child_back(obj, NULL));
     return lv_label_get_text(label);
 }
 
 char * gui_list_info_get_name(lv_obj_t * obj)
 {
-    //switch widget is second last added child
     lv_obj_t * label = lv_obj_get_child_back(obj, NULL);
     return lv_label_get_text(label);
 }
@@ -487,7 +526,6 @@ lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height)
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
 	lv_obj_set_height(entry, height);
-	//lv_page_glue_obj(entry, true);
 
 	return entry;
 }
@@ -497,7 +535,6 @@ lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const 
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
-	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -554,9 +591,7 @@ lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.note);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
-	//lv_page_glue_obj(entry, true);
 	lv_obj_set_style_local_bg_color(entry, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, color);
-
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -580,7 +615,6 @@ lv_obj_t * gui_list_spacer_add_entry(lv_obj_t * list, uint16_t height)
 {
     lv_obj_t * entry = lv_obj_create(list, NULL);
     lv_obj_set_size(entry, 100, height);
-    //lv_page_glue_obj(entry, true);
 
     return entry;
 }

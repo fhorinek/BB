@@ -61,6 +61,13 @@ SECTIONS
    *(.dtcmram*)
  } >DTCMRAM
 
+ .itcm :
+ {
+  . = ALIGN(4);
+   *(.itcmram)
+   *(.itcmram*)
+ } >ITCMRAM
+
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
   {

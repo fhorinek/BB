@@ -23,12 +23,14 @@ static bool fanet_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 static lv_obj_t * fanet_init(lv_obj_t * par)
 {
+    help_set_base("FANET");
+
 	local->cnt = 0;
 	local->magic = 0;
 
-	lv_obj_t * list = gui_list_create(par, "FANET neighbors", &gui_settings, fanet_cb);
+	lv_obj_t * list = gui_list_create(par, _("FANET neighbors"), &gui_settings, fanet_cb);
 
-	gui_list_auto_entry(list, "Settings", NEXT_TASK, &gui_fanet_settings);
+	gui_list_auto_entry(list, _("Settings"), NEXT_TASK, &gui_fanet_settings);
 
 	return list;
 }

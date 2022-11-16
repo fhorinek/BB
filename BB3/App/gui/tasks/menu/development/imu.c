@@ -45,6 +45,8 @@ static bool imu_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 lv_obj_t * imu_init(lv_obj_t * par)
 {
+    help_set_base("Development/IMU");
+
 	lv_obj_t * list = gui_list_create(par, "IMU", &gui_sensors, imu_cb);
 
     local->log = gui_list_switch_add_entry(list, "Record", fc.imu.record);

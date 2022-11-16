@@ -217,7 +217,6 @@ bool copy_file(char * src, char * dst)
 
     if (work_buffer == NULL)
     {
-        tfree(work_buffer);
         return false;
     }
 

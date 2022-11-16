@@ -16,8 +16,8 @@
 #include "igc.h"
 #include "csv.h"
 
-#define STATS_VERSION		2
-#define STATS_TOTAL_RECORDS	9
+#define STATS_VERSION		3
+#define STATS_TOTAL_RECORDS	10
 
 fc_logger_status_t logger_state()
 {
@@ -35,6 +35,7 @@ static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
 {
     sprintf(buffer, " SKYBEAN-STATS: %u\n"
                     " SKYBEAN-START-UTC-s: %" PRIu32 "\n"
+                    " SKYBEAN-TZ-OFFSET-s: %" PRId32 "\n"
                     " SKYBEAN-DURATION-s: %" PRIu32 "\n"
                     " SKYBEAN-ALT-MAX-m: %" PRId16 "\n"
                     " SKYBEAN-ALT-MIN-m: %" PRId16 "\n"
@@ -44,6 +45,7 @@ static void flight_stats_to_text(flight_stats_t *f_stat, char *buffer)
                     " SKYBEAN-BBOX: %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                     STATS_VERSION,
                     f_stat->start_time,
+					f_stat->tz_offset,
                     f_stat->duration,
                     f_stat->max_alt,
                     f_stat->min_alt,
@@ -103,6 +105,14 @@ static bool read_stats_from_file(int32_t fp, flight_stats_t *f_stat)
         if (p != NULL)
         {
             f_stat->start_time = atol(p + 21);
+            records++;
+            continue;
+        }
+
+        p = strstr(line, "SKYBEAN-TZ-OFFSET-s: ");
+        if (p != NULL)
+        {
+            f_stat->tz_offset = atol(p + 21);
             records++;
             continue;
         }
@@ -192,6 +202,7 @@ void logger_read_flight_stats(const char *filename, flight_stats_t *f_stat)
 
     // Set defaults, if nothing could be found in the file:
     f_stat->start_time = FS_NO_DATA;
+    f_stat->tz_offset = FS_NO_DATA;
     f_stat->duration = FS_NO_DATA;
     f_stat->max_alt = FS_NO_DATA;
     f_stat->min_alt = FS_NO_DATA;

@@ -76,11 +76,15 @@ config_entry_ll_t * gui_config_entry_find(lv_obj_t * obj);
 #define SPECIAL_HANDLING	10
 
 lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params);
+
+void gui_config_entry_textbox_cancel(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_textbox(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_textbox_cancel(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_update(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_entry_clicked(lv_obj_t * obj, cfg_entry_t * entry, void * params);
 void gui_config_config_cb(cfg_entry_t * entry);
+
+bool gui_focus_child(lv_obj_t * parent, lv_obj_t * child);
 
 void gui_list_set_pos(gui_task_t * task, uint16_t pos);
 void gui_list_store_pos(gui_task_t * task);

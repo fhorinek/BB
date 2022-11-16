@@ -8,6 +8,7 @@
 #include "gui/gui_list.h"
 #include "etc/format.h"
 
+
 REGISTER_TASK_I(flight);
 
 static gui_list_slider_options_t dura_opt = {
@@ -18,7 +19,9 @@ static gui_list_slider_options_t dura_opt = {
 
 static lv_obj_t * flight_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Flight settings", &gui_settings, NULL);
+    help_set_base("Flight");
+
+	lv_obj_t * list = gui_list_create(par, _("Flight settings"), &gui_settings, NULL);
 
 	char desc[64];
 	strcpy(desc, "");
@@ -26,7 +29,7 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 	{
 		char buff[16];
 		format_altitude_with_units(buff, config_get_int(&profile.flight.auto_take_off.alt_change_value));
-		sprintf(desc, "Altitude change +/-%s", buff);
+		sprintf(desc, _("Altitude change +/-%s"), buff);
 	}
 
 	if (config_get_bool(&profile.flight.auto_take_off.speed_enabled))
@@ -34,21 +37,20 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 //		char test[] = ;
 		if (strlen(desc) > 0)
 		{
-			char or_str[] = "\n or ";
-			strcat(desc, or_str);
+			strcat(desc, _("\n or "));
 		}
 
 		char buff[16];
 		char text[32];
 		format_speed_with_units(buff, config_get_int(&profile.flight.auto_take_off.speed_value));
-		sprintf(text, "Speed > %s", buff);
+		sprintf(text, _("Speed > %s"), buff);
 		strcat(desc, text);
     }
 
 	if (strlen(desc) == 0)
-		strcpy(desc, "Disabled");
+		strcpy(desc, _("Disabled"));
 
-	lv_obj_t * obj = gui_list_info_add_entry(list, "Automatic Take-off", desc);
+	lv_obj_t * obj = gui_list_info_add_entry(list, _("Automatic Take-off"), desc);
 	gui_config_entry_add(obj, NEXT_TASK, &gui_take_off);
 
 
@@ -57,7 +59,7 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 	{
 		char buff[16];
 		format_altitude_with_units(buff, config_get_int(&profile.flight.auto_landing.alt_change_value));
-		sprintf(desc, "Altitude within +/-%s", buff);
+		sprintf(desc, _("Altitude within +/-%s"), buff);
 	}
 
 	if (config_get_bool(&profile.flight.auto_landing.speed_enabled))
@@ -65,32 +67,31 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 //		char test[] = ;
 		if (strlen(desc) > 0)
 		{
-			char or_str[] = "\n and ";
-			strcat(desc, or_str);
+			strcat(desc, _("\n and "));
 		}
 
 		char buff[16];
 		char text[32];
 		format_speed_with_units(buff, config_get_int(&profile.flight.auto_landing.speed_value));
-		sprintf(text, "Speed < %s", buff);
+		sprintf(text, _("Speed < %s"), buff);
 		strcat(desc, text);
     }
 
 	if (strlen(desc) == 0)
-		strcpy(desc, "Disabled");
+		strcpy(desc, _("Disabled"));
 
-	obj = gui_list_info_add_entry(list, "Automatic Landing", desc);
+	obj = gui_list_info_add_entry(list, _("Automatic Landing"), desc);
 	gui_config_entry_add(obj, NEXT_TASK, &gui_landing);
 
 
-    gui_list_auto_entry(list, "Glide ratio time", &profile.flight.gr_duration, &dura_opt);
-    gui_list_auto_entry(list, "G-meter time", &profile.flight.acc_duration, &dura_opt);
-    gui_list_auto_entry(list, "Circling timeout", &profile.flight.circle_timeout, &dura_opt);
+    gui_list_auto_entry(list, _("Glide ratio time"), &profile.flight.gr_duration, &dura_opt);
+    gui_list_auto_entry(list, _("G-meter time"), &profile.flight.acc_duration, &dura_opt);
+    gui_list_auto_entry(list, _("Circling timeout"), &profile.flight.circle_timeout, &dura_opt);
 
-    gui_list_auto_entry(list, "Use wind in trace", &profile.flight.compensate_wind, NULL);
+    gui_list_auto_entry(list, _("Use wind in trace"), &profile.flight.compensate_wind, NULL);
 
-    gui_list_auto_entry(list, "Enable IGC log", &profile.flight.logger.igc, NULL);
-    gui_list_auto_entry(list, "Enable CSV log", &profile.flight.logger.csv, NULL);
+    gui_list_auto_entry(list, _("Enable IGC log"), &profile.flight.logger.igc, NULL);
+    gui_list_auto_entry(list, _("Enable CSV log"), &profile.flight.logger.csv, NULL);
 
 	return list;
 }

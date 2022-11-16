@@ -11,7 +11,10 @@
 #include "common.h"
 #include "lib/lvgl/lvgl.h"
 
+#include "gui/help/help.h"
+
 #include "gui/images/images.h"
+#include "gui/fonts/md_icons.h"
 
 typedef bool (* gui_list_task_cb_t)(lv_obj_t *, lv_event_t, uint16_t);
 typedef void (* gui_dialog_cb_t)(uint8_t, void * data);
@@ -107,7 +110,6 @@ typedef struct
     uint8_t zoom;
     bool ready;
     bool not_used;
-
     bool airspace;
 
 } map_chunk_t;
@@ -174,6 +176,14 @@ typedef struct
         bool active;
         uint8_t _pad[1];
 	} dialog;
+
+	//help
+	struct
+	{
+        lv_obj_t * window;
+        lv_group_t * group;
+        lv_obj_t * icon;
+	} help;
 
 	//statusbar
 	struct
@@ -254,7 +264,7 @@ typedef struct
 
 	uint8_t take_screenshot;
 	uint8_t fps;
-	bool restrict_gui_speed;
+	uint8_t restrict_gui_speed;
 	uint8_t _pad[1];
 
 } gui_t;
@@ -282,6 +292,7 @@ void gui_low_priority(bool val);
 void gui_inject_function(gui_injected_function_t f);
 
 void release_note_show();
+void gui_load_language();
 
 #define GUI_QUEUE_SIZE 			2
 #define GUI_TASK_SW_ANIMATION	250

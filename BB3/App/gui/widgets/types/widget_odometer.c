@@ -46,7 +46,7 @@ static void Odo_edit(widget_slot_t * slot, uint8_t action)
     	if (fc.flight.odometer != 0)
     	{
 			fc.flight.odometer = 0;
-			statusbar_msg_add(STATUSBAR_MSG_INFO, "Odometer reset");
+			statusbar_msg_add(STATUSBAR_MSG_INFO, _("Odometer reset"));
     	}
     }
 }

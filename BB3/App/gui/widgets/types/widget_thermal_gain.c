@@ -25,7 +25,7 @@ static void TGain_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Thermal gain");
+    	widget_add_title(base, slot, _("Thermal gain"));
 
     char tmp[8];
     char * uni = tmp;

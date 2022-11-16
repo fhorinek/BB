@@ -47,6 +47,9 @@
 #include "common_gpio.h"
 #include "etc/tmalloc.h"
 
+// lvgl_i18n
+#include "lv_i18n/lv_i18n_fix.h"
+
 typedef union
 {
     uint64_t uint64;
@@ -207,6 +210,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_BL_FW_MANUAL   "bootloader.fw"
 #define PATH_FANET_FW       PATH_ASSET_DIR "/fanet.xlb"
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
+#define PATH_HELP_DIR       PATH_ASSET_DIR "/help"
 #define PATH_TTS_DIR        PATH_ASSET_DIR "/tts/en"
 
 #define PATH_TOPO_DIR       "agl"
@@ -314,6 +318,11 @@ do { \
     } \
 } while(0);
 
+
+#define IS_DIGIT(c) ((c) - '0' <= 9U)
+#define IS_ALPHA(c) ((c) >= 'A' && (c) <= 'z')
+#define IS_UPPER(c) ((c) >= 'A' && (c) <= 'Z')
+#define TO_LOWER(c) ((c) + 'a' - 'A')
 
 #include "system/debug_thread.h"
 #include "system/bsod.h"

@@ -25,6 +25,7 @@
 #include "fc/navigation.h"
 #include "fc/circling.h"
 #include "fc/wind.h"
+#include "fc/recorder.h"
 
 #include "gui/tasks/page/pages.h"
 #include "etc/notifications.h"
@@ -168,10 +169,11 @@ void fc_init()
 
     osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
 
-    fc_reset();
-    logger_init();
-    telemetry_init();
-    wind_init();
+    fc_recorder_init();
+	fc_reset();
+	logger_init();
+	telemetry_init();
+	wind_init();
 
     fc_timer = osTimerNew(fc_step, osTimerPeriodic, NULL, NULL);
     osTimerStart(fc_timer, FC_STEP_PERIOD);
@@ -180,11 +182,12 @@ void fc_init()
 
 void fc_deinit()
 {
-    INFO("Flight computer deinit");
-    logger_stop();
-    telemetry_stop();
-    osTimerStop(fc.history.timer);
-    osTimerStop(fc_timer);
+	INFO("Flight computer deinit");
+	logger_stop();
+	telemetry_stop();
+	osTimerStop(fc.history.timer);
+	osTimerStop(fc_timer);
+	fc_recorder_exit();
 }
 
 void fc_takeoff()
@@ -213,6 +216,7 @@ void fc_takeoff()
 
     fanet_set_mode(false);
     logger_start();
+    fc_recorder_reset();
 
     gui_page_set_next(&profile.ui.autoset.take_off);
 
@@ -225,6 +229,7 @@ void fc_save_stats()
     flight_stats_t f_stat;
 
     f_stat.start_time = (uint32_t) fc_get_utc_time() - fc.flight.duration;
+    f_stat.tz_offset = timezone_get_offset(config_get_select(&config.time.zone), config_get_bool(&config.time.dst));
     f_stat.duration = fc.flight.duration;
     f_stat.max_alt = fc.flight.max_alt;
     f_stat.min_alt = fc.flight.min_alt;
@@ -329,17 +334,16 @@ void fc_step()
             fc.flight.min_alt = fc.fused.altitude1;
 
         int16_t t_vario = fc.fused.vario * 100;         // meter/s -> cm/s
-        if (t_vario > fc.flight.max_climb)
-            fc.flight.max_climb = t_vario;
-        if (t_vario < fc.flight.max_sink)
-            fc.flight.max_sink = t_vario;
+        if (t_vario > fc.flight.max_climb) 	fc.flight.max_climb = t_vario;
+        if (t_vario < fc.flight.max_sink) 	fc.flight.max_sink = t_vario;
         if (fc.gnss.fix == 3)
-        {
-            fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
-            fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
-            fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.longtitude);
-            fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
-        }
+		{
+			fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
+			fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
+			fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.latitude);
+			fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
+	        fc_recorder_step(fc.gnss.latitude, fc.gnss.longtitude, (int16_t)fc.fused.altitude1);
+		}
 
         if (check)
         {
@@ -377,23 +381,23 @@ void fc_device_status(char *buff, fc_device_status_t status)
     switch (status)
     {
         case (fc_dev_init):
-            strcpy(buff, "Device init");
+            strcpy(buff, _("Device init"));
         break;
 
         case (fc_dev_ready):
-            strcpy(buff, "Device ready");
+            strcpy(buff, _("Device ready"));
         break;
 
         case (fc_dev_error):
-            strcpy(buff, "Device error");
+            strcpy(buff, _("Device error"));
         break;
 
         case (fc_device_not_calibrated):
-            strcpy(buff, "Not calibrated");
+            strcpy(buff, _("Not calibrated"));
         break;
 
         case (fc_dev_off):
-            strcpy(buff, "Device disabled");
+            strcpy(buff, _("Device disabled"));
         break;
 
         default:

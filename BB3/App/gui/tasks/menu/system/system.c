@@ -33,7 +33,7 @@ static bool restore_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        dialog_show("Warning", "Do you want to restore factory settings?", dialog_yes_no, restore_dialog_cb);
+        dialog_show(_("Warning"), _("Do you want to restore factory settings?"), dialog_yes_no, restore_dialog_cb);
     }
 
     return true;
@@ -42,21 +42,23 @@ static bool restore_cb(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * system_init(lv_obj_t * par)
 {
-    lv_obj_t * list = gui_list_create(par, "System", &gui_settings, NULL);
+    help_set_base("System");
 
-    gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
-    gui_list_auto_entry(list, "Display", NEXT_TASK, &gui_display);
-    gui_list_auto_entry(list, "Units", NEXT_TASK, &gui_units);
-    gui_list_auto_entry(list, "Advanced", NEXT_TASK, &gui_advanced);
+    lv_obj_t * list = gui_list_create(par, _("System"), &gui_settings, NULL);
+
+    gui_list_auto_entry(list, _("Time & date"), NEXT_TASK, &gui_datetime);
+    gui_list_auto_entry(list, _("Display"), NEXT_TASK, &gui_display);
+    gui_list_auto_entry(list, _("Units"), NEXT_TASK, &gui_units);
+    gui_list_auto_entry(list, _("Advanced"), NEXT_TASK, &gui_advanced);
 
     char rev_str[20];
     rev_get_sw_string(rev_str);
-    lv_obj_t * fw = gui_list_info_add_entry(list, "Firmware", rev_str);
+    lv_obj_t * fw = gui_list_info_add_entry(list, _("Firmware"), rev_str);
     gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);
 
-    gui_list_auto_entry(list, "Device info", NEXT_TASK, &gui_info);
+    gui_list_auto_entry(list, _("Device info"), NEXT_TASK, &gui_info);
 
-    gui_list_auto_entry(list, "Restore factory settings", CUSTOM_CB, restore_cb);
+    gui_list_auto_entry(list, _("Restore factory settings"), CUSTOM_CB, restore_cb);
 
     return list;
 }

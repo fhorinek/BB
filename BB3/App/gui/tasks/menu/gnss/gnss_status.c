@@ -29,15 +29,29 @@ REGISTER_TASK_IL(gnss_status,
 #define STYLE_GALILEO	2
 #define STYLE_BEIDOU	3
 
+static char help_id[] = "Status Display";
+
 void gnss_status_cb(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CANCEL)
 		gui_switch_task(&gui_gnss, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 
+	if (event == LV_EVENT_KEY_LONG_PRESSED)
+	{
+	    int32_t key = *((uint32_t *) lv_event_get_data());
+	    if (key == LV_KEY_HOME)
+	    {
+	        if (help_avalible(help_id))
+	            help_show_from_title(help_id);
+	    }
+	}
 }
 
 lv_obj_t * gnss_status_init(lv_obj_t * par)
 {
+    help_set_base("GNSS");
+    help_show_icon_if_avalible(help_id);
+
 	lv_style_init(&local->style_sats);
 	lv_style_set_text_font(&local->style_sats, LV_STATE_DEFAULT, LV_THEME_DEFAULT_FONT_SMALL);
 	lv_style_set_pad_inner(&local->style_sats, LV_STATE_DEFAULT, 0);

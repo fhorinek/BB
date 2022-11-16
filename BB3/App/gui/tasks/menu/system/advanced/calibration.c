@@ -108,8 +108,8 @@ void calibration_set_state(calib_state_t state)
     switch (state)
     {
         case (calib_gyro):
-            lv_label_set_text(local->title, "Calibrating\ngyroscope");
-            lv_label_set_text(local->text, "Please keep the device steady");
+            lv_label_set_text(local->title, _("Calibrating\ngyroscope"));
+            lv_label_set_text(local->text, _("Please keep the device steady"));
         break;
 
         case (calib_acc_nx):
@@ -130,35 +130,35 @@ void calibration_set_state(calib_state_t state)
 
         case (calib_acc_pz):
             lv_label_set_text(local->icon, "+Z");
-            lv_label_set_text(local->text, "Level the device, display must be pointing up");
+            lv_label_set_text(local->text, _("Level the device, display must be pointing up"));
 
         break;
 
         case (calib_acc_nz):
             lv_label_set_text(local->icon, "-Z");
-            lv_label_set_text(local->text, "Level the device, display must be pointing down");
+            lv_label_set_text(local->text, _("Level the device, display must be pointing down"));
         break;
 
         case (calib_mag_xy):
-            lv_label_set_text(local->title, "Calibrating\nmagnetometer");
+            lv_label_set_text(local->title, _("Calibrating\nmagnetometer"));
             lv_label_set_text(local->icon, LV_SYMBOL_REFRESH);
-            lv_label_set_text(local->text, "Rotate the device 3 times while pointing display up");
+            lv_label_set_text(local->text, _("Rotate the device 3 times while pointing display up"));
             local->samples = 0;
         break;
 
         case (calib_mag_z):
-            lv_label_set_text(local->title, "Calibrating\nmagnetometer");
+            lv_label_set_text(local->title, _("Calibrating\nmagnetometer"));
             lv_label_set_text(local->icon, LV_SYMBOL_REFRESH);
-            lv_label_set_text(local->text, "Rotate the device 3 times while pointing usb ports down");
+            lv_label_set_text(local->text, _("Rotate the device 3 times while pointing usb ports down"));
             local->samples = 0;
         break;
     }
 
     if (state >= calib_acc_nx && state <= calib_acc_nz)
-        lv_label_set_text(local->title, "Calibrating\naccelerometer");
+        lv_label_set_text(local->title, _("Calibrating\naccelerometer"));
 
     if (state >= calib_acc_nx && state <= calib_acc_py)
-        lv_label_set_text(local->text, "Level the device, the arrow must be pointing up");
+        lv_label_set_text(local->text, _("Level the device, the arrow must be pointing up"));
 
     local->state = state;
 }

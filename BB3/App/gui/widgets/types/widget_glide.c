@@ -23,7 +23,7 @@ static void switch_to_vario(widget_slot_t * slot)
 
     if (slot->title != NULL)
     {
-        lv_label_set_text_fmt(slot->title, "Avg (%us)", config_get_int(&profile.vario.avg_duration));
+        lv_label_set_text_fmt(slot->title, _("Avg (%us)"), config_get_int(&profile.vario.avg_duration));
     }
 
     if (local->units != NULL)
@@ -43,7 +43,7 @@ static void switch_to_glide(widget_slot_t * slot)
 
     if (slot->title != NULL)
     {
-        lv_label_set_text_fmt(slot->title, "Glide (%us)", config_get_int(&profile.flight.gr_duration));
+        lv_label_set_text_fmt(slot->title, _("Glide (%us)"), config_get_int(&profile.flight.gr_duration));
     }
 
 

@@ -68,7 +68,7 @@ lv_obj_t * timeset_init(lv_obj_t * par)
     lv_style_init(&local->style);
     lv_style_set_text_font(&local->style, LV_STATE_DEFAULT, &lv_font_montserrat_34);
 
-    lv_obj_t * list = gui_list_create(par, "Set time", NULL, timeset_cb);
+    lv_obj_t * list = gui_list_create(par, _("Set time"), NULL, timeset_cb);
     lv_win_set_layout(list, LV_LAYOUT_PRETTY_MID);
 
     #define OPTION_SIZE 3

@@ -23,7 +23,7 @@ void profiles_pilot_fm_remove_cb(uint8_t res, void * opt_data)
         filemanager_get_filename_no_ext(name, path);
 
         char text[64];
-        snprintf(text, sizeof(text), "Pilot profile '%s' deleted", name);
+        snprintf(text, sizeof(text), _("Pilot profile '%s' deleted"), name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
@@ -48,7 +48,7 @@ void profile_pilot_fm_rename_cb(uint8_t res, void * opt_data)
         if (file_exists(new_path))
         {
             char text[64];
-            snprintf(text, sizeof(text), "Pilot profile with name '%s' already exist", new_name);
+            snprintf(text, sizeof(text), _("Pilot profile with name '%s' already exist"), new_name);
             dialog_show("Error", text, dialog_confirm, NULL);
         }
         else
@@ -83,7 +83,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
 
             config_change_pilot(name);
             char text[64];
-            snprintf(text, sizeof(text), "Pilot profile changed to '%s'", name);
+            snprintf(text, sizeof(text), _("Pilot profile changed to '%s'"), name);
             statusbar_msg_add(STATUSBAR_MSG_INFO, text);
             return true;
         }
@@ -125,7 +125,7 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
         case (1): //rename
         {
             dialog_add_opt_param(name);
-            dialog_show("Rename", "Set new pilot profile name", dialog_textarea, profile_pilot_fm_rename_cb);
+            dialog_show(_("Rename"), _("Set new pilot profile name"), dialog_textarea, profile_pilot_fm_rename_cb);
             char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data(opt_data);
@@ -155,13 +155,13 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
         {
             if (strcmp(name, config_get_text(&config.pilot_profile)) == 0)
             {
-                dialog_show("Error", "Cannot delete active pilot profile", dialog_confirm, NULL);
+                dialog_show(_("Error"), _("Cannot delete active pilot profile"), dialog_confirm, NULL);
             }
             else
             {
                 char text[64];
-                sniprintf(text, sizeof(text), "Do you want to remove pilot profile '%s'", name);
-                dialog_show("Confirm", text, dialog_yes_no, profiles_pilot_fm_remove_cb);
+                sniprintf(text, sizeof(text), _("Do you want to remove pilot profile '%s'"), name);
+                dialog_show(_("Confirm"), text, dialog_yes_no, profiles_pilot_fm_remove_cb);
                 char * opt_data = tmalloc(strlen(path) + 1);
                 strcpy(opt_data, path);
                 dialog_add_opt_data((void *)opt_data);
@@ -199,7 +199,7 @@ void profiles_profile_fm_remove_cb(uint8_t res, void * opt_data)
         remove_dir(path);
 
         char text[64];
-        snprintf(text, sizeof(text), "Flight profile '%s' deleted", name);
+        snprintf(text, sizeof(text), _("Flight profile '%s' deleted"), name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
@@ -225,7 +225,7 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
         if (file_exists(new_path))
         {
             char text[64];
-            snprintf(text, sizeof(text), "Flight profile with name '%s' already exist", new_name);
+            snprintf(text, sizeof(text), _("Flight profile with name '%s' already exist"), new_name);
             dialog_show("Error", text, dialog_confirm, NULL);
         }
         else
@@ -266,7 +266,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
 
             config_change_profile(name);
             char text[64];
-            snprintf(text, sizeof(text), "Flight profile changed to '%s'", name);
+            snprintf(text, sizeof(text), _("Flight profile changed to '%s'"), name);
             statusbar_msg_add(STATUSBAR_MSG_INFO, text);
             return true;
         }
@@ -314,7 +314,7 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
         case (1): //rename
         {
             dialog_add_opt_param(name);
-            dialog_show("Rename", "Set new flight profile name", dialog_textarea, profile_profile_fm_rename_cb);
+            dialog_show(_("Rename"), _("Set new flight profile name"), dialog_textarea, profile_profile_fm_rename_cb);
             char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data(opt_data);
@@ -351,13 +351,13 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
         {
             if (strcmp(name, config_get_text(&config.flight_profile)) == 0)
             {
-                dialog_show("Error", "Cannot delete active flight profile", dialog_confirm, NULL);
+                dialog_show(_("Error"), _("Cannot delete active flight profile"), dialog_confirm, NULL);
             }
             else
             {
                 char text[64];
-                sniprintf(text, sizeof(text), "Do you want to remove flight profile '%s'", name);
-                dialog_show("Confirm", text, dialog_yes_no, profiles_profile_fm_remove_cb);
+                sniprintf(text, sizeof(text), _("Do you want to remove flight profile '%s'"), name);
+                dialog_show(_("Confirm"), text, dialog_yes_no, profiles_profile_fm_remove_cb);
                 char * opt_data = tmalloc(strlen(path) + 1);
                 strcpy(opt_data, path);
                 dialog_add_opt_data((void *)opt_data);
@@ -382,6 +382,8 @@ static bool profiles_flight_cb(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * profiles_init(lv_obj_t * par)
 {
+    help_set_base("Profile");
+
 	lv_obj_t * list = gui_list_create(par, "Pilot & Flight profile", &gui_settings, NULL);
 
 //	gui_list_auto_entry(list, "Ask on startup", &config.ask_on_start, NULL);

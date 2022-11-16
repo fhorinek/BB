@@ -34,7 +34,9 @@ void igc_writeline_2(char * line, bool sign)
 	snprintf(new_line, sizeof(new_line), "%s\r\n", line);
 	l += 2;
 
-	ASSERT(red_write(igc_log_file, new_line, l) == l);
+	int32_t wr = red_write(igc_log_file, new_line, l);
+
+	ASSERT(wr == l);
 	ASSERT(red_sync() == 0);
 
 #ifndef IGC_NO_PRIVATE_KEY
@@ -342,6 +344,10 @@ bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos)
 			month = atoi_n(line+7, 2);
 			year  = atoi_n(line+9, 2) + 2000;
 		}
+		else if (strstr(line, "HFTZNTIMEZONE") == line)
+		{
+			flight_pos->tz_offset = (int32_t)(atof(line+14) * 3600);
+		}
 		else if (line[0] == 'B' && line[61] == 'A') //valid B-record
 		{
 			int hour = atoi_n(line+1, 2);
@@ -379,6 +385,7 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 	flight_pos_t first_pos, last_pos, pos;
 	int16_t raise;
 
+	f_stat->odo = 0;
 	f_stat->max_climb = 0;
 	f_stat->max_sink = 0;
 	f_stat->min_alt = INT16_MAX;
@@ -391,6 +398,7 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 	igc_read_next_pos(fp, &first_pos);
 
 	f_stat->start_time = first_pos.timestamp;
+	f_stat->tz_offset = first_pos.tz_offset;
 
 	last_pos = first_pos;
 	while ( igc_read_next_pos(fp, &pos) )
@@ -411,6 +419,9 @@ void igc_read_flight_stats(int32_t fp, flight_stats_t *f_stat)
 
 		last_pos = pos;
 	}
+
+	if (f_stat->min_alt == INT16_MAX)
+	    f_stat->min_alt  = FS_NO_DATA;
 
 	f_stat->duration = last_pos.timestamp - f_stat->start_time;
 }

@@ -27,8 +27,8 @@ static bool bluetooth_unpair(lv_obj_t * obj, lv_event_t event)
 {
 	if (event == LV_EVENT_CLICKED)
 	{
-		dialog_show("Unbind?",
-				"Do you want to unpair from all paired devices?\n",
+		dialog_show(_("Unbind?"),
+				_("Do you want to unpair from all paired devices?\n"),
 				dialog_yes_no, bluetooth_unpair_cb);
 
 		//supress default handler
@@ -40,21 +40,23 @@ static bool bluetooth_unpair(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * bluetooth_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "Bluetooth", &gui_settings, NULL);
+    help_set_base("Bluetooth");
+
+    lv_obj_t * list = gui_list_create(par, _("Bluetooth"), &gui_settings, NULL);
 
 	local-> info = gui_list_info_add_entry(list, "", "");
 
-	gui_list_auto_entry(list, "Enable", &profile.bluetooth.enabled, NULL);
-	gui_list_auto_entry(list, "A2DP Audio", &profile.bluetooth.a2dp, NULL);
-	gui_list_auto_entry(list, "SPP Telemetry", &profile.bluetooth.spp, NULL);
-	gui_list_auto_entry(list, "BLE Telemetry", &profile.bluetooth.ble, NULL);
-    gui_list_auto_entry(list, "Telemetry protocol", &profile.bluetooth.protocol, NULL);
-    gui_list_auto_entry(list, "Forward GNSS", &profile.bluetooth.forward_gnss, NULL);
+	gui_list_auto_entry(list, _("Enable"), &profile.bluetooth.enabled, NULL);
+	gui_list_auto_entry(list, _("A2DP Audio"), &profile.bluetooth.a2dp, NULL);
+	gui_list_auto_entry(list, _("SPP Telemetry"), &profile.bluetooth.spp, NULL);
+	gui_list_auto_entry(list, _("BLE Telemetry"), &profile.bluetooth.ble, NULL);
+    gui_list_auto_entry(list, _("Telemetry protocol"), &profile.bluetooth.protocol, NULL);
+    gui_list_auto_entry(list, _("Forward GNSS"), &profile.bluetooth.forward_gnss, NULL);
 
-	gui_list_auto_entry(list, "Device name", &config.device_name, NULL);
-	gui_list_auto_entry(list, "PIN code", &config.bluetooth.pin, NULL);
+	gui_list_auto_entry(list, _("Device name"), &config.device_name, NULL);
+	gui_list_auto_entry(list, _("PIN code"), &config.bluetooth.pin, NULL);
 
-	gui_list_auto_entry(list, "Unpair all", CUSTOM_CB, bluetooth_unpair);
+	gui_list_auto_entry(list, _("Unpair all"), CUSTOM_CB, bluetooth_unpair);
 
 
 
@@ -66,13 +68,13 @@ static void bluetooth_loop()
 {
 	if (fc.esp.state & ESP_STATE_BT_ON)
 	{
- 		gui_list_info_set_name(local->info, "Now visible as");
+ 		gui_list_info_set_name(local->info, _("Now visible as"));
  		gui_list_info_set_value(local->info, config_get_text(&config.device_name));
 	}
 	else
 	{
- 		gui_list_info_set_name(local->info, "Turn on Bluetoth");
- 		gui_list_info_set_value(local->info, "to enable pairing");
+ 		gui_list_info_set_name(local->info, _("Turn on Bluetoth"));
+ 		gui_list_info_set_value(local->info, _("to enable pairing"));
 	}
 }
 

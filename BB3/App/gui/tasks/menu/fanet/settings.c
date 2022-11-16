@@ -14,17 +14,19 @@ REGISTER_TASK_IL(fanet_settings,
 
 static lv_obj_t * fanet_settings_init(lv_obj_t * par)
 {
-	lv_obj_t * list = gui_list_create(par, "FANET settings", &gui_fanet, NULL);
+    help_set_base("FANET/Settings");
 
-    gui_list_auto_entry(list, "Enable FANET", &profile.fanet.enabled, NULL);
-    gui_list_auto_entry(list, "Enable FLARM", &profile.fanet.flarm, NULL);
-    gui_list_auto_entry(list, "Airborne type", &profile.fanet.air_type, NULL);
-    gui_list_auto_entry(list, "Ground type", &profile.fanet.ground_type, NULL);
-    gui_list_auto_entry(list, "Show labels", &profile.fanet.show_labels, NULL);
+	lv_obj_t * list = gui_list_create(par, _("FANET settings"), &gui_fanet, NULL);
+
+    gui_list_auto_entry(list, _("Enable FANET"), &profile.fanet.enabled, NULL);
+    gui_list_auto_entry(list, _("Enable FLARM"), &profile.fanet.flarm, NULL);
+    gui_list_auto_entry(list, _("Airborne type"), &profile.fanet.air_type, NULL);
+    gui_list_auto_entry(list, _("Ground type"), &profile.fanet.ground_type, NULL);
+    gui_list_auto_entry(list, _("Show labels"), &profile.fanet.show_labels, NULL);
 
     local->id = gui_list_info_add_entry(list, "FANET ID", "");
     local->ver = gui_list_info_add_entry(list, "FANET Firmware", "");
-    local->exp = gui_list_info_add_entry(list, "FLARM expires", "");
+    local->exp = gui_list_info_add_entry(list, _("FLARM expires"), "");
 
     return list;
 }
@@ -55,9 +57,9 @@ static void fanet_settings_loop()
         {
             int32_t delta = ((int64_t)fc.fanet.flarm_expires - (int64_t)fc_get_utc_time()) / (24 * 3600);
             if (delta > 0)
-                snprintf(value, sizeof(value), "%s in %ld days", tmp, delta);
+                snprintf(value, sizeof(value), _("%s in %ld days"), tmp, delta);
             else
-                snprintf(value, sizeof(value), "%s EXPIRED!", tmp);
+                snprintf(value, sizeof(value), _("%s EXPIRED!"), tmp);
         }
         else
         {

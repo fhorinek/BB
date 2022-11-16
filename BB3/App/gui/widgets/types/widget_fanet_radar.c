@@ -105,7 +105,7 @@ static uint16_t zoom_levels[] = {100, 200, 500, 1000, 1500, 2500, 3000, 5000};
 
 static void FanetRadar_update(widget_slot_t * slot)
 {
-	char label_value[50];
+	char label_value[64];
 
 	if (local->cbuf == NULL)
 	    return;

@@ -4,7 +4,7 @@
  *  Created on: Mar 14, 2022
  *      Author: horinek
  */
-#define DEBUG_LEVEL	DBG_DEBUG
+//#define DEBUG_LEVEL	DBG_DEBUG
 
 #include "airspace.h"
 #include "fc/fc.h"

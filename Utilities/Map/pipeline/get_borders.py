@@ -33,7 +33,7 @@ def pipeline_get_borders_raw():
             print("Skipping %s exists" % (filename))
             continue
 
-        script = "border.overpass"
+        script = "border.overpassql"
         print("Executing script %s for %s" % (script, filename))
 
         #load script

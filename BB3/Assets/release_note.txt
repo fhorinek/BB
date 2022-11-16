@@ -1,4 +1,5 @@
 Added:
+* Inline help system
 * Basic airspace support
 * Flight book with map
 * Flight statistics

@@ -29,7 +29,8 @@ void filemanager_refresh();
 #define FM_CB_FOCUS_DIR     0xF3    //new folder was focused, can be used to create folder specific context menu, return is ignored
 #define FM_CB_FILTER        0xF4    //called for every file during filemanager_open, if callback return false, the file will be hidden, need to use FM_FLAG_FILTER flag
 #define FM_CB_CANCEL        0xF5    //cancel button pressed in filemanager, If callback returns true, filemanager will go up one directory level, or return to previous gui_task_t if in the directory where filemanager was opened
-#define FM_CB_APPEND        0xF6    //called after filemanager_open listing, can be used to add custom menu item at the end
+#define FM_CB_INIT          0xF6    //called befor filemanager_open listing, can be used to add help_set_base
+#define FM_CB_APPEND        0xF7    //called after filemanager_open listing, can be used to add custom menu item at the end
 //numerical callbacks event are for context menu callbacks 0-first ctx item, 1-second ctx item, ...
 
 

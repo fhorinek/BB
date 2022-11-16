@@ -71,6 +71,8 @@ bool page_create(char * new_name)
 		page.base = NULL;
 		page.number_of_widgets = 0;
 		page.widget_slots = NULL;
+		page.shrt_left = ACTION_NO_ACTION;
+		page.shrt_right = ACTION_NO_ACTION;
 
 		widgets_save_to_file(&page, new_name);
 

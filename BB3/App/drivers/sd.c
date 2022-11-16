@@ -256,6 +256,8 @@ void sd_init()
     red_mkdir(PATH_ASSET_DIR);
     //system/assets/defaults
     red_mkdir(PATH_DEFAULTS_DIR);
+    //system/assets/help
+    red_mkdir(PATH_HELP_DIR);
 
     //system/cache
     red_mkdir(PATH_CACHE_DIR);

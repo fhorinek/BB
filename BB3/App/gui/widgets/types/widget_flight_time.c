@@ -25,7 +25,7 @@ static void FTime_init(lv_obj_t * base, widget_slot_t * slot)
 {
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
-    	widget_add_title(base, slot, "Flight time");
+    	widget_add_title(base, slot, _("Flight time"));
 
     char * sub_text = "";
     if (widget_flag_is_set(slot, wf_units_hide))
@@ -53,13 +53,13 @@ static void FTime_update(widget_slot_t * slot)
     {
         lv_label_set_text(local->value, "---");
         if (local->sub != NULL)
-            lv_label_set_text(local->sub, "wait");
+            lv_label_set_text(local->sub, _("wait"));
     }
     else if (fc.flight.mode == flight_wait_to_takeoff)
     {
-        lv_label_set_text(local->value, "Start");
+        lv_label_set_text(local->value, _("Start"));
         if (local->sub != NULL)
-            lv_label_set_text(local->sub, "ready");
+            lv_label_set_text(local->sub, _("ready"));
     }
     else if (fc.flight.mode == flight_flight)
     {
@@ -78,7 +78,7 @@ static void FTime_update(widget_slot_t * slot)
 
         lv_label_set_text(local->value, value);
         if (local->sub != NULL)
-            lv_label_set_text(local->sub, "in flight");
+            lv_label_set_text(local->sub, _("in flight"));
     }
     else if (fc.flight.mode == flight_landed)
     {
@@ -97,7 +97,7 @@ static void FTime_update(widget_slot_t * slot)
 
         lv_label_set_text(local->value, value);
         if (local->sub != NULL)
-            lv_label_set_text(local->sub, "landed");
+            lv_label_set_text(local->sub, _("landed"));
     }
 
     widget_update_font_size(local->value);

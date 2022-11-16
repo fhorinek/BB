@@ -11,6 +11,7 @@
 #include "etc/timezone.h"
 #include "etc/format.h"
 #include "drivers/gnss/fanet.h"
+#include "gui/map/map_thread.h"
 
 cfg_entry_param_select_t date_format_select[] =
 {
@@ -217,6 +218,14 @@ cfg_entry_param_select_t map_alt_range_select[] =
     SELECT_END
 };
 
+cfg_entry_param_select_t language_select[] =
+{
+    {LANG_EN, "English"},
+    {LANG_DE, "Deutsch"},
+    {LANG_SK, "Slovensky"},
+    SELECT_END
+};
+
 flight_profile_t profile =
 {
     //ui
@@ -240,6 +249,10 @@ flight_profile_t profile =
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
 		entry_big_int("last_lat", 0, big_int_max_range),
+        //shortcut_left
+        entry_text("shrt_l", "add_left", SHORTCUT_NAME_LEN, 0),
+        //shortcut_right
+        entry_text("shrt_r", "add_right", SHORTCUT_NAME_LEN, 0),
 
 		//autoset
 		{
@@ -267,7 +280,7 @@ flight_profile_t profile =
         //air_type
         entry_select("fa_ground", FANET_GROUND_TYPE_WALKING, fanet_ground_type),
         //radar_zoom
-        entry_int("fa_zoom", 2, 0, 7),
+        entry_int("fa_zoom", 2, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
         //use_labes
         entry_bool("fa_labels", true),
     },
@@ -339,13 +352,17 @@ flight_profile_t profile =
 	//map
 	{
         //zoom_flight
-        entry_int("zoom_flight", 3, 0, 8),
+        entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
+        //zoom_fit
+        entry_bool("zoom_fit", false),
         //zoom_flight
         entry_bool("map_blur", true),
         //alt_range
         entry_select("map_range", MAP_ALT_RANGE_NORMAL, map_alt_range_select),
 		//show_fanet
 		entry_bool("show_fanet", false),
+		//show_glider_trail
+		entry_bool("show_glider_trail", true),
 	},
 
 	//airspace
@@ -473,6 +490,8 @@ config_t config =
         entry_bool("bat_per", false),
 		//page_anim
         entry_bool("page_anim", true),
+        //language
+        entry_select("language", LANG_EN, language_select),
     },
 
     //time
@@ -543,5 +562,7 @@ config_t config =
         entry_bool("dbg_crash_reporting", true),
         //crash reporting URL
         entry_text("dbg_crash_url", "https://strato.skybean.eu/metrics/crash", CRASH_REPORTING_URL_LEN, 0),
+        //help_show_id
+        entry_bool("dbg_help", false),
 	},
 };

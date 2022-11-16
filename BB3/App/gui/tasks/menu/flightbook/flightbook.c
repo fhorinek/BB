@@ -48,7 +48,7 @@ static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
         filemanager_get_filename(name, path);
 
         char text[64];
-        snprintf(text, sizeof(text), "Flight '%s' deleted", name);
+        snprintf(text, sizeof(text), _("Flight '%s' deleted"), name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);                                                                                        
 
         filemanager_refresh();
@@ -60,11 +60,16 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
 {
     switch (event)
     {
-    	//called after the list is populated with files
+        //called after the list is populated with files
+        case FM_CB_INIT:
+            help_set_base("Flightbook");
+        break;
+
+        //called after the list is populated with files
     	case FM_CB_APPEND:
     	    //only in root dir
     		if (filemanager_get_current_level() == 0)
-    			gui_list_auto_entry(gui.list.list, "Flight statistics", CUSTOM_CB, open_flightbook_stat);
+    			gui_list_auto_entry(gui.list.list, _("Flight statistics"), CUSTOM_CB, open_flightbook_stat);
 		break;
 
         case FM_CB_SELECT:
@@ -91,8 +96,8 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
             filemanager_get_filename(name, path);
 
             char text[64];
-            sniprintf(text, sizeof(text), "Do you want to remove flight '%s'", name);
-            dialog_show("Confirm", text, dialog_yes_no, flightbook_fm_remove_cb);
+            sniprintf(text, sizeof(text), _("Do you want to remove flight '%s'"), name);
+            dialog_show(_("Confirm"), text, dialog_yes_no, flightbook_fm_remove_cb);
             char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data((void *)opt_data);

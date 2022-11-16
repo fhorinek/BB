@@ -25,6 +25,8 @@ const struct mf_font_s * bsod_font;
 uint8_t gfx_color = GFX_BLACK;
 static uint16_t gfx_last_x = 0;
 
+char *bsod_strato_crashed_msg = BSOD_STRATO_CRASHED_MESSAGE;
+
 static void pixel_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state)
 {
     uint32_t pos;
@@ -255,7 +257,7 @@ void bsod_crash_start(const Crash_Object * info)
 
     bsod_line = 0;
 
-    bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, "** Strato Crashed **", MF_ALIGN_CENTER);
+    bsod_draw_text(TFT_WIDTH / 2, (bsod_line++) * LINE_SIZE, bsod_strato_crashed_msg, MF_ALIGN_CENTER);
 
     char buff[32];
     char tmp[20];

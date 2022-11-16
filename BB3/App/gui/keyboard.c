@@ -193,6 +193,7 @@ void keyboard_show(lv_obj_t * area)
 	lv_anim_init(&a);
 	lv_anim_set_values(&a, 0, GUI_KEYBOARD_SIZE);
 	lv_anim_set_exec_cb(&a, keyboard_anim_cb);
+	lv_anim_set_var(&a, gui.keyboard.obj);
 //	lv_anim_set_ready_cb(&a, "flash buttons")
 
 	lv_group_add_obj(lv_obj_get_group(area), gui.keyboard.obj);
@@ -218,6 +219,7 @@ void keyboard_hide()
 	lv_anim_init(&a);
 	lv_anim_set_values(&a, GUI_KEYBOARD_SIZE, 0);
 	lv_anim_set_exec_cb(&a, keyboard_anim_cb);
+    lv_anim_set_var(&a, gui.keyboard.obj);
 	lv_anim_start(&a);
 
 	lv_keyboard_set_textarea(gui.keyboard.obj, NULL);
