@@ -182,12 +182,12 @@ void fanet_configure_type(bool init)
 	fanet_send(cmd);
 }
 
-void fanet_set_mode()
+void fanet_set_mode(bool init)
 {
 	if (!config_get_bool(&profile.fanet.enabled))
 		return;
 
-	if (fc.fanet.status != fc_dev_ready)
+	if (fc.fanet.status != fc_dev_ready && !init)
 	{
 		fc.fanet.flags |= FANET_MODE_CHANGE_REG;
 		return;
@@ -278,9 +278,10 @@ void fanet_parse_dg(char * buffer)
 	//RX enabled
 	else if (start_with(buffer, "R OK"))
 	{
-	    fc.fanet.flags |= FANET_TYPE_CHANGE_REG | FANET_FLARM_CHANGE_REG | FANET_MODE_CHANGE_REG;
-	    fc.fanet.status = fc_dev_ready;
-	    INFO("FANET module ready");
+	    if (fc.fanet.status == fc_dev_init)
+	    {
+	        fanet_configure_flarm(true);
+	    }
 	}
 }
 
@@ -416,6 +417,21 @@ void fanet_parse_fn(char * buffer)
 	    //get version
 		fanet_send("DGV");
 	}
+    else if (start_with(buffer, "R OK"))
+    {
+        //enable RX
+        if (fc.fanet.flags == FANET_FLARM_WAIT_FNROK)
+        {
+            fc.fanet.flags = 0;
+            fc.fanet.status = fc_dev_ready;
+            INFO("FANET module ready");
+        }
+        else if (fc.fanet.status == fc_dev_init)
+        {
+            fanet_send("DGP 1");
+        }
+
+    }
 	else if (start_with(buffer, "A "))
 	{
 		unsigned int manu_id, user_id;
@@ -477,10 +493,22 @@ void fanet_parse_fa(char * buffer)
 		sscanf(buffer + 2, "%u,%u,%u", &year, &month, &day);
 		fc.fanet.flarm_expires = datetime_to_epoch(0, 0, 0, day, month + 1, year + 1900);
 
-        //enable RX
+        //set type
         if (fc.fanet.status == fc_dev_init)
-            fanet_send("DGP 1");
+        {
+            fanet_configure_type(true);
+        }
 	}
+	else if (start_with(buffer, "R OK"))
+	{
+        if (fc.fanet.status == fc_dev_init)
+        {
+            fanet_set_mode(true);
+
+            fc.fanet.flags = FANET_FLARM_WAIT_FNROK;
+        }
+	}
+
 }
 
 
@@ -599,10 +627,10 @@ void fanet_transmit_pos()
 
 	float speed = 0;
 	float climb = fc.fused.vario;
-	int16_t hdg = fc.gnss.heading;
+	float hdg = fc.gnss.heading;
 	float deg_s = 0;
 
-	sprintf(line, "FNS %0.5f,%0.5f,%0.1f,%0.2f,%0.2f,%d,%u,%u,%u,%u,%u,%0.1f", lat, lon, alt, speed, climb, hdg, year, month, day, hour, sec, deg_s);
+	sprintf(line, "FNS %0.6f,%0.6f,%0.1f,%0.1f,%0.2f,%0.1f,%u,%u,%u,%u,%u,%u,%0.1f", lat, lon, alt, speed, climb, hdg, year, month, day, hour, min, sec, deg_s);
 	fanet_send(line);
 }
 
@@ -699,24 +727,22 @@ void fanet_step()
 		if (fc.fanet.flags & FANET_MODE_CHANGE_REG)
 		{
 			fc.fanet.flags &= ~FANET_MODE_CHANGE_REG;
-			fanet_set_mode();
+			fanet_set_mode(false);
 			return;
 		}
 
         //if enabled tracking etc...
-        if (fanet_next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix == 3)
+        if (fanet_next_transmit_tracking <= HAL_GetTick() && fc.gnss.fix >= 2)
         {
-            int32_t delta = gnss_next_pps - HAL_GetTick();
-
-            if (delta > FANET_TX_TRACKING_PERIOD / 2)
+            if (gnss_next_pps > HAL_GetTick())
             {
-                fanet_next_transmit_tracking = gnss_next_pps - 40; //40 measured offset
+                fanet_next_transmit_tracking = gnss_next_pps + 30;
+                gnss_next_pps = 0;
             }
             else
             {
                 fanet_next_transmit_tracking = HAL_GetTick() + FANET_TX_TRACKING_PERIOD;
             }
-            gnss_next_pps = 0;
 
             fanet_transmit_pos();
         }

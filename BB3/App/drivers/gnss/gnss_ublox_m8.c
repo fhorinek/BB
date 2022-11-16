@@ -236,9 +236,6 @@ extern uint32_t gnss_next_pps;
 
 void ublox_handle_itow(uint32_t iTOW)
 {
-    if (gnss_next_pps != 0)
-        return;
-
     int32_t delta = 1000 - (iTOW % 1000);
     gnss_next_pps = HAL_GetTick() + delta;
     DBG("iTow: %lu, delta %lu, next_pss %lu", iTOW, delta, gnss_next_pps);

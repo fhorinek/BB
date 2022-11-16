@@ -15,14 +15,12 @@ void fanet_enable();
 void fanet_disable();
 void fanet_step();
 
-void fanet_set_mode();
-
 void fanet_start_dma();
 
 void fanet_tx_done();
 void fanet_transmit(uint8_t * data, uint16_t len);
 
-
+void fanet_set_mode(bool init);
 void fanet_configure_flarm(bool init);
 void fanet_configure_type(bool init);
 
