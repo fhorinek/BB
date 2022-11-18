@@ -98,8 +98,11 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
             if (page->widget_slots == NULL)
             {
                 page->number_of_widgets = atoi(value);
-                page->widget_slots = (widget_slot_t *) tmalloc(sizeof(widget_slot_t) * page->number_of_widgets);
-                ASSERT(page->widget_slots != NULL);
+
+                if (page->number_of_widgets > 0)
+                    page->widget_slots = (widget_slot_t *) tmalloc(sizeof(widget_slot_t) * page->number_of_widgets);
+                else
+                    page->widget_slots = NULL;
 
                 for (uint8_t i = 0; i < page->number_of_widgets; i++)
                 {
