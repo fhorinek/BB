@@ -16,3 +16,9 @@ BB_map_sim/.settings
 Utilities/CrashDebug/dump.bin
 Utilities/Bundle/strato.fw
 .DS_Store
+
+Utilities/CrashDebug/gdbgui/code/
+Utilities/CrashDebug/gdbgui/elf/
+Utilities/CrashDebug/gdbgui/report/
+Utilities/CrashDebug/gdbgui/*.zip
+
