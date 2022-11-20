@@ -15,283 +15,315 @@ static inline uint32_t op_w(uint32_t val) { UNUSED(val); return 0; }
 static inline uint32_t op_f(uint32_t val) { UNUSED(val); return 0; }
 static inline uint32_t op_t(uint32_t val) { UNUSED(val); return 0; }
 
-static lv_i18n_phrase_t de_de_singulars[] = {
-    {"Flightbook", "Flugbuch"},
-    {"Airspaces", "Lufträume"},
-    {"Language", "Sprache"},
-    {"Display Settings", "Display-Einstellungen"},
-    {"Brightness", "Helligkeit"},
-    {"Page animation", "Seitenanimation"},
-    {"Battery percent", "Batterieprozent"},
-    {"Strato settings", "Strato Einstellungen"},
-    {"Pilot & Flight profile", "Pilot & Flug Profile"},
-    {"Flight", "Flug"},
-    {"Map", "Karte"},
-    {"Development", "Entwicklung"},
-    {"Device init", "Gerät init"},
-    {"Device ready", "Gerät bereit"},
-    {"Device error", "Gerät Fehler"},
-    {"Not calibrated", "Nicht kalibriert"},
-    {"Device disabled", "Gerät deaktiviert"},
-    {"%s connected (%s)", "%s verbunden (%s)"},
-    {"%s disconnected (%s)", "%s getrennt (%s)"},
-    {"%s paired", "%s gekoppelt"},
-    {"Bluetooth pairing request", "Bluetooth Kopplungsanfrage"},
-    {"pairing failed", "koppeln fehlgeschlagen"},
-    {"Type this passcode\n\n%lu\n\non the other device.", "Die PIN\n\n%lu\n\nauf dem anderen Gerät eingeben."},
-    {"Confirm that passcode\n\n%lu\n\nis the same on other the device.", "Bestätigen, dass die PIN\n\n%lu\n\nauf dem anderen Gerät identisch ist."},
-    {"Error", "Fehler"},
-    {"No slot available", "Kein Slot verfügbar"},
-    {"Not connected!", "Nicht verbunden!"},
-    {"Resource not found!", "Ressource nicht gefunden!"},
-    {"Connection timeout!", "Verbindung Timeout!"},
-    {"New firmware\n %s is available.", "Neue Firmware\n %s ist verfügbar."},
-    {"Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.", "Dein Gerät nutzt gerade eine Entwicklungs-Firmware.\n\nEs könnte sehr instabil sein und sollte nur von Entwicklern und Testern verwendet werden.\n\nWir empfehlen auf eine offizielle Version zu wechseln."},
-    {"Firmware updated\n to %s", "Firmware aktualisiert\n auf %s"},
-    {"Unable to update bootloader.\nRe-install the update file.", "Bootloader kann nicht aktualisiert werden.\nUpdate-File neu installieren."},
-    {"Bootloader updated", "Bootloader aktualisiert"},
-    {"Storing config", "Speicher Konfiguration"},
-    {"Formating storage", "Formatiere Speicher"},
-    {"Restoring config", "Restauriere Konfiguration"},
-    {"Unable to mount RED volume", "RED Laufwerk kann nicht eingebunden werden"},
-    {"Unable to format storage", "Speicher kann nicht formatiert werden"},
-    {"Unable to mount FatFs volume", "FatFS Laufwerk kann nicht eingebunden werden"},
-    {"Migrating", "Migriere"},
-    {"Updating bootloader", "Aktualisiere Bootloader"},
-    {"Warning", "Warnung"},
-    {"No GNSS", "Kein GNSS"},
-    {"Set time", "Zeit setzen"},
-    {"Master volume", "Hauptlautstärke"},
-    {"Vario volume", "Vario Lautstärke"},
-    {"Sound volume", "Musik Lautstärke"},
-    {"Bluetooth volume", "Bluetooth Lautstärke"},
-    {"TTS alerts", "TTS Alarme"},
-    {"Unbind?", "Entkoppeln?"},
-    {"Enable", "Aktivieren"},
-    {"Forward GNSS", "GNSS weiterleiten"},
-    {"Device name", "Gerätename"},
-    {"Unpair all", "Alle entkoppeln"},
-    {"Now visible as", "Jetzt sichtbar als"},
-    {"Turn on Bluetoth", "Bluetooth anschalten"},
-    {"to enable pairing", "um zu koppeln"},
-    {"Clearing map cache", "Karten-Cache löschen"},
-    {"Please wait", "Bitte warten"},
-    {"Clear cache", "Cache löschen"},
-    {"do you want to clear map cache?", "Willst du den Karten-Cache löschen?"},
-    {"Map scale", "Karten Skalierung"},
-    {"Zoom to fit track", "Zoomen auf Track"},
-    {"Terrain type", "Geländetyp"},
-    {"Topo blur", "Topo unscharf"},
-    {"Clear map cache", "Map-Cache löschen"},
-    {"Show FANET on map", "FANET auf Karte zeigen"},
-    {"Show trail", "Wegspur zeigen"},
-    {"Pilot name", "Pilotenname"},
-    {"Glider type", "Glider Typ"},
-    {"Broadcast name", "Broadcast Name"},
-    {"Pilot profile '%s' deleted", "Piloten-Profil '%s' gelöscht"},
-    {"Pilot profile with name '%s' already exist", "Piloten-Profil mit Name '%s' bereits vorhanden"},
-    {"Pilot profile changed to '%s'", "Piloten-Profil geändert in '%s'"},
-    {"Rename", "Umbenennen"},
-    {"Set new pilot profile name", "Neuen Namen für Piloten-Profil setzen"},
-    {"Cannot delete active pilot profile", "Aktuelles Piloten-Profil kann nicht gelöscht werden"},
-    {"Do you want to remove pilot profile '%s'", "Willst Du das Piloten-Profil '%s' löschen"},
-    {"Confirm", "Bestätigen"},
-    {"Flight profile '%s' deleted", "Flug-Profil '%s' gelöscht"},
-    {"Flight profile with name '%s' already exist", "Flug-Profil mit Name '%s' bereits vorhanden"},
-    {"Flight profile changed to '%s'", "Flug-Profil geändert auf '%s'"},
-    {"Set new flight profile name", "Neuen Flug-Profil-Namen setzen"},
-    {"Cannot delete active flight profile", "Aktuelles Flug-Profil kann nicht gelöscht werden"},
-    {"Do you want to remove flight profile '%s'", "Willst du das Flug-Profil '%s' löschen"},
-    {"Reset\ncalibration?", "Kalibrierung\nzurücksetzen?"},
-    {"Clear debug file", "Debug-File löschen"},
-    {"Advanced settings", "Erweiterte Einstellungen"},
-    {"Calibration data not valid", "Kalibrierungsdaten ungültig"},
-    {"Calibrate sensors", "Sensoren kalibrieren"},
-    {"Recalibrate Gyroscope", "Gyroskop rekalibrieren"},
-    {"Recalibrate Accelerometer", "Beschleunigungssensor rekalibrieren"},
-    {"Recalibrate Magnetometer", "Magnetkompass rekalibrieren"},
-    {"Reset calibration", "Kalibrierung zurücksetzen"},
-    {"Create diagnostic report", "Diagnose-Report erzeugen"},
-    {"Crash reports", "Crash-Reports"},
-    {"Auto crash upload", "Crash automatisch hochladen"},
-    {"Debug to file", "Debug in Datei"},
-    {"Clear debug.log", "debug.log löschen"},
-    {"Calibrating\ngyroscope", "Kalibriere\nGyroskop"},
-    {"Please keep the device steady", "Bitte Gerät bereithalten"},
-    {"Level the device, display must be pointing up", "Gerät ausrichten, Anzeige nach oben"},
-    {"Level the device, display must be pointing down", "Gerät ausrichten, Anzeige nach unten"},
-    {"Calibrating\nmagnetometer", "Kalibriere\nMagnetkompass"},
-    {"Rotate the device 3 times while pointing display up", "Rotiere das Gerät dreimal mit der Anzeige nach oben"},
-    {"Rotate the device 3 times while pointing usb ports down", "Rotiere das Gerät dreimal mit den USB-Ports nach unten"},
-    {"Calibrating\naccelerometer", "Kalibriere\nBeschleunigungssensor"},
-    {"Level the device, the arrow must be pointing up", "Gerät ausrichten mit Pfeil nach oben"},
-    {"Set date", "Datum setzen"},
-    {"Time & date", "Zeit & Datum"},
-    {"Time", "Zeit"},
-    {"Date", "Datum"},
-    {"Daylight saving time", "Sommerzeit"},
-    {"Time zone", "Zeitzone"},
-    {"Sync with GNSS", "Sync mit GNSS"},
-    {"Updating", "Aktualisiere"},
-    {"Start update process?", "Update-Prozess starten?"},
-    {"Up to date", "Aktuell"},
-    {"You are using the latest firmware", "Du benutzt die aktuellste Firmware"},
-    {"Download firmware\n%s?", "Download Firmware\n%s?"},
-    {"Firmware update", "Firmware aktualisieren"},
-    {"Checking for updates", "Prüfe auf Updates"},
-    {"Install version\n%s", "Version installieren\n%s"},
-    {"Start update?", "Update starten?"},
-    {"Device firmware", "Gerät Firmware"},
-    {"Check for updates", "Prüfe auf Updates"},
-    {"Notify for new fw", "Hinweis bei neuer FW"},
-    {"Firmware channel", "Firmware Kanal"},
-    {"Manual firmware install", "Manuelle Firmware-Installation"},
-    {"Bootloader version", "Bootloader Version"},
-    {"Developer mode disabled", "Entwickler-Modus deaktiviert"},
-    {"Developer mode enabled", "Entwickler-Modus aktiviert"},
-    {"Device info", "Device Info"},
-    {"Serial number", "Seriennummer"},
-    {"Hardware revision", "Hardware Revision"},
-    {"Do you want to restore factory settings?", "Willst Du auf Firmeneinstellungen zurücksetzen?"},
-    {"Units", "Einheiten"},
-    {"Advanced", "Erweitert"},
-    {"Restore factory settings", "Firmeneinstellung zurücksetzen"},
-    {"Altitude", "Höhe"},
-    {"Speed", "Geschwindigkeit"},
-    {"Distance", "Entfernung"},
-    {"Date format", "Datums-Format"},
-    {"Use 24h time", "Nutze 24h Zeit"},
-    {"Earth model", "Erdmodell"},
-    {"GNSS Altitude", "GNSS Höhe"},
-    {"Vario settings", "Vario Einstellungen"},
-    {"Audio only in flight", "Audio nur im Flug"},
-    {"Accelerometer gain", "Beschleunigung Zuwachs"},
-    {"Lift threshold", "Steigen Grenzwert"},
-    {"Sink threshold", "Sinken Grenzwert"},
-    {"Average time", "Durchschnittliche Zeit"},
-    {"Vario profile", "Vario-Profil"},
-    {"Network info", "Netzwerk-Info"},
-    {"Scanning...", "Suche..."},
-    {"Select network", "Netzwerk wählen"},
-    {"Connected to '%s'", "Verbunden mit '%s'"},
-    {"Disabled", "Deaktiviert"},
-    {"WiFi settings", "WiFi Einstellungen"},
-    {"AP password", "AP Passwort"},
-    {"Need\nCalib.", "Benötige\nKalibrierung"},
-    {"No\nGNSS", "Kein\nGNSS"},
-    {"No TOPO\ndata", "Keine Topo\nDaten"},
-    {"Set QNH", "QNH setzen"},
-    {"Avg (%us)", "Mittelwert (%us)"},
-    {"weak chrg.", "Schwaches Laden"},
-    {"slow chrg.", "Langsames Laden"},
-    {"fast chrg.", "Schnelles Laden"},
-    {"quick chrg.", "Quick Laden"},
-    {"Compass", "Kompass"},
-    {"Flight time", "Flugzeit"},
-    {"wait", "Warte"},
-    {"ready", "Bereit"},
-    {"in flight", "im Flug"},
-    {"landed", "gelandet"},
-    {"GAltitude", "GHöhe"},
-    {"GHdg", "GRichtung"},
-    {"Take-off", "Start"},
-    {"Fit to track", "Passend auf Track"},
-    {"Set Zoom Level", "Zoom-Level setzen"},
-    {"Odometer reset", "Kilometerzähler zurücksetzen"},
-    {"Thermal assistant", "Thermikassistent"},
-    {"Not\ncircling", "Kein\nKreisen"},
-    {"Thermal gain", "Thermikgewinn"},
-    {"Thermal trace", "Thermikspur"},
-    {"Thermal time", "Thermikzeit"},
-    {"Time/Date", "Zeit/Datum"},
-    {"TO distance", "TO Entfernung"},
-    {"No\nstart\npos", "Keine\nStart\nPos"},
-    {"TO direction", "TO Richtung"},
-    {"TO time", "TO Zeit"},
-    {"Turn to\ntakeoff", "Zum Takeoff\ndrehen"},
-    {"Wind dir", "Windrichtung"},
-    {"Wind spd", "Windstärke"},
-    {"Page file corrupted", "Seiten-File defekt"},
-    {"Page is empty.", "Seite ist leer"},
-    {"Loading airspace...", "Lade Lufträume..."},
-    {"Airspace settings", "Luftraum-Einstellungen"},
-    {"Load airspace", "Lade Luftraum"},
-    {"Unload airspace", "Entlade Luftraum"},
-    {"Enabled airspaces", "Aktivierte Lufträume"},
-    {"FANET neighbors", "FANET Nachbarn"},
-    {"Settings", "Einstellungen"},
-    {"FANET settings", "FANET Einstellungen"},
-    {"Enable FANET", "Aktiviere FANET"},
-    {"Enable FLARM", "Aktiviere FLARM"},
-    {"Airborne type", "Flugzeugtyp"},
-    {"Ground type", "Bodentyp"},
-    {"Show labels", "Zeige Beschriftung"},
-    {"FLARM expires", "FLARM läuft ab"},
-    {"%s in %ld days", "%s in %ld Tagen"},
-    {"%s EXPIRED!", "%s ABGELAUFEN!"},
-    {"Flight settings", "Flug-Einstellungen"},
-    {"Altitude change +/-%s", "Höhenveränderung +/-%s"},
-    {"\n or ", "\n oder "},
-    {"Speed > %s", "Geschwindigkeit > %s"},
-    {"Automatic Take-off", "Automatisches Starten"},
-    {"Altitude within +/-%s", "Höhe innerhalb +/-%s"},
-    {"\n and ", "\n und "},
-    {"Speed < %s", "Geschwindigkeit < %s"},
-    {"Automatic Landing", "Automatische Landung"},
-    {"Glide ratio time", "Gleitwinkel Zeit"},
-    {"G-meter time", "G-Meter Zeit"},
-    {"Circling timeout", "Kreisen Timeout"},
-    {"Use wind in trace", "Wind im Trace verwenden"},
-    {"Enable IGC log", "Aktiviere IGC-Log"},
-    {"Enable CSV log", "Aktiviere CSV-Log"},
-    {"Use altitude", "Höhe nutzen"},
-    {"Stay within", "Bleib innerhalb"},
-    {"Use ground speed", "Nutze Ground-Speed"},
-    {"Be slower than", "Langsamer als"},
-    {"Within time", "Innerhalb Zeit"},
-    {"Change greater than", "Verändert sich größer als"},
-    {"Exceed speed", "Geschwindigkeit überschreiten"},
-    {"Reading...", "Lese..."},
-    {"Landing", "Lande"},
-    {"Duration", "Dauer"},
-    {"Altitude Max", "Max. Höhe"},
-    {"Altitude Min", "Min. Höhe"},
-    {"Max Raise", "Max. Steigen"},
-    {"Max Sink", "Max. Sinken"},
-    {"Track length", "Weglänge"},
-    {"Analysing...", "Analysiere..."},
-    {"Show on map", "Zeig auf Karte"},
-    {"Total: ", "Gesamt:"},
-    {"Average per flight: ", "Durchschnitt pro Flug: "},
-    {"Total: %.1f hours", "Gesamt %.1f Stunden"},
-    {"Average per flight: %.1f hours", "Durchschnitt pro Flug: %.1f Stunden"},
-    {"Total: %.0f flights", "Gesamt: %.0f Flüge"},
-    {"Too Many Flights", "Zu viele Flüge"},
-    {"You have too many flights to handle in statistics. Please remove some.", "Du hast zuviele Flüge für die Statistik. Bitte einige entfernen."},
-    {"Year", "Jahr"},
-    {"yearly", "jährlich"},
-    {"Days", "Tage"},
-    {"Total", "Gesamt"},
-    {"Flights", "Flüge"},
-    {"Hours %s", "Stunden %s"},
-    {"Flights %s", "Flüge %s"},
-    {"Distance %s", "Entfernung %s"},
-    {"Flight '%s' deleted", "Flug '%s' gelöscht"},
-    {"Flight statistics", "Flug-Statistik"},
-    {"Do you want to remove flight '%s'", "Willst du den Flug '%s' löschen"},
-    {"GNSS Settings", "GNSS-Einstellungen"},
-    {"Latitude", "Breitengrad"},
-    {"Longitude", "Längengrad"},
-    {"Searching %u/%u", "Suche %u/%u"},
-    {"Waiting for fix", "Warte auf Fix"},
-    {"This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n", "Diese Firmware nutzt eine neue Methode zur Datenspeicherung.\n\nWir müssen den Speicher neu formatieren.\n\nDeine IGC files, Karten und AGL-Daten gehen verloren.\n\nWenn du sie sichern willst, klicke Abbruch.\n\nDeine Konfiguration bleibt erhalten.\n\nFortfahren?\n"},
-    {"Too many files to list\nShowing %u files", "Zu viele Dateien zum listen\nZeige %u Dateien"},
-    {"Nothing to show", "Nichts zu zeigen"},
-    {"Listing files", "Liste Dateien"},
-    {"Directory not found", "Verzeichnis nicht gefunden"},
-    {"Help", "Hilfe"},
-    {"This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.", "Dies wird das Gerät stoppen und einen Diagnore-Report erzeugen.\n\nWir lösen nun den Crash aus.\n\nDer Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein."},
-    {NULL, NULL} // End mark
+static char * de_de_singulars[] = {
+"\n und ", // 1=\n and 
+"\n oder ", // 2=\n or 
+"%s ABGELAUFEN!", // 3=%s EXPIRED!
+"%s verbunden (%s)", // 4=%s connected (%s)
+"%s getrennt (%s)", // 5=%s disconnected (%s)
+"%s in %ld Tagen", // 6=%s in %ld days
+"%s gekoppelt", // 7=%s paired
+NULL, // 8=A2DP Audio
+"AP Passwort", // 9=AP password
+"Beschleunigung Zuwachs", // 10=Accelerometer gain
+NULL, // 11=Access point
+NULL, // 12=Access point IP
+NULL, // 13=Access point MAC
+"Erweitert", // 14=Advanced
+"Erweiterte Einstellungen", // 15=Advanced settings
+"Flugzeugtyp", // 16=Airborne type
+"Luftraum-Einstellungen", // 17=Airspace settings
+"Lufträume", // 18=Airspaces
+"Höhe", // 19=Altitude
+"Max. Höhe", // 20=Altitude Max
+"Min. Höhe", // 21=Altitude Min
+"Höhenveränderung +/-%s", // 22=Altitude change +/-%s
+"Höhe innerhalb +/-%s", // 23=Altitude within +/-%s
+"Analysiere...", // 24=Analysing...
+NULL, // 25=Audio
+"Audio nur im Flug", // 26=Audio only in flight
+"Crash automatisch hochladen", // 27=Auto crash upload
+"Automatische Landung", // 28=Automatic Landing
+"Automatisches Starten", // 29=Automatic Take-off
+"Mittelwert pro Flug: ", // 30=Average per flight: 
+"Mittelwert pro Flug: %.1f Std", // 31=Average per flight: %.1f hours
+"Durchschnittliche Zeit", // 32=Average time
+"Mittelwert (%us)", // 33=Avg (%us)
+NULL, // 34=BLE Telemetry
+"Batterieprozent", // 35=Battery percent
+"Langsamer als", // 36=Be slower than
+NULL, // 37=Bluetooth
+"Bluetooth Kopplungsanfrage", // 38=Bluetooth pairing request
+"Bluetooth Lautstärke", // 39=Bluetooth volume
+"Bootloader aktualisiert", // 40=Bootloader updated
+"Bootloader Version", // 41=Bootloader version
+"Helligkeit", // 42=Brightness
+"Broadcast Name", // 43=Broadcast name
+"Sensoren kalibrieren", // 44=Calibrate sensors
+"Kalibriere\nBeschleunigungssensor", // 45=Calibrating\naccelerometer
+"Kalibriere\nGyroskop", // 46=Calibrating\ngyroscope
+"Kalibriere\nMagnetkompass", // 47=Calibrating\nmagnetometer
+"Kalibrierungsdaten ungültig", // 48=Calibration data not valid
+"Aktuelles Flug-Profil kann nicht gelöscht werden", // 49=Cannot delete active flight profile
+"Aktuelles Piloten-Profil kann nicht gelöscht werden", // 50=Cannot delete active pilot profile
+"Verändert sich größer als", // 51=Change greater than
+"Prüfe auf Updates", // 52=Check for updates
+"Prüfe auf Updates", // 53=Checking for updates
+"Kreisen Timeout", // 54=Circling timeout
+"Cache löschen", // 55=Clear cache
+"Debug-File löschen", // 56=Clear debug file
+"debug.log löschen", // 57=Clear debug.log
+"Map-Cache löschen", // 58=Clear map cache
+"Karten-Cache löschen", // 59=Clearing map cache
+NULL, // 60=Client IP
+NULL, // 61=Client MAC
+"Kompass", // 62=Compass
+"Bestätigen", // 63=Confirm
+"Bestätigen, dass die PIN\n\n%lu\n\nauf dem anderen Gerät identisch ist.", // 64=Confirm that passcode\n\n%lu\n\nis the same on other the device.
+"Verbunden mit '%s'", // 65=Connected to '%s'
+"Verbindung Timeout!", // 66=Connection timeout!
+"Crash-Reports", // 67=Crash reports
+"Diagnose-Report erzeugen", // 68=Create diagnostic report
+"Datum", // 69=Date
+"Datums-Format", // 70=Date format
+"Sommerzeit", // 71=Daylight saving time
+"Tage", // 72=Days
+"Debug in Datei", // 73=Debug to file
+"Entwickler-Modus deaktiviert", // 74=Developer mode disabled
+"Entwickler-Modus aktiviert", // 75=Developer mode enabled
+"Entwicklung", // 76=Development
+"Gerät deaktiviert", // 77=Device disabled
+"Gerät Fehler", // 78=Device error
+"Gerät Firmware", // 79=Device firmware
+"Device Info", // 80=Device info
+"Gerät init", // 81=Device init
+"Gerätename", // 82=Device name
+"Gerät bereit", // 83=Device ready
+"Verzeichnis nicht gefunden", // 84=Directory not found
+"Deaktiviert", // 85=Disabled
+NULL, // 86=Display
+"Display-Einstellungen", // 87=Display Settings
+"Entfernung", // 88=Distance
+"Entfernung %s", // 89=Distance %s
+"Willst du den Flug '%s' löschen", // 90=Do you want to remove flight '%s'
+"Willst du das Flug-Profil '%s' löschen", // 91=Do you want to remove flight profile '%s'
+"Willst Du das Piloten-Profil '%s' löschen", // 92=Do you want to remove pilot profile '%s'
+"Willst Du auf Firmeneinstellungen zurücksetzen?", // 93=Do you want to restore factory settings?
+"Download Firmware\n%s?", // 94=Download firmware\n%s?
+NULL, // 95=Downloading firmware
+"Dauer", // 96=Duration
+"Erdmodell", // 97=Earth model
+"Aktivieren", // 98=Enable
+"Aktiviere CSV-Log", // 99=Enable CSV log
+"Aktiviere FANET", // 100=Enable FANET
+"Aktiviere FLARM", // 101=Enable FLARM
+"Aktiviere IGC-Log", // 102=Enable IGC log
+"Aktivierte Lufträume", // 103=Enabled airspaces
+"Fehler", // 104=Error
+"Geschwindigkeit überschreiten", // 105=Exceed speed
+NULL, // 106=FANET
+"FANET Nachbarn", // 107=FANET neighbors
+"FANET Einstellungen", // 108=FANET settings
+"FLARM läuft ab", // 109=FLARM expires
+NULL, // 110=Firmware
+"Firmware Kanal", // 111=Firmware channel
+"Firmware aktualisieren", // 112=Firmware update
+"Firmware aktualisiert\n auf %s", // 113=Firmware updated\n to %s
+NULL, // 114=Firmware ver. %s
+"Passend auf Track", // 115=Fit to track
+"Flug", // 116=Flight
+"Flug '%s' gelöscht", // 117=Flight '%s' deleted
+"Flug-Profil '%s' gelöscht", // 118=Flight profile '%s' deleted
+"Flug-Profil geändert auf '%s'", // 119=Flight profile changed to '%s'
+"Flug-Profil mit Name '%s' bereits vorhanden", // 120=Flight profile with name '%s' already exist
+"Flug-Einstellungen", // 121=Flight settings
+"Flug-Statistik", // 122=Flight statistics
+"Flugzeit", // 123=Flight time
+"Flugbuch", // 124=Flightbook
+"Flüge", // 125=Flights
+"Flüge %s", // 126=Flights %s
+"Formatiere Speicher", // 127=Formating storage
+"GNSS weiterleiten", // 128=Forward GNSS
+"G-Meter Zeit", // 129=G-meter time
+"GHöhe", // 130=GAltitude
+"GRichtung", // 131=GHdg
+NULL, // 132=GNSS
+"GNSS Höhe", // 133=GNSS Altitude
+"GNSS-Einstellungen", // 134=GNSS Settings
+NULL, // 135=GSpeed
+NULL, // 136=Glide (%us)
+"Gleitwinkel Zeit", // 137=Glide ratio time
+NULL, // 138=Glider ID
+"Glider Typ", // 139=Glider type
+"Bodentyp", // 140=Ground type
+"Hardware Revision", // 141=Hardware revision
+"Hilfe", // 142=Help
+"Stunden %s", // 143=Hours %s
+"Version installieren\n%s", // 144=Install version\n%s
+"Landung", // 145=Landing
+"Sprache", // 146=Language
+"Breitengrad", // 147=Latitude
+"Gerät ausrichten, Anzeige nach unten", // 148=Level the device, display must be pointing down
+"Gerät ausrichten, Anzeige nach oben", // 149=Level the device, display must be pointing up
+"Gerät ausrichten mit Pfeil nach oben", // 150=Level the device, the arrow must be pointing up
+"Steigen Grenzwert", // 151=Lift threshold
+"Liste Dateien", // 152=Listing files
+"Lade Luftraum", // 153=Load airspace
+"Lade Lufträume...", // 154=Loading airspace...
+"Längengrad", // 155=Longitude
+"Manuelle Firmware-Installation", // 156=Manual firmware install
+"Karte", // 157=Map
+"Karten Skalierung", // 158=Map scale
+"Hauptlautstärke", // 159=Master volume
+"Max. Steigen", // 160=Max Raise
+"Max. Sinken", // 161=Max Sink
+"Migriere", // 162=Migrating
+"Benötige\nKalibrierung", // 163=Need\nCalib.
+"Netzwerk-Info", // 164=Network info
+"Neue Firmware\n %s ist verfügbar.", // 165=New firmware\n %s is available.
+"Kein\nGNSS", // 166=No\nGNSS
+"Keine\nStart\nPos", // 167=No\nstart\npos
+"Kein GNSS", // 168=No GNSS
+"Keine Topo\nDaten", // 169=No TOPO\ndata
+"Kein Slot verfügbar", // 170=No slot available
+"Kein\nKreisen", // 171=Not\ncircling
+"Nicht kalibriert", // 172=Not calibrated
+"Nicht verbunden!", // 173=Not connected!
+"Nichts zu zeigen", // 174=Nothing to show
+"Hinweis bei neuer FW", // 175=Notify for new fw
+"Jetzt sichtbar als", // 176=Now visible as
+"Kilometerzähler zurücksetzen", // 177=Odometer reset
+NULL, // 178=PIN code
+"Seitenanimation", // 179=Page animation
+"Seiten-File defekt", // 180=Page file corrupted
+"Seite ist leer", // 181=Page is empty.
+NULL, // 182=Pilot
+"Pilot & Flug Profile", // 183=Pilot & Flight profile
+"Pilotenname", // 184=Pilot name
+"Piloten-Profil '%s' gelöscht", // 185=Pilot profile '%s' deleted
+"Piloten-Profil geändert in '%s'", // 186=Pilot profile changed to '%s'
+"Piloten-Profil mit Name '%s' bereits vorhanden", // 187=Pilot profile with name '%s' already exist
+"Bitte Gerät bereithalten", // 188=Please keep the device steady
+"Bitte warten", // 189=Please wait
+NULL, // 190=Position
+"Lese...", // 191=Reading...
+"Beschleunigungssensor rekalibrieren", // 192=Recalibrate Accelerometer
+"Gyroskop rekalibrieren", // 193=Recalibrate Gyroscope
+"Magnetkompass rekalibrieren", // 194=Recalibrate Magnetometer
+NULL, // 195=Release note
+"Umbenennen", // 196=Rename
+"Kalibrierung\nzurücksetzen?", // 197=Reset\ncalibration?
+"Kalibrierung zurücksetzen", // 198=Reset calibration
+"Ressource nicht gefunden!", // 199=Resource not found!
+"Firmeneinstellung zurücksetzen", // 200=Restore factory settings
+"Restauriere Konfiguration", // 201=Restoring config
+"Rotiere das Gerät dreimal mit der Anzeige nach oben", // 202=Rotate the device 3 times while pointing display up
+"Rotiere das Gerät dreimal mit den USB-Ports nach unten", // 203=Rotate the device 3 times while pointing usb ports down
+NULL, // 204=SPP Telemetry
+"Suche...", // 205=Scanning...
+"Suche %u/%u", // 206=Searching %u/%u
+"Netzwerk wählen", // 207=Select network
+"Seriennummer", // 208=Serial number
+"QNH setzen", // 209=Set QNH
+"Zoom-Level setzen", // 210=Set Zoom Level
+"Datum setzen", // 211=Set date
+"Neuen Flug-Profil-Namen setzen", // 212=Set new flight profile name
+"Neuen Namen für Piloten-Profil setzen", // 213=Set new pilot profile name
+"Zeit setzen", // 214=Set time
+"Einstellungen", // 215=Settings
+"FANET auf Karte zeigen", // 216=Show FANET on map
+"Zeige Beschriftung", // 217=Show labels
+"Zeig auf Karte", // 218=Show on map
+"Wegspur zeigen", // 219=Show trail
+"Sinken Grenzwert", // 220=Sink threshold
+"Musik Lautstärke", // 221=Sound volume
+"Geschwindigkeit", // 222=Speed
+"Geschwindigkeit < %s", // 223=Speed < %s
+"Geschwindigkeit > %s", // 224=Speed > %s
+NULL, // 225=Start
+"Update-Prozess starten?", // 226=Start update process?
+"Update starten?", // 227=Start update?
+NULL, // 228=Status
+"Bleib innerhalb", // 229=Stay within
+"Speicher Konfiguration", // 230=Storing config
+"Strato Einstellungen", // 231=Strato settings
+"Sync mit GNSS", // 232=Sync with GNSS
+NULL, // 233=System
+"TO Richtung", // 234=TO direction
+"TO Entfernung", // 235=TO distance
+"TO Zeit", // 236=TO time
+NULL, // 237=TTF
+"TTS Alarme", // 238=TTS alerts
+"Start", // 239=Take-off
+NULL, // 240=Telemetry protocol
+"Geländetyp", // 241=Terrain type
+"Thermikassistent", // 242=Thermal assistant
+"Thermikgewinn", // 243=Thermal gain
+"Thermikzeit", // 244=Thermal time
+"Thermikspur", // 245=Thermal trace
+"Diese Firmware nutzt eine neue Methode zur Datenspeicherung.\n\nWir müssen den Speicher neu formatieren.\n\nDeine IGC files, Karten und AGL-Daten gehen verloren.\n\nWenn du sie sichern willst, klicke Abbruch.\n\nDeine Konfiguration bleibt erhalten.\n\nFortfahren?\n", // 246=This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n
+"Dies wird das Gerät stoppen und einen Diagnore-Report erzeugen.\n\nWir lösen nun den Crash aus.\n\nDer Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein.", // 247=This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.
+"Zeit", // 248=Time
+"Zeit & Datum", // 249=Time & date
+"Zeitzone", // 250=Time zone
+"Zeit/Datum", // 251=Time/Date
+"Zu viele Flüge", // 252=Too Many Flights
+"Zu viele Dateien zum listen\nZeige %u Dateien", // 253=Too many files to list\nShowing %u files
+"Topo unscharf", // 254=Topo blur
+"Gesamt", // 255=Total
+"Gesamt:", // 256=Total: 
+"Gesamt: %.0f Flüge", // 257=Total: %.0f flights
+"Gesamt %.1f Std", // 258=Total: %.1f hours
+"Weglänge", // 259=Track length
+NULL, // 260=Track online
+"Bluetooth anschalten", // 261=Turn on Bluetoth
+"Zum Takeoff\ndrehen", // 262=Turn to\ntakeoff
+"Die PIN\n\n%lu\n\nauf dem anderen Gerät eingeben.", // 263=Type this passcode\n\n%lu\n\non the other device.
+"Speicher kann nicht formatiert werden", // 264=Unable to format storage
+"FatFS Laufwerk kann nicht eingebunden werden", // 265=Unable to mount FatFs volume
+"RED Laufwerk kann nicht eingebunden werden", // 266=Unable to mount RED volume
+"Bootloader kann nicht aktualisiert werden.\nUpdate-File neu installieren.", // 267=Unable to update bootloader.\nRe-install the update file.
+"Entkoppeln?", // 268=Unbind?
+"Einheiten", // 269=Units
+"Entlade Luftraum", // 270=Unload airspace
+"Alle entkoppeln", // 271=Unpair all
+"Aktuell", // 272=Up to date
+"Aktualisiere", // 273=Updating
+"Aktualisiere Bootloader", // 274=Updating bootloader
+"Nutze 24h Zeit", // 275=Use 24h time
+"Höhe nutzen", // 276=Use altitude
+"Nutze Ground-Speed", // 277=Use ground speed
+"Wind im Trace verwenden", // 278=Use wind in trace
+NULL, // 279=Vario
+"Vario-Profil", // 280=Vario profile
+"Vario Einstellungen", // 281=Vario settings
+"Vario Lautstärke", // 282=Vario volume
+NULL, // 283=Variometer
+"Warte auf Fix", // 284=Waiting for fix
+"Warnung", // 285=Warning
+NULL, // 286=Wi-Fi
+"WiFi Einstellungen", // 287=WiFi settings
+"Windrichtung", // 288=Wind dir
+"Windstärke", // 289=Wind spd
+"Innerhalb Zeit", // 290=Within time
+"Jahr", // 291=Year
+"Du benutzt die aktuellste Firmware", // 292=You are using the latest firmware
+"Du hast zuviele Flüge für die Statistik. Bitte einige entfernen.", // 293=You have too many flights to handle in statistics. Please remove some.
+"Dein Gerät nutzt gerade eine Entwicklungs-Firmware.\n\nEs könnte sehr instabil sein und sollte nur von Entwicklern und Testern verwendet werden.\n\nWir empfehlen auf eine offizielle Version zu wechseln.", // 294=Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.
+"Zoomen auf Track", // 295=Zoom to fit track
+"Willst du den Karten-Cache löschen?", // 296=do you want to clear map cache?
+"Schnelles Laden", // 297=fast chrg.
+"im Flug", // 298=in flight
+"gelandet", // 299=landed
+"koppeln fehlgeschlagen", // 300=pairing failed
+"Quick Laden", // 301=quick chrg.
+"Bereit", // 302=ready
+"Langsames Laden", // 303=slow chrg.
+"um zu koppeln", // 304=to enable pairing
+"Warte", // 305=wait
+"Schwaches Laden", // 306=weak chrg.
+"jährlich", // 307=yearly
+
 };
 
 
@@ -313,22 +345,315 @@ static const lv_i18n_lang_t de_de_lang = {
     .locale_plural_fn = de_de_plural_fn
 };
 
-static lv_i18n_phrase_t sk_sk_singulars[] = {
-    {"Flightbook", "Letové záznamy"},
-    {"Airspaces", "Vzdušné priestory"},
-    {"Language", "Jazyk"},
-    {"Display Settings", "Nastavenie displeja"},
-    {"Brightness", "Jas"},
-    {"Page animation", "Animácie stránok"},
-    {"Battery percent", "Percentá batérie"},
-    {"Strato settings", "Nastavenia"},
-    {"Pilot & Flight profile", "Profily"},
-    {"Vario", "Vário"},
-    {"Flight", "Let"},
-    {"Map", "Mapa"},
-    {"System", "Systém"},
-    {"Development", "Vývoj"},
-    {NULL, NULL} // End mark
+static char * sk_sk_singulars[] = {
+NULL, // 1=\n and 
+NULL, // 2=\n or 
+NULL, // 3=%s EXPIRED!
+NULL, // 4=%s connected (%s)
+NULL, // 5=%s disconnected (%s)
+NULL, // 6=%s in %ld days
+NULL, // 7=%s paired
+NULL, // 8=A2DP Audio
+NULL, // 9=AP password
+NULL, // 10=Accelerometer gain
+NULL, // 11=Access point
+NULL, // 12=Access point IP
+NULL, // 13=Access point MAC
+NULL, // 14=Advanced
+NULL, // 15=Advanced settings
+NULL, // 16=Airborne type
+NULL, // 17=Airspace settings
+"Vzdušné priestory", // 18=Airspaces
+NULL, // 19=Altitude
+NULL, // 20=Altitude Max
+NULL, // 21=Altitude Min
+NULL, // 22=Altitude change +/-%s
+NULL, // 23=Altitude within +/-%s
+NULL, // 24=Analysing...
+NULL, // 25=Audio
+NULL, // 26=Audio only in flight
+NULL, // 27=Auto crash upload
+NULL, // 28=Automatic Landing
+NULL, // 29=Automatic Take-off
+NULL, // 30=Average per flight: 
+NULL, // 31=Average per flight: %.1f hours
+NULL, // 32=Average time
+NULL, // 33=Avg (%us)
+NULL, // 34=BLE Telemetry
+"Percentá batérie", // 35=Battery percent
+NULL, // 36=Be slower than
+NULL, // 37=Bluetooth
+NULL, // 38=Bluetooth pairing request
+NULL, // 39=Bluetooth volume
+NULL, // 40=Bootloader updated
+NULL, // 41=Bootloader version
+"Jas", // 42=Brightness
+NULL, // 43=Broadcast name
+NULL, // 44=Calibrate sensors
+NULL, // 45=Calibrating\naccelerometer
+NULL, // 46=Calibrating\ngyroscope
+NULL, // 47=Calibrating\nmagnetometer
+NULL, // 48=Calibration data not valid
+NULL, // 49=Cannot delete active flight profile
+NULL, // 50=Cannot delete active pilot profile
+NULL, // 51=Change greater than
+NULL, // 52=Check for updates
+NULL, // 53=Checking for updates
+NULL, // 54=Circling timeout
+NULL, // 55=Clear cache
+NULL, // 56=Clear debug file
+NULL, // 57=Clear debug.log
+NULL, // 58=Clear map cache
+NULL, // 59=Clearing map cache
+NULL, // 60=Client IP
+NULL, // 61=Client MAC
+NULL, // 62=Compass
+NULL, // 63=Confirm
+NULL, // 64=Confirm that passcode\n\n%lu\n\nis the same on other the device.
+NULL, // 65=Connected to '%s'
+NULL, // 66=Connection timeout!
+NULL, // 67=Crash reports
+NULL, // 68=Create diagnostic report
+NULL, // 69=Date
+NULL, // 70=Date format
+NULL, // 71=Daylight saving time
+NULL, // 72=Days
+NULL, // 73=Debug to file
+NULL, // 74=Developer mode disabled
+NULL, // 75=Developer mode enabled
+"Vývoj", // 76=Development
+NULL, // 77=Device disabled
+NULL, // 78=Device error
+NULL, // 79=Device firmware
+NULL, // 80=Device info
+NULL, // 81=Device init
+NULL, // 82=Device name
+NULL, // 83=Device ready
+NULL, // 84=Directory not found
+NULL, // 85=Disabled
+NULL, // 86=Display
+"Nastavenie displeja", // 87=Display Settings
+NULL, // 88=Distance
+NULL, // 89=Distance %s
+NULL, // 90=Do you want to remove flight '%s'
+NULL, // 91=Do you want to remove flight profile '%s'
+NULL, // 92=Do you want to remove pilot profile '%s'
+NULL, // 93=Do you want to restore factory settings?
+NULL, // 94=Download firmware\n%s?
+NULL, // 95=Downloading firmware
+NULL, // 96=Duration
+NULL, // 97=Earth model
+NULL, // 98=Enable
+NULL, // 99=Enable CSV log
+NULL, // 100=Enable FANET
+NULL, // 101=Enable FLARM
+NULL, // 102=Enable IGC log
+NULL, // 103=Enabled airspaces
+NULL, // 104=Error
+NULL, // 105=Exceed speed
+NULL, // 106=FANET
+NULL, // 107=FANET neighbors
+NULL, // 108=FANET settings
+NULL, // 109=FLARM expires
+NULL, // 110=Firmware
+NULL, // 111=Firmware channel
+NULL, // 112=Firmware update
+NULL, // 113=Firmware updated\n to %s
+NULL, // 114=Firmware ver. %s
+NULL, // 115=Fit to track
+"Let", // 116=Flight
+NULL, // 117=Flight '%s' deleted
+NULL, // 118=Flight profile '%s' deleted
+NULL, // 119=Flight profile changed to '%s'
+NULL, // 120=Flight profile with name '%s' already exist
+NULL, // 121=Flight settings
+NULL, // 122=Flight statistics
+NULL, // 123=Flight time
+"Letové záznamy", // 124=Flightbook
+NULL, // 125=Flights
+NULL, // 126=Flights %s
+NULL, // 127=Formating storage
+NULL, // 128=Forward GNSS
+NULL, // 129=G-meter time
+NULL, // 130=GAltitude
+NULL, // 131=GHdg
+NULL, // 132=GNSS
+NULL, // 133=GNSS Altitude
+NULL, // 134=GNSS Settings
+NULL, // 135=GSpeed
+NULL, // 136=Glide (%us)
+NULL, // 137=Glide ratio time
+NULL, // 138=Glider ID
+NULL, // 139=Glider type
+NULL, // 140=Ground type
+NULL, // 141=Hardware revision
+NULL, // 142=Help
+NULL, // 143=Hours %s
+NULL, // 144=Install version\n%s
+NULL, // 145=Landing
+"Jazyk", // 146=Language
+NULL, // 147=Latitude
+NULL, // 148=Level the device, display must be pointing down
+NULL, // 149=Level the device, display must be pointing up
+NULL, // 150=Level the device, the arrow must be pointing up
+NULL, // 151=Lift threshold
+NULL, // 152=Listing files
+NULL, // 153=Load airspace
+NULL, // 154=Loading airspace...
+NULL, // 155=Longitude
+NULL, // 156=Manual firmware install
+"Mapa", // 157=Map
+NULL, // 158=Map scale
+NULL, // 159=Master volume
+NULL, // 160=Max Raise
+NULL, // 161=Max Sink
+NULL, // 162=Migrating
+NULL, // 163=Need\nCalib.
+NULL, // 164=Network info
+NULL, // 165=New firmware\n %s is available.
+NULL, // 166=No\nGNSS
+NULL, // 167=No\nstart\npos
+NULL, // 168=No GNSS
+NULL, // 169=No TOPO\ndata
+NULL, // 170=No slot available
+NULL, // 171=Not\ncircling
+NULL, // 172=Not calibrated
+NULL, // 173=Not connected!
+NULL, // 174=Nothing to show
+NULL, // 175=Notify for new fw
+NULL, // 176=Now visible as
+NULL, // 177=Odometer reset
+NULL, // 178=PIN code
+"Animácie stránok", // 179=Page animation
+NULL, // 180=Page file corrupted
+NULL, // 181=Page is empty.
+NULL, // 182=Pilot
+"Profily", // 183=Pilot & Flight profile
+NULL, // 184=Pilot name
+NULL, // 185=Pilot profile '%s' deleted
+NULL, // 186=Pilot profile changed to '%s'
+NULL, // 187=Pilot profile with name '%s' already exist
+NULL, // 188=Please keep the device steady
+NULL, // 189=Please wait
+NULL, // 190=Position
+NULL, // 191=Reading...
+NULL, // 192=Recalibrate Accelerometer
+NULL, // 193=Recalibrate Gyroscope
+NULL, // 194=Recalibrate Magnetometer
+NULL, // 195=Release note
+NULL, // 196=Rename
+NULL, // 197=Reset\ncalibration?
+NULL, // 198=Reset calibration
+NULL, // 199=Resource not found!
+NULL, // 200=Restore factory settings
+NULL, // 201=Restoring config
+NULL, // 202=Rotate the device 3 times while pointing display up
+NULL, // 203=Rotate the device 3 times while pointing usb ports down
+NULL, // 204=SPP Telemetry
+NULL, // 205=Scanning...
+NULL, // 206=Searching %u/%u
+NULL, // 207=Select network
+NULL, // 208=Serial number
+NULL, // 209=Set QNH
+NULL, // 210=Set Zoom Level
+NULL, // 211=Set date
+NULL, // 212=Set new flight profile name
+NULL, // 213=Set new pilot profile name
+NULL, // 214=Set time
+NULL, // 215=Settings
+NULL, // 216=Show FANET on map
+NULL, // 217=Show labels
+NULL, // 218=Show on map
+NULL, // 219=Show trail
+NULL, // 220=Sink threshold
+NULL, // 221=Sound volume
+NULL, // 222=Speed
+NULL, // 223=Speed < %s
+NULL, // 224=Speed > %s
+NULL, // 225=Start
+NULL, // 226=Start update process?
+NULL, // 227=Start update?
+NULL, // 228=Status
+NULL, // 229=Stay within
+NULL, // 230=Storing config
+"Nastavenia", // 231=Strato settings
+NULL, // 232=Sync with GNSS
+"Systém", // 233=System
+NULL, // 234=TO direction
+NULL, // 235=TO distance
+NULL, // 236=TO time
+NULL, // 237=TTF
+NULL, // 238=TTS alerts
+NULL, // 239=Take-off
+NULL, // 240=Telemetry protocol
+NULL, // 241=Terrain type
+NULL, // 242=Thermal assistant
+NULL, // 243=Thermal gain
+NULL, // 244=Thermal time
+NULL, // 245=Thermal trace
+NULL, // 246=This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n
+NULL, // 247=This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.
+NULL, // 248=Time
+NULL, // 249=Time & date
+NULL, // 250=Time zone
+NULL, // 251=Time/Date
+NULL, // 252=Too Many Flights
+NULL, // 253=Too many files to list\nShowing %u files
+NULL, // 254=Topo blur
+NULL, // 255=Total
+NULL, // 256=Total: 
+NULL, // 257=Total: %.0f flights
+NULL, // 258=Total: %.1f hours
+NULL, // 259=Track length
+NULL, // 260=Track online
+NULL, // 261=Turn on Bluetoth
+NULL, // 262=Turn to\ntakeoff
+NULL, // 263=Type this passcode\n\n%lu\n\non the other device.
+NULL, // 264=Unable to format storage
+NULL, // 265=Unable to mount FatFs volume
+NULL, // 266=Unable to mount RED volume
+NULL, // 267=Unable to update bootloader.\nRe-install the update file.
+NULL, // 268=Unbind?
+NULL, // 269=Units
+NULL, // 270=Unload airspace
+NULL, // 271=Unpair all
+NULL, // 272=Up to date
+NULL, // 273=Updating
+NULL, // 274=Updating bootloader
+NULL, // 275=Use 24h time
+NULL, // 276=Use altitude
+NULL, // 277=Use ground speed
+NULL, // 278=Use wind in trace
+"Vário", // 279=Vario
+NULL, // 280=Vario profile
+NULL, // 281=Vario settings
+NULL, // 282=Vario volume
+NULL, // 283=Variometer
+NULL, // 284=Waiting for fix
+NULL, // 285=Warning
+NULL, // 286=Wi-Fi
+NULL, // 287=WiFi settings
+NULL, // 288=Wind dir
+NULL, // 289=Wind spd
+NULL, // 290=Within time
+NULL, // 291=Year
+NULL, // 292=You are using the latest firmware
+NULL, // 293=You have too many flights to handle in statistics. Please remove some.
+NULL, // 294=Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.
+NULL, // 295=Zoom to fit track
+NULL, // 296=do you want to clear map cache?
+NULL, // 297=fast chrg.
+NULL, // 298=in flight
+NULL, // 299=landed
+NULL, // 300=pairing failed
+NULL, // 301=quick chrg.
+NULL, // 302=ready
+NULL, // 303=slow chrg.
+NULL, // 304=to enable pairing
+NULL, // 305=wait
+NULL, // 306=weak chrg.
+NULL, // 307=yearly
+
 };
 
 

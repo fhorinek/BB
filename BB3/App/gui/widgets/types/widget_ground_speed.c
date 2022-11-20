@@ -38,7 +38,7 @@ static void GSpeed_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void GSpeed_update(widget_slot_t * slot)
 {
-    char value[8];
+    char value[20];
     if (fc.gnss.fix == 0)
     {
     	strcpy(value, _("No\nGNSS"));

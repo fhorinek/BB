@@ -32,7 +32,7 @@ static void wifi_loop()
 {
 	if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
     {
-        char msg[16 + sizeof(fc.esp.ssid)];
+        char msg[32 + sizeof(fc.esp.ssid)];
         snprintf(msg, sizeof(msg), _("Connected to '%s'"), fc.esp.ssid);
         gui_list_info_set_value(local->network, msg);
     }

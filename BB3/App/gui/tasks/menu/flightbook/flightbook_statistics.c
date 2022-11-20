@@ -346,7 +346,7 @@ static void summarize_data()
     int total_flights = 0;
     float value;
     int index;
-    char text[30], text2[30];
+    char text[64], text2[64];
 
     // clear all values
     for (i = 0; i < ROW_NUM; i++)
@@ -531,7 +531,7 @@ lv_obj_t* flightbook_statistics_init(lv_obj_t *par)
     local->data_available = false;
 
     local->title = lv_label_create(par, NULL);
-    lv_obj_set_style_local_text_font(local->title, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_22);
+    lv_obj_set_style_local_text_font(local->title, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_montserrat_16_ext);
     lv_obj_align(local->title, par, LV_ALIGN_IN_TOP_MID, 0, 10);
     lv_label_set_text(local->title, "");
 

@@ -28,7 +28,7 @@ lv_obj_t * sensors_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, "Sensors", &gui_development, NULL);
 
-    char value[32];
+    char value[64];
 
     gui_list_info_add_entry(list, "TFT controller", (tft_controller_type == TFT_CONTROLLER_HX8352) ? "HX8352" : "ILI9327");
     local->baro = gui_list_info_add_entry(list, "Barometer", "");
@@ -78,7 +78,7 @@ lv_obj_t * sensors_init(lv_obj_t * par)
 
 void sensors_loop()
 {
-	char value[32];
+	char value[64];
 
     if (fc.baro.status == fc_dev_ready)
         snprintf(value, sizeof(value), "%0.2f Pa", fc.baro.pressure);

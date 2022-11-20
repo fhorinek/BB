@@ -25,20 +25,44 @@ de-DE:
   Device disabled: Gerät deaktiviert
   '%s connected (%s)': '%s verbunden (%s)'
   '%s disconnected (%s)': '%s getrennt (%s)'
-  '%s paired':   '%s gekoppelt'
+  '%s paired': '%s gekoppelt'
   Bluetooth pairing request: Bluetooth Kopplungsanfrage
   pairing failed: koppeln fehlgeschlagen
-  "Type this passcode\n\n%lu\n\non the other device.": "Die PIN\n\n%lu\n\nauf dem anderen Gerät eingeben."
-  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": "Bestätigen, dass die PIN\n\n%lu\n\nauf dem anderen Gerät identisch ist."
+  "Type this passcode\n\n%lu\n\non the other device.": |-
+    Die PIN
+
+    %lu
+
+    auf dem anderen Gerät eingeben.
+  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": |-
+    Bestätigen, dass die PIN
+
+    %lu
+
+    auf dem anderen Gerät identisch ist.
   Error: Fehler
   No slot available: Kein Slot verfügbar
   Not connected!: Nicht verbunden!
   Resource not found!: Ressource nicht gefunden!
   Connection timeout!: Verbindung Timeout!
-  "New firmware\n %s is available.": "Neue Firmware\n %s ist verfügbar."
-  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": "Dein Gerät nutzt gerade eine Entwicklungs-Firmware.\n\nEs könnte sehr instabil sein und sollte nur von Entwicklern und Testern verwendet werden.\n\nWir empfehlen auf eine offizielle Version zu wechseln."
-  "Firmware updated\n to %s": "Firmware aktualisiert\n auf %s"
-  "Unable to update bootloader.\nRe-install the update file.": "Bootloader kann nicht aktualisiert werden.\nUpdate-File neu installieren."
+  "New firmware\n %s is available.": |-
+    Neue Firmware
+     %s ist verfügbar.
+  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": >-
+    Dein Gerät nutzt gerade eine Entwicklungs-Firmware.
+
+
+    Es könnte sehr instabil sein und sollte nur von Entwicklern und Testern
+    verwendet werden.
+
+
+    Wir empfehlen auf eine offizielle Version zu wechseln.
+  "Firmware updated\n to %s": |-
+    Firmware aktualisiert
+     auf %s
+  "Unable to update bootloader.\nRe-install the update file.": |-
+    Bootloader kann nicht aktualisiert werden.
+    Update-File neu installieren.
   Bootloader updated: Bootloader aktualisiert
   Storing config: Speicher Konfiguration
   Formating storage: Formatiere Speicher
@@ -100,7 +124,9 @@ de-DE:
   Set new flight profile name: Neuen Flug-Profil-Namen setzen
   Cannot delete active flight profile: Aktuelles Flug-Profil kann nicht gelöscht werden
   Do you want to remove flight profile '%s': Willst du das Flug-Profil '%s' löschen
-  "Reset\ncalibration?": "Kalibrierung\nzurücksetzen?"
+  "Reset\ncalibration?": |-
+    Kalibrierung
+    zurücksetzen?
   Clear debug file: Debug-File löschen
   Advanced settings: Erweiterte Einstellungen
   Calibration data not valid: Kalibrierungsdaten ungültig
@@ -114,15 +140,21 @@ de-DE:
   Auto crash upload: Crash automatisch hochladen
   Debug to file: Debug in Datei
   Clear debug.log: debug.log löschen
-  "Calibrating\ngyroscope": "Kalibriere\nGyroskop"
+  "Calibrating\ngyroscope": |-
+    Kalibriere
+    Gyroskop
   Please keep the device steady: Bitte Gerät bereithalten
   'Level the device, display must be pointing up': 'Gerät ausrichten, Anzeige nach oben'
   'Level the device, display must be pointing down': 'Gerät ausrichten, Anzeige nach unten'
-  "Calibrating\nmagnetometer": "Kalibriere\nMagnetkompass"
+  "Calibrating\nmagnetometer": |-
+    Kalibriere
+    Magnetkompass
   Rotate the device 3 times while pointing display up: Rotiere das Gerät dreimal mit der Anzeige nach oben
   Rotate the device 3 times while pointing usb ports down: Rotiere das Gerät dreimal mit den USB-Ports nach unten
-  "Calibrating\naccelerometer": "Kalibriere\nBeschleunigungssensor"
-  'Level the device, the arrow must be pointing up': 'Gerät ausrichten mit Pfeil nach oben'
+  "Calibrating\naccelerometer": |-
+    Kalibriere
+    Beschleunigungssensor
+  'Level the device, the arrow must be pointing up': Gerät ausrichten mit Pfeil nach oben
   Set date: Datum setzen
   Time & date: Zeit & Datum
   Time: Zeit
@@ -135,10 +167,14 @@ de-DE:
   Downloading firmware: ~
   Up to date: Aktuell
   You are using the latest firmware: Du benutzt die aktuellste Firmware
-  "Download firmware\n%s?": "Download Firmware\n%s?"
+  "Download firmware\n%s?": |-
+    Download Firmware
+    %s?
   Firmware update: Firmware aktualisieren
   Checking for updates: Prüfe auf Updates
-  "Install version\n%s":   "Version installieren\n%s"
+  "Install version\n%s": |-
+    Version installieren
+    %s
   Start update?: Update starten?
   Device firmware: Gerät Firmware
   Firmware ver. %s: ~
@@ -161,7 +197,7 @@ de-DE:
   Restore factory settings: Firmeneinstellung zurücksetzen
   Altitude: Höhe
   Speed: Geschwindigkeit
-  Distance: Entfernung
+  Distance: Entfern.
   Variometer: ~
   Date format: Datums-Format
   Use 24h time: Nutze 24h Zeit
@@ -187,9 +223,15 @@ de-DE:
   WiFi settings: WiFi Einstellungen
   Access point: ~
   AP password: AP Passwort
-  "Need\nCalib.": "Benötige\nKalibrierung"
-  "No\nGNSS": "Kein\nGNSS"
-  "No TOPO\ndata": "Keine Topo\nDaten"
+  "Need\nCalib.": |-
+    Benötige
+    Kalibrierung
+  "No\nGNSS": |-
+    Kein
+    GNSS
+  "No TOPO\ndata": |-
+    Keine Topo
+    Daten
   Set QNH: QNH setzen
   Avg (%us): Mittelwert (%us)
   weak chrg.: Schwaches Laden
@@ -205,24 +247,31 @@ de-DE:
   landed: gelandet
   Glide (%us): ~
   GAltitude: GHöhe
-  GHdg: GRichtung
+  GHdg: GRichtng
   GSpeed: ~
   Take-off: Start
   Fit to track: Passend auf Track
   Set Zoom Level: Zoom-Level setzen
   Odometer reset: Kilometerzähler zurücksetzen
   Thermal assistant: Thermikassistent
-  "Not\ncircling": "Kein\nKreisen"
+  "Not\ncircling": |-
+    Kein
+    Kreisen
   Thermal gain: Thermikgewinn
   Thermal trace: Thermikspur
   Thermal time: Thermikzeit
   Time/Date: Zeit/Datum
-  TO distance: TO Entfernung
-  "No\nstart\npos": "Keine\nStart\nPos"
+  TO distance: TO Entfern.
+  "No\nstart\npos": |-
+    Keine
+    Start
+    Pos
   TO direction: TO Richtung
   TO time: TO Zeit
-  "Turn to\ntakeoff": "Zum Takeoff\ndrehen"
-  Wind dir: Windrichtung
+  "Turn to\ntakeoff": |-
+    Zum Takeoff
+    drehen
+  Wind dir: Windrichtng
   Wind spd: Windstärke
   Page file corrupted: Seiten-File defekt
   Page is empty.: Seite ist leer
@@ -244,11 +293,15 @@ de-DE:
   '%s EXPIRED!': '%s ABGELAUFEN!'
   Flight settings: Flug-Einstellungen
   Altitude change +/-%s: Höhenveränderung +/-%s
-  "\n or ": "\n oder "
+  "\n or ": |2-
+
+     oder 
   Speed > %s: Geschwindigkeit > %s
   Automatic Take-off: Automatisches Starten
   Altitude within +/-%s: Höhe innerhalb +/-%s
-  "\n and ": "\n und "
+  "\n and ": |2-
+
+     und 
   Speed < %s: Geschwindigkeit < %s
   Automatic Landing: Automatische Landung
   Glide ratio time: Gleitwinkel Zeit
@@ -265,19 +318,19 @@ de-DE:
   Change greater than: Verändert sich größer als
   Exceed speed: Geschwindigkeit überschreiten
   Reading...: Lese...
-  Landing: Lande
+  Landing: Landung
   Duration: Dauer
-  Altitude Max: "Max. Höhe"
-  Altitude Min: "Min. Höhe"
-  Max Raise: "Max. Steigen"
-  Max Sink: "Max. Sinken"
+  Altitude Max: Max. Höhe
+  Altitude Min: Min. Höhe
+  Max Raise: Max. Steigen
+  Max Sink: Max. Sinken
   Track length: Weglänge
   Analysing...: Analysiere...
   Show on map: Zeig auf Karte
   'Total: ': 'Gesamt:'
-  'Average per flight: ': 'Durchschnitt pro Flug: '
-  'Total: %.1f hours': 'Gesamt %.1f Stunden'
-  'Average per flight: %.1f hours': 'Durchschnitt pro Flug: %.1f Stunden'
+  'Average per flight: ': 'Mittelwert pro Flug: '
+  'Total: %.1f hours': 'Gesamt: %.1f Std'
+  'Average per flight: %.1f hours': 'Mittelwert pro Flug: %.1f Std'
   'Total: %.0f flights': 'Gesamt: %.0f Flüge'
   Too Many Flights: Zu viele Flüge
   You have too many flights to handle in statistics. Please remove some.: Du hast zuviele Flüge für die Statistik. Bitte einige entfernen.
@@ -288,7 +341,7 @@ de-DE:
   Flights: Flüge
   Hours %s: Stunden %s
   Flights %s: Flüge %s
-  Distance %s: Entfernung %s
+  Distance %s: Entfern. %s
   Flight '%s' deleted: Flug '%s' gelöscht
   Flight statistics: Flug-Statistik
   Do you want to remove flight '%s': Willst du den Flug '%s' löschen
@@ -299,10 +352,28 @@ de-DE:
   Longitude: Längengrad
   Searching %u/%u: Suche %u/%u
   Waiting for fix: Warte auf Fix
-  "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n": "Diese Firmware nutzt eine neue Methode zur Datenspeicherung.\n\nWir müssen den Speicher neu formatieren.\n\nDeine IGC files, Karten und AGL-Daten gehen verloren.\n\nWenn du sie sichern willst, klicke Abbruch.\n\nDeine Konfiguration bleibt erhalten.\n\nFortfahren?\n"
-  "Too many files to list\nShowing %u files": "Zu viele Dateien zum listen\nZeige %u Dateien"
+  "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n": |
+    Diese Firmware nutzt eine neue Methode zur Datenspeicherung.
+
+    Wir müssen den Speicher neu formatieren.
+
+    Deine IGC files, Karten und AGL-Daten gehen verloren.
+
+    Wenn du sie sichern willst, klicke Abbruch.
+
+    Deine Konfiguration bleibt erhalten.
+
+    Fortfahren?
+  "Too many files to list\nShowing %u files": |-
+    Zu viele Dateien zum listen
+    Zeige %u Dateien
   Nothing to show: Nichts zu zeigen
   Listing files: Liste Dateien
   Directory not found: Verzeichnis nicht gefunden
   Help: Hilfe
-  "This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.": "Dies wird das Gerät stoppen und einen Diagnore-Report erzeugen.\n\nWir lösen nun den Crash aus.\n\nDer Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein."
+  "This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.": |-
+    Dies wird das Gerät stoppen und einen Diagnore-Report erzeugen.
+
+    Wir lösen nun den Crash aus.
+
+    Der Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein.

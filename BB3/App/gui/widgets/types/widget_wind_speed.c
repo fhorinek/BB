@@ -37,7 +37,7 @@ static void WindSpd_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void WindSpd_update(widget_slot_t * slot)
 {
-    char value[16];
+    char value[32];
     if (fc.gnss.fix == 0)
         strcpy(value, _("No\nGNSS"));
     else if (!fc.wind.valid)

@@ -40,7 +40,7 @@ static void DToff_init(lv_obj_t * base, widget_slot_t * slot)
 
 static void DToff_update(widget_slot_t * slot)
 {
-    char value[16];
+    char value[32];
 
     if (fc.flight.takeoff_distance != INVALID_UINT32)
     {
