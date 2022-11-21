@@ -38,14 +38,6 @@ typedef struct
     int32_t longitude;
 } gnss_pos_t;
 
-typedef struct __gnss_pos_list_t
-{
-    int32_t latitude;
-    int32_t longitude;
-
-    struct __gnss_pos_list_t * next;
-} gnss_pos_list_t;
-
 typedef struct
 {
     int32_t latitude1;
@@ -59,9 +51,21 @@ typedef struct
 #define BRUSH_TRANSPARENT_FLAG	0b10000000
 #define PEN_WIDTH_MASK			0b01111111
 
+typedef union
+{
+    uint32_t len;
+    char * ptr;
+} char_len_u;
+
+typedef union
+{
+    uint32_t pos;
+    gnss_pos_t * ptr;
+} point_pos_u;
+
 typedef struct __airspace_record_t
 {
-    char * name;
+    char_len_u name;
 
     uint16_t floor;
     uint16_t ceil;
@@ -74,16 +78,15 @@ typedef struct __airspace_record_t
     lv_color_t pen;
     lv_color_t brush;
 
-    gnss_pos_t * points;
+    point_pos_u points;
     uint32_t number_of_points;
 
     gnss_bbox_t bbox;
-
-    struct __airspace_record_t * next;
 } airspace_record_t;
 
 void airspace_create_lock();
-airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used, bool gui);
+void airspace_init_buffer();
+bool airspace_load(char * name, bool use_dialog);
 void airspace_free(airspace_record_t * as);
 void airspace_reload_parallel_task();
 

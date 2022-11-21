@@ -4,7 +4,7 @@
  *  Created on: Mar 14, 2022
  *      Author: horinek
  */
-#define DEBUG_LEVEL	DBG_DEBUG
+//#define DEBUG_LEVEL	DBG_DEBUG
 
 #include "airspace.h"
 #include "fc/fc.h"
@@ -12,6 +12,31 @@
 #include "gui/dialog.h"
 #include "gui/statusbar.h"
 #include "gui/tasks/filemanager.h"
+
+typedef struct
+{
+    uint32_t cache_version;
+    REDSTAT orig_file;
+    uint32_t number_of_records;
+    uint32_t index_size;
+    uint32_t data_size;
+    gnss_bbox_t bbox;
+} airspace_header_t;
+
+#define AIRSPACE_MAX_POINTS     2048
+#define AIRSPACE_MAX_NAME_LEN   128
+#define AIRSPACE_CACHE_VERSION  14
+
+#define AIRSPACE_INDEX_ALLOC    1024
+#define AIRSPACE_DATA_ALLOC    1024 * 1024
+
+
+void airspace_init_buffer()
+{
+    fc.airspaces.index = ps_malloc(AIRSPACE_INDEX_ALLOC * sizeof(airspace_record_t));
+    fc.airspaces.data = ps_malloc(AIRSPACE_DATA_ALLOC);
+}
+
 
 void airspace_create_lock()
 {
@@ -90,146 +115,124 @@ uint16_t airspace_alt(char * line, bool * gnd)
     return value;
 }
 
-//transform linked list to normal allocated array
 //calculate bounding box
-//return used memory
-uint32_t airspace_finalise(airspace_record_t * as)
+//write airspace
+bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gnss_pos_t * points, int index, int data)
 {
-	if (as->number_of_points)
+	if (as->number_of_points > 0)
 	{
 		as->bbox.latitude1 = -90 * GNSS_MUL;
 		as->bbox.latitude2 = +90 * GNSS_MUL;
 		as->bbox.longitude1 = +180 * GNSS_MUL;
 		as->bbox.longitude2 = -180 * GNSS_MUL;
 
-		gnss_pos_list_t * actual = (gnss_pos_list_t *)as->points;
-
-		as->points = (gnss_pos_t *) ps_malloc(as->number_of_points * sizeof(gnss_pos_t));
-
 		for (uint32_t i = 0; i < as->number_of_points; i++)
 		{
-			ASSERT(actual != NULL);
-
-			as->points[i].latitude = actual->latitude;
-			as->points[i].longitude = actual->longitude;
-
-//			RAW("rectangle bbox=%f,%f,%f,%f target=airspace", actual->longitude / (float)GNSS_MUL, actual->latitude / (float)GNSS_MUL, -0.001 + actual->longitude / (float)GNSS_MUL, 0.001 + actual->latitude / (float)GNSS_MUL);
-
-			as->bbox.latitude1 = max(as->bbox.latitude1, actual->latitude);
-			as->bbox.latitude2 = min(as->bbox.latitude2, actual->latitude);
-			as->bbox.longitude1 = min(as->bbox.longitude1, actual->longitude);
-			as->bbox.longitude2 = max(as->bbox.longitude2, actual->longitude);
-
-			gnss_pos_list_t * last = actual;
-			actual = actual->next;
-			tfree(last);
+			as->bbox.latitude1 = max(as->bbox.latitude1, points[i].latitude);
+			as->bbox.latitude2 = min(as->bbox.latitude2, points[i].latitude);
+			as->bbox.longitude1 = min(as->bbox.longitude1, points[i].longitude);
+			as->bbox.longitude2 = max(as->bbox.longitude2, points[i].longitude);
 		}
-//		RAW("rectangle bbox=%f,%f,%f,%f name=bbox", as->bbox.longitude1 / (float)GNSS_MUL, as->bbox.latitude1 / (float)GNSS_MUL, -0.001 + as->bbox.longitude2 / (float)GNSS_MUL, 0.001 + as->bbox.latitude2 / (float)GNSS_MUL);
-	}
-//	DBG(">%s", as->name);
-//	DBG(" %u points", as->number_of_points);
-//	DBG(" %u pen width", as->pen_width & PEN_WIDTH_MASK);
-//	DBG(" %u %u %u pen color", as->pen.ch.red, as->pen.ch.green, as->pen.ch.blue);
-//	if (as->pen_width & BRUSH_TRANSPARENT_FLAG)
-//		DBG("transparent brush");
-//	else
-//		DBG(" %u %u %u brush", as->brush.ch.red, as->brush.ch.green, as->brush.ch.blue);
-//	DBG("\n");
 
-	return sizeof(airspace_record_t)
-			+ as->number_of_points * sizeof(gnss_pos_t)
-			+ ((as->name != NULL) ? strlen(as->name) + 1 : 0);
+        //store points
+        as->points.pos = ah->data_size;
+        red_write(data, points, sizeof(gnss_pos_t) * as->number_of_points);
+        ah->data_size += sizeof(gnss_pos_t) * as->number_of_points;
+
+        //store airspace name
+        uint8_t name_len = min(strlen(as->name.ptr) + 1, AIRSPACE_MAX_NAME_LEN);
+        uint8_t rounded_len = ROUND4(name_len);
+        red_write(data, as->name.ptr, rounded_len);
+        as->name.len = name_len;
+        ah->data_size += rounded_len;
+
+        //store record
+        red_write(index, as, sizeof(airspace_record_t));
+        ah->index_size += sizeof(airspace_record_t);
+
+        //update header
+        ah->bbox.latitude1 = max(as->bbox.latitude1, ah->bbox.latitude1);
+        ah->bbox.latitude2 = min(as->bbox.latitude2, ah->bbox.latitude2);
+        ah->bbox.longitude1 = min(as->bbox.longitude1, ah->bbox.longitude1);
+        ah->bbox.longitude2 = max(as->bbox.longitude2, ah->bbox.longitude2);
+        ah->number_of_records++;;
+	}
 }
 
-void airspace_add_point(airspace_record_t * as, gnss_pos_list_t ** pos_list, int32_t lon, int32_t lat)
+void airspace_add_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
 {
-	gnss_pos_list_t * new = (gnss_pos_list_t *) tmalloc(sizeof(gnss_pos_list_t));
+    if (as->number_of_points >= AIRSPACE_MAX_POINTS)
+    {
+        WARN("aisrpace %s, max points reached", as->name);
+        return;
+    }
 
-	if (new == NULL)
-	{
-	    bsod_msg("Unable to allocate more memory, File is too big");
-	}
-
-	new->latitude = lat;
-	new->longitude = lon;
-	new->next = NULL;
+	points[as->number_of_points].latitude = lat;
+	points[as->number_of_points].longitude = lon;
 
 	as->number_of_points++;
-
-	if (*pos_list == NULL)
-	{
-		*pos_list = new;
-		//use points as first item
-		as->points = (gnss_pos_t *)new;
-	}
-	else
-	{
-		(*pos_list)->next = new;
-		*pos_list = new;
-	}
 }
 
-//free airspace list
-//as - head of the list
-void airspace_free(airspace_record_t * as)
+
+//read openair file and store binary data to cache
+bool airspace_parse(char * name, bool use_dialog)
 {
-	airspace_record_t * actual = as;
-	while (actual != NULL)
-	{
-		airspace_record_t * last = actual;
-		actual = actual->next;
+    char path[PATH_LEN];
+    snprintf(path, sizeof(path), "%s/%s", PATH_AIRSPACE_DIR, name);
 
-		if (last->name != NULL)
-			ps_free(last->name);
-
-		if (last->number_of_points > 0)
-			ps_free(last->points);
-
-		ps_free(last);
-	}
-}
-
-airspace_record_t * airspace_load_cache(char * orig, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used);
-void airspace_save_cache(char * orig, airspace_record_t * first, uint16_t loaded, uint16_t hidden);
-
-airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used, bool use_dialog)
-{
     INFO("airspace_load %s", path);
-
-    airspace_record_t * first = NULL;
-
-    *loaded = 0;
-    *hidden = 0;
-    *mem_used = 0;
-
-    first = airspace_load_cache(path, loaded, hidden, mem_used);
-
-    if (first != NULL)
-    {
-        return first;
-    }
 
     int f = red_open(path, RED_O_RDONLY);
 
     if (f > 0)
     {
+        //reset header
+        airspace_header_t ah;
+        ah.bbox.latitude1 = -90 * GNSS_MUL;
+        ah.bbox.latitude2 = +90 * GNSS_MUL;
+        ah.bbox.longitude1 = +180 * GNSS_MUL;
+        ah.bbox.longitude2 = -180 * GNSS_MUL;
+        ah.cache_version = AIRSPACE_CACHE_VERSION;
+        ah.data_size = 0;
+        ah.index_size = 0;
+        ah.number_of_records = 0;
+        red_fstat(f, &ah.orig_file);
+
+        //create dir
+        red_mkdir(PATH_AIRSPACE_CACHE_DIR);
+
+        //open files
+        snprintf(path, sizeof(path), "%s/%s.index", PATH_AIRSPACE_CACHE_DIR, name);
+        int index = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+        red_write(index, &ah, sizeof(airspace_header_t));
+        ah.index_size += sizeof(airspace_header_t);
+
+        snprintf(path, sizeof(path), "%s/%s.data", PATH_AIRSPACE_CACHE_DIR, name);
+        int data = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+
+        //allocate memory for parser
+        airspace_record_t as = {0};
+
+        gnss_pos_t * points = tmalloc(sizeof(gnss_pos_t) * AIRSPACE_MAX_POINTS);
+        char as_name[AIRSPACE_MAX_NAME_LEN];
+        as.name.ptr = as_name;
+
+        //handle gui
         lv_obj_t * msg_ptr = NULL;
 
         if (!use_dialog)
         {
-            msg_ptr = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, "Loading airspaces");
+            msg_ptr = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, "Parsing airspaces");
         }
-
 
     	uint32_t size = file_size(f);
     	uint32_t pos = 0;
-    	uint8_t skip = 0;
+    	uint8_t gui_skip = 0;
+
+    	//init parser
     	char mem_line[128];
         char * line;
 
-        airspace_record_t * actual = NULL;
-        airspace_record_t * prev = NULL;
-        gnss_pos_list_t * points_last = NULL;
         gnss_pos_t center = {0};
         bool clockwise = true;
 
@@ -246,7 +249,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
 
             pos += strlen(line);
 
-            if (skip == 0)
+            if (gui_skip == 0)
             {
                 if (use_dialog)
                 {
@@ -257,7 +260,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
                     statusbar_msg_update_progress(msg_ptr, (pos * 100) / size);
                 }
             }
-            skip = (skip + 1) % 20;
+            gui_skip = (gui_skip + 1) % 20;
 
             DBG("AIR: %s", line);
 
@@ -267,123 +270,68 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
             //airspace class
             if (strncmp("AC ", line, 3) == 0)
             {
-				if (actual != NULL)
-				{
-					if (actual->airspace_class == ac_hidden || actual->number_of_points == 0)
-					{
-						//reuse the old one
-						if (actual->name != NULL)
-						{
-							ps_free(actual->name);
-						}
-
-						if (actual->number_of_points > 0)
-						{
-						    //clear points if hidden
-						    gnss_pos_list_t * actual_point = (gnss_pos_list_t *)actual->points;
-
-							for (uint32_t i = 0; i < actual->number_of_points; i++)
-					        {
-					            gnss_pos_list_t * last = actual_point;
-					            actual_point = actual_point->next;
-					            tfree(last);
-					        }
-						}
-
-						(*hidden)++;
-					}
-					else
-					{
-						//finalize last airspace here, allocate new
-						(*mem_used) += airspace_finalise(actual);
-
-						actual->next = ps_malloc(sizeof(airspace_record_t));
-						prev = actual;
-						actual = actual->next;
-					}
-				}
-
-                if (first == NULL)
-                {
-                	actual = ps_malloc(sizeof(airspace_record_t));
-                    first = actual;
-                }
+                //write airspace
+                airspace_finalise(&ah, &as, points, index, data);
 
                 //reset airspace
-//                tmalloc_tag_inc();
+                as.name.ptr = as_name;
+                as.name.ptr[0] = 0;
+                as.number_of_points = 0;
+                as.pen_width = 0;
+                as.pen.full = 0;
+                as.brush.full = 0;
+                as.floor = 0;
+                as.floor_gnd = true;
+                as.ceil = 0;
+                as.ceil_gnd = true;
 
-                actual->name = NULL;
-                actual->points = NULL;
-                actual->number_of_points = 0;
-                actual->next = NULL;
-                actual->pen_width = 0;
-                actual->pen.full = 0;
-                actual->brush.full = 0;
                 clockwise = true;
-
-                points_last = NULL;
 
                 line += 3;
                 if (strncmp(line, "GP", 2) == 0)
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.prohibited) ? ac_glider_prohibited : ac_hidden;
+                    as.airspace_class = ac_glider_prohibited;
                 else if (strncmp(line, "CTR", 3) == 0)
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.ctr) ? ac_ctr : ac_hidden;
+                    as.airspace_class = ac_ctr;
                 else if (strncmp(line, "TMZ", 3) == 0)
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.tmz) ? ac_tmz : ac_hidden;
+                    as.airspace_class = ac_tmz;
                 else if (strncmp(line, "RMZ", 3) == 0)
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.rmz) ? ac_rmz : ac_hidden;
+                    as.airspace_class = ac_rmz;
                 else if (*line == 'R')
-                     actual->airspace_class = config_get_bool(&profile.airspace.display.restricted) ? ac_restricted : ac_hidden;
+                     as.airspace_class = ac_restricted;
                 else if (*line == 'Q')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.danger) ? ac_danger : ac_hidden;
+                    as.airspace_class = ac_danger;
                 else if (*line == 'P')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.prohibited) ? ac_prohibited : ac_hidden;
+                    as.airspace_class = ac_prohibited;
                 else if (*line == 'A')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_A) ? ac_class_A : ac_hidden;
+                    as.airspace_class = ac_class_A;
                 else if (*line == 'B')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_B) ? ac_class_B : ac_hidden;
+                    as.airspace_class = ac_class_B;
                 else if (*line == 'C')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_C) ? ac_class_C : ac_hidden;
+                    as.airspace_class = ac_class_C;
                 else if (*line == 'D')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_D) ? ac_class_D : ac_hidden;
+                    as.airspace_class = ac_class_D;
                 else if (*line == 'E')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_E) ? ac_class_E : ac_hidden;
+                    as.airspace_class = ac_class_E;
                 else if (*line == 'F')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_F) ? ac_class_F : ac_hidden;
+                    as.airspace_class = ac_class_F;
                 else if (*line == 'G')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.class_G) ? ac_class_G : ac_hidden;
+                    as.airspace_class = ac_class_G;
                 else if (*line == 'W')
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.wave_window) ? ac_wave_window : ac_hidden;
+                    as.airspace_class = ac_wave_window;
                else
-                    actual->airspace_class = config_get_bool(&profile.airspace.display.undefined) ? ac_undefined : ac_hidden;
+                    as.airspace_class = ac_undefined;
 
-                (*loaded)++;
                 continue;
-            }
-            else if (actual == NULL)
-            {
-            	ERR("No Class defined, skipping");
-            	continue;
-            }
-            else if (actual->airspace_class == ac_hidden)
-            {
-            	continue;
             }
             //airspace name
             else if (strncmp("AN ", line, 3) == 0)
             {
                 line += 3;
 
-                if (actual->name != NULL)
-                {
-                    ASSERT(0);
-                    ps_free(actual->name);
-                }
-
-                uint16_t len = min(AIRSPACE_NAME_LEN, strlen_noend(line) + 1);
-                actual->name = ps_malloc(len);
-                strncpy(actual->name, line, len - 1);
-                actual->name[len - 1] = 0;
+                uint8_t len = strlen_noend(line);
+                len = min(AIRSPACE_MAX_NAME_LEN, len + 1);
+                strncpy(as.name.ptr, line, len);
+                as.name.ptr[len - 1] = 0;
                 continue;
             }
             //Airspace ceiling
@@ -391,29 +339,24 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
             {
                 line += 3;
 
-                actual->ceil = airspace_alt(line, &actual->ceil_gnd);
+                as.ceil = airspace_alt(line, &as.ceil_gnd);
             }
             //Airspace floor
             else if (strncmp("AL ", line, 3) == 0)
             {
                 line += 3;
 
-                actual->floor = airspace_alt(line, &actual->floor_gnd);
-                if (actual->floor > (config_get_int(&profile.airspace.display.below) * 100) / FC_METER_TO_FEET)
-                {
-                	(*hidden)++;
-                	actual->airspace_class = ac_hidden;
-                }
+                as.floor = airspace_alt(line, &as.floor_gnd);
             }
             //Pen
             else if (strncmp("SP ", line, 3) == 0)
             {
                 line += 3;
 
-                //skip style
+                //gui_skip style
                 line = find_comma(line);
                 //pen width
-                actual->pen_width = atoi_c(line) & PEN_WIDTH_MASK;
+                as.pen_width = atoi_c(line) & PEN_WIDTH_MASK;
                 line = find_comma(line);
                 //pen red
                 uint8_t red = atoi_c(line);
@@ -424,7 +367,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
                 //pen blue
                 uint8_t blue = atoi_c(line);
 
-                actual->pen = LV_COLOR_MAKE(red, green, blue);
+                as.pen = LV_COLOR_MAKE(red, green, blue);
             }
             //Brush
             else if (strncmp("SB ", line, 3) == 0)
@@ -433,7 +376,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
 
                 if (*line == '-') //-1,-1,-1
                 {
-                	actual->pen_width |= BRUSH_TRANSPARENT_FLAG;
+                    as.pen_width |= BRUSH_TRANSPARENT_FLAG;
                 }
                 else
                 {
@@ -446,7 +389,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
 					//brush blue
 					uint8_t blue = atoi_c(line);
 
-					actual->brush = LV_COLOR_MAKE(red, green, blue);
+					as.brush = LV_COLOR_MAKE(red, green, blue);
                 }
             }
             //polygon point
@@ -458,7 +401,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
 
                 if (airspace_point(line, &lon, &lat))
                 {
-                	airspace_add_point(actual, &points_last, lon, lat);
+                	airspace_add_point(&as, points, lon, lat);
                 }
             }
             //center point
@@ -527,7 +470,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
                     }
 
                 	geo_destination(center.latitude, center.longitude, angle, distance_km, &lat, &lon);
-                	airspace_add_point(actual, &points_last, lon, lat);
+                	airspace_add_point(&as, points, lon, lat);
 
                     angle += dir;
                 }
@@ -590,7 +533,7 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
                 	}
 
                 	geo_destination(center.latitude, center.longitude, angle, distance_km, &lat, &lon);
-                	airspace_add_point(actual, &points_last, lon, lat);
+                	airspace_add_point(&as, points, lon, lat);
 
                     angle += dir;
                 }
@@ -608,294 +551,46 @@ airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hid
                 	int32_t lon, lat;
 
                 	geo_destination(center.latitude, center.longitude, angle, distance_km, &lat, &lon);
-                	airspace_add_point(actual, &points_last, lon, lat);
+                	airspace_add_point(&as, points, lon, lat);
                 }
             }
 
         }
 
+        //end of file
 		//finalize last airspace here
-        if (actual != NULL)
-        {
-            if (actual->airspace_class == ac_hidden || actual->number_of_points == 0)
-            {
-                prev->next = NULL;
+        airspace_finalise(&ah, &as, points, index, data);
 
-                if (actual->name != NULL)
-                {
-                    ps_free(actual->name);
-                }
+        red_lseek(index, 0, RED_SEEK_SET);
+        red_write(index, &ah, sizeof(ah));
 
-                //clear points
-                if (actual->number_of_points)
-                {
-                    gnss_pos_list_t * actual_point = (gnss_pos_list_t *)actual->points;
-
-                    for (uint32_t i = 0; i < actual->number_of_points; i++)
-                    {
-                        gnss_pos_list_t * last = actual_point;
-                        actual_point = actual_point->next;
-                        tfree(last);
-                    }
-                }
-                ps_free(actual);
-
-                (*hidden)++;
-            }
-            else
-            {
-                (*mem_used) += airspace_finalise(actual);
-            }
-        }
 		red_close(f);
+		red_close(index);
+		red_close(data);
 
-		airspace_save_cache(path, first, *loaded, *hidden);
 
 		if (msg_ptr != NULL)
 		{
 		    statusbar_msg_close(msg_ptr);
 		}
+
+		tfree(points);
+		return true;
     }
     else
     {
         ERR("Unable to open %s, err = %u", path, f);
     }
 
-    INFO("Loaded %u airspaces (%u hidden)", *loaded, *hidden);
-    INFO(" used %u bytes", *mem_used);
-
-    return first;
+    return false;
 }
 
-#define CACHE_VERSION       15
-
-uint8_t airspace_filter_cfg_size()
-{
-    return (&profile.airspace.display.undefined - &profile.airspace.display.below) + 1;
-}
-
-void airspace_filter_cfg_get(multi_value * out)
-{
-    uint8_t i = 0;
-    for (cfg_entry_t * e = &profile.airspace.display.below; e <= &profile.airspace.display.undefined; e++)
-    {
-        out[i++] = e->value;
-    }
-}
-
-airspace_record_t * airspace_load_cache(char * orig, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used)
-{
-    char name[REDCONF_NAME_MAX];
-    char path[PATH_LEN];
-
-    filemanager_get_filename(name, orig);
-
-    snprintf(path, sizeof(path), "%s/%s", PATH_AIRSPACE_CACHE_DIR, name);
-
-    int f = red_open(path, RED_O_RDONLY);
-
-    *mem_used = 0;
-
-    if (f > 0)
-    {
-        REDSTAT stat_rd;
-        REDSTAT stat;
-
-        uint32_t ver;
-        red_read(f, &ver, sizeof(uint32_t));
-        if (ver != CACHE_VERSION)
-        {
-            red_close(f);
-            return NULL;
-        }
-
-        red_read(f, &stat_rd, sizeof(stat_rd));
-
-        int32_t o = red_open(orig, RED_O_RDONLY);
-        if (o > 0)
-        {
-            red_fstat(o, &stat);
-            red_close(o);
-
-            if (memcmp(&stat, &stat_rd, sizeof(stat)) != 0)
-            {
-                INFO("Cache file not valid");
-                red_close(f);
-                return NULL;
-            }
-        }
-        else
-        {
-            red_close(f);
-            return NULL;
-        }
-
-        uint8_t disp_cfg_num = airspace_filter_cfg_size();
-        multi_value filter[disp_cfg_num];
-        multi_value filter_rd[disp_cfg_num];
-        airspace_filter_cfg_get(filter);
-
-        red_read(f, filter_rd, disp_cfg_num * sizeof(multi_value));
-        if (memcmp(filter, filter_rd, disp_cfg_num * sizeof(multi_value)) != 0)
-        {
-            INFO("Cache file not valid");
-            red_close(f);
-            return NULL;
-        }
-
-        red_read(f, loaded, sizeof(uint16_t));
-        red_read(f, hidden, sizeof(uint16_t));
-
-        airspace_record_t * first = NULL;
-        airspace_record_t * actual;
-
-        uint16_t cnt = *loaded - *hidden;
-
-        for (uint16_t i = 0; i < cnt; i++)
-        {
-            if (first == NULL)
-            {
-                actual = ps_malloc(sizeof(airspace_record_t));
-                first = actual;
-            }
-            else
-            {
-                airspace_record_t * new = ps_malloc(sizeof(airspace_record_t));
-                actual->next = new;
-                actual = new;
-            }
-
-            *mem_used += sizeof(airspace_record_t);
-
-            red_read(f, actual, sizeof(airspace_record_t));
-            actual->name = NULL;
-            actual->points = NULL;
-            actual->next = NULL;
-
-            uint16_t name_len;
-            red_read(f, &name_len, sizeof(uint16_t));
-            if (name_len != 0)
-            {
-                actual->name = ps_malloc(name_len + 1);
-                red_read(f, actual->name, name_len);
-                actual->name[name_len] = 0;
-
-                *mem_used += name_len + 1;
-            }
-
-            actual->points = ps_malloc(sizeof(gnss_pos_t) * actual->number_of_points);
-
-            red_read(f, actual->points, sizeof(gnss_pos_t) * actual->number_of_points);
-
-            *mem_used += sizeof(gnss_pos_t) * actual->number_of_points;
-        }
-
-        red_close(f);
-        return first;
-    }
-
-    return NULL;
-}
-
-void airspace_save_cache(char * orig, airspace_record_t * first, uint16_t loaded, uint16_t hidden)
-{
-    char name[REDCONF_NAME_MAX];
-    char path[PATH_LEN];
-
-    filemanager_get_filename(name, orig);
-    red_mkdir(PATH_AIRSPACE_CACHE_DIR);
-
-    snprintf(path, sizeof(path), "%s/%s", PATH_AIRSPACE_CACHE_DIR, name);
-
-    int f = red_open(path, RED_O_CREAT | RED_O_WRONLY | RED_O_TRUNC);
-
-    if (f > 0)
-    {
-        int32_t o = red_open(orig, RED_O_RDONLY);
-        if (o > 0)
-        {
-            REDSTAT stat;
-            red_fstat(o, &stat);
-            red_close(o);
-
-            uint32_t ver = CACHE_VERSION;
-            red_write(f, &ver, sizeof(uint32_t));
-            red_write(f, &stat, sizeof(stat));
-        }
-        else
-        {
-            red_close(f);
-            return;
-        }
-
-        uint8_t disp_cfg_num = airspace_filter_cfg_size();
-        multi_value filter[disp_cfg_num];
-        airspace_filter_cfg_get(filter);
-        red_write(f, filter, disp_cfg_num * sizeof(multi_value));
-
-
-        red_write(f, &loaded, sizeof(uint16_t));
-        red_write(f, &hidden, sizeof(uint16_t));
-
-        airspace_record_t * actual = first;
-
-        while (actual != NULL)
-        {
-            red_write(f, actual, sizeof(airspace_record_t));
-
-            uint16_t name_len = 0;
-            if (actual->name != NULL)
-            {
-                name_len = strlen(actual->name);
-                red_write(f, &name_len, sizeof(uint16_t));
-                red_write(f, actual->name, name_len);
-            }
-            else
-            {
-                red_write(f, &name_len, sizeof(uint16_t));
-            }
-
-            red_write(f, actual->points, sizeof(gnss_pos_t) * actual->number_of_points);
-
-            actual = actual->next;
-        }
-
-        red_close(f);
-    }
-}
 
 void airspace_reload_parallel_task(void * param)
 {
     osMutexAcquire(fc.airspaces.lock, WAIT_INF);
 
-    if (strlen(config_get_text(&profile.airspace.filename)) > 0)
-    {
-        char path[PATH_LEN];
-        snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
 
-        uint16_t loaded;
-        uint16_t hidden;
-        uint32_t mem_used;
-
-        fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, false);
-        if (fc.airspaces.list != NULL)
-        {
-            fc.airspaces.valid = true;
-            fc.airspaces.loaded = loaded;
-            fc.airspaces.hidden = hidden;
-            fc.airspaces.mem_used = mem_used;
-        }
-        else
-        {
-            fc.airspaces.valid = false;
-            config_set_text(&profile.airspace.filename, "");
-        }
-
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-    }
 
     osMutexRelease(fc.airspaces.lock);
 
@@ -903,32 +598,168 @@ void airspace_reload_parallel_task(void * param)
     vTaskDelete(NULL);
 }
 
-void airspace_reload_parallel()
+bool airspace_open_cache(char * name, airspace_header_t * ah, int32_t * findex, int32_t * fdata)
 {
-    xTaskCreate((TaskFunction_t)airspace_reload_parallel_task, "as_load_parallel_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+    char path[PATH_LEN];
+    snprintf(path, sizeof(path), "%s/%s", PATH_AIRSPACE_DIR, name);
+
+    int f = red_open(path, RED_O_RDONLY);
+
+    if (f > 0)
+    {
+        REDSTAT fstat;
+        red_fstat(f, &fstat);
+        red_close(f);
+
+        //open files
+        snprintf(path, sizeof(path), "%s/%s.index", PATH_AIRSPACE_CACHE_DIR, name);
+        int index = red_open(path, RED_O_RDONLY);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        snprintf(path, sizeof(path), "%s/%s.data", PATH_AIRSPACE_CACHE_DIR, name);
+        int data = red_open(path, RED_O_RDONLY);
+        if (data < 0)
+        {
+            red_close(index);
+            return false;
+        }
+
+        red_read(index, ah, sizeof(airspace_header_t));
+
+        bool valid = true;
+
+        if (ah->cache_version != AIRSPACE_CACHE_VERSION)
+            valid = false;
+
+        if (memcmp(&ah->orig_file, &fstat, sizeof(REDSTAT)) != 0)
+            valid = false;
+
+        if (ah->index_size != file_size(index))
+            valid = false;
+
+        if (ah->data_size != file_size(data))
+            valid = false;
+
+
+        if (valid)
+        {
+            *findex = index;
+            *fdata = data;
+
+            return true;
+        }
+        else
+        {
+            red_close(index);
+            red_close(data);
+
+            return false;
+        }
+    }
+
+    return false;
+}
+
+
+bool airspace_load(char * name, bool use_dialog)
+{
+    int32_t index, data;
+    airspace_header_t ah;
+
+    bool res = airspace_open_cache(name, &ah, &index, &data);
+
+    if (!res)
+    {
+        res = airspace_parse(name, use_dialog);
+        if (res)
+        {
+            res = airspace_open_cache(name, &ah, &index, &data);
+        }
+    }
+
+    if (!res)
+    {
+        return false;
+    }
+
+
+    int32_t c_lon, c_lat;
+
+    c_lon = gui.map.lon;
+    c_lat = gui.map.lat;
+
+    int32_t step_x;
+    int32_t step_y;
+    geo_get_steps(c_lat, 0xFF, &step_x, &step_y);
+
+    //get bbox
+    uint32_t map_w = MAP_W * step_x * 2;
+    uint32_t map_h = MAP_H * step_y * 2;
+    int32_t lon1 = c_lon - map_w / 2;
+    int32_t lon2 = c_lon + map_w / 2;
+    int32_t lat1 = c_lat + map_h / 2;
+    int32_t lat2 = c_lat - map_h / 2;
+
+    uint32_t record_index = 0;
+    uint32_t data_index = 0;
+
+    fc.airspaces.number_loaded = 0;
+    fc.airspaces.number_in_file = ah.number_of_records;
+
+    for (uint32_t i = 0; i < ah.number_of_records; i++)
+    {
+        airspace_record_t as;
+        int32_t rd = red_read(index, &as, sizeof(airspace_record_t));
+
+        if (rd != sizeof(airspace_record_t))
+            break;
+
+        //not working correctly?
+        //check memeory limits index + data
+
+        if (lon1 > as.bbox.longitude2 || lon2 < as.bbox.longitude1)
+            continue;
+
+        if (lat2 > as.bbox.latitude1 || lat1 < as.bbox.latitude2)
+            continue;
+
+        memcpy(&fc.airspaces.index[record_index], &as, sizeof(airspace_record_t));
+
+        red_lseek(data, as.points.pos, RED_SEEK_SET);
+        red_read(data, fc.airspaces.data + data_index, sizeof(gnss_pos_t) * as.number_of_points);
+        fc.airspaces.index[record_index].points.ptr = fc.airspaces.data + data_index;
+        data_index += sizeof(gnss_pos_t) * as.number_of_points;
+
+        uint8_t name_len = ROUND4((uint32_t)as.name.len);
+        red_read(data, fc.airspaces.data + data_index, name_len);
+        fc.airspaces.index[record_index].name.ptr = fc.airspaces.data + data_index;
+        fc.airspaces.index[record_index].name.ptr[name_len] = 0;
+
+        data_index += name_len;
+
+        record_index++;
+        fc.airspaces.number_loaded++;
+    }
+
+    red_close(index);
+    red_close(data);
+
+    return true;
 }
 
 void airspace_unload()
 {
     fc.airspaces.valid = false;
-    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
-
-    if (fc.airspaces.list != NULL)
-    {
-
-        airspace_free(fc.airspaces.list);
-        fc.airspaces.list = NULL;
-        fc.airspaces.loaded = 0;
-        fc.airspaces.hidden = 0;
-        fc.airspaces.mem_used = 0;
-
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-
-    }
-    config_set_text(&profile.airspace.filename, "");
-
-    osMutexRelease(fc.airspaces.lock);
+    fc.airspaces.number_in_file = 0;
+    fc.airspaces.number_loaded = 0;
 }
+
+void airspace_reload_parallel()
+{
+    xTaskCreate((TaskFunction_t)airspace_reload_parallel_task, "as_load_parallel_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+}
+
+

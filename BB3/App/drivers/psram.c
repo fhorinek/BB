@@ -296,7 +296,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
         return NULL;
 
     //round to next multiple of 4
-    requested_size = (requested_size + 3) & ~3;
+    requested_size = ROUND4(requested_size);
 
     ps_malloc_index = ps_malloc_next_free(ps_malloc_index, requested_size);
 

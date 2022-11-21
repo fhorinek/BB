@@ -15,50 +15,23 @@ void airspace_load_task(void * param)
     fc.airspaces.valid = false;
     osMutexAcquire(fc.airspaces.lock, WAIT_INF);
 
-    if (fc.airspaces.list != NULL)
-    {
-    	airspace_free(fc.airspaces.list);
-    	fc.airspaces.list = NULL;
-    	fc.airspaces.loaded = 0;
-    	fc.airspaces.hidden = 0;
-    	fc.airspaces.mem_used = 0;
-    }
-
     uint16_t loaded;
     uint16_t hidden;
     uint32_t mem_used;
 
-	char path[PATH_LEN];
-	snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
-
-    fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, true);
+	fc.airspaces.valid = airspace_load(config_get_text(&profile.airspace.filename), true);
 
     gui_low_priority(false);
     dialog_close();
 
-    if (fc.airspaces.list != NULL)
+    for (uint8_t i = 0; i < 9; i++)
     {
-        fc.airspaces.valid = true;
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-        fc.airspaces.loaded = loaded;
-        fc.airspaces.hidden = hidden;
-        fc.airspaces.mem_used = mem_used;
+        gui.map.chunks[i].ready = false;
     }
-    else
+
+    if (!fc.airspaces.valid)
     {
         dialog_show("Error", "No airspace loaded.\n\nAre you using OpenAir format?", dialog_confirm, NULL);
-        fc.airspaces.valid = false;
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-        fc.airspaces.loaded = 0;
-        fc.airspaces.hidden = 0;
-        fc.airspaces.mem_used = 0;
-
         config_set_text(&profile.airspace.filename, "");
     }
 
@@ -146,9 +119,7 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 		if (DEVEL_ACTIVE)
 		{
 			char tmp[64];
-			snprintf(tmp, sizeof(tmp),
-					"Loaded airspaces: %u\nHidden: %u\nMemory used: %lu",
-					fc.airspaces.loaded, fc.airspaces.hidden, fc.airspaces.mem_used);
+			snprintf(tmp, sizeof(tmp), "TBD");
 
 			gui_list_info_add_entry(list, "Debug Info", tmp);
 		}

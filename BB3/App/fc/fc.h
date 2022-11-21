@@ -405,13 +405,14 @@ typedef struct
 
 	struct
 	{
-		airspace_record_t * list;
+        osSemaphoreId_t lock;
 
-		uint16_t loaded;
-		uint16_t hidden;
-		uint32_t mem_used;
+        airspace_record_t * index;
+		void * data;
 
-		osSemaphoreId_t lock;
+		uint32_t number_loaded;
+		uint32_t number_in_file;
+
 
 		bool valid;
 		uint8_t _pad[3];

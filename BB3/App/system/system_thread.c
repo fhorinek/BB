@@ -262,6 +262,8 @@ void thread_system_start(void * argument)
 {
     UNUSED(argument);
 
+    memset(0, 0, 1024 * 64);
+
     //start trace malloc
     tmalloc_init();
 

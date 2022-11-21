@@ -266,7 +266,7 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     }
 
     //round
-    requested_size = (requested_size + 3) & ~3;
+    requested_size = ROUND4(requested_size);
 
     if (lineno == 0xFFFFFFFF)
     {
@@ -346,7 +346,7 @@ void tfree_real(void * ptr, char * name, int32_t lineno)
 
     if (lineno < 0)
     {
-        uint32_t requested_size = (abs(lineno) + 3) & ~3;
+        uint32_t requested_size = ROUND4(abs(lineno));
         slot->size -= requested_size;
     }
 

@@ -210,6 +210,9 @@ typedef struct
 	//map
 	struct
 	{
+        int32_t lat;
+        int32_t lon;
+
         lv_obj_t * canvas;
 
         map_chunk_t chunks[9];
