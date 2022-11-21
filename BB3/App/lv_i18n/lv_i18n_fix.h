@@ -25,7 +25,7 @@ typedef struct {
 
 typedef struct {
     const char * locale_name;
-    lv_i18n_phrase_t * singulars;
+    char ** singulars;
     lv_i18n_phrase_t * plurals[_LV_I18N_PLURAL_TYPE_NUM];
     uint8_t (*locale_plural_fn)(int32_t num);
 } lv_i18n_lang_t;
@@ -51,6 +51,14 @@ int lv_i18n_set_locale(const char * l_name);
 
 /**
  * Get the translation from a message ID
+ * @param msg the untranslated messages (key)
+ * @param msg_id message ID
+ * @return the translation of `msg_id` on the set local
+ */
+char * lv_i18n_get_text_optimized(const char *msg, int msg_id);
+
+/**
+ * Get the translation from a message ID
  * @param msg_id message ID
  * @return the translation of `msg_id` on the set local
  */
@@ -73,8 +81,13 @@ const char * lv_i18n_get_current_locale(void);
 
 void __lv_i18n_reset(void);
 
+#include "lv_i18n_data.inc-idx.h"
+//#define I18N_IDX_p(str) (0)
+//#define I18N_IDX_s(str) (0)
 
-#define _(text) lv_i18n_get_text(text)
+// #define _(text) lv_i18n_get_text(text)
+// #define _p(text, num) lv_i18n_get_text_plural(text, num)
+#define _(text) lv_i18n_get_text_optimized(text, I18N_IDX_s(text))
 #define _p(text, num) lv_i18n_get_text_plural(text, num)
 
 

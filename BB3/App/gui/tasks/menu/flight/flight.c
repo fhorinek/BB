@@ -23,7 +23,7 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("Flight settings"), &gui_settings, NULL);
 
-	char desc[64];
+	char desc[128];
 	strcpy(desc, "");
 	if (config_get_bool(&profile.flight.auto_take_off.alt_change_enabled))
 	{

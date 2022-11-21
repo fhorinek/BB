@@ -6,297 +6,374 @@ de-DE:
   Brightness: Helligkeit
   Page animation: Seitenanimation
   Battery percent: Batterieprozent
-  Strato settings: ~
-  Pilot & Flight profile: ~
+  Strato settings: Strato Einstellungen
+  Pilot & Flight profile: Pilot & Flug Profile
   Vario: ~
-  Flight: ~
+  Flight: Flug
   Audio: ~
-  Map: ~
+  Map: Karte
   FANET: ~
   GNSS: ~
   Bluetooth: ~
   Wi-Fi: ~
   System: ~
-  Development: ~
-  Device init: ~
-  Device ready: ~
-  Device error: ~
-  Not calibrated: ~
-  Device disabled: ~
-  '%s connected (%s)': ~
-  '%s disconnected (%s)': ~
-  '%s paired': ~
-  Bluetooth pairing request: ~
-  pairing failed: ~
-  "Type this passcode\n\n%lu\n\non the other device.": ~
-  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": ~
-  Error: ~
-  No slot available: ~
-  Not connected!: ~
-  Resource not found!: ~
-  Connection timeout!: ~
-  "New firmware\n %s is available.": ~
-  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": ~
-  "Firmware updated\n to %s": ~
-  "Unable to update bootloader.\nRe-install the update file.": ~
-  Bootloader updated: ~
-  Storing config: ~
-  Formating storage: ~
-  Restoring config: ~
-  Unable to mount RED volume: ~
-  Unable to format storage: ~
-  Unable to mount FatFs volume: ~
-  Migrating: ~
-  Updating bootloader: ~
-  Warning: ~
-  No GNSS: ~
-  Set time: ~
-  Master volume: ~
-  Vario volume: ~
-  Sound volume: ~
-  Bluetooth volume: ~
-  TTS alerts: ~
-  Unbind?: ~
-  Enable: ~
+  Development: Entwicklung
+  Device init: Gerät init
+  Device ready: Gerät bereit
+  Device error: Gerät Fehler
+  Not calibrated: Nicht kalibriert
+  Device disabled: Gerät deaktiviert
+  '%s connected (%s)': '%s verbunden (%s)'
+  '%s disconnected (%s)': '%s getrennt (%s)'
+  '%s paired': '%s gekoppelt'
+  Bluetooth pairing request: Bluetooth Kopplungsanfrage
+  pairing failed: koppeln fehlgeschlagen
+  "Type this passcode\n\n%lu\n\non the other device.": |-
+    Die PIN
+
+    %lu
+
+    auf dem anderen Gerät eingeben.
+  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": |-
+    Bestätigen, dass die PIN
+
+    %lu
+
+    auf dem anderen Gerät identisch ist.
+  Error: Fehler
+  No slot available: Kein Slot verfügbar
+  Not connected!: Nicht verbunden!
+  Resource not found!: Ressource nicht gefunden!
+  Connection timeout!: Verbindung Timeout!
+  "New firmware\n %s is available.": |-
+    Neue Firmware
+     %s ist verfügbar.
+  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": >-
+    Dein Gerät nutzt gerade eine Entwicklungs-Firmware.
+
+
+    Es könnte sehr instabil sein und sollte nur von Entwicklern und Testern
+    verwendet werden.
+
+
+    Wir empfehlen auf eine offizielle Version zu wechseln.
+  "Firmware updated\n to %s": |-
+    Firmware aktualisiert
+     auf %s
+  "Unable to update bootloader.\nRe-install the update file.": |-
+    Bootloader kann nicht aktualisiert werden.
+    Update-File neu installieren.
+  Bootloader updated: Bootloader aktualisiert
+  Storing config: Speicher Konfiguration
+  Formating storage: Formatiere Speicher
+  Restoring config: Restauriere Konfiguration
+  Unable to mount RED volume: RED Laufwerk kann nicht eingebunden werden
+  Unable to format storage: Speicher kann nicht formatiert werden
+  Unable to mount FatFs volume: FatFS Laufwerk kann nicht eingebunden werden
+  Migrating: Migriere
+  Updating bootloader: Aktualisiere Bootloader
+  Warning: Warnung
+  No GNSS: Kein GNSS
+  Set time: Zeit setzen
+  Master volume: Hauptlautstärke
+  Vario volume: Vario Lautstärke
+  Sound volume: Musik Lautstärke
+  Bluetooth volume: Bluetooth Lautstärke
+  TTS alerts: TTS Alarme
+  Unbind?: Entkoppeln?
+  Enable: Aktivieren
   A2DP Audio: ~
   SPP Telemetry: ~
   BLE Telemetry: ~
   Telemetry protocol: ~
-  Forward GNSS: ~
-  Device name: ~
+  Forward GNSS: GNSS weiterleiten
+  Device name: Gerätename
   PIN code: ~
-  Unpair all: ~
-  Now visible as: ~
-  Turn on Bluetoth: ~
-  to enable pairing: ~
-  Clearing map cache: ~
-  Please wait: ~
-  Clear cache: ~
-  do you want to clear map cache?: ~
-  Map scale: ~
-  Zoom to fit track: ~
-  Terrain type: ~
-  Topo blur: ~
-  Clear map cache: ~
-  Show FANET on map: ~
-  Show trail: ~
+  Unpair all: Alle entkoppeln
+  Now visible as: Jetzt sichtbar als
+  Turn on Bluetoth: Bluetooth anschalten
+  to enable pairing: um zu koppeln
+  Clearing map cache: Karten-Cache löschen
+  Please wait: Bitte warten
+  Clear cache: Cache löschen
+  do you want to clear map cache?: Willst du den Karten-Cache löschen?
+  Map scale: Karten Skalierung
+  Zoom to fit track: Zoomen auf Track
+  Terrain type: Geländetyp
+  Topo blur: Topo unscharf
+  Clear map cache: Map-Cache löschen
+  Show FANET on map: FANET auf Karte zeigen
+  Show trail: Wegspur zeigen
   Pilot: ~
-  Pilot name: ~
-  Glider type: ~
+  Pilot name: Pilotenname
+  Glider type: Glider Typ
   Glider ID: ~
-  Broadcast name: ~
+  Broadcast name: Broadcast Name
   Track online: ~
-  Pilot profile '%s' deleted: ~
-  Pilot profile with name '%s' already exist: ~
-  Pilot profile changed to '%s': ~
-  Rename: ~
-  Set new pilot profile name: ~
-  Cannot delete active pilot profile: ~
-  Do you want to remove pilot profile '%s': ~
-  Confirm: ~
-  Flight profile '%s' deleted: ~
-  Flight profile with name '%s' already exist: ~
-  Flight profile changed to '%s': ~
-  Set new flight profile name: ~
-  Cannot delete active flight profile: ~
-  Do you want to remove flight profile '%s': ~
-  "Reset\ncalibration?": ~
-  Clear debug file: ~
-  Advanced settings: ~
-  Calibration data not valid: ~
-  Calibrate sensors: ~
-  Recalibrate Gyroscope: ~
-  Recalibrate Accelerometer: ~
-  Recalibrate Magnetometer: ~
-  Reset calibration: ~
-  Create diagnostic report: ~
-  Crash reports: ~
-  Auto crash upload: ~
-  Debug to file: ~
-  Clear debug.log: ~
-  "Calibrating\ngyroscope": ~
-  Please keep the device steady: ~
-  'Level the device, display must be pointing up': ~
-  'Level the device, display must be pointing down': ~
-  "Calibrating\nmagnetometer": ~
-  Rotate the device 3 times while pointing display up: ~
-  Rotate the device 3 times while pointing usb ports down: ~
-  "Calibrating\naccelerometer": ~
-  'Level the device, the arrow must be pointing up': ~
-  Set date: ~
-  Time & date: ~
-  Time: ~
-  Date: ~
-  Daylight saving time: ~
-  Time zone: ~
-  Sync with GNSS: ~
-  Updating: ~
-  Start update process?: ~
+  Pilot profile '%s' deleted: Piloten-Profil '%s' gelöscht
+  Pilot profile with name '%s' already exist: Piloten-Profil mit Name '%s' bereits vorhanden
+  Pilot profile changed to '%s': Piloten-Profil geändert in '%s'
+  Rename: Umbenennen
+  Set new pilot profile name: Neuen Namen für Piloten-Profil setzen
+  Cannot delete active pilot profile: Aktuelles Piloten-Profil kann nicht gelöscht werden
+  Do you want to remove pilot profile '%s': Willst Du das Piloten-Profil '%s' löschen
+  Confirm: Bestätigen
+  Flight profile '%s' deleted: Flug-Profil '%s' gelöscht
+  Flight profile with name '%s' already exist: Flug-Profil mit Name '%s' bereits vorhanden
+  Flight profile changed to '%s': Flug-Profil geändert auf '%s'
+  Set new flight profile name: Neuen Flug-Profil-Namen setzen
+  Cannot delete active flight profile: Aktuelles Flug-Profil kann nicht gelöscht werden
+  Do you want to remove flight profile '%s': Willst du das Flug-Profil '%s' löschen
+  "Reset\ncalibration?": |-
+    Kalibrierung
+    zurücksetzen?
+  Clear debug file: Debug-File löschen
+  Advanced settings: Erweiterte Einstellungen
+  Calibration data not valid: Kalibrierungsdaten ungültig
+  Calibrate sensors: Sensoren kalibrieren
+  Recalibrate Gyroscope: Gyroskop rekalibrieren
+  Recalibrate Accelerometer: Beschleunigungssensor rekalibrieren
+  Recalibrate Magnetometer: Magnetkompass rekalibrieren
+  Reset calibration: Kalibrierung zurücksetzen
+  Create diagnostic report: Diagnose-Report erzeugen
+  Crash reports: Crash-Reports
+  Auto crash upload: Crash automatisch hochladen
+  Debug to file: Debug in Datei
+  Clear debug.log: debug.log löschen
+  "Calibrating\ngyroscope": |-
+    Kalibriere
+    Gyroskop
+  Please keep the device steady: Bitte Gerät bereithalten
+  'Level the device, display must be pointing up': 'Gerät ausrichten, Anzeige nach oben'
+  'Level the device, display must be pointing down': 'Gerät ausrichten, Anzeige nach unten'
+  "Calibrating\nmagnetometer": |-
+    Kalibriere
+    Magnetkompass
+  Rotate the device 3 times while pointing display up: Rotiere das Gerät dreimal mit der Anzeige nach oben
+  Rotate the device 3 times while pointing usb ports down: Rotiere das Gerät dreimal mit den USB-Ports nach unten
+  "Calibrating\naccelerometer": |-
+    Kalibriere
+    Beschleunigungssensor
+  'Level the device, the arrow must be pointing up': Gerät ausrichten mit Pfeil nach oben
+  Set date: Datum setzen
+  Time & date: Zeit & Datum
+  Time: Zeit
+  Date: Datum
+  Daylight saving time: Sommerzeit
+  Time zone: Zeitzone
+  Sync with GNSS: Sync mit GNSS
+  Updating: Aktualisiere
+  Start update process?: Update-Prozess starten?
   Downloading firmware: ~
-  Up to date: ~
-  You are using the latest firmware: ~
-  "Download firmware\n%s?": ~
-  Firmware update: ~
-  Checking for updates: ~
-  "Install version\n%s": ~
-  Start update?: ~
-  Device firmware: ~
+  Up to date: Aktuell
+  You are using the latest firmware: Du benutzt die aktuellste Firmware
+  "Download firmware\n%s?": |-
+    Download Firmware
+    %s?
+  Firmware update: Firmware aktualisieren
+  Checking for updates: Prüfe auf Updates
+  "Install version\n%s": |-
+    Version installieren
+    %s
+  Start update?: Update starten?
+  Device firmware: Gerät Firmware
   Firmware ver. %s: ~
   Release note: ~
-  Check for updates: ~
-  Notify for new fw: ~
-  Firmware channel: ~
-  Manual firmware install: ~
-  Bootloader version: ~
-  Developer mode disabled: ~
-  Developer mode enabled: ~
-  Device info: ~
-  Serial number: ~
-  Hardware revision: ~
-  Do you want to restore factory settings?: ~
+  Check for updates: Prüfe auf Updates
+  Notify for new fw: Hinweis bei neuer FW
+  Firmware channel: Firmware Kanal
+  Manual firmware install: Manuelle Firmware-Installation
+  Bootloader version: Bootloader Version
+  Developer mode disabled: Entwickler-Modus deaktiviert
+  Developer mode enabled: Entwickler-Modus aktiviert
+  Device info: Device Info
+  Serial number: Seriennummer
+  Hardware revision: Hardware Revision
+  Do you want to restore factory settings?: Willst Du auf Firmeneinstellungen zurücksetzen?
   Display: ~
-  Units: ~
-  Advanced: ~
+  Units: Einheiten
+  Advanced: Erweitert
   Firmware: ~
-  Restore factory settings: ~
-  Altitude: ~
-  Speed: ~
-  Distance: ~
+  Restore factory settings: Firmeneinstellung zurücksetzen
+  Altitude: Höhe
+  Speed: Geschwindigkeit
+  Distance: Entfern.
   Variometer: ~
-  Date format: ~
-  Use 24h time: ~
+  Date format: Datums-Format
+  Use 24h time: Nutze 24h Zeit
   Position: ~
-  Earth model: ~
-  GNSS Altitude: ~
-  Vario settings: ~
-  Audio only in flight: ~
-  Accelerometer gain: ~
-  Lift threshold: ~
-  Sink threshold: ~
-  Average time: ~
-  Vario profile: ~
-  Network info: ~
+  Earth model: Erdmodell
+  GNSS Altitude: GNSS Höhe
+  Vario settings: Vario Einstellungen
+  Audio only in flight: Audio nur im Flug
+  Accelerometer gain: Beschleunigung Zuwachs
+  Lift threshold: Steigen Grenzwert
+  Sink threshold: Sinken Grenzwert
+  Average time: Durchschnittliche Zeit
+  Vario profile: Vario-Profil
+  Network info: Netzwerk-Info
   Client IP: ~
   Client MAC: ~
   Access point IP: ~
   Access point MAC: ~
-  Scanning...: ~
-  Select network: ~
-  Connected to '%s': ~
-  Disabled: ~
-  WiFi settings: ~
+  Scanning...: Suche...
+  Select network: Netzwerk wählen
+  Connected to '%s': Verbunden mit '%s'
+  Disabled: Deaktiviert
+  WiFi settings: WiFi Einstellungen
   Access point: ~
-  AP password: ~
-  "Need\nCalib.": ~
-  "No\nGNSS": ~
-  "No TOPO\ndata": ~
-  Set QNH: ~
-  Avg (%us): ~
-  weak chrg.: ~
-  slow chrg.: ~
-  fast chrg.: ~
-  quick chrg.: ~
-  Compass: ~
-  Flight time: ~
-  wait: ~
+  AP password: AP Passwort
+  "Need\nCalib.": |-
+    Benötige
+    Kalibrierung
+  "No\nGNSS": |-
+    Kein
+    GNSS
+  "No TOPO\ndata": |-
+    Keine Topo
+    Daten
+  Set QNH: QNH setzen
+  Avg (%us): Mittelwert (%us)
+  weak chrg.: Schwaches Laden
+  slow chrg.: Langsames Laden
+  fast chrg.: Schnelles Laden
+  quick chrg.: Quick Laden
+  Compass: Kompass
+  Flight time: Flugzeit
+  wait: Warte
   Start: ~
-  ready: ~
-  in flight: ~
-  landed: ~
+  ready: Bereit
+  in flight: im Flug
+  landed: gelandet
   Glide (%us): ~
-  GAltitude: ~
-  GHdg: ~
+  GAltitude: GHöhe
+  GHdg: GRichtng
   GSpeed: ~
-  Take-off: ~
-  Fit to track: ~
-  Set Zoom Level: ~
-  Odometer reset: ~
-  Thermal assistant: ~
-  "Not\ncircling": ~
-  Thermal gain: ~
-  Thermal trace: ~
-  Thermal time: ~
-  Time/Date: ~
-  TO distance: ~
-  "No\nstart\npos": ~
-  TO direction: ~
-  TO time: ~
-  "Turn to\ntakeoff": ~
-  Wind dir: ~
-  Wind spd: ~
-  Page file corrupted: ~
-  Page is empty.: ~
-  Loading airspace...: ~
-  Airspace settings: ~
-  Load airspace: ~
-  Unload airspace: ~
-  Enabled classes: ~
-  Enabled airspaces: ~
-  FANET neighbors: ~
-  Settings: ~
-  FANET settings: ~
-  Enable FANET: ~
-  Enable FLARM: ~
-  Airborne type: ~
-  Ground type: ~
-  Show labels: ~
-  FLARM expires: ~
-  '%s in %ld days': ~
-  '%s EXPIRED!': ~
-  Flight settings: ~
-  Altitude change +/-%s: ~
-  "\n or ": ~
-  Speed > %s: ~
-  Automatic Take-off: ~
-  Altitude within +/-%s: ~
-  "\n and ": ~
-  Speed < %s: ~
-  Automatic Landing: ~
-  Glide ratio time: ~
-  G-meter time: ~
-  Circling timeout: ~
-  Use wind in trace: ~
-  Enable IGC log: ~
-  Enable CSV log: ~
-  Use altitude: ~
-  Stay within: ~
-  Use ground speed: ~
-  Be slower than: ~
-  Within time: ~
-  Change greater than: ~
-  Exceed speed: ~
-  Reading...: ~
-  Landing: ~
-  Duration: ~
-  Altitude Max: ~
-  Altitude Min: ~
-  Max Raise: ~
-  Max Sink: ~
-  Track length: ~
-  Analysing...: ~
-  Show on map: ~
-  'Total: ': ~
-  'Average per flight: ': ~
-  'Total: %.1f hours': ~
-  'Average per flight: %.1f hours': ~
-  'Total: %.0f flights': ~
-  Too Many Flights: ~
-  You have too many flights to handle in statistics. Please remove some.: ~
-  Year: ~
-  yearly: ~
-  Days: ~
-  Total: ~
-  Flights: ~
-  Hours %s: ~
-  Flights %s: ~
-  Distance %s: ~
-  Flight '%s' deleted: ~
-  Flight statistics: ~
-  Do you want to remove flight '%s': ~
-  GNSS Settings: ~
+  Take-off: Start
+  Fit to track: Passend auf Track
+  Set Zoom Level: Zoom-Level setzen
+  Odometer reset: Kilometerzähler zurücksetzen
+  Thermal assistant: Thermikassistent
+  "Not\ncircling": |-
+    Kein
+    Kreisen
+  Thermal gain: Thermikgewinn
+  Thermal trace: Thermikspur
+  Thermal time: Thermikzeit
+  Time/Date: Zeit/Datum
+  TO distance: TO Entfern.
+  "No\nstart\npos": |-
+    Keine
+    Start
+    Pos
+  TO direction: TO Richtung
+  TO time: TO Zeit
+  "Turn to\ntakeoff": |-
+    Zum Takeoff
+    drehen
+  Wind dir: Windrichtng
+  Wind spd: Windstärke
+  Page file corrupted: Seiten-File defekt
+  Page is empty.: Seite ist leer
+  Loading airspace...: Lade Lufträume...
+  Airspace settings: Luftraum-Einstellungen
+  Load airspace: Lade Luftraum
+  Unload airspace: Entlade Luftraum
+  Enabled airspaces: Aktivierte Lufträume
+  FANET neighbors: FANET Nachbarn
+  Settings: Einstellungen
+  FANET settings: FANET Einstellungen
+  Enable FANET: Aktiviere FANET
+  Enable FLARM: Aktiviere FLARM
+  Airborne type: Flugzeugtyp
+  Ground type: Bodentyp
+  Show labels: Zeige Beschriftung
+  FLARM expires: FLARM läuft ab
+  '%s in %ld days': '%s in %ld Tagen'
+  '%s EXPIRED!': '%s ABGELAUFEN!'
+  Flight settings: Flug-Einstellungen
+  Altitude change +/-%s: Höhenveränderung +/-%s
+  "\n or ": |2-
+
+     oder 
+  Speed > %s: Geschwindigkeit > %s
+  Automatic Take-off: Automatisches Starten
+  Altitude within +/-%s: Höhe innerhalb +/-%s
+  "\n and ": |2-
+
+     und 
+  Speed < %s: Geschwindigkeit < %s
+  Automatic Landing: Automatische Landung
+  Glide ratio time: Gleitwinkel Zeit
+  G-meter time: G-Meter Zeit
+  Circling timeout: Kreisen Timeout
+  Use wind in trace: Wind im Trace verwenden
+  Enable IGC log: Aktiviere IGC-Log
+  Enable CSV log: Aktiviere CSV-Log
+  Use altitude: Höhe nutzen
+  Stay within: Bleib innerhalb
+  Use ground speed: Nutze Ground-Speed
+  Be slower than: Langsamer als
+  Within time: Innerhalb Zeit
+  Change greater than: Verändert sich größer als
+  Exceed speed: Geschwindigkeit überschreiten
+  Reading...: Lese...
+  Landing: Landung
+  Duration: Dauer
+  Altitude Max: Max. Höhe
+  Altitude Min: Min. Höhe
+  Max Raise: Max. Steigen
+  Max Sink: Max. Sinken
+  Track length: Weglänge
+  Analysing...: Analysiere...
+  Show on map: Zeig auf Karte
+  'Total: ': 'Gesamt:'
+  'Average per flight: ': 'Mittelwert pro Flug: '
+  'Total: %.1f hours': 'Gesamt: %.1f Std'
+  'Average per flight: %.1f hours': 'Mittelwert pro Flug: %.1f Std'
+  'Total: %.0f flights': 'Gesamt: %.0f Flüge'
+  Too Many Flights: Zu viele Flüge
+  You have too many flights to handle in statistics. Please remove some.: Du hast zuviele Flüge für die Statistik. Bitte einige entfernen.
+  Year: Jahr
+  yearly: jährlich
+  Days: Tage
+  Total: Gesamt
+  Flights: Flüge
+  Hours %s: Stunden %s
+  Flights %s: Flüge %s
+  Distance %s: Entfern. %s
+  Flight '%s' deleted: Flug '%s' gelöscht
+  Flight statistics: Flug-Statistik
+  Do you want to remove flight '%s': Willst du den Flug '%s' löschen
+  GNSS Settings: GNSS-Einstellungen
   Status: ~
   TTF: ~
-  Latitude: ~
-  Longitude: ~
-  Searching %u/%u: ~
-  Waiting for fix: ~
+  Latitude: Breitengrad
+  Longitude: Längengrad
+  Searching %u/%u: Suche %u/%u
+  Waiting for fix: Warte auf Fix
+  "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n": |
+    Diese Firmware nutzt eine neue Methode zur Datenspeicherung.
+
+    Wir müssen den Speicher neu formatieren.
+
+    Deine IGC files, Karten und AGL-Daten gehen verloren.
+
+    Wenn du sie sichern willst, klicke Abbruch.
+
+    Deine Konfiguration bleibt erhalten.
+
+    Fortfahren?
+  "Too many files to list\nShowing %u files": |-
+    Zu viele Dateien zum listen
+    Zeige %u Dateien
+  Nothing to show: Nichts zu zeigen
+  Listing files: Liste Dateien
+  Directory not found: Verzeichnis nicht gefunden
+  Help: Hilfe
+  "This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.": |-
+    Dies wird das Gerät stoppen und einen Diagnore-Report erzeugen.
+
+    Wir lösen nun den Crash aus.
+
+    Der Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein.

@@ -79,7 +79,7 @@ lv_obj_t * imu_init(lv_obj_t * par)
 
 void imu_loop()
 {
-	char value[32];
+	char value[64];
 
     if (fc.imu.status == fc_dev_ready || fc.imu.status == fc_device_not_calibrated)
     {

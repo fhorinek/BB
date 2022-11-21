@@ -230,7 +230,6 @@ sk-SK:
   Airspace settings: ~
   Load airspace: ~
   Unload airspace: ~
-  Enabled classes: ~
   Enabled airspaces: ~
   FANET neighbors: ~
   Settings: ~
@@ -300,3 +299,10 @@ sk-SK:
   Longitude: ~
   Searching %u/%u: ~
   Waiting for fix: ~
+  "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n": ~
+  "Too many files to list\nShowing %u files": ~
+  Nothing to show: ~
+  Listing files: ~
+  Directory not found: ~
+  Help: ~
+  "This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.": ~
