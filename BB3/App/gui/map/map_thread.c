@@ -57,6 +57,7 @@ void map_init()
 	gui_lock_acquire();
 	gui.map.magic = 0xFF;
     gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+    gui.map.canvas_buffer = ps_malloc(MAP_BUFFER_SIZE);
 
     gui.map.poi_size = 0;
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
@@ -68,7 +69,8 @@ void map_init()
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
 
-    airspace_reload_parallel();
+    airspace_init_buffer();
+    airspace_load_parallel();
 }
 
 void thread_map_start(void *argument)
@@ -79,32 +81,33 @@ void thread_map_start(void *argument)
 
     INFO("Started");
 
-    osDelay(1000);
     map_init();
+
+    osDelay(100);
 
     while(!system_power_off)
     {
-    	int32_t disp_lat;
-    	int32_t disp_lon;
     	uint8_t zoom;
+
+    	airspace_step();
 
     	if ( map_static )
     	{
-    		disp_lat = map_static_latitude;
-    		disp_lon = map_static_longitude;
+    		gui.map.lat = map_static_latitude;
+    		gui.map.lon = map_static_longitude;
     		zoom = map_static_zoom;
     	}
     	else
     	{
     		if (fc.gnss.fix == 0)
     		{
-    			disp_lat = config_get_big_int(&profile.ui.last_lat);
-    			disp_lon = config_get_big_int(&profile.ui.last_lon);
+    		    gui.map.lat = config_get_big_int(&profile.ui.last_lat);
+    		    gui.map.lon = config_get_big_int(&profile.ui.last_lon);
     		}
     		else
     		{
-    			disp_lat = fc.gnss.latitude;
-    			disp_lon = fc.gnss.longtitude;
+    		    gui.map.lat = fc.gnss.latitude;
+    		    gui.map.lon = fc.gnss.longtitude;
     		}
             zoom = config_get_int(&profile.map.zoom_flight);
     	}
@@ -113,7 +116,7 @@ void thread_map_start(void *argument)
 
     	int32_t step_x;
     	int32_t step_y;
-    	geo_get_steps(disp_lat, zoom, &step_x, &step_y);
+    	geo_get_steps(gui.map.lat, zoom, &step_x, &step_y);
 
     	//get vectors
     	int32_t step_lon = MAP_W * step_x;
@@ -121,7 +124,7 @@ void thread_map_start(void *argument)
 
     	int32_t c_lon;
     	int32_t c_lat;
-    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat, &step_lon, &step_lat);
+    	tile_align_to_cache_grid(gui.map.lon, gui.map.lat, zoom, &c_lon, &c_lat, &step_lon, &step_lat);
 
     	typedef struct
     	{
@@ -219,7 +222,9 @@ void thread_map_start(void *argument)
             if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
             {
                 gui_low_priority(true);
+                osMutexAcquire(fc.airspaces.lock, WAIT_INF);
                 tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                osMutexRelease(fc.airspaces.lock);
                 gui_low_priority(false);
                 break;
             }

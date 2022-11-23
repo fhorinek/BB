@@ -11,6 +11,14 @@ from collections import OrderedDict
 
 import common
 
+#print file structure
+debug_bin = False
+#create geojson files contaning duplicates
+debug_duplicates = False
+#print features info 
+debug_features = False
+
+
 def feature_factory(dict_data):
     output = []
     
@@ -201,6 +209,9 @@ class Feature(object):
             print(dict_data)
             raise Exception("Unable to parse feature")
             
+        if debug_features:
+            self.dict_data = dict_data    
+            
     def inside(self, bbox):
         if self.sliced:
             return bbox.contains(self.geometry)
@@ -214,12 +225,18 @@ class Feature(object):
         
     def get_addr(self):
         return self.addr
+        
+    def print_debug(self, start_address):
+        print("[%08X]" % (self.addr + start_address))            
+        print(self.dict_data)
+        tmp = []
+        for c in self.data:
+            tmp.append("%02X" % c)
+        print(" * " + " ".join(tmp))
+        print()
 
        
 def pipeline_step4():    
-    debug_bin = False
-    debug_duplicates = False
-   
     source_dir = common.target_dir_step3
     target_dir = common.target_dir_step4
     os.makedirs(target_dir, exist_ok = True)
@@ -405,6 +422,11 @@ def pipeline_step4():
     #features
     if debug_bin:
         print("\n%08X *** writing features" % len(file_data))
+        
+    if debug_features:
+        for f in features:
+            f.print_debug(features_stat_address)        
+        
     file_data += features_data
     
     if debug_bin:

@@ -15,7 +15,7 @@ REGISTER_WIDGET_IU
     "Thermal assistant",
     120,
     120,
-	_b(wf_label_hide),
+	_b(wf_label_hide) | _b(wf_use_vario),
 
     lv_obj_t * text;
     lv_obj_t * circle[8];
@@ -60,7 +60,15 @@ static void TAss_update(widget_slot_t * slot)
     {
         lv_obj_set_hidden(local->arrow, false);
 
-        format_vario(value, fc.fused.avg_vario);
+        if (widget_flag_is_set(slot, wf_use_vario))
+        {
+            format_vario(value, fc.fused.vario);
+        }
+        else
+        {
+            format_vario(value, fc.fused.avg_vario);
+        }
+
         lv_label_set_text(local->text, value);
         widget_update_font_size_box(local->text, slot->w / 2, slot->h / 2);
 
