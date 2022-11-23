@@ -13,11 +13,11 @@
 
 
 static inline float capsuleSDF(lv_coord_t px, lv_coord_t py, lv_coord_t ax, lv_coord_t ay, lv_coord_t bx, lv_coord_t by, float r) {
-    lv_coord_t pax = px - ax, pay = py - ay, bax = bx - ax, bay = by - ay;
-    lv_coord_t top = pax * bax + pay * bay;
+    int32_t pax = px - ax, pay = py - ay, bax = bx - ax, bay = by - ay;
+    int32_t top = pax * bax + pay * bay;
     float bot = bax * bax + bay * bay;
     float h = fmaxf(fminf(top / (bot), 1.0f), 0.0f);
-    lv_coord_t dx = pax - bax * h, dy = pay - bay * h;
+    int32_t dx = pax - bax * h, dy = pay - bay * h;
     return sqrtf(dx * dx + dy * dy) - r;
 }
 

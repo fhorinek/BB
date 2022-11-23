@@ -274,7 +274,6 @@ void thread_system_start(void * argument)
     //start debug thread
     start_thread(thread_debug);
     gui_create_lock();
-    airspace_create_lock();
     config_set_bool(&config.debug.use_serial, true);
 
     //wait for debug thread

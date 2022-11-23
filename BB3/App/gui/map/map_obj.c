@@ -104,6 +104,9 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 //    	DBG("Widget set to index %u", gui.map.disp_buffer);
         for (uint8_t i = 0; i < 9; i++)
         {
+            lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+            lv_obj_move_background(local->image[i]);
+
             if (gui.map.chunks[i].ready)
             {
                 lv_obj_set_hidden(local->image[i], false);
@@ -145,8 +148,7 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             {
                 local->offsets[i].x = x - local->offsets[local->master_tile].x;
                 local->offsets[i].y = y - local->offsets[local->master_tile].y;
-                ;
-            }
+           }
         }
 
         for (uint8_t i = 0; i < NUMBER_OF_POI; i++)

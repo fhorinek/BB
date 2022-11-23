@@ -29,7 +29,6 @@ typedef enum
     ac_rmz,
     ac_wave_window,
     ac_undefined,
-    ac_hidden,
 } airspace_class_t;
 
 typedef struct
@@ -86,10 +85,24 @@ typedef struct __airspace_record_t
 
 void airspace_create_lock();
 void airspace_init_buffer();
-bool airspace_load(char * name, bool use_dialog);
-void airspace_free(airspace_record_t * as);
-void airspace_reload_parallel_task();
 
+bool airspace_load(char * name, bool use_dialog);
 void airspace_unload();
+
+void airspace_load_parallel();
+void airspace_step();
+
+
+//maximum number of points in one airspace
+#define AIRSPACE_MAX_POINTS     (1024 * 4)
+//maximum name for airspace
+#define AIRSPACE_MAX_NAME_LEN   128
+//cache version, increment when changing format or handling
+#define AIRSPACE_CACHE_VERSION  15
+
+//maximum number of airspaces loaded in any moment
+#define AIRSPACE_INDEX_ALLOC    512
+//maximum memory to allocated for airspace points
+#define AIRSPACE_DATA_ALLOC     (512 * 1024)
 
 #endif /* FC_AIRSPACES_AIRSPACE_H_ */

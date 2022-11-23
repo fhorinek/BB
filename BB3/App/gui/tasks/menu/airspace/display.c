@@ -55,7 +55,7 @@ static void airspace_display_stop()
 {
     if (local->change)
     {
-        airspace_reload_parallel();
+        airspace_load_parallel();
     }
 }
 

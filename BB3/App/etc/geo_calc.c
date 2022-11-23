@@ -121,7 +121,7 @@ void geo_to_pix_w_h(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32
 //get degrees for one pixel
 void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_y)
 {
-    uint16_t zoom_p = pow(2, min(zoom, 15));
+    uint16_t zoom_p = pow(2, min(zoom, 9));
 
 	*step_x = (zoom_p * (int64_t)GNSS_MUL) / MAP_DIV_CONST;
 	uint8_t lat_i = min(LAT_MULT_NUM_ELEMENTS - 1, abs(lat / GNSS_MUL));

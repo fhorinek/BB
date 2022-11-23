@@ -5,7 +5,7 @@
  *      Author: horinek
  */
 
-#define DEBUG_LEVEL DBG_DEBUG
+//#define DEBUG_LEVEL DBG_DEBUG
 
 #include "tile.h"
 #include "map_thread.h"
@@ -35,6 +35,7 @@
 
 #define AGL_INVALID -32768
 
+#define MAP_FILE_BUFFER (1024 * 1024)
 
 
 typedef struct
@@ -54,7 +55,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       34
+#define CACHE_VERSION       35
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -677,8 +678,6 @@ void tile_get_filename(char * fn, int32_t lon, int32_t lat)
     agl_get_filename(fn, tmp);
 }
 
-#define MAP_FILE_BUFFER (2 * 1024 * 1024)
-
 static file_buffer_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
 {
     //buffer for map data
@@ -849,7 +848,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
     INFO("total features slots in file %u", feature_cnt);
     FASSERT(feature_cnt < 200000)
 
-    uint32_t * list = ps_malloc(sizeof(uint32_t) * feature_cnt);
+    uint32_t * list = tmalloc(sizeof(uint32_t) * feature_cnt);
     uint32_t list_index = 0;
 
     for (uint8_t y = 0; y < mh.grid_h; y++)
@@ -985,6 +984,9 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 break;
             //river
             case(110):
+                if (zoom > 6)
+                    skip = true;
+
                 line_draw.width = 2;
                 line_draw.color = lv_color_make(60, 100, 130);
                 break;
@@ -1119,7 +1121,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
         }
     }
 
-    ps_free(list);
+    tfree(list);
 
     return mh.magic & CACHE_HAVE_MAP_MASK;
 }
@@ -1399,7 +1401,7 @@ bool tile_load_cache(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
 {
     //invalidate
-    gui.map.chunks[index].ready = false;
+    //gui.map.chunks[index].ready = false;
     gui.map.chunks[index].airspace = false;
     gui.map.magic = (gui.map.magic + 1) % 0xFF;
 
@@ -1429,14 +1431,19 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     ch.start_word = CACHE_START_WORD;
     ch.version = CACHE_VERSION;
 
-    //assign chunk to canvas
-    lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+    //assign buffer
+    lv_canvas_set_buffer(gui.map.canvas, gui.map.canvas_buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 
     //draw topomap
     draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, ch.src_files_magic);
 
-    //draw lines and popygons
+    //draw lines and polygons
     tile_create(lon1, lat1, lon2, lat2, step_x, step_y, zoom, ch.src_files_magic, index);
+
+    //swap buffers
+    lv_color_t * b = gui.map.chunks[index].buffer;
+    gui.map.chunks[index].buffer = gui.map.canvas_buffer;
+    gui.map.canvas_buffer = b;
 
     DBG("Saving tile to storage %s", tile_path);
 
@@ -1510,9 +1517,15 @@ bool tile_airspace(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     int32_t lat2 = c_lat - map_h / 2;
 
     //assign chunk to canvas
-    lv_canvas_set_buffer(gui.map.canvas, gui.map.chunks[index].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
+    memcpy(gui.map.canvas_buffer, gui.map.chunks[index].buffer, MAP_BUFFER_SIZE);
+    lv_canvas_set_buffer(gui.map.canvas, gui.map.canvas_buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 
     tile_draw_airspace(lon1, lat1, lon2, lat2, step_x, step_y, zoom);
+
+    //swap buffers
+    lv_color_t * b = gui.map.chunks[index].buffer;
+    gui.map.chunks[index].buffer = gui.map.canvas_buffer;
+    gui.map.canvas_buffer = b;
 
     gui.map.magic = (gui.map.magic + 1) % 0xFF;
 

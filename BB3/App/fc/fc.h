@@ -412,7 +412,10 @@ typedef struct
 
 		uint32_t number_loaded;
 		uint32_t number_in_file;
+		uint32_t data_used;
 
+		int32_t valid_lat;
+		int32_t valid_lon;
 
 		bool valid;
 		uint8_t _pad[3];

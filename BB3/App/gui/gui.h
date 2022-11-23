@@ -214,6 +214,7 @@ typedef struct
         int32_t lon;
 
         lv_obj_t * canvas;
+        lv_color_t * canvas_buffer;
 
         map_chunk_t chunks[9];
 

@@ -57,6 +57,7 @@ void map_init()
 	gui_lock_acquire();
 	gui.map.magic = 0xFF;
     gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+    gui.map.canvas_buffer = ps_malloc(MAP_BUFFER_SIZE);
 
     gui.map.poi_size = 0;
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
@@ -69,6 +70,7 @@ void map_init()
     gui_lock_release();
 
     airspace_init_buffer();
+    airspace_load_parallel();
 }
 
 void thread_map_start(void *argument)
@@ -79,12 +81,15 @@ void thread_map_start(void *argument)
 
     INFO("Started");
 
-    osDelay(1000);
     map_init();
+
+    osDelay(100);
 
     while(!system_power_off)
     {
     	uint8_t zoom;
+
+    	airspace_step();
 
     	if ( map_static )
     	{
@@ -217,7 +222,9 @@ void thread_map_start(void *argument)
             if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
             {
                 gui_low_priority(true);
+                osMutexAcquire(fc.airspaces.lock, WAIT_INF);
                 tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                osMutexRelease(fc.airspaces.lock);
                 gui_low_priority(false);
                 break;
             }

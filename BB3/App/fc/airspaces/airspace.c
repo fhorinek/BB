@@ -23,30 +23,18 @@ typedef struct
     gnss_bbox_t bbox;
 } airspace_header_t;
 
-#define AIRSPACE_MAX_POINTS     2048
-#define AIRSPACE_MAX_NAME_LEN   128
-#define AIRSPACE_CACHE_VERSION  14
-
-#define AIRSPACE_INDEX_ALLOC    1024
-#define AIRSPACE_DATA_ALLOC    1024 * 1024
-
 
 void airspace_init_buffer()
 {
+    fc.airspaces.lock = osMutexNew(NULL);
+    vQueueAddToRegistry(fc.airspaces.lock, "airspace.lock");
+
     fc.airspaces.index = ps_malloc(AIRSPACE_INDEX_ALLOC * sizeof(airspace_record_t));
     fc.airspaces.data = ps_malloc(AIRSPACE_DATA_ALLOC);
-}
-
-
-void airspace_create_lock()
-{
-    fc.airspaces.lock = osMutexNew(NULL);
-    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
-    vQueueAddToRegistry(gui.lock, "airspace.lock");
     osMutexRelease(fc.airspaces.lock);
 }
 
-bool airspace_point(char * line, int32_t * lon, int32_t * lat)
+static bool airspace_point(char * line, int32_t * lon, int32_t * lat)
 {
     unsigned int lat_deg, lat_min, lat_sec, lat_dsec;
     unsigned int lon_deg, lon_min, lon_sec, lon_dsec;
@@ -85,7 +73,7 @@ bool airspace_point(char * line, int32_t * lon, int32_t * lat)
     return true;
 }
 
-uint16_t airspace_alt(char * line, bool * gnd)
+static uint16_t airspace_alt(char * line, bool * gnd)
 {
     bool fl = false;
 
@@ -117,7 +105,7 @@ uint16_t airspace_alt(char * line, bool * gnd)
 
 //calculate bounding box
 //write airspace
-bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gnss_pos_t * points, int index, int data)
+static bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gnss_pos_t * points, int index, int data)
 {
 	if (as->number_of_points > 0)
 	{
@@ -175,7 +163,7 @@ void airspace_add_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon
 
 
 //read openair file and store binary data to cache
-bool airspace_parse(char * name, bool use_dialog)
+static bool airspace_parse(char * name, bool use_dialog)
 {
     char path[PATH_LEN];
     snprintf(path, sizeof(path), "%s/%s", PATH_AIRSPACE_DIR, name);
@@ -203,12 +191,12 @@ bool airspace_parse(char * name, bool use_dialog)
 
         //open files
         snprintf(path, sizeof(path), "%s/%s.index", PATH_AIRSPACE_CACHE_DIR, name);
-        int index = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+        int index = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
         red_write(index, &ah, sizeof(airspace_header_t));
         ah.index_size += sizeof(airspace_header_t);
 
         snprintf(path, sizeof(path), "%s/%s.data", PATH_AIRSPACE_CACHE_DIR, name);
-        int data = red_open(path, RED_O_WRONLY | RED_O_CREAT);
+        int data = red_open(path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
 
         //allocate memory for parser
         airspace_record_t as = {0};
@@ -586,18 +574,6 @@ bool airspace_parse(char * name, bool use_dialog)
 }
 
 
-void airspace_reload_parallel_task(void * param)
-{
-    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
-
-
-
-    osMutexRelease(fc.airspaces.lock);
-
-    RedTaskUnregister();
-    vTaskDelete(NULL);
-}
-
 bool airspace_open_cache(char * name, airspace_header_t * ah, int32_t * findex, int32_t * fdata)
 {
     char path[PATH_LEN];
@@ -663,11 +639,31 @@ bool airspace_open_cache(char * name, airspace_header_t * ah, int32_t * findex, 
     return false;
 }
 
+static void airspace_force_redraw()
+{
+    //force redraw map
+    for (uint8_t i = 0; i < 9; i++)
+    {
+        gui.map.chunks[i].ready = false;
+    }
+
+}
+void airspace_unload_unlocked()
+{
+    fc.airspaces.valid = false;
+    fc.airspaces.number_in_file = 0;
+    fc.airspaces.number_loaded = 0;
+    fc.airspaces.data_used = 0;
+
+    airspace_force_redraw();
+}
 
 bool airspace_load(char * name, bool use_dialog)
 {
     int32_t index, data;
     airspace_header_t ah;
+
+    airspace_unload_unlocked();
 
     bool res = airspace_open_cache(name, &ah, &index, &data);
 
@@ -682,6 +678,7 @@ bool airspace_load(char * name, bool use_dialog)
 
     if (!res)
     {
+        airspace_force_redraw();
         return false;
     }
 
@@ -696,8 +693,8 @@ bool airspace_load(char * name, bool use_dialog)
     geo_get_steps(c_lat, 0xFF, &step_x, &step_y);
 
     //get bbox
-    uint32_t map_w = MAP_W * step_x * 2;
-    uint32_t map_h = MAP_H * step_y * 2;
+    uint32_t map_w = MAP_W * step_x;
+    uint32_t map_h = MAP_H * step_y;
     int32_t lon1 = c_lon - map_w / 2;
     int32_t lon2 = c_lon + map_w / 2;
     int32_t lat1 = c_lat + map_h / 2;
@@ -709,6 +706,17 @@ bool airspace_load(char * name, bool use_dialog)
     fc.airspaces.number_loaded = 0;
     fc.airspaces.number_in_file = ah.number_of_records;
 
+    uint8_t filter_len = (&profile.airspace.display.undefined - &profile.airspace.display.restricted) + 1;
+    bool filter[filter_len];
+    for (uint8_t i = 0; i < filter_len ; i++)
+    {
+        cfg_entry_t * e = &profile.airspace.display.restricted + i;
+
+        filter[i] = !e->value.b;
+    }
+
+    uint32_t max_alt = config_get_int(&profile.airspace.display.below);
+
     for (uint32_t i = 0; i < ah.number_of_records; i++)
     {
         airspace_record_t as;
@@ -717,9 +725,11 @@ bool airspace_load(char * name, bool use_dialog)
         if (rd != sizeof(airspace_record_t))
             break;
 
-        //not working correctly?
-        //check memeory limits index + data
+        //filter out classes or altitude
+        if (filter[as.airspace_class] || as.floor > max_alt)
+            continue;
 
+        //filter out not in bbox
         if (lon1 > as.bbox.longitude2 || lon2 < as.bbox.longitude1)
             continue;
 
@@ -729,37 +739,104 @@ bool airspace_load(char * name, bool use_dialog)
         memcpy(&fc.airspaces.index[record_index], &as, sizeof(airspace_record_t));
 
         red_lseek(data, as.points.pos, RED_SEEK_SET);
+
+        if (data_index + (sizeof(gnss_pos_t) * as.number_of_points) >= AIRSPACE_DATA_ALLOC)
+        {
+            break;
+        }
+
         red_read(data, fc.airspaces.data + data_index, sizeof(gnss_pos_t) * as.number_of_points);
         fc.airspaces.index[record_index].points.ptr = fc.airspaces.data + data_index;
         data_index += sizeof(gnss_pos_t) * as.number_of_points;
 
         uint8_t name_len = ROUND4((uint32_t)as.name.len);
+
+        if (data_index + name_len >= AIRSPACE_DATA_ALLOC)
+        {
+            break;
+        }
+
         red_read(data, fc.airspaces.data + data_index, name_len);
         fc.airspaces.index[record_index].name.ptr = fc.airspaces.data + data_index;
         fc.airspaces.index[record_index].name.ptr[name_len] = 0;
-
         data_index += name_len;
 
         record_index++;
-        fc.airspaces.number_loaded++;
+
+        if (record_index >= AIRSPACE_INDEX_ALLOC)
+        {
+            statusbar_msg_add(STATUSBAR_MSG_WARN, "Not all airspaces displayed!");
+            break;
+        }
     }
 
+    fc.airspaces.number_loaded = record_index;
+    fc.airspaces.data_used = data_index;
     red_close(index);
     red_close(data);
+
+    fc.airspaces.valid_lat = c_lat;
+    fc.airspaces.valid_lon = c_lon;
+    fc.airspaces.valid = true;
+
+    airspace_force_redraw();
 
     return true;
 }
 
 void airspace_unload()
 {
-    fc.airspaces.valid = false;
-    fc.airspaces.number_in_file = 0;
-    fc.airspaces.number_loaded = 0;
+    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
+
+    airspace_unload_unlocked();
+
+    osMutexRelease(fc.airspaces.lock);
 }
 
-void airspace_reload_parallel()
+
+void airspace_step()
 {
-    xTaskCreate((TaskFunction_t)airspace_reload_parallel_task, "as_load_parallel_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
+
+    if (fc.airspaces.valid)
+    {
+        uint32_t dist = geo_distance(gui.map.lat, gui.map.lon, fc.airspaces.valid_lat, fc.airspaces.valid_lon, true, NULL) / 100;
+
+        if (dist > 64 * 1000)
+        {
+            INFO("Reloading airspaces...");
+            bool ret = airspace_load(config_get_text(&profile.airspace.filename), false);
+            if (!ret)
+            {
+                config_set_text(&profile.airspace.filename, "");
+            }
+        }
+    }
+
+    osMutexRelease(fc.airspaces.lock);
+}
+
+
+void airspace_load_parallel_task(void * param)
+{
+    osMutexAcquire(fc.airspaces.lock, WAIT_INF);
+
+    bool ret = airspace_load(config_get_text(&profile.airspace.filename), false);
+    if (!ret)
+    {
+        config_set_text(&profile.airspace.filename, "");
+    }
+
+    osMutexRelease(fc.airspaces.lock);
+
+    RedTaskUnregister();
+    vTaskDelete(NULL);
+}
+
+
+void airspace_load_parallel()
+{
+    xTaskCreate((TaskFunction_t)airspace_load_parallel_task, "as_load_parallel_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
 }
 
 
