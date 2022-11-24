@@ -824,10 +824,13 @@ void airspace_load_parallel_task(void * param)
 {
     osMutexAcquire(fc.airspaces.lock, WAIT_INF);
 
-    bool ret = airspace_load(config_get_text(&profile.airspace.filename), false);
-    if (!ret)
+    if (strcmp(config_get_text(&profile.airspace.filename), "") != 0)
     {
-        config_set_text(&profile.airspace.filename, "");
+        bool ret = airspace_load(config_get_text(&profile.airspace.filename), false);
+        if (!ret)
+        {
+            config_set_text(&profile.airspace.filename, "");
+        }
     }
 
     osMutexRelease(fc.airspaces.lock);

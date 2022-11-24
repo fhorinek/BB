@@ -130,7 +130,7 @@ void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_
 
 void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * step_x_m, int16_t * step_y_m)
 {
-	uint8_t lat_i = min(60, abs(lat / GNSS_MUL));
+	uint8_t lat_i = min(LAT_MULT_NUM_ELEMENTS - 1, abs(lat / GNSS_MUL));
     *step_x_m = max(1, (int64_t)step_x * 111000l / GNSS_MUL * lat_mult[lat_i]);
     *step_y_m = max(1, (int64_t)step_y * 111000l / GNSS_MUL);
 }

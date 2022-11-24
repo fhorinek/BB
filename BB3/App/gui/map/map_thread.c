@@ -70,7 +70,6 @@ void map_init()
     gui_lock_release();
 
     airspace_init_buffer();
-    airspace_load_parallel();
 }
 
 void thread_map_start(void *argument)
@@ -84,12 +83,11 @@ void thread_map_start(void *argument)
     map_init();
 
     osDelay(100);
+    bool load_airspace = true;
 
     while(!system_power_off)
     {
     	uint8_t zoom;
-
-    	airspace_step();
 
     	if ( map_static )
     	{
@@ -111,6 +109,15 @@ void thread_map_start(void *argument)
     		}
             zoom = config_get_int(&profile.map.zoom_flight);
     	}
+
+    	if (load_airspace)
+    	{
+    	    //need to know lat, lon
+    	    airspace_load_parallel();
+    	    load_airspace = false;
+    	}
+
+        airspace_step();
 
         uint8_t old_magic = gui.map.magic;
 
@@ -149,7 +156,7 @@ void thread_map_start(void *argument)
 
     		tiles[i].chunk = tile_find_inside(tiles[i].lon, tiles[i].lat, zoom);
 
-    		//DBG("L %u = %u (%ld %ld)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
+    		DBG("L %u = %u (%ld %ld)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
     	}
     	//DBG("");
 

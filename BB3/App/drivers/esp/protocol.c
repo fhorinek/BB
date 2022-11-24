@@ -19,6 +19,7 @@
 #include "gui/dbg_overlay.h"
 #include "gui/tasks/menu/bluetooth.h"
 #include "gui/fw_notify.h"
+#include "drivers/rev.h"
 
 #include "etc/safe_uart.h"
 
@@ -288,9 +289,9 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         }
         break;
 
-        case(PROTO_DEVICE_INFO):
+        case(PROTO_ESP_INFO):
         {
-            proto_device_info_t * packet = (proto_device_info_t *)data;
+            proto_esp_info_t * packet = (proto_esp_info_t *)data;
 
             char tmp[20];
             format_mac(tmp, packet->bluetooth_mac);
@@ -311,6 +312,13 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
             //enable tone
             fc.esp.tone_next_tx = 0;
+
+            proto_stm_info_t info;
+            snprintf(info.id, sizeof(info.id), "%08X", rev_get_short_id());
+            rev_get_sw_string(info.fw);
+            snprintf(info.hw, sizeof(info.hw), "%02X", rev_get_hw());
+
+            protocol_send(PROTO_STM_INFO, (uint8_t *)&info, sizeof(info));
         }
         break;
 

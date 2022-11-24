@@ -641,9 +641,13 @@ void tile_align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t *
     int32_t step_y;
     geo_get_steps(lat, zoom, &step_x, &step_y);
 
+
     //get bbox
     uint32_t map_w = (MAP_W * step_x);
     uint32_t map_h = (MAP_H * step_y);
+
+//    *c_lon = (lon / map_w) * map_w + map_w / 2;
+//    *c_lat = (lat / map_h) * map_h + map_h / 2;
 
     uint32_t number_of_cols = 1 + GNSS_MUL / map_w;
     uint32_t number_of_rows = 1 + GNSS_MUL / map_h;
