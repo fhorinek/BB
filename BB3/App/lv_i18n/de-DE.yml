@@ -377,3 +377,81 @@ de-DE:
     Wir lösen nun den Crash aus.
 
     Der Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein.
+  "No airspace loaded.\n\nAre you using OpenAir format?": ~
+  "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org": ~
+  Enabled classes: ~
+  GNSS Status: ~
+  "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.": ~
+  Add new: ~
+  Duplicate: ~
+  Delete: ~
+  Pilot profile: ~
+  Flight profile: ~
+  Edit pilot profile: ~
+  Rescan: ~
+  'Saved, ': ~
+  Open: ~
+  Secure: ~
+  Enter password: ~
+  WiFi network: ~
+  "Switch to page\n'%s' when...": ~
+  "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?": ~
+  Page autoset: ~
+  Powered on: ~
+  Circling: ~
+  Gliding: ~
+  Landed: ~
+  ' Add widget': ~
+  '  select ': ~
+  '  move ': ~
+  '  scale ': ~
+  ' Change widget': ~
+  ' Remove widget': ~
+  '----Widget settings----': ~
+  Do you really want to remove widget '%s'?: ~
+  Remove widget: ~
+  Page name: ~
+  Page '%s' removed: ~
+  Already exists!: ~
+  new_%u: ~
+  Page '%s' created at position %u: ~
+  Remove page: ~
+  Do you want to remove this page?: ~
+  Page with name '%s' already exist: ~
+  Page '%s' deleted: ~
+  Page '%s' loaded to position %u: ~
+  List: ~
+  Preview: ~
+  Do you want to remove page '%s': ~
+  Set new page name: ~
+  Page '%s' copied to position %u: ~
+  Page settings: ~
+  Edit page: ~
+  Autoset: ~
+  Move left: ~
+  Move right: ~
+  Hide page: ~
+  Show hidden page: ~
+  Add empty page: ~
+  Duplicate existing: ~
+  Take off: ~
+  Glide: ~
+  Power on: ~
+  Menu left shortcut: ~
+  Menu right shortcut: ~
+  Page left shortcut: ~
+  Page right shortcut: ~
+  "Page '%s'\nnot found.": ~
+  IGC key missing!: ~
+  Flight start: ~
+  Flight stop: ~
+  Start/Stop flight: ~
+  Map zoom in: ~
+  Map zoom out: ~
+  Wi-Fi on: ~
+  Wi-Fi off: ~
+  Wi-Fi on/off: ~
+  Bluetooth on: ~
+  Bluetooth off: ~
+  Bluetooth on/off: ~
+  Select widget: ~

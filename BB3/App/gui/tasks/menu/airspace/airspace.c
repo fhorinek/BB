@@ -49,7 +49,7 @@ void airspace_load_task(void * param)
     }
     else
     {
-        dialog_show("Error", "No airspace loaded.\n\nAre you using OpenAir format?", dialog_confirm, NULL);
+        dialog_show(_("Error"), _("No airspace loaded.\n\nAre you using OpenAir format?"), dialog_confirm, NULL);
         fc.airspaces.valid = false;
         for (uint8_t i = 0; i < 9; i++)
         {
@@ -120,7 +120,7 @@ static bool airspace_help_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        dialog_show("Help", "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org", dialog_confirm, NULL);
+        dialog_show(_("Help"), _("Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org"), dialog_confirm, NULL);
 
         //supress default handler
         return false;
@@ -156,8 +156,8 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 		}
 	}
 
-	gui_list_auto_entry(list, "Enabled classes", NEXT_TASK, &gui_airspace_display);
-    gui_list_auto_entry(list, "Help", CUSTOM_CB, airspace_help_cb);
+	gui_list_auto_entry(list, _("Enabled classes"), NEXT_TASK, &gui_airspace_display);
+	gui_list_auto_entry(list, _("Help"), CUSTOM_CB, airspace_help_cb);
 
 	return list;
 }

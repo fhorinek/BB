@@ -148,17 +148,31 @@
   },
   {
     "key": "Error",
-    "line": 158,
+    "line": 52,
     "plural": false,
-    "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L158"
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L52"
   },
   {
     "key": "Error",
-    "line": 354,
+    "line": 163,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L354"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L163"
+  },
+  {
+    "key": "Error",
+    "line": 364,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L364"
+  },
+  {
+    "key": "Error",
+    "line": 249,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L249"
   },
   {
     "key": "No slot available",
@@ -196,18 +210,46 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/fw_notify.c#L33"
   },
   {
-    "key": "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.",
+    "key": "Warning",
     "line": 34,
     "plural": false,
     "fileName": "../gui/release_note.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/release_note.c#L34"
   },
   {
-    "key": "Firmware updated\n to %s",
-    "line": 59,
+    "key": "Warning",
+    "line": 439,
+    "plural": false,
+    "fileName": "../gui/sd_migrate.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/sd_migrate.c#L439"
+  },
+  {
+    "key": "Warning",
+    "line": 36,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/system.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L36"
+  },
+  {
+    "key": "Warning",
+    "line": 121,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L121"
+  },
+  {
+    "key": "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.",
+    "line": 36,
     "plural": false,
     "fileName": "../gui/release_note.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/release_note.c#L59"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/release_note.c#L36"
+  },
+  {
+    "key": "Firmware updated\n to %s",
+    "line": 61,
+    "plural": false,
+    "fileName": "../gui/release_note.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/release_note.c#L61"
   },
   {
     "key": "Unable to update bootloader.\nRe-install the update file.",
@@ -280,20 +322,6 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/sd_migrate.c#L416"
   },
   {
-    "key": "Warning",
-    "line": 439,
-    "plural": false,
-    "fileName": "../gui/sd_migrate.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/sd_migrate.c#L439"
-  },
-  {
-    "key": "Warning",
-    "line": 36,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L36"
-  },
-  {
     "key": "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n",
     "line": 439,
     "plural": false,
@@ -350,11 +378,53 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L583"
   },
   {
+    "key": "No airspace loaded.\n\nAre you using OpenAir format?",
+    "line": 52,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L52"
+  },
+  {
     "key": "Loading airspace...",
     "line": 82,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L82"
+  },
+  {
+    "key": "Help",
+    "line": 123,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L123"
+  },
+  {
+    "key": "Help",
+    "line": 160,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L160"
+  },
+  {
+    "key": "Help",
+    "line": 73,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L73"
+  },
+  {
+    "key": "Help",
+    "line": 96,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L96"
+  },
+  {
+    "key": "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org",
+    "line": 123,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L123"
   },
   {
     "key": "Airspace settings",
@@ -383,6 +453,13 @@
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L146"
+  },
+  {
+    "key": "Enabled classes",
+    "line": 159,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L159"
   },
   {
     "key": "Enabled airspaces",
@@ -896,6 +973,13 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L92"
   },
   {
+    "key": "Landing",
+    "line": 226,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L226"
+  },
+  {
     "key": "Duration",
     "line": 95,
     "plural": false,
@@ -1121,17 +1205,17 @@
   },
   {
     "key": "Confirm",
-    "line": 164,
+    "line": 169,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L164"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L169"
   },
   {
     "key": "Confirm",
-    "line": 360,
+    "line": 370,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L360"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L370"
   },
   {
     "key": "Confirm",
@@ -1146,6 +1230,20 @@
     "plural": false,
     "fileName": "../gui/tasks/menu/system/advanced/advanced.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/advanced/advanced.c#L124"
+  },
+  {
+    "key": "Confirm",
+    "line": 423,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L423"
+  },
+  {
+    "key": "GNSS Status",
+    "line": 81,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/gnss/gnss_status.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/gnss/gnss_status.c#L81"
   },
   {
     "key": "GNSS Settings",
@@ -1232,6 +1330,13 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L44"
   },
   {
+    "key": "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.",
+    "line": 73,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L73"
+  },
+  {
     "key": "Map",
     "line": 87,
     "plural": false,
@@ -1295,13 +1400,6 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L95"
   },
   {
-    "key": "Help",
-    "line": 96,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L96"
-  },
-  {
     "key": "Pilot",
     "line": 12,
     "plural": false,
@@ -1359,87 +1457,206 @@
   },
   {
     "key": "Pilot profile changed to '%s'",
-    "line": 86,
+    "line": 87,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L86"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L87"
+  },
+  {
+    "key": "Add new",
+    "line": 95,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L95"
+  },
+  {
+    "key": "Add new",
+    "line": 283,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L283"
   },
   {
     "key": "Rename",
-    "line": 128,
+    "line": 97,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L128"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L97"
   },
   {
     "key": "Rename",
-    "line": 317,
+    "line": 133,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L317"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L133"
+  },
+  {
+    "key": "Rename",
+    "line": 285,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L285"
+  },
+  {
+    "key": "Rename",
+    "line": 327,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L327"
+  },
+  {
+    "key": "Rename",
+    "line": 399,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L399"
+  },
+  {
+    "key": "Rename",
+    "line": 456,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L456"
+  },
+  {
+    "key": "Duplicate",
+    "line": 99,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L99"
+  },
+  {
+    "key": "Duplicate",
+    "line": 287,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L287"
+  },
+  {
+    "key": "Duplicate",
+    "line": 397,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L397"
+  },
+  {
+    "key": "Delete",
+    "line": 101,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L101"
+  },
+  {
+    "key": "Delete",
+    "line": 289,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L289"
+  },
+  {
+    "key": "Delete",
+    "line": 395,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L395"
   },
   {
     "key": "Set new pilot profile name",
-    "line": 128,
+    "line": 133,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L128"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L133"
   },
   {
     "key": "Cannot delete active pilot profile",
-    "line": 158,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L158"
-  },
-  {
-    "key": "Do you want to remove pilot profile '%s'",
     "line": 163,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L163"
   },
   {
-    "key": "Flight profile '%s' deleted",
-    "line": 202,
+    "key": "Do you want to remove pilot profile '%s'",
+    "line": 168,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L202"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L168"
+  },
+  {
+    "key": "Flight profile '%s' deleted",
+    "line": 207,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L207"
   },
   {
     "key": "Flight profile with name '%s' already exist",
-    "line": 228,
+    "line": 233,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L228"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L233"
   },
   {
     "key": "Flight profile changed to '%s'",
-    "line": 269,
+    "line": 275,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L269"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L275"
   },
   {
     "key": "Set new flight profile name",
-    "line": 317,
+    "line": 327,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L317"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L327"
   },
   {
     "key": "Cannot delete active flight profile",
-    "line": 354,
+    "line": 364,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L354"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L364"
   },
   {
     "key": "Do you want to remove flight profile '%s'",
-    "line": 359,
+    "line": 369,
     "plural": false,
     "fileName": "../gui/tasks/menu/profiles/profiles.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L359"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L369"
+  },
+  {
+    "key": "Pilot & Flight profile",
+    "line": 397,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L397"
+  },
+  {
+    "key": "Pilot & Flight profile",
+    "line": 50,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L50"
+  },
+  {
+    "key": "Pilot profile",
+    "line": 403,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L403"
+  },
+  {
+    "key": "Flight profile",
+    "line": 406,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L406"
+  },
+  {
+    "key": "Edit pilot profile",
+    "line": 410,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/profiles/profiles.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/profiles/profiles.c#L410"
   },
   {
     "key": "Strato settings",
@@ -1454,13 +1671,6 @@
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L49"
-  },
-  {
-    "key": "Pilot & Flight profile",
-    "line": 50,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L50"
   },
   {
     "key": "Vario",
@@ -2142,6 +2352,34 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_info.c#L42"
   },
   {
+    "key": "Rescan",
+    "line": 70,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi_list.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_list.c#L70"
+  },
+  {
+    "key": "Saved, ",
+    "line": 102,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi_list.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_list.c#L102"
+  },
+  {
+    "key": "Open",
+    "line": 103,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi_list.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_list.c#L103"
+  },
+  {
+    "key": "Secure",
+    "line": 103,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi_list.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_list.c#L103"
+  },
+  {
     "key": "Scanning...",
     "line": 178,
     "plural": false,
@@ -2154,6 +2392,13 @@
     "plural": false,
     "fileName": "../gui/tasks/menu/wifi/wifi_list.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_list.c#L224"
+  },
+  {
+    "key": "Enter password",
+    "line": 204,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi_list.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi_list.c#L204"
   },
   {
     "key": "Select network",
@@ -2184,6 +2429,13 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi.c#L51"
   },
   {
+    "key": "WiFi network",
+    "line": 54,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi.c#L54"
+  },
+  {
     "key": "Access point",
     "line": 55,
     "plural": false,
@@ -2196,6 +2448,503 @@
     "plural": false,
     "fileName": "../gui/tasks/menu/wifi/wifi.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi.c#L57"
+  },
+  {
+    "key": "Switch to page\n'%s' when...",
+    "line": 47,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L47"
+  },
+  {
+    "key": "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?",
+    "line": 120,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L120"
+  },
+  {
+    "key": "Page autoset",
+    "line": 141,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L141"
+  },
+  {
+    "key": "Powered on",
+    "line": 145,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L145"
+  },
+  {
+    "key": "Take-off",
+    "line": 146,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L146"
+  },
+  {
+    "key": "Take-off",
+    "line": 20,
+    "plural": false,
+    "fileName": "../gui/widgets/types/widget_height_to.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_height_to.c#L20"
+  },
+  {
+    "key": "Circling",
+    "line": 147,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L147"
+  },
+  {
+    "key": "Circling",
+    "line": 222,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L222"
+  },
+  {
+    "key": "Gliding",
+    "line": 148,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L148"
+  },
+  {
+    "key": "Landed",
+    "line": 149,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_autoset.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L149"
+  },
+  {
+    "key": " Add widget",
+    "line": 82,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L82"
+  },
+  {
+    "key": " Add widget",
+    "line": 265,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L265"
+  },
+  {
+    "key": "  select ",
+    "line": 96,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L96"
+  },
+  {
+    "key": "  move ",
+    "line": 100,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L100"
+  },
+  {
+    "key": "  move ",
+    "line": 104,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L104"
+  },
+  {
+    "key": "  scale ",
+    "line": 108,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L108"
+  },
+  {
+    "key": "  scale ",
+    "line": 112,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L112"
+  },
+  {
+    "key": " Change widget",
+    "line": 267,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L267"
+  },
+  {
+    "key": " Remove widget",
+    "line": 269,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L269"
+  },
+  {
+    "key": "----Widget settings----",
+    "line": 281,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L281"
+  },
+  {
+    "key": "Do you really want to remove widget '%s'?",
+    "line": 392,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L392"
+  },
+  {
+    "key": "Remove widget",
+    "line": 393,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L393"
+  },
+  {
+    "key": "Page name",
+    "line": 67,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L67"
+  },
+  {
+    "key": "Page '%s' removed",
+    "line": 92,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L92"
+  },
+  {
+    "key": "Already exists!",
+    "line": 126,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L126"
+  },
+  {
+    "key": "new_%u",
+    "line": 174,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L174"
+  },
+  {
+    "key": "Page '%s' created at position %u",
+    "line": 185,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L185"
+  },
+  {
+    "key": "Remove page",
+    "line": 199,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L199"
+  },
+  {
+    "key": "Remove page",
+    "line": 690,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L690"
+  },
+  {
+    "key": "Do you want to remove this page?",
+    "line": 199,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L199"
+  },
+  {
+    "key": "Page with name '%s' already exist",
+    "line": 248,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L248"
+  },
+  {
+    "key": "Page '%s' deleted",
+    "line": 278,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L278"
+  },
+  {
+    "key": "Page '%s' loaded to position %u",
+    "line": 368,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L368"
+  },
+  {
+    "key": "List",
+    "line": 386,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L386"
+  },
+  {
+    "key": "List",
+    "line": 563,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L563"
+  },
+  {
+    "key": "Preview",
+    "line": 391,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L391"
+  },
+  {
+    "key": "Preview",
+    "line": 497,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L497"
+  },
+  {
+    "key": "Preview",
+    "line": 568,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L568"
+  },
+  {
+    "key": "Do you want to remove page '%s'",
+    "line": 422,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L422"
+  },
+  {
+    "key": "Set new page name",
+    "line": 456,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L456"
+  },
+  {
+    "key": "Page '%s' copied to position %u",
+    "line": 545,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L545"
+  },
+  {
+    "key": "Page settings",
+    "line": 665,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L665"
+  },
+  {
+    "key": "Edit page",
+    "line": 669,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L669"
+  },
+  {
+    "key": "Autoset",
+    "line": 671,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L671"
+  },
+  {
+    "key": "Move left",
+    "line": 676,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L676"
+  },
+  {
+    "key": "Move right",
+    "line": 680,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L680"
+  },
+  {
+    "key": "Hide page",
+    "line": 688,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L688"
+  },
+  {
+    "key": "Show hidden page",
+    "line": 700,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L700"
+  },
+  {
+    "key": "Add empty page",
+    "line": 704,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L704"
+  },
+  {
+    "key": "Duplicate existing",
+    "line": 706,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_settings.c#L706"
+  },
+  {
+    "key": "Take off",
+    "line": 220,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L220"
+  },
+  {
+    "key": "Glide",
+    "line": 224,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L224"
+  },
+  {
+    "key": "Power on",
+    "line": 228,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L228"
+  },
+  {
+    "key": "Menu left shortcut",
+    "line": 725,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L725"
+  },
+  {
+    "key": "Menu right shortcut",
+    "line": 728,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L728"
+  },
+  {
+    "key": "Page left shortcut",
+    "line": 756,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L756"
+  },
+  {
+    "key": "Page right shortcut",
+    "line": 759,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L759"
+  },
+  {
+    "key": "Page '%s'\nnot found.",
+    "line": 841,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L841"
+  },
+  {
+    "key": "IGC key missing!",
+    "line": 969,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L969"
+  },
+  {
+    "key": "Flight start",
+    "line": 13,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/flight.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/flight.inc#L13"
+  },
+  {
+    "key": "Flight stop",
+    "line": 18,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/flight.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/flight.inc#L18"
+  },
+  {
+    "key": "Start/Stop flight",
+    "line": 32,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/flight.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/flight.inc#L32"
+  },
+  {
+    "key": "Map zoom in",
+    "line": 21,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/map.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/map.inc#L21"
+  },
+  {
+    "key": "Map zoom out",
+    "line": 45,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/map.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/map.inc#L45"
+  },
+  {
+    "key": "Wi-Fi on",
+    "line": 9,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/wireless.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/wireless.inc#L9"
+  },
+  {
+    "key": "Wi-Fi off",
+    "line": 11,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/wireless.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/wireless.inc#L11"
+  },
+  {
+    "key": "Wi-Fi on/off",
+    "line": 25,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/wireless.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/wireless.inc#L25"
+  },
+  {
+    "key": "Bluetooth on",
+    "line": 38,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/wireless.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/wireless.inc#L38"
+  },
+  {
+    "key": "Bluetooth off",
+    "line": 40,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/wireless.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/wireless.inc#L40"
+  },
+  {
+    "key": "Bluetooth on/off",
+    "line": 54,
+    "plural": false,
+    "fileName": "../gui/tasks/page/shortcuts/actions/wireless.inc",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/shortcuts/actions/wireless.inc#L54"
+  },
+  {
+    "key": "Select widget",
+    "line": 99,
+    "plural": false,
+    "fileName": "../gui/tasks/page/widget_list.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/widget_list.c#L99"
   },
   {
     "key": "Need\nCalib.",
@@ -2450,13 +3199,6 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_ground_speed.c#L26"
   },
   {
-    "key": "Take-off",
-    "line": 20,
-    "plural": false,
-    "fileName": "../gui/widgets/types/widget_height_to.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_height_to.c#L20"
-  },
-  {
     "key": "Fit to track",
     "line": 216,
     "plural": false,
@@ -2591,9 +3333,9 @@
   },
   {
     "key": "Page is empty.",
-    "line": 267,
+    "line": 270,
     "plural": false,
     "fileName": "../gui/widgets/widgets.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/widgets.c#L267"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/widgets.c#L270"
   }
 ]

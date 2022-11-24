@@ -217,15 +217,15 @@ void gui_page_set_mode(cfg_entry_t * cfg)
 
 		char * label = NULL;
 		if (cfg == &profile.ui.autoset.take_off)
-			label = "Take off";
+		        label = _("Take off");
 		else if (cfg == &profile.ui.autoset.circle)
-			label = "Circling";
+		        label = _("Circling");
 		else if (cfg == &profile.ui.autoset.glide)
-			label = "Glide";
+		        label = _("Glide");
 		else if (cfg == &profile.ui.autoset.land)
-			label = "Landing";
+		        label = _("Landing");
 		else if (cfg == &profile.ui.autoset.power_on)
-			label = "Power on";
+		        label = _("Power on");
 
 
 		if (label != NULL)
@@ -722,10 +722,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     				page_settings_set_page_name(local->page_name, local->actual_page);
     			break;
                 case(LV_KEY_ESC):
-                    pages_shrt_event(local->shrt_left, BUTTON_MENU_LEFT, local->butt_short1, pages_set_menu_left_shrt, "Menu left shortcut");
+		    pages_shrt_event(local->shrt_left, BUTTON_MENU_LEFT, local->butt_short1, pages_set_menu_left_shrt, _("Menu left shortcut"));
                 break;
                 case(LV_KEY_HOME):
-                    pages_shrt_event(local->shrt_right, BUTTON_MENU_RIGHT, local->butt_short2, pages_set_menu_right_shrt, "Menu right shortcut");
+		    pages_shrt_event(local->shrt_right, BUTTON_MENU_RIGHT, local->butt_short2, pages_set_menu_right_shrt, _("Menu right shortcut"));
                 break;
         		}
         	}
@@ -753,10 +753,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     			break;
 
                 case(LV_KEY_ESC):
-                    pages_shrt_event(local->page->shrt_left, BUTTON_PAGE_LEFT, local->page->shrt_left_but, pages_set_page_left_shrt, "Page left shortcut");
+		    pages_shrt_event(local->page->shrt_left, BUTTON_PAGE_LEFT, local->page->shrt_left_but, pages_set_page_left_shrt, _("Page left shortcut"));
                 break;
                 case(LV_KEY_HOME):
-                    pages_shrt_event(local->page->shrt_right, BUTTON_PAGE_RIGHT, local->page->shrt_right_but, pages_set_page_right_shrt, "Page right shortcut");
+		    pages_shrt_event(local->page->shrt_right, BUTTON_PAGE_RIGHT, local->page->shrt_right_but, pages_set_page_right_shrt, _("Page right shortcut"));
                 break;
 
         		}
@@ -838,7 +838,7 @@ void pages_load(char * filename, int8_t anim)
 	    //page not found
 	    widgets_create_base(local->page, local->mask);
 		lv_obj_t * label = lv_label_create(local->page->base, NULL);
-		lv_label_set_text_fmt(label, "Page '%s'\nnot found.", filename);
+		lv_label_set_text_fmt(label, _("Page '%s'\nnot found."), filename);
 		lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);
 		lv_label_set_align(label, LV_LABEL_ALIGN_CENTER);
 	}
@@ -966,7 +966,7 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->active_widget = NULL;
 
     #ifdef IGC_NO_PRIVATE_KEY
-	    statusbar_msg_add(STATUSBAR_MSG_WARN, "IGC key missing!");
+	statusbar_msg_add(STATUSBAR_MSG_WARN, _("IGC key missing!"));
     #endif
 
 	gui_set_loop_period(50);

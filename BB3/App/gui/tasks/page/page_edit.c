@@ -73,11 +73,14 @@ void page_edit_set_selector_mode()
 
 void page_edit_set_mode(page_edit_mode_t mode)
 {
+    char buf[64];
+  
     local->mode = mode;
 
     if (local->page.number_of_widgets == 0)
     {
-        lv_label_set_text(local->mode_label, LV_SYMBOL_PLUS " Add widget");
+        snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s", _(" Add widget"));
+        lv_label_set_text(local->mode_label, buf);
         ctx_hide();
         return;
     }
@@ -90,19 +93,24 @@ void page_edit_set_mode(page_edit_mode_t mode)
     switch (mode)
     {
         case(mode_select):
-            lv_label_set_text(local->mode_label, LV_SYMBOL_LEFT " select " LV_SYMBOL_RIGHT);
+            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "%s" LV_SYMBOL_RIGHT, _("  select "));
+            lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_move_x):
-            lv_label_set_text(local->mode_label, LV_SYMBOL_LEFT " move " LV_SYMBOL_RIGHT);
+            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "%s" LV_SYMBOL_RIGHT, _("  move "));
+            lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_move_y):
-            lv_label_set_text(local->mode_label, LV_SYMBOL_UP " move " LV_SYMBOL_DOWN);
+            snprintf(buf, sizeof(buf), LV_SYMBOL_UP "%s" LV_SYMBOL_DOWN, _("  move "));
+            lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_size_x):
-            lv_label_set_text(local->mode_label, LV_SYMBOL_LEFT " scale " LV_SYMBOL_RIGHT);
+            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "%s" LV_SYMBOL_RIGHT, _("  scale "));
+            lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_size_y):
-            lv_label_set_text(local->mode_label, LV_SYMBOL_UP " scale " LV_SYMBOL_DOWN);
+            snprintf(buf, sizeof(buf), LV_SYMBOL_UP "%s" LV_SYMBOL_DOWN, _("  scale "));
+            lv_label_set_text(local->mode_label, buf);
         break;
         default:
 		break;
@@ -251,10 +259,15 @@ void page_edit_set_focus(uint8_t index)
 
 void page_edit_ctx_open(uint8_t index)
 {
+        char buf[64];
+	
 	ctx_clear();
-	ctx_add_option(LV_SYMBOL_PLUS " Add widget");
-	ctx_add_option(LV_SYMBOL_REFRESH " Change widget");
-	ctx_add_option(LV_SYMBOL_TRASH " Remove widget");
+	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s", _(" Add widget"));
+	ctx_add_option(buf);
+	snprintf(buf, sizeof(buf), LV_SYMBOL_REFRESH "%s", _(" Change widget"));
+	ctx_add_option(buf);
+	snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH "%s", _(" Remove widget"));
+	ctx_add_option(buf);
 
 	bool widget_flags_title = false;
 	//add flag options
@@ -265,7 +278,7 @@ void page_edit_ctx_open(uint8_t index)
 			if (!widget_flags_title)
 			{
 				widget_flags_title = true;
-				ctx_add_option("----Widget settings----");
+				ctx_add_option(_("----Widget settings----"));
 			}
 
 			if (widget_flag_is_set(&local->page.widget_slots[local->focus_index], i))
@@ -376,8 +389,8 @@ bool page_edit_ctx_cb(uint8_t option, lv_obj_t * last_focus)
         else if (option == 2)
         {
             char text[128];
-            snprintf(text, sizeof(text), "Do you really want to remove widget '%s'?", local->page.widget_slots[local->focus_index].widget->name);
-            dialog_show("Remove widget", text, dialog_yes_no, page_edit_remove_cb);
+            snprintf(text, sizeof(text), _("Do you really want to remove widget '%s'?"), local->page.widget_slots[local->focus_index].widget->name);
+            dialog_show(_("Remove widget"), text, dialog_yes_no, page_edit_remove_cb);
         }
         else
         {
