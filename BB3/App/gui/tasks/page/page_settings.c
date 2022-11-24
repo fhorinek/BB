@@ -64,7 +64,7 @@ void page_settings_update_pos(int8_t dir)
     }
 
     char value[30];
-    snprintf(value, sizeof(value), "Page name (%u / %u)", local->page_index + 1, cnt);
+    snprintf(value, sizeof(value), "%s (%u / %u)", _("Page name"), local->page_index + 1, cnt);
     gui_list_textbox_set_name(local->name_entry, value);
 }
 
@@ -89,7 +89,7 @@ void page_settings_delete_cb(uint8_t res, void * data)
 		gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 
         char text[64];
-        snprintf(text, sizeof(text), "Page '%s' removed", local->page_name);
+        snprintf(text, sizeof(text), _("Page '%s' removed"), local->page_name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 	}
 }
@@ -123,7 +123,7 @@ static bool page_setting_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 			if (!page_rename(local->page_name, text))
 			{
 				gui_list_textbox_set_value(local->name_entry, local->page_name);
-				statusbar_msg_add(STATUSBAR_MSG_ERROR, "Already exists!");
+				statusbar_msg_add(STATUSBAR_MSG_ERROR, _("Already exists!"));
 			}
 			else
 			{
@@ -171,7 +171,7 @@ static bool page_settings_add_cb(lv_obj_t * obj, lv_event_t event)
         for (uint8_t i = 1; i < 100; i++)
         {
             char new_name[16];
-            snprintf(new_name, sizeof(new_name), "new_%u", i);
+            snprintf(new_name, sizeof(new_name), _("new_%u"), i);
             if (page_create(new_name))
             {
                 uint8_t index = pages_get_count();
@@ -182,7 +182,7 @@ static bool page_settings_add_cb(lv_obj_t * obj, lv_event_t event)
                 page_edit_set_page_name(new_name, index);
 
                 char text[64];
-                snprintf(text, sizeof(text), "Page '%s' created at position %u", new_name, index + 1);
+                snprintf(text, sizeof(text), _("Page '%s' created at position %u"), new_name, index + 1);
                 statusbar_msg_add(STATUSBAR_MSG_INFO, text);
                 break;
             }
@@ -196,7 +196,7 @@ static bool page_settings_remove_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        dialog_show("Remove page", "Do you want to remove this page", dialog_yes_no, page_settings_delete_cb);
+        dialog_show(_("Remove page"), _("Do you want to remove this page?"), dialog_yes_no, page_settings_delete_cb);
     }
     return true;
 }
@@ -245,8 +245,8 @@ void page_settings_fm_rename_cb(uint8_t res, void * opt_data)
         if (file_exists(new_path))
         {
             char text[64];
-            snprintf(text, sizeof(text), "Page with name '%s' already exist", new_name);
-            dialog_show("Error", text, dialog_confirm, NULL);
+            snprintf(text, sizeof(text), _("Page with name '%s' already exist"), new_name);
+            dialog_show(_("Error"), text, dialog_confirm, NULL);
         }
         else
         {
@@ -275,7 +275,7 @@ void page_settings_fm_remove_cb(uint8_t res, void * opt_data)
         filemanager_get_filename_no_ext(name, path);
 
         char text[64];
-        snprintf(text, sizeof(text), "Page '%s' deleted", name);
+        snprintf(text, sizeof(text), _("Page '%s' deleted"), name);
         statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
         //refresh
@@ -325,6 +325,7 @@ void page_settings_open_preview(char * path)
 
 bool page_settings_load_page_fm_cb(uint8_t event, char * path)
 {
+    char buf[64];
     char name[strlen(path) + 1];
     filemanager_get_filename_no_ext(name, path);
 
@@ -364,7 +365,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
             gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 
             char text[64];
-            snprintf(text, sizeof(text), "Page '%s' loaded to position %u", name, page_cnt + 1);
+            snprintf(text, sizeof(text), _("Page '%s' loaded to position %u"), name, page_cnt + 1);
             statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
             page_settings_close_preview();
@@ -381,13 +382,22 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
 
             ctx_clear();
             if (static_prev_mode)
-                ctx_add_option(LV_SYMBOL_LIST " List");
-            else
-                ctx_add_option(LV_SYMBOL_EYE_OPEN " Preview");
+	    {
+	        snprintf(buf, sizeof(buf), LV_SYMBOL_LIST " %s", _("List"));
+	        ctx_add_option(buf);
+	    }
+	    else
+	    {
+	        snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_OPEN " %s", _("Preview"));
+	        ctx_add_option(buf);
+	    }
 
-            ctx_add_option(LV_SYMBOL_TRASH " Delete");
-            ctx_add_option(LV_SYMBOL_COPY " Duplicate");
-            ctx_add_option(LV_SYMBOL_EDIT " Rename");
+	    snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH " %s", _("Delete"));
+	    ctx_add_option(buf);
+	    snprintf(buf, sizeof(buf), LV_SYMBOL_COPY " %s", _("Duplicate"));
+	    ctx_add_option(buf);
+	    snprintf(buf, sizeof(buf), LV_SYMBOL_EDIT " %s", _("Rename"));
+	    ctx_add_option(buf);
             ctx_show();
             break;
         }
@@ -409,8 +419,8 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
         case 1: //delete
         {
             char text[64];
-            sniprintf(text, sizeof(text), "Do you want to remove page '%s'", name);
-            dialog_show("Confirm", text, dialog_yes_no, page_settings_fm_remove_cb);
+            sniprintf(text, sizeof(text), _("Do you want to remove page '%s'"), name);
+            dialog_show(_("Confirm"), text, dialog_yes_no, page_settings_fm_remove_cb);
             char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data((void *)opt_data);
@@ -443,7 +453,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
         case 3: //rename
         {
             dialog_add_opt_param(name);
-            dialog_show("Rename", "Set new page name", dialog_textarea, page_settings_fm_rename_cb);
+            dialog_show(_("Rename"), _("Set new page name"), dialog_textarea, page_settings_fm_rename_cb);
             char * opt_data = tmalloc(strlen(path) + 1);
             strcpy(opt_data, path);
             dialog_add_opt_data(opt_data);
@@ -470,6 +480,7 @@ void page_settings_open_copy_fm(bool anim);
 
 bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
 {
+    char buf[64];
     char name[strlen(path) + 1];
     filemanager_get_filename_no_ext(name, path);
 
@@ -483,7 +494,8 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
 				page_settings_close_preview();
 
 	            ctx_clear();
-				ctx_add_option(LV_SYMBOL_EYE_OPEN " Preview");
+		    snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_OPEN " %s", _("Preview"));
+		    ctx_add_option(buf);
 
 				return false;
 			}
@@ -530,7 +542,7 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
             gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 
             char text[64];
-            snprintf(text, sizeof(text), "Page '%s' copied to position %u", new_name, page_cnt + 1);
+            snprintf(text, sizeof(text), _("Page '%s' copied to position %u"), new_name, page_cnt + 1);
             statusbar_msg_add(STATUSBAR_MSG_INFO, text);
 
             page_settings_close_preview();
@@ -547,9 +559,15 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
 
             ctx_clear();
             if (static_prev_mode)
-                ctx_add_option(LV_SYMBOL_LIST " List");
-            else
-                ctx_add_option(LV_SYMBOL_EYE_OPEN " Preview");
+	    {
+	        snprintf(buf, sizeof(buf), LV_SYMBOL_LIST " %s", _("List"));
+	        ctx_add_option(buf);
+	    }
+	    else
+	    {
+	        snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_OPEN " %s", _("Preview"));
+	        ctx_add_option(buf);
+	    }
 
             ctx_show();
             break;
@@ -637,33 +655,40 @@ static uint16_t hidden_pages_cnt()
 
 static lv_obj_t * page_settings_init(lv_obj_t * par)
 {
+    char buf[64];
     help_set_base("Page/Settings");
 
     static_prev_par = NULL;
     static_prev_mode = false;
     uint8_t page_cnt = pages_get_count();
 
-	lv_obj_t * list = gui_list_create(par, "Page settings", NULL, page_setting_cb);
+    lv_obj_t * list = gui_list_create(par, _("Page settings"), NULL, page_setting_cb);
 
     local->name_entry = gui_list_textbox_add_entry(list, "", "", PAGE_NAME_LEN);
 
-	gui_list_auto_entry(list, LV_SYMBOL_EDIT " Edit page", CUSTOM_CB, page_settings_edit_layout_cb);
-	gui_list_auto_entry(list, LV_SYMBOL_SETTINGS " Autoset", CUSTOM_CB, page_settings_autoset_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_EDIT " %s", _("Edit page"));
+	gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_edit_layout_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_SETTINGS " %s", _("Autoset"));
+	gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_autoset_cb);
 
 	if (page_cnt > 1)
 	{
-		lv_obj_t * obj = gui_list_auto_entry(list, LV_SYMBOL_LEFT " Move left", CUSTOM_CB, page_settings_move_left_cb);
+	        snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT " %s", _("Move left"));
+		lv_obj_t * obj = gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_move_left_cb);
 		lv_cont_set_fit2(obj, LV_FIT_NONE, LV_FIT_TIGHT);
 		lv_obj_set_width(obj, lv_obj_get_width(obj) / 2);
-        obj = gui_list_auto_entry(list, "Move right " LV_SYMBOL_RIGHT, CUSTOM_CB, page_settings_move_right_cb);
+	        snprintf(buf, sizeof(buf), "%s " LV_SYMBOL_RIGHT, _("Move right"));
+        obj = gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_move_right_cb);
 		lv_cont_set_fit2(obj, LV_FIT_NONE, LV_FIT_TIGHT);
 		lv_obj_set_width(obj, lv_obj_get_width(obj) / 2);
 	}
 
     if (page_cnt > 1)
     {
-        gui_list_auto_entry(list, LV_SYMBOL_EYE_CLOSE " Hide page", CUSTOM_CB, page_settings_unload_cb);
-        gui_list_auto_entry(list, LV_SYMBOL_TRASH " Remove page", CUSTOM_CB, page_settings_remove_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_CLOSE "%s ", _("Hide page"));
+        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_unload_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH "%s ", _("Remove page"));
+        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_remove_cb);
     }
 
     if (page_cnt < PAGE_MAX_COUNT)
@@ -672,11 +697,14 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 
         if (hidden_pages_cnt() > 0)
         {
-            gui_list_auto_entry(list, LV_SYMBOL_PLUS " Show hidden page", CUSTOM_CB, page_settings_load_cb);
+            snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s ", _("Show hidden page"));
+            gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_load_cb);
         }
 
-        gui_list_auto_entry(list, LV_SYMBOL_PLUS " Add empty page", CUSTOM_CB, page_settings_add_cb);
-        gui_list_auto_entry(list, LV_SYMBOL_PLUS " Duplicate existing", CUSTOM_CB, page_settings_copy_cb);
+	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s ", _("Add empty page"));
+        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_add_cb);
+	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s ", _("Duplicate existing"));
+        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_copy_cb);
     }
 
 	return list;

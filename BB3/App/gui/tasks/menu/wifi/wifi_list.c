@@ -67,7 +67,7 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
         }
 
         lv_obj_set_hidden(local->spinner, true);
-        gui_list_text_set_value(local->info, "Rescan");
+        gui_list_text_set_value(local->info, _("Rescan"));
     }
 
 
@@ -99,8 +99,8 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
 
     char params[32] = "";
 
-    const char * saved = (db_exists(PATH_NETWORK_DB, network->name)) ? "Saved, " : "";
-    const char * secur = (network->security == PROTO_WIFI_OPEN) ? "Open" : "Secure";
+    const char * saved = (db_exists(PATH_NETWORK_DB, network->name)) ? _("Saved, ") : "";
+    const char * secur = (network->security == PROTO_WIFI_OPEN) ? _("Open") : _("Secure");
 
     sprintf(params, "%s%s, %d dBm", saved, secur, network->rssi);
 
@@ -201,7 +201,7 @@ static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	            {
 	                //ask for password
 	                local->selected = index - 1;
-	                dialog_show(ssid, "Enter password", dialog_textarea, wifi_list_connect_cb);
+	                dialog_show(ssid, _("Enter password"), dialog_textarea, wifi_list_connect_cb);
 	            }
 	        }
 	    }

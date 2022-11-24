@@ -78,7 +78,7 @@ lv_obj_t * gnss_status_init(lv_obj_t * par)
 	lv_style_init(&local->style_unused);
 	lv_style_set_bg_opa(&local->style_unused, LV_STATE_DEFAULT, LV_OPA_50);
 
-	lv_obj_t * list = gui_list_create(par, "GNSS Status", NULL, NULL);
+	lv_obj_t * list = gui_list_create(par, _("GNSS Status"), NULL, NULL);
 
     gui_set_dummy_event_cb(par, gnss_status_cb);
 

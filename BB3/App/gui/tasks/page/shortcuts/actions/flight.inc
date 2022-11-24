@@ -10,12 +10,12 @@ static bool shrt_flight_start_action()
 {
     if (fc.flight.mode == flight_wait_to_takeoff || fc.flight.mode == flight_landed)
     {
-        pages_popup("Flight start");
+        pages_popup(_("Flight start"));
         fc_takeoff();
     }
     else if (fc.flight.mode == flight_flight)
     {
-        pages_popup("Flight stop");
+        pages_popup(_("Flight stop"));
         fc_landing();
     }
 
@@ -29,7 +29,7 @@ static bool shrt_flight_start_icon(char * icon, char * label)
     else
         strcpy(icon, MD_PLAY_CIRCLE);
 
-    strcpy(label, "Start/Stop flight");
+    strcpy(label, _("Start/Stop flight"));
 
     return true;
 }

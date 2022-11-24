@@ -23,6 +23,7 @@ static void confirm_devel_ch(uint8_t res, void * data)
 
 static void confirm_channel(uint8_t res, void * data)
 {
+    char i18n[32];
     char fw_str[20];
     rev_get_sw_string(fw_str);
 
@@ -30,7 +31,8 @@ static void confirm_channel(uint8_t res, void * data)
     {
         if (!DEVEL_ACTIVE)
         {
-            dialog_show(LV_SYMBOL_WARNING " Warning " LV_SYMBOL_WARNING,
+	  snprintf(i18n, sizeof(i18n), LV_SYMBOL_WARNING " %s " LV_SYMBOL_WARNING, _("Warning"));
+            dialog_show(i18n,
                     _("Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version."),
                     dialog_yes_no, confirm_devel_ch);
         }

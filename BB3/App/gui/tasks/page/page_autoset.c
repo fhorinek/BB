@@ -44,7 +44,7 @@ void page_autoset_set_page_name(char * filename, uint8_t index)
 
 
     char msg[64];
-    snprintf(msg, sizeof(msg), "Switch to page\n'%s' when...", local->page_name);
+    snprintf(msg, sizeof(msg), _("Switch to page\n'%s' when..."), local->page_name);
     gui_list_note_set_text(local->note, msg);
 
 	gui_list_switch_set_value(local->power_on, page_is_set(&profile.ui.autoset.power_on));
@@ -117,8 +117,8 @@ bool page_autoset_event_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
 					local->entry = e;
 
-					snprintf(msg, sizeof(msg), "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?", label, config_get_text(e), local->page_name);
-					dialog_show("Warning", msg, dialog_yes_no, page_austoset_dialog_cb);
+					snprintf(msg, sizeof(msg), _("Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?"), label, config_get_text(e), local->page_name);
+					dialog_show(_("Warning"), msg, dialog_yes_no, page_austoset_dialog_cb);
 					dialog_add_opt_data(obj);
 				}
 				else
@@ -138,15 +138,15 @@ lv_obj_t * page_autoset_init(lv_obj_t * par)
 {
     help_set_base("Page/Autoset");
 
-	lv_obj_t * list = gui_list_create(par, "Page autoset", NULL, page_autoset_event_cb);
+        lv_obj_t * list = gui_list_create(par, _("Page autoset"), NULL, page_autoset_event_cb);
 
 	local->note = gui_list_note_add_entry(list, "", LV_COLOR_BLACK);
 
-	local->power_on = gui_list_switch_add_entry(list, "Powered on", false);
-	local->take_off = gui_list_switch_add_entry(list, "Take-off", false);
-	local->circle = gui_list_switch_add_entry(list, "Circling", false);
-	local->glide = gui_list_switch_add_entry(list, "Gliding", false);
-	local->land = gui_list_switch_add_entry(list, "Landed", false);
+	local->power_on = gui_list_switch_add_entry(list, _("Powered on"), false);
+	local->take_off = gui_list_switch_add_entry(list, _("Take-off"), false);
+	local->circle = gui_list_switch_add_entry(list, _("Circling"), false);
+	local->glide = gui_list_switch_add_entry(list, _("Gliding"), false);
+	local->land = gui_list_switch_add_entry(list, _("Landed"), false);
 
 	return list;
 }

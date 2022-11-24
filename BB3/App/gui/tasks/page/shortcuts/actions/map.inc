@@ -18,7 +18,7 @@ static bool shrt_map_zoom_in_icon(char * icon, char * label)
     else
         strcpy(icon, "");
 
-    strcpy(label, "Map zoom in");
+    strcpy(label, _("Map zoom in"));
 
     return true;
 }
@@ -42,7 +42,7 @@ static bool shrt_map_zoom_out_icon(char * icon, char * label)
     else
         strcpy(icon, "");
 
-    strcpy(label, "Map zoom out");
+    strcpy(label, _("Map zoom out"));
 
     return true;
 }

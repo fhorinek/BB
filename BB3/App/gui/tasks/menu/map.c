@@ -70,7 +70,7 @@ static bool map_help_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        dialog_show("Help", "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.", dialog_confirm, NULL);
+        dialog_show(_("Help"), _("To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution."), dialog_confirm, NULL);
 
         //supress default handler
         return false;

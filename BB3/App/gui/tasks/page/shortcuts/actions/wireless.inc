@@ -6,9 +6,9 @@ static bool shrt_wifi_tgl_action()
     config_set_bool(&profile.wifi.enabled, !val);
 
     if (!val)
-        pages_popup("Wi-Fi on");
+        pages_popup(_("Wi-Fi on"));
     else
-        pages_popup("Wi-Fi off");
+        pages_popup(_("Wi-Fi off"));
 
     return false;
 }
@@ -22,7 +22,7 @@ static bool shrt_wifi_tgl_icon(char * icon, char * label)
     else
         strcpy(icon, MD_WIFI_OFF);
 
-    strcpy(label, "Wi-Fi on/off");
+    strcpy(label, _("Wi-Fi on/off"));
 
     return true;
 }
@@ -35,9 +35,9 @@ static bool shrt_bt_tgl_action()
     config_set_bool(&profile.bluetooth.enabled, !val);
 
     if (!val)
-        pages_popup("Bluetooth on");
+        pages_popup(_("Bluetooth on"));
     else
-        pages_popup("Bluetooth off");
+        pages_popup(_("Bluetooth off"));
 
     return false;
 }
@@ -51,7 +51,7 @@ static bool shrt_bt_tgl_icon(char * icon, char * label)
     else
         strcpy(icon, MD_BLUETOOTH_OFF);
 
-    strcpy(label, "Bluetooth on/off");
+    strcpy(label, _("Bluetooth on/off"));
 
     return true;
 }

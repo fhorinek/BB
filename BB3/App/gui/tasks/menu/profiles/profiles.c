@@ -71,6 +71,7 @@ void profile_pilot_fm_rename_cb(uint8_t res, void * opt_data)
 
 bool profiles_pilot_fm_cb(uint8_t event, char * path)
 {
+    char i18n[64];
     char name[strlen(path) + 1];
     filemanager_get_filename_no_ext(name, path);
 
@@ -91,10 +92,14 @@ bool profiles_pilot_fm_cb(uint8_t event, char * path)
         case FM_CB_FOCUS_FILE:
         {
             ctx_clear();
-            ctx_add_option(LV_SYMBOL_PLUS " Add new");
-            ctx_add_option(LV_SYMBOL_EDIT " Rename");
-            ctx_add_option(LV_SYMBOL_COPY " Duplicate");
-            ctx_add_option(LV_SYMBOL_TRASH " Delete");
+	    snprintf(i18n, LV_SYMBOL_PLUS " %s", _("Add new"));
+            ctx_add_option(i18n);
+	    snprintf(i18n, LV_SYMBOL_EDIT " %s", _("Rename"));
+            ctx_add_option(i18n);
+	    snprintf(i18n, LV_SYMBOL_COPY " %s", _("Duplicate"));
+            ctx_add_option(i18n);
+	    snprintf(i18n, LV_SYMBOL_TRASH " %s", _("Delete"));
+            ctx_add_option(i18n);
             ctx_show();
             break;
         }
@@ -254,6 +259,7 @@ void profile_profile_fm_rename_cb(uint8_t res, void * opt_data)
 
 bool profiles_profile_fm_cb(uint8_t event, char * path)
 {
+    char i18n[32];
     char name[strlen(path) + 1];
     filemanager_get_filename_no_ext(name, path);
 
@@ -274,10 +280,14 @@ bool profiles_profile_fm_cb(uint8_t event, char * path)
         case FM_CB_FOCUS_FILE:
         {
             ctx_clear();
-            ctx_add_option(LV_SYMBOL_PLUS " Add new");
-            ctx_add_option(LV_SYMBOL_EDIT " Rename");
-            ctx_add_option(LV_SYMBOL_COPY " Duplicate");
-            ctx_add_option(LV_SYMBOL_TRASH " Delete");
+	    snprintf(i18n, LV_SYMBOL_PLUS " %s", _("Add new"));
+            ctx_add_option(i18n);
+	    snprintf(i18n, LV_SYMBOL_EDIT " %s", _("Rename"));
+            ctx_add_option(i18n);
+	    snprintf(i18n, LV_SYMBOL_COPY " %s", _("Duplicate"));
+            ctx_add_option(i18n);
+	    snprintf(i18n, LV_SYMBOL_TRASH " %s", _("Delete"));
+            ctx_add_option(i18n);
             ctx_show();
             break;
         }
@@ -384,20 +394,20 @@ static lv_obj_t * profiles_init(lv_obj_t * par)
 {
     help_set_base("Profile");
 
-	lv_obj_t * list = gui_list_create(par, "Pilot & Flight profile", &gui_settings, NULL);
+    lv_obj_t * list = gui_list_create(par, _("Pilot & Flight profile"), &gui_settings, NULL);
 
 //	gui_list_auto_entry(list, "Ask on startup", &config.ask_on_start, NULL);
 
 	char name[64];
 	snprintf(name, sizeof(name), "%s (%s)", config_get_text(&pilot.name), config_get_text(&config.pilot_profile));
-	lv_obj_t * pilot = gui_list_info_add_entry(list, "Pilot profile", name);
+	lv_obj_t * pilot = gui_list_info_add_entry(list, _("Pilot profile"), name);
 	gui_config_entry_add(pilot, CUSTOM_CB, profiles_pilot_cb);
 
-    lv_obj_t * flight = gui_list_info_add_entry(list, "Flight profile", config_get_text(&config.flight_profile));
+	lv_obj_t * flight = gui_list_info_add_entry(list, _("Flight profile"), config_get_text(&config.flight_profile));
     gui_config_entry_add(flight, CUSTOM_CB, profiles_flight_cb);
 
 
-	gui_list_auto_entry(list, "Edit pilot profile", NEXT_TASK, &gui_pilot);
+    gui_list_auto_entry(list, _("Edit pilot profile"), NEXT_TASK, &gui_pilot);
 
     return list;
 }
