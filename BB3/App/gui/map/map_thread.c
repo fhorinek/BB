@@ -219,7 +219,7 @@ void thread_map_start(void *argument)
         //draw airspace
         for (uint8_t i = 0; i < 9; i++)
         {
-            if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
+            if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace && fc.airspaces.valid)
             {
                 gui_low_priority(true);
                 osMutexAcquire(fc.airspaces.lock, WAIT_INF);
