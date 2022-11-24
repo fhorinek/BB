@@ -72,13 +72,16 @@ void vario_profile_load(char * name)
     	{
 			char def[PATH_LEN];
 			snprintf(def, sizeof(def), "%s/vario/default.cfg", PATH_DEFAULTS_DIR);
+
 			if (!file_exists(def))
 			{
 			    dialog_show("Error", "Default vario profile not found!\n\nPlease reinstall the firmware", dialog_confirm, NULL);
 			}
 			else
 			{
-			    copy_file(def, path);
+			    snprintf(def, sizeof(def), "%s/vario", PATH_DEFAULTS_DIR);
+
+			    copy_dir_when_absent(def, PATH_VARIO_DIR);
 			}
     	}
     }

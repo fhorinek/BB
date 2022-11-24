@@ -644,7 +644,10 @@ static void airspace_force_redraw()
     //force redraw map
     for (uint8_t i = 0; i < 9; i++)
     {
-        gui.map.chunks[i].ready = false;
+        if (gui.map.chunks[i].ready && gui.map.chunks[i].airspace)
+        {
+            gui.map.chunks[i].ready = false;
+        }
     }
 
 }
