@@ -162,8 +162,8 @@ void thread_map_start(void *argument)
     	geo_get_steps(gui.map.lat, zoom, &step_x, &step_y);
 
     	//get vectors
-    	int32_t step_lon = MAP_W * step_x;
-    	int32_t step_lat = MAP_H * step_y;
+    	int32_t step_lon = (gui.map.lon > 0 ? 1 : -1) * (MAP_W * step_x);
+    	int32_t step_lat = (gui.map.lat > 0 ? 1 : -1) * (MAP_H * step_y);
 
     	int32_t c_lon;
     	int32_t c_lat;
