@@ -58,7 +58,7 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
     lv_obj_set_size(local->map, lv_obj_get_width(par), lv_obj_get_height(par));
     lv_obj_set_pos(local->map, 0, 0);
 
-    for (uint8_t i = 0; i < 9; i++)
+    for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     {
         local->image[i] = lv_canvas_create(local->map, NULL);
         lv_obj_set_size(local->image[i], MAP_W, MAP_H);
@@ -102,11 +102,8 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
     if (local->magic != gui.map.magic)
     {
 //    	DBG("Widget set to index %u", gui.map.disp_buffer);
-        for (uint8_t i = 0; i < 9; i++)
+        for (uint8_t i = 0; i < MAP_CHUNKS; i++)
         {
-            lv_canvas_set_buffer(local->image[i], gui.map.chunks[i].buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
-            lv_obj_move_background(local->image[i]);
-
             if (gui.map.chunks[i].ready)
             {
                 lv_obj_set_hidden(local->image[i], false);
@@ -119,7 +116,7 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             }
         }
 
-        for (uint8_t i = 0; i < 9; i++)
+        for (uint8_t i = 0; i < MAP_CHUNKS; i++)
         {
             if (!gui.map.chunks[i].ready)
             {
@@ -202,7 +199,7 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 
         lv_obj_set_pos(local->image[local->master_tile], x, y);
 
-        for (uint8_t i = 0; i < 9; i++)
+        for (uint8_t i = 0; i < MAP_CHUNKS; i++)
         {
             if (!gui.map.chunks[i].ready || i == local->master_tile)
             {
