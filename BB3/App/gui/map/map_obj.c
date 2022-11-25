@@ -51,6 +51,7 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
         static_init = true;
     }
 
+
     local->magic = 0xFF;
     local->master_tile = 0xFF;
 
@@ -86,6 +87,14 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
     local->dot = NULL;
     local->arrow = NULL;
 
+    local->spinner = lv_spinner_create(par, NULL);
+    lv_obj_set_size(local->spinner, 50, 50);
+    lv_obj_set_pos(local->spinner, 0, 0);
+    lv_spinner_set_type(local->spinner, LV_SPINNER_TYPE_CONSTANT_ARC);
+    lv_obj_set_style_local_bg_opa(local->spinner, LV_SPINNER_PART_BG, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+    lv_obj_set_style_local_line_width(local->spinner, LV_SPINNER_PART_BG, LV_STATE_DEFAULT, 0);
+//    lv_obj_set_style_local_line_width(local->spinner, LV_SPINNER_PART_INDIC, LV_STATE_DEFAULT, 5);
+
     return local->map;
 }
 
@@ -102,6 +111,7 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
     if (local->magic != gui.map.magic)
     {
 //    	DBG("Widget set to index %u", gui.map.disp_buffer);
+        bool idle = true;
         for (uint8_t i = 0; i < MAP_CHUNKS; i++)
         {
             if (gui.map.chunks[i].ready)
@@ -110,11 +120,14 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             }
             else
             {
+                idle = false;
                 lv_obj_set_hidden(local->image[i], true);
                 if (i == local->master_tile)
                     local->master_tile = 0xFF;
             }
         }
+
+        lv_obj_set_hidden(local->spinner, idle);
 
         for (uint8_t i = 0; i < MAP_CHUNKS; i++)
         {

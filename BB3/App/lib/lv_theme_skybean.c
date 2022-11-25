@@ -154,7 +154,7 @@ lv_theme_t * lv_theme_skybean_init(lv_color_t color_primary, lv_color_t color_se
 
     style_init_reset(&styles->tick_line);
     lv_style_set_line_width(&styles->tick_line, LV_STATE_DEFAULT, 5);
-    lv_style_set_scale_end_line_width(&styles->tick_line, LV_STATE_DEFAULT, 5);
+    //lv_style_set_scale_end_line_width(&styles->tick_line, LV_STATE_DEFAULT, 5);
     lv_style_set_scale_end_color(&styles->tick_line, LV_STATE_DEFAULT, theme.color_primary);
 
     style_init_reset(&styles->tight);
@@ -344,7 +344,7 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
         case LV_THEME_ARC:
             list = lv_obj_get_style_list(obj, LV_ARC_PART_BG);
             _lv_style_list_add_style(list, &styles->bg);
-            _lv_style_list_add_style(list, &styles->tick_line);
+            //_lv_style_list_add_style(list, &styles->tick_line);
             _lv_style_list_add_style(list, &styles->round);
 
             list = lv_obj_get_style_list(obj, LV_ARC_PART_INDIC);
@@ -359,7 +359,7 @@ void theme_apply(lv_theme_t * th, lv_obj_t * obj, lv_theme_style_t name)
         case LV_THEME_SPINNER:
             list = lv_obj_get_style_list(obj, LV_SPINNER_PART_BG);
             _lv_style_list_add_style(list, &styles->bg);
-            _lv_style_list_add_style(list, &styles->tick_line);
+            //_lv_style_list_add_style(list, &styles->tick_line);
             _lv_style_list_add_style(list, &styles->round);
 
             list = lv_obj_get_style_list(obj, LV_SPINNER_PART_INDIC);
