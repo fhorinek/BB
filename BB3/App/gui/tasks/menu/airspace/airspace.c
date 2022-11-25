@@ -8,57 +8,24 @@
 #include "gui/tasks/page/pages.h"
 #include "gui/dialog.h"
 
-REGISTER_TASK_I(airspace);
+#include "etc/geo_calc.h"
+
+REGISTER_TASK_IL(airspace,
+    lv_obj_t * dbg_info;
+);
 
 void airspace_load_task(void * param)
 {
-    fc.airspaces.valid = false;
     osMutexAcquire(fc.airspaces.lock, WAIT_INF);
 
-    if (fc.airspaces.list != NULL)
-    {
-    	airspace_free(fc.airspaces.list);
-    	fc.airspaces.list = NULL;
-    	fc.airspaces.loaded = 0;
-    	fc.airspaces.hidden = 0;
-    	fc.airspaces.mem_used = 0;
-    }
-
-    uint16_t loaded;
-    uint16_t hidden;
-    uint32_t mem_used;
-
-	char path[PATH_LEN];
-	snprintf(path, sizeof(path), PATH_AIRSPACE_DIR "/%s", config_get_text(&profile.airspace.filename));
-
-    fc.airspaces.list = airspace_load(path, &loaded, &hidden, &mem_used, true);
+	bool ret = airspace_load(config_get_text(&profile.airspace.filename), true);
 
     gui_low_priority(false);
     dialog_close();
 
-    if (fc.airspaces.list != NULL)
-    {
-        fc.airspaces.valid = true;
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-        fc.airspaces.loaded = loaded;
-        fc.airspaces.hidden = hidden;
-        fc.airspaces.mem_used = mem_used;
-    }
-    else
+    if (!ret)
     {
         dialog_show(_("Error"), _("No airspace loaded.\n\nAre you using OpenAir format?"), dialog_confirm, NULL);
-        fc.airspaces.valid = false;
-        for (uint8_t i = 0; i < 9; i++)
-        {
-            gui.map.chunks[i].ready = false;
-        }
-        fc.airspaces.loaded = 0;
-        fc.airspaces.hidden = 0;
-        fc.airspaces.mem_used = 0;
-
         config_set_text(&profile.airspace.filename, "");
     }
 
@@ -108,6 +75,7 @@ static bool airspace_unload_cb(lv_obj_t * obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
         airspace_unload();
+        config_set_text(&profile.airspace.filename, "");
 		gui_switch_task(&gui_airspace, LV_SCR_LOAD_ANIM_NONE);
 
 		//supress default handler
@@ -129,9 +97,26 @@ static bool airspace_help_cb(lv_obj_t * obj, lv_event_t event)
     return true;
 }
 
+static void airspace_loop()
+{
+    if (local->dbg_info != NULL)
+    {
+        float dist = geo_distance(gui.map.lat, gui.map.lon, fc.airspaces.valid_lat, fc.airspaces.valid_lon, true, NULL) / 100000.0;
+
+        char tmp[128];
+        snprintf(tmp, sizeof(tmp), "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm",
+                fc.airspaces.number_loaded, AIRSPACE_INDEX_ALLOC,
+                (fc.airspaces.data_used * 100) / AIRSPACE_DATA_ALLOC,
+                fc.airspaces.number_in_file,
+                dist);
+
+        gui_list_info_set_value(local->dbg_info, tmp);
+    }
+}
+
 static lv_obj_t * airspace_init(lv_obj_t * par)
 {
-    help_set_base("Airspace");
+    local->dbg_info = NULL;
 
 	lv_obj_t * list = gui_list_create(par, _("Airspace settings"), &gui_settings, NULL);
 
@@ -147,12 +132,7 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 
 		if (DEVEL_ACTIVE)
 		{
-			char tmp[64];
-			snprintf(tmp, sizeof(tmp),
-					"Loaded airspaces: %u\nHidden: %u\nMemory used: %lu",
-					fc.airspaces.loaded, fc.airspaces.hidden, fc.airspaces.mem_used);
-
-			gui_list_info_add_entry(list, "Debug Info", tmp);
+			local->dbg_info = gui_list_info_add_entry(list, "Debug Info", "-\n-\n-\n");
 		}
 	}
 

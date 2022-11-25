@@ -262,6 +262,8 @@ void thread_system_start(void * argument)
 {
     UNUSED(argument);
 
+    memset(0, 0, 1024 * 64);
+
     //start trace malloc
     tmalloc_init();
 
@@ -272,7 +274,6 @@ void thread_system_start(void * argument)
     //start debug thread
     start_thread(thread_debug);
     gui_create_lock();
-    airspace_create_lock();
     config_set_bool(&config.debug.use_serial, true);
 
     //wait for debug thread

@@ -28,6 +28,10 @@ static bool protocol_enable_processing = false;
 TimerHandle_t stm_wtd = 0;
 int64_t protocol_last_packet = 5000l * 1000l;
 
+char strato_id[PROTO_ID_STR_LEN];
+char strato_fw[PROTO_FW_STR_LEN];
+char strato_hw[PROTO_HW_STR_LEN];
+
 void stm_wtd_cb(TimerHandle_t xTimer)
 {
 	if (protocol_last_packet + (1000l * 1000l) < esp_timer_get_time())
@@ -61,7 +65,7 @@ void protocol_send_heartbeat()
 void protocol_send_info()
 {
     DBG("sending info");
-    proto_device_info_t data;
+    proto_esp_info_t data;
     esp_read_mac((uint8_t *)&data.wifi_sta_mac, ESP_MAC_WIFI_STA);
     esp_read_mac((uint8_t *)&data.wifi_ap_mac, ESP_MAC_WIFI_SOFTAP);
     esp_read_mac((uint8_t *)&data.bluetooth_mac, ESP_MAC_BT);
@@ -69,7 +73,7 @@ void protocol_send_info()
     data.server_ok = system_status.server_ok;
     data.amp_ok = system_status.amp_ok;
 
-    protocol_send(PROTO_DEVICE_INFO, (uint8_t *)&data, sizeof(data));
+    protocol_send(PROTO_ESP_INFO, (uint8_t *)&data, sizeof(data));
 }
 
 void protocol_send_spi_ready(uint32_t len)
@@ -163,10 +167,14 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
             protocol_send(PROTO_PONG, NULL, 0);
         break;
 
-        case (PROTO_GET_INFO):
-        {
-            protocol_send_info();
-        }
+        case (PROTO_STM_INFO):
+		{
+        	proto_stm_info_t * packet = (proto_stm_info_t *)data;
+
+        	strncpy(strato_id, packet->id, PROTO_ID_STR_LEN);
+        	strncpy(strato_fw, packet->fw, PROTO_FW_STR_LEN);
+        	strncpy(strato_hw, packet->hw, PROTO_HW_STR_LEN);
+		}
         break;
 
         case (PROTO_SET_VOLUME):

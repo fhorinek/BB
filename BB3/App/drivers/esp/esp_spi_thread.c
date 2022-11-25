@@ -64,7 +64,7 @@ uint8_t * esp_spi_acquire_buffer_ptr(uint16_t * size_avalible)
 
 void esp_spi_release_buffer(uint16_t data_written)
 {
-	data_written = (data_written + 3) & ~3;
+	data_written = ROUND4(data_written);
     spi_tx_buffer_index += data_written;
     osSemaphoreRelease(spi_buffer_access);
 }
@@ -99,7 +99,7 @@ void esp_parse_spi(uint8_t * data, uint16_t len)
         }
 
         //advance buffer
-        uint16_t size = (hdr->data_len + 3) & ~3;
+        uint16_t size = ROUND4(hdr->data_len);
         data += size;
     }
 }

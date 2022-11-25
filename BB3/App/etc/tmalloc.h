@@ -20,8 +20,8 @@ void tmalloc_init();
 #define tmalloc(size) tmalloc_real(size, __FILE_NAME__, __LINE__)
 #define tfree(ptr) tfree_real(ptr, __FILE_NAME__, __LINE__)
 
-#define tmalloc_2(size, slot) tmalloc_real(size, slot, 0xFFFFFFFF)
-#define tfree_2(ptr, slot, size) tfree_real(ptr, slot, -size)
+#define tmalloc_sum(size, slot) tmalloc_real(size, slot, 0xFFFFFFFF)
+#define tfree_sum(ptr, slot, size) tfree_real(ptr, slot, -size)
 
 
 //malloc functions with tracing

@@ -48,7 +48,7 @@ void map_init()
 {
 	map_set_automatic_pos();
 
-	for (uint8_t i = 0; i < 9; i++)
+	for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     {
     	gui.map.chunks[i].buffer = ps_malloc(MAP_BUFFER_SIZE);
     	gui.map.chunks[i].ready = false;
@@ -57,6 +57,8 @@ void map_init()
 	gui_lock_acquire();
 	gui.map.magic = 0xFF;
     gui.map.canvas = lv_canvas_create(lv_layer_sys(), NULL);
+    gui.map.canvas_buffer = malloc(MAP_BUFFER_SIZE);
+    lv_canvas_set_buffer(gui.map.canvas, gui.map.canvas_buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 
     gui.map.poi_size = 0;
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
@@ -68,7 +70,38 @@ void map_init()
     lv_obj_set_hidden(gui.map.canvas, true);
     gui_lock_release();
 
-    airspace_reload_parallel();
+    airspace_init_buffer();
+}
+
+void mk_gen_order(uint8_t * arr)
+{
+    typedef struct {
+        uint8_t index;
+        uint16_t val;
+    } gen_order_helper_t;
+
+    int cmpfunc (const void * a, const void * b)
+    {
+       return ((gen_order_helper_t *)a)->val - ((gen_order_helper_t *)b)->val;
+    }
+
+    gen_order_helper_t gen_order_helper[MAP_CHUNKS];
+
+    for (uint8_t i = 0; i < MAP_CHUNKS; i++)
+    {
+        int16_t a = - (MAP_COLS / 2) + (i % MAP_COLS);
+        int16_t b = - (MAP_ROWS / 2) + (i / MAP_COLS);
+
+        gen_order_helper[i].index = i;
+        gen_order_helper[i].val = sqrt(pow(a, 2) + pow(b, 2)) * 100 + i;
+    }
+
+    qsort(gen_order_helper, MAP_CHUNKS, sizeof(gen_order_helper_t), cmpfunc);
+
+    for (uint8_t i = 0; i < MAP_CHUNKS; i++)
+    {
+        arr[i] = gen_order_helper[i].index;
+    }
 }
 
 void thread_map_start(void *argument)
@@ -79,41 +112,54 @@ void thread_map_start(void *argument)
 
     INFO("Started");
 
-    osDelay(1000);
     map_init();
+
+    osDelay(100);
+    bool load_airspace = true;
+
+
+    uint8_t gen_order[MAP_CHUNKS];
+    mk_gen_order(gen_order);
 
     while(!system_power_off)
     {
-    	int32_t disp_lat;
-    	int32_t disp_lon;
     	uint8_t zoom;
 
     	if ( map_static )
     	{
-    		disp_lat = map_static_latitude;
-    		disp_lon = map_static_longitude;
+    		gui.map.lat = map_static_latitude;
+    		gui.map.lon = map_static_longitude;
     		zoom = map_static_zoom;
     	}
     	else
     	{
     		if (fc.gnss.fix == 0)
     		{
-    			disp_lat = config_get_big_int(&profile.ui.last_lat);
-    			disp_lon = config_get_big_int(&profile.ui.last_lon);
+    		    gui.map.lat = config_get_big_int(&profile.ui.last_lat);
+    		    gui.map.lon = config_get_big_int(&profile.ui.last_lon);
     		}
     		else
     		{
-    			disp_lat = fc.gnss.latitude;
-    			disp_lon = fc.gnss.longtitude;
+    		    gui.map.lat = fc.gnss.latitude;
+    		    gui.map.lon = fc.gnss.longtitude;
     		}
             zoom = config_get_int(&profile.map.zoom_flight);
     	}
+
+    	if (load_airspace)
+    	{
+    	    //need to know lat, lon
+    	    airspace_load_parallel();
+    	    load_airspace = false;
+    	}
+
+        airspace_step();
 
         uint8_t old_magic = gui.map.magic;
 
     	int32_t step_x;
     	int32_t step_y;
-    	geo_get_steps(disp_lat, zoom, &step_x, &step_y);
+    	geo_get_steps(gui.map.lat, zoom, &step_x, &step_y);
 
     	//get vectors
     	int32_t step_lon = MAP_W * step_x;
@@ -121,7 +167,7 @@ void thread_map_start(void *argument)
 
     	int32_t c_lon;
     	int32_t c_lat;
-    	tile_align_to_cache_grid(disp_lon, disp_lat, zoom, &c_lon, &c_lat, &step_lon, &step_lat);
+    	align_to_cache_grid(gui.map.lon, gui.map.lat, zoom, &c_lon, &c_lat);
 
     	typedef struct
     	{
@@ -133,25 +179,26 @@ void thread_map_start(void *argument)
     		uint8_t _pad[2];
     	} tile_info_t;
 
-    	tile_info_t tiles[9];
+    	tile_info_t tiles[MAP_CHUNKS];
 
-    	//find usable chunks aroud us
-    	static uint8_t gen_order[9] = {4, 3, 5, 1, 7, 0, 2, 6, 8};
-    	for (uint8_t i = 0; i < 9; i++)
+    	//find usable chunks around us
+    	for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     	{
     		uint8_t j = gen_order[i];
 
-    		tiles[i].lon = c_lon - step_lon + step_lon * (j % 3);
-    		tiles[i].lat = c_lat - step_lat + step_lat * (j / 3);
+    		tiles[i].lon = c_lon - (MAP_COLS / 2) * step_lon + step_lon * (j % MAP_COLS);
+    		tiles[i].lat = c_lat + (MAP_ROWS / 2) * step_lat - step_lat * (j / MAP_COLS);
 
     		tiles[i].chunk = tile_find_inside(tiles[i].lon, tiles[i].lat, zoom);
 
-    		//DBG("L %u = %u (%ld %ld)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
+    		DBG("L %u = %u (%ld %ld)", i, tiles[i].chunk, tiles[i].lon, tiles[i].lat);
     	}
     	//DBG("");
 
+        bool change = false;
+
     	//assign buffers to tiles
-    	for (uint8_t i = 0; i < 9; i++)
+    	for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     	{
     		if (tiles[i].chunk != 0xFF)
     		{
@@ -159,15 +206,16 @@ void thread_map_start(void *argument)
     			continue;
     		}
 
+    		change = true;
 			tiles[i].reload = true;
 
 			//assign new chunk
-    		for (uint8_t chunk = 0; chunk < 9; chunk++)
+    		for (uint8_t chunk = 0; chunk < MAP_CHUNKS; chunk++)
     		{
     			bool used = false;
 
     			//is chunk used?
-    			for (uint8_t k = 0; k < 9; k++)
+    			for (uint8_t k = 0; k < MAP_CHUNKS; k++)
     			{
     				if (tiles[k].chunk == chunk)
     				{
@@ -182,13 +230,21 @@ void thread_map_start(void *argument)
     			    tile_unload_pois(chunk);
 
     				tiles[i].chunk = chunk;
+    				gui.map.chunks[chunk].ready = false;
     				break;
     			}
     		}
     	}
 
+        if (change)
+        {
+            gui.map.magic = (gui.map.magic + 1) % 0xFF;
+            change = false;
+        }
+
     	//only cache first
-    	for (uint8_t i = 0; i < 9; i++)
+        uint8_t loaded_cnt = 0;
+    	for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     	{
     		if (tiles[i].reload)
     		{
@@ -196,34 +252,69 @@ void thread_map_start(void *argument)
     			if (tile_load_cache(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
     			{
     				tiles[i].reload = false;
+    				change = true;
+    				loaded_cnt++;
+    				if (loaded_cnt > 5)
+    				{
+    				    loaded_cnt = 0;
+    				    gui.map.magic = (gui.map.magic + 1) % 0xFF;
+    				}
     			}
                 gui_low_priority(false);
     		}
     	}
 
     	//last resort, regenerate
-    	for (uint8_t i = 0; i < 9; i++)
+    	bool regeneration = false;
+    	for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     	{
     		if (tiles[i].reload)
     		{
     		    gui_low_priority(true);
-    			tile_generate(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
-                gui_low_priority(false);
+    			if (tile_generate(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+    			{
+    			    change = true;
+    			    regeneration = true;
+    			}
+    			gui_low_priority(false);
     			break;
     		}
     	}
 
         //draw airspace
-        for (uint8_t i = 0; i < 9; i++)
+    	loaded_cnt = 0;
+        for (uint8_t i = 0; i < MAP_CHUNKS; i++)
         {
-            if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace)
+            if (!tiles[i].reload && !gui.map.chunks[tiles[i].chunk].airspace && fc.airspaces.valid)
             {
                 gui_low_priority(true);
-                tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom);
+                osMutexAcquire(fc.airspaces.lock, WAIT_INF);
+                if (tile_airspace(tiles[i].chunk, tiles[i].lon, tiles[i].lat, zoom))
+                {
+                    change = true;
+                }
+                osMutexRelease(fc.airspaces.lock);
                 gui_low_priority(false);
-                break;
+
+                if (regeneration)
+                {
+                    break;
+                }
+
+                loaded_cnt++;
+                if (loaded_cnt > 5)
+                {
+                    loaded_cnt = 0;
+                    gui.map.magic = (gui.map.magic + 1) % 0xFF;
+                }
             }
         }
+
+        if (change)
+        {
+            gui.map.magic = (gui.map.magic + 1) % 0xFF;
+        }
+
 
 		if (gui.map.magic == old_magic)
 		{

@@ -51,17 +51,18 @@ uint8_t * file_buffer_seek(file_buffer_t * fb, uint32_t address, uint32_t lenght
 
     if (address + lenght > fb->start_address + fb->chunk_size || address < fb->start_address)
     {
-        if (fb->file_size - address < fb->chunk_size)
+        uint32_t read_address = address;
+        if (fb->file_size - read_address < fb->chunk_size)
         {
-            address = fb->file_size - fb->chunk_size;
+            read_address = fb->file_size - fb->chunk_size;
         }
 
-        DBG("[fb_seek %08X]", address);
-        red_lseek(fb->handle, address, RED_SEEK_SET);
+        DBG("[fb_seek %08X]", read_address);
+        red_lseek(fb->handle, read_address, RED_SEEK_SET);
         int32_t rd = red_read(fb->handle, fb->buffer, fb->chunk_size);
         FASSERT(rd == (int32_t)fb->chunk_size);
 
-        fb->start_address = address;
+        fb->start_address = read_address;
     }
 
     return fb->buffer + (address - fb->start_address);

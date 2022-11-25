@@ -29,7 +29,6 @@ typedef enum
     ac_rmz,
     ac_wave_window,
     ac_undefined,
-    ac_hidden,
 } airspace_class_t;
 
 typedef struct
@@ -37,14 +36,6 @@ typedef struct
     int32_t latitude;
     int32_t longitude;
 } gnss_pos_t;
-
-typedef struct __gnss_pos_list_t
-{
-    int32_t latitude;
-    int32_t longitude;
-
-    struct __gnss_pos_list_t * next;
-} gnss_pos_list_t;
 
 typedef struct
 {
@@ -59,9 +50,21 @@ typedef struct
 #define BRUSH_TRANSPARENT_FLAG	0b10000000
 #define PEN_WIDTH_MASK			0b01111111
 
+typedef union
+{
+    uint32_t len;
+    char * ptr;
+} char_len_u;
+
+typedef union
+{
+    uint32_t pos;
+    gnss_pos_t * ptr;
+} point_pos_u;
+
 typedef struct __airspace_record_t
 {
-    char * name;
+    char_len_u name;
 
     uint16_t floor;
     uint16_t ceil;
@@ -74,19 +77,32 @@ typedef struct __airspace_record_t
     lv_color_t pen;
     lv_color_t brush;
 
-    gnss_pos_t * points;
+    point_pos_u points;
     uint32_t number_of_points;
 
     gnss_bbox_t bbox;
-
-    struct __airspace_record_t * next;
 } airspace_record_t;
 
 void airspace_create_lock();
-airspace_record_t * airspace_load(char * path, uint16_t * loaded, uint16_t * hidden, uint32_t * mem_used, bool gui);
-void airspace_free(airspace_record_t * as);
-void airspace_reload_parallel_task();
+void airspace_init_buffer();
 
+bool airspace_load(char * name, bool use_dialog);
 void airspace_unload();
+
+void airspace_load_parallel();
+void airspace_step();
+
+
+//maximum number of points in one airspace
+#define AIRSPACE_MAX_POINTS     (1024 * 4)
+//maximum name for airspace
+#define AIRSPACE_MAX_NAME_LEN   128
+//cache version, increment when changing format or handling
+#define AIRSPACE_CACHE_VERSION  15
+
+//maximum number of airspaces loaded in any moment
+#define AIRSPACE_INDEX_ALLOC    512
+//maximum memory to allocated for airspace points
+#define AIRSPACE_DATA_ALLOC     (512 * 1024)
 
 #endif /* FC_AIRSPACES_AIRSPACE_H_ */

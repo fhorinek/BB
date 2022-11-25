@@ -32,6 +32,7 @@ typedef struct ps_malloc_header
 static ps_malloc_header_t * ps_malloc_index;
 static uint32_t ps_malloc_used_chunks;
 static uint32_t ps_malloc_used_bytes;
+static uint32_t ps_malloc_used_bytes_max = 0;
 
 osSemaphoreId_t psram_lock;
 
@@ -283,6 +284,7 @@ void ps_malloc_summary_info()
     }
 
     INFO("total %u %u/%u (%u%% full)", total_slots, total_mem, PSRAM_SIZE, (total_mem * 100) / PSRAM_SIZE);
+    INFO("max watermark %u/%u (%u%% full)", ps_malloc_used_bytes_max, PSRAM_SIZE, (ps_malloc_used_bytes_max * 100) / PSRAM_SIZE);
     INFO("");
 }
 
@@ -296,7 +298,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
         return NULL;
 
     //round to next multiple of 4
-    requested_size = (requested_size + 3) & ~3;
+    requested_size = ROUND4(requested_size);
 
     ps_malloc_index = ps_malloc_next_free(ps_malloc_index, requested_size);
 
@@ -348,6 +350,8 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     }
 
 //    ps_malloc_info();
+
+    ps_malloc_used_bytes_max = max(ps_malloc_used_bytes_max, ps_malloc_used_bytes);
 
     osSemaphoreRelease(psram_lock);
 

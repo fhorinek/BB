@@ -24,4 +24,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len);
 
 void protocol_send_heartbeat();
 
+extern char strato_id[PROTO_ID_STR_LEN];
+extern char strato_fw[PROTO_FW_STR_LEN];
+extern char strato_hw[PROTO_HW_STR_LEN];
+
 #endif /* MAIN_PROTOCOL_H_ */

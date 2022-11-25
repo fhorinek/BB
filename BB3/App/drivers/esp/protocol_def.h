@@ -34,8 +34,19 @@ typedef enum {
 #define PROTO_PING              0x01
 #define PROTO_PONG              0x01
 
-#define PROTO_GET_INFO       	0x02
-#define PROTO_DEVICE_INFO       0x02
+#define PROTO_ID_STR_LEN        10
+#define PROTO_FW_STR_LEN        16
+#define PROTO_HW_STR_LEN       4
+
+#define PROTO_STM_INFO       	0x02
+typedef struct {
+	char id[PROTO_ID_STR_LEN];
+	char fw[PROTO_FW_STR_LEN];
+	char hw[PROTO_HW_STR_LEN];
+} proto_stm_info_t;
+
+
+#define PROTO_ESP_INFO       0x02
 
 typedef struct {
     proto_mac_t wifi_ap_mac;
@@ -44,7 +55,7 @@ typedef struct {
     proto_mac_t wifi_sta_mac;
     uint8_t _pad_2[2];
     proto_mac_t bluetooth_mac;
-} proto_device_info_t;
+} proto_esp_info_t;
 
 #define PROTO_SPI_PREPARE       0x03
 #define PROTO_SPI_READY         0x03

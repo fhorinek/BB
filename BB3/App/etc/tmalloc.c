@@ -22,6 +22,7 @@ typedef struct
 } mem_slot_t;
 
 static int32_t total_allocated = 0;
+static uint32_t total_allocated_max = 0;
 static uint16_t tmalloc_tag_val = 0;
 
 #define NUMBER_OF_SLOTS 4032
@@ -162,6 +163,7 @@ void tmalloc_summary_info_unlocked()
     uint32_t total_size = &_estack - &_end;
 
     INFO("total %u %u/%u (%u%% full)", total_slots, total_allocated, total_size, (total_allocated * 100) / total_size);
+    INFO("max watermark %u/%u (%u%% full)", total_allocated_max, total_size, (total_allocated_max * 100) / total_size);
     INFO("");
 }
 
@@ -266,7 +268,7 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     }
 
     //round
-    requested_size = (requested_size + 3) & ~3;
+    requested_size = ROUND4(requested_size);
 
     if (lineno == 0xFFFFFFFF)
     {
@@ -285,6 +287,7 @@ void * tmalloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     slot->tag = tmalloc_tag_val;
 
     total_allocated += requested_size + MALLOC_HEADER;
+    total_allocated_max = max(total_allocated_max, total_allocated);
 
     osMutexRelease(lock);
 
@@ -346,7 +349,7 @@ void tfree_real(void * ptr, char * name, int32_t lineno)
 
     if (lineno < 0)
     {
-        uint32_t requested_size = (abs(lineno) + 3) & ~3;
+        uint32_t requested_size = ROUND4(abs(lineno));
         slot->size -= requested_size;
     }
 

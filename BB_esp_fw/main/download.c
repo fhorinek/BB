@@ -44,6 +44,10 @@ void download_process_url(proto_download_url_t * packet)
 
 	esp_http_client_handle_t client = esp_http_client_init(&config);
 
+	esp_http_client_set_header(client, "X-Strato-ID", strato_id);
+	esp_http_client_set_header(client, "X-Strato-FW", strato_fw);
+	esp_http_client_set_header(client, "X-Strato-HW", strato_hw);
+
 	esp_err_t ret = esp_http_client_open(client, 0);
 	INFO("esp_http_client_open = %d", ret);
 	if (ret == ESP_OK)

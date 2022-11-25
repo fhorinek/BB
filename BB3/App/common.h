@@ -238,6 +238,8 @@ extern osThreadId_t SystemHandle;
 
 #define GETS_CORRUPTED      ((char *)INT32_MIN)
 
+#define ROUND4(A)   (((A) + 3) & ~ 3)
+
 //simple functions
 uint8_t hex_to_num(uint8_t c);
 bool start_with(char * s1, const char * s2);
