@@ -118,21 +118,62 @@ void geo_to_pix_w_h(int32_t lon, int32_t lat, uint8_t zoom, int32_t g_lon, int32
 }
 
 
+void align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lon, int32_t * c_lat)
+{
+    int32_t step_x;
+    int32_t step_y;
+
+    uint16_t zoom_p = pow(2, min(zoom, 9));
+
+    step_x = (zoom_p * (int64_t)GNSS_MUL) / MAP_DIV_CONST;
+
+    //get bbox
+    int32_t map_w = (MAP_W * step_x);
+//    uint32_t map_h = (MAP_H * step_x);//0;
+    int32_t map_h = 0;
+
+    *c_lon = (lon / map_w) * map_w + map_w / 2;
+//    *c_lat = (lat / map_h) * map_h + map_h / 2;
+//    return;
+
+    int32_t t_lat = 0;
+    int8_t last_lat = -1;
+    int32_t last_map_h = 0;
+
+    while (t_lat + map_h < lat)
+    {
+        t_lat += map_h;
+
+        if (t_lat / GNSS_MUL > last_lat)
+        {
+            last_lat = min(LAT_MULT_NUM_ELEMENTS - 1, abs(t_lat / GNSS_MUL));
+            step_y = (zoom_p * (int64_t)GNSS_MUL / lat_mult[last_lat]) / MAP_DIV_CONST;
+            last_map_h = map_h;
+            map_h = (MAP_H - 2) * step_y;
+        }
+    }
+
+    *c_lat = t_lat + last_map_h / 2;
+}
+
 //get degrees for one pixel
 void geo_get_steps(int32_t lat, uint16_t zoom, int32_t * step_x, int32_t * step_y)
 {
     uint16_t zoom_p = pow(2, min(zoom, 9));
 
 	*step_x = (zoom_p * (int64_t)GNSS_MUL) / MAP_DIV_CONST;
+//    *step_y = (zoom_p * (int64_t)GNSS_MUL) / MAP_DIV_CONST;
+//    return;
 	uint8_t lat_i = min(LAT_MULT_NUM_ELEMENTS - 1, abs(lat / GNSS_MUL));
 	*step_y = (zoom_p * (int64_t)GNSS_MUL / lat_mult[lat_i]) / MAP_DIV_CONST;
 }
 
+
 void geo_get_topo_steps(int32_t lat, int32_t step_x, int32_t step_y, int16_t * step_x_m, int16_t * step_y_m)
 {
 	uint8_t lat_i = min(LAT_MULT_NUM_ELEMENTS - 1, abs(lat / GNSS_MUL));
-    *step_x_m = max(1, (int64_t)step_x * 111000l / GNSS_MUL * lat_mult[lat_i]);
-    *step_y_m = max(1, (int64_t)step_y * 111000l / GNSS_MUL);
+    *step_x_m = max(1, (int64_t)step_x * 111000l / GNSS_MUL);
+    *step_y_m = max(1, (int64_t)step_y * 111000l / GNSS_MUL * lat_mult[lat_i]);
 }
 
 void geo_destination_f(float lat1, float lon1, float angle, float distance_km, float * lat2, float * lon2)

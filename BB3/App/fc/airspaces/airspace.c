@@ -642,9 +642,11 @@ bool airspace_open_cache(char * name, airspace_header_t * ah, int32_t * findex, 
 static void airspace_force_redraw()
 {
     //force redraw map
-    for (uint8_t i = 0; i < 9; i++)
+    for (uint8_t i = 0; i < MAP_CHUNKS; i++)
     {
-        if (gui.map.chunks[i].ready && gui.map.chunks[i].airspace)
+        if (gui.map.chunks[i].ready
+                && gui.map.chunks[i].airspace
+                && !gui.map.chunks[i].airspace_nothing_drawn)
         {
             gui.map.chunks[i].ready = false;
         }
@@ -696,8 +698,8 @@ bool airspace_load(char * name, bool use_dialog)
     geo_get_steps(c_lat, 0xFF, &step_x, &step_y);
 
     //get bbox
-    uint32_t map_w = MAP_W * step_x;
-    uint32_t map_h = MAP_H * step_y;
+    uint32_t map_w = LV_HOR_RES * step_x;
+    uint32_t map_h = LV_VER_RES * step_y;
     int32_t lon1 = c_lon - map_w / 2;
     int32_t lon2 = c_lon + map_w / 2;
     int32_t lat1 = c_lat + map_h / 2;

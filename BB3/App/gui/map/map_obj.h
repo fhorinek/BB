@@ -12,17 +12,18 @@
 
 #include "gui/gui_list.h"
 #include "fc/fc.h"
+#include "etc/geo_calc.h"
 
 typedef struct map_obj_data {
     lv_obj_t * map;
-    lv_obj_t * image[9];
+    lv_obj_t * image[MAP_CHUNKS];
     lv_obj_t * dot;
     lv_obj_t * arrow;
 
     lv_obj_t * poi[NUMBER_OF_POI];
     uint8_t poi_magic[NUMBER_OF_POI];
 
-    lv_point_t offsets[9];
+    lv_point_t offsets[MAP_CHUNKS];
     uint8_t master_tile;
 
     lv_obj_t * fanet_icons[NB_NUMBER_IN_MEMORY];

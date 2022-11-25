@@ -106,9 +106,9 @@ typedef struct
 
     uint8_t zoom;
     bool ready;
-    bool not_used;
 
     bool airspace;
+    bool airspace_nothing_drawn;
 
 } map_chunk_t;
 
@@ -216,7 +216,7 @@ typedef struct
         lv_obj_t * canvas;
         lv_color_t * canvas_buffer;
 
-        map_chunk_t chunks[9];
+        map_chunk_t chunks[63];
 
         map_poi_t poi[NUMBER_OF_POI];
         uint8_t poi_size;
