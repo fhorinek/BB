@@ -330,12 +330,6 @@ sk-SK:
   Circling: ~
   Gliding: ~
   Landed: ~
-  ' Add widget': ~
-  '  select ': ~
-  '  move ': ~
-  '  scale ': ~
-  ' Change widget': ~
-  ' Remove widget': ~
   '----Widget settings----': ~
   Do you really want to remove widget '%s'?: ~
   Remove widget: ~
@@ -384,3 +378,8 @@ sk-SK:
   Bluetooth off: ~
   Bluetooth on/off: ~
   Select widget: ~
+  Add widget: ~
+  select: ~
+  move: ~
+  scale: ~
+  Change widget: ~
