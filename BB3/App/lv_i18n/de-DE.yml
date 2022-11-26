@@ -433,7 +433,7 @@ de-DE:
   Page settings: Seiteneinstellungen
   Edit page: Seite editieren
   Autoset: ~
-  Move left: geh links 
+  Move left: geh links
   Move right: geh rechts
   Hide page: Seite verstecken
   Show hidden page: Zeige versteckte Seiten
@@ -462,8 +462,8 @@ de-DE:
   Bluetooth off: Bluetooth aus
   Bluetooth on/off: Bluetooth an/aus
   Select widget: Widget wählen
-  Add widget: ~
-  select: ~
-  move: ~
-  scale: ~
-  Change widget: ~
+  Add widget: Widget hinzufügen
+  select: Auswahl
+  move: bewegen
+  scale: skalieren
+  Change widget: Widget ändern
