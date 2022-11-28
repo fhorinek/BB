@@ -79,7 +79,7 @@ void page_edit_set_mode(page_edit_mode_t mode)
 
     if (local->page.number_of_widgets == 0)
     {
-        snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s", _(" Add widget"));
+        snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Add widget"));
         lv_label_set_text(local->mode_label, buf);
         ctx_hide();
         return;
@@ -93,23 +93,23 @@ void page_edit_set_mode(page_edit_mode_t mode)
     switch (mode)
     {
         case(mode_select):
-            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "%s" LV_SYMBOL_RIGHT, _("  select "));
+            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "  %s " LV_SYMBOL_RIGHT, _("select"));
             lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_move_x):
-            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "%s" LV_SYMBOL_RIGHT, _("  move "));
+            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "  %s " LV_SYMBOL_RIGHT, _("move"));
             lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_move_y):
-            snprintf(buf, sizeof(buf), LV_SYMBOL_UP "%s" LV_SYMBOL_DOWN, _("  move "));
+            snprintf(buf, sizeof(buf), LV_SYMBOL_UP "  %s " LV_SYMBOL_DOWN, _("move"));
             lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_size_x):
-            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "%s" LV_SYMBOL_RIGHT, _("  scale "));
+            snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT "  %s " LV_SYMBOL_RIGHT, _("scale"));
             lv_label_set_text(local->mode_label, buf);
         break;
         case(mode_size_y):
-            snprintf(buf, sizeof(buf), LV_SYMBOL_UP "%s" LV_SYMBOL_DOWN, _("  scale "));
+            snprintf(buf, sizeof(buf), LV_SYMBOL_UP "  %s " LV_SYMBOL_DOWN, _("scale"));
             lv_label_set_text(local->mode_label, buf);
         break;
         default:
@@ -262,11 +262,11 @@ void page_edit_ctx_open(uint8_t index)
         char buf[64];
 	
 	ctx_clear();
-	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s", _(" Add widget"));
+	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Add widget"));
 	ctx_add_option(buf);
-	snprintf(buf, sizeof(buf), LV_SYMBOL_REFRESH "%s", _(" Change widget"));
+	snprintf(buf, sizeof(buf), LV_SYMBOL_REFRESH " %s", _("Change widget"));
 	ctx_add_option(buf);
-	snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH "%s", _(" Remove widget"));
+	snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH " %s", _("Remove widget"));
 	ctx_add_option(buf);
 
 	bool widget_flags_title = false;

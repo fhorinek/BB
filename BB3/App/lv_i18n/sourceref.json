@@ -2520,67 +2520,74 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_autoset.c#L149"
   },
   {
-    "key": " Add widget",
+    "key": "Add widget",
     "line": 82,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L82"
   },
   {
-    "key": " Add widget",
+    "key": "Add widget",
     "line": 265,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L265"
   },
   {
-    "key": "  select ",
+    "key": "select",
     "line": 96,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L96"
   },
   {
-    "key": "  move ",
+    "key": "move",
     "line": 100,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L100"
   },
   {
-    "key": "  move ",
+    "key": "move",
     "line": 104,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L104"
   },
   {
-    "key": "  scale ",
+    "key": "scale",
     "line": 108,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L108"
   },
   {
-    "key": "  scale ",
+    "key": "scale",
     "line": 112,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L112"
   },
   {
-    "key": " Change widget",
+    "key": "Change widget",
     "line": 267,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L267"
   },
   {
-    "key": " Remove widget",
+    "key": "Remove widget",
     "line": 269,
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L269"
+  },
+  {
+    "key": "Remove widget",
+    "line": 393,
+    "plural": false,
+    "fileName": "../gui/tasks/page/page_edit.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L393"
   },
   {
     "key": "----Widget settings----",
@@ -2595,13 +2602,6 @@
     "plural": false,
     "fileName": "../gui/tasks/page/page_edit.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L392"
-  },
-  {
-    "key": "Remove widget",
-    "line": 393,
-    "plural": false,
-    "fileName": "../gui/tasks/page/page_edit.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/page_edit.c#L393"
   },
   {
     "key": "Page name",

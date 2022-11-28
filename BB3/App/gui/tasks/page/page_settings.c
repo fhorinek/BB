@@ -685,9 +685,9 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 
     if (page_cnt > 1)
     {
-        snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_CLOSE "%s ", _("Hide page"));
+        snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_CLOSE " %s", _("Hide page"));
         gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_unload_cb);
-        snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH "%s ", _("Remove page"));
+        snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH " %s", _("Remove page"));
         gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_remove_cb);
     }
 
@@ -697,13 +697,13 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 
         if (hidden_pages_cnt() > 0)
         {
-            snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s ", _("Show hidden page"));
+            snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Show hidden page"));
             gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_load_cb);
         }
 
-	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s ", _("Add empty page"));
+	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Add empty page"));
         gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_add_cb);
-	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS "%s ", _("Duplicate existing"));
+	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Duplicate existing"));
         gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_copy_cb);
     }
 

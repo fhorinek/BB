@@ -48,13 +48,10 @@ de-DE:
   "New firmware\n %s is available.": |-
     Neue Firmware
      %s ist verfügbar.
-  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": >-
+  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": |-
     Dein Gerät nutzt gerade eine Entwicklungs-Firmware.
 
-
-    Es könnte sehr instabil sein und sollte nur von Entwicklern und Testern
-    verwendet werden.
-
+    Es könnte sehr instabil sein und sollte nur von Entwicklern und Testern verwendet werden.
 
     Wir empfehlen auf eine offizielle Version zu wechseln.
   "Firmware updated\n to %s": |-
@@ -190,7 +187,7 @@ de-DE:
   Serial number: Seriennummer
   Hardware revision: Hardware Revision
   Do you want to restore factory settings?: Willst Du auf Firmeneinstellungen zurücksetzen?
-  Display: ~
+  Display: Anzeige
   Units: Einheiten
   Advanced: Erweitert
   Firmware: ~
@@ -377,81 +374,96 @@ de-DE:
     Wir lösen nun den Crash aus.
 
     Der Absturzbericht wird auf deinem Strato als USB-Laufwerk verfügbar sein.
-  "No airspace loaded.\n\nAre you using OpenAir format?": ~
-  "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org": ~
-  Enabled classes: ~
+  "No airspace loaded.\n\nAre you using OpenAir format?": |-
+    Kein Luftraum geladen.
+
+    Verwendest Du das OpenAir Format?
+  "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org": |-
+    Platziere Luftraum-Dateien im OpenAir-Format im Verzeichnis airspace.
+
+    Wir empfehlen die Nutzung
+    von airspace.xcontest.org
+  Enabled classes: Aktivierte Klassen
   GNSS Status: ~
   "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.": ~
-  Add new: ~
-  Duplicate: ~
-  Delete: ~
-  Pilot profile: ~
-  Flight profile: ~
-  Edit pilot profile: ~
-  Rescan: ~
-  'Saved, ': ~
-  Open: ~
-  Secure: ~
-  Enter password: ~
-  WiFi network: ~
-  "Switch to page\n'%s' when...": ~
-  "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?": ~
-  Page autoset: ~
-  Powered on: ~
-  Circling: ~
-  Gliding: ~
-  Landed: ~
-  ' Add widget': ~
-  '  select ': ~
-  '  move ': ~
-  '  scale ': ~
-  ' Change widget': ~
-  ' Remove widget': ~
-  '----Widget settings----': ~
-  Do you really want to remove widget '%s'?: ~
-  Remove widget: ~
-  Page name: ~
-  Page '%s' removed: ~
-  Already exists!: ~
-  new_%u: ~
-  Page '%s' created at position %u: ~
-  Remove page: ~
-  Do you want to remove this page?: ~
-  Page with name '%s' already exist: ~
-  Page '%s' deleted: ~
-  Page '%s' loaded to position %u: ~
-  List: ~
-  Preview: ~
-  Do you want to remove page '%s': ~
-  Set new page name: ~
-  Page '%s' copied to position %u: ~
-  Page settings: ~
-  Edit page: ~
+  Add new: Hinzufügen
+  Duplicate: Kopieren
+  Delete: Löschen
+  Pilot profile: Piloten-Profil
+  Flight profile: Flug-Profil
+  Edit pilot profile: Editiere Piloten-Profil
+  Rescan: Aktualisieren
+  'Saved, ': 'Gespeichert, '
+  Open: Öffnen
+  Secure: Sicher
+  Enter password: Passwort eingeben
+  WiFi network: WiFi-Netzwerk
+  "Switch to page\n'%s' when...": |-
+    Wechseln zur Seite
+    '%s' wenn...
+  "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?": |-
+    Ereignis '%s' gesetzt für Seite
+    '%s'.
+
+    Willst Du es für
+    '%s' setzen?
+  Page autoset: Seite automatisch
+  Powered on: Anschalten
+  Circling: Kreisen
+  Gliding: Gleiten
+  Landed: Gelandet
+  '----Widget settings----': '----Widget Einstellungen----'
+  Do you really want to remove widget '%s'?: Willst Du das Widget '%s' entfernen?
+  Remove widget: Widget entfernen
+  Page name: Seitenname
+  Page '%s' removed: Seite '%s' entfernt
+  Already exists!: Besteht bereits!
+  new_%u: neu_%u
+  Page '%s' created at position %u: Seite '%s' an Position '%u' erstellt
+  Remove page: Seite entfernen
+  Do you want to remove this page?: Willst Du die Seite entfernen?
+  Page with name '%s' already exist: Seite mit Namen '%s' existiert bereits
+  Page '%s' deleted: Seite '%s' gelöscht
+  Page '%s' loaded to position %u: Seite '%s' an Position '%u' geladen
+  List: Liste
+  Preview: Voransicht
+  Do you want to remove page '%s': Willst Du Seite '%s' entfernen
+  Set new page name: Neuen Seitennamen setzen
+  Page '%s' copied to position %u: Seite '%s' an Position '%u' kopiert
+  Page settings: Seiteneinstellungen
+  Edit page: Seite editieren
   Autoset: ~
-  Move left: ~
-  Move right: ~
-  Hide page: ~
-  Show hidden page: ~
-  Add empty page: ~
-  Duplicate existing: ~
-  Take off: ~
-  Glide: ~
-  Power on: ~
-  Menu left shortcut: ~
-  Menu right shortcut: ~
-  Page left shortcut: ~
-  Page right shortcut: ~
-  "Page '%s'\nnot found.": ~
-  IGC key missing!: ~
-  Flight start: ~
-  Flight stop: ~
-  Start/Stop flight: ~
-  Map zoom in: ~
-  Map zoom out: ~
-  Wi-Fi on: ~
-  Wi-Fi off: ~
-  Wi-Fi on/off: ~
-  Bluetooth on: ~
-  Bluetooth off: ~
-  Bluetooth on/off: ~
-  Select widget: ~
+  Move left: geh links
+  Move right: geh rechts
+  Hide page: Seite verstecken
+  Show hidden page: Zeige versteckte Seiten
+  Add empty page: Leere Seite hinzufügen
+  Duplicate existing: Bestehende kopieren
+  Take off: Abheben
+  Glide: Gleiten
+  Power on: Anschalten
+  Menu left shortcut: Menü links Kurzwahl
+  Menu right shortcut: Menü rechts Kurzwahl
+  Page left shortcut: Seite links Kurzwahl
+  Page right shortcut: Seite rechts Kurzwahl
+  "Page '%s'\nnot found.": |-
+    Seite '%s'
+    nicht gefunden.
+  IGC key missing!: IGC-Key fehlt!
+  Flight start: Flug startet
+  Flight stop: Flug ended
+  Start/Stop flight: Start/Stopp Flug
+  Map zoom in: Karte reinzoomen
+  Map zoom out: Karte rauszoomen
+  Wi-Fi on: Wi-Fi an
+  Wi-Fi off: Wi-Fi aus
+  Wi-Fi on/off: Wi-Fi an/aus
+  Bluetooth on: Bluetooth an
+  Bluetooth off: Bluetooth aus
+  Bluetooth on/off: Bluetooth an/aus
+  Select widget: Widget wählen
+  Add widget: Widget hinzufügen
+  select: Auswahl
+  move: bewegen
+  scale: skalieren
+  Change widget: Widget ändern
