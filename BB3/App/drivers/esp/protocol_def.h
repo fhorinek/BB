@@ -393,6 +393,9 @@ typedef struct {
 	uint8_t fix; //0: No signal, 2: 2D, 3: 3D, 0xFF turn off fake gnss
 } proto_fake_gnss_t;
 
+#define PROTO_FAKE_GNSS_ACK             0xF1
+
+
 #define PROTO_GET_TASKS                 0xF2
 #define PROTO_TASKS_RES                 0xF2
 

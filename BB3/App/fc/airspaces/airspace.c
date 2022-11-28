@@ -720,7 +720,7 @@ bool airspace_load(char * name, bool use_dialog)
         filter[i] = !e->value.b;
     }
 
-    uint32_t max_alt = config_get_int(&profile.airspace.display.below);
+    uint32_t max_alt = (config_get_int(&profile.airspace.display.below) * 100) / FC_METER_TO_FEET;
 
     for (uint32_t i = 0; i < ah.number_of_records; i++)
     {

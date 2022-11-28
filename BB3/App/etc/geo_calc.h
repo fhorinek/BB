@@ -18,7 +18,7 @@
 #define MAP_W       128
 #define MAP_H       128
 #define MAP_ROWS    5
-#define MAP_COLS    3
+#define MAP_COLS    4
 
 //single tile 1889
 //sum 2:15min

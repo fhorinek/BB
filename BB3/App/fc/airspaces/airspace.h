@@ -101,7 +101,7 @@ void airspace_step();
 #define AIRSPACE_CACHE_VERSION  15
 
 //maximum number of airspaces loaded in any moment
-#define AIRSPACE_INDEX_ALLOC    512
+#define AIRSPACE_INDEX_ALLOC    (512)
 //maximum memory to allocated for airspace points
 #define AIRSPACE_DATA_ALLOC     (512 * 1024)
 
