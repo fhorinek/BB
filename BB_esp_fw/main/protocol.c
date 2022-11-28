@@ -152,6 +152,8 @@ void protocol_task_info(void * param)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
+	DBG("protocol_handle %02X", type);
+
     int64_t start = esp_timer_get_time();
     protocol_last_packet = start;
 
@@ -166,6 +168,11 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 			stm_wdt_start();
             protocol_send(PROTO_PONG, NULL, 0);
         break;
+
+        case (PROTO_FAKE_GNSS_ACK):
+			//since PROTO_FAKE_GNSS act as ping, no PINGS are generated and ESP does not see any communication from STM
+			//PROTO_FAKE_GNSS_ACK act as pong from STM
+		break;
 
         case (PROTO_STM_INFO):
 		{

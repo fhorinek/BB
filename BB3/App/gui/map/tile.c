@@ -55,7 +55,7 @@ typedef struct
 } map_info_entry_t;
 
 #define CACHE_START_WORD    0x55AA
-#define CACHE_VERSION       37
+#define CACHE_VERSION       39
 
 #define CACHE_HAVE_AGL      0b10000000
 #define CACHE_HAVE_MAP_MASK 0b01111111
@@ -317,7 +317,7 @@ uint8_t load_agl_data(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, in
     return CACHE_HAVE_AGL;
 }
 
-void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * magic)
+void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint8_t * magic, uint8_t zoom)
 {
     //create static dest buffer for tile in psram
     static int16_t * topo_alt = NULL;
@@ -471,7 +471,7 @@ void draw_topo(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t s
     DBG("Loading data done (%u)", HAL_GetTick() - timestamp);
     timestamp = HAL_GetTick();
 
-    bool blur_enable = config_get_bool(&profile.map.blur);
+    bool blur_enable = config_get_bool(&profile.map.blur) && zoom <= 4;
 
     if (blur_enable)
     {
@@ -1406,7 +1406,7 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     lv_canvas_set_buffer(gui.map.canvas, gui.map.canvas_buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
 
     //draw topomap
-    draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, ch.src_files_magic);
+    draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, ch.src_files_magic, zoom);
 
     //draw lines and polygons
     tile_create(lon1, lat1, lon2, lat2, step_x, step_y, zoom, ch.src_files_magic, index);

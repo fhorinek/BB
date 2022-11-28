@@ -261,8 +261,8 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 {
-//    if (type != PROTO_DEBUG)
-//        DBG("protocol_handle %u", type);
+    if (type != PROTO_DEBUG)
+        DBG("protocol_handle %02X", type);
 
 	fc.esp.last_ping = HAL_GetTick();
 
@@ -534,6 +534,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
     		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
     		config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+
+    		protocol_send(PROTO_FAKE_GNSS_ACK, NULL, 0);
 		}
         break;
 

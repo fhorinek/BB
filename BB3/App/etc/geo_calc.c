@@ -132,10 +132,12 @@ void align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lo
 //    uint32_t map_h = (MAP_H * step_x);//0;
     int32_t map_h = 0;
 
-    *c_lon = (lon / map_w) * map_w + map_w / 2;
+    *c_lon = (lon / map_w) * map_w + map_w / (lon > 0 ? 2 : -2);
 //    *c_lat = (lat / map_h) * map_h + map_h / 2;
 //    return;
 
+    bool neg = lat < 0;
+    lat = abs(lat);
     int32_t t_lat = 0;
     int8_t last_lat = -1;
     int32_t last_map_h = 0;
@@ -154,6 +156,9 @@ void align_to_cache_grid(int32_t lon, int32_t lat, uint16_t zoom, int32_t * c_lo
     }
 
     *c_lat = t_lat + last_map_h / 2;
+
+    if (neg)
+        *c_lat *= -1;
 }
 
 //get degrees for one pixel
