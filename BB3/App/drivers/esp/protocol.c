@@ -534,6 +534,8 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
     		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
     		config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+
+    		protocol_send(PROTO_FAKE_GNSS_ACK, NULL, 0);
 		}
         break;
 
