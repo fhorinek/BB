@@ -26,6 +26,7 @@ typedef enum
     wf_no_rotate,
     wf_hide_icon,
     wf_use_vario,
+    wf_show_date,
 
 	wf_def_size
 }  widget_flags_id_t;

@@ -223,11 +223,11 @@ flight_profile_t profile =
     {
         //page
         {
-            entry_text("page[0]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[1]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[2]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[3]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[4]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[0]", "data", PAGE_NAME_LEN, 0),
+            entry_text("page[1]", "radar", PAGE_NAME_LEN, 0),
+            entry_text("page[2]", "basic", PAGE_NAME_LEN, 0),
+            entry_text("page[3]", "map", PAGE_NAME_LEN, 0),
+            entry_text("page[4]", "thermal", PAGE_NAME_LEN, 0),
             entry_text("page[5]", "", PAGE_NAME_LEN, 0),
             entry_text("page[6]", "", PAGE_NAME_LEN, 0),
             entry_text("page[7]", "", PAGE_NAME_LEN, 0),
@@ -235,7 +235,7 @@ flight_profile_t profile =
             entry_text("page[9]", "", PAGE_NAME_LEN, 0),
         },
         //page_last
-        entry_int("page_last", 0, 0, PAGE_MAX_COUNT - 1),
+        entry_int("page_last", 3, 0, PAGE_MAX_COUNT - 1),
         //last_lon
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
@@ -246,13 +246,13 @@ flight_profile_t profile =
 			//power_on
 			entry_text("page_power", "", PAGE_NAME_LEN, 0),
 			//take_off
-			entry_text("page_takeoff", "", PAGE_NAME_LEN, 0),
+			entry_text("page_takeoff", "basic", PAGE_NAME_LEN, 0),
 			//circle
-			entry_text("page_circle", "", PAGE_NAME_LEN, 0),
+			entry_text("page_circle", "thermal", PAGE_NAME_LEN, 0),
 			//glide
-			entry_text("page_glide", "", PAGE_NAME_LEN, 0),
+			entry_text("page_glide", "basic", PAGE_NAME_LEN, 0),
 			//land
-			entry_text("page_land", "", PAGE_NAME_LEN, 0),
+			entry_text("page_land", "data", PAGE_NAME_LEN, 0),
 		},
     },
 

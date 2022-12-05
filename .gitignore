@@ -22,3 +22,7 @@ Utilities/CrashDebug/gdbgui/elf/
 Utilities/CrashDebug/gdbgui/report/
 Utilities/CrashDebug/gdbgui/*.zip
 
+
+BB_esp_fw/override
+
+BB_esp_fw/fs.bin

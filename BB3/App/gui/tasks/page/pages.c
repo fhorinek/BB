@@ -740,47 +740,16 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	local->page = NULL;
 	local->page_old = NULL;
 
-	local->pages_cnt = pages_get_count();
 
 	char path[PATH_LEN];
 	snprintf(path, sizeof(path), "%s/%s", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
-	if (!file_exists(path) || local->pages_cnt == 0)
+	if (!file_exists(path))
 	{
 	    //make profile dir
 	    red_mkdir(path);
-
-	    //copy default layouts
-		char def[PATH_LEN];
-		snprintf(def, sizeof(def), "%s/defaults/pages", PATH_ASSET_DIR);
-
-		if (file_exists(def))
-		{
-	        copy_dir(def, path);
-
-            //set default pages
-	        uint8_t cnt = 0;
-
-	        snprintf(path, sizeof(path), "%s/%s/basic.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
-	        if (file_exists(path))
-	        {
-                config_set_text(&profile.ui.page[cnt], "basic");
-                config_set_text(&profile.ui.autoset.take_off, "basic");
-                config_set_text(&profile.ui.autoset.glide, "basic");
-
-                cnt++;
-	        }
-
-            snprintf(path, sizeof(path), "%s/%s/thermal.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile));
-            if (file_exists(path))
-            {
-                config_set_text(&profile.ui.page[cnt], "thermal");
-                config_set_text(&profile.ui.autoset.circle, "thermal");
-                cnt++;
-            }
-
-            local->pages_cnt = cnt;
-        }
 	}
+
+    local->pages_cnt = pages_get_count();
 
 	if (local->pages_cnt == 0)
 	{

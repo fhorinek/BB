@@ -3,6 +3,26 @@ iframe
     display: none;
 }
 
+ul
+{
+    padding-left: 0;
+}
+
+li
+{
+    list-style: none;
+}
+
+
+div.center-box
+{
+    border: 1px gray solid;
+    max-width: 600px;
+    margin: auto;
+    width: 95%;
+    border-radius: 30px;
+}
+
 svg polygon.outline
 {
     fill: yellow;
