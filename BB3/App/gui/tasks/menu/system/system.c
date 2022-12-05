@@ -7,10 +7,11 @@
 
 
 
+#include "calibration/calib_menu.h"
+#include "diagnostic.h"
 #include "gui/gui_list.h"
 
 #include "datetime/datetime.h"
-#include "advanced/advanced.h"
 #include "display.h"
 #include "info.h"
 #include "firmware.h"
@@ -47,7 +48,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Time & date", NEXT_TASK, &gui_datetime);
     gui_list_auto_entry(list, "Display", NEXT_TASK, &gui_display);
     gui_list_auto_entry(list, "Units", NEXT_TASK, &gui_units);
-    gui_list_auto_entry(list, "Advanced", NEXT_TASK, &gui_advanced);
+    gui_list_auto_entry(list, "Calibration", NEXT_TASK, &gui_calib_menu);
 
     char rev_str[20];
     rev_get_sw_string(rev_str);
@@ -55,6 +56,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);
 
     gui_list_auto_entry(list, "Device info", NEXT_TASK, &gui_info);
+    gui_list_auto_entry(list, "Diagnostic", NEXT_TASK, &gui_diagnostic);
 
     gui_list_auto_entry(list, "Restore factory settings", CUSTOM_CB, restore_cb);
 

@@ -1,0 +1,24 @@
+{? render /inc/header.htm;File manager ?}<br>
+
+<div class="row">
+    <div class="center-box">
+        <div class="row">
+            <div>
+                <h3 id="files-path"></h3>
+                <p id="files-content"></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <input type="button" value="Refresh" id="refresh_dir"/>
+            <!--input type="button" value="Upload" id="upload_file"/-->
+	        <input id="file-selector" type="file" hidden="true"/>
+        </div>
+    </div>
+</div>
+
+<script src="assets/FileSaver.js"></script>
+<script src="js/common.js"></script>
+<script src="js/files.js"></script>
+
+{? insert /inc/footer.htm ?}

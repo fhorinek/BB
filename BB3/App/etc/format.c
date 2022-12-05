@@ -188,7 +188,7 @@ void format_altitude_2(char * buff, float in, uint8_t units)
 
 void format_altitude(char * buff, float in)
 {
-    int16_t val;
+    int32_t val;
 
     switch (config_get_select(&config.units.altitude))
     {
@@ -207,7 +207,7 @@ void format_altitude(char * buff, float in)
 
 void format_altitude_gain_2(char * buff, float in, uint8_t units)
 {
-    int16_t val;
+    int32_t val;
 
     switch (units)
     {
@@ -227,7 +227,7 @@ void format_altitude_gain_2(char * buff, float in, uint8_t units)
 
 void format_altitude_gain(char * buff, float in)
 {
-    int16_t val;
+    int32_t val;
 
     switch (config_get_select(&config.units.altitude))
     {

@@ -18,6 +18,7 @@ widget_flag_def_t widgets_flags[] = {
     {'R', "North is up", "Adjust to heading", NULL},
     {'H', LV_SYMBOL_EYE_CLOSE " Hide icon", LV_SYMBOL_EYE_OPEN " Show icon", NULL},
     {'0', "Show actual vario", "Show average vario", NULL},
+    {'1', "Only time", "Time and Date", NULL},
 };
 
 

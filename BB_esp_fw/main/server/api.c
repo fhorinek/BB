@@ -41,14 +41,17 @@ esp_err_t api_sound(httpd_req_t * req)
 
 	if (read_post_int16(data, "cnt", &cnt))
 	{
-		pairs = ps_malloc(sizeof(tone_pair_t *) * cnt);
-		for (uint8_t i = 0; i < cnt; i++)
+		if (cnt > 0)
 		{
-			sprintf(tone_key, "tone_%u", i);
-			sprintf(dura_key, "dura_%u", i);
+			pairs = ps_malloc(sizeof(tone_pair_t *) * cnt);
+			for (uint8_t i = 0; i < cnt; i++)
+			{
+				sprintf(tone_key, "tone_%u", i);
+				sprintf(dura_key, "dura_%u", i);
 
-			read_post_int16(data, tone_key, &pairs[i].tone);
-			read_post_int16(data, dura_key, &pairs[i].dura);
+				read_post_int16(data, tone_key, &pairs[i].tone);
+				read_post_int16(data, dura_key, &pairs[i].dura);
+			}
 		}
 
 		vario_create_sequence(pairs, cnt);
