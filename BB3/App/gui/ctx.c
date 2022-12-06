@@ -26,13 +26,14 @@ void ctx_close()
 	if (gui.ctx.mode == ctx_opened)
 	{
 		//refocus old object
+        if (gui.ctx.last_focus != NULL)
+        {
+            lv_group_focus_obj(gui.ctx.last_focus);
+            lv_group_set_editing(gui.input.group, gui.ctx.last_editing);
+            gui.ctx.last_focus = NULL;
+        }
+
 		lv_group_remove_obj(gui.ctx.dropdown);
-		if (gui.ctx.last_focus != NULL)
-		{
-			lv_group_focus_obj(gui.ctx.last_focus);
-			lv_group_set_editing(gui.input.group, gui.ctx.last_editing);
-			gui.ctx.last_focus = NULL;
-		}
 
 		gui.ctx.mode = ctx_active;
 	}

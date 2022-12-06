@@ -367,15 +367,15 @@ flight_profile_t profile =
 			//class_B
 			entry_bool("as_B", true),
 			//class_C
-			entry_bool("as_C", false),
+			entry_bool("as_C", true),
 			//class_D
-			entry_bool("as_D", false),
+			entry_bool("as_D", true),
 			//class_E
-			entry_bool("as_E", false),
+			entry_bool("as_E", true),
 			//class_F
-			entry_bool("as_F", false),
+			entry_bool("as_F", true),
 			//class_G
-			entry_bool("as_G", false),
+			entry_bool("as_G", true),
 			//glider_prohibited
 			entry_bool("as_gp", true),
 			//ctr
@@ -385,9 +385,9 @@ flight_profile_t profile =
 			//rmz
 			entry_bool("as_rmz", true),
 			//wave_window
-			entry_bool("as_ww", false),
+			entry_bool("as_ww", true),
 			//undefined
-			entry_bool("as_undef", false),
+			entry_bool("as_undef", true),
 		},
 	},
 
