@@ -25,8 +25,8 @@ typedef struct ps_malloc_header
     uint32_t canary;
     struct ps_malloc_header * prev_header;
     uint32_t chunk_size;
-    char file[FILE_NAME_SIZE];
-    uint32_t line;
+    uint16_t file;
+    uint16_t line;
 } ps_malloc_header_t;
 
 static ps_malloc_header_t * ps_malloc_index;
@@ -185,7 +185,7 @@ void ps_malloc_info_unlocked()
     {
     	INFO(" %4u %08X %08X %08X %8lu %s %s:%u", slot, act, act->prev_header,
     	        PS_GET_ADDR(act), PS_SIZE(act), (PS_IS_FREE(act) ? "free" : "used"),
-    	        (PS_IS_FREE(act) ? "" : act->file), (PS_IS_FREE(act) ? 0 : act->line));
+    	        (PS_IS_FREE(act) ? "" : trace_filenames[act->file]), (PS_IS_FREE(act) ? 0 : act->line));
     	if (last != act->prev_header)
     	{
     		ERR(" ^^^ Corruption! ^^^");
@@ -198,31 +198,32 @@ void ps_malloc_info_unlocked()
     INFO("");
 }
 
+
 typedef struct
 {
-    char file[FILE_NAME_SIZE];
-    uint32_t line;
+    uint16_t file;
+    uint16_t line;
     uint32_t cnt;
     uint32_t total;
 } slot_sumary_t;
 
 #define SUMARY_SLOTS    32
 
-slot_sumary_t * ps_find_sumary_slot(slot_sumary_t * slots, char * file, uint32_t line)
+slot_sumary_t * ps_find_sumary_slot(slot_sumary_t * slots, int16_t file, uint32_t line)
 {
     for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
     {
         if (line == slots[i].line)
         {
-            if (strcmp(slots[i].file, file) == 0)
+            if (slots[i].file == file)
             {
                 return &slots[i];
             }
         }
 
-        if (slots[i].file[0] == 0)
+        if (slots[i].cnt == 0)
         {
-            strcpy(slots[i].file, file);
+            slots[i].file = file;
             slots[i].line = line;
 
             return &slots[i];
@@ -255,7 +256,6 @@ void ps_malloc_summary_info()
 
         if (last != act->prev_header)
         {
-            ERR(" ^^^ Corruption! ^^^");
             bsod_msg("PSRAM memory corrupted!");
         }
 
@@ -271,9 +271,9 @@ void ps_malloc_summary_info()
     INFO(" slot cnt  memory used");
     for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
     {
-        if (slots[i].file[0] != 0)
+        if (slots[i].cnt != 0)
         {
-            INFO(" %4u %3u   %10u  %s:%u", i, slots[i].cnt, slots[i].total, slots[i].file, slots[i].line);
+            INFO(" %4u %3u   %10u  %s:%u", i, slots[i].cnt, slots[i].total, trace_filenames[slots[i].file], slots[i].line);
             total_mem += slots[i].total;
             total_slots += slots[i].cnt;
         }
@@ -287,6 +287,83 @@ void ps_malloc_summary_info()
     INFO("max watermark %u/%u (%u%% full)", ps_malloc_used_bytes_max, PSRAM_SIZE, (ps_malloc_used_bytes_max * 100) / PSRAM_SIZE);
     INFO("");
 }
+
+void bsod_psram_memory_info()
+{
+    int32_t f = red_open(PATH_CRASH_PSRAM, RED_O_CREAT | RED_O_TRUNC | RED_O_WRONLY);
+    if (f > 0)
+    {
+        char line[128];
+
+        snprintf(line, sizeof(line), " slot      hdr     prev     addr     size state\n");
+        red_write(f, line, strlen(line));
+
+        ps_malloc_header_t * act = (ps_malloc_header_t *)PSRAM_ADDR;
+        slot_sumary_t slots[SUMARY_SLOTS] = {0};
+
+        uint16_t slot = 0;
+        void * last = 0;
+        while (act < (ps_malloc_header_t *)(PSRAM_ADDR + PSRAM_SIZE))
+        {
+            snprintf(line, sizeof(line), " %4u %08X %08X %08X %8lu %s %s:%u\n",
+                    slot, act, (void *)act->prev_header,
+                    PS_GET_ADDR(act), PS_SIZE(act), (PS_IS_FREE(act) ? "free" : "used"),
+                    (PS_IS_FREE(act) ? "" : trace_filenames[act->file]), (PS_IS_FREE(act) ? 0 : act->line));
+            red_write(f, line, strlen(line));
+
+            if (last != act->prev_header)
+            {
+                snprintf(line, sizeof(line), " ^^^ Corruption! ^^^\n");
+                red_write(f, line, strlen(line));
+                red_close(f);
+                return;
+            }
+
+            if (!PS_IS_FREE(act))
+            {
+                slot_sumary_t * s = ps_find_sumary_slot(slots, act->file, act->line);
+                if (s != NULL)
+                {
+                    s->cnt++;
+                    s->total += act->chunk_size;
+                }
+            }
+
+
+            last = act;
+            slot++;
+            act = (void *)act + PS_SIZE(act) + sizeof(ps_malloc_header_t);
+        }
+
+        uint32_t total_mem = 0;
+        uint32_t total_slots = 0;
+
+        snprintf(line, sizeof(line), "\n slot cnt  memory used\n");
+        red_write(f, line, strlen(line));
+        for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
+        {
+            if (slots[i].cnt != 0)
+            {
+                snprintf(line, sizeof(line), " %4u %3u   %10u  %s:%u\n", i, slots[i].cnt, slots[i].total, trace_filenames[slots[i].file], slots[i].line);
+                red_write(f, line, strlen(line));
+                total_mem += slots[i].total;
+                total_slots += slots[i].cnt;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        snprintf(line, sizeof(line), "\ntotal %u %u/%u (%u%% full)\n", total_slots, total_mem, PSRAM_SIZE, (total_mem * 100) / PSRAM_SIZE);
+        red_write(f, line, strlen(line));
+        snprintf(line, sizeof(line), "max watermark %u/%u (%u%% full)\n", ps_malloc_used_bytes_max, PSRAM_SIZE, (ps_malloc_used_bytes_max * 100) / PSRAM_SIZE);
+        red_write(f, line, strlen(line));
+
+        red_close(f);
+    }
+}
+
 
 void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
 {
@@ -306,8 +383,7 @@ void * ps_malloc_real(uint32_t requested_size, char * name, uint32_t lineno)
     {
         int32_t size_left = PS_SIZE(ps_malloc_index) - requested_size;
 
-        strncpy(ps_malloc_index->file, name, FILE_NAME_SIZE);
-        ps_malloc_index->file[FILE_NAME_SIZE - 1] = 0;
+        ps_malloc_index->file = trace_find_filename_slot(name);
         ps_malloc_index->line = lineno;
         ps_malloc_index->canary = 0xBADC0FFE;
 

@@ -223,6 +223,7 @@ const CrashCatcherMemoryRegion * CrashCatcher_GetMemoryRegions(void)
     {
         //DTCM
         {0x20000000, 0x20020000, CRASH_CATCHER_BYTE},
+        //ITCM is used only for CrashCatcher stack
         //RAM
         {0x24000000, 0x24100000, CRASH_CATCHER_BYTE},
         //PSRAM

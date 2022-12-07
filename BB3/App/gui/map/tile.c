@@ -1402,9 +1402,6 @@ bool tile_generate(uint8_t index, int32_t lon, int32_t lat, uint16_t zoom)
     ch.start_word = CACHE_START_WORD;
     ch.version = CACHE_VERSION;
 
-    //assign buffer
-    lv_canvas_set_buffer(gui.map.canvas, gui.map.canvas_buffer, MAP_W, MAP_H, LV_IMG_CF_TRUE_COLOR);
-
     //draw topomap
     draw_topo(lon1, lat1, lon2, lat2, step_x, step_y, ch.src_files_magic, zoom);
 

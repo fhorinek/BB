@@ -23,6 +23,9 @@ void * ps_realloc(void * ptr, uint32_t size);
 void ps_free(void * ptr);
 
 void ps_malloc_init();
+
 void ps_malloc_info();
+void ps_malloc_summary_info();
+void bsod_psram_memory_info();
 
 #endif /* DRIVERS_PSRAM_H_ */

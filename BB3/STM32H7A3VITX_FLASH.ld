@@ -60,6 +60,12 @@ SECTIONS
    *(.dtcmram)
    *(.dtcmram*)
  } >DTCMRAM
+ 
+ .itcm (NOLOAD) :
+ {
+   *(.itcmram)
+   *(.itcmram*)
+ } >ITCMRAM
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :

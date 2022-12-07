@@ -26,3 +26,7 @@ Utilities/CrashDebug/gdbgui/*.zip
 BB_esp_fw/override
 
 BB_esp_fw/fs.bin
+
+Utilities/Snippets/a.out
+
+Utilities/Snippets/dtcm.bin
