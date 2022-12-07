@@ -50,7 +50,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_list_auto_entry(list, _("Time & date"), NEXT_TASK, &gui_datetime);
     gui_list_auto_entry(list, _("Display"), NEXT_TASK, &gui_display);
     gui_list_auto_entry(list, _("Units"), NEXT_TASK, &gui_units);
-    gui_list_auto_entry(list, _("Advanced"), NEXT_TASK, &gui_advanced);
+    gui_list_auto_entry(list, _("Calibration"), NEXT_TASK, &gui_calib_menu);
 
     char rev_str[20];
     rev_get_sw_string(rev_str);
@@ -58,7 +58,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);
 
     gui_list_auto_entry(list, _("Device info"), NEXT_TASK, &gui_info);
-    gui_list_auto_entry(list, "Diagnostic", NEXT_TASK, &gui_diagnostic);
+    gui_list_auto_entry(list, _("Diagnostic"), NEXT_TASK, &gui_diagnostic);
 
     gui_list_auto_entry(list, _("Restore factory settings"), CUSTOM_CB, restore_cb);
 

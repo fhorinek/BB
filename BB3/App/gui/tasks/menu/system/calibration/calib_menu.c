@@ -97,10 +97,11 @@ lv_obj_t * calib_menu_init(lv_obj_t * par)
 
     if (fc.imu.status == fc_dev_ready)
     {
-        gui_list_auto_entry(list, _("Recalibrate Gyroscope"), CUSTOM_CB, advanced_calib_gyro);
-        gui_list_auto_entry(list, _("Recalibrate Accelerometer"), CUSTOM_CB, advanced_calib_acc);
-        gui_list_auto_entry(list, _("Recalibrate Magnetometer"), CUSTOM_CB, advanced_calib_mag);
-        gui_list_auto_entry(list, _("Reset calibration"), CUSTOM_CB, advanced_calib_clear);	}
+        gui_list_auto_entry(list, _("Recalibrate Gyroscope"), CUSTOM_CB, calib_menu_calib_gyro);
+        gui_list_auto_entry(list, _("Recalibrate Accelerometer"), CUSTOM_CB, calib_menu_calib_acc);
+        gui_list_auto_entry(list, _("Recalibrate Magnetometer"), CUSTOM_CB, calib_menu_calib_mag);
+        gui_list_auto_entry(list, _("Reset calibration"), CUSTOM_CB, calib_menu_calib_clear);
+    }
 
 
     return list;
