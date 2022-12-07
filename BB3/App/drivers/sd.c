@@ -28,7 +28,7 @@ uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
     if (sd_failsafe)
     {
         uint8_t status = HAL_SD_ReadBlocks(&hsd1, (uint8_t *)pData, ReadAddr, NumOfBlocks, SD_TIMEOUT);
-        FAULT("sd_read_blocks %08X %u = %u", ReadAddr, NumOfBlocks, status);
+        //FAULT("sd_read_blocks %08X %u = %u", ReadAddr, NumOfBlocks, status);
 
         return status;
     }
@@ -79,9 +79,10 @@ uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlock
     {
         uint8_t status = HAL_SD_WriteBlocks(&hsd1, (uint8_t *)pData, WriteAddr, NumOfBlocks, SD_TIMEOUT);
 
-        FAULT("sd_write_blocks %08X %u", WriteAddr, NumOfBlocks);
+        //FAULT("sd_write_blocks %08X %u", WriteAddr, NumOfBlocks);
         if (status != HAL_OK)
         {
+            FAULT("sd_write_blocks %08X %u", WriteAddr, NumOfBlocks);
             FAULT(" error %u %X", status, hsd1.ErrorCode);
         }
         else

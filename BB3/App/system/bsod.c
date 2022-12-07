@@ -12,6 +12,7 @@
 #include "drivers/rev.h"
 #include "drivers/psram.h"
 #include "lib/miniz/miniz.h"
+#include "etc/tmalloc.h"
 
 const struct mf_font_s * bsod_font;
 
@@ -360,6 +361,8 @@ void bsod_list_flies()
     bsod_redraw();
 }
 
+bool filemanager_get_filename(char * dst, char * path);
+
 void bsod_zip_path(mz_zip_archive * zip, char * path)
 {
     static char buff[PATH_LEN];
@@ -388,7 +391,19 @@ void bsod_zip_path(mz_zip_archive * zip, char * path)
 
                 //do not include wifi passwords!
                 if (strcmp(buff, PATH_NETWORK_DB) != 0)
-                    mz_zip_writer_add_file(zip, buff, buff, "", 0, MZ_NO_COMPRESSION);
+                {
+                    char tmp[REDCONF_NAME_MAX];
+                    filemanager_get_filename(tmp, buff);
+                    bsod_draw_text(TFT_WIDTH / 2, (bsod_line + 1) * LINE_SIZE, tmp, MF_ALIGN_CENTER);
+                    bsod_redraw();
+
+                    mz_zip_writer_add_file(zip, buff, buff, "", 0, MZ_BEST_SPEED);
+
+                    uint32_t start = ((bsod_line + 1) * LINE_SIZE + 1) * TFT_WIDTH;
+                    uint32_t len = LINE_SIZE * TFT_WIDTH * 2;
+                    memset(tft_buffer + start, 0xFF, len);
+                    bsod_redraw();
+                }
             }
         }
         red_closedir(dir);
@@ -399,6 +414,7 @@ void bsod_bundle_report()
 {
     bsod_draw_text(LEFT_PAD, (bsod_line) * LINE_SIZE, "Compressing...", MF_ALIGN_LEFT);
     bsod_redraw();
+    int16_t tmp = gfx_last_x;
 
     char path[PATH_LEN];
     mz_zip_archive * zip = malloc(sizeof(mz_zip_archive));
@@ -419,6 +435,9 @@ void bsod_bundle_report()
 
     if (res)
     {
+        strcpy(path, PATH_AIRSPACE_DIR);
+        bsod_zip_path(zip, path);
+
         strcpy(path, PATH_CONFIG_DIR);
         bsod_zip_path(zip, path);
 
@@ -430,7 +449,7 @@ void bsod_bundle_report()
         free(zip);
 
         remove_dir(PATH_CRASH_DIR);
-
+        gfx_last_x = tmp;
         bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "done", MF_ALIGN_LEFT);
     }
     else
@@ -445,6 +464,8 @@ void bsod_crash_dumped()
 {
     bsod_draw_text(gfx_last_x, (bsod_line++) * LINE_SIZE, "done", MF_ALIGN_LEFT);
 
+    bsod_tmalloc_info();
+    bsod_psram_memory_info();
     bsod_list_flies();
     bsod_bundle_report();
 

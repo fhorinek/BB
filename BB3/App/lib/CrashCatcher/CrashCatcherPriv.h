@@ -19,7 +19,7 @@
 
 /* Definitions used by assembly language and C code. */
 #if !defined(CRASH_CATCHER_STACK_WORD_COUNT)
-#define CRASH_CATCHER_STACK_WORD_COUNT 512
+#define CRASH_CATCHER_STACK_WORD_COUNT 16384
 #endif
 
 /* Does this device support THUMB instructions for FPU access? */
@@ -51,7 +51,7 @@
 
 /* This is the area of memory that would normally be used for the stack when running on an actual Cortex-M
    processor.  Unit tests can write to this buffer to simulate stack overflow. */
-extern uint32_t g_crashCatcherStack[CRASH_CATCHER_STACK_WORD_COUNT];
+//extern uint32_t g_crashCatcherStack[CRASH_CATCHER_STACK_WORD_COUNT];
 
 
 /* The main entry point into CrashCatcher.  Is called from the HardFault exception handler and unit tests. */

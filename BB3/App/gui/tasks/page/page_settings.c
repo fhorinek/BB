@@ -298,6 +298,8 @@ void page_settings_close_preview()
 
 void page_settings_open_preview(char * path)
 {
+    INFO("page preview %s", path);
+
     page_settings_close_preview();
 
     static_prev_par = lv_obj_create(lv_scr_act(), NULL);
