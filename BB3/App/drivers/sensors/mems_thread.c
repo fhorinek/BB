@@ -17,7 +17,7 @@
 
 #include "fc/fc.h"
 
-#include "gui/tasks/menu/system/advanced/calibration.h"
+#include <gui/tasks/menu/system/calibration/calibration.h>
 
 //Mems
 //1E - acc + mag

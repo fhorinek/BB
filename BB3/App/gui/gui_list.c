@@ -594,6 +594,8 @@ lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_
 	lv_obj_set_style_local_bg_color(entry, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, color);
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
+	lv_label_set_long_mode(label, LV_LABEL_LONG_BREAK);
+    lv_obj_set_width_fit(label, lv_obj_get_width(entry));
 	lv_label_set_text(label, text);
 
 	if (color.full == LV_COLOR_BLACK.full)

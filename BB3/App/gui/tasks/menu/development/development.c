@@ -21,7 +21,7 @@ REGISTER_TASK_IL(development,
 );
 
 
-void development_trigger_tast(void * param)
+void development_trigger_task(void * param)
 {
 	while(1)
 	{
@@ -39,11 +39,15 @@ void development_trigger()
 
 //    sound_start(PATH_TTS_DIR "/gnss_ok.wav");
 
- //   xTaskCreate((TaskFunction_t)development_trigger_tast, "dev_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+ //   xTaskCreate((TaskFunction_t)development_trigger_task, "dev_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
 
     statusbar_msg_add(STATUSBAR_MSG_INFO, "development_trigger");
 
-
+    uint8_t * a = tmalloc(8);
+    uint8_t * b = tmalloc(8);
+    memset(a, 0, 16);
+    //tfree(a);
+    tfree(b);
 
     //FASSERT(0);
 }

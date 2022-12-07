@@ -40,10 +40,11 @@ void page_settings_open_fm()
 {
     page_settings_close_preview();
 
-    gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+    gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
     char path[PATH_LEN] = {0};
     str_join(path, 3, PATH_PAGES_DIR, "/", config_get_text(&config.flight_profile));
     filemanager_open(path, 0, &gui_pages, FM_FLAG_FILTER | FM_FLAG_HIDE_DIR | FM_FLAG_SORT_NAME | FM_FLAG_FOCUS, page_settings_load_page_fm_cb);
+    filemanager_set_anim_dir(false);
 }
 
 
@@ -297,6 +298,8 @@ void page_settings_close_preview()
 
 void page_settings_open_preview(char * path)
 {
+    INFO("page preview %s", path);
+
     page_settings_close_preview();
 
     static_prev_par = lv_obj_create(lv_scr_act(), NULL);
@@ -336,7 +339,7 @@ bool page_settings_load_page_fm_cb(uint8_t event, char * path)
             static_prev_mode = false;
             page_settings_close_preview();
 
-            gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+            gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_LEFT);
             uint8_t page_index = config_get_int(&profile.ui.page_last);
             char * page_name = config_get_text(&profile.ui.page[page_index]);
             page_settings_set_page_name(page_name, page_index);
@@ -477,6 +480,48 @@ static bool page_settings_load_cb(lv_obj_t * obj, lv_event_t event)
 }
 
 void page_settings_open_copy_fm(bool anim);
+bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path);
+
+bool page_settings_load_page_copy_defaults_fm_cb(uint8_t event, char * path)
+{
+    if (event == FM_CB_BACK)
+    {
+        static_prev_mode = false;
+        page_settings_close_preview();
+
+        gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+        filemanager_open(PATH_PAGES_DIR, 0, &gui_pages, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME, page_settings_load_page_copy_fm_cb);
+        filemanager_set_anim_dir(false);
+
+        return false;
+    }
+
+    if (event == FM_CB_APPEND)
+    {
+        return false;
+    }
+
+    return page_settings_load_page_copy_fm_cb(event, path);
+}
+
+static bool page_settings_open_copy_defaults_fm(lv_obj_t * obj, lv_event_t event)
+{
+
+    if (event == LV_EVENT_CLICKED)
+    {
+        page_settings_close_preview();
+
+        gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+        char path[PATH_LEN] = {0};
+        strcpy(path, PATH_ASSET_DIR "/defaults/pages");
+        filemanager_open(path, 0, &gui_pages, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME, page_settings_load_page_copy_defaults_fm_cb);
+        filemanager_set_title(LV_SYMBOL_COPY " Strato default pages");
+        filemanager_set_anim_dir(false);
+    }
+
+    //supress default handler
+    return false;
+}
 
 bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
 {
@@ -510,7 +555,7 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
             static_prev_mode = false;
             page_settings_close_preview();
 
-            gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+            gui_switch_task(&gui_page_settings, LV_SCR_LOAD_ANIM_MOVE_LEFT);
             uint8_t page_index = config_get_int(&profile.ui.page_last);
             char * page_name = config_get_text(&profile.ui.page[page_index]);
             page_settings_set_page_name(page_name, page_index);
@@ -573,6 +618,14 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
             break;
         }
 
+        case FM_CB_APPEND:
+        {
+            //only in root dir
+            if (filemanager_get_current_level() == 0)
+                gui_list_auto_entry(gui.list.list, LV_SYMBOL_COPY " Strato default pages", CUSTOM_CB, page_settings_open_copy_defaults_fm);
+        }
+        break;
+
         case 0: //Preview
         {
             if (static_prev_mode)
@@ -595,10 +648,9 @@ void page_settings_open_copy_fm(bool anim)
 {
     page_settings_close_preview();
 
-    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_NONE);
-    char path[PATH_LEN] = {0};
-    strcpy(path, PATH_PAGES_DIR);
-    filemanager_open(path, 0, &gui_pages, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME, page_settings_load_page_copy_fm_cb);
+    gui_switch_task(&gui_filemanager, (anim) ? LV_SCR_LOAD_ANIM_MOVE_RIGHT : LV_SCR_LOAD_ANIM_NONE);
+    filemanager_open(PATH_PAGES_DIR, 0, &gui_pages, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME, page_settings_load_page_copy_fm_cb);
+    filemanager_set_anim_dir(false);
 }
 
 static bool page_settings_copy_cb(lv_obj_t * obj, lv_event_t event)

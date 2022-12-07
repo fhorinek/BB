@@ -63,7 +63,7 @@ static void dialog_event_cb(lv_obj_t * obj, lv_event_t event)
 {
     uint32_t key = 0;
 
-    if(event == LV_EVENT_KEY || event == LV_EVENT_CLICKED)
+    if (event == LV_EVENT_KEY || event == LV_EVENT_CLICKED)
     {
         if (event == LV_EVENT_CLICKED)
             key = LV_KEY_ENTER;

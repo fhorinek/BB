@@ -48,6 +48,8 @@ REGISTER_TASK_IS(filemanager,
 	uint8_t level;
 	uint16_t filenames_count;
 	uint32_t inode;
+    lv_scr_load_anim_t anim_dir_forward;
+    lv_scr_load_anim_t anim_dir_backward;
 );
 
 static char filemanager_active_fname[REDCONF_NAME_MAX];
@@ -137,7 +139,7 @@ bool filemanager_back()
             ret = local->cb(FM_CB_BACK, "");
 
         if (ret)
-        	gui_switch_task(local->back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+        	gui_switch_task(local->back, local->anim_dir_backward);
 	}
 	else
 	{
@@ -150,14 +152,16 @@ bool filemanager_back()
 		}
 		else
 		{
-			gui_switch_task(local->back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+			gui_switch_task(local->back, local->anim_dir_backward);
 			return false;
 		}
 
 		//we are switching to the same task
 		//"local" variable will belong to new task now
-		gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+		gui_local_vars_t * old = gui_switch_task(&gui_filemanager, local->anim_dir_backward);
 		filemanager_open(new_path, old->level - 1, old->back, old->flags, old->cb);
+	    local->anim_dir_backward = old->anim_dir_backward;
+	    local->anim_dir_forward = old->anim_dir_forward;
 	}
 	return true;
 }
@@ -254,8 +258,10 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		{
 			//we are switching to the same task
 			//"local" variable will belong to new task after gui_switch_task
-			gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+			gui_local_vars_t * old = gui_switch_task(&gui_filemanager, local->anim_dir_forward);
 			filemanager_open(new_path, old->level + 1, old->back, old->flags, old->cb);
+	        local->anim_dir_backward = old->anim_dir_backward;
+	        local->anim_dir_forward = old->anim_dir_forward;
 		}
 		else
 		{
@@ -264,7 +270,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 				ret = local->cb(FM_CB_SELECT, new_path);
 
             if (ret)
-                gui_switch_task(local->back, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+                gui_switch_task(local->back, local->anim_dir_backward);
 
 		}
 
@@ -321,9 +327,24 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	return false;
 }
 
+void filemanager_set_anim_dir(bool normal)
+{
+    if (normal)
+    {
+        local->anim_dir_forward = LV_SCR_LOAD_ANIM_MOVE_LEFT;
+        local->anim_dir_backward = LV_SCR_LOAD_ANIM_MOVE_RIGHT;
+    }
+    else
+    {
+        local->anim_dir_forward = LV_SCR_LOAD_ANIM_MOVE_RIGHT;
+        local->anim_dir_backward = LV_SCR_LOAD_ANIM_MOVE_LEFT;
+    }
+}
 
 static lv_obj_t * filemanager_init(lv_obj_t * par)
 {
+    filemanager_set_anim_dir(true);
+
 	local->list = gui_list_create(par, "", NULL, filemanager_cb);
 	local->cb = NULL;
 	local->path[0] = 0;
@@ -335,6 +356,8 @@ static lv_obj_t * filemanager_init(lv_obj_t * par)
 
     return local->list;
 }
+
+
 
 static void filemanager_stop()
 {
@@ -587,10 +610,17 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	}
 }
 
+void filemanager_set_title(char * title)
+{
+    lv_win_set_title(local->list, title);
+}
+
 //reopen filemanager in the same dir, useful when removing or adding files
 void filemanager_refresh()
 {
     gui_local_vars_t * old = gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_NONE);
     filemanager_open(old->path, old->level, old->back, old->flags, old->cb);
+    local->anim_dir_backward = old->anim_dir_backward;
+    local->anim_dir_forward = old->anim_dir_forward;
 }
 

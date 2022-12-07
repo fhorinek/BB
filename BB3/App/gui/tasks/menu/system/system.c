@@ -7,10 +7,11 @@
 
 
 
+#include "calibration/calib_menu.h"
+#include "diagnostic.h"
 #include "gui/gui_list.h"
 
 #include "datetime/datetime.h"
-#include "advanced/advanced.h"
 #include "display.h"
 #include "info.h"
 #include "firmware.h"
@@ -57,6 +58,7 @@ lv_obj_t * system_init(lv_obj_t * par)
     gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);
 
     gui_list_auto_entry(list, _("Device info"), NEXT_TASK, &gui_info);
+    gui_list_auto_entry(list, "Diagnostic", NEXT_TASK, &gui_diagnostic);
 
     gui_list_auto_entry(list, _("Restore factory settings"), CUSTOM_CB, restore_cb);
 

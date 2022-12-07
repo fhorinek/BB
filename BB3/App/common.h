@@ -108,6 +108,7 @@ typedef struct
 } quaternion_t;
 
 #define DTCM_SECTION __attribute__((section(".dtcmram")))
+#define ITCM_SECTION __attribute__((section(".itcmram")))
 
 #define BLINK(A)                (HAL_GetTick() % A > (A / 2))
 #define min(a,b)                ((a)<(b)?(a):(b))
@@ -200,6 +201,8 @@ extern osThreadId_t SystemHandle;
 #define PATH_CRASH_INFO     PATH_CRASH_DIR "/info.yaml"
 #define PATH_CRASH_FILES    PATH_CRASH_DIR "/files.txt"
 #define PATH_CRASH_LOG      PATH_CRASH_DIR "/debug.log"
+#define PATH_CRASH_PSRAM    PATH_CRASH_DIR "/psram.txt"
+#define PATH_CRASH_RAM      PATH_CRASH_DIR "/ram.txt"
 #define PATH_CRASH_BUNDLE   "crash_report"
 
 #define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"

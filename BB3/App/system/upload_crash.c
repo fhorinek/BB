@@ -86,7 +86,6 @@ void upload_crash_callback(uint8_t status, upload_slot_t *slot)
         {
             statusbar_msg_close(context->status_bar_progress_handle);
         }
-        tfree(context);
     }
 }
 

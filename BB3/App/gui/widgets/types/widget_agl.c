@@ -43,6 +43,8 @@ static void Agl_update(widget_slot_t * slot)
 
     if (fc.gnss.fix == 0)
     	strcpy(value, _("No\nGNSS"));
+    else if (fc.gnss.fix != 3)
+        strcpy(value, _("Need\n3D fix"));
     else if (fc.agl.agl == AGL_INVALID)
         strcpy(value, _("No TOPO\ndata"));
     else

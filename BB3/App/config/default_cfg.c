@@ -232,11 +232,11 @@ flight_profile_t profile =
     {
         //page
         {
-            entry_text("page[0]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[1]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[2]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[3]", "", PAGE_NAME_LEN, 0),
-            entry_text("page[4]", "", PAGE_NAME_LEN, 0),
+            entry_text("page[0]", "data", PAGE_NAME_LEN, 0),
+            entry_text("page[1]", "radar", PAGE_NAME_LEN, 0),
+            entry_text("page[2]", "basic", PAGE_NAME_LEN, 0),
+            entry_text("page[3]", "map", PAGE_NAME_LEN, 0),
+            entry_text("page[4]", "thermal", PAGE_NAME_LEN, 0),
             entry_text("page[5]", "", PAGE_NAME_LEN, 0),
             entry_text("page[6]", "", PAGE_NAME_LEN, 0),
             entry_text("page[7]", "", PAGE_NAME_LEN, 0),
@@ -244,7 +244,7 @@ flight_profile_t profile =
             entry_text("page[9]", "", PAGE_NAME_LEN, 0),
         },
         //page_last
-        entry_int("page_last", 0, 0, PAGE_MAX_COUNT - 1),
+        entry_int("page_last", 3, 0, PAGE_MAX_COUNT - 1),
         //last_lon
 		entry_big_int("last_lon", 0, big_int_max_range),
         //last_lat
@@ -259,13 +259,13 @@ flight_profile_t profile =
 			//power_on
 			entry_text("page_power", "", PAGE_NAME_LEN, 0),
 			//take_off
-			entry_text("page_takeoff", "", PAGE_NAME_LEN, 0),
+			entry_text("page_takeoff", "basic", PAGE_NAME_LEN, 0),
 			//circle
-			entry_text("page_circle", "", PAGE_NAME_LEN, 0),
+			entry_text("page_circle", "thermal", PAGE_NAME_LEN, 0),
 			//glide
-			entry_text("page_glide", "", PAGE_NAME_LEN, 0),
+			entry_text("page_glide", "basic", PAGE_NAME_LEN, 0),
 			//land
-			entry_text("page_land", "", PAGE_NAME_LEN, 0),
+			entry_text("page_land", "data", PAGE_NAME_LEN, 0),
 		},
     },
 
@@ -384,15 +384,15 @@ flight_profile_t profile =
 			//class_B
 			entry_bool("as_B", true),
 			//class_C
-			entry_bool("as_C", false),
+			entry_bool("as_C", true),
 			//class_D
-			entry_bool("as_D", false),
+			entry_bool("as_D", true),
 			//class_E
-			entry_bool("as_E", false),
+			entry_bool("as_E", true),
 			//class_F
-			entry_bool("as_F", false),
+			entry_bool("as_F", true),
 			//class_G
-			entry_bool("as_G", false),
+			entry_bool("as_G", true),
 			//glider_prohibited
 			entry_bool("as_gp", true),
 			//ctr
@@ -402,9 +402,9 @@ flight_profile_t profile =
 			//rmz
 			entry_bool("as_rmz", true),
 			//wave_window
-			entry_bool("as_ww", false),
+			entry_bool("as_ww", true),
 			//undefined
-			entry_bool("as_undef", false),
+			entry_bool("as_undef", true),
 		},
 	},
 

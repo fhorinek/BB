@@ -4,9 +4,8 @@
  *  Created on: Jan 29, 2021
  *      Author: horinek
  */
+#include "calib_menu.h"
 #include "calibration.h"
-#include "advanced.h"
-
 #include "drivers/nvm.h"
 
 #include "fc/imu.h"
@@ -88,10 +87,10 @@ static void calibration_end()
     }
 
     nvm_update_imu_calibration(&local->calib);
-    statusbar_msg_add(STATUSBAR_MSG_INFO, "Calibration values stored");
+    statusbar_msg_add(STATUSBAR_MSG_INFO, _("Calibration values stored"));
     imu_init();
 
-    gui_switch_task(&gui_advanced, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+    gui_switch_task(&gui_calib_menu, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 }
 
 
@@ -100,10 +99,10 @@ void calibration_set_state(calib_state_t state)
     local->samples = 0;
 
     if (local->state == local->end_step)
-	{
-    	calibration_end();
-    	return;
-	}
+    {
+        calibration_end();
+        return;
+    }
 
     switch (state)
     {
@@ -461,7 +460,7 @@ static void calibration_event_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CANCEL)
     {
-        gui_switch_task(&gui_advanced, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+        gui_switch_task(&gui_calib_menu, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
     }
 }
 

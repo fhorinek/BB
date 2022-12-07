@@ -16,7 +16,7 @@ REGISTER_WIDGET_IU
     "Time - time and date",
     WIDGET_MIN_W,
     WIDGET_MIN_H,
-	_b(wf_label_hide) | _b(wf_alt_unit),
+	_b(wf_label_hide) | _b(wf_show_date),
 
     lv_obj_t * value;
 );
@@ -30,7 +30,7 @@ static void TimeDate_init(lv_obj_t * base, widget_slot_t * slot)
 
     if (!widget_flag_is_set(slot, wf_label_hide))
     {
-        if (widget_flag_is_set(slot, wf_alt_unit))
+        if (widget_flag_is_set(slot, wf_show_date))
         	title = _("Time/Date");
         else
         	title = _("Time");
@@ -51,7 +51,7 @@ static void TimeDate_update(widget_slot_t * slot)
 
 		rtc_get_time(&h, &m, &s);
 		format_time(value, h, m);
-        if (widget_flag_is_set(slot, wf_alt_unit))
+        if (widget_flag_is_set(slot, wf_show_date))
         {
         	char *end;
         	uint8_t day, wday, month;

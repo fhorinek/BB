@@ -42,6 +42,7 @@ HardFault_Handler:
         r11
         exceptionLR */
     mrs     r3, xpsr
+
     mrs     r2, psp
     mrs     r1, msp
     ldr     sp, =(g_crashCatcherStack + 4 * CRASH_CATCHER_STACK_WORD_COUNT)

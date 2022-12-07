@@ -60,6 +60,12 @@ SECTIONS
    *(.dtcmram)
    *(.dtcmram*)
  } >DTCMRAM
+ 
+ .itcm (NOLOAD) :
+ {
+   *(.itcmram)
+   *(.itcmram*)
+ } >ITCMRAM
 
  .itcm :
  {

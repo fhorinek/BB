@@ -189,7 +189,11 @@ bool widgets_load_from_file(page_layout_t * page, char * layout_name)
 {
 	char path[PATH_LEN];
 
-	snprintf(path, sizeof(path), "%s/%s/%s.pag", PATH_PAGES_DIR, config_get_text(&config.flight_profile), layout_name);
+	snprintf(path, sizeof(path), PATH_PAGES_DIR "/%s/%s.pag", config_get_text(&config.flight_profile), layout_name);
+
+	if (!file_exists(path))
+        snprintf(path, sizeof(path), PATH_ASSET_DIR "/defaults/pages/%s.pag", layout_name);
+
 	return widgets_load_from_file_abs(page, path);
 }
 
