@@ -23,6 +23,9 @@
 
 #include "linked_list.h"
 
+#include "nvs.h"
+#include "nvs_flash.h"
+
 static bool protocol_enable_processing = false;
 
 TimerHandle_t stm_wtd = 0;
@@ -360,6 +363,14 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         {
             xTaskCreate((TaskFunction_t)protocol_task_info, "protocol_task_info", 1024 * 3, NULL, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
         }
+        break;
+
+        case (PROTO_RESET_NVM):
+		{
+        	INFO("reseting nvm partition");
+        	ESP_ERROR_CHECK(nvs_flash_erase());
+        	protocol_send(PROTO_RESET_NVM_ACK, NULL, 0);
+		}
         break;
 
         default:
