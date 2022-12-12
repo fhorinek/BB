@@ -277,6 +277,7 @@ typedef struct
 		cfg_entry_t use_usb;
 		cfg_entry_t esp_off;
         cfg_entry_t esp_wdt;
+        cfg_entry_t esp_gdbstub;
         cfg_entry_t tasks;
         cfg_entry_t vario_test;
         cfg_entry_t lvgl_info;

@@ -20,6 +20,7 @@
 #include "bluetooth/bluetooth.h"
 #include "pipeline/pipeline.h"
 #include "pipeline/output.h"
+#include "coredump_upload_service.h"
 
 #include "linked_list.h"
 
@@ -77,6 +78,8 @@ void protocol_send_info()
     data.amp_ok = system_status.amp_ok;
 
     protocol_send(PROTO_ESP_INFO, (uint8_t *)&data, sizeof(data));
+
+    //coredump_need_upload();
 }
 
 void protocol_send_spi_ready(uint32_t len)
@@ -155,7 +158,7 @@ void protocol_task_info(void * param)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
-	DBG("protocol_handle %02X", type);
+//	DBG("protocol_handle %02X", type);
 
     int64_t start = esp_timer_get_time();
     protocol_last_packet = start;
