@@ -529,6 +529,8 @@ config_t config =
 		entry_bool("dbg_esp_off", false),
         //esp_wdt
         entry_bool("dbg_esp_wdt", true),
+        //esp_gdbstub
+        entry_bool("dbg_esp_gdbstub", false),
         //tasks
         entry_select("dbg_tasks", DBG_TASK_NONE, dbg_task_select),
 		//vario_test

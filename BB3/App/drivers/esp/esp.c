@@ -17,6 +17,7 @@
 
 #include "protocol.h"
 #include "scan.h"
+#include "gui/dialog.h"
 
 //DMA buffer
 #define ESP_DMA_BUFFER_SIZE   512
@@ -136,6 +137,15 @@ void esp_disable_external_programmer()
     esp_reboot();
 }
 
+static void esp_gdbstub_cb(dialog_result_t res, void * data)
+{
+    if (res == dialog_res_yes)
+    {
+        esp_reboot();
+    }
+}
+
+
 void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
 {
     switch (res)
@@ -149,6 +159,23 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
            if (strstr((char *)data, "DOWNLOAD_BOOT") != NULL)
            {
                esp_enable_external_programmer(esp_external_auto);
+           }
+           if (strstr((char *)data, "Entering gdb stub now.") != NULL)
+           {
+               if (config_get_bool(&config.debug.esp_gdbstub))
+               {
+                   esp_enable_external_programmer(esp_external_manual);
+                   {
+                       dialog_show("ESP32 Crashed!",
+                               "and entered gdb stub mode, you can attach debugger via ESP serial port.\n\n"
+                               "Confirm to reboot ESP, Cancel to close this dialog.",
+                               dialog_yes_no, esp_gdbstub_cb);
+                   }
+               }
+               else
+               {
+                   esp_reboot();
+               }
            }
         }
         break;
