@@ -20,8 +20,12 @@
 #include "bluetooth/bluetooth.h"
 #include "pipeline/pipeline.h"
 #include "pipeline/output.h"
+#include "coredump_upload_service.h"
 
 #include "linked_list.h"
+
+#include "nvs.h"
+#include "nvs_flash.h"
 
 static bool protocol_enable_processing = false;
 
@@ -74,6 +78,8 @@ void protocol_send_info()
     data.amp_ok = system_status.amp_ok;
 
     protocol_send(PROTO_ESP_INFO, (uint8_t *)&data, sizeof(data));
+
+    //coredump_need_upload();
 }
 
 void protocol_send_spi_ready(uint32_t len)
@@ -152,7 +158,7 @@ void protocol_task_info(void * param)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
-	DBG("protocol_handle %02X", type);
+//	DBG("protocol_handle %02X", type);
 
     int64_t start = esp_timer_get_time();
     protocol_last_packet = start;
@@ -360,6 +366,14 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
         {
             xTaskCreate((TaskFunction_t)protocol_task_info, "protocol_task_info", 1024 * 3, NULL, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
         }
+        break;
+
+        case (PROTO_RESET_NVM):
+		{
+        	INFO("reseting nvm partition");
+        	ESP_ERROR_CHECK(nvs_flash_erase());
+        	protocol_send(PROTO_RESET_NVM_ACK, NULL, 0);
+		}
         break;
 
         default:

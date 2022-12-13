@@ -94,6 +94,16 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	return true;
 }
 
+static bool esp_reset_nvm_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        protocol_send(PROTO_RESET_NVM, NULL, 0);
+    }
+
+    return true;
+}
+
 static lv_obj_t * development_init(lv_obj_t * par)
 {
     help_set_base("Development");
@@ -110,6 +120,8 @@ static lv_obj_t * development_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, "ESP Disable", &config.debug.esp_off, NULL);
     gui_list_auto_entry(list, "ESP Watchdog", &config.debug.esp_wdt, NULL);
+    gui_list_auto_entry(list, "ESP enter gdbstub", &config.debug.esp_gdbstub, NULL);
+    gui_list_auto_entry(list, "ESP Reset NVM", CUSTOM_CB, esp_reset_nvm_cb);
     gui_list_auto_entry(list, "Show tasks", &config.debug.tasks, NULL);
     local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
     gui_list_auto_entry(list, "Add help entries", &config.debug.help_show_id, NULL);

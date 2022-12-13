@@ -37,7 +37,7 @@ esp_err_t api_sound(httpd_req_t * req)
 
     int16_t cnt;
 
-    tone_pair_t * pairs;
+    tone_pair_t * pairs = NULL;
 
 	if (read_post_int16(data, "cnt", &cnt))
 	{
@@ -55,7 +55,9 @@ esp_err_t api_sound(httpd_req_t * req)
 		}
 
 		vario_create_sequence(pairs, cnt);
-		free(pairs);
+
+		if (pairs != NULL)
+			free(pairs);
 	}
 	free(data);
 

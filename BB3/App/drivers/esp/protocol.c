@@ -244,7 +244,12 @@ void esp_http_upload_stop(upload_slot_t *slot)
 
 void protocol_init()
 {
-    su_init(&protocol_tx, esp_uart, 1024, 128);
+    static bool init_done = false;
+    if (!init_done)
+    {
+        su_init(&protocol_tx, esp_uart, 1024, 128);
+        init_done = true;
+    }
 }
 
 void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
@@ -261,8 +266,8 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 {
-    if (type != PROTO_DEBUG)
-        DBG("protocol_handle %02X", type);
+//    if (type != PROTO_DEBUG)
+//        DBG("protocol_handle %02X", type);
 
 	fc.esp.last_ping = HAL_GetTick();
 
@@ -545,6 +550,11 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             safe_memcpy(packet, data, len);
             xTaskCreate((TaskFunction_t)dbg_overlay_tasks_update, "dbg_overlay_update", 1024 * 2, (void *)packet, 24, NULL);
         }
+        break;
+
+        case(PROTO_RESET_NVM_ACK):
+            INFO("Rebooting ESP");
+            esp_reboot();
         break;
 
         default:

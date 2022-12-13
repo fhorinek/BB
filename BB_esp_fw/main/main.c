@@ -31,7 +31,7 @@
 
 void print_free_memory(char * label)
 {
-	return;
+	//return;
 
     uint32_t total_spi = heap_caps_get_total_size(MALLOC_CAP_SPIRAM);
     uint32_t total_dma = heap_caps_get_total_size(MALLOC_CAP_DMA);
@@ -78,6 +78,7 @@ void app_main(void)
 
     /* Initialize NVS — it is used to store PHY calibration data */
     esp_err_t err = nvs_flash_init();
+    INFO("nvs_flash_init=%d", err);
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
         ESP_ERROR_CHECK(nvs_flash_erase());

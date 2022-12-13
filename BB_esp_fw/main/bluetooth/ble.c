@@ -115,6 +115,8 @@ static const esp_gatts_attr_db_t spp_gatt_db[SPP_IDX_NB] =
 static esp_gatt_if_t spp_gatts_if = 0xFF;
 static bool spp_is_connected = false;
 
+static bool ble_auth_ok = false;
+
 #define MTU_DEFAULT 23
 
 static uint16_t spp_handle_table[SPP_IDX_NB];
@@ -271,6 +273,8 @@ static void ble_gatts_profile_cb(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
 
 static void ble_gatts_cb(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
+	INFO("ble_gatts_cb = %d", event);
+
     /* If event is register event, store the gatts_if for each profile */
     if (event == ESP_GATTS_REG_EVT)
     {
@@ -294,7 +298,7 @@ static void ble_gatts_cb(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
 void ble_spp_send(char * data, uint16_t len)
 {
-    if (spp_is_connected && ble_enable_notify)
+    if (spp_is_connected && ble_enable_notify && ble_auth_ok)
     {
         uint16_t index = 0;
         while (index < len)
@@ -343,6 +347,7 @@ static void ble_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
     {
         case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
             esp_ble_gap_start_advertising(&ble_adv_params);
+            ble_auth_ok = false;
         break;
 
         case ESP_GAP_BLE_NC_REQ_EVT:
@@ -378,6 +383,7 @@ static void ble_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
                 INFO("authentication success");
                 if (memcmp(param->ble_security.auth_cmpl.bd_addr, paired_mac, 6) == 0)
                 {
+                	ble_auth_ok = true;
                     memset(paired_mac, 0, 6);
                     bt_notify(param->ble_security.auth_cmpl.bd_addr, "", PROTO_BT_MODE_PAIRED);
                 }
@@ -397,11 +403,13 @@ static void ble_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 
         case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
             //advertising start complete event to indicate advertising start successfully or failed
+
             if ((err = param->adv_start_cmpl.status) != ESP_BT_STATUS_SUCCESS)
             {
                 ERR("Advertising start failed: %s", esp_err_to_name(err));
             }
         break;
+
         default:
             INFO("ble_gap_cb event = %u", event);
         break;
@@ -429,7 +437,7 @@ void ble_init(char * name)
 
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
-//
+
 //    uint32_t passkey = 123456;
 //    esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
 

@@ -418,6 +418,9 @@ typedef struct {
 } proto_tasks_item_t;
 
 
+#define PROTO_RESET_NVM         		0xF3
+#define PROTO_RESET_NVM_ACK       		0xF4
+
 //-------------------------------------------
 
 
