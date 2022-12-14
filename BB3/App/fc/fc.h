@@ -52,14 +52,15 @@
 
 #define GNSS_SAT_USED			0b00001000
 
-#define ESP_STATE_WIFI_CLIENT       0b00000001
-#define ESP_STATE_WIFI_CONNECTED    0b00000010
-#define ESP_STATE_WIFI_AP           0b00000100
-#define ESP_STATE_WIFI_AP_CONNECTED 0b00001000
-#define ESP_STATE_BT_ON             0b00010000
-#define ESP_STATE_BT_A2DP           0b00100000
-#define ESP_STATE_BT_SPP            0b01000000
-#define ESP_STATE_BT_BLE            0b10000000
+#define ESP_STATE_WIFI_CLIENT       0b0000000000000001
+#define ESP_STATE_WIFI_CONNECTED    0b0000000000000010
+#define ESP_STATE_WIFI_AP           0b0000000000000100
+#define ESP_STATE_WIFI_AP_CONNECTED 0b0000000000001000
+#define ESP_STATE_BT_ON             0b0000000000010000
+#define ESP_STATE_BT_A2DP           0b0000000000100000
+#define ESP_STATE_BT_SPP            0b0000000001000000
+#define ESP_STATE_BT_BLE            0b0000000010000000
+#define ESP_STATE_WIFI_CONNECTING   0b0000000100000000
 
 typedef struct
 {
@@ -318,10 +319,10 @@ typedef struct
 
         uint8_t mac_ap[6];
         esp_mode_t mode;
-        uint8_t state;
+        uint8_t _pad[1];
 
         uint8_t mac_sta[6];
-        uint8_t _pad[2];
+        uint16_t state;
 
         uint8_t mac_bt[6];
 

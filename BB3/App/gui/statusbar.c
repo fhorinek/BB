@@ -43,7 +43,7 @@ void statusbar_set_icon(uint8_t index, uint8_t state)
 
 	if (state & I_BLINK && BLINK(blink_dura))
 	{
-		lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+		lv_obj_set_style_local_text_color(icon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, (state & I_ALT) ? LV_COLOR_GRAY : LV_COLOR_BLACK);
 		lv_obj_set_hidden(icon, false);
 		lv_label_set_long_mode(icon, LV_LABEL_LONG_EXPAND);
 	}
@@ -285,7 +285,12 @@ void statusbar_step()
             if (fc.esp.state & ESP_STATE_WIFI_CONNECTED)
             	statusbar_set_icon(BAR_ICON_WIFI, I_SHOW);
             else
-            	statusbar_set_icon(BAR_ICON_WIFI, I_GRAY);
+            {
+                if (fc.esp.state & ESP_STATE_WIFI_CONNECTING)
+                    statusbar_set_icon(BAR_ICON_WIFI, I_SHOW | I_BLINK | I_FAST | I_ALT);
+                else
+                    statusbar_set_icon(BAR_ICON_WIFI, I_GRAY);
+            }
         }
         else
         {

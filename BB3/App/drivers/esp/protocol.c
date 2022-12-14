@@ -126,10 +126,16 @@ void esp_wifi_connect(uint8_t mac[6], char * ssid, char * pass, uint8_t ch)
 {
     __align proto_wifi_connect_t data;
 
+    char msg[PROTO_WIFI_SSID_LEN + 32];
+
     memcpy(data.mac, mac, 6);
     data.ch = ch;
     strncpy(data.ssid, ssid, PROTO_WIFI_SSID_LEN);
     strncpy(data.pass, pass, PROTO_WIFI_PASS_LEN);
+
+    fc.esp.state |= ESP_STATE_WIFI_CONNECTING;
+    sprintf(msg, "Connecting to '%s'", ssid);
+    statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
 
     protocol_send(PROTO_WIFI_CONNECT, (void *) &data, sizeof(data));
 }
@@ -387,6 +393,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             sprintf(msg, "Connected to '%s'", packet->ssid);
             statusbar_msg_add(STATUSBAR_MSG_INFO, msg);
             strncpy(fc.esp.ssid, packet->ssid, PROTO_WIFI_SSID_LEN);
+            fc.esp.state &= ~ESP_STATE_WIFI_CONNECTING;
             fc.esp.state |= ESP_STATE_WIFI_CONNECTED;
 
             if (config_get_bool(&config.system.check_for_updates))
@@ -411,7 +418,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
                 statusbar_msg_add(STATUSBAR_MSG_ERROR, "Unable to connect");
             }
 
-            fc.esp.state &= ~ESP_STATE_WIFI_CONNECTED;
+            fc.esp.state &= ~(ESP_STATE_WIFI_CONNECTED | ESP_STATE_WIFI_CONNECTING);
 
         break;
 
