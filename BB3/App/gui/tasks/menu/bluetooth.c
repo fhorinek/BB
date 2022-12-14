@@ -38,6 +38,25 @@ static bool bluetooth_unpair(lv_obj_t * obj, lv_event_t event)
 	return true;
 }
 
+static bool bluetooth_help(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        char help[256];
+
+        snprintf(help, sizeof(help),
+                "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.",
+                config_get_text(&config.device_name), config_get_text(&config.device_name));
+
+        dialog_show("Help", help, dialog_confirm, NULL);
+
+        //supress default handler
+        return false;
+    }
+
+    return true;
+}
+
 static lv_obj_t * bluetooth_init(lv_obj_t * par)
 {
 	lv_obj_t * list = gui_list_create(par, "Bluetooth", &gui_settings, NULL);
@@ -48,6 +67,7 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "A2DP Audio", &profile.bluetooth.a2dp, NULL);
 	gui_list_auto_entry(list, "SPP Telemetry", &profile.bluetooth.spp, NULL);
 	gui_list_auto_entry(list, "BLE Telemetry", &profile.bluetooth.ble, NULL);
+    gui_list_auto_entry(list, "Help", CUSTOM_CB, bluetooth_help);
     gui_list_auto_entry(list, "Telemetry protocol", &profile.bluetooth.protocol, NULL);
     gui_list_auto_entry(list, "Forward GNSS", &profile.bluetooth.forward_gnss, NULL);
 
@@ -55,7 +75,6 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
 	gui_list_auto_entry(list, "PIN code", &config.bluetooth.pin, NULL);
 
 	gui_list_auto_entry(list, "Unpair all", CUSTOM_CB, bluetooth_unpair);
-
 
 
 	bluetooth_discoverable(true);

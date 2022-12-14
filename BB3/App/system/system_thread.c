@@ -242,7 +242,7 @@ void cmd_step()
 
 #define CRITICAL_VOLTAGE	300
 #define CRITICAL_CURRENT	2500
-#define CRITICAL_CNT_VOL	1
+#define CRITICAL_CNT_VOL	0
 #define CRITICAL_CNT_OFF	4
 
 #define POWER_OFF_TIMEOUT   500
@@ -350,7 +350,7 @@ void thread_system_start(void * argument)
 				WARN("PWR protection: %0.2fV, %dma, %u", pwr.fuel_gauge.bat_voltage / 100.0, pwr.fuel_gauge.bat_current , critical_counter);
 
 				//current draw for more than CRITICAL_TIME_VOL
-				if (critical_counter > CRITICAL_CNT_VOL
+				if (critical_counter >= CRITICAL_CNT_VOL
 						&& pwr.fuel_gauge.bat_current < -CRITICAL_CURRENT)
 				{
 					WARN("Emergency volume down!");

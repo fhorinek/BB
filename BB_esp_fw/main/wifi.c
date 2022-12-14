@@ -27,7 +27,19 @@ static esp_netif_t * ap_netif;
 
 static SemaphoreHandle_t wifi_lock;
 
+TimerHandle_t wifi_connecting_wtd = 0;
+
 #define WIFI_CONNECTION_TRIES	10
+#define WIFI_CONNECTION_TIMEOUT	(20 * 1000)
+
+void wifi_connecting_wdt_cb(TimerHandle_t xTimer)
+{
+	if (!wifi_connected)
+	{
+		INFO("wifi_connecting_wdt_cb: Disconnecting, timeout!");
+		esp_wifi_disconnect();
+	}
+}
 
 void wifi_ip_events(void * null, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
@@ -91,6 +103,7 @@ void wifi_wifi_events(void * null, esp_event_base_t event_base, int32_t event_id
 
 			wifi_connected = true;
 			wifi_retry = WIFI_CONNECTION_TRIES;
+			xTimerStop(wifi_connecting_wtd, WAIT_INF);
 		}
 		break;
 
@@ -101,7 +114,9 @@ void wifi_wifi_events(void * null, esp_event_base_t event_base, int32_t event_id
 
 			wifi_connected = false;
 
-			if (wifi_retry > 0 && edata->reason != WIFI_REASON_ASSOC_LEAVE)
+			if (wifi_retry > 0 &&
+					(edata->reason != WIFI_REASON_ASSOC_LEAVE
+					&& edata->reason != WIFI_REASON_CONNECTION_FAIL))
 			{
 				INFO("Trying to reconnect %u", wifi_retry);
 				wifi_retry--;
@@ -167,6 +182,8 @@ void wifi_init()
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+    wifi_connecting_wtd = xTimerCreate("stm_wtd", WIFI_CONNECTION_TIMEOUT / portTICK_PERIOD_MS, false, 0, wifi_connecting_wdt_cb);
+
     print_free_memory("esp_netif_init");
 
     sta_netif = esp_netif_create_default_wifi_sta();
@@ -196,6 +213,7 @@ void wifi_init()
 void wifi_enable(proto_wifi_mode_t * packet)
 {
 	xSemaphoreTake(wifi_lock, WAIT_INF);
+	xTimerStop(wifi_connecting_wtd, WAIT_INF);
 
 	wifi_mode_t mode;
 
@@ -268,11 +286,31 @@ void wifi_start_scan(void * parameter)
 
 	if (wifi_mode == WIFI_MODE_STA || wifi_mode == WIFI_MODE_APSTA)
 	{
+		uint8_t retry = 0;
+		esp_err_t res;
+		do
+		{
+			res = esp_wifi_scan_start(NULL, true);
+			task_sleep(1000);
+
+			if (retry > 9)
+			{
+			    protocol_send(PROTO_WIFI_SCAN_END, NULL, 0);
+
+			    xSemaphoreGive(wifi_lock);
+				vTaskDelete(NULL);
+			}
+
+			INFO("esp_wifi_scan_start == %d, %u", res, retry);
+
+			retry++;
+
+		} while (res != ESP_OK);
+
 		uint16_t number = SCAN_LIST_SIZE;
 		wifi_ap_record_t * ap_info = ps_malloc(sizeof(wifi_ap_record_t) * SCAN_LIST_SIZE);
 		uint16_t ap_count = 0;
 
-	    esp_wifi_scan_start(NULL, true);
 	    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
 	    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
 
@@ -301,6 +339,7 @@ void wifi_start_scan(void * parameter)
 void wifi_connect(proto_wifi_connect_t * packet)
 {
 	xSemaphoreTake(wifi_lock, WAIT_INF);
+	xTimerStop(wifi_connecting_wtd, WAIT_INF);
 
 	if (wifi_mode == WIFI_MODE_STA || wifi_mode == WIFI_MODE_APSTA)
 	{
@@ -339,7 +378,15 @@ void wifi_connect(proto_wifi_connect_t * packet)
 
 		wifi_connected = false;
 		wifi_retry = WIFI_CONNECTION_TRIES;
-		ESP_ERROR_CHECK(esp_wifi_connect());
+
+		esp_err_t ret = esp_wifi_connect();
+		if (ret != ESP_OK)
+		{
+			ERR("esp_wifi_connect == %d", ret);
+			esp_restart();
+		}
+
+		xTimerStart(wifi_connecting_wtd, WAIT_INF);
 		free(wifi_config);
 	}
 
@@ -353,4 +400,5 @@ bool wifi_is_connected()
 {
 	return wifi_connected;
 }
+
 

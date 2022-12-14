@@ -18,16 +18,17 @@ typedef enum
 	STATUSBAR_MSG_PROGRESS = 3
 } statusbar_msg_type_t;
 
-#define     I_MASK      0b00111111
-#define     I_HIDE      0
-#define     I_SHOW      1
-#define     I_GRAY      2
-#define     I_YELLOW    3
-#define     I_RED       4
-#define     I_GREEN     5
+#define     I_MASK      0b00011111
+#define     I_HIDE      0       //hide icon
+#define     I_SHOW      1       //show icon (white)
+#define     I_GRAY      2       //show icon (gray)
+#define     I_YELLOW    3       //show icon (yellow)
+#define     I_RED       4       //show icon (red)
+#define     I_GREEN     5       //show icon (green)
 
-#define     I_BLINK     0b10000000
-#define     I_FAST      0b01000000
+#define     I_BLINK     0b10000000 //change between black and set color T = 2000ms
+#define     I_FAST      0b01000000 //T = 500ms
+#define     I_ALT       0b00100000 //alternate between gray and set color
 
 void statusbar_show();
 void statusbar_hide();

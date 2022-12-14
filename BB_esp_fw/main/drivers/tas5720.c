@@ -38,7 +38,7 @@ void tas_volume(uint8_t in)
 {
 	uint8_t val = min(in, 100);
 
-	val = log10(val + 1) * 41;
+	val = log10(val + 1) * 37;
 
 //	INFO("TAS volume %u -> %u", in, val);
 
