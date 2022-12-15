@@ -383,6 +383,8 @@ void config_change_profile(char * profile_name)
     sprintf(path, "%s/%s.cfg", PATH_PROFILE_DIR, config_get_text(&config.flight_profile));
     config_init((cfg_entry_t *)&profile);
     config_load((cfg_entry_t *)&profile, path);
+
+    airspace_load_parallel();
 }
 
 uint8_t config_profiles_cnt()

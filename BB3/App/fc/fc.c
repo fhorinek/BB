@@ -277,11 +277,25 @@ void fc_step()
         {
             if (fc.gnss.fix == 3)
             {
-                if (fc.gnss.ground_speed >
-                        config_get_int(&profile.flight.auto_take_off.speed_value))
+                if (fc.gnss.ground_speed_calm > GROUND_SPEED_CALM_CNT)
                 {
-                    fc_takeoff();
+                    if (fc.gnss.ground_speed >
+                            config_get_int(&profile.flight.auto_take_off.speed_value))
+                    {
+                        fc_takeoff();
+                    }
                 }
+                else
+                {
+                    if (fc.gnss.ground_speed < config_get_int(&profile.flight.auto_take_off.speed_value))
+                        fc.gnss.ground_speed_calm++;
+                    else
+                        fc.gnss.ground_speed_calm = 0;
+                }
+            }
+            else
+            {
+                fc.gnss.ground_speed_calm = 0;
             }
         }
 

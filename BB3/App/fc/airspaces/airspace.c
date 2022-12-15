@@ -172,6 +172,8 @@ static bool airspace_parse(char * name, bool use_dialog)
 
     int f = red_open(path, RED_O_RDONLY);
 
+    bool error_load = false;
+
     if (f > 0)
     {
         //reset header
@@ -232,6 +234,7 @@ static bool airspace_parse(char * name, bool use_dialog)
             if (line == GETS_CORRUPTED)
             {
                 statusbar_msg_add(STATUSBAR_MSG_ERROR, "Airspace file corrupted");
+                error_load = true;
                 break;
             }
 
@@ -556,6 +559,16 @@ static bool airspace_parse(char * name, bool use_dialog)
 		red_close(index);
 		red_close(data);
 
+		if (error_load || ah.number_of_records == 0)
+		{
+	        snprintf(path, sizeof(path), PATH_AIRSPACE_CACHE_DIR "/%s.index", name);
+	        red_unlink(path);
+
+	        snprintf(path, sizeof(path), PATH_AIRSPACE_CACHE_DIR "/%s.data", name);
+	        red_unlink(path);
+
+	        return false;
+		}
 
 		if (msg_ptr != NULL)
 		{
@@ -619,6 +632,8 @@ bool airspace_open_cache(char * name, airspace_header_t * ah, int32_t * findex, 
         if (ah->data_size != file_size(data))
             valid = false;
 
+        if (ah->number_of_records == 0)
+            valid = false;
 
         if (valid)
         {
@@ -670,14 +685,19 @@ bool airspace_load(char * name, bool use_dialog)
 
     airspace_unload_unlocked();
 
-    bool res = airspace_open_cache(name, &ah, &index, &data);
+    bool res = false;
 
-    if (!res)
+    if (strlen(name) > 0)
     {
-        res = airspace_parse(name, use_dialog);
-        if (res)
+        res = airspace_open_cache(name, &ah, &index, &data);
+
+        if (!res)
         {
-            res = airspace_open_cache(name, &ah, &index, &data);
+            res = airspace_parse(name, use_dialog);
+            if (res)
+            {
+                res = airspace_open_cache(name, &ah, &index, &data);
+            }
         }
     }
 
@@ -833,6 +853,10 @@ void airspace_load_parallel_task(void * param)
         {
             config_set_text(&profile.airspace.filename, "");
         }
+    }
+    else
+    {
+        airspace_unload_unlocked();
     }
 
     osMutexRelease(fc.airspaces.lock);
