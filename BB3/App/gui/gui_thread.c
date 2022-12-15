@@ -31,7 +31,7 @@ void gui_save_screen()
     {
         sprintf(path, "%s/%08u.scr", PATH_SCREENSHOT, index);
         index++;
-        f = red_open(path, RED_O_WRONLY);
+        f = red_open(path, RED_O_WRONLY | RED_O_CREAT);
     } while (f < 0);
 
     INFO("Saving screenshot to %s", path);
@@ -53,8 +53,8 @@ void gui_disp_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * c
 
     if (gui.take_screenshot == 2)
     {
-        //broken with double buffering method
         gui_save_screen();
+        lv_disp_flush_ready(drv);
     }
     else
     {
