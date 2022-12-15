@@ -3,13 +3,19 @@ Added:
 * Flight book with map
 * Flight statistics
 * FANET radar zoom levels
-* Space invaders (in dev menu)
+* Build in default pages
 
 Changed:
 * Reliance Edge FS
 * USB protocol MTP
 
 Fixed:
-* Fanet status messages sync with pps
+* Fanet status sync with pps
+* FLARM malformed packet
+* Lot of bugs and usability issues
 
+Known issue:
+* Wrong firmware version before bootloader update 
 
+Other:
+* Space invaders! (in dev menu)
