@@ -186,6 +186,9 @@ typedef enum
 
 #define WIND_NUM_OF_SECTORS 8
 
+//Need to have few consequentive speeds under take off speed first
+#define GROUND_SPEED_CALM_CNT   5
+
 typedef struct
 {
 	osSemaphoreId_t lock;
@@ -254,6 +257,7 @@ typedef struct
 		bool fake;
 
 		uint8_t new_sample;
+		uint8_t ground_speed_calm;
 		uint8_t _pad[3];
 
 		struct
