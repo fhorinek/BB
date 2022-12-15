@@ -1,27 +1,27 @@
 # 15. 12. 2022 - Release 279.23.1
-Added:
+##Added
 * Basic airspace support
 * Flight book with map
 * Flight statistics
 * FANET radar zoom levels
 * Build in default pages
 
-Changed:
+##Changed
 * Reliance Edge FS
 * USB protocol MTP
 
-Fixed:
+##Fixed
 * Fanet status sync with pps
 * FLARM malformed packet
 * Lot of bugs and usability issues
 
-Known issue:
+##Known issue
 * Wrong firmware version before bootloader update 
 
-Other:
+##Other
 * Space invaders! (in dev menu)
 
-Development:
+##Development
 * Enhanced CrashDebug reports with working compression
 * PSRAM and malloc allocation tracking
 * Updated to ESP-ADF v2.4.1; ESP-IDF 4.4
