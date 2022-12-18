@@ -73,6 +73,10 @@ void gui_load_language()
             lv_i18n_set_locale("sk-SK");
         break;
 
+        case(LANG_FR):
+            lv_i18n_set_locale("fr-FR");
+        break;
+
         default:
             __lv_i18n_reset();
         break;
