@@ -223,6 +223,7 @@ cfg_entry_param_select_t language_select[] =
     {LANG_EN, "English"},
     {LANG_DE, "Deutsch"},
     {LANG_SK, "Slovensky"},
+    {LANG_FR, "Français"},
     SELECT_END
 };
 
