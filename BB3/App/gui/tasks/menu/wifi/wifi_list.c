@@ -71,7 +71,7 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
     {
         if (local->size == 0)
         {
-            gui_list_note_add_entry(gui.list.content, "No network found", LIST_NOTE_COLOR);
+            gui_list_note_add_entry(gui.list.content, _h("No network found"), LIST_NOTE_COLOR);
         }
     }
     else
@@ -111,7 +111,7 @@ void wifi_list_update(proto_wifi_scan_res_t * network)
 
         if (entry == NULL)
         {
-            entry = gui_list_info_add_entry(gui.list.content, network->name, params);
+            entry = gui_list_info_add_entry(gui.list.content, network->name, 0, params);
 
             //new
             safe_memcpy(local->nets[local->size].mac, network->mac, 6);
@@ -230,7 +230,7 @@ static lv_obj_t * wifi_list_init(lv_obj_t * par)
     lv_obj_set_size(local->spinner, 100, 100);
     lv_obj_align(local->spinner, NULL, LV_ALIGN_CENTER, 0, 0);
 
-    local->info = gui_list_text_add_entry(list, _("Scanning..."));
+    local->info = gui_list_text_add_entry(list, _h("Scanning..."));
 
 	return list;
 }

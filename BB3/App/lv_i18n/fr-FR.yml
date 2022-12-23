@@ -9,38 +9,84 @@ fr-FR:
   '%s paired': '%s apparié'
   Bluetooth pairing request: Demande d'appairage Bluetooth
   pairing failed: échec de l'appairage
-  "Type this passcode\n\n%lu\n\non the other device.": "Entrez ce code de passe\n\n%lu\n\nsur l'autre appareil."
-  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": "Confirmez que le code de passe\n\n%lu\n\nest le même sur l'autre appareil."
+  "Type this passcode\n\n%lu\n\non the other device.": |-
+    Entrez ce code de passe
+
+    %lu
+
+    sur l'autre appareil.
+  "Confirm that passcode\n\n%lu\n\nis the same on other the device.": |-
+    Confirmez que le code de passe
+
+    %lu
+
+    est le même sur l'autre appareil.
   Error: Erreur
   No slot available: Aucun créneau disponible
   Not connected!: Non connecté !
   Resource not found!: Ressource non trouvée !
   Connection timeout!: Délai de connexion dépassé !
-  "New firmware\n %s is available.": "Un nouveau firmware\n %s est disponible."
+  "New firmware\n %s is available.": |-
+    Un nouveau firmware
+     %s est disponible.
   Warning: Avertissement
-  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": "Votre appareil exécute actuellement un firmware de développement.\n\nIl peut être très instable et ne doit être utilisé que par des développeurs ou des testeurs.\n\nNous vous encourageons vivement à passer à une version officielle."
-  "Firmware updated\n to %s": "Firmware mis à jour\nà %s"
-  "Unable to update bootloader.\nRe-install the update file.": "Impossible de mettre à jour le bootloader.\nRéinstallez le fichier de mise à jour."
+  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": >-
+    Votre appareil exécute actuellement un firmware de développement.
+
+
+    Il peut être très instable et ne doit être utilisé que par des développeurs
+    ou des testeurs.
+
+
+    Nous vous encourageons vivement à passer à une version officielle.
+  "Firmware updated\n to %s": |-
+    Firmware mis à jour
+    à %s
+  "Unable to update bootloader.\nRe-install the update file.": |-
+    Impossible de mettre à jour le bootloader.
+    Réinstallez le fichier de mise à jour.
   Bootloader updated: Bootloader mis à jour
   Storing config: Stockage de la configuration
   Formating storage: Formation du stockage
   Restoring config: Restauration de la configuration
   Unable to mount RED volume: Impossible de monter le volume RED
   Unable to format storage: Impossible de formater le stockage
-  Unable to mount FatFs volume:  Impossible de monter un volume FatFs
+  Unable to mount FatFs volume: Impossible de monter un volume FatFs
   Migrating: Migration
   Updating bootloader: Mise à jour du bootloader
-  "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n": "Ce firmware utilise une nouvelle méthode pour stocker les données.\n\nNous devons reformater le stockage.\n\nVos fichiers IGC, cartes et AGL seront perdus.\n\nSi vous avez besoin de les sauvegarder, appuyez sur Annuler.\n\nVotre configuration sera préservée.\n\nContinuer ?\n
-  No GNSS: Aucun GNSS
-  Set time: Régler l'heure
-  "Too many files to list\nShowing %u files": "Trop de fichiers à lister\nAffichage de %u fichiers"
+  "This firmware is using new method to store data.\n\nWe need to reformat the storage.\n\nYour IGC files, maps and AGL will be lost.\n\nIf you need to backup them, press cancel.\n\nYour configuration will be preserved\n\nContinue?\n": |-
+    Ce firmware utilise une nouvelle méthode pour stocker les données.
+
+    Nous devons reformater le stockage.
+
+    Vos fichiers IGC, cartes et AGL seront perdus.
+
+    Si vous avez besoin de les sauvegarder, appuyez sur Annuler.
+
+    Votre configuration sera préservée.
+
+    Continuer ?
+     No GNSS: Aucun GNSS Set time: Régler l'heure 
+  Too many files to list\nShowing %u files": |-
+    Trop de fichiers à lister
+    Affichage de %u fichiers
   Nothing to show: Rien à montrer
   Listing files: Liste des fichiers
   Directory not found: Répertoire non trouvé
-  "No airspace loaded.\n\nAre you using OpenAir format?": "Aucun espace aérien n'est chargé.\n\nUtilisez-vous le format OpenAir ?"
+  "No airspace loaded.\n\nAre you using OpenAir format?": |-
+    Aucun espace aérien n'est chargé.
+
+    Utilisez-vous le format OpenAir ?
   Loading airspace...: Charger l'espace aérien...
   Help: Aide
-  "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org": "Placez les fichiers de l'espace aérien au format OpenAir dans le répertoire de l'espace aérien.\n\nNous recommandons d'utiliser\nairspace.xcontest.org"
+  "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org": >-
+    Placez les fichiers de l'espace aérien au format OpenAir dans le répertoire
+    de l'espace aérien.
+
+
+    Nous recommandons d'utiliser
+
+    airspace.xcontest.org
   Airspace settings: Paramètres de l'espace aérien
   Load airspace: Chargement de l'espace aérien
   Unload airspace: Décharger l'espace aérien
@@ -79,12 +125,16 @@ fr-FR:
   '%s EXPIRED!': '%s EXPIRÉ!'
   Flight settings: Paramètres de vol
   Altitude change +/-%s: Changement d'altitude +/-%s
-  "\n or ": "\n ou "
+  "\n or ": |2-
+
+     ou 
   Speed > %s: Vitesse > %s
   Disabled: Désactivé
   Automatic Take-off: Décollage automatique
   Altitude within +/-%s: Altitude à +/-%s
-  "\n and ": "\n et "
+  "\n and ": |2-
+
+     et 
   Speed < %s: Vitesse < %s
   Automatic Landing: Atterrissage automatique
   Glide ratio time: Temps finesse
@@ -118,7 +168,9 @@ fr-FR:
   'Average per flight: %.1f hours': 'Moyenne par vol : %.1f heures'
   'Total: %.0f flights': 'Total : %.0f vols'
   Too Many Flights: Trop de vols
-  You have too many flights to handle in statistics. Please remove some.: Vous avez trop de vols à gérer dans les statistiques. Veuillez en supprimer certains.
+  You have too many flights to handle in statistics. Please remove some.: >-
+    Vous avez trop de vols à gérer dans les statistiques. Veuillez en supprimer
+    certains.
   Year: Année
   yearly: annuel
   Days: Jours
@@ -145,7 +197,15 @@ fr-FR:
   Please wait: Veuillez attendre
   Clear cache: Effacer le cache
   do you want to clear map cache?: Voulez-vous effacer le cache de la carte ?
-  "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.": "Pour obtenir des cartes, allez sur \nstrato.skybean.eu/map\n\nPlacez les fichiers de *_agl.zip dans le répertoire agl.\n\nPlacez les fichiers de *_map.zip dans le répertoire des cartes.\n\nNous travaillons également sur une solution automatique."
+  "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.": |-
+    Pour obtenir des cartes, allez sur 
+    strato.skybean.eu/map
+
+    Placez les fichiers de *_agl.zip dans le répertoire agl.
+
+    Placez les fichiers de *_map.zip dans le répertoire des cartes.
+
+    Nous travaillons également sur une solution automatique.
   Map: Carte
   Map scale: Échelle de la carte
   Zoom to fit track: Zoom pour s'adapter à la voie
@@ -190,9 +250,19 @@ fr-FR:
   Wi-Fi: ~
   System: Système
   Development: Développement
-  "Reset\ncalibration?": "Reset de la\ncalibration?"
+  "Reset\ncalibration?": |-
+    Reset de la
+    calibration?
   Clear debug file: Effacer le fichier de debug
-  "This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.": "Cela va arrêter l'appareil et créer un rapport de diagnostic.\n\nNous allons déclencher le crash pour générer le rapport.\n\nLe rapport de crash sera disponible sur votre strato via la mémoire de masse USB."
+  "This will stop the device and create diagnostic report.\n\nWe will trigger crash to generate the report.\n\nThe crash report will be available on your strato via USB massstorage.": >-
+    Cela va arrêter l'appareil et créer un rapport de diagnostic.
+
+
+    Nous allons déclencher le crash pour générer le rapport.
+
+
+    Le rapport de crash sera disponible sur votre strato via la mémoire de masse
+    USB.
   Advanced settings: Paramètres avancés
   Calibration data not valid: Les données calibration ne sont pas valides
   Calibrate sensors: Calibrer les sondes
@@ -205,15 +275,21 @@ fr-FR:
   Auto crash upload: Téléchargement automatique de crash
   Debug to file: Débogage vers un fichier
   Clear debug.log: Effacer debug.log
-  "Calibrating\ngyroscope": "Calibrage\ndu gyroscope"
+  "Calibrating\ngyroscope": |-
+    Calibrage
+    du gyroscope
   Please keep the device steady: Veuillez maintenir l'appareil stable
-  'Level the device, display must be pointing up': "Mettez l'appareil à niveau, l'écran doit être orienté vers le haut"
-  'Level the device, display must be pointing down': "Mettez l'appareil à niveau, l'écran doit être orienté vers le bas"
-  "Calibrating\nmagnetometer": "Calibrer\nmagnétomètre"
+  'Level the device, display must be pointing up': 'Mettez l''appareil à niveau, l''écran doit être orienté vers le haut'
+  'Level the device, display must be pointing down': 'Mettez l''appareil à niveau, l''écran doit être orienté vers le bas'
+  "Calibrating\nmagnetometer": |-
+    Calibrer
+    magnétomètre
   Rotate the device 3 times while pointing display up: Faites tourner l'appareil 3 fois en pointant l'écran vers le haut.
   Rotate the device 3 times while pointing usb ports down: Faites tourner l'appareil 3 fois en pointant les ports usb vers le bas
-  "Calibrating\naccelerometer": "Calibrer\naccéléromètre"
-  'Level the device, the arrow must be pointing up': "Mettez l'appareil à niveau, la flèche doit être dirigée vers le haut"
+  "Calibrating\naccelerometer": |-
+    Calibrer
+    accéléromètre
+  'Level the device, the arrow must be pointing up': 'Mettez l''appareil à niveau, la flèche doit être dirigée vers le haut'
   Set date: Régler la date
   Time & date: Heure et date
   Daylight saving time: Heure d'été
@@ -229,10 +305,14 @@ fr-FR:
   Downloading firmware: Téléchargement du firmware
   Up to date: à jour
   You are using the latest firmware: Vous utilisez le dernier firmware
-  "Download firmware\n%s?": "Télécharger le firmware \n%s ?"
+  "Download firmware\n%s?": |-
+    Télécharger le firmware 
+    %s ?
   Firmware update: Mise à jour du firmware
   Checking for updates: Vérification des mises à jour
-  "Install version\n%s": "Installer version\n%s"
+  "Install version\n%s": |-
+    Installer version
+    %s
   Start update?: Démarrer la mise à jour ?
   Device firmware: Firmware de l'appareil
   Firmware ver. %s: ~
@@ -285,8 +365,15 @@ fr-FR:
   WiFi network: Réseau WiFi
   Access point: Point d'accès
   AP password: Mot de passe PA
-  "Switch to page\n'%s' when...": "Passez à la page\n'%s' quand..."
-  "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?": "L'événement '%s' est actuellement réglé à la page\n'%s'.\n\nVoulez-vous le changer en\n'%s' ?"
+  "Switch to page\n'%s' when...": |-
+    Passez à la page
+    '%s' quand...
+  "Event '%s' is currently set to page\n'%s'.\n\nDo you want to change it to\n'%s'?": |-
+    L'événement '%s' est actuellement réglé à la page
+    '%s'.
+
+    Voulez-vous le changer en
+    '%s' ?
   Page autoset: ~
   Powered on: Alimenté
   Take-off: Décollage
@@ -332,8 +419,8 @@ fr-FR:
   Menu right shortcut: Raccourci menu à droite
   Page left shortcut: Raccourci page gauche
   Page right shortcut: Raccourci page droite
-  "Page '%s'\nnot found.": "Page '%s' non trouvée."
-  IGC key missing!:  Clé IGC manquante !
+  "Page '%s'\nnot found.": Page '%s' non trouvée.
+  IGC key missing!: Clé IGC manquante !
   Flight start: Démarrer le vol
   Flight stop: Arrêter le vol
   Start/Stop flight: Démarrer/arrêter le vol
@@ -346,9 +433,15 @@ fr-FR:
   Bluetooth off: Bluetooth désactivé
   Bluetooth on/off: Bluetooth activé/désactivé
   Select widget: Sélectionner un widget
-  "Need\nCalib.": "Besoin\nde calib."
-  "No\nGNSS": "Pas de\nGNSS"
-  "No TOPO\ndata": "Pas de\ndonnées TOPO"
+  "Need\nCalib.": |-
+    Besoin
+    de calib.
+  "No\nGNSS": |-
+    Pas de
+    GNSS
+  "No TOPO\ndata": |-
+    Pas de
+    données TOPO
   Set QNH: Régler QNH
   Avg (%us): Moy (%us)
   weak chrg.: chrg. faible
@@ -369,17 +462,68 @@ fr-FR:
   Set Zoom Level: Régler niveau de zoom
   Odometer reset: Reset de l'odomètre
   Thermal assistant: Assistant thermique
-  "Not\ncircling": "Pas\ntourner"
+  "Not\ncircling": |-
+    Pas
+    tourner
   Thermal gain: Gain thermique
   Thermal trace: Trace thermique
   Thermal time: Temps thermique
   Time/Date: Heure/Date
   TO distance: Distance TO
-  "No\nstart\npos": "Pas de\nposition\nde départ"
+  "No\nstart\npos": |-
+    Pas de
+    position
+    de départ
   TO direction: Direction TO
   TO time: Temps TO
-  "Turn to\ntakeoff": "Tournez vers\nle décollage"
+  "Turn to\ntakeoff": |-
+    Tournez vers
+    le décollage
   Wind dir: Dir. du vent
   Wind spd: Vit. du vent
   Page file corrupted: Fichier de page corrompu
   Page is empty.: La page est vide.
+  '': ~
+  No GNSS: ~
+  Set time: ~
+  "Too many files to list\nShowing %u files": ~
+  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": ~
+  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": ~
+  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": ~
+  Calibration: ~
+  Calibration values stored: ~
+  Diagnostics: ~
+  Remove page: ~
+  Strato default pages: ~
+  Left menu shortcut: ~
+  add left shortcut: ~
+  Right menu shortcut: ~
+  add right shortcut: ~
+  No action: ~
+  "Need\n3D fix": ~
+  Debug Info: ~
+  Class A: ~
+  Class B: ~
+  Class C: ~
+  Class D: ~
+  Class E: ~
+  Class F: ~
+  Class G: ~
+  CTR: ~
+  TMZ: ~
+  RMZ: ~
+  Danger: ~
+  Prohibited: ~
+  Restricted: ~
+  Glider prohibited: ~
+  Wave window: ~
+  Undefined: ~
+  Ignore with floor above: ~
+  FANET ID: ~
+  FANET Firmware: ~
+  'You do not need to do anything here, unless you are instructed by support.': ~
+  Wi-Fi MAC: ~
+  Wi-Fi AP MAC: ~
+  Bluetooth MAC: ~
+  Diagnostic: ~
+  No network found: ~

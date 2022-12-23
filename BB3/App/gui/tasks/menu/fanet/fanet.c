@@ -30,7 +30,7 @@ static lv_obj_t * fanet_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("FANET neighbors"), &gui_settings, fanet_cb);
 
-	gui_list_auto_entry(list, _("Settings"), NEXT_TASK, &gui_fanet_settings);
+	gui_list_auto_entry(list, _h("Settings"), NEXT_TASK, &gui_fanet_settings);
 
 	return list;
 }
@@ -44,7 +44,7 @@ static void fanet_loop()
 		//add new entry
 		while (local->cnt < fc.fanet.neighbors_size)
 		{
-			gui_list_info_add_entry(gui.list.content, "", "");
+			gui_list_info_add_entry(gui.list.content, "", 0, "");
 			local->cnt++;
 		}
 

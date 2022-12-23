@@ -383,3 +383,43 @@ sk-SK:
   move: ~
   scale: ~
   Change widget: ~
+  '': ~
+  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": ~
+  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": ~
+  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": ~
+  Calibration: ~
+  Calibration values stored: ~
+  Diagnostics: ~
+  Strato default pages: ~
+  Left menu shortcut: ~
+  add left shortcut: ~
+  Right menu shortcut: ~
+  add right shortcut: ~
+  No action: ~
+  "Need\n3D fix": ~
+  Debug Info: ~
+  Class A: ~
+  Class B: ~
+  Class C: ~
+  Class D: ~
+  Class E: ~
+  Class F: ~
+  Class G: ~
+  CTR: ~
+  TMZ: ~
+  RMZ: ~
+  Danger: ~
+  Prohibited: ~
+  Restricted: ~
+  Glider prohibited: ~
+  Wave window: ~
+  Undefined: ~
+  Ignore with floor above: ~
+  FANET ID: ~
+  FANET Firmware: ~
+  'You do not need to do anything here, unless you are instructed by support.': ~
+  Wi-Fi MAC: ~
+  Wi-Fi AP MAC: ~
+  Bluetooth MAC: ~
+  Diagnostic: ~
+  No network found: ~

@@ -227,18 +227,18 @@ lv_obj_t * firmware_init(lv_obj_t * par)
 
     rev_get_sw_string(rev_str);
     snprintf(value, sizeof(value), _("Firmware ver. %s"), rev_str);
-    obj = gui_list_info_add_entry(list, _("Release note"), value);
+    obj = gui_list_info_add_entry(list, _h("Release note"), value);
     gui_config_entry_add(obj, CUSTOM_CB, firmware_serial_release_note_cb);
 
-    gui_list_auto_entry(list, _("Check for updates"), CUSTOM_CB, firmware_update_cb);
-    gui_list_auto_entry(list, _("Notify for new fw"), &config.system.check_for_updates, NULL);
+    gui_list_auto_entry(list, _h("Check for updates"), CUSTOM_CB, firmware_update_cb);
+    gui_list_auto_entry(list, _h("Notify for new fw"), &config.system.check_for_updates, NULL);
 
-    gui_list_auto_entry(list, _("Firmware channel"), &config.system.fw_channel, NULL);
+    gui_list_auto_entry(list, _h("Firmware channel"), &config.system.fw_channel, NULL);
 
-    gui_list_auto_entry(list, _("Manual firmware install"), CUSTOM_CB, manual_install_cb);
+    gui_list_auto_entry(list, _h("Manual firmware install"), CUSTOM_CB, manual_install_cb);
 
     snprintf(value, sizeof(value), "%lu", nvm->bootloader);
-    gui_list_info_add_entry(list, _("Bootloader version"), value);
+    gui_list_info_add_entry(list, _h("Bootloader version"), value);
 
     return list;
 }

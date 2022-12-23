@@ -31,7 +31,7 @@ static bool clear_debug_file_cb(lv_obj_t * obj, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        dialog_show("Confirm", _("Clear debug file"), dialog_yes_no, clear_debug_file_dialog_cb);
+        dialog_show(_("Confirm"), _("Clear debug file"), dialog_yes_no, clear_debug_file_dialog_cb);
     }
 
     return true;
@@ -61,13 +61,13 @@ lv_obj_t * diagnostic_init(lv_obj_t * par)
 {
     lv_obj_t * list = gui_list_create(par, _("Diagnostics"), &gui_system, NULL);
 
-    gui_list_note_add_entry(list, _("You do not need to do anything here, unless you are instructed by support."), LIST_NOTE_COLOR);
+    gui_list_note_add_entry(list, _h("You do not need to do anything here, unless you are instructed by support."), LIST_NOTE_COLOR);
 
-    gui_list_auto_entry(list, _("Create diagnostic report"), CUSTOM_CB, diagnostic_crash_cb);
-    gui_list_auto_entry(list, _("Crash reports"), &config.debug.crash_dump, NULL);
-    gui_list_auto_entry(list, _("Auto crash upload"), &config.debug.crash_reporting, NULL);
-    gui_list_auto_entry(list, _("Debug to file"), &config.debug.use_file, NULL);
-    gui_list_auto_entry(list, _("Clear debug.log"), CUSTOM_CB, clear_debug_file_cb);
+    gui_list_auto_entry(list, _h("Create diagnostic report"), CUSTOM_CB, diagnostic_crash_cb);
+    gui_list_auto_entry(list, _h("Crash reports"), &config.debug.crash_dump, NULL);
+    gui_list_auto_entry(list, _h("Auto crash upload"), &config.debug.crash_reporting, NULL);
+    gui_list_auto_entry(list, _h("Debug to file"), &config.debug.use_file, NULL);
+    gui_list_auto_entry(list, _h("Clear debug.log"), CUSTOM_CB, clear_debug_file_cb);
 
     return list;
 }

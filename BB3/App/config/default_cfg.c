@@ -218,6 +218,8 @@ cfg_entry_param_select_t map_alt_range_select[] =
     SELECT_END
 };
 
+char * languages_id[] = {"en", "de", "sk", "fr"};
+
 cfg_entry_param_select_t language_select[] =
 {
     {LANG_EN, "English"},

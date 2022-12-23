@@ -163,7 +163,9 @@ typedef void * lv_fs_drv_user_data_t;
 #endif
 
 /*1: Add a `user_data` to drivers and objects*/
-#define LV_USE_USER_DATA        0
+#define LV_USE_USER_DATA        1
+typedef void * lv_font_user_data_t;
+typedef uint16_t lv_obj_user_data_t;
 
 /*========================
  * Image decoder and cache
@@ -385,8 +387,6 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  *  LV_OBJ SETTINGS
  *==================*/
 
-/*Declare the type of the user data of object (can be e.g. `void *`, `int`, `struct`)*/
-typedef void * lv_obj_user_data_t;
 
 /*1: enable `lv_obj_realaign()` based on `lv_obj_align()` parameters*/
 #define LV_USE_OBJ_REALIGN          1

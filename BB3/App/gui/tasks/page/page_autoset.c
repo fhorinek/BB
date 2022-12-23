@@ -140,13 +140,13 @@ lv_obj_t * page_autoset_init(lv_obj_t * par)
 
         lv_obj_t * list = gui_list_create(par, _("Page autoset"), NULL, page_autoset_event_cb);
 
-	local->note = gui_list_note_add_entry(list, "", LV_COLOR_BLACK);
+	local->note = gui_list_note_add_entry(list, "", 0, LV_COLOR_BLACK);
 
-	local->power_on = gui_list_switch_add_entry(list, _("Powered on"), false);
-	local->take_off = gui_list_switch_add_entry(list, _("Take-off"), false);
-	local->circle = gui_list_switch_add_entry(list, _("Circling"), false);
-	local->glide = gui_list_switch_add_entry(list, _("Gliding"), false);
-	local->land = gui_list_switch_add_entry(list, _("Landed"), false);
+	local->power_on = gui_list_switch_add_entry(list, _h("Powered on"), false);
+	local->take_off = gui_list_switch_add_entry(list, _h("Take-off"), false);
+	local->circle = gui_list_switch_add_entry(list, _h("Circling"), false);
+	local->glide = gui_list_switch_add_entry(list, _h("Gliding"), false);
+	local->land = gui_list_switch_add_entry(list, _h("Landed"), false);
 
 	return list;
 }

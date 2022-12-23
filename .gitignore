@@ -30,3 +30,5 @@ BB_esp_fw/fs.bin
 Utilities/Snippets/a.out
 
 Utilities/Snippets/dtcm.bin
+
+*.elf

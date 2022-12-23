@@ -48,10 +48,13 @@ de-DE:
   "New firmware\n %s is available.": |-
     Neue Firmware
      %s ist verfügbar.
-  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": |-
+  "Your device is currently running a development firmware.\n\nIt may be highly unstable and should be used only by developers or testers.\n\nWe highly encourage you to switch to an official released version.": >-
     Dein Gerät nutzt gerade eine Entwicklungs-Firmware.
 
-    Es könnte sehr instabil sein und sollte nur von Entwicklern und Testern verwendet werden.
+
+    Es könnte sehr instabil sein und sollte nur von Entwicklern und Testern
+    verwendet werden.
+
 
     Wir empfehlen auf eine offizielle Version zu wechseln.
   "Firmware updated\n to %s": |-
@@ -467,3 +470,43 @@ de-DE:
   move: bewegen
   scale: skalieren
   Change widget: Widget ändern
+  '': ~
+  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": ~
+  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": ~
+  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": ~
+  Calibration: ~
+  Calibration values stored: ~
+  Diagnostics: ~
+  Strato default pages: ~
+  Left menu shortcut: ~
+  add left shortcut: ~
+  Right menu shortcut: ~
+  add right shortcut: ~
+  No action: ~
+  "Need\n3D fix": ~
+  Debug Info: ~
+  Class A: ~
+  Class B: ~
+  Class C: ~
+  Class D: ~
+  Class E: ~
+  Class F: ~
+  Class G: ~
+  CTR: ~
+  TMZ: ~
+  RMZ: ~
+  Danger: ~
+  Prohibited: ~
+  Restricted: ~
+  Glider prohibited: ~
+  Wave window: ~
+  Undefined: ~
+  Ignore with floor above: ~
+  FANET ID: ~
+  FANET Firmware: ~
+  'You do not need to do anything here, unless you are instructed by support.': ~
+  Wi-Fi MAC: ~
+  Wi-Fi AP MAC: ~
+  Bluetooth MAC: ~
+  Diagnostic: ~
+  No network found: ~

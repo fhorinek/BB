@@ -97,16 +97,16 @@ lv_obj_t * info_init(lv_obj_t * par)
     lv_obj_t * obj;
 
     snprintf(value, sizeof(value), "%08lX", rev_get_short_id());
-    obj = gui_list_info_add_entry(list, _("Serial number"), value);
+    obj = gui_list_info_add_entry(list, _h("Serial number"), value);
     gui_config_entry_add(obj, CUSTOM_CB, info_serial_cb);
 
     snprintf(value, sizeof(value), "%02X", rev_get_hw());
-    gui_list_info_add_entry(list, _("Hardware revision"), value);
+    gui_list_info_add_entry(list, _h("Hardware revision"), value);
 
-    local->fanet = gui_list_info_add_entry(list, "FANET ID", "");
-    local->sta_mac = gui_list_info_add_entry(list, "Wi-Fi MAC", "");
-    local->ap_mac = gui_list_info_add_entry(list, "Wi-Fi AP MAC", "");
-    local->bt_mac = gui_list_info_add_entry(list, "Bluetooth MAC", "");
+    local->fanet = gui_list_info_add_entry(list, _h("FANET ID"), "");
+    local->sta_mac = gui_list_info_add_entry(list, _h("Wi-Fi MAC"), "");
+    local->ap_mac = gui_list_info_add_entry(list, _h("Wi-Fi AP MAC"), "");
+    local->bt_mac = gui_list_info_add_entry(list, _h("Bluetooth MAC"), "");
 
 
     return list;

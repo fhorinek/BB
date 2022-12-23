@@ -434,7 +434,7 @@ void filemanager_open_task(void * param)
         }
 
         gui_lock_acquire();
-        gui_list_text_add_entry(local->list, name);
+        gui_list_text_add_entry(local->list, name, 0);
         gui_lock_release();
     }
 
@@ -573,12 +573,12 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             char msg[128];
 
             snprintf(msg, sizeof(msg), _("Too many files to list\nShowing %u files"), FM_FILE_MAX_COUNT);
-            gui_list_note_add_entry(local->list, msg, LIST_NOTE_COLOR);
+            gui_list_note_add_entry(local->list, msg, 0, LIST_NOTE_COLOR);
         }
 
         if (local->filenames_count == 0)
         {
-            gui_list_note_add_entry(local->list, _("Nothing to show"), LIST_NOTE_COLOR);
+            gui_list_note_add_entry(local->list, _("Nothing to show"), 0, LIST_NOTE_COLOR);
             gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 
             local->cb(FM_CB_APPEND, "");
@@ -603,7 +603,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 	}
 	else
 	{
-        gui_list_note_add_entry(local->list, _("Directory not found"), LIST_NOTE_COLOR);
+        gui_list_note_add_entry(local->list, _("Directory not found"), 0, LIST_NOTE_COLOR);
         gui_set_dummy_event_cb(local->list, filemanager_dummy_cb);
 
         local->cb(FM_CB_APPEND, "");

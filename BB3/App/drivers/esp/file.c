@@ -178,7 +178,7 @@ void file_get_file_info(proto_fs_save_file_req_t * packet)
 	strcpy(slot->path, packet->path);
 
 	slot->f = red_open(tmp_path, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
-	DBG("res = %d", slot->f);
+
 }
 
 void file_get_file_data(uint8_t id, uint8_t * data, uint16_t data_len)

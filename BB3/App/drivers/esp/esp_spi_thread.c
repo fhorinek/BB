@@ -135,7 +135,7 @@ void thread_esp_spi_start(void * argument)
         uint8_t res = HAL_SPI_TransmitReceive_DMA(esp_spi, spi_tx_buffer, spi_rx_buffer, spi_data_to_send);
         if (res != HAL_OK)
         {
-            DBG("res = %02X", res);
+            ERR("SPI res = %02X", res);
         }
 
         osSemaphoreAcquire(spi_dma_done, WAIT_INF);

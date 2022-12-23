@@ -123,12 +123,12 @@ lv_obj_t * datetime_init(lv_obj_t * par)
 
 	char buf[16];
 	format_time(buf, hour, minute);
-	local->time = gui_list_info_add_entry(list, _("Time"), buf);
+	local->time = gui_list_info_add_entry(list, _h("Time"), buf);
 
     format_date(buf, day, month, year);
-	local->date = gui_list_info_add_entry(list, _("Date"), buf);
+	local->date = gui_list_info_add_entry(list, _h("Date"), buf);
 
-	local->dst = gui_list_switch_add_entry(list, _("Daylight saving time"), config_get_bool(&config.time.dst));
+	local->dst = gui_list_switch_add_entry(list, _h("Daylight saving time"), config_get_bool(&config.time.dst));
 
     #define OPTION_LEN  10 //UTC+00:11,
 	char options[NUMBER_OF_TIMEZONES * OPTION_LEN + 1];
@@ -144,9 +144,9 @@ lv_obj_t * datetime_init(lv_obj_t * par)
 	}
 	options[NUMBER_OF_TIMEZONES * OPTION_LEN - 1] = 0;
 
-	local->tz = gui_list_dropdown_add_entry(list, _("Time zone"), options, config_get_select(&config.time.zone));
+	local->tz = gui_list_dropdown_add_entry(list, _h("Time zone"), options, config_get_select(&config.time.zone));
 
-	local->gnss = gui_list_switch_add_entry(list, _("Sync with GNSS"), config_get_bool(&config.time.sync_gnss));
+	local->gnss = gui_list_switch_add_entry(list, _h("Sync with GNSS"), config_get_bool(&config.time.sync_gnss));
 
 	return list;
 }

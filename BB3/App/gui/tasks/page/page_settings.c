@@ -622,7 +622,13 @@ bool page_settings_load_page_copy_fm_cb(uint8_t event, char * path)
         {
             //only in root dir
             if (filemanager_get_current_level() == 0)
-                gui_list_auto_entry(gui.list.list, LV_SYMBOL_COPY " Strato default pages", CUSTOM_CB, page_settings_open_copy_defaults_fm);
+            {
+                char title[32];
+                uint16_t str_id = I18N_IDX_s("Strato default pages");
+                snprintf(title, sizeof(title), LV_SYMBOL_COPY " %s", _("Strato default pages"));
+
+                gui_list_auto_entry(gui.list.list, title, str_id, CUSTOM_CB, page_settings_open_copy_defaults_fm);
+            }
         }
         break;
 
@@ -716,21 +722,21 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, _("Page settings"), NULL, page_setting_cb);
 
-    local->name_entry = gui_list_textbox_add_entry(list, "", "", PAGE_NAME_LEN);
+    local->name_entry = gui_list_textbox_add_entry(list, "", 0, "", PAGE_NAME_LEN);
 
-        snprintf(buf, sizeof(buf), LV_SYMBOL_EDIT " %s", _("Edit page"));
-	gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_edit_layout_cb);
-        snprintf(buf, sizeof(buf), LV_SYMBOL_SETTINGS " %s", _("Autoset"));
-	gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_autoset_cb);
+    snprintf(buf, sizeof(buf), LV_SYMBOL_EDIT " %s", _("Edit page"));
+	gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_edit_layout_cb);
+    snprintf(buf, sizeof(buf), LV_SYMBOL_SETTINGS " %s", _("Autoset"));
+	gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_autoset_cb);
 
 	if (page_cnt > 1)
 	{
-	        snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT " %s", _("Move left"));
-		lv_obj_t * obj = gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_move_left_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_LEFT " %s", _("Move left"));
+		lv_obj_t * obj = gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_move_left_cb);
 		lv_cont_set_fit2(obj, LV_FIT_NONE, LV_FIT_TIGHT);
 		lv_obj_set_width(obj, lv_obj_get_width(obj) / 2);
-	        snprintf(buf, sizeof(buf), "%s " LV_SYMBOL_RIGHT, _("Move right"));
-        obj = gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_move_right_cb);
+        snprintf(buf, sizeof(buf), "%s " LV_SYMBOL_RIGHT, _("Move right"));
+        obj = gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_move_right_cb);
 		lv_cont_set_fit2(obj, LV_FIT_NONE, LV_FIT_TIGHT);
 		lv_obj_set_width(obj, lv_obj_get_width(obj) / 2);
 	}
@@ -738,9 +744,9 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
     if (page_cnt > 1)
     {
         snprintf(buf, sizeof(buf), LV_SYMBOL_EYE_CLOSE " %s", _("Hide page"));
-        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_unload_cb);
+        gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_unload_cb);
         snprintf(buf, sizeof(buf), LV_SYMBOL_TRASH " %s", _("Remove page"));
-        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_remove_cb);
+        gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_remove_cb);
     }
 
     if (page_cnt < PAGE_MAX_COUNT)
@@ -750,13 +756,13 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
         if (hidden_pages_cnt() > 0)
         {
             snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Show hidden page"));
-            gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_load_cb);
+            gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_load_cb);
         }
 
-	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Add empty page"));
-        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_add_cb);
-	snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Duplicate existing"));
-        gui_list_auto_entry(list, buf, CUSTOM_CB, page_settings_copy_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Add empty page"));
+        gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_add_cb);
+        snprintf(buf, sizeof(buf), LV_SYMBOL_PLUS " %s", _("Duplicate existing"));
+        gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_copy_cb);
     }
 
 	return list;

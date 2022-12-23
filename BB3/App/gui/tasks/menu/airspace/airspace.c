@@ -104,7 +104,7 @@ static void airspace_loop()
         float dist = geo_distance(gui.map.lat, gui.map.lon, fc.airspaces.valid_lat, fc.airspaces.valid_lon, true, NULL) / 100000.0;
 
         char tmp[128];
-        snprintf(tmp, sizeof(tmp), "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm",
+        snprintf(tmp, sizeof(tmp), _("Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm"),
                 fc.airspaces.number_loaded, AIRSPACE_INDEX_ALLOC,
                 (fc.airspaces.data_used * 100) / AIRSPACE_DATA_ALLOC,
                 fc.airspaces.number_in_file,
@@ -122,22 +122,22 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 
 	if (strlen(config_get_text(&profile.airspace.filename)) == 0)
 	{
-		gui_list_auto_entry(list, _("Load airspace"), CUSTOM_CB, airspace_load_cb);
+		gui_list_auto_entry(list, _h("Load airspace"), CUSTOM_CB, airspace_load_cb);
 	}
 	else
 	{
-		lv_obj_t * obj = gui_list_info_add_entry(list, _("Load airspace"), config_get_text(&profile.airspace.filename));
+		lv_obj_t * obj = gui_list_info_add_entry(list, _h("Load airspace"), config_get_text(&profile.airspace.filename));
 		gui_config_entry_add(obj, CUSTOM_CB, airspace_load_cb);
-		gui_list_auto_entry(list, _("Unload airspace"), CUSTOM_CB, airspace_unload_cb);
+		gui_list_auto_entry(list, _h("Unload airspace"), CUSTOM_CB, airspace_unload_cb);
 
 		if (DEVEL_ACTIVE)
 		{
-			local->dbg_info = gui_list_info_add_entry(list, "Debug Info", "-\n-\n-\n");
+			local->dbg_info = gui_list_info_add_entry(list, _h("Debug Info"), "-\n-\n-\n");
 		}
 	}
 
-	gui_list_auto_entry(list, _("Enabled classes"), NEXT_TASK, &gui_airspace_display);
-	gui_list_auto_entry(list, _("Help"), CUSTOM_CB, airspace_help_cb);
+	gui_list_auto_entry(list, _h("Enabled classes"), NEXT_TASK, &gui_airspace_display);
+	gui_list_auto_entry(list, _h("Help"), CUSTOM_CB, airspace_help_cb);
 
 	return list;
 }

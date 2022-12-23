@@ -18,15 +18,15 @@ static lv_obj_t * fanet_settings_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("FANET settings"), &gui_fanet, NULL);
 
-    gui_list_auto_entry(list, _("Enable FANET"), &profile.fanet.enabled, NULL);
-    gui_list_auto_entry(list, _("Enable FLARM"), &profile.fanet.flarm, NULL);
-    gui_list_auto_entry(list, _("Airborne type"), &profile.fanet.air_type, NULL);
-    gui_list_auto_entry(list, _("Ground type"), &profile.fanet.ground_type, NULL);
-    gui_list_auto_entry(list, _("Show labels"), &profile.fanet.show_labels, NULL);
+    gui_list_auto_entry(list, _h("Enable FANET"), &profile.fanet.enabled, NULL);
+    gui_list_auto_entry(list, _h("Enable FLARM"), &profile.fanet.flarm, NULL);
+    gui_list_auto_entry(list, _h("Airborne type"), &profile.fanet.air_type, NULL);
+    gui_list_auto_entry(list, _h("Ground type"), &profile.fanet.ground_type, NULL);
+    gui_list_auto_entry(list, _h("Show labels"), &profile.fanet.show_labels, NULL);
 
-    local->id = gui_list_info_add_entry(list, "FANET ID", "");
-    local->ver = gui_list_info_add_entry(list, "FANET Firmware", "");
-    local->exp = gui_list_info_add_entry(list, _("FLARM expires"), "");
+    local->id = gui_list_info_add_entry(list, _h("FANET ID"), "");
+    local->ver = gui_list_info_add_entry(list, _h("FANET Firmware"), "");
+    local->exp = gui_list_info_add_entry(list, _h("FLARM expires"), "");
 
     return list;
 }

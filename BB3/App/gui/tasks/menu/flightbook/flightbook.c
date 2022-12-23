@@ -69,7 +69,7 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
     	case FM_CB_APPEND:
     	    //only in root dir
     		if (filemanager_get_current_level() == 0)
-    			gui_list_auto_entry(gui.list.list, _("Flight statistics"), CUSTOM_CB, open_flightbook_stat);
+    			gui_list_auto_entry(gui.list.list, _h("Flight statistics"), CUSTOM_CB, open_flightbook_stat);
 		break;
 
         case FM_CB_SELECT:

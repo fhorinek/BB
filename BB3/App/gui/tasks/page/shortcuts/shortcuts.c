@@ -33,7 +33,7 @@ void shortcut_set_slot(shortcut_get_name_cb_t cb, char * title, char * actual)
         {
             char label[SHORTCUT_ICON_LEN + SHORTCUT_LABEL_LEN + 2];
             snprintf(label, sizeof(label), "%s %s", icon, text);
-            lv_obj_t * e = gui_list_text_add_entry(gui.list.list, label);
+            lv_obj_t * e = gui_list_text_add_entry(gui.list.list, label, 0);
 
             if (strcmp(actual, shortcut_actions[i].name) == 0)
                 gui_focus_child(e, NULL);

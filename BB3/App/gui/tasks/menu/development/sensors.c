@@ -30,48 +30,48 @@ lv_obj_t * sensors_init(lv_obj_t * par)
 
     char value[64];
 
-    gui_list_info_add_entry(list, "TFT controller", (tft_controller_type == TFT_CONTROLLER_HX8352) ? "HX8352" : "ILI9327");
-    local->baro = gui_list_info_add_entry(list, "Barometer", "");
+    gui_list_info_add_entry(list, "TFT controller", 0, (tft_controller_type == TFT_CONTROLLER_HX8352) ? "HX8352" : "ILI9327");
+    local->baro = gui_list_info_add_entry(list, "Barometer", 0, "");
 
     fc_device_status(value, fc.gnss.status);
-    gui_list_info_add_entry(list, "GNSS", value);
+    gui_list_info_add_entry(list, "GNSS", 0, value);
 
     fc_device_status(value, fc.fanet.status);
-    gui_list_info_add_entry(list, "FANET", value);
+    gui_list_info_add_entry(list, "FANET", 0, value);
 
-    local->bat_volt = gui_list_info_add_entry(list, "Battery gauge", "");
+    local->bat_volt = gui_list_info_add_entry(list, "Battery gauge", 0, "");
 
     if (fc.imu.status != fc_dev_error)
     {
-        lv_obj_t * obj = gui_list_info_add_entry(list, "9-axis sensor", (lsm_sensor_type == LSM_TYPE_LSM9DS0) ? "LSM9DS0" : "LSM9DS1");
+        lv_obj_t * obj = gui_list_info_add_entry(list, "9-axis sensor", 0, (lsm_sensor_type == LSM_TYPE_LSM9DS0) ? "LSM9DS0" : "LSM9DS1");
         gui_config_entry_add(obj, NEXT_TASK, &gui_imu);
     }
     else
     {
         fc_device_status(value, fc.imu.status);
-        gui_list_info_add_entry(list, "9-axis sensor", value);
+        gui_list_info_add_entry(list, "9-axis sensor", 0, value);
     }
 
     fc_device_status(value, pwr.charger.status);
-    gui_list_info_add_entry(list, "Charger", value);
+    gui_list_info_add_entry(list, "Charger", 0, value);
 
     if (fc.esp.mode == esp_normal)
-        gui_list_info_add_entry(list, "ESP32", "Ready");
+        gui_list_info_add_entry(list, "ESP32", 0, "Ready");
     else
-        gui_list_info_add_entry(list, "ESP32", "Error");
+        gui_list_info_add_entry(list, "ESP32", 0, "Error");
 
     fc_device_status(value, fc.esp.amp_status);
-    gui_list_info_add_entry(list, "Amplifier", value);
+    gui_list_info_add_entry(list, "Amplifier", 0, value);
 
     fc_device_status(value, fc.esp.server_status);
-    gui_list_info_add_entry(list, "Esp server", value);
+    gui_list_info_add_entry(list, "Esp server", 0, value);
 
     snprintf(value, sizeof(value), "%u", fc.baro.retry_cnt);
-    gui_list_info_add_entry(list, "Baro retry", value);
+    gui_list_info_add_entry(list, "Baro retry", 0, value);
 
-    local->bat_cap = gui_list_info_add_entry(list, "Battery capacity", "");
-    local->aux_baro = gui_list_info_add_entry(list, "Aux Barometer", "");
-    local->brigh = gui_list_info_add_entry(list, "Brightness", "");
+    local->bat_cap = gui_list_info_add_entry(list, "Battery capacity", 0, "");
+    local->aux_baro = gui_list_info_add_entry(list, "Aux Barometer", 0, "");
+    local->brigh = gui_list_info_add_entry(list, "Brightness", 0, "");
 
 	return list;
 }

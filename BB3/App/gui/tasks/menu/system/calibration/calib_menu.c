@@ -86,21 +86,21 @@ static bool calib_menu_calib_clear(lv_obj_t * obj, lv_event_t event)
 
 lv_obj_t * calib_menu_init(lv_obj_t * par)
 {
-    lv_obj_t * list = gui_list_create(par, "Advanced settings", &gui_system, NULL);
+    lv_obj_t * list = gui_list_create(par, _("Calibration"), &gui_system, NULL);
 
     if (fc.imu.status != fc_dev_ready)
     {
-    	gui_list_note_add_entry(list, "Calibration data not valid", LIST_NOTE_COLOR);
+    	gui_list_note_add_entry(list, _h("Calibration data not valid"), LIST_NOTE_COLOR);
     }
 
-    gui_list_auto_entry(list, "Calibrate sensors", NEXT_TASK, &gui_calibration);
+    gui_list_auto_entry(list, _h("Calibrate sensors"), NEXT_TASK, &gui_calibration);
 
     if (fc.imu.status == fc_dev_ready)
     {
-        gui_list_auto_entry(list, _("Recalibrate Gyroscope"), CUSTOM_CB, calib_menu_calib_gyro);
-        gui_list_auto_entry(list, _("Recalibrate Accelerometer"), CUSTOM_CB, calib_menu_calib_acc);
-        gui_list_auto_entry(list, _("Recalibrate Magnetometer"), CUSTOM_CB, calib_menu_calib_mag);
-        gui_list_auto_entry(list, _("Reset calibration"), CUSTOM_CB, calib_menu_calib_clear);
+        gui_list_auto_entry(list, _h("Recalibrate Gyroscope"), CUSTOM_CB, calib_menu_calib_gyro);
+        gui_list_auto_entry(list, _h("Recalibrate Accelerometer"), CUSTOM_CB, calib_menu_calib_acc);
+        gui_list_auto_entry(list, _h("Recalibrate Magnetometer"), CUSTOM_CB, calib_menu_calib_mag);
+        gui_list_auto_entry(list, _h("Reset calibration"), CUSTOM_CB, calib_menu_calib_clear);
     }
 
 

@@ -35,10 +35,10 @@ lv_obj_t * gnss_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("GNSS Settings"), &gui_settings, gnss_cb);
 
-	local->label_status = gui_list_info_add_entry(list, _("Status"), "");
-	local->label_ttf = gui_list_info_add_entry(list, _("TTF"), "");
-	local->label_lat = gui_list_info_add_entry(list, _("Latitude"), "");
-	local->label_lon = gui_list_info_add_entry(list, _("Longitude"), "");
+	local->label_status = gui_list_info_add_entry(list, _h("Status"), "");
+	local->label_ttf = gui_list_info_add_entry(list, _h("TTF"), "");
+	local->label_lat = gui_list_info_add_entry(list, _h("Latitude"), "");
+	local->label_lon = gui_list_info_add_entry(list, _h("Longitude"), "");
 
 	return list;
 }

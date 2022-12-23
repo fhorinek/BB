@@ -36,10 +36,10 @@ static lv_obj_t * wifi_info_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("Network info"), &gui_wifi, NULL);
 
-    local->sta_ip = gui_list_info_add_entry(list, _("Client IP"), "");
-    local->sta_mac = gui_list_info_add_entry(list, _("Client MAC"), "");
-    local->ap_ip = gui_list_info_add_entry(list, _("Access point IP"), "");
-    local->ap_mac = gui_list_info_add_entry(list, _("Access point MAC"), "");
+    local->sta_ip = gui_list_info_add_entry(list, _h("Client IP"), "");
+    local->sta_mac = gui_list_info_add_entry(list, _h("Client MAC"), "");
+    local->ap_ip = gui_list_info_add_entry(list, _h("Access point IP"), "");
+    local->ap_mac = gui_list_info_add_entry(list, _h("Access point MAC"), "");
 
 	return list;
 }

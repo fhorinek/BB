@@ -32,11 +32,11 @@ static lv_obj_t * landing_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("Automatic Landing"), &gui_flight, NULL);
 
-	gui_list_auto_entry(list, _("Use altitude"), &profile.flight.auto_landing.alt_change_enabled, NULL);
-	gui_list_auto_entry(list, _("Stay within"), &profile.flight.auto_landing.alt_change_value, &alt_param);
-	gui_list_auto_entry(list, _("Use ground speed"), &profile.flight.auto_landing.speed_enabled, NULL);
-	gui_list_auto_entry(list, _("Be slower than"), &profile.flight.auto_landing.speed_value, &spd_param);
-	gui_list_auto_entry(list, _("Within time"), &profile.flight.auto_landing.timeout, &time_param);
+	gui_list_auto_entry(list, _h("Use altitude"), &profile.flight.auto_landing.alt_change_enabled, NULL);
+	gui_list_auto_entry(list, _h("Stay within"), &profile.flight.auto_landing.alt_change_value, &alt_param);
+	gui_list_auto_entry(list, _h("Use ground speed"), &profile.flight.auto_landing.speed_enabled, NULL);
+	gui_list_auto_entry(list, _h("Be slower than"), &profile.flight.auto_landing.speed_value, &spd_param);
+	gui_list_auto_entry(list, _h("Within time"), &profile.flight.auto_landing.timeout, &time_param);
 
 	return list;
 }

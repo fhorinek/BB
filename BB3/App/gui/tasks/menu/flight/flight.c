@@ -50,7 +50,7 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 	if (strlen(desc) == 0)
 		strcpy(desc, _("Disabled"));
 
-	lv_obj_t * obj = gui_list_info_add_entry(list, _("Automatic Take-off"), desc);
+	lv_obj_t * obj = gui_list_info_add_entry(list, _h("Automatic Take-off"), desc);
 	gui_config_entry_add(obj, NEXT_TASK, &gui_take_off);
 
 
@@ -80,18 +80,18 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 	if (strlen(desc) == 0)
 		strcpy(desc, _("Disabled"));
 
-	obj = gui_list_info_add_entry(list, _("Automatic Landing"), desc);
+	obj = gui_list_info_add_entry(list, _h("Automatic Landing"), desc);
 	gui_config_entry_add(obj, NEXT_TASK, &gui_landing);
 
 
-    gui_list_auto_entry(list, _("Glide ratio time"), &profile.flight.gr_duration, &dura_opt);
-    gui_list_auto_entry(list, _("G-meter time"), &profile.flight.acc_duration, &dura_opt);
-    gui_list_auto_entry(list, _("Circling timeout"), &profile.flight.circle_timeout, &dura_opt);
+    gui_list_auto_entry(list, _h("Glide ratio time"), &profile.flight.gr_duration, &dura_opt);
+    gui_list_auto_entry(list, _h("G-meter time"), &profile.flight.acc_duration, &dura_opt);
+    gui_list_auto_entry(list, _h("Circling timeout"), &profile.flight.circle_timeout, &dura_opt);
 
-    gui_list_auto_entry(list, _("Use wind in trace"), &profile.flight.compensate_wind, NULL);
+    gui_list_auto_entry(list, _h("Use wind in trace"), &profile.flight.compensate_wind, NULL);
 
-    gui_list_auto_entry(list, _("Enable IGC log"), &profile.flight.logger.igc, NULL);
-    gui_list_auto_entry(list, _("Enable CSV log"), &profile.flight.logger.csv, NULL);
+    gui_list_auto_entry(list, _h("Enable IGC log"), &profile.flight.logger.igc, NULL);
+    gui_list_auto_entry(list, _h("Enable CSV log"), &profile.flight.logger.csv, NULL);
 
 	return list;
 }

@@ -376,4 +376,6 @@ void config_new_version_cb();
 
 extern bool config_changed;
 
+extern char * languages_id[];
+
 #endif /* CONFIG_CONFIG_H_ */

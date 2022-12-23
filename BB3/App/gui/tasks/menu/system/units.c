@@ -10,15 +10,15 @@ lv_obj_t * units_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, _("Units"), &gui_system, NULL);
 
-    gui_list_auto_entry(list, _("Altitude"), &config.units.altitude, NULL);
-    gui_list_auto_entry(list, _("Speed"), &config.units.speed, NULL);
-    gui_list_auto_entry(list, _("Distance"), &config.units.distance, NULL);
-    gui_list_auto_entry(list, _("Variometer"), &config.units.vario, NULL);
-    gui_list_auto_entry(list, _("Date format"), &config.units.date, NULL);
-    gui_list_auto_entry(list, _("Use 24h time"), &config.units.time24, NULL);
-    gui_list_auto_entry(list, _("Position"), &config.units.geo_datum, NULL);
-    gui_list_auto_entry(list, _("Earth model"), &config.units.earth_model, NULL);
-    gui_list_auto_entry(list, _("GNSS Altitude"), &config.units.galt, NULL);
+    gui_list_auto_entry(list, _h("Altitude"), &config.units.altitude, NULL);
+    gui_list_auto_entry(list, _h("Speed"), &config.units.speed, NULL);
+    gui_list_auto_entry(list, _h("Distance"), &config.units.distance, NULL);
+    gui_list_auto_entry(list, _h("Variometer"), &config.units.vario, NULL);
+    gui_list_auto_entry(list, _h("Date format"), &config.units.date, NULL);
+    gui_list_auto_entry(list, _h("Use 24h time"), &config.units.time24, NULL);
+    gui_list_auto_entry(list, _h("Position"), &config.units.geo_datum, NULL);
+    gui_list_auto_entry(list, _h("Earth model"), &config.units.earth_model, NULL);
+    gui_list_auto_entry(list, _h("GNSS Altitude"), &config.units.galt, NULL);
 
     return list;
 }

@@ -113,7 +113,7 @@ static lv_obj_t * widget_list_init(lv_obj_t * par)
 	for (uint16_t i = 0; i < number_of_widgets(); i++)
 	{
 	    widget_t * w = widgets[i];
-        gui_list_text_add_entry(list, w->name);
+        gui_list_text_add_entry(list, w->name, 0);
 	}
 
     widget_list_show_widget(0);

@@ -78,7 +78,7 @@ void gui_load_language()
         break;
 
         default:
-            __lv_i18n_reset();
+            lv_i18n_set_locale("en-US");
         break;
     }
 }

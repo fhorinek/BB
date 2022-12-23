@@ -47,20 +47,20 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, _("System"), &gui_settings, NULL);
 
-    gui_list_auto_entry(list, _("Time & date"), NEXT_TASK, &gui_datetime);
-    gui_list_auto_entry(list, _("Display"), NEXT_TASK, &gui_display);
-    gui_list_auto_entry(list, _("Units"), NEXT_TASK, &gui_units);
-    gui_list_auto_entry(list, _("Calibration"), NEXT_TASK, &gui_calib_menu);
+    gui_list_auto_entry(list, _h("Time & date"), NEXT_TASK, &gui_datetime);
+    gui_list_auto_entry(list, _h("Display"), NEXT_TASK, &gui_display);
+    gui_list_auto_entry(list, _h("Units"), NEXT_TASK, &gui_units);
+    gui_list_auto_entry(list, _h("Calibration"), NEXT_TASK, &gui_calib_menu);
 
     char rev_str[20];
     rev_get_sw_string(rev_str);
-    lv_obj_t * fw = gui_list_info_add_entry(list, _("Firmware"), rev_str);
+    lv_obj_t * fw = gui_list_info_add_entry(list, _h("Firmware"), rev_str);
     gui_config_entry_add(fw, NEXT_TASK, &gui_firmware);
 
-    gui_list_auto_entry(list, _("Device info"), NEXT_TASK, &gui_info);
-    gui_list_auto_entry(list, _("Diagnostic"), NEXT_TASK, &gui_diagnostic);
+    gui_list_auto_entry(list, _h("Device info"), NEXT_TASK, &gui_info);
+    gui_list_auto_entry(list, _h("Diagnostic"), NEXT_TASK, &gui_diagnostic);
 
-    gui_list_auto_entry(list, _("Restore factory settings"), CUSTOM_CB, restore_cb);
+    gui_list_auto_entry(list, _h("Restore factory settings"), CUSTOM_CB, restore_cb);
 
     return list;
 }

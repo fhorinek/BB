@@ -16,8 +16,8 @@ widget_flag_def_t widgets_flags[] = {
     {'A', "Alternative units", "Default units", NULL},
     {'V', "Avg. vario on climb", "Empty on climb", NULL},
     {'R', "North is up", "Adjust to heading", NULL},
-    {'H', LV_SYMBOL_EYE_CLOSE " Hide icon", LV_SYMBOL_EYE_OPEN " Show icon", NULL},
-    {'0', "Show actual vario", "Show average vario", NULL},
+    {'H', LV_SYMBOL_EYE_CLOSE " Icon hidden", LV_SYMBOL_EYE_OPEN " Icon visible", NULL},
+    {'0', "Actual vario", "Average vario", NULL},
     {'1', "Only time", "Time and Date", NULL},
 };
 

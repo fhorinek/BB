@@ -100,16 +100,10 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
     if (event == LV_EVENT_FOCUSED)
     {
         help_key_cnt = 0;
-        lv_obj_t * label = lv_obj_get_child_back(child, NULL);
-        if (label != NULL)
+        if (child->user_data != 0)
         {
-            lv_obj_type_t buf;
-            lv_obj_get_type(label, &buf);
-
-            if (strcmp(buf.type[0], "lv_label") == 0)
-            {
-                help_avalible = help_show_icon_if_avalible_from_title(lv_label_get_text(label));
-            }
+            help_avalible = help_show_icon_if_avalible_from_title(
+                    lv_i18n_get_default_text_optimized("", child->user_data));
         }
     }
 
@@ -123,16 +117,9 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
             if(help_key_cnt > 5)
             {
                 help_key_cnt = 0;
-                lv_obj_t * label = lv_obj_get_child_back(child, NULL);
-                if (label != NULL)
+                if (child->user_data != 0)
                 {
-                    lv_obj_type_t buf;
-                    lv_obj_get_type(label, &buf);
-
-                    if (strcmp(buf.type[0], "lv_label") == 0)
-                    {
-                        help_show_from_title(lv_label_get_text(label));
-                    }
+                    help_show_from_title(lv_i18n_get_default_text_optimized("", child->user_data));
                 }
             }
         }
@@ -257,12 +244,13 @@ void gui_list_set_title(lv_obj_t * list, const char * title)
 	lv_win_set_title(list, title);
 }
 
-lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text)
+lv_obj_t * gui_list_text_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
+	entry->user_data = str_id;
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -285,12 +273,13 @@ const char * gui_list_text_get_value(lv_obj_t * obj)
     return lv_label_get_text(label);
 }
 
-lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text, int16_t value_min, int16_t value_max, int16_t value)
+lv_obj_t * gui_list_slider_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id, int16_t value_min, int16_t value_max, int16_t value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_PRETTY_MID);
+	entry->user_data = str_id;
 
 	uint16_t w = lv_obj_get_width_fit(entry);
 
@@ -337,12 +326,13 @@ void gui_list_slider_set_label(lv_obj_t * obj, char * text)
 	lv_label_set_text(label, text);
 }
 
-lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text, const char * options, uint16_t selected)
+lv_obj_t * gui_list_dropdown_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id, const char * options, uint16_t selected)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
+	entry->user_data = str_id;
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -395,11 +385,12 @@ void gui_list_switch_set_value(lv_obj_t * obj, bool val)
         lv_switch_off(sw, LV_ANIM_ON);
 }
 
-lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, bool value)
+lv_obj_t * gui_list_switch_add_entry(lv_obj_t * list, const char * text, uint16_t str_id, bool value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
+	entry->user_data = str_id;
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -442,11 +433,12 @@ char * gui_list_switch_get_title(lv_obj_t * obj)
  *  @param value right aligned
  *  @return the newly created lv_obj_t
  */ 
-lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text, const char * value)
+lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id, const char * value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
+	entry->user_data = str_id;
 	//lv_page_glue_obj(entry, true);
 
 	lv_obj_t * label1 = lv_label_create(entry, NULL);
@@ -467,11 +459,12 @@ lv_obj_t * gui_list_text2_add_entry(lv_obj_t * list, const char * text, const ch
 	return entry;
 }
 
-lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text, char * value)
+lv_obj_t * gui_list_info_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id, char * value)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
+	entry->user_data = str_id;
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -530,11 +523,12 @@ lv_obj_t * gui_list_cont_add(lv_obj_t * list, uint16_t height)
 	return entry;
 }
 
-lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text, const char * value, uint8_t max_len)
+lv_obj_t * gui_list_textbox_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id, const char * value, uint8_t max_len)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.list_select);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_NONE);
+	entry->user_data = str_id;
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_text(label, text);
@@ -585,13 +579,14 @@ void gui_list_textbox_set_name(lv_obj_t * obj, const char * value)
 }
 
 
-lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text, lv_color_t color)
+lv_obj_t * gui_list_note_add_entry(lv_obj_t * list, const char * text,  uint16_t str_id, lv_color_t color)
 {
 	lv_obj_t * entry = lv_cont_create(list, NULL);
 	lv_obj_add_style(entry, LV_CONT_PART_MAIN, &gui.styles.note);
 	lv_cont_set_fit2(entry, LV_FIT_PARENT, LV_FIT_TIGHT);
 	lv_cont_set_layout(entry, LV_LAYOUT_COLUMN_LEFT);
 	lv_obj_set_style_local_bg_color(entry, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, color);
+	entry->user_data = str_id;
 
 	lv_obj_t * label = lv_label_create(entry, NULL);
 	lv_label_set_long_mode(label, LV_LABEL_LONG_BREAK);
@@ -696,28 +691,28 @@ static gui_list_slider_options_t slider_default_format = {
 	.format = format_int,
 };
 
-lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry, void * params)
+lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, uint16_t str_id, cfg_entry_t * entry, void * params)
 {
 	lv_obj_t * obj = NULL;
 
 	if (entry == NEXT_TASK)
 	{
-		obj = gui_list_text_add_entry(list, name);
+		obj = gui_list_text_add_entry(list, name, str_id);
 	}
 	else if (entry == CUSTOM_CB)
 	{
-		obj = gui_list_text_add_entry(list, name);
+		obj = gui_list_text_add_entry(list, name, str_id);
 	}
 	else
 	{
 		switch (entry->type)
 		{
 			case (ENTRY_BOOL):
-				obj = gui_list_switch_add_entry(list, name, config_get_bool(entry));
+				obj = gui_list_switch_add_entry(list, name, str_id, config_get_bool(entry));
 				break;
 
 			case (ENTRY_TEXT):
-				obj = gui_list_textbox_add_entry(list, name, config_get_text(entry), config_text_max_len(entry));
+				obj = gui_list_textbox_add_entry(list, name, str_id, config_get_text(entry), config_text_max_len(entry));
 				break;
 
 			case (ENTRY_FLOAT):
@@ -731,7 +726,7 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
 				int16_t min = config_float_min(entry) / opt->step;
 				int16_t max = config_float_max(entry) / opt->step;
-				obj = gui_list_slider_add_entry(list, name, min, max, config_get_float(entry) / opt->step);
+				obj = gui_list_slider_add_entry(list, name, str_id, min, max, config_get_float(entry) / opt->step);
 				gui_config_entry_update(obj, entry, params);
 				break;
 			}
@@ -748,7 +743,7 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 				gui_list_slider_options_t * opt = (gui_list_slider_options_t *)params;
 				int16_t min = config_int_min(entry) / opt->step;
 				int16_t max = config_int_max(entry) / opt->step;
-				obj = gui_list_slider_add_entry(list, name, min, max, config_get_int(entry) / opt->step);
+				obj = gui_list_slider_add_entry(list, name, str_id, min, max, config_get_int(entry) / opt->step);
 				gui_config_entry_update(obj, entry, params);
 				break;
 			}
@@ -768,13 +763,13 @@ lv_obj_t * gui_list_auto_entry(lv_obj_t * list, char * name, cfg_entry_t * entry
 				//remove last \n
 				options[strlen(options) - 1] = 0;
 
-				obj = gui_list_dropdown_add_entry(list, name, options, config_get_select(entry));
+				obj = gui_list_dropdown_add_entry(list, name, str_id, options, config_get_select(entry));
 				tfree(options);
 				break;
 			}
 
 			default:
-				obj = gui_list_info_add_entry(list, name, "???");
+				obj = gui_list_info_add_entry(list, name, str_id, "???");
 		}
 	}
 

@@ -49,6 +49,8 @@ int lv_i18n_init(const lv_i18n_language_pack_t * langs);
  */
 int lv_i18n_set_locale(const char * l_name);
 
+
+char * lv_i18n_get_default_text_optimized(const char *msg, int msg_id);
 /**
  * Get the translation from a message ID
  * @param msg the untranslated messages (key)
@@ -90,6 +92,9 @@ void __lv_i18n_reset(void);
 #define _(text) lv_i18n_get_text_optimized(text, I18N_IDX_s(text))
 #define _p(text, num) lv_i18n_get_text_plural(text, num)
 
+#define _h(text) _(text), I18N_IDX_s(text)
+
+extern volatile uint16_t i18n_last_str_id;
 
 #ifdef __cplusplus
 } /* extern "C" */

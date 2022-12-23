@@ -105,8 +105,27 @@ static const char * __lv_i18n_get_text_core(lv_i18n_phrase_t * trans, const char
  * @param msg_id message ID
  * @return the translation of `msg_id` on the set local
  */
+volatile uint16_t i18n_last_str_id = 0;
+
+char * lv_i18n_get_default_text_optimized(const char *msg, int msg_id)
+{
+    // Try to fallback
+    const lv_i18n_lang_t * lang = current_lang_pack[0];
+    const char * txt;
+
+    // Repeat search for default locale
+    if(lang->singulars != NULL) {
+        txt = lang->singulars[msg_id-1];
+        if (txt != NULL) return txt;
+    }
+
+    return msg;
+}
+
 char * lv_i18n_get_text_optimized(const char *msg, int msg_id)
 {
+    i18n_last_str_id = msg_id;
+
     if(current_lang == NULL || msg_id == 0 ) return msg;
 
     const lv_i18n_lang_t * lang = current_lang;
@@ -127,16 +146,12 @@ char * lv_i18n_get_text_optimized(const char *msg, int msg_id)
 
     // Try to fallback
     if(lang == current_lang_pack[0]) return msg;
-    lang = current_lang_pack[0];
-
-    // Repeat search for default locale
-    if(lang->singulars != NULL) {
-        txt = lang->singulars[msg_id-1];
-        if (txt != NULL) return txt;
-    }
+    msg = lv_i18n_get_default_text_optimized(msg, msg_id);
 
     return msg;
 }
+
+
 
 /**
  * Get the translation from a message ID

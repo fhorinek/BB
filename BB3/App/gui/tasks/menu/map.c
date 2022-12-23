@@ -86,14 +86,14 @@ static lv_obj_t * map_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, _("Map"), &gui_settings, NULL);
 
-    gui_list_auto_entry(list, _("Map scale"), &profile.map.zoom_flight, &scale_opt);
-    gui_list_auto_entry(list, _("Zoom to fit track"), &profile.map.zoom_fit, NULL);
-    gui_list_auto_entry(list, _("Terrain type"), &profile.map.alt_range, NULL);
-    gui_list_auto_entry(list, _("Topo blur"), &profile.map.blur, NULL);
-    gui_list_auto_entry(list, _("Clear map cache"), CUSTOM_CB, map_cc_cb);
-    gui_list_auto_entry(list, _("Show FANET on map"), &profile.map.show_fanet, NULL);
-    gui_list_auto_entry(list, _("Show trail"), &profile.map.show_glider_trail, NULL);
-    gui_list_auto_entry(list, _("Help"), CUSTOM_CB, map_help_cb);
+    gui_list_auto_entry(list, _h("Map scale"), &profile.map.zoom_flight, &scale_opt);
+    gui_list_auto_entry(list, _h("Zoom to fit track"), &profile.map.zoom_fit, NULL);
+    gui_list_auto_entry(list, _h("Terrain type"), &profile.map.alt_range, NULL);
+    gui_list_auto_entry(list, _h("Topo blur"), &profile.map.blur, NULL);
+    gui_list_auto_entry(list, _h("Clear map cache"), CUSTOM_CB, map_cc_cb);
+    gui_list_auto_entry(list, _h("Show FANET on map"), &profile.map.show_fanet, NULL);
+    gui_list_auto_entry(list, _h("Show trail"), &profile.map.show_glider_trail, NULL);
+    gui_list_auto_entry(list, _h("Help"), CUSTOM_CB, map_help_cb);
 
     return list;
 }

@@ -22,11 +22,11 @@ static lv_obj_t * audio_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("Audio"), &gui_settings, NULL);
 
-	gui_list_auto_entry(list, _("Master volume"), &profile.audio.master_volume, &vol_opt);
-	gui_list_auto_entry(list, _("Vario volume"), &profile.audio.vario_volume, &vol_opt);
-	gui_list_auto_entry(list, _("Sound volume"), &profile.audio.sound_volume, &vol_opt);
-	gui_list_auto_entry(list, _("Bluetooth volume"), &profile.audio.a2dp_volume, &vol_opt);
-	gui_list_auto_entry(list, _("TTS alerts"), &profile.audio.tts_alerts, NULL);
+	gui_list_auto_entry(list, _h("Master volume"), &profile.audio.master_volume, &vol_opt);
+	gui_list_auto_entry(list, _h("Vario volume"), &profile.audio.vario_volume, &vol_opt);
+	gui_list_auto_entry(list, _h("Sound volume"), &profile.audio.sound_volume, &vol_opt);
+	gui_list_auto_entry(list, _h("Bluetooth volume"), &profile.audio.a2dp_volume, &vol_opt);
+	gui_list_auto_entry(list, _h("TTS alerts"), &profile.audio.tts_alerts, NULL);
 
 	return list;
 }

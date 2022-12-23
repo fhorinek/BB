@@ -49,16 +49,16 @@ lv_obj_t * imu_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, "IMU", &gui_sensors, imu_cb);
 
-    local->log = gui_list_switch_add_entry(list, "Record", fc.imu.record);
+    local->log = gui_list_switch_add_entry(list, "Record", 0, fc.imu.record);
 
-    local->acc = gui_list_info_add_entry(list, "Accelerometer", "");
-    local->acc_noise = gui_list_info_add_entry(list, "-noise", "");
+    local->acc = gui_list_info_add_entry(list, "Accelerometer", 0, "");
+    local->acc_noise = gui_list_info_add_entry(list, "-noise", 0, "");
 
-    local->gyro = gui_list_info_add_entry(list, "Gyroscope", "");
-    local->gyro_noise = gui_list_info_add_entry(list, "-noise", "");
+    local->gyro = gui_list_info_add_entry(list, "Gyroscope", 0, "");
+    local->gyro_noise = gui_list_info_add_entry(list, "-noise", 0, "");
 
-    local->mag = gui_list_info_add_entry(list, "Magnetometer", "");
-    local->mag_noise = gui_list_info_add_entry(list, "-noise", "");
+    local->mag = gui_list_info_add_entry(list, "Magnetometer", 0, "");
+    local->mag_noise = gui_list_info_add_entry(list, "-noise", 0, "");
 
     local->acc_noise_val.x = 0;
     local->acc_noise_val.y = 0;

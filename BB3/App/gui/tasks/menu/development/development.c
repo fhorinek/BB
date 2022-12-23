@@ -106,31 +106,29 @@ static bool esp_reset_nvm_cb(lv_obj_t * obj, lv_event_t event)
 
 static lv_obj_t * development_init(lv_obj_t * par)
 {
-    help_set_base("Development");
-
 	lv_obj_t * list = gui_list_create(par, "Reset GNSS", &gui_settings, development_cb);
 
 	local->slot = 0xFF;
 
 	bool ext_active = fc.esp.mode == esp_external_auto || fc.esp.mode == esp_external_manual;
 
-    local->trigger = gui_list_text_add_entry(list, "Trigger");
+    local->trigger = gui_list_text_add_entry(list, "Trigger", 0);
 
-    gui_list_auto_entry(list, "Sensors", NEXT_TASK, &gui_sensors);
+    gui_list_auto_entry(list, "Sensors", 0, NEXT_TASK, &gui_sensors);
 
-    gui_list_auto_entry(list, "ESP Disable", &config.debug.esp_off, NULL);
-    gui_list_auto_entry(list, "ESP Watchdog", &config.debug.esp_wdt, NULL);
-    gui_list_auto_entry(list, "ESP enter gdbstub", &config.debug.esp_gdbstub, NULL);
-    gui_list_auto_entry(list, "ESP Reset NVM", CUSTOM_CB, esp_reset_nvm_cb);
-    gui_list_auto_entry(list, "Show tasks", &config.debug.tasks, NULL);
-    local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", ext_active);
-    gui_list_auto_entry(list, "Add help entries", &config.debug.help_show_id, NULL);
-    gui_list_auto_entry(list, "Debug to serial", &config.debug.use_serial, NULL);
-    gui_list_auto_entry(list, "Debug to USB", &config.debug.use_usb, NULL);
-    gui_list_auto_entry(list, "Vario test", &config.debug.vario_test, NULL);
-    gui_list_auto_entry(list, "FANET force update", &config.debug.fanet_update, NULL);
-    gui_list_auto_entry(list, "Show LVGL info", &config.debug.lvgl_info, NULL);
-	gui_list_auto_entry(list, "Space Invaders!", NEXT_TASK, &gui_spaceinvaders);
+    gui_list_auto_entry(list, "ESP Disable", 0, &config.debug.esp_off, NULL);
+    gui_list_auto_entry(list, "ESP Watchdog", 0, &config.debug.esp_wdt, NULL);
+    gui_list_auto_entry(list, "ESP enter gdbstub", 0, &config.debug.esp_gdbstub, NULL);
+    gui_list_auto_entry(list, "ESP Reset NVM", 0, CUSTOM_CB, esp_reset_nvm_cb);
+    gui_list_auto_entry(list, "Show tasks", 0, &config.debug.tasks, NULL);
+    local->esp_ext_prog = gui_list_switch_add_entry(list, "ESP ext prog", 0, ext_active);
+    gui_list_auto_entry(list, "Add help entries", 0, &config.debug.help_show_id, NULL);
+    gui_list_auto_entry(list, "Debug to serial", 0, &config.debug.use_serial, NULL);
+    gui_list_auto_entry(list, "Debug to USB", 0, &config.debug.use_usb, NULL);
+    gui_list_auto_entry(list, "Vario test", 0, &config.debug.vario_test, NULL);
+    gui_list_auto_entry(list, "FANET force update", 0, &config.debug.fanet_update, NULL);
+    gui_list_auto_entry(list, "Show LVGL info", 0, &config.debug.lvgl_info, NULL);
+	gui_list_auto_entry(list, "Space Invaders!", 0, NEXT_TASK, &gui_spaceinvaders);
 
 	return list;
 }

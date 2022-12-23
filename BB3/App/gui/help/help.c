@@ -10,6 +10,7 @@
 #include "gui/tasks/menu/flightbook/flightbook_statistics.h"
 
 static char help_path[256] = {0};
+static char help_path_default[256] = {0};
 
 void help_init_gui()
 {
@@ -29,6 +30,7 @@ void help_init_gui()
 void help_unset()
 {
     help_path[0] = '\0';
+    help_path_default[0] = '\0';
     help_icon_hide();
 }
 
@@ -37,13 +39,27 @@ void help_set_base(char * base_id)
     help_path[0] = '\0';
     strcpy(help_path, PATH_HELP_DIR);
     strcat(help_path, "/");
-    //todo make select
-    strcat(help_path, "en");
+
+    strcat(help_path, languages_id[config_get_select_index(&config.display.language)]);
+
     strcat(help_path, "/");
     strcat(help_path, base_id);
 
     INFO("help base_id: %s", help_path);
     red_mkdirs(help_path);
+
+    help_path_default[0] = '\0';
+    strcpy(help_path_default, PATH_HELP_DIR);
+    strcat(help_path_default, "/");
+
+    strcat(help_path_default, languages_id[LANG_EN]);
+
+    strcat(help_path_default, "/");
+    strcat(help_path_default, base_id);
+
+    INFO("help default base_id: %s", help_path_default);
+    red_mkdirs(help_path_default);
+
 }
 
 void help_title_to_id(char * id, char * title)
@@ -99,19 +115,36 @@ bool help_avalible(char * id)
 
     bool ret = file_exists(file_path);
 
-    if (!ret && config_get_bool(&config.debug.help_show_id))
+    if (!ret)
     {
-        lv_obj_set_style_local_bg_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-        lv_obj_set_style_local_shadow_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
-        ret = true;
+        snprintf(file_path, sizeof(file_path), "%s/%s.txt", help_path_default, id);
+        ret = file_exists(file_path);
+
+        if (config_get_bool(&config.debug.help_show_id))
+        {
+            if (ret)
+            {
+                lv_obj_set_style_local_bg_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
+                lv_obj_set_style_local_shadow_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
+            }
+            else
+            {
+                lv_obj_set_style_local_bg_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+                lv_obj_set_style_local_shadow_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+            }
+            return true;
+        }
     }
-    else
+
+    if (ret)
     {
         lv_obj_set_style_local_bg_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
         lv_obj_set_style_local_shadow_color(gui.help.icon, LV_LED_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+
+        return true;
     }
 
-    return ret;
+    return false;
 }
 
 bool help_show_icon_if_avalible_from_title(char * title)
@@ -121,6 +154,8 @@ bool help_show_icon_if_avalible_from_title(char * title)
 
     char id[HELP_ID_LEN];
     help_title_to_id(id, title);
+
+    INFO("help_show_icon_if_avalible_from_title %s -> %s", title, id);
 
     if (strlen(id) > 0 && help_avalible(id))
     {
@@ -255,6 +290,11 @@ void help_show(char * id)
 
     char file_path[PATH_LEN];
     snprintf(file_path, sizeof(file_path), "%s/%s.txt", help_path, id);
+
+    if (!file_exists(file_path) && !config_get_bool(&config.debug.help_show_id))
+    {
+        snprintf(file_path, sizeof(file_path), "%s/%s.txt", help_path_default, id);
+    }
 
     int32_t f = red_open(file_path, RED_O_RDONLY);
     if (f > 0)
