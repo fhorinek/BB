@@ -20,7 +20,7 @@ uint16_t trace_find_filename_slot(char * name)
     uint16_t file_index;
     for (file_index = 0; file_index < NUMBER_OF_FILES; file_index++)
     {
-        if (strcmp(trace_filenames[file_index], name) == 0)
+        if (strncmp(trace_filenames[file_index], name, FILE_NAME_SIZE - 1) == 0)
         {
             return file_index;
         }
@@ -190,7 +190,7 @@ void tmalloc_summary_info_unlocked()
     INFO(" slot    cnt       size");
     for (uint16_t i = 0; i < SUMARY_SLOTS; i++)
     {
-        if (slots[i].file != 0)
+        if (slots[i].cnt != 0)
         {
             INFO(" %4u %6u %10u %s:%u", i, slots[i].cnt, slots[i].total, trace_filenames[slots[i].file], slots[i].line);
             total_slots += slots[i].cnt;

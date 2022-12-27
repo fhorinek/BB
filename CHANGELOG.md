@@ -1,3 +1,7 @@
+# 27. 12. 2022 - Release 279.23.1
+##Fixed
+* Filename slot exhaution when filename was longer than `FILE_NAME_SIZE - 1`
+
 # 15. 12. 2022 - Release 279.23.1
 ##Added
 * Basic airspace support
