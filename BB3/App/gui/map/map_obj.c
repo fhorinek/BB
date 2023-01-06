@@ -272,11 +272,13 @@ void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
         local->arrow = lv_img_create(local->map, NULL);
         lv_img_set_src(local->arrow, &img_map_arrow);
         lv_obj_align(local->arrow, local->map, LV_ALIGN_CENTER, 0, 0);
+	lv_obj_move_foreground(local->arrow);
         lv_img_set_antialias(local->arrow, true);
 
 	    local->dot = lv_obj_create(local->map, NULL);
 	    lv_obj_set_size(local->dot, DOT_RADIUS, DOT_RADIUS);
 	    lv_obj_align(local->dot, local->map, LV_ALIGN_CENTER, 0, 0);
+	    lv_obj_move_foreground(local->dot);
 	    lv_obj_set_style_local_bg_color(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
 	    lv_obj_set_style_local_radius(local->dot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, DOT_RADIUS / 2);
 	}

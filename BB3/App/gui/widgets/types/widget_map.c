@@ -35,6 +35,8 @@ REGISTER_WIDGET_ISUE(Map,
 
 	lv_point_t p[POINT_NUM];
 	lv_obj_t *line;
+
+	lv_obj_t * home;
 );
 
 static void Map_init(lv_obj_t * base, widget_slot_t * slot)
@@ -52,6 +54,15 @@ static void Map_init(lv_obj_t * base, widget_slot_t * slot)
 	local->line = lv_line_create(local->data.map, NULL);
 	lv_obj_set_style_local_line_color(local->line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLUE);
 	lv_obj_set_style_local_line_width(local->line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, 3);
+
+    local->home = lv_img_create(local->data.map, NULL);
+    lv_img_set_src(local->home, &img_home);
+    lv_obj_move_foreground(local->home);
+    lv_img_set_antialias(local->home, true);
+    lv_obj_set_style_local_image_recolor_opa(local->home, LV_IMG_PART_MAIN,
+					     LV_STATE_DEFAULT, LV_OPA_COVER);
+    lv_obj_set_style_local_image_recolor(local->home, LV_IMG_PART_MAIN,
+					 LV_STATE_DEFAULT, LV_COLOR_RED);
 }
 
 /**
@@ -107,6 +118,13 @@ void compute_trail(int32_t disp_lat, int32_t disp_lon, int16_t zoom, widget_slot
 			//DBG("lon: %" PRId32 " lat %" PRId32, p->lon, p->lat);
 			geo_to_pix_w_h(disp_lon, disp_lat, zoom, p->lon, p->lat, &x, &y, w, h);
 
+			if (point_i == 0)
+			{
+			    lv_obj_set_pos(local->home,
+					   x - img_home.header.w / 2,
+					   y - img_home.header.h / 2);
+			}
+			
 			local->p[point_i].x = x;
 			local->p[point_i].y = y;
 			point_i++;
