@@ -169,6 +169,9 @@ class Feature(object):
                 if dict_data["properties"]["type"] == "resident":
                     self.type = 201
           
+                if dict_data["properties"]["type"] == "aeroway":
+                    self.type = 202
+
             points = []      
 
             i = 1

@@ -1041,21 +1041,27 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             }
         }
 
-        if (type == 200 || type == 201) //water or resident
+        if (type == 200 || type == 201 || type == 202) //water or resident or aeroway
         {
 
             line_draw.width = 1;
-            if (type == 200)
-            {
+	    switch (type)
+	    {
+            case 200:
                 //water
                 line_draw.color = lv_color_make(60, 100, 130);
                 line_draw.opa = LV_OPA_COVER;
-            }
-            else
-            {
+		break;
+	    case 201:
                 //resident
                 line_draw.color = LV_COLOR_WHITE;
                 line_draw.opa = LV_OPA_50;
+		break;
+	    case 202:
+                //aeroway
+                line_draw.color = LV_COLOR_ORANGE;
+                line_draw.opa = LV_OPA_COVER;
+		break;
             }
 
             uint16_t number_of_points = *((uint16_t *)file_buffer_seek(map_cache, feature_addr + 2, sizeof(uint16_t)));
