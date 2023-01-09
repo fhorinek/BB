@@ -11,6 +11,7 @@ Changed:
 * USB protocol MTP
 
 Fixed:
+* Filename slot exhaution
 * Fanet status sync with pps
 * FLARM malformed packet
 * Lot of bugs and usability issues

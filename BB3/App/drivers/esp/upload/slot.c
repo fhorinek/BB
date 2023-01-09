@@ -73,8 +73,12 @@ static upload_slot_t* upload_slot_get(uint8_t data_id)
 
 void upload_slot_init()
 {
-    upload_slot_access = osSemaphoreNew(1, 0, NULL);
-    vQueueAddToRegistry(upload_slot_access, "upload_slot_access");
+	if (upload_slot_access == NULL)
+	{
+		upload_slot_access = osSemaphoreNew(1, 0, NULL);
+		vQueueAddToRegistry(upload_slot_access, "upload_slot_access");
+	}
+
     upload_slot_unlock();
 }
 

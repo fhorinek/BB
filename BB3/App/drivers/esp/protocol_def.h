@@ -209,6 +209,7 @@ typedef struct {
 #define PROTO_DOWNLOAD_DONE             1
 #define PROTO_DOWNLOAD_NOT_FOUND        10
 #define PROTO_DOWNLOAD_NO_CONNECTION    20
+#define PROTO_DOWNLOAD_TIMEOUT		    30
 #define PROTO_DOWNLAOD_NO_FREE_SLOT     0xFF
 
 typedef struct {

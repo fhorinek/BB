@@ -14,7 +14,7 @@
 #define DOWNLOAD_TIMEOUT            (30 * 1000)
 
 download_slot_t * download_slot[DOWNLOAD_SLOT_NUMBER] = {NULL};
-osSemaphoreId_t download_slot_access;
+osSemaphoreId_t download_slot_access = NULL;
 
 static void download_slot_free(uint8_t data_id)
 {
@@ -90,8 +90,12 @@ static download_slot_t * download_slot_get(uint8_t data_id)
 
 void download_slot_init()
 {
-    download_slot_access = osSemaphoreNew(1, 0, NULL);
-    vQueueAddToRegistry(download_slot_access, "download_slot_access");
+	if (download_slot_access == NULL)
+	{
+		download_slot_access = osSemaphoreNew(1, 0, NULL);
+	    vQueueAddToRegistry(download_slot_access, "download_slot_access");
+	}
+
     download_slot_unlock();
 }
 
@@ -210,6 +214,11 @@ void download_slot_process_info(proto_download_info_t * info)
 
 			case (PROTO_DOWNLOAD_NO_CONNECTION):
 				ds->cb(DOWNLOAD_SLOT_NO_CONNECTION, ds);
+				download_slot_free(info->end_point);
+			break;
+
+			case(PROTO_DOWNLOAD_TIMEOUT):
+				ds->cb(DOWNLOAD_SLOT_TIMEOUT, ds);
 				download_slot_free(info->end_point);
 			break;
 

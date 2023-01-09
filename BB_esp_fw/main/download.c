@@ -76,6 +76,7 @@ void download_process_url(proto_download_url_t * packet)
 			data.size = size;
 			protocol_send(PROTO_DOWNLOAD_INFO, (void *)&data, sizeof(data));
 
+			data.result = PROTO_DOWNLOAD_DONE;
 			uint32_t pos = 0;
 			while(pos < size || size == 0)
 			{
@@ -106,7 +107,7 @@ void download_process_url(proto_download_url_t * packet)
 
 				INFO("%u/%u + %u", pos, size, requested_size);
 
-				int16_t readed = esp_http_client_read(client, (char *)(buf + sizeof(proto_spi_header_t)), requested_size);
+				int32_t readed = esp_http_client_read(client, (char *)(buf + sizeof(proto_spi_header_t)), requested_size);
 
 				//add header
 				proto_spi_header_t hdr;
@@ -118,9 +119,14 @@ void download_process_url(proto_download_url_t * packet)
 				if (requested_size != readed)
 				{
 					if (size != 0)
-						ERR("requested_size != readed %u != %d", requested_size, readed);
+					{
+						ERR("requested_size != readed; %u != %d", requested_size, readed);
+						data.result = PROTO_DOWNLOAD_TIMEOUT;
+					}
 					else
+					{
 						INFO("file end at %u bytes", pos + readed);
+					}
 
 					download_stop(packet->data_id);
 				}
@@ -142,14 +148,12 @@ void download_process_url(proto_download_url_t * packet)
 			spi_release_buffer(0);
 
 			data.end_point = packet->data_id;
-			data.result = PROTO_DOWNLOAD_DONE;
 			data.size = pos;
 			protocol_send(PROTO_DOWNLOAD_INFO, (void *)&data, sizeof(data));
 
 		}
 		else
 		{
-
 			data.end_point = packet->data_id;
 			data.result = PROTO_DOWNLOAD_NOT_FOUND;
 			data.size = 0;
