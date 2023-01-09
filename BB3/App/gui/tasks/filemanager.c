@@ -47,6 +47,7 @@ REGISTER_TASK_IS(filemanager,
 	uint8_t flags;
 	uint8_t level;
 	uint16_t filenames_count;
+	bool too_many;
 	uint32_t inode;
     lv_scr_load_anim_t anim_dir_forward;
     lv_scr_load_anim_t anim_dir_backward;
@@ -240,6 +241,8 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
         if (ret)
         	filemanager_back();
 	}
+
+	if ( local->too_many ) index--;
 
 	//appended item, use default handler
 	if (index >= local->filenames_count)
@@ -524,7 +527,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
     local->cb(FM_CB_INIT, path);
 
 	REDDIR * dir = red_opendir(path);
-	bool too_many = true;
+	local->too_many = true;
 	if (dir != NULL)
 	{
         while (local->filenames_count < FM_FILE_MAX_COUNT)
@@ -532,7 +535,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             REDDIRENT * entry = red_readdir(dir);
             if (entry == NULL)
             {
-                too_many = false;
+                local->too_many = false;
             	break;
             }
 
@@ -568,7 +571,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 
         red_closedir(dir);
 
-        if (too_many)
+        if (local->too_many)
         {
             char msg[128];
 
