@@ -16,6 +16,7 @@
 #include "pipeline/vario.h"
 
 #include "server/server.h"
+#include "phy_init_data.h"
 
 
 
@@ -85,6 +86,7 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
+    ESP_ERROR_CHECK(esp_phy_erase_cal_data_in_nvs());
 
     print_free_memory("nvs_flash_init");
 
