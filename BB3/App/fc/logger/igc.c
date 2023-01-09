@@ -367,6 +367,10 @@ bool igc_read_next_pos(int32_t igc_log_read_file, flight_pos_t *flight_pos)
 			flight_pos->baro_alt = atoi_n(line+25, 5);
 			flight_pos->gnss_alt = atoi_n(line+30, 5);
 
+			// If baro_alt or gnss_alt is missing, take the other value
+			if (flight_pos->baro_alt == 0) flight_pos->baro_alt = flight_pos->gnss_alt;
+			if (flight_pos->gnss_alt == 0) flight_pos->gnss_alt = flight_pos->baro_alt;
+
 			return true;
 		}
 	}
