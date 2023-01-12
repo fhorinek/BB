@@ -471,42 +471,42 @@ de-DE:
   scale: skalieren
   Change widget: Widget ändern
   '': ~
-  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": ~
-  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": ~
-  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": ~
-  Calibration: ~
-  Calibration values stored: ~
-  Diagnostics: ~
-  Strato default pages: ~
-  Left menu shortcut: ~
-  add left shortcut: ~
-  Right menu shortcut: ~
-  add right shortcut: ~
-  No action: ~
-  "Need\n3D fix": ~
+  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": "Geladen %lu/%u\nDaten %lu%%\nIn Datei %lu\nDist %0.1fkm"
+  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": "Du musst in diesem Menu sein, um zu koppeln.\n\n'%s'\n Für Audio und Telemetrie (classic bluetooth), über das Telefon koppeln.\n\n'%s LE'\n ist für Telemetrie (Bluetooth low energy) mittels XCTrack oder anderer App koppeln."
+  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": "Willst Du die Kalibrierung der Bewegungssensoren löschen?\nDu musst die Kalibrierung wiederholen, damit Strato funktioniert."
+  Calibration: Kalibrierung
+  Calibration values stored: Kalibrierung gespeichert
+  Diagnostics: Diagnose
+  Strato default pages: Standard Seiten
+  Left menu shortcut: Links Schnellfkt.
+  add left shortcut: links Schnellfkt. dazu
+  Right menu shortcut: Rechts Schnellfkt.
+  add right shortcut: rechts Schnellfkt. dazu
+  No action: Keine Aktion
+  "Need\n3D fix": "Brauche\n3D Fix"
   Debug Info: ~
-  Class A: ~
-  Class B: ~
-  Class C: ~
-  Class D: ~
-  Class E: ~
-  Class F: ~
-  Class G: ~
+  Class A: Luftraum A
+  Class B: Luftraum B
+  Class C: Luftraum C
+  Class D: Luftraum D
+  Class E: Luftraum E
+  Class F: Luftraum F
+  Class G: Luftraum G
   CTR: ~
   TMZ: ~
   RMZ: ~
-  Danger: ~
-  Prohibited: ~
-  Restricted: ~
-  Glider prohibited: ~
-  Wave window: ~
-  Undefined: ~
-  Ignore with floor above: ~
+  Danger: Gefahr
+  Prohibited: Verboten
+  Restricted: Eingschränkt
+  Glider prohibited: Schirm verboten
+  Wave window: Wellenfenster
+  Undefined: Undefiniert
+  Ignore with floor above: Alles über FL ignorieren
   FANET ID: ~
   FANET Firmware: ~
-  'You do not need to do anything here, unless you are instructed by support.': ~
+  'You do not need to do anything here, unless you are instructed by support.':   'Du musst hier nur nach Anweisung des Supports arbeiten.'
   Wi-Fi MAC: ~
   Wi-Fi AP MAC: ~
   Bluetooth MAC: ~
-  Diagnostic: ~
-  No network found: ~
+  Diagnostic: Diagnose
+  No network found: Kein Netzwerk
