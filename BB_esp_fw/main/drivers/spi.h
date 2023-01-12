@@ -11,8 +11,7 @@
 #include "../common.h"
 
 void spi_init();
-void spi_prepare_buffer();
-uint16_t spi_send(uint8_t * data, uint16_t len);
+void spi_prepare_buffer(uint32_t len);
 
 uint8_t * spi_acquire_buffer_ptr(uint32_t * size_avalible);
 void spi_release_buffer(uint32_t data_written);

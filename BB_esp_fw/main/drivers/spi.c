@@ -19,14 +19,21 @@ static SemaphoreHandle_t spi_prepare_semaphore;
 static SemaphoreHandle_t spi_ready_semaphore;
 
 static uint16_t spi_data_to_send;
+static uint16_t spi_data_to_recieve;
 
 static uint16_t spi_tx_buffer_index;
 DMA_ATTR static uint8_t spi_rx_buffer[SPI_BUFFER_SIZE];
 DMA_ATTR static uint8_t spi_tx_buffer[SPI_BUFFER_SIZE];
 
-void spi_prepare_buffer()
+//number of bytes we expect to receive
+void spi_prepare_buffer(uint32_t len)
 {
+	xSemaphoreTake(spi_buffer_access, WAIT_INF);
+
+	spi_data_to_recieve = len;
+
     xSemaphoreGive(spi_prepare_semaphore);
+    xSemaphoreGive(spi_buffer_access);
 }
 
 uint8_t * spi_acquire_buffer_ptr(uint32_t * size_avalible)
@@ -58,33 +65,6 @@ void spi_trans_cb(spi_slave_transaction_t *trans)
 //    DBG("spi_trans_cb: Transaction done");
 }
 
-uint16_t spi_send(uint8_t * data, uint16_t len)
-{
-    xSemaphoreTake(spi_buffer_access, WAIT_INF);
-
-    uint16_t free_space = SPI_BUFFER_SIZE - spi_tx_buffer_index;
-    uint16_t to_write;
-
-    if (free_space > len)
-    {
-        to_write = len;
-    }
-    else
-    {
-        to_write = free_space;
-    }
-
-    if (to_write > 0)
-    {
-        memcpy((void *)&spi_tx_buffer[spi_tx_buffer_index], data, to_write);
-        spi_tx_buffer_index += to_write;
-    }
-
-    xSemaphoreGive(spi_buffer_access);
-
-    return to_write;
-}
-
 extern int64_t protocol_last_packet;
 
 void spi_parse(uint8_t * data, uint16_t len)
@@ -102,7 +82,7 @@ void spi_parse(uint8_t * data, uint16_t len)
 		if (hdr->data_len == 0)
 			return;
 
-		//handle comunication
+		//handle communication
 		if (hdr->packet_type == SPI_EP_SOUND)
 		{
 			pipe_sound_write(hdr->data_id, data, hdr->data_len);
@@ -135,9 +115,30 @@ void spi_task_proto(void *pvParameters)
 	{
 		xSemaphoreTake(spi_ready_semaphore, WAIT_INF);
 		protocol_send_spi_ready(spi_data_to_send);
-		DBG("spi_task_proto: spi ready");
+		DBG("spi_task_proto: spi ready (%u)", spi_data_to_send);
 	}
 }
+
+//SPI transfer initiated by STM
+//		STM										ESP
+//  (load buffer)
+//PROTO_SPI_READY(stm_len) 		->
+//										if stm_len > 0
+//											(spi_slave_transmit)
+//						 		<-			PROTO_SPI_READY(esp_len)
+//HAL_SPI_TransmitReceive_DMA	<->
+//	(spi_parse)								(spi_parse)
+//										else
+//											PROTO_SPI_CANCEL
+
+//SPI transfer initiated by ESP
+//		STM										ESP
+//										(load buffer)
+//										(spi_slave_transmit)
+//						 		<-		PROTO_SPI_READY(esp_len)
+//HAL_SPI_TransmitReceive_DMA	<->
+//	(spi_parse)							(spi_parse)
+
 
 void spi_task(void *pvParameters)
 {
@@ -157,16 +158,25 @@ void spi_task(void *pvParameters)
 
         spi_data_to_send = spi_tx_buffer_index;
 
-        spi_slave_transmit(SPI_PORT, &t, WAIT_INF);
+        if (spi_data_to_send == 0 && spi_data_to_recieve == 0)
+        {
+        	//race condition when two prepare commands are issued at the same time
+        	DBG("No need for SPI transfer");
 
-        //TODO: parse rx buffer
-        //trans_len is in bits
-        uint16_t len = t.trans_len / 8;
+            protocol_send(PROTO_SPI_CANCEL, NULL, 0);
+        }
+        else
+        {
+			spi_slave_transmit(SPI_PORT, &t, WAIT_INF);
 
-        DBG("SPI RX data: %u", len);
-//        DUMP(t.rx_buffer, len);
+			//trans_len is in bits
+			uint16_t len = t.trans_len / 8;
 
-        spi_parse(t.rx_buffer, len);
+			DBG("SPI RX data: %u", len);
+	//        DUMP(t.rx_buffer, len);
+
+			spi_parse(t.rx_buffer, len);
+        }
 
         spi_tx_buffer_index = 0;
         xSemaphoreGive(spi_buffer_access);

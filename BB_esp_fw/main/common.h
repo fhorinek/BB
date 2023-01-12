@@ -68,9 +68,11 @@ void fanet_boot0_ctrl(proto_fanet_boot0_ctrl_t * packet);
 
 void * ps_malloc(uint32_t size);
 
-bool read_post(char * data, char * key, char * value, uint16_t value_len);
+int16_t read_post(char * data, char * key, char * value, uint16_t value_len);
 bool read_post_int32(char * data, char * key, int32_t * value);
 bool read_post_int16(char * data, char * key, int16_t * value);
+
+int16_t read_post_atob(char * data, char * key, char * value, uint16_t value_len);
 
 #define min(a,b) 	((a)<(b)?(a):(b))
 #define max(a,b) 	((a)>(b)?(a):(b))

@@ -153,6 +153,7 @@ void esp_parser(uint8_t type, uint8_t * data, uint16_t len, stream_result_t res)
         case(stream_res_message):
            protocol_handle(type, data, len);
         break;
+
         case(stream_res_dirty): //dirty string is ending with 0
         {
            INFO((char *)data);

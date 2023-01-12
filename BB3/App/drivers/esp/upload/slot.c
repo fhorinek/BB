@@ -54,6 +54,12 @@ static inline void upload_slot_unlock()
 
 static upload_slot_t* upload_slot_get(uint8_t data_id)
 {
+    if (data_id >= UPLOAD_SLOT_NUMBER)
+    {
+        ERR("upload slot id %u is not valid");
+        return NULL;
+    }
+
     if (upload_slot[data_id] != NULL)
     {
         if (!upload_slot[data_id]->canceled)

@@ -20,10 +20,30 @@ static uint16_t spi_tx_buffer_index;
 static __align uint8_t spi_rx_buffer[SPI_BUFFER_SIZE];
 static __align uint8_t spi_tx_buffer[SPI_BUFFER_SIZE];
 
-void spi_start_transfer(uint16_t size_to_read)
+static bool spi_prepare_in_progress = false;
+
+void esp_spi_start_transfer(uint16_t size_to_read)
 {
     spi_data_to_read = size_to_read;
     osSemaphoreRelease(spi_start_semaphore);
+    spi_prepare_in_progress = false;
+}
+
+void esp_spi_prepare()
+{
+    if (!spi_prepare_in_progress)
+    {
+        proto_spi_prepare_t data;
+        data.data_lenght = spi_tx_buffer_index;
+        protocol_send(PROTO_SPI_PREPARE, (uint8_t *)&data, sizeof(data));
+
+        spi_prepare_in_progress = true;
+    }
+}
+
+void esp_spi_cancel()
+{
+    spi_prepare_in_progress = false;
 }
 
 uint16_t esp_spi_send(uint8_t * data, uint16_t len)
@@ -82,7 +102,7 @@ void esp_parse_spi(uint8_t * data, uint16_t len)
 
         //advance buffer
         data += sizeof(proto_spi_header_t);
-        len -= sizeof(proto_spi_header_t) + hdr->data_len;
+        len -= sizeof(proto_spi_header_t) + ROUND4(hdr->data_len);
 
         if (hdr->data_len == 0)
             return;
@@ -130,7 +150,7 @@ void thread_esp_spi_start(void * argument)
         if (spi_data_to_read > spi_data_to_send)
             spi_data_to_send = spi_data_to_read;
 
-        ASSERT(spi_data_to_send > 0);
+        DBG("SPI bytes to transfer %u", spi_data_to_send);
 
         uint8_t res = HAL_SPI_TransmitReceive_DMA(esp_spi, spi_tx_buffer, spi_rx_buffer, spi_data_to_send);
         if (res != HAL_OK)

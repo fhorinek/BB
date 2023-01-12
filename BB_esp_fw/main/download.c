@@ -132,7 +132,7 @@ void download_process_url(proto_download_url_t * packet)
 				}
 
 				spi_release_buffer(readed + sizeof(proto_spi_header_t));
-				spi_prepare_buffer();
+				spi_prepare_buffer(0);
 
 				pos += readed;
 

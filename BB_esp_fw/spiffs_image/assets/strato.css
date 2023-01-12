@@ -13,6 +13,38 @@ li
     list-style: none;
 }
 
+table
+{
+    display: table;
+}
+
+table tbody
+{
+    display: table-row-group;
+}
+
+table tr
+{
+    display: table-row;
+}
+
+td
+{
+    flex: unset !important;
+    padding: 10px 0px 10px 10px !important;
+    white-space:nowrap;
+    
+}
+
+td.name
+{
+    width: 250px;
+}
+
+td.size
+{
+    width: 100px;
+}
 
 div.center-box
 {
@@ -20,14 +52,14 @@ div.center-box
     max-width: 600px;
     margin: auto;
     width: 95%;
-    border-radius: 30px;
+    /* border-radius: 30px; */
 }
 
 svg polygon.outline
 {
     fill: yellow;
     fill-opacity: 0;
-    stroke: white;
+    stroke: gray;
     stroke-width: 2px;
 }
 svg polygon.outline:hover
@@ -39,7 +71,7 @@ svg polygon.outline:hover
 
 svg rect.outline
 {
-    stroke: white;
+    stroke: gray;
     stroke-width: 2px;
 }
 
@@ -60,8 +92,8 @@ svg polyline.axis
 svg polyline.center
 {
     fill: none;
-    stroke: white;
-    stroke-width: 2px;
+    stroke: black;
+    stroke-width: 1px;
 }
 
 svg .checker
@@ -72,26 +104,24 @@ svg .checker
 
 svg polyline.prev_ruler
 {
-    stroke: white;
-    stroke-width: 3px;
+    stroke: blue;
+    stroke-width: 1px;
 }
 
 svg text.freq
 {
-    fill: white;
+    /* fill: white; */
     dominant-baseline: central;
     text-anchor: end;
 }
 
 svg text.dura
 {
-    fill: white;
     dominant-baseline: central;
 }
 
 svg #tone_prev_climb
 {
-    fill: white;
     text-anchor: middle;
     font-weight: bold;
     font-size: 15pt;
@@ -99,7 +129,6 @@ svg #tone_prev_climb
 
 svg text.label
 {
-    fill: white;
     text-anchor: middle;
     dominant-baseline: hanging;
 }
@@ -125,15 +154,15 @@ svg circle:hover
 .icon
 {
     color: black;
-    background-color: white;
-    border-radius: 4px;
+    /* background-color: white; */
+    /* border-radius: 4px; */
     margin: 0 5px 0 5px;
 }
 
 img.icon
 {
     position: relative;
-    top: 4px;
+    top: 4px; 
 }
 
 #mapid .leaflet-control-zoom a
@@ -147,3 +176,9 @@ img.icon
         border-radius: 0;
 }
 
+
+td img.icon
+{
+    position: relative;
+    top: 0px !important; 
+}

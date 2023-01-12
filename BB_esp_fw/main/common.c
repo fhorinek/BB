@@ -72,7 +72,8 @@ void * ps_malloc(uint32_t size)
 	return ptr;
 }
 
-void url_decode(char * dst, uint16_t len)
+//return data length
+int16_t url_decode(char * dst, uint16_t len)
 {
 	char * src_buf = ps_malloc(len + 1);
 
@@ -81,6 +82,8 @@ void url_decode(char * dst, uint16_t len)
 	char * src = src_buf;
 
     char a, b;
+    uint16_t new_len = 0;
+
     while (*src)
     {
 		if ((*src == '%') && ((a = src[1]) && (b = src[2])) && (isxdigit(a) && isxdigit(b)))
@@ -97,8 +100,9 @@ void url_decode(char * dst, uint16_t len)
 				b -= ('A' - 10);
 			else
 				b -= '0';
+
 			*dst++ = 16* a + b;
-				src += 3;
+			src += 3;
 		}
 		else if (*src == '+')
 		{
@@ -107,19 +111,23 @@ void url_decode(char * dst, uint16_t len)
 		}
 		else
 		{
-				*dst++ = *src++;
+			*dst++ = *src++;
 		}
+		new_len++;
     }
     *dst++ = '\0';
 
     free(src_buf);
+
+    return new_len;
 }
 
-bool read_post(char * data, char * key, char * value, uint16_t value_len)
+//return value size
+int16_t read_post(char * data, char * key, char * value, uint16_t value_len)
 {
     char * pos = strstr(data, key);
     if (pos == NULL)
-        return false;
+        return -1;
 
     if ((pos == data || *(pos - 1) == '&') && pos[strlen(key)] == '=')
     {
@@ -127,10 +135,13 @@ bool read_post(char * data, char * key, char * value, uint16_t value_len)
         char * value_end = strchr(value_start, '&');
         value_len -= 1;
 
+        if (value_end == NULL)
+        	value_end = strchr(value_start, '\0');
+
         if (value_start == value_end)
         {
         	value[0] = 0;
-        	return true;
+        	return 0;
         }
 
         if (value_end != NULL)
@@ -138,18 +149,17 @@ bool read_post(char * data, char * key, char * value, uint16_t value_len)
 
 		strncpy(value, value_start, value_len);
 		value[value_len] = 0;
-		url_decode(value, value_len);
 
-        return true;
+		return url_decode(value, value_len);
     }
 
-    return false;
+    return -1;
 }
 
 bool read_post_int32(char * data, char * key, int32_t * value)
 {
 	char tmp[12];
-	if (read_post(data, key, tmp, sizeof(tmp)))
+	if (read_post(data, key, tmp, sizeof(tmp)) > 0)
 	{
 		*value = atoi(tmp);
 		return true;
@@ -161,7 +171,7 @@ bool read_post_int32(char * data, char * key, int32_t * value)
 bool read_post_int16(char * data, char * key, int16_t * value)
 {
 	char tmp[8];
-	if (read_post(data, key, tmp, sizeof(tmp)))
+	if (read_post(data, key, tmp, sizeof(tmp)) > 0)
 	{
 		*value = atoi(tmp);
 		return true;

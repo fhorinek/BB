@@ -29,8 +29,6 @@
 
 #include "file.h"
 
-static bool spi_prepare_in_progress = false;
-
 safe_uart_t protocol_tx;
 
 void esp_send_ping()
@@ -60,15 +58,6 @@ void esp_boot0_ctrl(bool val)
     protocol_send(PROTO_FANET_BOOT0_CTRL, (void *) &data, sizeof(data));
 }
 
-
-void esp_spi_prepare()
-{
-	if (!spi_prepare_in_progress)
-	{
-		protocol_send(PROTO_SPI_PREPARE, NULL, 0);
-		spi_prepare_in_progress = true;
-	}
-}
 
 void esp_sound_start(uint8_t id, uint8_t type, uint32_t size)
 {
@@ -335,8 +324,13 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 
         case(PROTO_SPI_READY):
         {
-            spi_start_transfer(((proto_spi_ready_t *)data)->data_lenght);
-            spi_prepare_in_progress = false;
+            esp_spi_start_transfer(((proto_spi_ready_t *)data)->data_lenght);
+        }
+        break;
+
+        case(PROTO_SPI_CANCEL):
+        {
+            esp_spi_cancel();
         }
         break;
 
@@ -455,6 +449,14 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
             fc.esp.state &= ~ESP_STATE_WIFI_AP_CONNECTED;
         break;
 
+        case(PROTO_WIFI_RSSI):
+        {
+            proto_wifi_rssi_t * packet = (proto_wifi_rssi_t *)data;
+            fc.esp.rssi = packet->rssi;
+            INFO("WIFI RSSI: %d dBm", fc.esp.rssi);
+        }
+        break;
+
         case(PROTO_DOWNLOAD_INFO):
             download_slot_process_info((proto_download_info_t *)data);
         break;
@@ -480,6 +482,13 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         case(PROTO_FS_SAVE_FILE_REQ):
 			file_get_file_info((proto_fs_save_file_req_t *) data);
 		break;
+
+        case(PROTO_FS_DELETE_FILE_REQ):
+        {
+            proto_fs_delete_file_req_t * packet = (proto_fs_delete_file_req_t *)data;
+            red_unlink(packet->path);
+        }
+        break;
 
         case(PROTO_BT_MODE):
 		{
