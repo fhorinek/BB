@@ -44,7 +44,7 @@ static bool flightbook_flight_cb(lv_obj_t * obj, lv_event_t event, uint16_t inde
         gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
         char return_path[PATH_LEN];
         filemanager_get_path(return_path, local->file_path);
-        filemanager_open(return_path, local->fm_return_level, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
+        filemanager_open(return_path, local->fm_return_level, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
 
         //do not handle cancel event
         return false;

@@ -112,7 +112,7 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
 void flightbook_open(bool from_left)
 {
     gui_switch_task(&gui_filemanager, from_left ? LV_SCR_LOAD_ANIM_MOVE_LEFT : LV_SCR_LOAD_ANIM_MOVE_RIGHT);
-    filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_DATE | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
+    filemanager_open(PATH_LOGS_DIR, 0, &gui_settings, FM_FLAG_FOCUS | FM_FLAG_SORT_NAME | FM_FLAG_SHOW_EXT, flightbook_flights_fm_cb);
 }
 
 
