@@ -71,6 +71,12 @@ static inline void download_slot_unlock()
 
 static download_slot_t * download_slot_get(uint8_t data_id)
 {
+    if (data_id >= DOWNLOAD_SLOT_NUMBER)
+    {
+        ERR("download slot id %u is not valid");
+        return NULL;
+    }
+
     if (download_slot[data_id] != NULL)
     {
         if (!download_slot[data_id]->canceled)

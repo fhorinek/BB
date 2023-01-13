@@ -47,7 +47,6 @@ typedef struct {
 
 
 #define PROTO_ESP_INFO       0x02
-
 typedef struct {
     proto_mac_t wifi_ap_mac;
     uint8_t amp_ok;
@@ -58,11 +57,17 @@ typedef struct {
 } proto_esp_info_t;
 
 #define PROTO_SPI_PREPARE       0x03
-#define PROTO_SPI_READY         0x03
+typedef struct {
+    uint32_t data_lenght;
+} proto_spi_prepare_t;
 
+#define PROTO_SPI_READY         0x03
 typedef struct {
     uint32_t data_lenght;
 } proto_spi_ready_t;
+
+#define PROTO_SPI_CANCEL        0x04
+
 
 #define PROTO_FS_PATH_LEN       128
 #define PROTO_FS_NAME_LEN       32
@@ -193,6 +198,11 @@ typedef struct {
 
 #define PROTO_WIFI_AP_DISCONNETED   0x2B
 
+#define PROTO_WIFI_RSSI				0x2D
+typedef struct {
+    int8_t rssi;
+} proto_wifi_rssi_t;
+
 #define PROTO_URL_LEN   128
 
 //-------------------- WiFi Download --------------------
@@ -270,6 +280,7 @@ typedef struct {
 
 typedef struct {
 	char name[PROTO_FS_NAME_LEN];
+	uint32_t size;
 	uint8_t type;
 	uint8_t req_id;
 } proto_fs_list_res_t;
@@ -293,6 +304,18 @@ typedef struct {
 	uint32_t size;
 	uint8_t req_id;
 } proto_fs_save_file_req_t;
+
+#define PROTO_FS_DELETE_FILE_REQ	0x43
+typedef struct {
+	char path[PROTO_FS_PATH_LEN];
+} proto_fs_delete_file_req_t;
+
+#define PROTO_FS_RENAME_FILE_REQ	0x44
+typedef struct {
+	char old_path[PROTO_FS_PATH_LEN];
+	char new_path[PROTO_FS_PATH_LEN];
+} proto_fs_rename_file_req_t;
+
 
 //response trought SPI
 

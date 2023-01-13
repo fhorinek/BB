@@ -28,9 +28,11 @@ static esp_netif_t * ap_netif;
 static SemaphoreHandle_t wifi_lock;
 
 TimerHandle_t wifi_connecting_wtd = 0;
+TimerHandle_t wifi_rssi_tim = 0;
 
 #define WIFI_CONNECTION_TRIES	10
 #define WIFI_CONNECTION_TIMEOUT	(20 * 1000)
+#define WIFI_RSSI_TIMEOUT		(5 * 1000)
 
 void wifi_connecting_wdt_cb(TimerHandle_t xTimer)
 {
@@ -38,6 +40,24 @@ void wifi_connecting_wdt_cb(TimerHandle_t xTimer)
 	{
 		INFO("wifi_connecting_wdt_cb: Disconnecting, timeout!");
 		esp_wifi_disconnect();
+	}
+}
+
+void wifi_get_rssi_cb(TimerHandle_t xTimer)
+{
+//	INFO("wifi_get_rssi_cb");
+	if (wifi_connected)
+	{
+		wifi_ap_record_t ap_info;
+		esp_err_t ret = esp_wifi_sta_get_ap_info(&ap_info);
+//		INFO(" ret = %d", ret);
+		if (ret == ESP_OK)
+		{
+			proto_wifi_rssi_t data;
+			data.rssi = ap_info.rssi;
+			protocol_send(PROTO_WIFI_RSSI, (uint8_t*) &data, sizeof(data));
+//			INFO(" rssi = %d", ap_info.rssi);
+		}
 	}
 }
 
@@ -182,7 +202,9 @@ void wifi_init()
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    wifi_connecting_wtd = xTimerCreate("stm_wtd", WIFI_CONNECTION_TIMEOUT / portTICK_PERIOD_MS, false, 0, wifi_connecting_wdt_cb);
+    wifi_connecting_wtd = xTimerCreate("wifi_wtd", WIFI_CONNECTION_TIMEOUT / portTICK_PERIOD_MS, false, 0, wifi_connecting_wdt_cb);
+    wifi_rssi_tim = xTimerCreate("rssi_tim", WIFI_RSSI_TIMEOUT / portTICK_PERIOD_MS, true, 0, wifi_get_rssi_cb);
+    xTimerStart(wifi_rssi_tim, WAIT_INF);
 
     print_free_memory("esp_netif_init");
 

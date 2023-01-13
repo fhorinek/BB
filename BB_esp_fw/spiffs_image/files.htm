@@ -11,10 +11,18 @@
 
         <div class="row">
             <input type="button" value="Refresh" id="refresh_dir"/>
-            <!--input type="button" value="Upload" id="upload_file"/-->
+            <input type="button" value="Upload" id="upload_file"/>
 	        <input id="file-selector" type="file" hidden="true"/>
         </div>
     </div>
+</div>
+
+<input type="checkbox" id="modal-control" class="modal">
+<div>
+  <div class="card" id="modal-card">
+    <h3 class="section" id="modal-title"></h3>
+    <p class="section" id="modal-content"></p>
+  </div>
 </div>
 
 <script src="assets/FileSaver.js"></script>
@@ -22,3 +30,4 @@
 <script src="js/files.js"></script>
 
 {? insert /inc/footer.htm ?}
+

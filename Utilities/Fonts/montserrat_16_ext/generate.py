@@ -45,7 +45,11 @@ for line in open("icons.txt", "r").readlines():
         for c in utf8:
             value += "\\x%02x" % c
         
-        header += "#define %-20s\t\"%s\"\n" % (label, value)
+        help = ""
+        for c in utf8:
+            help += "%02X" % c
+        
+        header += "#define %-20s\t\"%s\" //=[%s]\n" % (label, value, help)
         codes.append("%u" % code)
 
 cmd += " -r " + ",".join(codes)

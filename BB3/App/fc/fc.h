@@ -323,7 +323,7 @@ typedef struct
 
         uint8_t mac_ap[6];
         esp_mode_t mode;
-        uint8_t _pad[1];
+        int8_t rssi;
 
         uint8_t mac_sta[6];
         uint16_t state;

@@ -152,8 +152,6 @@ void protocol_task_info(void * param)
     vTaskDelete(NULL);
 }
 
-
-
 #define PROTOCOL_SUBPROCESS_PRIORITY	11
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
@@ -210,7 +208,9 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
         case (PROTO_SPI_PREPARE):
         {
-            spi_prepare_buffer();
+        	DBG("STM -> spi_prepare_buffer");
+        	proto_spi_prepare_t * packet = (proto_spi_prepare_t *)data;
+            spi_prepare_buffer(packet->data_lenght);
         }
         break;
 
@@ -260,7 +260,6 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 			xTaskCreate((TaskFunction_t)wifi_connect, "wifi_connect", 1024 * 3, (void *)packet, PROTOCOL_SUBPROCESS_PRIORITY, NULL);
 		}
         break;
-
 
         case (PROTO_DOWNLOAD_URL):
 		{

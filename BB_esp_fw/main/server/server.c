@@ -91,6 +91,13 @@ static const httpd_uri_t api_fs_save_file = {
     .user_ctx  = NULL,
 };
 
+static const httpd_uri_t api_fs_del_file = {
+    .uri       = "/api/del_file",
+    .method    = HTTP_POST,
+    .handler   = api_del_file,
+    .user_ctx  = NULL,
+};
+
 static const httpd_uri_t api_fake_gnss_h = {
     .uri       = "/api/fake_gnss",
     .method    = HTTP_POST,
@@ -148,6 +155,7 @@ void server_init()
         httpd_register_uri_handler(server, &api_fs_list);
         httpd_register_uri_handler(server, &api_fs_get_file);
         httpd_register_uri_handler(server, &api_fs_save_file);
+        httpd_register_uri_handler(server, &api_fs_del_file);
         httpd_register_uri_handler(server, &api_fake_gnss_h);
         httpd_register_uri_handler(server, &page_handler);
 

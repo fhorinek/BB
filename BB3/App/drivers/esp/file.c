@@ -25,10 +25,12 @@ void file_list_path(proto_fs_list_req_t * packet)
 			if (packet->filter & PROTO_FS_TYPE_FILE && RED_S_ISREG(entry->d_stat.st_mode))
 			{
 				data_res.type = PROTO_FS_TYPE_FILE;
+				data_res.size = entry->d_stat.st_size;
 			}
 			else if (packet->filter & PROTO_FS_TYPE_FOLDER && RED_S_ISDIR(entry->d_stat.st_mode))
 			{
 				data_res.type = PROTO_FS_TYPE_FOLDER;
+				data_res.size = 0;
 			}
 			else
 			{
@@ -160,6 +162,7 @@ void delete_slot(file_slot_t * to_delete)
 				item->next = to_delete->next;
 				break;
 			}
+			item = item->next;
 		}
 	}
 
@@ -208,4 +211,6 @@ void file_get_file_data(uint8_t id, uint8_t * data, uint16_t data_len)
 		delete_slot(slot);
 	}
 }
+
+
 
