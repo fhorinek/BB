@@ -182,3 +182,16 @@ td img.icon
     position: relative;
     top: 0px !important; 
 }
+
+div.editor
+{
+    max-width: 800px;
+    max-height: 500px !important;
+    height: 500px;
+}
+
+div.editor textarea
+{
+    width: 750px;
+    height: 320px;
+}
