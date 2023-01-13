@@ -519,6 +519,9 @@ char * red_gets(char * buff, uint16_t buff_len, int32_t fp)
     }
     else
     {
+        if (rd < buff_len - 1)
+            buff[rd] = '\0';
+
         char * ptr = strchr(buff, '\n');
         if (ptr != NULL)
             *(++ptr) = '\0';

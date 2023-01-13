@@ -165,7 +165,7 @@ esp_err_t api_get_file(httpd_req_t * req)
 
 		data.req_id = api_fs_req;
 		api_fs_req++;
-		data.chunk_size = 1024;
+		data.chunk_size = 3 * 1024;
 
 		ll_item_t * handle = ll_add_item(PROTO_FS_GET_FILE_RES, data.req_id, 0);
 		protocol_send(PROTO_FS_GET_FILE_REQ, (void *)&data, sizeof(data));
@@ -218,8 +218,8 @@ esp_err_t api_save_file(httpd_req_t * req)
 {
 	ESP_LOGI(TAG, "api_save_file");
 
-    size_t recv_size = min(req->content_len, 20 * 1024);
-    ESP_LOGI(TAG, " recv_size %d", recv_size);
+    size_t recv_size = min(req->content_len, 22 * 1024);
+    ESP_LOGI(TAG, " recv_size %d -> %d", req->content_len, recv_size);
 
 	char * post_data = ps_malloc(recv_size + 1);
     httpd_req_recv(req, post_data, recv_size);
@@ -249,6 +249,8 @@ esp_err_t api_save_file(httpd_req_t * req)
 		}
 		else
 		{
+
+			ERR("b64 ret = %d", ret);
 			data_size = 0;
 		}
 
@@ -298,6 +300,8 @@ esp_err_t api_save_file(httpd_req_t * req)
 	}
 	else
 	{
+		ERR("No path or file_id");
+
 		free(file_buffer);
 		free(post_data);
 

@@ -172,10 +172,10 @@ void spi_task(void *pvParameters)
 			//trans_len is in bits
 			uint16_t len = t.trans_len / 8;
 
-			DBG("SPI RX data: %u", len);
+			DBG("SPI RX data: %u, %u", len, spi_data_to_recieve);
 	//        DUMP(t.rx_buffer, len);
 
-			spi_parse(t.rx_buffer, len);
+			spi_parse(t.rx_buffer, spi_data_to_recieve);
         }
 
         spi_tx_buffer_index = 0;
