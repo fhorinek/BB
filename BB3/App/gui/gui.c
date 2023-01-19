@@ -77,6 +77,10 @@ void gui_load_language()
             lv_i18n_set_locale("fr-FR");
         break;
 
+        case(LANG_PL):
+            lv_i18n_set_locale("pl-PL");
+        break;
+
         default:
             lv_i18n_set_locale("en-US");
         break;

@@ -8,4 +8,4 @@ extract:
 	$(LV_I18N) extract -s '../**/*.+(c|cpp|h|hpp|inc)' -t '*.yml' --dump-sourceref sourceref.json --dump-sourceref-url "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/"
 
 compile:
-	$(LV_I18N) compile -l sk-SK -l de-DE -l fr-FR -l en-US -t '*.yml' --raw lv_i18n_data.inc
+	$(LV_I18N) compile -l sk-SK -l de-DE -l fr-FR -l en-US -l pl-PL -t '*.yml' --raw lv_i18n_data.inc

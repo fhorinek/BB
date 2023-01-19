@@ -86,6 +86,7 @@
 #define LANG_DE                  1
 #define LANG_SK                  2
 #define LANG_FR                  3
+#define LANG_PL                  4
 
 typedef struct
 {
