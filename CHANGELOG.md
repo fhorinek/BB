@@ -1,4 +1,4 @@
-# 27. 12. 2022 - Release 279.23.1
+# 27. 12. 2022 - Release 279.23.2
 ##Fixed
 * Filename slot exhaution when filename was longer than `FILE_NAME_SIZE - 1`
 
