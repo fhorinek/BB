@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
 	HdgToff,
-    "Takeoff - direction",
+	_i("Takeoff - direction"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

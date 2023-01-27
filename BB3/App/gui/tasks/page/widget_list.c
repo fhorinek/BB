@@ -96,7 +96,7 @@ static lv_obj_t * widget_list_init(lv_obj_t * par)
 {
     help_set_base("Widgets");
 
-        lv_obj_t * list = gui_list_create(par, _("Select widget"), NULL, widget_list_cb);
+    lv_obj_t * list = gui_list_create(par, _("Select widget"), NULL, widget_list_cb);
 
 	lv_obj_set_y(list, WIDGET_LIST_PREV_HEIGHT);
 	lv_obj_set_height(list, LV_VER_RES - GUI_STATUSBAR_HEIGHT - WIDGET_LIST_PREV_HEIGHT);
@@ -113,7 +113,7 @@ static lv_obj_t * widget_list_init(lv_obj_t * par)
 	for (uint16_t i = 0; i < number_of_widgets(); i++)
 	{
 	    widget_t * w = widgets[i];
-        gui_list_text_add_entry(list, w->name, 0);
+        gui_list_text_add_entry(list, lv_i18n_get_text_from_id(w->name_idx), w->name_idx);
 	}
 
     widget_list_show_widget(0);

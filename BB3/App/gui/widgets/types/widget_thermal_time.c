@@ -12,7 +12,7 @@
 REGISTER_WIDGET_IU
 (
     TTime,
-    "Thermal - time",
+    _i("Thermal - time"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

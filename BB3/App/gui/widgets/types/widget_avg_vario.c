@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
     Avg,
-    "Vario - average",
+    _i("Vario - average"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide) | _b(wf_units_hide),

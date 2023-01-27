@@ -152,6 +152,41 @@ char * lv_i18n_get_text_optimized(const char *msg, int msg_id)
 }
 
 
+char * lv_i18n_get_text_from_id(int msg_id)
+{
+    i18n_last_str_id = msg_id;
+    static char * err = "???";
+
+    if(current_lang == NULL || msg_id == 0 ) return err;
+
+    lv_i18n_lang_t * lang = current_lang;
+    char * txt;
+
+    // Search in current locale
+    if(lang->singulars != NULL) {
+        txt = lang->singulars[msg_id-1];
+        if (txt != NULL) {
+            return txt;
+        }
+    }
+
+    // Try to fallback
+    if(lang == current_lang_pack[0])
+        return err;
+
+    lang = current_lang_pack[0];
+
+    // Repeat search for default locale
+    if(lang->singulars != NULL) {
+        txt = lang->singulars[msg_id-1];
+        if (txt != NULL)
+            return txt;
+    }
+
+    return err;
+}
+
+
 
 /**
  * Get the translation from a message ID

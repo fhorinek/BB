@@ -17,7 +17,7 @@
 REGISTER_WIDGET_IU
 (
     TTrace,
-    "Thermal trace",
+    _i("Thermal trace"),
     120,
     120,
 	_b(wf_label_hide),

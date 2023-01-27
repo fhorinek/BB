@@ -11,8 +11,9 @@
 #define SEGMENTS_CNT  6
 
 
-REGISTER_WIDGET_IU(Bar,
-    "Vario - bar",
+REGISTER_WIDGET_IU(
+    Bar,
+    _i("Vario - bar"),
     16,
     80,
 	0,

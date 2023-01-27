@@ -722,7 +722,7 @@ static lv_obj_t * page_settings_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, _("Page settings"), NULL, page_setting_cb);
 
-    local->name_entry = gui_list_textbox_add_entry(list, "", 0, "", PAGE_NAME_LEN);
+    local->name_entry = gui_list_textbox_add_entry(list, _h("Page name"), "", PAGE_NAME_LEN);
 
     snprintf(buf, sizeof(buf), LV_SYMBOL_EDIT " %s", _("Edit page"));
 	gui_list_auto_entry(list, buf, i18n_last_str_id, CUSTOM_CB, page_settings_edit_layout_cb);

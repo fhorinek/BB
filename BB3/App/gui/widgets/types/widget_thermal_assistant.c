@@ -12,7 +12,7 @@
 REGISTER_WIDGET_IU
 (
     TAss,
-    "Thermal assistant",
+    _i("Thermal assistant"),
     120,
     120,
 	_b(wf_label_hide) | _b(wf_use_vario),

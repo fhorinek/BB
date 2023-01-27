@@ -5,7 +5,7 @@
 REGISTER_WIDGET_IU
 (
     Battery,
-    "Battery percent",
+    _i("Battery percent"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

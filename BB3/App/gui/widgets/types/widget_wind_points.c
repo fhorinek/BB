@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
    WindDirPoints,
-    "Wind - direction points",
+   _i("Wind - direction points"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

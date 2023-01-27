@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
     GHdgPoints,
-    "Heading - ground points",
+    _i("Heading - ground points"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),
