@@ -12,5 +12,6 @@ LV_IMG_DECLARE(img_glider_icon);
 LV_IMG_DECLARE(img_fanet_hike);
 LV_IMG_DECLARE(img_fanet_glider);
 LV_IMG_DECLARE(img_map_arrow);
+LV_IMG_DECLARE(img_home);
 
 #endif /* GUI_IMAGES_IMAGES_H_ */
