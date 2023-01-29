@@ -444,9 +444,9 @@ static void summarize_data()
     {
         case DATATYPE_ODO:
             strcpy(text, _("Total: "));
-            format_distance_with_units2(text + 7, total * 1000);
+            format_distance_with_units2(text + strlen(text), total * 1000);
             strcpy(text2, _("Average per flight: "));
-            format_distance_with_units2(text2 + 20, total * 1000 / total_flights);
+            format_distance_with_units2(text2 + strlen(text2), total * 1000 / total_flights);
         break;
         case DATATYPE_HOURS:
             sprintf(text, _("Total: %.1f hours"), total);
