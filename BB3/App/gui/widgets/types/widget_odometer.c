@@ -13,7 +13,7 @@
 REGISTER_WIDGET_IUE
 (
     Odo,
-    "Odometer",
+    _i("Odometer"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide) | _b(wf_units_hide),

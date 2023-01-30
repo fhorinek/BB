@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
 	CompPoints,
-    "Compass - points",
+	_i("Compass - points"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

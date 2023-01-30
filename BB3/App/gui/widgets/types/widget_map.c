@@ -19,8 +19,9 @@
 
 #define POINT_NUM 100
 
-REGISTER_WIDGET_ISUE(Map,
-    "Map",
+REGISTER_WIDGET_ISUE(
+    Map,
+    _i("Map"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	0,

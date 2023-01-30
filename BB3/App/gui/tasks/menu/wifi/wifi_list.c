@@ -14,6 +14,7 @@
 #include "gui/dialog.h"
 
 #include "etc/format.h"
+#include "gui/ctx.h"
 
 typedef struct
 {
@@ -176,23 +177,49 @@ void wifi_list_connect_cb(uint8_t res, void * data)
     }
 }
 
+static void wifi_list_rescan()
+{
+    local->new_scan = true;
+    gui_list_text_set_value(local->info, _("Scanning..."));
+    lv_obj_set_hidden(local->spinner, false);
+    esp_wifi_start_scan(wifi_list_update);
+}
+
 static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
+    if (event == LV_EVENT_KEY_RELEASED)
+    {
+        uint32_t key = *((uint32_t *) lv_event_get_data());
+        if (key == LV_KEY_HOME && ctx_is_active())
+        {
+            ctx_open(0);
+        }
+    }
+
+    if (event == LV_EVENT_FOCUSED)
+    {
+        ctx_hide();
+        if (obj != local->info)
+        {
+            char * ssid = gui_list_info_get_name(obj);
+            if (db_exists(PATH_NETWORK_DB, ssid))
+            {
+                ctx_show();
+            }
+        }
+    }
+
 	if (event == LV_EVENT_CLICKED)
 	{
 	    if (obj == local->info)
 	    {
-	        local->new_scan = true;
-	        gui_list_text_set_value(local->info, _("Scanning..."));
-	        lv_obj_set_hidden(local->spinner, false);
-	        esp_wifi_start_scan(wifi_list_update);
+	        wifi_list_rescan();
 	    }
 	    else
 	    {
 	        char * ssid = gui_list_info_get_name(obj);
-//	        gui_switch_task(&gui_wifi, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 	        if (local->nets[index - 1].security == PROTO_WIFI_OPEN)
-	        {
+        {
 	            esp_wifi_connect(local->nets[index - 1].mac, ssid, "", local->nets[index - 1].ch);
 	        }
 	        else
@@ -218,6 +245,36 @@ static bool wifi_list_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 	return true;
 }
 
+void wifi_list_forget_cb(uint8_t ret, void * data)
+{
+    if (ret == dialog_res_yes)
+    {
+        db_delete(PATH_NETWORK_DB, (char *)data);
+        free(data);
+
+        wifi_list_rescan();
+    }
+}
+
+
+bool wifi_list_ctx_cb(uint8_t ret, lv_obj_t * obj)
+{
+    if (ret == 0)
+    {
+        char * ssid = gui_list_info_get_name(obj);
+        char txt[64];
+        snprintf(txt, sizeof(txt), _("Forget password for\n%s\nwifi network"), ssid);
+
+        char * opt_data = (char *) malloc(strlen(ssid));
+        strcpy(opt_data, ssid);
+
+        dialog_show(_("Forget password"), txt, dialog_yes_no, wifi_list_forget_cb);
+        dialog_add_opt_data(opt_data);
+    }
+
+    //close ctx
+    return true;
+}
 
 static lv_obj_t * wifi_list_init(lv_obj_t * par)
 {
@@ -231,6 +288,10 @@ static lv_obj_t * wifi_list_init(lv_obj_t * par)
     lv_obj_align(local->spinner, NULL, LV_ALIGN_CENTER, 0, 0);
 
     local->info = gui_list_text_add_entry(list, _h("Scanning..."));
+
+    ctx_set_cb(wifi_list_ctx_cb);
+    ctx_clear();
+    ctx_add_option(_("Forget password"));
 
 	return list;
 }

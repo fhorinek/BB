@@ -440,3 +440,37 @@ pl-PL:
   Diagnostic: Diagnostyka
   No network found: Nie znaleziono sieci
   Odometer reset: ~
+  "Forget password for\n%s\nwifi network": ~
+  Forget password: ~
+  G-meter: ~
+  Height - above ground: ~
+  Altitude - graph: ~
+  Altitude - QNH1: ~
+  Altitude - QNH2: ~
+  Vario - average: ~
+  Compass - arrow: ~
+  Vario - digital: ~
+  FANET - radar: ~
+  Time - flight: ~
+  Glide ratio: ~
+  Altitude - GNSS: ~
+  Heading - ground arrow: ~
+  Heading - ground points: ~
+  Heading - ground: ~
+  Speed - ground: ~
+  Height - above Takeoff: ~
+  Odometer: ~
+  Thermal - gain: ~
+  Thermal - time: ~
+  Time - time and date: ~
+  Takeoff - distance: ~
+  Takeoff - time to arrive: ~
+  Vario - bar: ~
+  Vario - graph: ~
+  Wind - direction arrow: ~
+  Wind - direction points: ~
+  Wind - speed: ~
+  Compass - points: ~
+  Compass - heading: ~
+  Takeoff - direction: ~
+  "Do you want to unpair from all paired devices?\n": ~

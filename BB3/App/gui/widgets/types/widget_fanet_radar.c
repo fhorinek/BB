@@ -16,7 +16,7 @@
 REGISTER_WIDGET_ISUE
 (
     FanetRadar,
-    "FANET - radar",
+    _i("FANET - radar"),
     120,
     120,
     _b(wf_label_hide),
@@ -60,7 +60,7 @@ static void FanetRadar_init(lv_obj_t * base, widget_slot_t * slot)
 
 	if (!widget_flag_is_set(slot, wf_label_hide))
 	{
-		widget_add_title(base, slot, slot->widget->name);
+		widget_add_title(base, slot, lv_i18n_get_text_from_id(slot->widget->name_idx));
 	}
 
 	local->base_radius = min(slot->h, slot->w) / 7;

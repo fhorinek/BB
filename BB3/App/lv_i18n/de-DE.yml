@@ -471,9 +471,22 @@ de-DE:
   scale: skalieren
   Change widget: Widget ändern
   '': ~
-  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": "Geladen %lu/%u\nDaten %lu%%\nIn Datei %lu\nDist %0.1fkm"
-  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": "Du musst in diesem Menu sein, um zu koppeln.\n\n'%s'\n Für Audio und Telemetrie (classic bluetooth), über das Telefon koppeln.\n\n'%s LE'\n ist für Telemetrie (Bluetooth low energy) mittels XCTrack oder anderer App koppeln."
-  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": "Willst Du die Kalibrierung der Bewegungssensoren löschen?\nDu musst die Kalibrierung wiederholen, damit Strato funktioniert."
+  "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": |-
+    Geladen %lu/%u
+    Daten %lu%%
+    In Datei %lu
+    Dist %0.1fkm
+  "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": |-
+    Du musst in diesem Menu sein, um zu koppeln.
+
+    '%s'
+     Für Audio und Telemetrie (classic bluetooth), über das Telefon koppeln.
+
+    '%s LE'
+     ist für Telemetrie (Bluetooth low energy) mittels XCTrack oder anderer App koppeln.
+  "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": |-
+    Willst Du die Kalibrierung der Bewegungssensoren löschen?
+    Du musst die Kalibrierung wiederholen, damit Strato funktioniert.
   Calibration: Kalibrierung
   Calibration values stored: Kalibrierung gespeichert
   Diagnostics: Diagnose
@@ -483,7 +496,9 @@ de-DE:
   Right menu shortcut: Rechts Schnellfkt.
   add right shortcut: rechts Schnellfkt. dazu
   No action: Keine Aktion
-  "Need\n3D fix": "Brauche\n3D Fix"
+  "Need\n3D fix": |-
+    Brauche
+    3D Fix
   Debug Info: ~
   Class A: Luftraum A
   Class B: Luftraum B
@@ -504,9 +519,43 @@ de-DE:
   Ignore with floor above: Alles über FL ignorieren
   FANET ID: ~
   FANET Firmware: ~
-  'You do not need to do anything here, unless you are instructed by support.':   'Du musst hier nur nach Anweisung des Supports arbeiten.'
+  'You do not need to do anything here, unless you are instructed by support.': Du musst hier nur nach Anweisung des Supports arbeiten.
   Wi-Fi MAC: ~
   Wi-Fi AP MAC: ~
   Bluetooth MAC: ~
   Diagnostic: Diagnose
   No network found: Kein Netzwerk
+  "Forget password for\n%s\nwifi network": ~
+  Forget password: ~
+  G-meter: ~
+  Height - above ground: ~
+  Altitude - graph: ~
+  Altitude - QNH1: ~
+  Altitude - QNH2: ~
+  Vario - average: ~
+  Compass - arrow: ~
+  Vario - digital: ~
+  FANET - radar: ~
+  Time - flight: ~
+  Glide ratio: ~
+  Altitude - GNSS: ~
+  Heading - ground arrow: ~
+  Heading - ground points: ~
+  Heading - ground: ~
+  Speed - ground: ~
+  Height - above Takeoff: ~
+  Odometer: ~
+  Thermal - gain: ~
+  Thermal - time: ~
+  Time - time and date: ~
+  Takeoff - distance: ~
+  Takeoff - time to arrive: ~
+  Vario - bar: ~
+  Vario - graph: ~
+  Wind - direction arrow: ~
+  Wind - direction points: ~
+  Wind - speed: ~
+  Compass - points: ~
+  Compass - heading: ~
+  Takeoff - direction: ~
+  "Do you want to unpair from all paired devices?\n": ~

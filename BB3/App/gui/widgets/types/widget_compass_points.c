@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
 	CompHdg,
-    "Compass - heading",
+	_i("Compass - heading"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

@@ -13,7 +13,7 @@
 REGISTER_WIDGET_ISU
 (
     VarioGraph,
-    "Vario - graph",
+    _i("Vario - graph"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
         _b(wf_label_hide) | _b(wf_hide_icon),
@@ -30,7 +30,7 @@ static void VarioGraph_init(lv_obj_t * base, widget_slot_t * slot)
 
 	if (!widget_flag_is_set(slot, wf_label_hide))
 	{
-		widget_add_title(base, slot, slot->widget->name);
+		widget_add_title(base, slot, lv_i18n_get_text_from_id(slot->widget->name_idx));
 		t_h = lv_obj_get_height(slot->title);
 	} else
 		t_h = 0;

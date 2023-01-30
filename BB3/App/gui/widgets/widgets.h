@@ -39,8 +39,8 @@ typedef struct _widget_t
 {
 	//short name for widget label and cfg file
 	char * short_name;
-    //Long name for menu
-    char * name;
+    //Long name id for menu
+    uint16_t name_idx;
 
 	//minimum allowed size
     uint16_t w_min;
@@ -59,7 +59,7 @@ typedef struct _widget_t
 	uint16_t flags;
 } widget_t;
 
-#define REGISTER_WIDGET_ISUE(short_name, name, w_min, h_min, flags, ...) \
+#define REGISTER_WIDGET_ISUE(short_name, name_idx, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -71,7 +71,7 @@ typedef struct _widget_t
     widget_t widget_ ## short_name = \
     { \
         #short_name, \
-        name, \
+        name_idx, \
         w_min, \
         h_min, \
         short_name ## _init, \
@@ -82,7 +82,7 @@ typedef struct _widget_t
 		flags \
     };
 
-#define REGISTER_WIDGET_IUE(short_name, name, w_min, h_min, flags, ...) \
+#define REGISTER_WIDGET_IUE(short_name, name_idx, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -93,7 +93,7 @@ typedef struct _widget_t
     widget_t widget_ ## short_name = \
     { \
         #short_name, \
-        name, \
+        name_idx, \
         w_min, \
         h_min, \
         short_name ## _init, \
@@ -104,7 +104,7 @@ typedef struct _widget_t
 		flags \
     };
 
-#define REGISTER_WIDGET_I(short_name, name, w_min, h_min, flags, ...) \
+#define REGISTER_WIDGET_I(short_name, name_idx, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -113,7 +113,7 @@ typedef struct _widget_t
     widget_t widget_ ## short_name = \
     { \
         #short_name, \
-        name, \
+        name_idx, \
         w_min, \
         h_min, \
         short_name ## _init, \
@@ -124,7 +124,7 @@ typedef struct _widget_t
 		flags \
     };
 
-#define REGISTER_WIDGET_IU(short_name, name, w_min, h_min, flags, ...) \
+#define REGISTER_WIDGET_IU(short_name, name_idx, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -134,7 +134,7 @@ typedef struct _widget_t
     widget_t widget_ ## short_name = \
     { \
         #short_name, \
-        name, \
+        name_idx, \
         w_min, \
         h_min, \
         short_name ## _init, \
@@ -145,7 +145,7 @@ typedef struct _widget_t
 		flags \
     };
 
-#define REGISTER_WIDGET_ISU(short_name, name, w_min, h_min, flags, ...) \
+#define REGISTER_WIDGET_ISU(short_name, name_idx, w_min, h_min, flags, ...) \
     typedef struct \
     { \
         __VA_ARGS__ \
@@ -156,7 +156,7 @@ typedef struct _widget_t
     widget_t widget_ ## short_name = \
     { \
         #short_name, \
-        name, \
+        name_idx, \
         w_min, \
         h_min, \
         short_name ## _init, \

@@ -11,7 +11,7 @@
 REGISTER_WIDGET_IU
 (
     GHdgArrow,
-    "Heading - ground arrow",
+    _i("Heading - ground arrow"),
     WIDGET_MIN_W,
     WIDGET_MIN_H,
 	_b(wf_label_hide),

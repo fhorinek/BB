@@ -215,7 +215,7 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
         if (pos == start_pos)
         {
             pos += lenght;
-            start_pos = INT16_MAX;
+            start_pos = INT32_MAX;
             red_lseek(fp, pos, RED_SEEK_SET);
         }
     }
@@ -231,6 +231,14 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
 void db_delete(char * path, char * key)
 {
     char buff[DB_LINE_LEN];
+
+    if (loaded_file != 0)
+    {
+        red_close(loaded_file);
+        loaded_file = 0;
+        loaded_file_path[0] = 0;
+    }
+
     int32_t f = red_open(path, RED_O_RDONLY);
 
     if (f > 0)

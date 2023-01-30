@@ -80,6 +80,7 @@ const char * lv_i18n_get_text_plural(const char * msg_id, int32_t num);
  */
 const char * lv_i18n_get_current_locale(void);
 
+char * lv_i18n_get_text_from_id(int msg_id);
 
 void __lv_i18n_reset(void);
 
@@ -93,6 +94,7 @@ void __lv_i18n_reset(void);
 #define _p(text, num) lv_i18n_get_text_plural(text, num)
 
 #define _h(text) _(text), I18N_IDX_s(text)
+#define _i(text) I18N_IDX_s(text)
 
 extern volatile uint16_t i18n_last_str_id;
 

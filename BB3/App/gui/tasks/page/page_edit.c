@@ -389,7 +389,7 @@ bool page_edit_ctx_cb(uint8_t option, lv_obj_t * last_focus)
         else if (option == 2)
         {
             char text[128];
-            snprintf(text, sizeof(text), _("Do you really want to remove widget '%s'?"), local->page.widget_slots[local->focus_index].widget->name);
+            snprintf(text, sizeof(text), _("Do you really want to remove widget '%s'?"), lv_i18n_get_text_from_id(local->page.widget_slots[local->focus_index].widget->name_idx));
             dialog_show(_("Remove widget"), text, dialog_yes_no, page_edit_remove_cb);
         }
         else
