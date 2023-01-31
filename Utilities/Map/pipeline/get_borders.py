@@ -3,6 +3,7 @@
 
 import os
 import common
+import sys
 
 def pipeline_get_borders_raw():
     target_dir = common.target_dir_borders_raw
@@ -76,13 +77,15 @@ def pipeline_get_borders_geo():
         target_filename = os.path.splitext(filename)[0] + ".geojson"
         target = os.path.join(target_dir, target_filename)
 
-        if os.path.exists(target):
+        if os.path.exists(target) and os.path.getsize(target) > 0 :
             print("Skipping %s, %s exists" % (filename, target_filename))
             continue
 
         print("Converting %s to %s" % (filename, target_filename))
-        os.system("osmtogeojson '%s' > '%s'" % (source, target))
-
+        ws = os.system("osmtogeojson '%s' > '%s'" % (source, target))
+        ret = os.waitstatus_to_exitcode(ws)
+        if ret != 0:
+            sys.exit(ret)
         
     print("Done")
     
@@ -108,14 +111,13 @@ def pipeline_join_borders():
     cmd += "   -dissolve"
     
     cmd += "   -o %s format=geojson combine-layers" % target
-    ret = os.system(cmd)
-    
+    ws = os.system(cmd)
+    ret = os.waitstatus_to_exitcode(ws)
     if ret != 0:
         print(" ------ mapshaper command ------ ")
         print(cmd)
         print(" ------------------------------- ")
         raise Exception("Command not processed!")
-    
     
 if __name__ == '__main__':  
     pipeline_get_borders_raw()

@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+#
+# This script iterates all files in common.target_dir_step1 and
+# converts them from osmjson to geojson. The result is placed in
+# common.target_dir_step2
 
 import os
 import common
