@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-#this script convert pre-processed data to binary format for BB
+#
+# This script converts pre-processed data to binary format for BB
 
 import json
 import struct
@@ -8,8 +9,11 @@ from shapely.geometry import Polygon, MultiPolygon, Point, LineString
 
 from datetime import datetime 
 from collections import OrderedDict
+from pprint import pp
 
 import common
+
+from MAP_TYPES import *
 
 #print file structure
 debug_bin = False
@@ -18,6 +22,191 @@ debug_duplicates = False
 #print features info 
 debug_features = False
 
+# Create 1 or more features from the given dict_data. Normally the
+# dict_data contains 1 feature. But sometimes we derive more than 1
+# feature and therefore return a list of Feature objects.
+#
+# @param dict_data a JSON describing a feature to read
+#
+# @return list of Feature objects derived from dict_data
+#
+def createFeatures(dict_data):
+
+    # This is the result list, containing all Feature objects that we return
+    features = []
+
+    # This is the main Feature, where we work on
+    feature = Feature()
+    features.append(feature)
+
+    feature.source_data = dict_data
+
+    #feature was sliced with grid, it will not overlap the boundary
+    feature.sliced = "sliced" in dict_data["properties"]
+
+    if dict_data["geometry"]["type"] == "Point":
+        feature.elevation = -32768
+        feature.name = ""
+        lon, lat = dict_data["geometry"]['coordinates']
+
+        if "name" in dict_data["properties"]:
+            feature.name = dict_data["properties"]["name"]
+        if "ele" in dict_data["properties"]:
+            ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","").replace("m","")
+            try:
+                feature.elevation = int(float(ele))
+                assert feature.elevation < 9000
+            except (ValueError, AssertionError):
+                print("Wrong elevation value")
+                print(dict_data)
+                feature.valid = False
+                return None
+
+        if dict_data["properties"]["type"] == "peak":
+            feature.type = MAP_TYPE_POI_PEAK
+
+        if dict_data["properties"]["type"] == "city":
+            feature.type = MAP_TYPE_POI_CITY
+        if dict_data["properties"]["type"] == "town":
+            feature.type = MAP_TYPE_POI_TOWN
+        if dict_data["properties"]["type"] == "village":
+            feature.type = MAP_TYPE_POI_VILLAGE
+        if dict_data["properties"]["type"] in ["hamlet", "isolated_dwelling"]:
+            feature.type = MAP_TYPE_POI_HAMLET
+
+        if feature.type != -1:
+            feature.savePOI(feature.type, feature.name, feature.elevation, lon, lat)
+            feature.geometry = Point(lon, lat)
+
+    if dict_data["geometry"]["type"] == "LineString":
+        if dict_data["properties"]["type"] == "border":
+           feature.type = MAP_TYPE_LINE_BORDER
+
+        if dict_data["properties"]["type"] == "river":
+            feature.type = MAP_TYPE_LINE_RIVER
+
+        if dict_data["properties"]["type"] == "highway":
+            feature.type = MAP_TYPE_LINE_HIGHWAY
+        if dict_data["properties"]["type"] == "primary":
+            feature.type = MAP_TYPE_LINE_PRIMARY
+        if dict_data["properties"]["type"] == "secondary":
+            feature.type = MAP_TYPE_LINE_SECONDARY
+        if dict_data["properties"]["type"] == "tertiary":
+            feature.type = MAP_TYPE_LINE_TERTIARY
+
+        if dict_data["properties"]["type"] == "rail":
+            feature.type = MAP_TYPE_LINE_RAIL
+
+        if dict_data["properties"]["type"] == "power":
+           feature.type = MAP_TYPE_LINE_POWER
+
+        if dict_data["properties"]["type"] == "aerialway":
+           feature.type = MAP_TYPE_LINE_AERIALWAY
+
+
+        number_of_points = len(dict_data["geometry"]['coordinates'])
+        assert(number_of_points > 0)
+        assert(number_of_points <= 0xFFFF)
+
+        if feature.type != -1:
+            #type
+            feature.data += struct.pack("B", feature.type)
+            #pad
+            feature.data += struct.pack("B", 0)
+            #number of points
+            feature.data += struct.pack("<H", number_of_points)
+            #data
+            for pos in dict_data["geometry"]['coordinates']:
+                lon, lat = pos
+                feature.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
+                feature.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
+
+            feature.geometry = LineString(dict_data["geometry"]['coordinates'])
+
+
+    if dict_data["geometry"]["type"] == "Polygon":
+        if "type" in dict_data["properties"]:
+            poi_type = None
+            if dict_data["properties"]["type"] == "water":
+                feature.type = MAP_TYPE_POLYGON_WATER
+
+            if dict_data["properties"]["type"] == "resident":
+                feature.type = MAP_TYPE_POLYGON_RESIDENT
+
+            if dict_data["properties"]["type"] == "aeroway":
+                feature.type = MAP_TYPE_POLYGON_AEROWAY
+                poi_type = MAP_TYPE_POI_AEROWAY
+
+            if dict_data["properties"]["type"] == "free_flying":
+                if dict_data["properties"]["free_flying:site"] == "takeoff":
+                    feature.type = MAP_TYPE_POLYGON_TAKEOFF
+                    poi_type = MAP_TYPE_POI_TAKEOFF
+                elif dict_data["properties"]["free_flying:site"] == "landing":
+                    feature.type = MAP_TYPE_POLYGON_LANDING
+                    poi_type = MAP_TYPE_POI_LANDING
+                else:
+                    print(dict_data)
+                    raise Exception("No meaningfull free_flying:site found")
+
+            if poi_type != None:
+                # We add an additional POI at innerX/Y of the polygon
+                lon = dict_data["properties"]["innerX"]
+                lat = dict_data["properties"]["innerY"]
+                name = ""
+                f = Feature()
+                f.sliced = feature.sliced
+                f.source_data = dict_data
+                f.dict_data = dict_data
+                f.type = poi_type
+                f.name = name
+                f.savePOI(poi_type, name, 0, lon, lat)
+                f.geometry = Point(lon, lat)
+                features.append(f)
+
+        points = []
+
+        i = 1
+        for part in dict_data["geometry"]['coordinates']:
+            points += part
+            if i < len(dict_data["geometry"]['coordinates']):
+                points += [[0x7FFFFFFF / common.GPS_COORD_MUL, 0x7FFFFFFF / common.GPS_COORD_MUL]]
+            i += 1
+
+        number_of_points = len(points)
+
+        if (number_of_points == 0 or number_of_points > 0xFFFF):
+            print(dict_data)
+            tmp = Polygon(points).bounds
+            print("rectangle name=error bbox=%f,%f,%f,%f" % tmp)
+            assert(0)
+
+        if feature.type != -1:
+            #type
+            feature.data += struct.pack("B", feature.type)
+            #pad
+            feature.data += struct.pack("B", 0)
+            #number of points
+            feature.data += struct.pack("<H", number_of_points)
+            #data
+            for pos in points:
+                lon, lat = pos
+                feature.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
+                feature.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
+
+
+            polygons = []
+            for coords in dict_data["geometry"]['coordinates']:
+                polygons.append(Polygon(coords))
+            feature.geometry = MultiPolygon(polygons)
+
+    if feature.type == -1:
+        print(dict_data)
+        raise Exception("Unable to parse feature")
+
+    if debug_features:
+        feature.dict_data = dict_data
+
+    return features
 
 def feature_factory(dict_data):
     output = []
@@ -32,9 +221,10 @@ def feature_factory(dict_data):
         
         for part in dict_data["geometry"]['coordinates']:
             base["geometry"]['coordinates'] = part
-            f = Feature(base)
-            if f.valid:
-                output.append(f)
+            features = createFeatures(base)
+            for f in features:
+                if f.valid:
+                    output.append(f)
                 
     elif dict_data["geometry"]["type"] == "MultiPolygon":
         print("Converting MultiPolygon into %u Polygons" % len(dict_data["geometry"]['coordinates']))
@@ -43,175 +233,43 @@ def feature_factory(dict_data):
         
         for part in dict_data["geometry"]['coordinates']:
             base["geometry"]['coordinates'] = part
-            f = Feature(base)
+            features = createFeatures(base)
+            for f in features:
+                if f.valid:
+                    output.append(f)
+    else:
+        features = createFeatures(dict_data)
+        for f in features:
             if f.valid:
                 output.append(f)
-    else:
-        f = Feature(dict_data)
-        if f.valid:
-            output.append(f)
         
     return output
     
 
+
 class Feature(object):
-    def __init__(self, dict_data):
-        self.source_data = dict_data
+    def __init__(self):
         self.data = bytes()
         self.type = -1
         self.valid = True
 
-        #feature was sliced with grid, it will not overlap the boundary        
-        self.sliced = "sliced" in dict_data["properties"]
-        
-        if dict_data["geometry"]["type"] == "Point":
-            self.elevation = -32768
-            self.name = ""
-            lon, lat = dict_data["geometry"]['coordinates']
-
-            if "name" in dict_data["properties"]:
-                self.name = dict_data["properties"]["name"]
-            if "ele" in dict_data["properties"]:
-                ele = dict_data["properties"]["ele"].split(";")[0].replace(",", ".").replace("~","").replace("m","")
-                try:
-                    self.elevation = int(float(ele))
-                    assert self.elevation < 9000
-                except (ValueError, AssertionError):
-                    print("Wrong elevation value")
-                    print(dict_data)
-                    self.valid = False
-                    return None
+    def savePOI(self, type, name, elevation, lon, lat):
+        name_lenght = len(name.encode("UTF-8"))
+        assert(name_lenght <= 0xFF)
             
-            if dict_data["properties"]["type"] == "peak":
-                self.type = 0
-                
-            if dict_data["properties"]["type"] == "city":
-                self.type = 10
-            if dict_data["properties"]["type"] == "town":
-                self.type = 11
-            if dict_data["properties"]["type"] == "village":
-                self.type = 12
-            if dict_data["properties"]["type"] in ["hamlet", "isolated_dwelling"]:
-                self.type = 13
-            
-            name_lenght = len(self.name.encode("UTF-8"))
-            assert(name_lenght <= 0xFF)
-            
-            if self.type != -1:
-                #type
-                self.data += struct.pack("B", self.type)
-                #name lenght
-                self.data += struct.pack("B", name_lenght)
-                #elevation
-                self.data += struct.pack("<h", self.elevation)
-                #data
-                self.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
-                self.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
-                self.data += self.name.encode("UTF-8")
-                while len(self.data) % 4 != 0:
-                    self.data += struct.pack("B", 0)
+        #type
+        self.data += struct.pack("B", type)
+        #name lenght
+        self.data += struct.pack("B", name_lenght)
+        #elevation
+        self.data += struct.pack("<h", elevation)
+        #data
+        self.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
+        self.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
+        self.data += name.encode("UTF-8")
+        while len(self.data) % 4 != 0:
+            self.data += struct.pack("B", 0)
 
-                self.geometry = Point(lon, lat)
-
-        if dict_data["geometry"]["type"] == "LineString":
-            if dict_data["properties"]["type"] == "border":
-               self.type = 100
-
-            if dict_data["properties"]["type"] == "river":
-                self.type = 110
-
-            if dict_data["properties"]["type"] == "highway":
-                self.type = 120
-            if dict_data["properties"]["type"] == "primary":
-                self.type = 121
-            if dict_data["properties"]["type"] == "secondary":
-                self.type = 122
-            if dict_data["properties"]["type"] == "tertiary":
-                self.type = 123
-
-            if dict_data["properties"]["type"] == "rail":
-                self.type = 130
-
-            if dict_data["properties"]["type"] == "power":
-               self.type = 140
-               
-            if dict_data["properties"]["type"] == "aerialway":
-               self.type = 141
-               
-                
-            number_of_points = len(dict_data["geometry"]['coordinates'])
-            assert(number_of_points > 0)
-            assert(number_of_points <= 0xFFFF)
-
-            if self.type != -1:
-                #type
-                self.data += struct.pack("B", self.type)
-                #pad
-                self.data += struct.pack("B", 0)                
-                #number od points
-                self.data += struct.pack("<H", number_of_points)
-                #data
-                for pos in dict_data["geometry"]['coordinates']:
-                    lon, lat = pos
-                    self.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
-                    self.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
-
-                self.geometry = LineString(dict_data["geometry"]['coordinates'])
-            
-
-        if dict_data["geometry"]["type"] == "Polygon":
-            #   200 - water
-            #   201 - resident
-            if "type" in dict_data["properties"]:            
-                if dict_data["properties"]["type"] == "water":
-                    self.type = 200
-
-                if dict_data["properties"]["type"] == "resident":
-                    self.type = 201
-          
-            points = []      
-
-            i = 1
-            for part in dict_data["geometry"]['coordinates']:
-                points += part
-                if i < len(dict_data["geometry"]['coordinates']):
-                    points += [[0x7FFFFFFF / common.GPS_COORD_MUL, 0x7FFFFFFF / common.GPS_COORD_MUL]]
-                i += 1
-                
-            number_of_points = len(points)                
-                
-            if (number_of_points == 0 or number_of_points > 0xFFFF):
-                print(dict_data)
-                tmp = Polygon(points).bounds
-                print("rectangle name=error bbox=%f,%f,%f,%f" % tmp)
-                assert(0)                
-
-            if self.type != -1:
-                #type
-                self.data += struct.pack("B", self.type)
-                #pad
-                self.data += struct.pack("B", 0)                
-                #number od points
-                self.data += struct.pack("<H", number_of_points)
-                #data
-                for pos in points:
-                    lon, lat = pos
-                    self.data += struct.pack("<l", int(lon * common.GPS_COORD_MUL))
-                    self.data += struct.pack("<l", int(lat * common.GPS_COORD_MUL))
-
-
-                polygons = []
-                for coords in dict_data["geometry"]['coordinates']:
-                    polygons.append(Polygon(coords))
-                self.geometry = MultiPolygon(polygons) 
-            
-        if self.type == -1:
-            print(dict_data)
-            raise Exception("Unable to parse feature")
-            
-        if debug_features:
-            self.dict_data = dict_data    
-            
     def inside(self, bbox):
         if self.sliced:
             return bbox.contains(self.geometry)

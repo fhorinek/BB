@@ -1,5 +1,12 @@
 #!/usr/bin/python3
-#this script is for data pre-processing (simplify, slice, crop, remove attributes)
+#
+# This script is for data pre-processing (simplify, slice, crop,
+# remove attributes) with mapshaper. It iterates over all files from
+# common.target_dir_step2 and uses the associated script in
+# mapshaper_scripts to generate a mapshaper call with the arguments
+# taken from the mapshaper_script.
+#
+# The result is then placed in common.target_dir_step3.
 
 import os
 import common
@@ -56,15 +63,15 @@ def pipeline_step3():
         else:
             check_source = True
             source = os.path.join(source_dir, filename)
-            layer = os.path.splitext(filename)[0].split("_")[1]
+            basename = os.path.splitext(filename)[0]
+            layer = basename[basename.find("_")+1:]     # handle "free_flying" with underscore
             
         target = os.path.join(target_dir, filename)
             
         script_path = os.path.join(common.mapshaper_scripts_dir, layer)
 
-
         if not os.path.exists(script_path):
-            raise Exception("Procesing script for %s does not exists" % (filename))
+            raise Exception("Proccesing script '%s' for %s does not exists" % (script_path, filename))
         
         if os.path.exists(target):
             if os.path.getsize(target) > 0:
@@ -144,8 +151,10 @@ def pipeline_step3():
             if use_grid and not keep_grid:
                 cmd += "   -drop target=grid \\\n"
         
+            # cmd += "   -o %s format=geojson combine-layers prettify" % target
             cmd += "   -o %s format=geojson combine-layers" % target
         
+        #print(cmd)
         ret = os.system(cmd)
         
         common.invalidate_step(4, layer) 

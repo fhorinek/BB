@@ -1,0 +1,51 @@
+#USE_GRID
+#DROP_POINTS
+#DROP_LINES
+#INJECT_POLYGONS
+
+#rename layers
+rename-layers polygons,grid
+
+#clean geometry
+clean snap-interval=0.0001 gap-fill-area=10km2 target=polygons
+
+#dissolve features
+#dissolve2 target=polygons
+
+#simplify geometry
+# NO! Doing this would remove most landing sites.
+#simplify 10% target=polygons
+
+#remove small polygons
+#filter-islands remove-empty min-area=0.1km2 target=polygons
+
+#filter-fields fields=name
+
+#explode
+explode target=polygons
+clean target=polygons
+
+#tag features
+# each 'this.properties = {type:"aeroway"}'
+#each 'this.properties.name = this.properties.name'
+
+#each 'this.properties = {type:"aerialway"}' where='this.properties.aerialway != undefined' target=lines
+#each 'this.properties = {type:"highway"}' where='["motorway", "trunk"].indexOf(this.properties.highway) != -1' target=lines
+
+#each 'this.properties.type = "landing"' where='["landing"].indexOf(this.properties."free_flying:site") != -1' target=polygons
+#each 'this.properties.type = "takeoff"' where='["takeoff"].indexOf(this.properties."free_flying:site") != -1' target=polygons
+
+each 'this.properties.type = "free_flying"'
+
+each 'this.properties["innerX"] = this.innerX'
+each 'this.properties["innerY"] = this.innerY'
+
+#each 'this.properties["type"] = this.properties["place"]'
+
+#clip excess geometry 
+clip bbox=%lon1%,%lat1%,%lon2%,%lat2% target=polygons
+
+#slice
+slice grid target=polygons
+merge-layers target=slice-* name=polygons
+

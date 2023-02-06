@@ -1,0 +1,9 @@
+[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
+(
+  way["free_flying:site"="landing"];
+  way["free_flying:site"="takeoff"];
+);
+
+out body;
+>;
+out skel qt;

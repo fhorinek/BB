@@ -13,6 +13,8 @@
 #include "gui/gui_list.h"
 #include "gui/map/tile.h"
 #include "gui/map/map_obj.h"
+#include "gui/images/images.h"
+#include "map_types.h"
 
 #include "fc/fc.h"
 #include "etc/format.h"
@@ -101,6 +103,57 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
 }
 
 /**
+ * Create an image to display a POI.
+ *
+ * @param map the parent object for the new image
+ * @param src_img the source of the image
+ *
+ * @return the image object of the POI
+ */
+static lv_obj_t *create_img_pin(lv_obj_t *map, const void *src_img)
+{
+    lv_obj_t *l;
+
+    l = lv_img_create(map, NULL);
+    lv_img_set_src(l, src_img);
+    lv_obj_align(l, map, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+    lv_obj_move_foreground(l);
+    lv_img_set_antialias(l, true);
+
+    return l;
+}
+
+/**
+ * Decide which image to use for the given POI type.
+ *
+ * @param type the POI type
+ *
+ * @return the image or NULL if type is not using image.
+ */
+static lv_img_dsc_t *get_poi_img(int type)
+{
+  lv_img_dsc_t *l;
+
+  switch (type)
+    {
+    case MAP_TYPE_POI_LANDING:
+      l = &img_pin_landing_blue_black_border;
+      break;
+    case MAP_TYPE_POI_TAKEOFF:
+      l = &img_pin_takeoff_orange_black_border;
+      break;
+    case MAP_TYPE_POI_AEROWAY:
+      l = &img_pin_aerodrome_blue_black_border;
+      break;
+    default:
+      l = NULL;
+      break;
+    }
+
+  return l;
+}
+
+/**
  * Display the map at the given position given as the center.
  *
  * @param local a pointer to a memory allocated by caller to store local data.
@@ -167,24 +220,25 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             if (gui.map.poi[i].chunk != 0xFF)
             {
                 //create
-                if (local->poi[i] == NULL)
-                {
-                    lv_obj_t *l = lv_label_create(local->map, NULL);
-                    lv_obj_add_style(l, LV_LABEL_PART_MAIN, &static_label);
-                    lv_label_set_text(l, gui.map.poi[i].name);
+                if (local->poi[i] != NULL) lv_obj_del(local->poi[i]);
 
-                    local->poi[i] = l;
-                    local->poi_magic[i] = gui.map.poi[i].magic;
-                }
-                else
-                {
-                    //update
-                    if (local->poi_magic[i] != gui.map.poi[i].magic)
-                    {
-                        lv_label_set_text(local->poi[i], gui.map.poi[i].name);
-                        local->poi_magic[i] = gui.map.poi[i].magic;
-                    }
-                }
+				lv_obj_t *l;
+				lv_img_dsc_t *img_dsc;
+
+				img_dsc = get_poi_img(gui.map.poi[i].type);
+				if (img_dsc != NULL)
+				{
+					l = create_img_pin(local->map, img_dsc);
+				}
+				else
+				{
+					l = lv_label_create(local->map, NULL);
+					lv_obj_add_style(l, LV_LABEL_PART_MAIN, &static_label);
+					lv_label_set_text(l, gui.map.poi[i].name);
+				}
+
+				local->poi[i] = l;
+				local->poi_magic[i] = gui.map.poi[i].magic;
             }
             else
             {
@@ -232,6 +286,14 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
         {
             uint16_t x = gui.map.poi[i].x;
             uint16_t y = gui.map.poi[i].y;
+            lv_img_dsc_t *img_dsc;
+
+            img_dsc = get_poi_img(gui.map.poi[i].type);
+            if ( img_dsc != NULL)
+            {
+	      // POI image should be aligned at the bottom
+	        y -= img_dsc->header.h / 2;
+            }
 
             lv_obj_align_mid(local->poi[i], local->image[gui.map.poi[i].chunk], LV_ALIGN_IN_TOP_LEFT, x, y);
         }

@@ -1,0 +1,9 @@
+[bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
+(
+  way["aeroway"="aerodrome"];
+  relation["aeroway"="aerodrome"];
+);
+
+out body;
+>;
+out skel qt;

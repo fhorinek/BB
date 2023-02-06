@@ -9,6 +9,7 @@
 
 #include "tile.h"
 #include "map_thread.h"
+#include "map_types.h"
 
 #include "fc/fc.h"
 #include "fc/agl.h"
@@ -900,14 +901,14 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 //      DBG("feature %u type %u", index++, type);
 
 //        if (type == 0 || (type <= 13 && type >= 10)) //place
-        if ((type <= 13 && type >= 10) || type == 0) //place
+        if (MAP_TYPE_IS_POI(type))
         {
             bool next_step = true;
-            if (zoom > 3 && type == 0)
+            if (zoom > 3 && type == MAP_TYPE_POI_PEAK)
                 next_step = false;
-            if (zoom == 5 && type >= 13)
+            if (zoom == 5 && type >= MAP_TYPE_POI_HAMLET)
                 next_step = false;
-            if (zoom >= 6 && type >= 11)
+            if (zoom >= 6 && type >= MAP_TYPE_POI_TOWN)
                 next_step = false;
 
             if (next_step)
@@ -941,7 +942,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
 
         bool draw_warning = false;
 
-        if (type / 100 == 1) //lines
+        if (MAP_TYPE_IS_LINE(type)) //lines
         {
             bool skip = false;
 
@@ -950,12 +951,12 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             switch (type)
             {
             //border
-            case(100):
+            case(MAP_TYPE_LINE_BORDER):
                 line_draw.width = 4;
                 line_draw.color = LV_COLOR_NAVY;
                 break;
             //river
-            case(110):
+            case(MAP_TYPE_LINE_RIVER):
                 if (zoom > 6)
                     skip = true;
 
@@ -963,19 +964,19 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 line_draw.color = lv_color_make(60, 100, 130);
                 break;
             //road
-            case(120):
+            case(MAP_TYPE_LINE_HIGHWAY):
                 line_draw.width = 2;
                 line_draw.color = lv_color_make(225, 170, 0);
                 break;
-            case(121):
+            case(MAP_TYPE_LINE_PRIMARY):
                 line_draw.width = 2;
                 line_draw.color = LV_COLOR_YELLOW;
                 break;
-            case(122):
+            case(MAP_TYPE_LINE_SECONDARY):
                 line_draw.width = 1;
                 line_draw.color = LV_COLOR_WHITE;
                 break;
-            case(123):
+            case(MAP_TYPE_LINE_TERTIARY):
                 if (zoom > 5)
                     skip = true;
 
@@ -983,7 +984,7 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 line_draw.color = LV_COLOR_WHITE;
                 break;
             //rail
-            case(130):
+            case(MAP_TYPE_LINE_RAIL):
                 line_draw.width = 1;
                 line_draw.color = LV_COLOR_BLACK;
                 break;
@@ -1041,21 +1042,27 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
             }
         }
 
-        if (type == 200 || type == 201) //water or resident
+        if (MAP_TYPE_IS_POLYGON(type)) //polygons
         {
-
             line_draw.width = 1;
-            if (type == 200)
+            switch (type)
             {
+            case MAP_TYPE_POLYGON_WATER:
                 //water
                 line_draw.color = lv_color_make(60, 100, 130);
                 line_draw.opa = LV_OPA_COVER;
-            }
-            else
-            {
+                break;
+            case MAP_TYPE_POLYGON_RESIDENT:
                 //resident
                 line_draw.color = LV_COLOR_WHITE;
                 line_draw.opa = LV_OPA_50;
+                break;
+            case MAP_TYPE_POLYGON_AEROWAY:
+            case MAP_TYPE_POLYGON_TAKEOFF:
+            case MAP_TYPE_POLYGON_LANDING:
+                line_draw.color = LV_COLOR_MAGENTA;
+                line_draw.opa = LV_OPA_COVER;
+                break;
             }
 
             uint16_t number_of_points = *((uint16_t *)file_buffer_seek(map_cache, feature_addr + 2, sizeof(uint16_t)));

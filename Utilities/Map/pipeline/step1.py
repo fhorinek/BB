@@ -1,5 +1,11 @@
 #!/usr/bin/python3
-#this script is for getting osm data for tile
+#
+# This script is for getting osm data for a tile by using
+# all osm_scripts to query overpass server for data.
+#
+# The result is stored in
+# common.target_dir_step1/N48E009_water.osmjson creating one file for
+# each file and script.
 
 import os
 import common
