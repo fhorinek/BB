@@ -22,6 +22,8 @@
 
 static bool static_init = false;
 static lv_style_t static_label = { 0 };
+static lv_style_t town_label = { 0 };
+static lv_style_t city_label = { 0 };
 static lv_style_t fanet_label = { 0 };
 
 #define DOT_RADIUS 10
@@ -42,6 +44,16 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
     {
         lv_style_init(&static_label);
         lv_style_set_text_color(&static_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+
+        lv_style_init(&town_label);
+        lv_style_set_text_color(&town_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+        lv_style_set_text_decor(&town_label, LV_STATE_DEFAULT, LV_TEXT_DECOR_UNDERLINE);
+
+        lv_style_init(&city_label);
+        lv_style_set_text_color(&city_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+        lv_style_set_text_decor(&city_label, LV_STATE_DEFAULT, LV_TEXT_DECOR_UNDERLINE);
+        lv_style_set_bg_opa(&city_label, LV_STATE_DEFAULT, LV_OPA_100);
+        lv_style_set_bg_color(&city_label, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
         lv_style_init(&fanet_label);
         lv_style_set_text_color(&fanet_label, LV_STATE_DEFAULT, LV_COLOR_BLACK);
@@ -233,7 +245,18 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
 				else
 				{
 					l = lv_label_create(local->map, NULL);
-					lv_obj_add_style(l, LV_LABEL_PART_MAIN, &static_label);
+					switch (gui.map.poi[i].type)
+					{
+					case MAP_TYPE_POI_TOWN:
+						lv_obj_add_style(l, LV_LABEL_PART_MAIN, &town_label);
+						break;
+					case MAP_TYPE_POI_CITY:
+						lv_obj_add_style(l, LV_LABEL_PART_MAIN, &city_label);
+						break;
+					default:
+						lv_obj_add_style(l, LV_LABEL_PART_MAIN, &static_label);
+						break;
+					}
 					lv_label_set_text(l, gui.map.poi[i].name);
 				}
 
