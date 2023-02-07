@@ -280,9 +280,20 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
         }
     }
 
+    // POI draw #1: Labels. Draw them first, so that icons are in front.
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
     {
-        if (gui.map.poi[i].chunk != 0xFF && local->poi[i] != NULL)
+        if (gui.map.poi[i].chunk != 0xFF && local->poi[i] != NULL && MAP_TYPE_IS_POI_LABEL(gui.map.poi[i].type))
+        {
+            uint16_t x = gui.map.poi[i].x;
+            uint16_t y = gui.map.poi[i].y;
+            lv_obj_align_mid(local->poi[i], local->image[gui.map.poi[i].chunk], LV_ALIGN_IN_TOP_LEFT, x, y);
+        }
+    }
+    // POI draw #2: Icons
+    for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
+    {
+        if (gui.map.poi[i].chunk != 0xFF && local->poi[i] != NULL && MAP_TYPE_IS_POI_ICON(gui.map.poi[i].type))
         {
             uint16_t x = gui.map.poi[i].x;
             uint16_t y = gui.map.poi[i].y;
@@ -291,11 +302,11 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             img_dsc = get_poi_img(gui.map.poi[i].type);
             if ( img_dsc != NULL)
             {
-	      // POI image should be aligned at the bottom
-	        y -= img_dsc->header.h / 2;
+            	// POI image should be aligned at the bottom
+            	y -= img_dsc->header.h / 2;
+                lv_obj_move_foreground(local->poi[i]);
+                lv_obj_align_mid(local->poi[i], local->image[gui.map.poi[i].chunk], LV_ALIGN_IN_TOP_LEFT, x, y);
             }
-
-            lv_obj_align_mid(local->poi[i], local->image[gui.map.poi[i].chunk], LV_ALIGN_IN_TOP_LEFT, x, y);
         }
     }
 }
