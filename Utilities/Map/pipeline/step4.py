@@ -73,6 +73,8 @@ def createFeatures(dict_data):
             feature.type = MAP_TYPE_POI_VILLAGE
         if dict_data["properties"]["type"] in ["hamlet", "isolated_dwelling"]:
             feature.type = MAP_TYPE_POI_HAMLET
+        if dict_data["properties"]["type"] == "suburb":
+            feature.type = MAP_TYPE_POI_SUBURB
 
         if feature.type != -1:
             feature.savePOI(feature.type, feature.name, feature.elevation, lon, lat)
