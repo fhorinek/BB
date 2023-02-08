@@ -988,6 +988,10 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
                 line_draw.width = 1;
                 line_draw.color = LV_COLOR_BLACK;
                 break;
+            case(MAP_TYPE_LINE_AERIALWAY_LOW):
+                line_draw.width = 1;
+                line_draw.color = LV_COLOR_ORANGE;
+                break;
             //power or airway
             default:
                 if (zoom > 6)

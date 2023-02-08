@@ -5,14 +5,13 @@
 rename-layers lines,grid
 
 #remove tags
-filter-fields fields=aerialway,power target=lines
+filter-fields fields=power target=lines
 
 #simplify
 simplify 45% target=lines
 
-each 'this.properties = {type:"aerialway"}' where='this.properties.aerialway != undefined' target=lines
 each 'this.properties = {type:"power"}' where='this.properties.power != undefined' target=lines
-
+ 
 #join
 dissolve type target=lines
 

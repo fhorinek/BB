@@ -1,0 +1,23 @@
+#USE_GRID
+#DROP_POLYGONS
+#INJECT_LINES
+
+rename-layers lines,grid
+
+#remove tags
+filter-fields fields=aerialway target=lines
+
+#simplify
+simplify 45% target=lines
+
+each 'this.properties.type = "aerialway_low"' where='["gondola", "mixed_lift", "chair_lift", "drag_lift", "t-bar", "j-bar", "platter", "rope_tow"].indexOf(this.properties.aerialway) != -1' target=lines
+each 'this.properties.type = "aerialway"' where='["gondola", "mixed_lift", "chair_lift", "drag_lift", "t-bar", "j-bar", "platter", "rope_tow"].indexOf(this.properties.aerialway) == -1' target=lines
+
+#join
+dissolve type target=lines
+
+#slice by grid
+slice grid target=lines
+merge-layers target=slice-* name=lines
+explode name=lines
+

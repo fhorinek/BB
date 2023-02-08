@@ -32,6 +32,7 @@
 #define MAP_TYPE_LINE_RAIL 130
 #define MAP_TYPE_LINE_POWER 140
 #define MAP_TYPE_LINE_AERIALWAY 141
+#define MAP_TYPE_LINE_AERIALWAY_LOW 142
 
 // The following MAP_TYPEs are presented as polygons in different colors
 #define MAP_TYPE_POLYGON_WATER 200
