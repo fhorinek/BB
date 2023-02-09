@@ -773,6 +773,24 @@ static uint8_t poi_magic = 0xFF;
 
 #define ALT_LINE
 
+typedef struct max_zoom_for_poi {
+	uint8_t poi_type;        // Which MAP_TYPE_POI?
+	uint8_t max_zoom;        // if zoom >= this number, MAP_TYPE_POI is invisible.
+} max_zoom_for_poi_t;
+
+static max_zoom_for_poi_t max_zoom_per_poi[] = {
+		// The following is not in list, and therefore always visible:
+		// MAP_TYPE_POI_CITY
+		{ MAP_TYPE_POI_PEAK, MAP_ZOOM_RANGE_2km },
+		{ MAP_TYPE_POI_HAMLET, MAP_ZOOM_RANGE_4km },
+		{ MAP_TYPE_POI_VILLAGE, MAP_ZOOM_RANGE_8km },
+		{ MAP_TYPE_POI_TOWN, MAP_ZOOM_RANGE_32km },
+		{ MAP_TYPE_POI_SUBURB, MAP_ZOOM_RANGE_8km },
+		{ MAP_TYPE_POI_TAKEOFF, MAP_ZOOM_RANGE_16km },
+		{ MAP_TYPE_POI_LANDING, MAP_ZOOM_RANGE_32km },
+		{ MAP_TYPE_POI_AEROWAY, MAP_ZOOM_RANGE_64km },
+};
+
 uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, file_buffer_t * map_cache, uint8_t chunk_index)
 {
     if (map_cache == NULL)
@@ -904,12 +922,25 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
         if (MAP_TYPE_IS_POI(type))
         {
             bool next_step = true;
+
+#if 0
             if (zoom > 3 && type == MAP_TYPE_POI_PEAK)
                 next_step = false;
             if (zoom == 5 && type >= MAP_TYPE_POI_HAMLET)
                 next_step = false;
             if (zoom >= 6 && type >= MAP_TYPE_POI_TOWN)
                 next_step = false;
+#else
+            for ( int poi = 0; poi < sizeof(max_zoom_per_poi); poi ++ )
+            {
+            	if ( type == max_zoom_per_poi[poi].poi_type )
+            	{
+            		if ( zoom >= max_zoom_per_poi[poi].max_zoom )
+            			next_step = false;
+            		break;
+            	}
+            }
+#endif
 
             if (next_step)
             {
