@@ -16,6 +16,7 @@
 #define MAP_TYPE_POI_TOWN 11
 #define MAP_TYPE_POI_VILLAGE 12
 #define MAP_TYPE_POI_HAMLET 13
+#define MAP_TYPE_POI_SUBURB 14
 
 // The following POI are presented as icons
 #define MAP_TYPE_POI_AEROWAY 50
