@@ -42,7 +42,7 @@
 
 // Macros to check for different MAP_TYPES
 #define MAP_TYPE_IS_POI(x) (x/100==0)
-#define MAP_TYPE_IS_POI_LABEL(x) (x>0 && x<50)
+#define MAP_TYPE_IS_POI_LABEL(x) (x>=0 && x<50)
 #define MAP_TYPE_IS_POI_ICON(x) (x>=50 && x<60)
 #define MAP_TYPE_IS_LINE(x) (x/100==1)
 #define MAP_TYPE_IS_POLYGON(x) (x/100==2)
