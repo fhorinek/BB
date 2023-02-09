@@ -102,6 +102,9 @@ def createFeatures(dict_data):
 
         if dict_data["properties"]["type"] == "aerialway":
            feature.type = MAP_TYPE_LINE_AERIALWAY
+           
+        if dict_data["properties"]["type"] == "aerialway_low":
+            feature.type = MAP_TYPE_LINE_AERIALWAY_LOW
 
 
         number_of_points = len(dict_data["geometry"]['coordinates'])

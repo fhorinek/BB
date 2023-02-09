@@ -1,6 +1,6 @@
 [bbox:%lat1%,%lon1%,%lat2%,%lon2%][out:json];
 (
-  way["power"="line"];
+  way["aerialway"]["aerialway"!="station"];
 );
 
 out body;
