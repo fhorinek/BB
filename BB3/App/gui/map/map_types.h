@@ -10,6 +10,9 @@
 #ifndef __MAP_TYPES_H
 #define __MAP_TYPES_H
 
+// If you add new MAP_TYPE_POI, then adapt MAP_TYPE_IS_POI_XX below
+// and also extend tile.c/max_zoom_for_poi_label and max_zoom_for_poi_icon
+
 // The following POI are presented as labels with their name attribute
 #define MAP_TYPE_POI_PEAK 0
 #define MAP_TYPE_POI_CITY 10

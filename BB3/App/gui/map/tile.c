@@ -773,6 +773,32 @@ static uint8_t poi_magic = 0xFF;
 
 #define ALT_LINE
 
+// Define for each POI the maximun zoom level to display it
+static uint8_t max_zoom_for_poi_label[] = {
+  MAP_ZOOM_RANGE_2km,       //  0 MAP_TYPE_POI_PEAK
+  UINT8_MAX,                //  1 UNUSED
+  UINT8_MAX,                //  2 UNUSED
+  UINT8_MAX,                //  3 UNUSED
+  UINT8_MAX,                //  4 UNUSED
+  UINT8_MAX,                //  5 UNUSED
+  UINT8_MAX,                //  6 UNUSED
+  UINT8_MAX,                //  7 UNUSED
+  UINT8_MAX,                //  8 UNUSED
+  UINT8_MAX,                //  9 UNUSED
+  UINT8_MAX,                // 10 MAP_TYPE_POI_CITY
+  MAP_ZOOM_RANGE_32km,      // 11 MAP_TYPE_POI_TOWN
+  MAP_ZOOM_RANGE_8km,       // 12 MAP_TYPE_POI_VILLAGE
+  MAP_ZOOM_RANGE_4km,       // 13 MAP_TYPE_POI_HAMLET
+  MAP_ZOOM_RANGE_8km        // 14 MAP_TYPE_POI_SUBURB
+};
+
+// Define for each POI the maximun zoom level to display it
+static uint8_t max_zoom_for_poi_icon[] = {
+  MAP_ZOOM_RANGE_64km,      // 50 MAP_TYPE_POI_AEROWAY
+  MAP_ZOOM_RANGE_16km,      // 51 MAP_TYPE_POI_TAKEOFF
+  MAP_ZOOM_RANGE_32km       // 52 MAP_TYPE_POI_LANDING
+};
+
 uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t step_x, int32_t step_y, uint16_t zoom, file_buffer_t * map_cache, uint8_t chunk_index)
 {
     if (map_cache == NULL)
@@ -900,16 +926,23 @@ uint8_t draw_map(int32_t lon1, int32_t lat1, int32_t lon2, int32_t lat2, int32_t
         uint8_t type = *((uint8_t *)file_buffer_seek(map_cache, feature_addr, sizeof(uint8_t)));
 //      DBG("feature %u type %u", index++, type);
 
-//        if (type == 0 || (type <= 13 && type >= 10)) //place
         if (MAP_TYPE_IS_POI(type))
         {
             bool next_step = true;
-            if (zoom > 3 && type == MAP_TYPE_POI_PEAK)
-                next_step = false;
-            if (zoom == 5 && type >= MAP_TYPE_POI_HAMLET)
-                next_step = false;
-            if (zoom >= 6 && type >= MAP_TYPE_POI_TOWN)
-                next_step = false;
+
+            if (MAP_TYPE_IS_POI_LABEL(type))
+            {
+            	if (type < sizeof(max_zoom_for_poi_label))
+            		if (zoom >= max_zoom_for_poi_label[type])
+            			next_step = false;
+            }
+            else if (MAP_TYPE_IS_POI_ICON(type))
+            {
+            	int index = type - 50;
+            	if (index < sizeof(max_zoom_for_poi_icon))
+            		if (zoom >= max_zoom_for_poi_icon[index])
+            			next_step = false;
+            }
 
             if (next_step)
             {
