@@ -31,7 +31,7 @@ void navigation_takeoff_distance_and_bearing()
 	{
 		bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
 		int16_t bearing = 0;
-		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing) / 100;    // cm to m
+		uint32_t dist = geo_distance(fc.gnss.latitude, fc.gnss.longitude, fc.flight.start_lat, fc.flight.start_lon, use_fai, &bearing) / 100;    // cm to m
 		fc.flight.takeoff_distance = dist;
 		fc.flight.takeoff_bearing = bearing;
 	}
@@ -54,7 +54,7 @@ void navigation_step()
 		if (last_lat != NO_LAT_DATA)
 		{
 			bool use_fai = config_get_select(&config.units.earth_model) == EARTH_FAI;
-			uint32_t dist = geo_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longtitude, use_fai, NULL);    //cm
+			uint32_t dist = geo_distance(last_lat, last_lon, fc.gnss.latitude, fc.gnss.longitude, use_fai, NULL);    //cm
 
 			uint32_t delta = fc.gnss.itow - last_time;    // ms, e.g. 2s = 2000
 
@@ -75,7 +75,7 @@ void navigation_step()
 
 		// Save the current GPS position for the next step
 		last_lat = fc.gnss.latitude;
-		last_lon = fc.gnss.longtitude;
+		last_lon = fc.gnss.longitude;
 		last_time = fc.gnss.itow;
 
 		navigation_takeoff_distance_and_bearing();

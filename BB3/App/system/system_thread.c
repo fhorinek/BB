@@ -214,7 +214,7 @@ void cmd_step()
                     fc.gnss.itow = HAL_GetTick();
                     fc.gnss.fake = true;
                     fc.gnss.latitude = data.lat;
-                    fc.gnss.longtitude = data.lon;
+                    fc.gnss.longitude = data.lon;
                     fc.gnss.heading = data.heading;
                     fc.gnss.ground_speed = data.speed;
                     fc.gnss.fix = 3;
@@ -228,7 +228,7 @@ void cmd_step()
                 }
 
                 config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-                config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+                config_set_big_int(&profile.ui.last_lon, fc.gnss.longitude);
             }
             else
             {

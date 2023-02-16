@@ -546,7 +546,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
         		fc.gnss.itow = HAL_GetTick();
 				fc.gnss.fake = true;
 				fc.gnss.latitude = packet->lat;
-				fc.gnss.longtitude = packet->lon;
+				fc.gnss.longitude = packet->lon;
 				fc.gnss.heading = packet->heading;
 				fc.gnss.ground_speed = packet->speed;
 				fc.gnss.fix = packet->fix;
@@ -554,7 +554,7 @@ void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 			}
 
     		config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-    		config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+    		config_set_big_int(&profile.ui.last_lon, fc.gnss.longitude);
 
     		protocol_send(PROTO_FAKE_GNSS_ACK, NULL, 0);
 		}

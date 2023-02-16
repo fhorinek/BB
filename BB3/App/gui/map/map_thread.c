@@ -141,7 +141,7 @@ void thread_map_start(void *argument)
     		else
     		{
     		    gui.map.lat = fc.gnss.latitude;
-    		    gui.map.lon = fc.gnss.longtitude;
+    		    gui.map.lon = fc.gnss.longitude;
     		}
             zoom = config_get_int(&profile.map.zoom_flight);
     	}

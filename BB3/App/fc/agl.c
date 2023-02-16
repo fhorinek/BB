@@ -208,7 +208,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon, bool use_bilinear)
 void agl_step()
 {
 	if (fc.gnss.fix == 3)
-		fc.agl.ground_height = agl_get_alt(fc.gnss.latitude, fc.gnss.longtitude, true);
+		fc.agl.ground_height = agl_get_alt(fc.gnss.latitude, fc.gnss.longitude, true);
 	else
 		fc.agl.ground_height = AGL_INVALID;
 

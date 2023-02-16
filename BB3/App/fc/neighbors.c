@@ -87,7 +87,7 @@ void neighbors_update_distance(neighbor_t * nb)
 		return;
 
 	bool FAI = config_get_select(&config.units.earth_model) == EARTH_FAI;
-	uint32_t dist = geo_distance(nb->latitude, nb->longitude, fc.gnss.latitude, fc.gnss.longtitude, FAI, NULL) / 100; // cm to m
+	uint32_t dist = geo_distance(nb->latitude, nb->longitude, fc.gnss.latitude, fc.gnss.longitude, FAI, NULL) / 100; // cm to m
 
 	nb->dist = min(NB_TOO_FAR, dist);
 

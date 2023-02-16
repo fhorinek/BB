@@ -84,7 +84,7 @@ void fc_history_record_cb(void *arg)
     if (fc.gnss.fix > 0 && fc.gnss.status == fc_dev_ready)
     {
         pos.lat = fc.gnss.latitude;
-        pos.lon = fc.gnss.longtitude;
+        pos.lon = fc.gnss.longitude;
         pos.ground_hdg = fc.gnss.heading;
         pos.ground_spd = fc.gnss.ground_speed * 100;
         if (fc.gnss.fix == 3)
@@ -199,7 +199,7 @@ void fc_takeoff()
     if (fc.gnss.fix == 3)
     {
         fc.flight.start_lat = fc.gnss.latitude;
-        fc.flight.start_lon = fc.gnss.longtitude;
+        fc.flight.start_lon = fc.gnss.longitude;
         fc.flight.takeoff_distance = 0;
     }
     else
@@ -355,8 +355,8 @@ void fc_step()
 			fc.flight.min_lat = min(fc.flight.min_lat, fc.gnss.latitude);
 			fc.flight.max_lat = max(fc.flight.max_lat, fc.gnss.latitude);
 			fc.flight.min_lon = min(fc.flight.min_lon, fc.gnss.latitude);
-			fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longtitude);
-	        fc_recorder_step(fc.gnss.latitude, fc.gnss.longtitude, (int16_t)fc.fused.altitude1);
+			fc.flight.max_lon = max(fc.flight.max_lon, fc.gnss.longitude);
+	        fc_recorder_step(fc.gnss.latitude, fc.gnss.longitude, (int16_t)fc.fused.altitude1);
 		}
 
         if (check)

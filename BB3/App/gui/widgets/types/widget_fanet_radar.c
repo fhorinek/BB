@@ -149,7 +149,7 @@ static void FanetRadar_update(widget_slot_t * slot)
 				uint32_t dist;
 				float step = 1000.0 * zoom;
 
-				dist = geo_distance(fc.gnss.latitude, fc.gnss.longtitude, fc.fanet.neighbor[i].latitude, fc.fanet.neighbor[i].longitude, use_fai, &bearing) / 100;
+				dist = geo_distance(fc.gnss.latitude, fc.gnss.longitude, fc.fanet.neighbor[i].latitude, fc.fanet.neighbor[i].longitude, use_fai, &bearing) / 100;
 
 				if (distance_units == DISTANCE_MILES)
 				{
