@@ -57,7 +57,7 @@ void gnss_loop()
             snprintf(sta, sizeof(sta), "%uD fix %u/%u", fc.gnss.fix, fc.gnss.sat_info.sat_used, fc.gnss.sat_info.sat_total);
             snprintf(ttf, sizeof(ttf), "%0.1fs ", fc.gnss.ttf / 1000.0);
 
-            format_gnss_datum(lat, lon, fc.gnss.latitude, fc.gnss.longtitude);
+            format_gnss_datum(lat, lon, fc.gnss.latitude, fc.gnss.longitude);
         }
         else
         {

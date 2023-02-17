@@ -61,7 +61,7 @@ static void TTrace_update(widget_slot_t * slot)
 	if (fc.gnss.fix > 0)
 	{
     	int32_t curr_lat = fc.gnss.latitude;
-    	int32_t curr_lon = fc.gnss.longtitude;
+    	int32_t curr_lon = fc.gnss.longitude;
 
     	int16_t x, y;
 

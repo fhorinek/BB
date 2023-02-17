@@ -160,7 +160,7 @@ static void Map_update(widget_slot_t * slot)
     else
     {
         glider_lat = fc.gnss.latitude;
-        glider_lon = fc.gnss.longtitude;
+        glider_lon = fc.gnss.longitude;
     }
 
     lv_coord_t w = lv_obj_get_width(local->data.map);

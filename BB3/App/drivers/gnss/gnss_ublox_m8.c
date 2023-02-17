@@ -266,7 +266,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 		FC_ATOMIC_ACCESS
 		{
 			fc.gnss.itow = ubx_nav_posllh->iTOW;
-			fc.gnss.longtitude = ubx_nav_posllh->lon;
+			fc.gnss.longitude = ubx_nav_posllh->lon;
 			fc.gnss.latitude = ubx_nav_posllh->lat;
 			fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
 			fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
@@ -278,7 +278,7 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 		if (fc.gnss.fix > 0)
 		{
 			config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-			config_set_big_int(&profile.ui.last_lon, fc.gnss.longtitude);
+			config_set_big_int(&profile.ui.last_lon, fc.gnss.longitude);
 		}
 
 		return true;

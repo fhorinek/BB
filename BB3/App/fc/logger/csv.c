@@ -35,7 +35,7 @@ void csv_write_data()
 			(HAL_GetTick() - csv_ticks),
 			timestamp,
 			(float) fc.gnss.latitude / GNSS_MUL,
-			(float) fc.gnss.longtitude / GNSS_MUL,
+			(float) fc.gnss.longitude / GNSS_MUL,
 			fc.gnss.ground_speed,
 			fc.gnss.heading,
 			(fc.gnss.fix == 3 ? (int16_t) fc.gnss.altitude_above_ellipsiod : 0),

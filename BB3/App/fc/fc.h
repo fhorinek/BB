@@ -243,9 +243,9 @@ typedef struct
 
         uint32_t itow;     //[ms]
         int32_t latitude;   //*10^7
-        int32_t longtitude; //*10^7
+        int32_t longitude;  //*10^7
         float ground_speed; //[m/s]
-        float heading;
+        float heading;      // 0..360
         float altitude_above_ellipsiod; //[m]
         float altitude_above_msl; //[m]
         float horizontal_accuracy; //[m]

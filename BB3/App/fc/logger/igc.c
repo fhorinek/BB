@@ -281,7 +281,7 @@ void igc_tick_cb(void * arg)
 
 		bool valid = (fc.gnss.fix == 3);
 
-		igc_write_b(timestamp, fc.gnss.latitude, fc.gnss.longtitude, fc.gnss.altitude_above_ellipsiod, valid, fc_press_to_alt(fc.fused.pressure, 101325));
+		igc_write_b(timestamp, fc.gnss.latitude, fc.gnss.longitude, fc.gnss.altitude_above_ellipsiod, valid, fc_press_to_alt(fc.fused.pressure, 101325));
 	}
 	else
 	{
