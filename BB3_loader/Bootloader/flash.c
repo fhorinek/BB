@@ -200,13 +200,13 @@ bool flash_loop()
                     {
                         sprintf(cwd + strlen(cwd), "/%s", last_chunk.name);
                     }
-                    else if (level > clevel) //out of the current dir
+                    else while (level > clevel) //out of the current dir
                     {
                         char * last_slash = strrchr(cwd, '/');
                         ASSERT(last_slash != NULL);
                         *last_slash = 0;
+                        level--;
                     }
-                    level = clevel;
 
                     char fname[256 + 32];
                     snprintf(fname, sizeof(fname), "%s/%s", cwd, chunk.name);
