@@ -1,0 +1,21 @@
+This directory contains the files to draw everything on the map. It
+contains streets, rivers and so on. The topography is taken from "agl"
+directory.
+
+Please put all MAP files into this directory. In order to do this,
+please unzip the zip file containing the MAPs on your computer and
+transfer all MAP files individually into this directory. You can also
+unzip and transfer multiple countries. If they overlap by some MAP
+files, simply ignore/overwrite.
+
+The result should look like this:
+
+map
++-- N20E135.MAP
++-- N20E136.MAP
++-- N23E123.MAP
++-- N23E124.MAP
++-- N24E122.MAP
++-- N24E123.MAP
+...
+

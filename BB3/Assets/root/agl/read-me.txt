@@ -1,0 +1,21 @@
+This directory contains the files to know the ground height. This is
+needed to show height over ground and to draw maps showing a
+topography.
+
+Please put all AGL files into this directory. In order to do this,
+please unzip the zip file containing the AGLs on your computer and
+transfer all AGL files individually into this directory. You can also
+unzip and transfer multiple countries. If they overlap by some AGL
+files, simply ignore/overwrite.
+
+The result should look like this:
+
+agl
++-- N20E135.HGT
++-- N20E136.HGT
++-- N23E123.HGT
++-- N23E124.HGT
++-- N24E122.HGT
++-- N24E123.HGT
+...
+

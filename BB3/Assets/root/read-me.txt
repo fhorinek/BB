@@ -1,0 +1,12 @@
+This is the root directory of the Strato vario.
+
+Here is a description of the directories and their meaning:
+
+log/    contains the IGC/KML files of your flights
+map/    contains the MAP files to draw streets and other things on the map.
+agl/    contains the HGT files for height over ground or topography of maps.
+config/ contains the configuration of the device.
+defaults/  the default configuration, needed for factory reset
+
+If you want to update the firmware of your strato, put the STRATO.FW
+file in this root directory and restart the device.

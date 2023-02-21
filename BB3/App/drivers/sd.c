@@ -264,6 +264,8 @@ void sd_init()
     red_mkdir(PATH_CACHE_DIR);
     //system/cache/map
     red_mkdir(PATH_MAP_CACHE_DIR);
+
+    copy_dir(PATH_ASSET_DIR "/root", "/");
 }
 
 void sd_deinit()
