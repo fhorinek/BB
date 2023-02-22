@@ -3042,12 +3042,25 @@ static int mz_fstat(const char * path, REDSTAT * stat)
     return f;
 }
 
+static int mz_fseek64(int32_t * fp, int64_t offset, int whence)
+{
+	int64_t off;
+
+	off = red_lseek((int32_t)fp, offset, whence);
+
+	// Upon  successful  completion,  fseek() return  0.
+	// Otherwise, -1 is returned and errno is set to indicate the error.
+	if ( off >= 0 ) off = 0;
+
+	return off;
+}
+
 #define MZ_FOPEN mz_fopen
 #define MZ_FCLOSE(A) red_close((int32_t)A)
 #define MZ_FREAD mz_fread
 #define MZ_FWRITE mz_fwrite
 #define MZ_FTELL64 mz_tell
-#define MZ_FSEEK64(fp, off, set) red_lseek((int32_t)fp, off, set)
+#define MZ_FSEEK64 mz_fseek64
 #define MZ_FILE_STAT_STRUCT REDSTAT
 #define MZ_FILE_STAT mz_fstat
 #define MZ_FFLUSH mz_sync
