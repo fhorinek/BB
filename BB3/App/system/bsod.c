@@ -160,7 +160,10 @@ void bsod_msg(const char *format, ...)
 
     FAULT("%s", bsod_msg_ptr);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiv-by-zero"
 	volatile uint8_t a = 1 / 0;
+#pragma GCC diagnostic pop
 	(void) a;
 }
 
