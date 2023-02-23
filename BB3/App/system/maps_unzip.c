@@ -15,7 +15,7 @@
 #include "drivers/rtc.h"
 #include "etc/format.h"
 
-bool unzip_zipfile(char *target_dir, char *zip_file_path)
+static bool unzip_zipfile(char *target_dir, char *zip_file_path)
 {
 	mz_zip_archive zip;
 	mz_zip_zero_struct(&zip);
@@ -50,12 +50,9 @@ bool unzip_zipfile(char *target_dir, char *zip_file_path)
 	return res;
 }
 
-void maps_unzip_task(void * param)
+static void maps_unzip_dir(char *dir_path)
 {
-	// Wait some time to let other things done before we start
-	osDelay(60 * 1000);
-
-	REDDIR * dir = red_opendir(PATH_MAP_DIR);
+	REDDIR * dir = red_opendir(dir_path);
 	if (dir != NULL)
 	{
 		while (true)
@@ -68,9 +65,9 @@ void maps_unzip_task(void * param)
 			if ( pos != NULL)
 			{
 				char file_path[PATH_LEN] = {0};
-				str_join(file_path, 3, PATH_MAP_DIR, "/", entry->d_name);
+				str_join(file_path, 3, dir_path, "/", entry->d_name);
 
-				if (unzip_zipfile(PATH_MAP_DIR, file_path))
+				if (unzip_zipfile(dir_path, file_path))
 				{
 					red_unlink(file_path);                         // Remove ZIP file, if successfull
 				}
@@ -78,6 +75,15 @@ void maps_unzip_task(void * param)
 		}
 		red_closedir(dir);
 	}
+}
+
+static void maps_unzip_task(void * param)
+{
+	// Wait some time to let other things done before we start
+	osDelay(60 * 1000);
+
+	maps_unzip_dir(PATH_MAP_DIR);
+	maps_unzip_dir(PATH_TOPO_DIR);
 
 	vTaskDelete(NULL);
 }
