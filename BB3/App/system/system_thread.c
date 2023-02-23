@@ -34,6 +34,8 @@
 
 #include "SEGGER_SYSVIEW.h"
 
+#include "maps_unzip.h"
+
 //RTOS Tasks
 define_thread("Debug", thread_debug, 2024, osPriorityRealtime);
 define_thread("GUI", thread_gui, 4096, osPriorityLow);
@@ -327,6 +329,8 @@ void thread_system_start(void * argument)
 	//init FC
 	fc_init();
 
+	maps_unzip_start_task();     // Starts an own task to extract ZIP files in the background
+	
 	uint32_t power_off_timer = 0;
 	uint8_t critical_counter = 0;
 

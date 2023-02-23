@@ -264,6 +264,7 @@ bool file_isdir(char *path);
 
 void touch(char * path);
 uint64_t file_size(int32_t file);
+uint64_t file_size_from_name(char *path);
 char * red_gets(char * buff, uint16_t buff_len, int32_t fp);
 int red_mkdirs(char *dir);
 
