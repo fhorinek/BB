@@ -1,38 +1,38 @@
 [
   {
     "key": "Device init",
-    "line": 398,
+    "line": 407,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L398"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L407"
   },
   {
     "key": "Device ready",
-    "line": 402,
+    "line": 411,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L402"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L411"
   },
   {
     "key": "Device error",
-    "line": 406,
+    "line": 415,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L406"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L415"
   },
   {
     "key": "Not calibrated",
-    "line": 410,
+    "line": 419,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L410"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L419"
   },
   {
     "key": "Device disabled",
-    "line": 414,
+    "line": 423,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L414"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L423"
   },
   {
     "key": "%s connected (%s)",
@@ -1107,10 +1107,10 @@
   },
   {
     "key": "Reading...",
-    "line": 390,
+    "line": 418,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight_map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight_map.c#L390"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight_map.c#L418"
   },
   {
     "key": "Reading...",
@@ -3395,11 +3395,11 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_agl.c#L49"
   },
   {
-    "key": "Airspace - sideview",
-    "line": 17,
+    "key": "Airspace - side",
+    "line": 26,
     "plural": false,
-    "fileName": "../gui/widgets/types/widget_airspace_vertical.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_airspace_vertical.c#L17"
+    "fileName": "../gui/widgets/types/widget_airspace_side.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_airspace_side.c#L26"
   },
   {
     "key": "Altitude - graph",
