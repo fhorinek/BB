@@ -412,6 +412,8 @@ typedef struct
 	{
         osSemaphoreId_t lock;
 
+	airspaces_near_t near;
+  
         airspace_record_t * index;
 		void * data;
 
@@ -426,6 +428,7 @@ typedef struct
 		uint8_t _pad[3];
 
 	} airspaces;
+
 } fc_t;
 
 extern fc_t fc;

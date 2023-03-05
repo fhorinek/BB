@@ -3395,6 +3395,13 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_agl.c#L49"
   },
   {
+    "key": "Airspace - sideview",
+    "line": 17,
+    "plural": false,
+    "fileName": "../gui/widgets/types/widget_airspace_vertical.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_airspace_vertical.c#L17"
+  },
+  {
     "key": "Altitude - graph",
     "line": 16,
     "plural": false,

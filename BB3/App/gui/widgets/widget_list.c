@@ -44,6 +44,7 @@ DECLARE_WIDGET(WindDirPoints);
 DECLARE_WIDGET(TimeDate);
 DECLARE_WIDGET(VarioGraph);
 DECLARE_WIDGET(FanetRadar);
+DECLARE_WIDGET(AirspaceSide);
 
 widget_t * widgets[] =
 {
@@ -65,6 +66,7 @@ widget_t * widgets[] =
 	LIST_WIDGET(Agl),
 	LIST_WIDGET(HeightTO),
 	LIST_WIDGET(Map),
+	LIST_WIDGET(AirspaceSide),
 	LIST_WIDGET(Odo),
 	LIST_WIDGET(GSpeed),
 	LIST_WIDGET(TAss),

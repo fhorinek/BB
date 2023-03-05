@@ -4,7 +4,7 @@
  *  Created on: Mar 14, 2022
  *      Author: horinek
  */
-//#define DEBUG_LEVEL	DBG_DEBUG
+// #define DEBUG_LEVEL	DBG_DEBUG
 
 #include "airspace.h"
 #include "fc/fc.h"
@@ -23,6 +23,57 @@ typedef struct
     gnss_bbox_t bbox;
 } airspace_header_t;
 
+// use airspace_class_t as an index to get the name of the airspace type
+char *airspace_class_names[] = {
+		  "Restricted",
+		  "Danger",
+		  "Prohibited",
+		  "A",
+		   "B",
+		    "C",
+		    "D",
+		    "E",
+		    "F",
+		    "G",
+		    "Glider prohibited",
+		    "CTR",
+		    "TMZ",
+		    "RMZ",
+		    "Wave Window",
+		    "Undef",
+};
+
+// use airspace_class_t as an index to get the color of the airspace type
+lv_color_t airspace_class_brushes[] = {
+	LV_COLOR_ORANGE,	 // "Restricted",
+	LV_COLOR_ORANGE,	 // "Danger",
+	LV_COLOR_RED,	     // "Prohibited",
+	LV_COLOR_RED,	     // "A",
+	LV_COLOR_RED,	     // "B",
+	LV_COLOR_RED,	     // "C",
+	LV_COLOR_RED,	     // "D",
+	LV_COLOR_YELLOW,	 // "E",
+	LV_COLOR_GREEN,	     // "F",
+	LV_COLOR_GREEN,	     // "G",
+	LV_COLOR_RED,	     // "Glider prohibited",
+	LV_COLOR_RED,	     // "CTR",
+	LV_COLOR_RED,	     // "TMZ",
+	LV_COLOR_ORANGE,	 // "RMZ",
+	LV_COLOR_WHITE,	     // "Wave Window",
+	LV_COLOR_WHITE	     // "Undef",
+};
+
+/**
+ * Return the name of a given airspace as a string.
+ *
+ * @param class the airspace class
+ *
+ * @return pointer to a statically allocated character string giving the name of the airspace class.
+ */
+char *airspace_class_name(airspace_class_t class)
+{
+	return airspace_class_names[class];
+}
 
 void airspace_init_buffer()
 {
@@ -312,6 +363,10 @@ static bool airspace_parse(char * name, bool use_dialog)
                else
                     as.airspace_class = ac_undefined;
 
+                // Set standard color for the given airspace class. Maybe overriden by SP or SB later
+                as.brush = airspace_class_brushes[as.airspace_class];
+                as.pen = airspace_class_brushes[as.airspace_class];
+                as.pen_width = 1;
                 continue;
             }
             //airspace name
@@ -323,6 +378,7 @@ static bool airspace_parse(char * name, bool use_dialog)
                 len = min(AIRSPACE_MAX_NAME_LEN, len + 1);
                 strncpy(as.name.ptr, line, len);
                 as.name.ptr[len - 1] = 0;
+
                 continue;
             }
             //Airspace ceiling
@@ -818,6 +874,306 @@ void airspace_unload()
     osMutexRelease(fc.airspaces.lock);
 }
 
+// dot product between AB and AP
+#define DOTPRODUCT(A,B,P) ((A.y-B.y)*(P.x-A.x)+(B.x-A.x)*(P.y-A.y))
+// the determinant of a,b,c,d
+#define DETERMINANT(a,b,c,d) (((a)*(d))-((b)*(c)))
+
+/**
+ * Find all airspaces, which are "near" to the pilot. An airspace is
+ * considered "near", if the pilot is inside the bounding box of the airspace
+ * or the closest point of the airspace to the pilot is less than a specific
+ * distance.
+ *
+ * The result is stored in fc.airspaces.near.
+ *
+ * @return true, if the near airspaces have changed. False otherwise
+ */
+bool airspaces_near_find()
+{
+  int airspaces_near_count = 0;
+  bool airspaces_changed = false;
+
+  if (fc.airspaces.valid)
+  {
+	  for (uint32_t i = 0; i < fc.airspaces.number_loaded; i++)
+	  {
+		  airspace_record_t * as = &fc.airspaces.index[i];
+		  bool airspace_needed = false;
+
+	      // This is used to set a breakpoint to debug a specific airspace:
+		  // if ( strcmp("Stuttgart", as->name.ptr) == 0 && as->airspace_class == ac_class_C)
+		  //	  airspace_needed = false;
+
+		  if (fc.gnss.latitude <= as->bbox.latitude1 &&
+				  fc.gnss.latitude >= as->bbox.latitude2 &&
+				  fc.gnss.longitude >= as->bbox.longitude1 &&
+				  fc.gnss.longitude <= as->bbox.longitude2)
+		  {
+			  // we are inside this airspace
+			  airspace_needed = true;
+		  }
+		  else
+		  {
+			  // we are outside. How far is it away?
+			  uint32_t distance_min;
+			  distance_min = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
+					  as->bbox.latitude1, as->bbox.longitude1,
+					  false, NULL);
+			  uint32_t distance = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
+					  as->bbox.latitude2, as->bbox.longitude2,
+					  false, NULL);
+			  distance_min = min(distance_min, distance);
+			  if (distance_min < 40 * 1000 * 10)                  // 40 km
+				  airspace_needed = true;
+		  }
+
+		  if (airspace_needed)
+		  {
+			  airspaces_near_count++;
+			  if (airspaces_near_count <= fc.airspaces.near.size)     // enough space in airspaces_near?
+			  {
+				  fc.airspaces.near.num = airspaces_near_count;
+				  if (fc.airspaces.near.asn[fc.airspaces.near.num-1].as != as)
+				  {
+					  airspaces_changed = true;
+					  fc.airspaces.near.valid = false;
+					  bzero(&fc.airspaces.near.asn[fc.airspaces.near.num-1], sizeof(airspace_near_t));
+					  fc.airspaces.near.asn[fc.airspaces.near.num-1].as = as;
+				  }
+			  }
+		  }
+	  }
+
+	  if (airspaces_near_count > fc.airspaces.near.size)
+	  {
+		  /* "fc.airspaces.near.asn" is too small to hold all near airspaces.
+		   * reallocate to a bigger size and copy all existing entries.
+		   * The missing entries will be entered again below. */
+		  int size_in_bytes_new = airspaces_near_count * sizeof(airspace_near_t);
+
+		  airspace_near_t *airspaces_near_new = ps_malloc(size_in_bytes_new);
+		  if (fc.airspaces.near.asn != NULL)
+		  {
+			  int size_in_bytes_old = fc.airspaces.near.size * sizeof(airspace_near_t);
+			  memcpy(airspaces_near_new, fc.airspaces.near.asn, size_in_bytes_old);
+			  bzero(airspaces_near_new + size_in_bytes_old, size_in_bytes_new - size_in_bytes_old);
+			  ps_free(fc.airspaces.near.asn);
+		  }
+		  else
+		  {
+			  bzero(airspaces_near_new, size_in_bytes_new);
+		  }
+		  fc.airspaces.near.asn = airspaces_near_new;
+		  fc.airspaces.near.size = airspaces_near_count;
+
+		  // Array is now big enough: redo
+		  airspaces_changed = airspaces_near_find();
+	  }
+	  else if (airspaces_near_count < fc.airspaces.near.size)
+	  {
+		  // "airspaces_near" is too big -> bzero remaining space in airspaces_near
+		  bzero(&fc.airspaces.near.asn[airspaces_near_count], sizeof(fc.airspaces.near.asn[0]) * (fc.airspaces.near.size-airspaces_near_count));
+	  }
+  }
+  return airspaces_changed;
+}
+
+/**
+ * Quick sort compare function to sort according int32_t.
+ *
+ * @param AA pointer to first element
+ * @param BB pointer to second element
+ *
+ * @return -1,0,+1 according qsort specification.
+ */
+int qsort_distance_cmp(const void *AA, const void *BB)
+{
+	int32_t *A, *B;
+
+	A = (int32_t *)AA;
+	B = (int32_t *)BB;
+
+	if (*A == *B) return 0;
+	if (*A < *B) return -1;
+	else return +1;
+}
+
+/**
+ * For a given airsapce_record_t "as" compute all points where the pilot is
+ * crossing boundaries of the airspace and return the distances
+ * from the pilot to this points. The algorithm is taken from
+ * https://math.stackexchange.com/questions/3607924/find-intersection-point-of-line-with-2d-polygon
+ *
+ * @param pilot   the gnss_pos_t of the pilot
+ * @param pilot_B another gnss_pos_t in which direction the pilot is heading to.
+ *                Typically derived from fc.gnss.heading by caller.
+ * @param as      the airspace, for which we compute the crossings of the pilot.
+ *
+ * @param distances pointer to a caller allocated array, where we store the
+ *                  computed distances. They are returned as "centimeter" values.
+ *                  They are negative, if they are behind the pilot and positive
+ *                  if they are in front of the pilot.
+ *                  All results are sorted in ascending order.
+ * @param distances_len the size of the allocated "distances" array given by the caller.
+ *
+ * @return number of distances computed.
+ */
+uint8_t airspace_distances(gnss_pos_t pilot, gnss_pos_t pilot_B, airspace_record_t *as, int32_t *distances, uint8_t distances_len)
+{
+	uint8_t distances_used;
+	// char buffer[1000];
+
+	vector_float_t Pi, Pi1, A, B;
+	float dx, dy;
+
+	A.x = (float)pilot.longitude / GNSS_MUL;
+	A.y = (float)pilot.latitude / GNSS_MUL;
+
+	B.x = (float)pilot_B.longitude / GNSS_MUL;
+	B.y = (float)pilot_B.latitude / GNSS_MUL;
+
+	dx = B.x - A.x;
+	dy = B.y - A.y;
+
+	// This is used to set a breakpoint to debug a specific airspace:
+	// if ( strcmp("Stuttgart", as->name.ptr) == 0 && as->airspace_class == ac_class_C)
+	//	buffer[0] = 0;
+
+	distances_used = 0;
+	if (as->number_of_points >= 3)
+	{
+		Pi.x = (float)as->points.ptr[0].longitude / GNSS_MUL;
+		Pi.y = (float)as->points.ptr[0].latitude / GNSS_MUL;
+
+		float dot_i = DOTPRODUCT(A,B,Pi);
+		for (int i = as->number_of_points-1; i >= 0; i--)
+		{
+			// Step 2: For a given index i∈{1,...,n}:
+			// Calculate n→*AP→i and n→*AP→i+1
+			Pi1.x = (float)as->points.ptr[i].longitude / GNSS_MUL;
+			Pi1.y = (float)as->points.ptr[i].latitude / GNSS_MUL;
+
+			float dot_i1 = DOTPRODUCT(A,B,Pi1);
+
+			// DBG("dot_i: %f    dot_i1: %f\n", dot_i, dot_i1);
+
+			// Step 3: If the product (n→*AP→i)(n→*AP→i+1)<0,
+			// then the two vertices Pi and Pi+1 are on opposite sides of the
+			// line AB and therefore the side PiPi+1 of the polygon intersects
+			// the line AB. Proceed to Step 4.
+			if (dot_i*dot_i1 < 0)
+			{
+				// Step 4: In the case of AB intersect PiPi+1, in order to find
+				// the intersection point Q=AB∩PiPi+1 of the lines AB and PiPi+1
+				vector_float_t Q;
+
+				Q.x =
+						DETERMINANT(B.x*A.y-B.y*A.x,       B.x-A.x,
+								Pi1.x*Pi.y-Pi1.y*Pi.x, Pi1.x-Pi.x)
+								/
+								DETERMINANT(A.y-B.y,    B.x-A.x,
+										Pi.y-Pi1.y, Pi1.x-Pi.x);
+
+				Q.y =
+						DETERMINANT(A.y-B.y,    B.x*A.y-B.y*A.x,
+								Pi.y-Pi1.y, Pi1.x*Pi.y-Pi1.y*Pi.x)
+								/
+								DETERMINANT(A.y-B.y,    B.x-A.x,
+										Pi.y-Pi1.y, Pi1.x-Pi.x);
+				// Step 5: Calculate the square distance between point A and Q:
+				// distance = sqrt((Q.x-A.x)*(Q.x-A.x)+(Q.y-A.y)*(Q.y-A.y));
+				int32_t distance = geo_distance(pilot.latitude, pilot.longitude,
+						(int32_t)(Q.y * GNSS_MUL), (int32_t)(Q.x * GNSS_MUL),
+						false, NULL);
+
+				// Find out, if Q is in the direction of the pilot or behind him.
+				float Qdx = Q.x - A.x;
+				float Qdy = Q.y - A.y;
+
+				if ( Qdx * dx < 0 || Qdy * dy < 0 )
+					distance = -distance;                     // Q is behind pilot
+
+				// sprintf(buffer, "Pi %f,%f  Pi1 %f,%f  Q %f,%f distance %ld", Pi.y, Pi.x, Pi1.y, Pi1.x, Q.y, Q.x, distance );
+				// DBG("distance: %d km\n", distance/100000);
+
+				if (distances_used < distances_len)
+				{
+					distances[distances_used] = distance;
+					distances_used++;
+				}
+				else
+				{
+					ERR("airspace %s has too many intersections", as->name);
+					break;
+				}
+			}
+			Pi = Pi1;
+			dot_i = dot_i1;
+		}
+	}
+
+	if (distances_used > 1)
+		qsort(distances, distances_used, sizeof(int32_t), qsort_distance_cmp);
+
+	return distances_used;
+}
+
+/**
+ * Iterate over all near airspaces and compute the distances to each airspace
+ * from the pilot in the direction of flying.
+ */
+void airspaces_near_compute_distances()
+{
+	uint8_t distances_used;
+
+	if (fc.airspaces.valid)
+	{
+		gnss_pos_t pilot, pilot_B;
+
+		pilot.longitude = fc.gnss.longitude;
+		pilot.latitude  = fc.gnss.latitude;
+
+		pilot_B.longitude = pilot.longitude + sin(to_radians(fc.gnss.heading)) * GNSS_MUL;
+		pilot_B.latitude  = pilot.latitude + cos(to_radians(fc.gnss.heading)) * GNSS_MUL;
+
+		fc.airspaces.near.valid = false;
+
+		// Use each near airspace to compute its distances to the pilot.
+		for (uint32_t i = 0; i < fc.airspaces.near.num; i++)
+		{
+			airspace_record_t * as = fc.airspaces.near.asn[i].as;
+			uint8_t distances_len = AIRSPACE_NEAR_DISTANCE_NUM;
+			bzero(fc.airspaces.near.asn[i].distances, sizeof(fc.airspaces.near.asn[i].distances));
+
+			// This is used to set a breakpoint to debug a specific airspace:
+			// if ( strcmp("Stuttgart", as->name.ptr) == 0 && as->airspace_class == ac_class_C)
+			//	distances_used = 0;
+
+			distances_used = airspace_distances(pilot, pilot_B, as, fc.airspaces.near.asn[i].distances, distances_len);
+
+			/* Find out, if pilot is inside this airspace: */
+			int num = 0;
+			for (int j = 0; j < distances_used; j++)
+			  if (fc.airspaces.near.asn[i].distances[j] < 0) num++;
+
+			// If the number of crossing points behind the pilot is odd, then we are inside
+			fc.airspaces.near.asn[i].inside = (num % 2 == 1);
+			    
+#if DEBUG_LEVEL == DBG_DEBUG
+		if (distances_used > 0)
+		{
+			DBG("airspace distance \"%s\": ", as->name.ptr);
+			for ( int i = 0; i < distances_used; i++ )
+			{
+				DBG("%.2f km ", (float)fc.airspaces.near.asn[i].distances[i]/100000);
+			}
+			DBG("\n");
+		}
+#endif
+		}
+	}
+}
 
 void airspace_step()
 {
@@ -827,7 +1183,7 @@ void airspace_step()
     {
         uint32_t dist = geo_distance(gui.map.lat, gui.map.lon, fc.airspaces.valid_lat, fc.airspaces.valid_lon, true, NULL) / 100;
 
-        if (dist > 64 * 1000)
+        if (dist > 64 * 1000)    // 64 km
         {
             INFO("Reloading airspaces...");
             bool ret = airspace_load(config_get_text(&profile.airspace.filename), false);
@@ -839,8 +1195,50 @@ void airspace_step()
     }
 
     osMutexRelease(fc.airspaces.lock);
-}
 
+    /* Check, if we need to recalculate the distances to the airspaces.
+     * This is needed if:
+     *   - 1 min since last recalculation.
+     *   - fc.gnss.heading has changed more than 10 degree
+     *   - pilot moved more than 1 km since last recalculation
+     */
+    bool airspaces_near_compute_distance = false;
+
+	int32_t distance = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
+			fc.airspaces.near.used_pilot_pos.latitude, fc.airspaces.near.used_pilot_pos.longitude,
+			false, NULL);
+	if (distance > 100 * 1000)   // 1 km
+	{
+		fc.airspaces.near.used_pilot_pos.latitude = fc.gnss.latitude;
+		fc.airspaces.near.used_pilot_pos.longitude = fc.gnss.longitude;
+        if (airspaces_near_find())
+        	airspaces_near_compute_distance = true;
+	}
+
+    uint32_t now = HAL_GetTick();
+    if (now > fc.airspaces.near.last_updated + 1 * 60 * 1000)   // 1 min
+    {
+    	airspaces_near_compute_distance = true;
+    }
+    else
+    {
+		int16_t current_heading = (int16_t)fc.gnss.heading;
+		int16_t diff_heading = min(abs(current_heading-fc.airspaces.near.used_heading),360-abs(current_heading-fc.airspaces.near.used_heading));
+		if (diff_heading > 10)
+		{
+			fc.airspaces.near.used_heading = current_heading;
+			airspaces_near_compute_distance = true;
+		}
+    }
+
+    if (airspaces_near_compute_distance)
+    {
+    	airspaces_near_compute_distances();
+        fc.airspaces.near.last_updated = now;
+    }
+
+    fc.airspaces.near.valid = true;
+}
 
 void airspace_load_parallel_task(void * param)
 {
@@ -870,5 +1268,6 @@ void airspace_load_parallel()
 {
     xTaskCreate((TaskFunction_t)airspace_load_parallel_task, "as_load_parallel_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
 }
+
 
 

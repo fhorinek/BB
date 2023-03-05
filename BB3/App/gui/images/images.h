@@ -9,6 +9,7 @@
 #define GUI_IMAGES_IMAGES_H_
 
 LV_IMG_DECLARE(img_glider_icon);
+LV_IMG_DECLARE(img_glider_sideview);
 LV_IMG_DECLARE(img_fanet_hike);
 LV_IMG_DECLARE(img_fanet_glider);
 LV_IMG_DECLARE(img_map_arrow);
