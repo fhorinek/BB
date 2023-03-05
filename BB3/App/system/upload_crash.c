@@ -101,6 +101,7 @@ upload_slot_t* upload_crash_report(char *bundle_file)
 
 void upload_crash_reports(void *arg)
 {
+    UNUSED(arg);
     DBG("Looking for crash reports...");
 
     REDDIR * dir = red_opendir("/");

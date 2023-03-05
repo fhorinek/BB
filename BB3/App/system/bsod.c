@@ -30,6 +30,7 @@ char *bsod_strato_crashed_msg = BSOD_STRATO_CRASHED_MESSAGE;
 
 static void pixel_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state)
 {
+    UNUSED(state);
     uint32_t pos;
     uint16_t value;
 
@@ -136,6 +137,7 @@ static uint16_t bsod_line = 0;
 
 static bool bsod_line_callback(const char *line, uint16_t count, void *state)
 {
+    UNUSED(state);
     mf_render_aligned(bsod_font, LEFT_PAD, LINE_SIZE * bsod_line, MF_ALIGN_LEFT, line, count, character_callback, NULL);
     bsod_line++;
 
