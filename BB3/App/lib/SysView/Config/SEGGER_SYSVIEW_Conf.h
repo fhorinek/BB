@@ -79,6 +79,8 @@ Additional information:
 **********************************************************************
 */
 
+#define configUSE_QUEUE_SETS 0
+#define INCLUDE_xTaskGetIdleTaskHandle 0
 
 #endif  // SEGGER_SYSVIEW_CONF_H
 

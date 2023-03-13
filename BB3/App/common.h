@@ -38,6 +38,7 @@
 #include "queue.h"
 
 //fs
+#include "redver.h"
 #include "redposix.h"
 
 //etc
