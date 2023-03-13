@@ -164,6 +164,15 @@ void fc_init()
 
     vario_profile_load(config_get_text(&profile.vario.profile));
 
+    fc.airspaces.near.asn = NULL;
+    fc.airspaces.near.size = 0;
+    fc.airspaces.near.num = 0;
+    fc.airspaces.near.valid = false;
+    fc.airspaces.near.last_updated = 0;
+    fc.airspaces.near.used_heading = -999;
+    fc.airspaces.near.used_pilot_pos.latitude = 0;
+    fc.airspaces.near.used_pilot_pos.longitude = 0;
+
     fc.history.positions = (fc_pos_history_t*) ps_malloc(sizeof(fc_pos_history_t) * FC_HISTORY_SIZE);
     fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
 

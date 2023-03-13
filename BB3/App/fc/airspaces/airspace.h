@@ -11,6 +11,7 @@
 #include "common.h"
 #include "lvgl/lvgl.h"
 
+/* If you change this, then please look at airspace.c/airspace_class_names! */
 typedef enum
 {
     ac_restricted,
@@ -31,6 +32,8 @@ typedef enum
     ac_undefined,
 } airspace_class_t;
 
+extern lv_color_t airspace_class_brushes[];
+
 typedef struct
 {
     int32_t latitude;
@@ -39,10 +42,10 @@ typedef struct
 
 typedef struct
 {
-    int32_t latitude1;
-    int32_t longitude1;
-    int32_t latitude2;
-    int32_t longitude2;
+    int32_t latitude1;     // max
+    int32_t longitude1;    // min
+    int32_t latitude2;     // min
+    int32_t longitude2;    // max
 } gnss_bbox_t;
 
 #define AIRSPACE_NAME_LEN  64
@@ -83,6 +86,38 @@ typedef struct __airspace_record_t
     gnss_bbox_t bbox;
 } airspace_record_t;
 
+// This is the maximum number of near airspaces, that we can handle.
+#define AIRSPACE_NEAR_DISTANCE_NUM 10
+
+/**
+ * This describes a single "near" airspaces.
+ */
+typedef struct airspace_near
+{
+  airspace_record_t *as;       // the corresponding airspace
+  int32_t distances[AIRSPACE_NEAR_DISTANCE_NUM];       // the distance in flight direction in cm
+  bool inside;              // is the pilot inside this airspace?
+  // Here we can also compute and store the exit path to leave the airspace, if inside
+} airspace_near_t;
+
+/**
+ * This is a pmalloc'ed array of airspace_near_t's.
+ */
+typedef struct airspaces_near
+{
+  airspace_near_t *asn;   // pmalloc'ed to hold all near airspaces
+  int size;                  // number of entries pmalloc'ed.
+  int num;                   // number of entries being used
+  bool valid;                // Are the entries valid?
+  uint32_t last_updated;     // last HAL_GetTick where the airspaces_near changed
+  int16_t used_heading;      // The heading, that we used to compute everything
+  gnss_pos_t used_pilot_pos;
+} airspaces_near_t;
+
+char *airspace_class_name(airspace_class_t class);
+lv_color_t airspace_class_brush(airspace_class_t class);
+
+
 void airspace_create_lock();
 void airspace_init_buffer();
 
@@ -92,13 +127,12 @@ void airspace_unload();
 void airspace_load_parallel();
 void airspace_step();
 
-
 //maximum number of points in one airspace
 #define AIRSPACE_MAX_POINTS     (1024 * 4)
 //maximum name for airspace
 #define AIRSPACE_MAX_NAME_LEN   128
 //cache version, increment when changing format or handling
-#define AIRSPACE_CACHE_VERSION  17
+#define AIRSPACE_CACHE_VERSION  18
 
 //maximum number of airspaces loaded in any moment
 #define AIRSPACE_INDEX_ALLOC    (512)

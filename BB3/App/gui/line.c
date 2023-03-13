@@ -61,3 +61,20 @@ void draw_line(lv_obj_t * canvas, const lv_point_t points[], uint32_t point_cnt,
     }
 
 }
+
+void compute_line_arrow_points(lv_point_t p1, lv_point_t p2, lv_point_t *points)
+{
+	points[0] = p1;
+	points[1] = p2;
+
+	int dx = p2.x - p1.x;
+	int dy = p2.y - p1.y;
+	double angle = atan2(dy, dx);
+	int arrow_size = 10;
+
+	points[2].x = p2.x - arrow_size * cos(angle - 0.3);
+	points[2].y = p2.y - arrow_size * sin(angle - 0.3);
+	points[3] = p2;;
+	points[4].x = p2.x - arrow_size * cos(angle + 0.3);
+	points[4].y = p2.y - arrow_size * sin(angle + 0.3);
+}
