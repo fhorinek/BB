@@ -92,17 +92,17 @@ bool widgets_load_from_file_abs(page_layout_t * page, char * path)
 
         line[strlen(line) - 1] = 0;
 
-        char key[16];
-        char value[16];
+        char * key;
+        char * value;
         char * sep = strchr(line, '=');
         if (sep == NULL)
         {
             WARN("Wrong line formating '%s'", line);
             continue;
         }
-        strncpy(key, line, sep - line);
+        key = line;
         key[sep - line] = 0;
-        strcpy(value, sep + 1);
+        value = sep + 1;
 
         if (strcmp(key, "widgets") == 0)
         {
