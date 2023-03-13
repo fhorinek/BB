@@ -87,7 +87,7 @@ static void maps_unzip_dir(char *dir_path)
 static void maps_unzip_task(void * param)
 {
 	// Wait some time to let other things done before we start
-	osDelay(60 * 1000);
+	osDelay(10 * 1000);
 
 	maps_unzip_dir(PATH_MAP_DIR);
 	maps_unzip_dir(PATH_TOPO_DIR);
@@ -98,7 +98,7 @@ static void maps_unzip_task(void * param)
 void maps_unzip_start_task()
 {
 	// Start in an own task, as it needs more stack and should run in the background.
-	xTaskCreate((TaskFunction_t)maps_unzip_task, "maps_unzip", 1024 * 8, NULL, osPriorityIdle + 4, NULL);
+	xTaskCreate((TaskFunction_t)maps_unzip_task, "maps_unzip", 1024 * 8, NULL, osPriorityLow, NULL);
 }
 
 
