@@ -164,6 +164,19 @@ uint64_t file_size(int32_t file)
     return stat.st_size;
 }
 
+uint64_t file_size_from_name(char *path)
+{
+    int32_t f = red_open(path, RED_O_RDONLY);
+    if (f > 0)
+    {
+        REDSTAT stat;
+        red_fstat(f, &stat);
+        red_close(f);
+        return stat.st_size;
+    } else {
+    	return 0;
+    }
+}
 
 uint8_t calc_crc(uint8_t crc, uint8_t key, uint8_t data)
 {
