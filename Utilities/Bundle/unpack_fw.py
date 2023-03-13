@@ -59,7 +59,8 @@ for i in range(number_of_records):
         d = True
         
         if old_level > level:
-            path = path[:-1]
+            levels_up = old_level - level
+            path = path[:-levels_up]
         
         path += [name]
         os.mkdir(os.path.join(*path))
@@ -72,7 +73,8 @@ for i in range(number_of_records):
         level = (addr & (0xFFFF << 16)) >> 16
         
         if old_level > level:
-            path = path[:-1]
+            levels_up = old_level - level
+            path = path[:-levels_up]
         
         
         write_file(os.path.join(*path, name), data)
