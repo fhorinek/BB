@@ -216,8 +216,22 @@ static void Map_update(widget_slot_t * slot)
 	map_obj_glider_loop(&local->data, glider_pos);
 	map_obj_fanet_loop(&local->data, disp_lat, disp_lon, zoom);
 
-	if ( config_get_bool(&profile.map.show_glider_trail) )
+
+    //draw heading line
+    int32_t tlat, tlon;
+    geo_destination(glider_lat, glider_lon, fc.gnss.heading, 250, &tlat, &tlon);
+    int16_t x,y;
+    geo_to_pix_w_h(disp_lon, disp_lat, zoom, tlon, tlat, &x, &y, w, h);
+    local->data.heading_line_points[0].x = glider_pos.x;
+    local->data.heading_line_points[0].y = glider_pos.y;
+    local->data.heading_line_points[1].x = x;
+    local->data.heading_line_points[1].y = y;
+    lv_line_set_points(local->data.heading_line, local->data.heading_line_points, 2);
+
+	if (config_get_bool(&profile.map.show_glider_trail))
+	{
 		compute_trail(disp_lat, disp_lon, zoom, slot);
+	}
 
     if (local->edit != NULL)
      {

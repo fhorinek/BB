@@ -20,6 +20,8 @@ typedef struct map_obj_data {
     lv_obj_t * dot;
     lv_obj_t * arrow;
     lv_obj_t * spinner;
+    lv_obj_t * heading_line;
+    lv_point_t heading_line_points[2];
 
     lv_obj_t * poi[NUMBER_OF_POI];
     uint8_t poi_magic[NUMBER_OF_POI];

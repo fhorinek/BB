@@ -933,13 +933,12 @@ bool airspaces_near_find()
 			  airspaces_near_count++;
 			  if (airspaces_near_count <= fc.airspaces.near.size)     // enough space in airspaces_near?
 			  {
-				  fc.airspaces.near.num = airspaces_near_count;
-				  if (fc.airspaces.near.asn[fc.airspaces.near.num-1].as != as)
+				  if (fc.airspaces.near.asn[airspaces_near_count - 1].as != as)
 				  {
 					  airspaces_changed = true;
 					  fc.airspaces.near.valid = false;
-					  bzero(&fc.airspaces.near.asn[fc.airspaces.near.num-1], sizeof(airspace_near_t));
-					  fc.airspaces.near.asn[fc.airspaces.near.num-1].as = as;
+					  bzero(&fc.airspaces.near.asn[airspaces_near_count - 1], sizeof(airspace_near_t));
+					  fc.airspaces.near.asn[airspaces_near_count - 1].as = as;
 				  }
 			  }
 		  }
@@ -952,7 +951,7 @@ bool airspaces_near_find()
 		   * The missing entries will be entered again below. */
 		  int size_in_bytes_new = airspaces_near_count * sizeof(airspace_near_t);
 
-		  airspace_near_t *airspaces_near_new = ps_malloc(size_in_bytes_new);
+		  airspace_near_t * airspaces_near_new = ps_malloc(size_in_bytes_new);
 		  if (fc.airspaces.near.asn != NULL)
 		  {
 			  int size_in_bytes_old = fc.airspaces.near.size * sizeof(airspace_near_t);
@@ -975,6 +974,8 @@ bool airspaces_near_find()
 		  // "airspaces_near" is too big -> bzero remaining space in airspaces_near
 		  bzero(&fc.airspaces.near.asn[airspaces_near_count], sizeof(fc.airspaces.near.asn[0]) * (fc.airspaces.near.size-airspaces_near_count));
 	  }
+
+	  fc.airspaces.near.num = airspaces_near_count;
   }
   return airspaces_changed;
 }
@@ -1179,6 +1180,8 @@ void airspace_step()
 {
     osMutexAcquire(fc.airspaces.lock, WAIT_INF);
 
+    bool airspaces_near_compute_distance = false;
+
     if (fc.airspaces.valid)
     {
         uint32_t dist = geo_distance(gui.map.lat, gui.map.lon, fc.airspaces.valid_lat, fc.airspaces.valid_lon, true, NULL) / 100;
@@ -1191,10 +1194,14 @@ void airspace_step()
             {
                 config_set_text(&profile.airspace.filename, "");
             }
+            else
+            {
+                //airspaces reloaded, near airspaces are not valid
+                airspaces_near_compute_distance = true;
+                airspaces_near_find();
+            }
         }
     }
-
-    osMutexRelease(fc.airspaces.lock);
 
     /* Check, if we need to recalculate the distances to the airspaces.
      * This is needed if:
@@ -1202,17 +1209,18 @@ void airspace_step()
      *   - fc.gnss.heading has changed more than 10 degree
      *   - pilot moved more than 1 km since last recalculation
      */
-    bool airspaces_near_compute_distance = false;
-
 	int32_t distance = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
 			fc.airspaces.near.used_pilot_pos.latitude, fc.airspaces.near.used_pilot_pos.longitude,
 			false, NULL);
-	if (distance > 100 * 1000)   // 1 km
+	if (distance > 100 * 100)   // 100 m
 	{
-		fc.airspaces.near.used_pilot_pos.latitude = fc.gnss.latitude;
-		fc.airspaces.near.used_pilot_pos.longitude = fc.gnss.longitude;
-        if (airspaces_near_find())
-        	airspaces_near_compute_distance = true;
+        airspaces_near_find();
+
+		//we need to calculate the positions even when there is no change in near airspaces
+        fc.airspaces.near.used_pilot_pos.latitude = fc.gnss.latitude;
+        fc.airspaces.near.used_pilot_pos.longitude = fc.gnss.longitude;
+
+        airspaces_near_compute_distance = true;
 	}
 
     uint32_t now = HAL_GetTick();
@@ -1238,6 +1246,8 @@ void airspace_step()
     }
 
     fc.airspaces.near.valid = true;
+
+    osMutexRelease(fc.airspaces.lock);
 }
 
 void airspace_load_parallel_task(void * param)

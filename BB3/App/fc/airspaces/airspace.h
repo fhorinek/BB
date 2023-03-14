@@ -56,13 +56,13 @@ typedef struct
 typedef union
 {
     uint32_t len;
-    char * ptr;
+    char *ptr;
 } char_len_u;
 
 typedef union
 {
     uint32_t pos;
-    gnss_pos_t * ptr;
+    gnss_pos_t *ptr;
 } point_pos_u;
 
 typedef struct __airspace_record_t
@@ -94,10 +94,10 @@ typedef struct __airspace_record_t
  */
 typedef struct airspace_near
 {
-  airspace_record_t *as;       // the corresponding airspace
-  int32_t distances[AIRSPACE_NEAR_DISTANCE_NUM];       // the distance in flight direction in cm
-  bool inside;              // is the pilot inside this airspace?
-  // Here we can also compute and store the exit path to leave the airspace, if inside
+    airspace_record_t *as;       // the corresponding airspace
+    int32_t distances[AIRSPACE_NEAR_DISTANCE_NUM]; // the distance in flight direction in cm
+    bool inside;              // is the pilot inside this airspace?
+// Here we can also compute and store the exit path to leave the airspace, if inside
 } airspace_near_t;
 
 /**
@@ -105,23 +105,22 @@ typedef struct airspace_near
  */
 typedef struct airspaces_near
 {
-  airspace_near_t *asn;   // pmalloc'ed to hold all near airspaces
-  int size;                  // number of entries pmalloc'ed.
-  int num;                   // number of entries being used
-  bool valid;                // Are the entries valid?
-  uint32_t last_updated;     // last HAL_GetTick where the airspaces_near changed
-  int16_t used_heading;      // The heading, that we used to compute everything
-  gnss_pos_t used_pilot_pos;
+    airspace_near_t * asn;   // pmalloc'ed to hold all near airspaces
+    int size;                  // number of entries pmalloc'ed.
+    int num;                   // number of entries being used
+    bool valid;                // Are the entries valid?
+    uint32_t last_updated;  // last HAL_GetTick where the airspaces_near changed
+    int16_t used_heading;     // The heading, that we used to compute everything
+    gnss_pos_t used_pilot_pos;
 } airspaces_near_t;
 
-char *airspace_class_name(airspace_class_t class);
+char* airspace_class_name(airspace_class_t class);
 lv_color_t airspace_class_brush(airspace_class_t class);
-
 
 void airspace_create_lock();
 void airspace_init_buffer();
 
-bool airspace_load(char * name, bool use_dialog);
+bool airspace_load(char *name, bool use_dialog);
 void airspace_unload();
 
 void airspace_load_parallel();

@@ -412,7 +412,7 @@ typedef struct
 	{
         osSemaphoreId_t lock;
 
-	airspaces_near_t near;
+        airspaces_near_t near;
   
         airspace_record_t * index;
 		void * data;

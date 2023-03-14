@@ -25,6 +25,7 @@ static lv_style_t static_label = { 0 };
 static lv_style_t town_label = { 0 };
 static lv_style_t city_label = { 0 };
 static lv_style_t fanet_label = { 0 };
+static lv_style_t hdg_line = { 0 };
 
 #define DOT_RADIUS 10
 
@@ -63,6 +64,11 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
         lv_style_set_radius(&fanet_label, LV_STATE_DEFAULT, 4);
         lv_style_set_text_font(&fanet_label, LV_STATE_DEFAULT, LV_THEME_DEFAULT_FONT_SMALL);
         lv_style_set_pad_left(&fanet_label, LV_STATE_DEFAULT, 2);
+
+        lv_style_init(&hdg_line);
+        lv_style_set_line_dash_gap(&hdg_line, LV_STATE_DEFAULT, 5);
+        lv_style_set_line_dash_width(&hdg_line, LV_STATE_DEFAULT, 10);
+        lv_style_set_line_color(&hdg_line, LV_STATE_DEFAULT, LV_COLOR_GRAY);
 
         static_init = true;
     }
@@ -110,6 +116,9 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
     lv_obj_set_style_local_bg_opa(local->spinner, LV_SPINNER_PART_BG, LV_STATE_DEFAULT, LV_OPA_TRANSP);
     lv_obj_set_style_local_line_width(local->spinner, LV_SPINNER_PART_BG, LV_STATE_DEFAULT, 0);
 //    lv_obj_set_style_local_line_width(local->spinner, LV_SPINNER_PART_INDIC, LV_STATE_DEFAULT, 5);
+
+    local->heading_line = lv_line_create(par, NULL);
+    lv_obj_add_style(local->heading_line, LV_LINE_PART_MAIN, &hdg_line);
 
     return local->map;
 }
@@ -232,7 +241,8 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             if (gui.map.poi[i].chunk != 0xFF)
             {
                 //create
-                if (local->poi[i] != NULL) lv_obj_del(local->poi[i]);
+                if (local->poi[i] != NULL)
+                    lv_obj_del(local->poi[i]);
 
 				lv_obj_t *l;
 				lv_img_dsc_t *img_dsc;
@@ -313,6 +323,7 @@ void map_obj_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lon)
             lv_obj_align_mid(local->poi[i], local->image[gui.map.poi[i].chunk], LV_ALIGN_IN_TOP_LEFT, x, y);
         }
     }
+
     // POI draw #2: Icons
     for (uint8_t i = 0; i < NUMBER_OF_POI; i++)
     {
@@ -368,7 +379,7 @@ void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
         local->arrow = lv_img_create(local->map, NULL);
         lv_img_set_src(local->arrow, &img_map_arrow);
         lv_obj_align(local->arrow, local->map, LV_ALIGN_CENTER, 0, 0);
-	lv_obj_move_foreground(local->arrow);
+        lv_obj_move_foreground(local->arrow);
         lv_img_set_antialias(local->arrow, true);
 
 	    local->dot = lv_obj_create(local->map, NULL);
