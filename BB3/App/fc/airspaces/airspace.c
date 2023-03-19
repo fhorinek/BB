@@ -395,6 +395,10 @@ static bool airspace_parse(char * name, bool use_dialog)
 
                 as.floor = airspace_alt(line, &as.floor_gnd);
             }
+
+// We do not read colors from airspace file, as most of the airspaces do not have colors
+// or have "strange" colors.
+#if 0
             //Pen
             else if (strncmp("SP ", line, 3) == 0)
             {
@@ -439,6 +443,7 @@ static bool airspace_parse(char * name, bool use_dialog)
 					as.brush = LV_COLOR_MAKE(red, green, blue);
                 }
             }
+#endif
             //polygon point
             else if (strncmp("DP ", line, 3) == 0)
             {
