@@ -49,6 +49,10 @@ REGISTER_WIDGET_IU
 		lv_obj_t *alt2_label;
 		char alt2_text[10];
 
+		// The line showing the glide path
+		lv_obj_t *glide_line;
+		lv_point_t glide_points[2];
+		
 		// The ground level lines (vertical)
 		lv_obj_t *gl_lines[TFT_WIDTH];
 		lv_point_t gl_points[TFT_WIDTH][2];
@@ -92,6 +96,10 @@ static void AirspaceSide_init(lv_obj_t * base, widget_slot_t * slot)
 	lv_obj_set_style_local_text_color(local->alt1_label, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 	local->alt2_label = lv_label_create(slot->obj, local->alt1_label);
 
+	local->glide_line = lv_line_create(slot->obj, NULL);
+	lv_line_set_points(local->glide_line, local->glide_points, 2);
+	lv_obj_set_style_local_line_color(local->glide_line, LV_LINE_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	
 	lv_coord_t x = slot->w * MAX_DISTANCE_BACKWARD / MAX_DISTANCE;
 	lv_coord_t y = slot->h - 10;
 	lv_point_t p1, p2;
@@ -171,6 +179,64 @@ static void AirspaceSide_update(widget_slot_t * slot)
 		lv_label_set_text(local->alt2_label, local->alt2_text);
 	}
 
+	// Compute gliding trail and draw line
+	if (fc.gnss.fix == 3 && fc.fused.status == fc_dev_ready && fc.gnss.ground_speed != 0.0)
+	  {
+	    local->glide_points[0].x = glider_pos.x;
+	    local->glide_points[0].y = glider_pos.y;
+	    if (fc.fused.gr_vario == 0)
+	    {
+			local->glide_points[1].x = slot->w;
+			local->glide_points[1].y = glider_pos.y;
+	    }
+	    else if (fc.fused.gr_vario < 0)
+	    {
+	    	// SINKING
+	    	float m = fc.fused.gr_vario / fc.gnss.ground_speed;
+
+	    	// at which distance do we reach altitude 0?
+	    	//float x0 = (m*gx-gy)/m;
+	    	float x0 = (-fc.fused.altitude1)/m;
+	    	if ( x0 > MAX_DISTANCE_FORWARD )
+	    	{
+	    		// Clip by right border
+	    		y = m * MAX_DISTANCE_FORWARD + fc.fused.altitude1;
+	    		local->glide_points[1].x = slot->w;
+				local->glide_points[1].y = slot->h - slot->h * (int16_t)y / max_height;
+	    	}
+	    	else
+	    	{
+	    		// Clip by lower border
+	    		local->glide_points[1].x = glider_pos.x + x0 / MAX_DISTANCE_FORWARD * (slot->w-glider_pos.x);
+				local->glide_points[1].y = slot->h;
+	    	}
+	    }
+	    else
+	    {
+	    	// CLIMBING
+	    	float m = fc.fused.gr_vario / fc.gnss.ground_speed;
+
+	    	// at which distance do we read altitude max_height?
+	    	float xm = (max_height - fc.fused.altitude1)/m;
+	    	if ( xm > MAX_DISTANCE_FORWARD )
+	    	{
+	    		// Clip by right border
+	    		y = m * MAX_DISTANCE_FORWARD + fc.fused.altitude1;
+	    		local->glide_points[1].x = slot->w;
+				local->glide_points[1].y = slot->h - slot->h * (int16_t)y / max_height;
+	    	}
+	    	else
+	    	{
+	    		// Clip by upper border
+	    		local->glide_points[1].x = glider_pos.x + xm / MAX_DISTANCE_FORWARD * (slot->w-glider_pos.x);
+				local->glide_points[1].y = 0;
+	    	}
+	    }
+
+	    lv_line_set_points(local->glide_line, local->glide_points, 2);
+	  }
+
+	
 	// Is there anything available and has changed this last redraw?
 	if (!fc.airspaces.valid || !fc.airspaces.near.valid || local->last_updated == fc.airspaces.near.last_updated)
 		return;
