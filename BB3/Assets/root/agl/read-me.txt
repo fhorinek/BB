@@ -3,12 +3,14 @@ needed to show height over ground and to draw maps showing a
 topography.
 
 Please put all AGL files into this directory. In order to do this,
-please unzip the zip file containing the AGLs on your computer and
-transfer all AGL files individually into this directory. You can also
-unzip and transfer multiple countries. If they overlap by some AGL
-files, simply ignore/overwrite.
+download the needed country zip files ending in "XXX_agl.zip" from
+https://strato.skybean.eu/map/ and put the ZIP file into this
+directory. On the next start of Strato the ZIP file will be extracted
+and afterwards deleted. You will then see the individual HGT files
+containing the height of the ground.
 
-The result should look like this:
+The result should look simliar to this. You will see files with the
+latitude and longitude of the country, that you downloaded:
 
 agl
 +-- N20E135.HGT
