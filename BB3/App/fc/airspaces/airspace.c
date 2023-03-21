@@ -916,14 +916,11 @@ bool airspaces_near_find()
 		  else
 		  {
 			  // we are outside. How far is it away?
-			  uint32_t distance_min;
-			  distance_min = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
-					  as->bbox.latitude1, as->bbox.longitude1,
-					  false, NULL);
-			  uint32_t distance = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
-					  as->bbox.latitude2, as->bbox.longitude2,
-					  false, NULL);
-			  distance_min = min(distance_min, distance);
+              uint32_t distance_min = geo_distance(fc.gnss.latitude, fc.gnss.longitude, as->bbox.latitude1, fc.gnss.longitude, false, NULL);
+              distance_min = min(distance_min, geo_distance(fc.gnss.latitude, fc.gnss.longitude, as->bbox.latitude2, fc.gnss.longitude, false, NULL));
+              distance_min = min(distance_min, geo_distance(fc.gnss.latitude, fc.gnss.longitude, fc.gnss.latitude, as->bbox.longitude1, false, NULL));
+              distance_min = min(distance_min, geo_distance(fc.gnss.latitude, fc.gnss.longitude, fc.gnss.latitude, as->bbox.longitude2, false, NULL));
+
 			  if (distance_min < 40 * 1000 * 10)                  // 40 km
 				  airspace_needed = true;
 		  }
