@@ -85,6 +85,7 @@ static void maps_unzip_task(void * param)
 	maps_unzip_dir(PATH_MAP_DIR);
 	maps_unzip_dir(PATH_TOPO_DIR);
 
+	RedTaskUnregister();
 	vTaskDelete(NULL);
 }
 

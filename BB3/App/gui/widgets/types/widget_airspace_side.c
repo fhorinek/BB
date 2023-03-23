@@ -281,7 +281,9 @@ static void AirspaceSide_update(widget_slot_t * slot)
 			lv_obj_set_size(local->as[as_count], as_x2-as_x1, as_floor_y-as_ceil_y);
 			lv_obj_set_style_local_bg_color(local->as[as_count], LV_OBJ_PART_MAIN,
 					LV_STATE_DEFAULT, fc.airspaces.near.asn[i].as->brush);
-            lv_obj_set_style_local_border_color(local->as[as_count], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, as->pen);
+            lv_obj_set_style_local_bg_opa(local->as[as_count], LV_OBJ_PART_MAIN,
+                    LV_STATE_DEFAULT, LV_OPA_70);
+			lv_obj_set_style_local_border_color(local->as[as_count], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, as->pen);
             lv_obj_set_style_local_border_opa(local->as[as_count], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
 
 			sprintf(local->as_label_text[as_count], "%s\n%s", airspace_class_name(as->airspace_class), as->name.ptr);
