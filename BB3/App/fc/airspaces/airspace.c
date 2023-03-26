@@ -198,9 +198,19 @@ static bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gn
 	}
 }
 
+bool airspace_is_previous_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
+{
+    return (as->number_of_points > 0
+    		&& points[as->number_of_points-1].latitude == lat && points[as->number_of_points-1].longitude == lon);
+}
+
 void airspace_add_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
 {
-    if (as->number_of_points >= AIRSPACE_MAX_POINTS)
+	// Do not enter the same point again.
+    if (airspace_is_previous_point(as, points, lon, lat))
+    	return;
+
+	if (as->number_of_points >= AIRSPACE_MAX_POINTS)
     {
         WARN("aisrpace %s, max points reached", as->name);
         return;
@@ -545,6 +555,21 @@ static bool airspace_parse(char * name, bool use_dialog)
 
                 int16_t dir = clockwise ? +5 : -5;
 
+                // If we have the following, then "48:57:47.00 N 009:33:04.00 E" will be added twice.
+                // However, the second entry is calculated using ARC which gives a slight different point
+                // and leads to errors. Therefore start one "dir" later.
+                //
+                // DP 48:57:47.00 N 009:33:04.00 E
+                // V X=48:41:19.00 N 009:12:39.00 E
+                // V D=+
+                // DB 48:57:47.00 N 009:33:04.00 E, 48:36:33.00 N 009:43:57.00 E
+                if (airspace_is_previous_point(&as, points, lon1, lat1))
+                	start += dir;
+
+                // As the last point is given in DB, we do not use arc arithmetic to compute that point.
+                // The last point is added explicitly at the end to avoid rounding errors.
+                end -= dir;
+
                 if (clockwise)
                 {
                     while (start > end)
@@ -584,6 +609,7 @@ static bool airspace_parse(char * name, bool use_dialog)
 
                     angle += dir;
                 }
+            	airspace_add_point(&as, points, lon2, lat2);
             }
             //draw circle
             else if (strncmp("DC ", line, 3) == 0)
