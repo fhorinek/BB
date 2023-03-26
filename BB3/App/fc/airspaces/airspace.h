@@ -131,7 +131,7 @@ void airspace_step();
 //maximum name for airspace
 #define AIRSPACE_MAX_NAME_LEN   128
 //cache version, increment when changing format or handling
-#define AIRSPACE_CACHE_VERSION  18
+#define AIRSPACE_CACHE_VERSION  19
 
 //maximum number of airspaces loaded in any moment
 #define AIRSPACE_INDEX_ALLOC    (512)
