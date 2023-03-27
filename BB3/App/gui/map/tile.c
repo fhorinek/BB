@@ -696,7 +696,7 @@ static file_buffer_t * load_map_file(int32_t lon, int32_t lat, uint8_t index)
         if (!file_buffer_open(&map_cache, path))
         {
             ERR("map file %s not found", name[index]);
-            db_insert(PATH_MAP_INDEX, name[index], "W"); //set want flag
+            //TODO: add to wanted tiles
             return NULL;
         }
 

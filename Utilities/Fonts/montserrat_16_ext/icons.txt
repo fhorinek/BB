@@ -15,4 +15,6 @@ battery-charging    0xF0084
 flashlight          0xF0244
 flashlight-off      0xF0245
 help-circle         0xF02D7
+checkbox-off        0xF0131
+checkbox-on         0xF0132
 

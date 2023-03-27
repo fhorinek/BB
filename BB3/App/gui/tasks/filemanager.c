@@ -27,14 +27,6 @@
 #include "gui/ctx.h"
 #include "gui/dialog.h"
 
-typedef struct
-{
-        uint32_t date;
-        uint16_t mode;
-        char name[REDCONF_NAME_MAX + 1];
-        uint8_t _pad[1];
-} fm_record_cache_t;
-
 REGISTER_TASK_IS(filemanager,
 	char path[PATH_LEN];
 
@@ -230,6 +222,9 @@ void filemanager_store_inode_pos(uint32_t inode, uint16_t pos)
     filemanager_history[index].used = HAL_GetTick();
 }
 
+fm_record_cache_t * fm_selected_file;
+lv_obj_t * fm_selected_obj;
+
 static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 {
 	if (event == LV_EVENT_CANCEL)
@@ -255,7 +250,7 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		char new_path[PATH_LEN];
 
 		snprintf(new_path, sizeof(new_path), "%s/%s", local->path, file->name);
-		DBG("index=%d %s", index, new_path);
+		//DBG("index=%d %s", index, new_path);
 
 		if (RED_S_ISDIR(file->mode))
 		{
@@ -270,7 +265,13 @@ static bool filemanager_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 		{
 		    bool ret = true;
 			if (local->cb != NULL)
+			{
+			    //additional informations available to callback
+			    fm_selected_file = file;
+			    fm_selected_obj = obj;
+
 				ret = local->cb(FM_CB_SELECT, new_path);
+			}
 
             if (ret)
                 gui_switch_task(local->back, local->anim_dir_backward);
@@ -434,10 +435,21 @@ void filemanager_open_task(void * param)
             {
                 filemanager_get_filename_no_ext(name, local->filenames[i].name);
             }
+
+
         }
 
         gui_lock_acquire();
-        gui_list_text_add_entry(local->list, name, 0);
+
+        if ((local->flags & FM_FLAG_CUSTOM) && !RED_S_ISDIR(local->filenames[i].mode))
+        {
+            local->cb(FM_CB_CUSTOM, local->filenames[i].name);
+        }
+        else
+        {
+            gui_list_text_add_entry(local->list, name, 0);
+        }
+
         gui_lock_release();
     }
 
@@ -591,7 +603,7 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
             if (local->filenames_count > 20)
             {
                 //start task, creating lvgl object take lot of time
-                dialog_show(_("Listing files"), path, dialog_progress, NULL);
+                dialog_show(_("Listing files"), lv_win_get_title(local->list), dialog_progress, NULL);
                 dialog_progress_spin();
                 gui_low_priority(true);
 
@@ -616,6 +628,11 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 void filemanager_set_title(char * title)
 {
     lv_win_set_title(local->list, title);
+}
+
+char * filemanager_get_title()
+{
+    return lv_win_get_title(local->list);
 }
 
 //reopen filemanager in the same dir, useful when removing or adding files

@@ -79,6 +79,17 @@ static bool map_help_cb(lv_obj_t * obj, lv_event_t event)
     return true;
 }
 
+static bool map_index_cb(lv_obj_t * obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        map_index_show();
+
+        return false;
+    }
+
+    return true;
+}
 
 static lv_obj_t * map_init(lv_obj_t * par)
 {
@@ -86,6 +97,7 @@ static lv_obj_t * map_init(lv_obj_t * par)
 
     lv_obj_t * list = gui_list_create(par, _("Map"), &gui_settings, NULL);
 
+    gui_list_auto_entry(list, _h("Map management"), CUSTOM_CB, &map_index_cb);
     gui_list_auto_entry(list, _h("Map scale"), &profile.map.zoom_flight, &scale_opt);
     gui_list_auto_entry(list, _h("Zoom to fit track"), &profile.map.zoom_fit, NULL);
     gui_list_auto_entry(list, _h("Terrain type"), &profile.map.alt_range, NULL);

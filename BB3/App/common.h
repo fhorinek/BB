@@ -216,12 +216,15 @@ extern osThreadId_t SystemHandle;
 #define PATH_RELEASE_NOTE   PATH_ASSET_DIR "/release_note.txt"
 #define PATH_HELP_DIR       PATH_ASSET_DIR "/help"
 #define PATH_TTS_DIR        PATH_ASSET_DIR "/tts/en"
+#define PATH_MAP_LISTS      PATH_ASSET_DIR "/maps"
 
 #define PATH_TOPO_DIR       "agl"
 #define PATH_MAP_DIR        "map"
-#define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
-#define PATH_MAP_INDEX      PATH_SYSTEM_DIR "/map_index.db"
 #define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
+#define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
+#define PATH_MAP_SELECTED   PATH_CONFIG_DIR "/maps.db"
+#define PATH_TILES_LISTS    PATH_SYSTEM_DIR "/map_tiles.db"
+#define PATH_MAP_DL_DIR     PATH_SYSTEM_DIR "/map_dl"
 
 #define PATH_AIRSPACE_DIR   "airspace"
 

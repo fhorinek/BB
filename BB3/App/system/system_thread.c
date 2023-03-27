@@ -295,6 +295,7 @@ void thread_system_start(void * argument)
     sd_init();
 
 	//load config
+    db_init();
 	config_load_all();
 
 	//load language
