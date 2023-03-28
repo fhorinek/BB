@@ -45,7 +45,7 @@
 
 /* USER CODE BEGIN Includes */
 /* Section where include file can be added */
-#include "../App/lib/SysView/App/SEGGER_SYSVIEW_FreeRTOS.h"
+
 /* USER CODE END Includes */
 
 /* Ensure definitions are only used by the compiler, and not by the assembler. */
