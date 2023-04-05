@@ -184,6 +184,7 @@ typedef struct
 
 	struct
 	{
+        cfg_entry_t use_color_from_file;
 		cfg_entry_t filename;
 		struct
 		{

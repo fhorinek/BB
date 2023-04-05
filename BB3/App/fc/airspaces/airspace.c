@@ -396,7 +396,7 @@ static bool airspace_parse(char * name, bool use_dialog)
                 as.floor = airspace_alt(line, &as.floor_gnd);
             }
             //Pen
-            else if (strncmp("SP ", line, 3) == 0)
+            else if (strncmp("SP ", line, 3) == 0 && config_get_bool(&profile.airspace.use_color_from_file))
             {
                 line += 3;
 
@@ -417,7 +417,7 @@ static bool airspace_parse(char * name, bool use_dialog)
                 as.pen = LV_COLOR_MAKE(red, green, blue);
             }
             //Brush
-            else if (strncmp("SB ", line, 3) == 0)
+            else if (strncmp("SB ", line, 3) == 0 && config_get_bool(&profile.airspace.use_color_from_file))
             {
                 line += 3;
 
@@ -642,6 +642,12 @@ static bool airspace_parse(char * name, bool use_dialog)
     return false;
 }
 
+void airspace_clear_cache(char *name)
+{
+    char path[PATH_LEN];
+    snprintf(path, sizeof(path), "%s/%s.index", PATH_AIRSPACE_CACHE_DIR, name);
+    red_unlink(path);
+}
 
 bool airspace_open_cache(char * name, airspace_header_t * ah, int32_t * findex, int32_t * fdata)
 {
@@ -745,7 +751,7 @@ bool airspace_load(char * name, bool use_dialog)
 
     if (strlen(name) > 0)
     {
-        res = airspace_open_cache(name, &ah, &index, &data);
+    	res = airspace_open_cache(name, &ah, &index, &data);
 
         if (!res)
         {

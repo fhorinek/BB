@@ -371,6 +371,8 @@ flight_profile_t profile =
 
 	//airspace
 	{
+		//use_color_from_file
+		entry_bool("use_color_from_file", true),
 		//filename
 		entry_text("airspace", "", AIRSPACE_NAME_LEN, 0),
 		//display
