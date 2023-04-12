@@ -225,6 +225,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_MAP_SELECTED   PATH_CONFIG_DIR "/maps.db"
 #define PATH_TILES_REQ	    PATH_SYSTEM_DIR "/tiles_req.list"
 #define PATH_MAP_DL_DIR     PATH_SYSTEM_DIR "/map_dl"
+#define PATH_AGL_DL_DIR     PATH_SYSTEM_DIR "/agl_dl"
 
 #define PATH_AIRSPACE_DIR   "airspace"
 

@@ -7,9 +7,12 @@
 
 #include "map_index.h"
 #include "config/db.h"
+#include "fc/fc.h"
+#include "drivers/esp/download/slot.h"
+#include "system/maps_unzip.h"
 
-static int32_t tiles_req_fp;
 static uint8_t * work_buffer;
+static bool download_in_progress = false;
 
 #define WORK_BUFFER_SIZE (1024 * 4)
 
@@ -17,6 +20,8 @@ static uint8_t * work_buffer;
 #define	MAP_VERSION	0
 
 static uint8_t active_dl_slot = DOWNLOAD_SLOT_NONE;
+static char active_tile[8];
+int32_t tiles_req_fp;
 
 void map_list_cb(char * key, char * value)
 {
@@ -42,19 +47,11 @@ void map_list_cb(char * key, char * value)
     }
 }
 
-void map_index_init()
-{
-	fc.map_index.lock = osMutexNew(NULL);
-    vQueueAddToRegistry(fc.map_index.lock, "map_index.lock");
-
-    fc.map_index.tiles_requested = file_size_from_name(PATH_TILES_REQ) / 8; //7 + \n
-    fc.map_index.tiles_downloaded = 0;
-    fc.map_index.tiles_pos = 0;
-}
-
 void map_index_rebuild()
 {
 	osMutexAcquire(fc.map_index.lock, WAIT_INF);
+
+	fc.map_index.tiles_index = 0;
 
 	uint32_t start = HAL_GetTick();
     INFO("Rebuilding index");
@@ -80,9 +77,67 @@ void map_index_rebuild()
     osMutexRelease(fc.map_index.lock);
 }
 
-void map_index_download_cb(uint8_t event, struct download_slot_t * slot)
+void map_index_download_agl_cb(uint8_t event, struct download_slot_t * slot)
 {
+	if (event == DOWNLOAD_SLOT_PROGRESS)
+	{
+		return;
+	}
 
+	if (event == DOWNLOAD_SLOT_COMPLETE)
+	{
+		char tmp_path[TEMP_NAME_LEN];
+		download_slot_file_data_t * data = (download_slot_file_data_t *)slot->data;
+		get_tmp_path(tmp_path, data->tmp_id);
+
+		char path[PATH_LEN];
+		snprintf(path, sizeof(path), "%s/%s.ZIP", PATH_AGL_DL_DIR, active_tile);
+
+		red_rename(tmp_path, path);
+
+		download_in_progress = false;
+
+		return;
+	}
+
+	if (event == DOWNLOAD_SLOT_NOT_FOUND)
+	{
+		//TODO add failed and skip
+	}
+
+
+	download_in_progress = false;
+}
+
+void map_index_download_map_cb(uint8_t event, struct download_slot_t * slot)
+{
+	if (event == DOWNLOAD_SLOT_PROGRESS)
+	{
+		return;
+	}
+
+	if (event == DOWNLOAD_SLOT_COMPLETE)
+	{
+		char tmp_path[TEMP_NAME_LEN];
+		download_slot_file_data_t * data = (download_slot_file_data_t *)slot->data;
+		get_tmp_path(tmp_path, data->tmp_id);
+
+		char path[PATH_LEN];
+		snprintf(path, sizeof(path), "%s/%s.ZIP", PATH_MAP_DL_DIR, active_tile);
+
+		red_rename(tmp_path, path);
+
+		download_in_progress = false;
+
+		return;
+	}
+
+	if (event == DOWNLOAD_SLOT_NOT_FOUND)
+	{
+		//TODO add failed and skip
+	}
+
+	download_in_progress = false;
 }
 
 void map_index_task(void * param)
@@ -92,6 +147,12 @@ void map_index_task(void * param)
 	{
 		if (sleep)
 			osDelay(1000);
+
+		if (download_in_progress)
+			continue;
+
+		if (fc.map_index.tiles_index == fc.map_index.tiles_requested)
+			continue;
 
 		osMutexAcquire(fc.map_index.lock, WAIT_INF);
 
@@ -109,33 +170,93 @@ void map_index_task(void * param)
 			}
 
 			char path[PATH_LEN];
-			snprintf(path, sizeof(path), "%s/%s.AGL", PATH_TOPO_DIR, tile);
+
+			//AGL file
+
+			snprintf(path, sizeof(path), "%s/%s.HGT", PATH_TOPO_DIR, tile);
 			bool have_file = file_exists(path);
-			snprintf(path, sizeof(path), "%s/%s.ZIP", PATH_MAP_DL_DIR, tile);
+			snprintf(path, sizeof(path), "%s/%s.ZIP", PATH_AGL_DL_DIR, tile);
 			bool have_zip = file_exists(path);
 
 			if (have_file && have_zip)
-				red_uninit(path);
+			{
+				//red_unlink(path);
+			}
 
 			if (!have_file && !have_zip)
 			{
 				char url[PATH_LEN];
 				snprintf(url, sizeof(url), "%s/%u/%s.ZIP", config_get_text(&config.system.agl_url), AGL_VERSION, tile);
 
-				have_zip = esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, map_index_download_cb);
+				if(esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, map_index_download_agl_cb) != DOWNLOAD_SLOT_NONE)
+				{
+					strncpy(active_tile, tile, sizeof(tile));
 
+					download_in_progress = true;
+					sleep = true;
+
+					red_close(f);
+					osMutexRelease(fc.map_index.lock);
+
+					continue;
+				}
 			}
-
 
 			if (!have_file && have_zip)
 			{
-				extract_agl(path);
-				red_uninit(path);
+				unzip_zipfile(PATH_TOPO_DIR, path);
+				//red_uninit(path);
+
+				red_close(f);
+				osMutexRelease(fc.map_index.lock);
+
+				continue;
+			}
+
+			//MAP file
+
+			snprintf(path, sizeof(path), "%s/%s.MAP", PATH_MAP_DIR, tile);
+			have_file = file_exists(path);
+			snprintf(path, sizeof(path), "%s/%s.ZIP", PATH_MAP_DL_DIR, tile);
+			have_zip = file_exists(path);
+
+			if (have_file && have_zip)
+			{
+				//red_unlink(path);
+			}
+
+			if (!have_file && !have_zip)
+			{
+				char url[PATH_LEN];
+				snprintf(url, sizeof(url), "%s/%u/%s.ZIP", config_get_text(&config.system.map_url), MAP_VERSION, tile);
+
+				if(esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, map_index_download_map_cb) != DOWNLOAD_SLOT_NONE)
+				{
+					strncpy(active_tile, tile, sizeof(tile));
+
+					download_in_progress = true;
+					sleep = true;
+
+					red_close(f);
+					osMutexRelease(fc.map_index.lock);
+
+					continue;
+				}
+			}
+
+			if (!have_file && have_zip)
+			{
+				unzip_zipfile(PATH_MAP_DIR, path);
+				//red_uninit(path);
+
+				red_close(f);
+				osMutexRelease(fc.map_index.lock);
+
+				continue;
 			}
 
 
-//			snprintf(path, sizeof(path), "%s/%s.MAP", PATH_MAP_DIR, tile);
-//			bool have_map = file_exists(path);
+			fc.map_index.tiles_index++;
 
 			red_close(f);
 		}
@@ -144,4 +265,19 @@ void map_index_task(void * param)
 
 		osMutexRelease(fc.map_index.lock);
 	}
+}
+
+void map_index_init()
+{
+	fc.map_index.lock = osMutexNew(NULL);
+    vQueueAddToRegistry(fc.map_index.lock, "map_index.lock");
+
+    fc.map_index.tiles_requested = file_size_from_name(PATH_TILES_REQ) / 8; //7 + \n
+    fc.map_index.tiles_index = 0;
+    fc.map_index.tiles_failed = 0;
+
+    red_mkdir(PATH_MAP_DL_DIR);
+    red_mkdir(PATH_AGL_DL_DIR);
+
+    xTaskCreate((TaskFunction_t)map_index_task, "maps_index", 1024 * 8, NULL, osPriorityLow, NULL);
 }

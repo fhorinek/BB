@@ -11,5 +11,6 @@
 #include "common.h"
 
 void map_index_rebuild();
+void map_index_init();
 
 #endif /* ETC_MAP_INDEX_H_ */
