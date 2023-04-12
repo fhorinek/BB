@@ -15,7 +15,7 @@
 #include "drivers/rtc.h"
 #include "etc/format.h"
 
-static bool unzip_zipfile(char *target_dir, char *zip_file_path)
+bool unzip_zipfile(char *target_dir, char *zip_file_path)
 {
 	mz_zip_archive zip;
 	mz_zip_zero_struct(&zip);

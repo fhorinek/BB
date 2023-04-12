@@ -219,7 +219,7 @@ typedef struct
         int16_t start_alt;
     	int32_t start_lat;
     	int32_t start_lon;
-	int32_t min_lat, max_lat, min_lon, max_lon;
+    	int32_t min_lat, max_lat, min_lon, max_lon;
 
       	uint32_t takeoff_distance;				// in m
       	int16_t takeoff_bearing;
@@ -428,6 +428,18 @@ typedef struct
 		uint8_t _pad[3];
 
 	} airspaces;
+
+	struct
+	{
+		 osSemaphoreId_t lock;
+		 uint16_t tiles_requested;
+		 uint16_t tiles_index;
+
+		 uint16_t tiles_failed;
+
+		 uint8_t _pad[2];
+
+	} map_index;
 
 } fc_t;
 

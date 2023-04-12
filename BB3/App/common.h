@@ -223,8 +223,9 @@ extern osThreadId_t SystemHandle;
 #define PATH_BT_NAMES       PATH_SYSTEM_DIR "/bt_name.db"
 #define PATH_TOPO_INDEX     PATH_SYSTEM_DIR "/agl_index.db"
 #define PATH_MAP_SELECTED   PATH_CONFIG_DIR "/maps.db"
-#define PATH_TILES_LISTS    PATH_SYSTEM_DIR "/map_tiles.db"
+#define PATH_TILES_REQ	    PATH_SYSTEM_DIR "/tiles_req.list"
 #define PATH_MAP_DL_DIR     PATH_SYSTEM_DIR "/map_dl"
+#define PATH_AGL_DL_DIR     PATH_SYSTEM_DIR "/agl_dl"
 
 #define PATH_AIRSPACE_DIR   "airspace"
 

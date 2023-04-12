@@ -538,6 +538,10 @@ config_t config =
         entry_select("firmware", FW_RELEASE, fw_channel_select),
         //check_for_updates
         entry_bool("check_fw", true),
+        //agl url
+        entry_text("agl_url", "https://strato.skybean.eu/update/data/agl", UPDATE_URL_LEN, 0),
+        //map url
+        entry_text("map_url", "https://strato.skybean.eu/update/data/map", UPDATE_URL_LEN, 0),
     },
 
 	//debug

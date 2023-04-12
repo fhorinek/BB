@@ -292,6 +292,8 @@ typedef struct
         cfg_entry_t server_url;
         cfg_entry_t fw_channel;
         cfg_entry_t check_for_updates;
+        cfg_entry_t agl_url;
+        cfg_entry_t map_url;
     } system;
 
 	struct

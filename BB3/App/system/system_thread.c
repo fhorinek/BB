@@ -32,8 +32,6 @@
 #include "etc/epoch.h"
 #include "lvgl/lvgl.h"
 
-#include "SEGGER_SYSVIEW.h"
-
 #include "maps_unzip.h"
 
 //RTOS Tasks
@@ -313,9 +311,6 @@ void thread_system_start(void * argument)
     INFO("HW rev: %02X", rev_get_hw());
     rev_get_sw_string(tmp);
     INFO("FW stm: %s\n\n", tmp);
-
-    //Sysview
-    //SEGGER_SYSVIEW_Start();
 
 	//start tasks
 	INFO("Starting tasks...");

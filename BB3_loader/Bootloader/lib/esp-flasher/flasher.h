@@ -58,7 +58,7 @@ uint32_t flasher_aligned(uint32_t size);
 flasher_ret_t check_update_file(int32_t file);
 flasher_ret_t esp_flash_write_file(int32_t file);
 
-#define COPY_WORK_BUFFER_SIZE    (1024 * 8)
+#define WORK_BUFFER_SIZE    (1024 * 8)
 #define ESP_PACKET_SIZE     (1024 * 6)
 #define HIGHER_BAUDRATE     921600
 

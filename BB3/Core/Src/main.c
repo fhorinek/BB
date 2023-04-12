@@ -35,7 +35,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SEGGER_SYSVIEW.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -129,7 +129,7 @@ int main(void)
   MX_TIM15_Init();
   MX_DMA2D_Init();
   /* USER CODE BEGIN 2 */
-  SEGGER_SYSVIEW_Conf();
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
