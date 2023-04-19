@@ -217,6 +217,7 @@ extern osThreadId_t SystemHandle;
 #define PATH_HELP_DIR       PATH_ASSET_DIR "/help"
 #define PATH_TTS_DIR        PATH_ASSET_DIR "/tts/en"
 #define PATH_MAP_LISTS      PATH_ASSET_DIR "/maps"
+#define PATH_AS_ID_FILE     PATH_ASSET_DIR "/xcontest_id.db"
 
 #define PATH_TOPO_DIR       "agl"
 #define PATH_MAP_DIR        "map"

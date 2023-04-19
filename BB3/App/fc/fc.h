@@ -189,6 +189,13 @@ typedef enum
 //Need to have few consequentive speeds under take off speed first
 #define GROUND_SPEED_CALM_CNT   5
 
+#define MAP_INDEX_OK                0
+#define MAP_INDEX_INDEXING          1
+#define MAP_INDEX_DOWNLOADING_AGL   2
+#define MAP_INDEX_DOWNLOADING_MAP   3
+#define MAP_INDEX_UNZIPPING_AGL     4
+#define MAP_INDEX_UNZIPPING_MAP     5
+
 typedef struct
 {
 	osSemaphoreId_t lock;
@@ -433,10 +440,14 @@ typedef struct
 	{
 		 osSemaphoreId_t lock;
 		 uint16_t tiles_requested;
+		 uint16_t tiles_have;
 		 uint16_t tiles_index;
+         uint16_t tiles_failed;
 
-		 uint16_t tiles_failed;
+		 char tile[8];
 
+		 uint8_t status;
+		 uint8_t process;
 		 uint8_t _pad[2];
 
 	} map_index;

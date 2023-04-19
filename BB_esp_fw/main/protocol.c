@@ -30,7 +30,7 @@
 static bool protocol_enable_processing = false;
 
 TimerHandle_t stm_wtd = 0;
-int64_t protocol_last_packet = 5000l * 1000l;
+int32_t protocol_last_packet = 5000l;
 
 char strato_id[PROTO_ID_STR_LEN];
 char strato_fw[PROTO_FW_STR_LEN];
@@ -38,7 +38,7 @@ char strato_hw[PROTO_HW_STR_LEN];
 
 void stm_wtd_cb(TimerHandle_t xTimer)
 {
-	if (protocol_last_packet + (1000l * 1000l) < esp_timer_get_time())
+	if (protocol_last_packet + (1000l) < (esp_timer_get_time() / 1000))
 	{
 		ERR("No data from STM");
 		esp_restart();
@@ -156,10 +156,10 @@ void protocol_task_info(void * param)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
-//	DBG("protocol_handle %02X", type);
+	//DBG("protocol_handle %02X", type);
 
     int64_t start = esp_timer_get_time();
-    protocol_last_packet = start;
+    protocol_last_packet = start / 1000;
 
     if (!protocol_enable_processing)
     {

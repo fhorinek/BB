@@ -11,7 +11,7 @@
 #define __MAPS_UNZIP_H
 
 void maps_unzip_start_task();
-bool unzip_zipfile(char *target_dir, char *zip_file_path);
+bool unzip_zipfile(char *target_dir, char *zip_file_path, bool gui);
 
 #endif
 

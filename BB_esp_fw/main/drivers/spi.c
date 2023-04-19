@@ -65,14 +65,14 @@ void spi_trans_cb(spi_slave_transaction_t *trans)
 //    DBG("spi_trans_cb: Transaction done");
 }
 
-extern int64_t protocol_last_packet;
+extern int32_t protocol_last_packet;
 
 void spi_parse(uint8_t * data, uint16_t len)
 {
+	protocol_last_packet = esp_timer_get_time() / 1000;
+
 	while (len > 0)
 	{
-		protocol_last_packet = esp_timer_get_time();
-
 		proto_spi_header_t * hdr = (proto_spi_header_t *)data;
 
 		//advance buffer

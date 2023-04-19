@@ -76,20 +76,17 @@ bool flash_loop()
                 Bootloader_FlashBegin(APP_ADDRESS);
 
                 //skip app header
-//                f_lseek(&update_file, sizeof(file_header_t));
                 red_lseek(update_file, sizeof(file_header_t), RED_SEEK_SET);
 
                 chunk_header_t chunk;
                 for (;;)
                 {
-//                    ASSERT(f_read(&update_file, &chunk, sizeof(chunk), &br) == FR_OK);
                     ASSERT(red_read(update_file, &chunk, sizeof(chunk)) >= 0);
 
                     if (chunk.addr == CHUNK_STM_ADDR)
                         break;
 
                     //skip chunk
-//                    f_lseek(&update_file, f_tell(&update_file) + flasher_aligned(chunk.size));
                     red_lseek(update_file, flasher_aligned(chunk.size), RED_SEEK_CUR);
                 }
 
@@ -104,7 +101,6 @@ bool flash_loop()
                     if (to_read > WORK_BUFFER_SIZE)
                         to_read = WORK_BUFFER_SIZE;
 
-//                    f_read(&update_file, buff, to_read, &br);
                     br = red_read(update_file, buff, to_read);
 
                     pos += br;
@@ -117,7 +113,6 @@ bool flash_loop()
                             break;
                         }
                     }
-//                    gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
                     gfx_draw_progress(red_lseek(update_file, 0, RED_SEEK_CUR) / (float)file_size(update_file));
                 }
 
@@ -168,7 +163,6 @@ bool flash_loop()
                 gfx_draw_status(GFX_STATUS_UPDATE, "Copying assets");
 
                 //rewind
-//                f_lseek(&update_file, sizeof(file_header_t));
                 red_lseek(update_file, sizeof(file_header_t), RED_SEEK_SET);
 
                 chunk_header_t chunk;
@@ -199,6 +193,7 @@ bool flash_loop()
                     if (level < clevel) //into last created dir
                     {
                         sprintf(cwd + strlen(cwd), "/%s", last_chunk.name);
+                        level = clevel;
                     }
                     else while (level > clevel) //out of the current dir
                     {
@@ -215,7 +210,6 @@ bool flash_loop()
                     {
                         INFO("creating dir %s", fname);
                         red_mkdir(fname);
-//                        gfx_draw_progress(f_tell(&update_file) / (float)f_size(&update_file));
                         gfx_draw_progress(red_lseek(update_file, 0, RED_SEEK_CUR) / (float)file_size(update_file));
                     }
 

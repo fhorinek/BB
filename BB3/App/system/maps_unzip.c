@@ -15,7 +15,7 @@
 #include "drivers/rtc.h"
 #include "etc/format.h"
 
-bool unzip_zipfile(char *target_dir, char *zip_file_path)
+bool unzip_zipfile(char *target_dir, char *zip_file_path, bool gui)
 {
 	mz_zip_archive zip;
 	mz_zip_zero_struct(&zip);
@@ -27,8 +27,11 @@ bool unzip_zipfile(char *target_dir, char *zip_file_path)
 	bool res = mz_zip_reader_init_file(&zip, zip_file_path, 0);
 	if (res)
 	{
-		sprintf(mess, _("Unzipping\n%s"), zip_file_path);
-		msg_ptr = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, mess);
+	    if (gui)
+	    {
+            sprintf(mess, _("Unzipping\n%s"), zip_file_path);
+            msg_ptr = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, mess);
+	    }
 
 		int fileCount = (int)mz_zip_reader_get_num_files(&zip);
 		for ( int i = 0; i < fileCount; i++ )
@@ -38,7 +41,8 @@ bool unzip_zipfile(char *target_dir, char *zip_file_path)
 			sprintf(path, "%s/%s", target_dir, file_stat.m_filename);
 			if ( !file_exists(path) || file_size_from_name(path) != file_stat.m_uncomp_size)
 			{
-			  statusbar_msg_update_progress(msg_ptr, (i * 100) / fileCount);
+                if (msg_ptr)
+			        statusbar_msg_update_progress(msg_ptr, (i * 100) / fileCount);
 
 				if (!mz_zip_reader_extract_to_file(&zip, i, path, 0))
 				{
@@ -50,8 +54,11 @@ bool unzip_zipfile(char *target_dir, char *zip_file_path)
 				}
 			}
 		}
-		statusbar_msg_close(msg_ptr);
+
+        if (msg_ptr)
+            statusbar_msg_close(msg_ptr);
 	}
+
 	mz_zip_reader_end(&zip);
 
 	return res;
@@ -74,7 +81,7 @@ static void maps_unzip_dir(char *dir_path)
 				char file_path[PATH_LEN] = {0};
 				str_join(file_path, 3, dir_path, "/", entry->d_name);
 
-				if (unzip_zipfile(dir_path, file_path))
+				if (unzip_zipfile(dir_path, file_path, true))
 				{
 					red_unlink(file_path);                         // Remove ZIP file, if successfull
 				}

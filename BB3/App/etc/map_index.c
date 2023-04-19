@@ -5,6 +5,13 @@
  *      Author: horinek
  */
 
+//Ideas to work on next
+// 1. Index all requested tiles
+// 2. create two tasks for map management
+// 3. Traverse requested tiles and create two files
+//          to unzip            to download
+//          store tiles count for have, have zip, to download
+
 #include "map_index.h"
 #include "config/db.h"
 #include "fc/fc.h"
@@ -43,6 +50,9 @@ void map_list_cb(char * key, char * value)
 
 			FASSERT(bw == br);
 		}
+		//add correct ending
+		strcpy(work_buffer, "\n");
+		red_write(tiles_req_fp, work_buffer, 1);
 		red_close(list_fp);
     }
 }
@@ -52,6 +62,7 @@ void map_index_rebuild()
 	osMutexAcquire(fc.map_index.lock, WAIT_INF);
 
 	fc.map_index.tiles_index = 0;
+	fc.map_index.status = MAP_INDEX_INDEXING;
 
 	uint32_t start = HAL_GetTick();
     INFO("Rebuilding index");
@@ -74,6 +85,9 @@ void map_index_rebuild()
     uint32_t delta = HAL_GetTick() - start;
     INFO("Rebuilding done (%0.2f s)", delta / 1000.0);
 
+
+    fc.map_index.status = MAP_INDEX_OK;
+
     osMutexRelease(fc.map_index.lock);
 }
 
@@ -81,6 +95,7 @@ void map_index_download_agl_cb(uint8_t event, struct download_slot_t * slot)
 {
 	if (event == DOWNLOAD_SLOT_PROGRESS)
 	{
+	    fc.map_index.process = slot->pos * 100 / slot->size;
 		return;
 	}
 
@@ -105,7 +120,7 @@ void map_index_download_agl_cb(uint8_t event, struct download_slot_t * slot)
 		//TODO add failed and skip
 	}
 
-
+	fc.map_index.status = MAP_INDEX_OK;
 	download_in_progress = false;
 }
 
@@ -113,6 +128,7 @@ void map_index_download_map_cb(uint8_t event, struct download_slot_t * slot)
 {
 	if (event == DOWNLOAD_SLOT_PROGRESS)
 	{
+        fc.map_index.process = slot->pos * 100 / slot->size;
 		return;
 	}
 
@@ -137,16 +153,26 @@ void map_index_download_map_cb(uint8_t event, struct download_slot_t * slot)
 		//TODO add failed and skip
 	}
 
+	fc.map_index.status = MAP_INDEX_OK;
 	download_in_progress = false;
 }
 
 void map_index_task(void * param)
 {
+    UNUSED(param);
+
 	bool sleep = true;
 	while(1)
 	{
 		if (sleep)
+		{
+			if (!download_in_progress)
+			{
+			    fc.map_index.status = MAP_INDEX_OK;
+			}
+
 			osDelay(1000);
+		}
 
 		if (download_in_progress)
 			continue;
@@ -169,6 +195,8 @@ void map_index_task(void * param)
 				tile[7] = 0;
 			}
 
+			strncpy(fc.map_index.tile, tile, 7);
+
 			char path[PATH_LEN];
 
 			//AGL file
@@ -188,6 +216,8 @@ void map_index_task(void * param)
 				char url[PATH_LEN];
 				snprintf(url, sizeof(url), "%s/%u/%s.ZIP", config_get_text(&config.system.agl_url), AGL_VERSION, tile);
 
+				fc.map_index.status = MAP_INDEX_DOWNLOADING_AGL;
+
 				if(esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, map_index_download_agl_cb) != DOWNLOAD_SLOT_NONE)
 				{
 					strncpy(active_tile, tile, sizeof(tile));
@@ -204,8 +234,10 @@ void map_index_task(void * param)
 
 			if (!have_file && have_zip)
 			{
-				unzip_zipfile(PATH_TOPO_DIR, path);
-				//red_uninit(path);
+			    fc.map_index.status = MAP_INDEX_UNZIPPING_AGL;
+
+				unzip_zipfile(PATH_TOPO_DIR, path, false);
+				//red_unlink(path);
 
 				red_close(f);
 				osMutexRelease(fc.map_index.lock);
@@ -230,6 +262,8 @@ void map_index_task(void * param)
 				char url[PATH_LEN];
 				snprintf(url, sizeof(url), "%s/%u/%s.ZIP", config_get_text(&config.system.map_url), MAP_VERSION, tile);
 
+				fc.map_index.status = MAP_INDEX_DOWNLOADING_MAP;
+
 				if(esp_http_get(url, DOWNLOAD_SLOT_TYPE_FILE, map_index_download_map_cb) != DOWNLOAD_SLOT_NONE)
 				{
 					strncpy(active_tile, tile, sizeof(tile));
@@ -246,7 +280,9 @@ void map_index_task(void * param)
 
 			if (!have_file && have_zip)
 			{
-				unzip_zipfile(PATH_MAP_DIR, path);
+			    fc.map_index.status = MAP_INDEX_UNZIPPING_MAP;
+
+				unzip_zipfile(PATH_MAP_DIR, path, false);
 				//red_uninit(path);
 
 				red_close(f);
@@ -275,6 +311,7 @@ void map_index_init()
     fc.map_index.tiles_requested = file_size_from_name(PATH_TILES_REQ) / 8; //7 + \n
     fc.map_index.tiles_index = 0;
     fc.map_index.tiles_failed = 0;
+    fc.map_index.status = MAP_INDEX_OK;
 
     red_mkdir(PATH_MAP_DL_DIR);
     red_mkdir(PATH_AGL_DL_DIR);
