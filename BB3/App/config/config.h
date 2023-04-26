@@ -210,10 +210,17 @@ typedef struct
 	struct
 	{
         cfg_entry_t a2dp_volume;
+        cfg_entry_t a2dp_thermal_volume;
         cfg_entry_t sound_volume;
         cfg_entry_t vario_volume;
+        cfg_entry_t vario_glide_volume;
         cfg_entry_t master_volume;
         cfg_entry_t tts_alerts;
+        cfg_entry_t thermal_fade;
+        cfg_entry_t thermal_connected;
+        cfg_entry_t idle_min;
+        cfg_entry_t idle_max;
+        cfg_entry_t change_spd;
 	} audio;
 
     struct

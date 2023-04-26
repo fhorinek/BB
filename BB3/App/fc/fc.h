@@ -342,6 +342,12 @@ typedef struct
 
         uint32_t last_ping;
         uint32_t last_ping_req;
+
+        uint32_t vario_volume_last_change;
+        uint8_t vario_volume;
+        uint8_t a2dp_volume;
+
+        uint8_t _pad[2];
 	} esp;
 
 	struct

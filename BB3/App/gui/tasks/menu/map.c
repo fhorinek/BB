@@ -9,8 +9,7 @@
 
 REGISTER_TASK_IL(map,
         lv_obj_t *map_info;
-)
-;
+);
 
 static void map_cc_task(void *param)
 {

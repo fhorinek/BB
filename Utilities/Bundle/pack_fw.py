@@ -37,6 +37,10 @@ def read_chunk(bin_path, addr):
     if name == b'BB_esp_fw.bin':
         name = b'firmware.bin'
         
+    if len(name) >= name_max_len:
+        print("Name %s is too long %d>%d" % (str(name)[1:], len(name), name_max_len - 1))
+        sys.exit(-1)
+        
     name = name[0:name_max_len - 1]
     name += bytes([0] * (name_max_len - len(name)))
 

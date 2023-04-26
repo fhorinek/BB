@@ -39,7 +39,7 @@ flasher_ret_t check_update_file(int32_t file)
         return flasher_unexpected_eof;
     }
 
-    for (uint8_t i = 0; i < file_header.number_of_records; i++)
+    for (uint16_t i = 0; i < file_header.number_of_records; i++)
     {
         chunk_header_t chunk;
 
@@ -213,7 +213,7 @@ flasher_ret_t esp_flash_write_file(int32_t file)
         return flasher_unexpected_eof;
     }
 
-    for (uint8_t i = 0; i < file_header.number_of_records; i++)
+    for (uint16_t i = 0; i < file_header.number_of_records; i++)
     {
         chunk_header_t chunk;
 

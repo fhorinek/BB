@@ -11,6 +11,7 @@
 #include "gui/statusbar.h"
 
 #include "etc/bootloader.h"
+#include "fc/fc.h"
 
 //trigger when new version is available, from gui pages
 void config_new_version_cb()
@@ -115,9 +116,15 @@ static void bt_volume_cb(cfg_entry_t * entry)
 	if (entry == &profile.audio.master_volume)
 		ch = PROTO_VOLUME_MASTER;
 	if (entry == &profile.audio.a2dp_volume)
+    {
 		ch = PROTO_VOLUME_A2DP;
+        fc.esp.a2dp_volume = vol;
+    }
 	if (entry == &profile.audio.vario_volume)
+	{
 		ch = PROTO_VOLUME_VARIO;
+		fc.esp.vario_volume = vol;
+	}
 	if (entry == &profile.audio.sound_volume)
 		ch = PROTO_VOLUME_SOUND;
 
@@ -169,6 +176,17 @@ static void language_cb(cfg_entry_t * entry)
     gui_load_language();
 }
 
+static void vario_audio_idle_min_ch(cfg_entry_t * entry)
+{
+    if (config_get_int(entry) > config_get_int(&profile.audio.idle_max))
+        config_set_int(&profile.audio.idle_max, config_get_int(entry));
+}
+
+static void vario_audio_idle_max_ch(cfg_entry_t * entry)
+{
+    if (config_get_int(entry) < config_get_int(&profile.audio.idle_min))
+        config_set_int(&profile.audio.idle_min, config_get_int(entry));
+}
 
 cfg_callback_pair_t config_callbacks[] =
 {
@@ -194,7 +212,9 @@ cfg_callback_pair_t config_callbacks[] =
     {&profile.fanet.air_type, flarm_config_cb},
     {&profile.fanet.ground_type, flarm_config_cb},
     {&pilot.online_track, flarm_config_cb},
-    {&config.display.language, language_cb}
+    {&config.display.language, language_cb},
+    {&profile.audio.idle_min, vario_audio_idle_min_ch},
+    {&profile.audio.idle_max, vario_audio_idle_max_ch},
 };
 
 static bool config_callbacks_enabled = true;
