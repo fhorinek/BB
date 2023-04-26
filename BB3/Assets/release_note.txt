@@ -1,23 +1,12 @@
 Added:
-* Inline help system
-* Basic airspace support
-* Flight book with map
-* Flight statistics
-* FANET radar zoom levels
-* Build in default pages
+* Download of MAP
+* Download of AGL
+* Download of airspace
+* Fade volume for A2DP when thermaling
+* Airspace side view
+* Translations
 
-Changed:
-* Reliance Edge FS
-* USB protocol MTP
-
-Fixed:
-* Filename slot exhaution
-* Fanet status sync with pps
-* FLARM malformed packet
-* Lot of bugs and usability issues
-
-Known issue:
-* Wrong firmware version before bootloader update 
-
-Other:
-* Space invaders! (in dev menu)
+Updated:
+* FANET licence
+* Bootloader file handling
+* Filemanager over wifi

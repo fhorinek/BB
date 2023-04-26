@@ -33,9 +33,13 @@ def read_chunk(bin_path, addr):
     if len(data) % 4 != 0:
         data += bytes([0] * (4 - (len(data) % 4)))
         
-    name = bytes(os.path.basename(bin_path), encoding='ascii')
+    name = bytes(os.path.basename(bin_path), encoding='utf-8')
     if name == b'BB_esp_fw.bin':
         name = b'firmware.bin'
+        
+    if len(name) >= name_max_len:
+        print("Name %s is too long %d>%d" % (str(name)[1:], len(name), name_max_len - 1))
+        sys.exit(-1)
         
     name = name[0:name_max_len - 1]
     name += bytes([0] * (name_max_len - len(name)))
@@ -67,7 +71,7 @@ def read_chunk(bin_path, addr):
     pad = "*" if f else (("  " * level) + ("[" if d else ""))
     
 
-    print("  0x%08X\t%10u bytes\tcrc %08X\t%s%s%s" % (addr, size, crc, pad, str(name, encoding='ascii'), "]" if d else ""))
+    print("  0x%08X\t%10u bytes\tcrc %08X\t%s%s%s" % (addr, size, crc, pad, str(name, encoding='utf-8'), "]" if d else ""))
     
     chunk = {
         "name": name,

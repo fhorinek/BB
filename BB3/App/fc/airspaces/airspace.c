@@ -722,8 +722,8 @@ static void airspace_force_redraw()
             gui.map.chunks[i].ready = false;
         }
     }
-
 }
+
 void airspace_unload_unlocked()
 {
     fc.airspaces.valid = false;

@@ -414,16 +414,30 @@ flight_profile_t profile =
 
 	//audio
 	{
-		//a2dp_volume
-		entry_int("a2dp_volume", 100, 0, 100),
+        //a2dp_volume
+        entry_int("a2dp_volume", 100, 0, 100),
+        //a2dp_thermal_volume
+        entry_int("a2dp_thermal_volume", 100, 0, 100),
 		//sound_volume
 		entry_int("sound_volume", 100, 0, 100),
-		//vario_volume
-		entry_int("vario_volume", 100, 0, 100),
-		//master_volume
+        //vario_volume
+        entry_int("vario_volume", 100, 0, 100),
+        //vario_glide_volume
+        entry_int("vario_glide_volume", 100, 0, 100),
+        //master_volume
 		entry_int("master_volume", 75, 0, 100),
 		//tts_alerts
 		entry_bool("tts_alerts", false),
+        //thermal_fade
+        entry_bool("audio_fade", false),
+        //thermal_connected
+        entry_bool("audio_fade_con", true),
+        //idle_min
+		entry_int("audio_fade_min", -5, -40, 10),
+        //idle_max
+		entry_int("audio_fade_max", 1, -40, 10),
+        //change_spd
+		entry_int("audio_fade_change", 3, 1, 10),
 	},
 
     //bluetooth
@@ -538,6 +552,10 @@ config_t config =
         entry_select("firmware", FW_RELEASE, fw_channel_select),
         //check_for_updates
         entry_bool("check_fw", true),
+        //agl url
+        entry_text("agl_url", "https://strato.skybean.eu/update/data/agl", UPDATE_URL_LEN, 0),
+        //map url
+        entry_text("map_url", "https://strato.skybean.eu/update/data/map", UPDATE_URL_LEN, 0),
     },
 
 	//debug
