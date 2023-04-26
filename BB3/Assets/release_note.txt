@@ -1,4 +1,5 @@
 Added:
+* FLARM licence update
 * Basic airspace support
 * Flight book with map
 * Flight statistics
