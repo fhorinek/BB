@@ -335,8 +335,6 @@ void thread_gui_start(void *argument)
 
     while (!system_power_off)
 	{
-		gui_loop();
-
 		if (gui.take_screenshot == 1)
 		{
 		    gui.take_screenshot = 2;
@@ -347,6 +345,8 @@ void thread_gui_start(void *argument)
 
 		osMutexAcquire(gui.lock, WAIT_INF);
 		gui_lock_owner = xTaskGetCurrentTaskHandle();
+
+        gui_loop();
 
 		if (gui.injected_function != NULL)
 		{

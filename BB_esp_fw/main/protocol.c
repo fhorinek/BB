@@ -208,7 +208,7 @@ void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 
         case (PROTO_SPI_PREPARE):
         {
-        	DBG("STM -> spi_prepare_buffer");
+        	//DBG("STM -> spi_prepare_buffer");
         	proto_spi_prepare_t * packet = (proto_spi_prepare_t *)data;
             spi_prepare_buffer(packet->data_lenght);
         }

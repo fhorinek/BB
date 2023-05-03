@@ -442,8 +442,8 @@ void bsod_bundle_report()
 
     if (res)
     {
-        strcpy(path, PATH_AIRSPACE_DIR);
-        bsod_zip_path(zip, path);
+//        strcpy(path, PATH_AIRSPACE_DIR);
+//        bsod_zip_path(zip, path);
 
         strcpy(path, PATH_CONFIG_DIR);
         bsod_zip_path(zip, path);

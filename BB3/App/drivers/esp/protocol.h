@@ -35,6 +35,7 @@ void esp_spi_prepare();
 void esp_spi_cancel();
 
 void esp_set_wifi_mode();
+void esp_set_wifi(bool on);
 void esp_wifi_start_scan(wifi_list_update_cb cb);
 bool esp_wifi_scanning();
 void esp_wifi_stop_scan();

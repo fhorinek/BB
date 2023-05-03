@@ -168,6 +168,7 @@ typedef struct
         cfg_entry_t sink;
         cfg_entry_t lift;
         cfg_entry_t acc_gain;
+        cfg_entry_t avg_digital_duration;
         cfg_entry_t avg_duration;
         cfg_entry_t profile;
     } vario;
@@ -238,6 +239,7 @@ typedef struct
         cfg_entry_t enabled;
         cfg_entry_t autoconnect;
         cfg_entry_t ap;
+        cfg_entry_t off_in_flight;
     } wifi;
 
 } flight_profile_t;

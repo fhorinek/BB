@@ -115,7 +115,7 @@ void spi_task_proto(void *pvParameters)
 	{
 		xSemaphoreTake(spi_ready_semaphore, WAIT_INF);
 		protocol_send_spi_ready(spi_data_to_send);
-		DBG("spi_task_proto: spi ready (%u)", spi_data_to_send);
+		//DBG("spi_task_proto: spi ready (%u)", spi_data_to_send);
 	}
 }
 

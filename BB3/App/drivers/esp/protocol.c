@@ -89,6 +89,26 @@ void esp_set_wifi_mode()
     protocol_send(PROTO_WIFI_SET_MODE, (void *) &data, sizeof(data));
 }
 
+void esp_set_wifi(bool on)
+{
+    proto_wifi_mode_t data = {0};
+
+    if (on)
+    {
+        data.client = config_get_bool(&profile.wifi.enabled) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
+        data.ap = config_get_bool(&profile.wifi.ap) ? PROTO_WIFI_MODE_ON : PROTO_WIFI_MODE_OFF;
+    }
+
+    if (data.ap)
+    {
+        strcpy(data.ssid, config_get_text(&config.device_name));
+        strcpy(data.pass, config_get_text(&config.wifi.ap_pass));
+    }
+
+    protocol_send(PROTO_WIFI_SET_MODE, (void *) &data, sizeof(data));
+}
+
+
 bool esp_wifi_scanning()
 {
     return fc.esp.wifi_list_cb != NULL;

@@ -150,7 +150,7 @@ void thread_esp_spi_start(void * argument)
         if (spi_data_to_read > spi_data_to_send)
             spi_data_to_send = spi_data_to_read;
 
-        DBG("SPI bytes to transfer %u", spi_data_to_send);
+        //DBG("SPI bytes to transfer %u", spi_data_to_send);
 
         uint8_t res = HAL_SPI_TransmitReceive_DMA(esp_spi, spi_tx_buffer, spi_rx_buffer, spi_data_to_send);
         if (res != HAL_OK)

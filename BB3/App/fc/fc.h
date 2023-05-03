@@ -56,11 +56,12 @@
 #define ESP_STATE_WIFI_CONNECTED    0b0000000000000010
 #define ESP_STATE_WIFI_AP           0b0000000000000100
 #define ESP_STATE_WIFI_AP_CONNECTED 0b0000000000001000
-#define ESP_STATE_BT_ON             0b0000000000010000
-#define ESP_STATE_BT_A2DP           0b0000000000100000
-#define ESP_STATE_BT_SPP            0b0000000001000000
-#define ESP_STATE_BT_BLE            0b0000000010000000
-#define ESP_STATE_WIFI_CONNECTING   0b0000000100000000
+#define ESP_STATE_WIFI_CONNECTING   0b0000000000010000
+
+#define ESP_STATE_BT_ON             0b0000000000100000
+#define ESP_STATE_BT_A2DP           0b0000000001000000
+#define ESP_STATE_BT_SPP            0b0000000010000000
+#define ESP_STATE_BT_BLE            0b0000000100000000
 
 typedef struct
 {
@@ -376,6 +377,7 @@ typedef struct
         float altitude2;
         float pressure;
         float vario;        // in m/s
+        float dig_vario;
         float avg_vario;
         float gr_vario;
 

@@ -229,6 +229,11 @@ void fc_takeoff()
         fc.flight.takeoff_distance = INVALID_UINT32;
     }
 
+    if (config_get_bool(&profile.wifi.off_in_flight))
+    {
+        esp_set_wifi(false);
+    }
+
     fc.autostart.timestamp = HAL_GetTick();
     fc.autostart.altitude = fc.fused.altitude1;
 
@@ -276,6 +281,11 @@ void fc_landing()
 
     fanet_set_mode(false);
     logger_stop();
+
+    if (config_get_bool(&profile.wifi.off_in_flight))
+    {
+        esp_set_wifi(true);
+    }
 
     gui_page_set_next(&profile.ui.autoset.land);
 
@@ -470,7 +480,7 @@ void fc_step()
 
         fc.esp.vario_volume_last_change = HAL_GetTick() + 200;
 
-        DBG("VA %u A2 %u", fc.esp.vario_volume, fc.esp.a2dp_volume);
+        //DBG("VA %u A2 %u", fc.esp.vario_volume, fc.esp.a2dp_volume);
     }
 
     navigation_step();

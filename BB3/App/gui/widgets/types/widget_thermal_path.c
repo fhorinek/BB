@@ -86,7 +86,7 @@ static void TTrace_update(widget_slot_t * slot)
 			    float dist = (fc.wind.speed / 1000.0) * time;
 			    geo_destination(point_lat, point_lon, fc.wind.direction + 180, dist, &point_lat, &point_lon);
 			}
-			geo_to_pix_w_h(curr_lon, curr_lat, 0, point_lon, point_lat, &x, &y, slot->w, slot->h);
+			geo_to_pix_w_h(curr_lon, curr_lat, 1, point_lon, point_lat, &x, &y, slot->w, slot->h);
 
 			lv_color_t c = LV_COLOR_SILVER;
 

@@ -153,6 +153,13 @@ cfg_entry_param_range_t acc_gain_range =
     .val_max.flt = 1.0
 };
 
+cfg_entry_param_range_t dig_avg_range =
+{
+    .val_min.flt = 0.1,
+    .val_max.flt = 1.0
+};
+
+
 cfg_entry_param_range_t big_int_max_range =
 {
     .val_min.s32 = INT32_MIN,
@@ -309,13 +316,13 @@ flight_profile_t profile =
             //alt_change_enabled
             entry_bool("auto_land_alt", true),
             //alt_change_value
-            entry_int("auto_land_alt_val", 5, 1, 20),
+            entry_int("auto_land_alt_val", 2, 1, 20),
             //speed_enabled
             entry_bool("auto_land_speed", true),
             //speed_value
-            entry_int("auto_land_val", 5, 1, 20),
+            entry_int("auto_land_val", 2, 1, 20),
             //timeout
-            entry_int("auto_land_timeout", 30, 1, 120),
+            entry_int("auto_land_timeout", 60, 1, 120),
         },
         //logger
         {
@@ -347,6 +354,8 @@ flight_profile_t profile =
 		entry_int("vario_lift", 1, -100, 100),
         //acc_gain
         entry_float("vario_acc", 1.0, acc_gain_range),
+        //avg_digital_duration
+        entry_float("vario_dig_avg", 0.3, dig_avg_range),
         //avg_duration
         entry_int("vario_avg", 15, 5, 120),
         //profile
@@ -464,6 +473,8 @@ flight_profile_t profile =
         entry_bool("wifi_auto", true),
         //ap
         entry_bool("wifi_ap", false),
+        //off_after_take_off
+        entry_bool("wifi_off_in_flight", true),
     },
 };
 

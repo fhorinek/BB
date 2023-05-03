@@ -25,18 +25,22 @@
 
 #include "shortcuts/actions.h"
 #include "shortcuts/shortcuts.h"
+#include "fc/fc.h"
 
 #include <private_key.h>
 
 extern const lv_img_dsc_t tile;
 
-#define MENU_TIMEOUT	2000
-#define EDIT_TIMEOUT	6000
-#define OVER_TIMEOUT	10000
+#define MENU_TIMEOUT	    5000
+#define EDIT_TIMEOUT	    10000
+#define OVER_TIMEOUT	    10000
 
-#define MENU_RADIUS	15
-#define MENU_WIDTH	35
-#define MENU_HEIGHT	180
+#define IDLE_LOOP_PERIOD    250
+#define ACTIVE_LOOP_PERIOD  50
+
+#define MENU_RADIUS	        15
+#define MENU_WIDTH	        35
+#define MENU_HEIGHT	        180
 
 //States
 #define MENU_IDLE			0
@@ -618,6 +622,8 @@ void pages_set_page_right_shrt(char * new_shrt)
 
 static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 {
+    gui_set_loop_period(50);
+
     switch(event)
     {
         case LV_EVENT_LONG_PRESSED_REPEAT:
@@ -938,8 +944,6 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 	statusbar_msg_add(STATUSBAR_MSG_WARN, _("IGC key missing!"));
     #endif
 
-	gui_set_loop_period(50);
-
 	return par;
 }
 
@@ -1022,6 +1026,16 @@ static void pages_loop()
 	    if (local->state == MENU_SHOW)
 	        pages_menu_hide();
 	}
+
+	if (local->state == MENU_IDLE && fc.flight.mode == flight_flight)
+	{
+	    gui_set_loop_period(IDLE_LOOP_PERIOD);
+	}
+	else
+	{
+	    gui_set_loop_period(ACTIVE_LOOP_PERIOD);
+	}
+
 }
 
 static void pages_stop()

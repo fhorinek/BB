@@ -536,7 +536,11 @@ void format_duration(char * buff, float in)
 	{
 		sprintf(buff, "%us", sec);
 	}
+}
 
+void format_duration_sec_f(char * buff, float in)
+{
+    sprintf(buff, "%0.1fs", in);
 }
 
 void format_uuid(char * buff)

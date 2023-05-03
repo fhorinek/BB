@@ -118,6 +118,8 @@ void map_index_download_agl_cb(uint8_t event, struct download_slot_t * slot)
 	if (event == DOWNLOAD_SLOT_NOT_FOUND)
 	{
 		//TODO add failed and skip
+	    fc.map_index.tiles_failed++;
+	    return;
 	}
 
 	fc.map_index.status = MAP_INDEX_OK;
@@ -151,6 +153,8 @@ void map_index_download_map_cb(uint8_t event, struct download_slot_t * slot)
 	if (event == DOWNLOAD_SLOT_NOT_FOUND)
 	{
 		//TODO add failed and skip
+        fc.map_index.tiles_failed++;
+        return;
 	}
 
 	fc.map_index.status = MAP_INDEX_OK;

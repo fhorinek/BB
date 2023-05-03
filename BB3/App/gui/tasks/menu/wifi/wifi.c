@@ -82,9 +82,10 @@ static lv_obj_t * wifi_init(lv_obj_t * par)
 	local->network = gui_list_info_add_entry(list, _h("WiFi network"), "");
 	gui_list_auto_entry(list, _h("Access point"), &profile.wifi.ap, NULL);
 	gui_list_auto_entry(list, _h("Device name"), &config.device_name, NULL);
-	gui_list_auto_entry(list, _h("AP password"), &config.wifi.ap_pass, NULL);
+    gui_list_auto_entry(list, _h("AP password"), &config.wifi.ap_pass, NULL);
     local->info = gui_list_info_add_entry(list, _h("Network info"), "");
     gui_config_entry_add(local->info, NEXT_TASK, &gui_wifi_info);
+    gui_list_auto_entry(list, _h("Disable in flight"), &profile.wifi.off_in_flight, NULL);
 
 	return list;
 }
