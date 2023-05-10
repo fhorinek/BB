@@ -156,7 +156,7 @@ void protocol_task_info(void * param)
 
 void protocol_handle(uint8_t type, uint8_t *data, uint16_t len)
 {
-	//DBG("protocol_handle %02X", type);
+	//DBG("ESP protocol_handle %02X", type);
 
     int64_t start = esp_timer_get_time();
     protocol_last_packet = start / 1000;

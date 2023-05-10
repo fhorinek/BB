@@ -33,7 +33,6 @@ void spi_prepare_buffer(uint32_t len)
 	spi_data_to_recieve = len;
 
     xSemaphoreGive(spi_prepare_semaphore);
-    xSemaphoreGive(spi_buffer_access);
 }
 
 uint8_t * spi_acquire_buffer_ptr(uint32_t * size_avalible)
@@ -149,8 +148,6 @@ void spi_task(void *pvParameters)
 
         //wait for the prepare request
         xSemaphoreTake(spi_prepare_semaphore, WAIT_INF);
-
-        xSemaphoreTake(spi_buffer_access, WAIT_INF);
 
         t.length = SPI_BUFFER_SIZE * 8;
         t.tx_buffer = spi_tx_buffer;

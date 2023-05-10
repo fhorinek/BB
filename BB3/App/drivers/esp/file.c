@@ -55,6 +55,8 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 	if (f > 0)
 	{
 		//acquire buffer
+	    uint32_t data_send = 0;
+
 		while (1)
 		{
 			uint16_t free_space;
@@ -63,6 +65,7 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 			if (free_space < packet->chunk_size + sizeof(proto_spi_header_t))
 			{
 				esp_spi_release_buffer(0);
+	            esp_spi_prepare();
 				osDelay(1);
 				continue;
 			}
@@ -72,14 +75,20 @@ void file_send_file(proto_fs_get_file_req_t * packet)
 	        hdr.packet_type = SPI_EP_FILE;
 	        hdr.data_id = packet->req_id;
 	        hdr.data_len = br;
+	        //INFO("br = %u", br);
+	        data_send += br;
+
 	        safe_memcpy(buf, &hdr, sizeof(proto_spi_header_t));
 
 	        //release buffer
 	        esp_spi_release_buffer(br + sizeof(proto_spi_header_t));
-	        esp_spi_prepare();
 
 	        if (br < packet->chunk_size)
+	        {
+	            esp_spi_prepare();
+	            INFO("End of file! %u", data_send);
 	        	break;
+	        }
 		}
 
 		red_close(f);

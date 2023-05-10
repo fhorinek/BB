@@ -282,7 +282,7 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)
 {
 //    if (type != PROTO_DEBUG)
-//        DBG("protocol_handle %02X", type);
+//        DBG("STM protocol_handle %02X", type);
 
 	fc.esp.last_ping = HAL_GetTick();
 

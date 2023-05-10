@@ -65,6 +65,9 @@ uint32_t upload_part_chunks(uint8_t data_id, esp_http_client_handle_t http_clien
 
         received_chunk_size = *((uint32_t*) file_handle->data_ptr);
         int write_size = esp_http_client_write(http_client, file_handle->data_ptr + 4, received_chunk_size);
+
+        //INFO(" esp_http_client_write %u/%u", write_size, received_chunk_size);
+
         transmitted_size += write_size;
 
         free(file_handle->data_ptr);

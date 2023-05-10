@@ -124,7 +124,7 @@ tone_part_t * vario_create_part(uint16_t freq, uint16_t duration)
 			tone->buffer[i * 2] = (int16_t)(sin((M_TWOPI * i) / one_ch_len) * HALF_AMP);
 		}
 
-		tone->repeat = max(1, (duration * ONE_MS) / one_ch_len);
+		tone->repeat = max(1, (duration * ONE_MS) / tone->size);
 	}
 
 	return tone;

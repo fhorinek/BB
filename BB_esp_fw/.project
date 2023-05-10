@@ -514,11 +514,6 @@
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/hal/dac_hal.c</location>
 		</link>
 		<link>
-			<name>build/ide/esp_idf_components/hal/emac_hal.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/hal/emac_hal.c</location>
-		</link>
-		<link>
 			<name>build/ide/esp_idf_components/hal/gpio_hal.c</name>
 			<type>1</type>
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/hal/gpio_hal.c</location>
@@ -1247,51 +1242,6 @@
 			<name>build/ide/esp_idf_components/esp_common/src/esp_err_to_name.c</name>
 			<type>1</type>
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_common/src/esp_err_to_name.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_mac_esp.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_mac_esp.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_netif_glue.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_netif_glue.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_phy.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_phy.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_phy_dp83848.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_phy_dp83848.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_phy_ip101.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_phy_ip101.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_phy_ksz80xx.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_phy_ksz80xx.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_phy_lan87xx.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_phy_lan87xx.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/esp_eth/src/esp_eth_phy_rtl8201.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/esp_eth/src/esp_eth_phy_rtl8201.c</location>
 		</link>
 		<link>
 			<name>build/ide/esp_idf_components/esp_gdbstub/esp_common/gdbstub_common.c</name>
@@ -2687,126 +2637,6 @@
 			<name>build/ide/esp_idf_components/cmock/CMock/src/cmock.c</name>
 			<type>1</type>
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/cmock/CMock/src/cmock.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/address.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/address.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/async.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/async.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/block.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/block.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_asn1.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_asn1.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_cache.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_cache.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_debug.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_debug.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_event.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_event.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_hashkey.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_hashkey.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_io.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_io.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_mbedtls.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_mbedtls.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_notls.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_notls.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_prng.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_prng.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_session.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_session.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_tcp.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_tcp.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/coap_time.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/coap_time.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/encode.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/encode.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/mem.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/mem.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/net.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/net.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/option.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/option.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/pdu.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/pdu.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/resource.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/resource.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/str.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/str.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/subscribe.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/subscribe.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/coap/libcoap/src/uri.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/coap/libcoap/src/uri.c</location>
 		</link>
 		<link>
 			<name>build/ide/esp_idf_components/esp_http_server/src/util/ctrl_sock.c</name>
@@ -4319,11 +4149,6 @@
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/wpa_supplicant/src/wps/wps_validate.c</location>
 		</link>
 		<link>
-			<name>build/ide/esp_idf_components/asio/asio/asio/src/asio.cpp</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/asio/asio/asio/src/asio.cpp</location>
-		</link>
-		<link>
 			<name>build/ide/esp_idf_components/bt/common/btc/core/btc_alarm.c</name>
 			<type>1</type>
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/bt/common/btc/core/btc_alarm.c</location>
@@ -4727,11 +4552,6 @@
 			<name>build/ide/esp_idf_components/lwip/port/esp32/netif/dhcp_state.c</name>
 			<type>1</type>
 			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/lwip/port/esp32/netif/dhcp_state.c</location>
-		</link>
-		<link>
-			<name>build/ide/esp_idf_components/lwip/port/esp32/netif/ethernetif.c</name>
-			<type>1</type>
-			<location>/home/horinek/dev/strato/tools_new/esp/esp-adf-v2.4.1/esp-idf/components/lwip/port/esp32/netif/ethernetif.c</location>
 		</link>
 		<link>
 			<name>build/ide/esp_idf_components/lwip/port/esp32/netif/wlanif.c</name>
