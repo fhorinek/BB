@@ -87,6 +87,22 @@ void db_close_path(const char * path)
     }
 }
 
+void db_close_all()
+{
+    osMutexAcquire(db_handles_lock, WAIT_INF);
+
+    for (uint8_t i = 0; i < DB_LOCKS_SIZE; i++)
+    {
+        if (db_handles[i].path == NULL)
+            continue;
+
+        osMutexAcquire(db_handles[i].lock, WAIT_INF);
+        db_close(&db_handles[i]);
+        osMutexRelease(db_handles[i].lock);
+    }
+    osMutexRelease(db_handles_lock);
+}
+
 static void db_repair(db_handle_t * db)
 {
     red_lseek(db->fp, 0, RED_SEEK_SET);

@@ -29,5 +29,6 @@ bool db_iterate(const char * path, db_callback callback);
 void db_drop(const char * path);
 
 void db_close_path(const char * path);
+void db_close_all();
 
 #endif /* CONFIG_DB_H_ */

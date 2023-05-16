@@ -131,7 +131,7 @@ void vario_profile_load(char * name)
                 break;
         }
 
-
+        db_close_path(path);
     }
 
     if (!ret)

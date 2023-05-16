@@ -388,14 +388,24 @@ void remove_dir_rec(char * path, bool remove)
             }
             else
             {
-                red_unlink(work_path);
+                int32_t ret = red_unlink(work_path);
+                if (ret < 0)
+                {
+                    ERR("red_unlink %s ret = %d", work_path, red_errno);
+                }
             }
         }
 
         red_closedir(dir);
 
         if (remove)
-            red_unlink(path);
+        {
+            int32_t ret = red_unlink(path);
+            if (ret < 0)
+            {
+                ERR("red_unlink %s ret = %d", path, red_errno);
+            }
+        }
     }
 }
 
