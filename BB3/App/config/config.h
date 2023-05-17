@@ -303,6 +303,7 @@ typedef struct
         cfg_entry_t check_for_updates;
         cfg_entry_t agl_url;
         cfg_entry_t map_url;
+        cfg_entry_t enable_sleep;
     } system;
 
 	struct

@@ -123,6 +123,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, "Sensors", 0, NEXT_TASK, &gui_sensors);
 
+    gui_list_auto_entry(list, "STM idle sleep", 0, &config.system.enable_sleep, NULL);
     gui_list_auto_entry(list, "ESP Disable", 0, &config.debug.esp_off, NULL);
     gui_list_auto_entry(list, "ESP Watchdog", 0, &config.debug.esp_wdt, NULL);
     gui_list_auto_entry(list, "ESP enter gdbstub", 0, &config.debug.esp_gdbstub, NULL);

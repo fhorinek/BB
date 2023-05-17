@@ -39,12 +39,14 @@ void file_list_path(proto_fs_list_req_t * packet)
 
 			strncpy(data_res.name, entry->d_name, sizeof(data_res.name));
 
+			INFO("list %s", entry->d_name);
 			protocol_send(PROTO_FS_LIST_RES, (void *)&data_res, sizeof(data_res));
 		}
 
 		red_closedir(dir);
 	}
 
+	INFO("list end");
 	data_res.type = PROTO_FS_TYPE_END;
 	protocol_send(PROTO_FS_LIST_RES, (void *)&data_res, sizeof(data_res));
 }

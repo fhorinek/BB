@@ -252,7 +252,7 @@ void esp_step()
 			        && fc.esp.last_ping + 200 < HAL_GetTick())
 			{
 			    fc.esp.last_ping_req = HAL_GetTick();
-			    INFO("PROTO_PING");
+			    //INFO("PROTO_PING");
 				protocol_send(PROTO_PING, NULL, 0);
 			}
 

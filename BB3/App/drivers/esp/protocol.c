@@ -276,7 +276,14 @@ void protocol_send(uint8_t type, uint8_t * data, uint16_t data_len)
 
     stream_packet(type, buf_out, data, data_len);
 
-    su_write(&protocol_tx, buf_out, sizeof(buf_out));
+    bool stored;
+    do
+    {
+        stored = su_write(&protocol_tx, buf_out, sizeof(buf_out));
+
+        if (!stored)
+            osDelay(1);
+    } while (!stored);
 }
 
 void protocol_handle(uint8_t type, uint8_t * data, uint16_t len)

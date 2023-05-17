@@ -7,6 +7,7 @@
 
 #include "gui.h"
 #include "drivers/esp/protocol.h"
+#include "drivers/power/pwr_mng.h"
 
 static osTimerId_t dbg_overlay_timer = NULL;
 
@@ -232,7 +233,10 @@ void dbg_overlay_step()
         lv_mem_monitor_t mem;
         lv_mem_monitor(&mem);
 
-        lv_label_set_text_fmt(gui.dbg.lv_info, "RT %u/%u\n%u fps %u%%\n%lu free", RedTaskRegistered(), REDCONF_TASK_COUNT,  gui.fps, 100 - mem.used_pct, mem.free_size);
+        lv_label_set_text_fmt(gui.dbg.lv_info, "RT %u/%u\n%u fps %u%%\n%lu free\n%d/%d mA",
+                RedTaskRegistered(), REDCONF_TASK_COUNT,
+                gui.fps, 100 - mem.used_pct, mem.free_size,
+                pwr.fuel_gauge.bat_current, pwr.fuel_gauge.bat_current_avg);
         lv_obj_move_foreground(gui.dbg.lv_info);
     }
     else

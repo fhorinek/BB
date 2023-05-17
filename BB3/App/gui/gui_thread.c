@@ -268,7 +268,10 @@ void thread_gui_start(void *argument)
 
     system_wait_for_handle(&thread_gui);
 
-    gui.lock = osMutexNew(NULL);
+    osMutexAttr_t mutex_param = {NULL};
+    mutex_param.attr_bits = osMutexRecursive;
+
+    gui.lock = osMutexNew(&mutex_param);
     osMutexAcquire(gui.lock, WAIT_INF);
     vQueueAddToRegistry(gui.lock, "gui.lock");
 

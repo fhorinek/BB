@@ -567,6 +567,8 @@ config_t config =
         entry_text("agl_url", "https://strato.skybean.eu/update/data/agl", UPDATE_URL_LEN, 0),
         //map url
         entry_text("map_url", "https://strato.skybean.eu/update/data/map", UPDATE_URL_LEN, 0),
+        //enable sleep
+        entry_bool("enable_sleep", true),
     },
 
 	//debug

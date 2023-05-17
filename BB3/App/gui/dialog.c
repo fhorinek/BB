@@ -227,7 +227,7 @@ void dialog_show(char * title, char * message, dialog_type_t type, gui_dialog_cb
 {
 	gui_lock_acquire();
 
-    if (gui.dialog.active)
+    while (gui.dialog.active)
         dialog_stop(dialog_res_none, NULL);
 
     gui.dialog.active = true;

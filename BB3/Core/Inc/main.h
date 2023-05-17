@@ -127,6 +127,7 @@ void Error_Handler(void);
 #define BT5_Pin GPIO_PIN_9
 #define BT5_GPIO_Port GPIOB
 #define BT5_EXTI_IRQn EXTI9_5_IRQn
+
 /* USER CODE BEGIN Private defines */
 
 #define ALT_CH_EN           ALT_CH_EN_GPIO_Port, ALT_CH_EN_Pin
