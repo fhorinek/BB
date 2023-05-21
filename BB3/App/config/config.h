@@ -168,6 +168,7 @@ typedef struct
         cfg_entry_t sink;
         cfg_entry_t lift;
         cfg_entry_t acc_gain;
+        cfg_entry_t avg_digital_duration;
         cfg_entry_t avg_duration;
         cfg_entry_t profile;
     } vario;
@@ -210,10 +211,17 @@ typedef struct
 	struct
 	{
         cfg_entry_t a2dp_volume;
+        cfg_entry_t a2dp_thermal_volume;
         cfg_entry_t sound_volume;
         cfg_entry_t vario_volume;
+        cfg_entry_t vario_glide_volume;
         cfg_entry_t master_volume;
         cfg_entry_t tts_alerts;
+        cfg_entry_t thermal_fade;
+        cfg_entry_t thermal_connected;
+        cfg_entry_t idle_min;
+        cfg_entry_t idle_max;
+        cfg_entry_t change_spd;
 	} audio;
 
     struct
@@ -231,6 +239,7 @@ typedef struct
         cfg_entry_t enabled;
         cfg_entry_t autoconnect;
         cfg_entry_t ap;
+        cfg_entry_t off_in_flight;
     } wifi;
 
 } flight_profile_t;
@@ -292,6 +301,9 @@ typedef struct
         cfg_entry_t server_url;
         cfg_entry_t fw_channel;
         cfg_entry_t check_for_updates;
+        cfg_entry_t agl_url;
+        cfg_entry_t map_url;
+        cfg_entry_t enable_sleep;
     } system;
 
 	struct

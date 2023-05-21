@@ -1,5 +1,6 @@
 #include <gui/tasks/menu/airspace/display.h>
 #include "gui/tasks/menu/settings.h"
+#include "gui/tasks/menu/airspace/download.h"
 
 #include "gui/gui_list.h"
 #include "gui/tasks/filemanager.h"
@@ -29,7 +30,9 @@ void airspace_load_task(void * param)
         config_set_text(&profile.airspace.filename, "");
     }
 
+    gui_lock_acquire();
     gui_switch_task(&gui_airspace, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+    gui_lock_release();
 
     osMutexRelease(fc.airspaces.lock);
 
@@ -137,8 +140,9 @@ static lv_obj_t * airspace_init(lv_obj_t * par)
 			local->dbg_info = gui_list_info_add_entry(list, _h("Debug Info"), "-\n-\n-\n");
 		}
 	}
+    gui_list_auto_entry(list, _h("Download from XContest"), NEXT_TASK, &gui_airspace_download);
 
-	gui_list_auto_entry(list, _h("Enabled classes"), NEXT_TASK, &gui_airspace_display);
+    gui_list_auto_entry(list, _h("Enabled classes"), NEXT_TASK, &gui_airspace_display);
 	gui_list_auto_entry(list, _h("Help"), CUSTOM_CB, airspace_help_cb);
 
 	return list;

@@ -6,7 +6,7 @@
     <WorkspacePath>/home/horinek/dev/strato/BB/BB3/</WorkspacePath>
     <underRoot>true</underRoot>
     <TrustZone>0</TrustZone>
-    <HAL_Driver>/home/horinek/STM32Cube/Repository//STM32Cube_FW_H7_V1.10.0</HAL_Driver>
+    <HAL_Driver>/home/horinek/STM32Cube/Repository//STM32Cube_FW_H7_V1.11.0</HAL_Driver>
     <CMSIS>Drivers/CMSIS</CMSIS>
     <Toolchain>STM32CubeIDE</Toolchain>
     <IocFile>BB3.ioc</IocFile>
@@ -32,12 +32,13 @@
             <memory access="xrw" name="ITCMRAM" size="64" start="0x00000000" />
             <memory access="rx" name="FLASH" size="2048" start="0x8000000" />
           </memories>
-          <startup>/home/horinek/STM32Cube/Repository/STM32Cube_FW_H7_V1.10.0/Drivers/CMSIS/Device\ST\STM32H7xx\Source\Templates\gcc\startup_stm32h7a3xx.s</startup>
+          <startup>/home/horinek/STM32Cube/Repository/STM32Cube_FW_H7_V1.11.0/Drivers/CMSIS/Device\ST\STM32H7xx\Source\Templates\gcc\startup_stm32h7a3xx.s</startup>
           <LinkSettings>
             <LinkAdditionalLibs />
           </LinkSettings>
           <heapSize>0x00</heapSize>
           <stackSize>0x00</stackSize>
+          <cpuclock>280</cpuclock>
           <board>custom</board>
           <debugprobe>swd</debugprobe>
           <optimization />

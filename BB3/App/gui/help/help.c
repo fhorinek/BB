@@ -155,7 +155,7 @@ bool help_show_icon_if_avalible_from_title(char * title)
     char id[HELP_ID_LEN];
     help_title_to_id(id, title);
 
-    INFO("help_show_icon_if_avalible_from_title %s -> %s", title, id);
+    //INFO("help_show_icon_if_avalible_from_title %s -> %s", title, id);
 
     if (strlen(id) > 0 && help_avalible(id))
     {

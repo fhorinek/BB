@@ -20,7 +20,7 @@
 #include "gui/tasks/menu/flightbook/flightbook.h"
 #include "gui/tasks/menu/flightbook/flightbook_statistics.h"
 #include "gui/tasks/menu/map.h"
-#include "gui/tasks/menu/audio.h"
+#include "gui/tasks/menu/audio/audio.h"
 #include "gui/tasks/menu/airspace/airspace.h"
 
 #include "gui/gui_list.h"

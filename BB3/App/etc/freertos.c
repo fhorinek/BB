@@ -32,6 +32,14 @@ void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
 }
 
 
+void vApplicationIdleHook(void)
+{
+    if (config_get_bool(&config.system.enable_sleep))
+    {
+        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    }
+}
+
 void *pvPortMalloc( size_t xWantedSize )
 {
     return tmalloc( xWantedSize );

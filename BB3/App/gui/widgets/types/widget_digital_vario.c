@@ -41,7 +41,7 @@ static void Vario_update(widget_slot_t * slot)
     if (fc.fused.status != fc_dev_ready)
         strcpy(value, "---");
     else
-        format_vario(value, fc.fused.vario);
+        format_vario(value, fc.fused.dig_vario);
 
     lv_label_set_text(local->value, value);
     widget_update_font_size(local->value);

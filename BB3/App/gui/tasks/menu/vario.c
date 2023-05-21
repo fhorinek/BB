@@ -28,6 +28,14 @@ static gui_list_slider_options_t avg_opt = {
 	.format = format_duration,
 };
 
+static gui_list_slider_options_t dig_avg_opt = {
+    .disp_multi = 1,
+    .step = 0.1,
+    .format = format_duration_sec_f,
+};
+
+
+
 bool vario_profile_fm_cb(uint8_t event, char * path)
 {
     if (event == FM_CB_SELECT)
@@ -51,6 +59,8 @@ bool vario_profile_fm_cb(uint8_t event, char * path)
 
 static bool vario_profile_cb(lv_obj_t * obj, lv_event_t event)
 {
+    UNUSED(obj);
+
 	if (event == LV_EVENT_CLICKED)
 	{
 		gui_switch_task(&gui_filemanager, LV_SCR_LOAD_ANIM_MOVE_LEFT);
@@ -72,7 +82,8 @@ static lv_obj_t * vario_settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, _h("Accelerometer gain"), &profile.vario.acc_gain, &acc_opt);
 	gui_list_auto_entry(list, _h("Lift threshold"), &profile.vario.lift, &sink_lift_opt);
 	gui_list_auto_entry(list, _h("Sink threshold"), &profile.vario.sink, &sink_lift_opt);
-	gui_list_auto_entry(list, _h("Average time"), &profile.vario.avg_duration, &avg_opt);
+    gui_list_auto_entry(list, _h("Digital vario smoothing"), &profile.vario.avg_digital_duration, &dig_avg_opt);
+    gui_list_auto_entry(list, _h("Average vario time"), &profile.vario.avg_duration, &avg_opt);
 
 	lv_obj_t * obj = gui_list_info_add_entry(list, _h("Vario profile"), config_get_text(&profile.vario.profile));
 	gui_config_entry_add(obj, CUSTOM_CB, vario_profile_cb);

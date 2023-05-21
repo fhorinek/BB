@@ -427,6 +427,7 @@ void config_store_all()
 
 void config_restore_factory()
 {
+    db_close_all();
 	remove_dir(PATH_CONFIG_DIR);
 	system_reboot();
 }
