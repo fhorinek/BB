@@ -42,14 +42,23 @@ void download_process_url(proto_download_url_t * packet)
 	esp_http_client_config_t config = {0};
 	config.url = packet->url;
 
+	esp_err_t ret = ESP_FAIL;
+
 	esp_http_client_handle_t client = esp_http_client_init(&config);
+	if (client != NULL)
+	{
+		esp_http_client_set_header(client, "X-Strato-ID", strato_id);
+		esp_http_client_set_header(client, "X-Strato-FW", strato_fw);
+		esp_http_client_set_header(client, "X-Strato-HW", strato_hw);
 
-	esp_http_client_set_header(client, "X-Strato-ID", strato_id);
-	esp_http_client_set_header(client, "X-Strato-FW", strato_fw);
-	esp_http_client_set_header(client, "X-Strato-HW", strato_hw);
+		ret = esp_http_client_open(client, 0);
+		INFO("esp_http_client_open = %d", ret);
+	}
+	else
+	{
+		ERR("esp_http_client_init --> NULL");
+	}
 
-	esp_err_t ret = esp_http_client_open(client, 0);
-	INFO("esp_http_client_open = %d", ret);
 	if (ret == ESP_OK)
 	{
 		ESP_ERROR_CHECK(esp_http_client_write(client, NULL, 0));
@@ -169,8 +178,11 @@ void download_process_url(proto_download_url_t * packet)
 		protocol_send(PROTO_DOWNLOAD_INFO, (void *)&data, sizeof(data));
 	}
 
-	esp_http_client_close(client);
-	esp_http_client_cleanup(client);
+	if (client != NULL)
+	{
+		esp_http_client_close(client);
+		esp_http_client_cleanup(client);
+	}
 
 	INFO("download_url %s done", packet->url);
 }

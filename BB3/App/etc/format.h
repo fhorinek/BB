@@ -56,6 +56,7 @@ void format_speed_2(char * val, float in, char * format);
 
 void format_percent(char * buff, float in);
 void format_duration(char * buff, float in);
+void format_duration_sec_f(char * buff, float in);
 
 void format_uuid(char * buff);
 void format_int(char * buff, float in);

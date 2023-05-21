@@ -170,6 +170,9 @@ esp_err_t api_get_file(httpd_req_t * req)
 		ll_item_t * handle = ll_add_item(PROTO_FS_GET_FILE_RES, data.req_id, 0);
 		protocol_send(PROTO_FS_GET_FILE_REQ, (void *)&data, sizeof(data));
 
+		//wait for response
+		DBG("getting file '%s'", data.path);
+
 		while (true)
 		{
 			if (!xSemaphoreTake(handle->read, API_FS_WAIT))

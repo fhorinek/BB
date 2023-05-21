@@ -268,7 +268,10 @@ void thread_gui_start(void *argument)
 
     system_wait_for_handle(&thread_gui);
 
-    gui.lock = osMutexNew(NULL);
+    osMutexAttr_t mutex_param = {NULL};
+    mutex_param.attr_bits = osMutexRecursive;
+
+    gui.lock = osMutexNew(&mutex_param);
     osMutexAcquire(gui.lock, WAIT_INF);
     vQueueAddToRegistry(gui.lock, "gui.lock");
 
@@ -335,8 +338,6 @@ void thread_gui_start(void *argument)
 
     while (!system_power_off)
 	{
-		gui_loop();
-
 		if (gui.take_screenshot == 1)
 		{
 		    gui.take_screenshot = 2;
@@ -347,6 +348,8 @@ void thread_gui_start(void *argument)
 
 		osMutexAcquire(gui.lock, WAIT_INF);
 		gui_lock_owner = xTaskGetCurrentTaskHandle();
+
+        gui_loop();
 
 		if (gui.injected_function != NULL)
 		{

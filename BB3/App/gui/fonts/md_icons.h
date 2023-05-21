@@ -18,5 +18,7 @@
 #define MD_FLASHLIGHT       	"\xf3\xb0\x89\x84" //=[F3B08984]
 #define MD_FLASHLIGHT_OFF   	"\xf3\xb0\x89\x85" //=[F3B08985]
 #define MD_HELP_CIRCLE      	"\xf3\xb0\x8b\x97" //=[F3B08B97]
+#define MD_CHECKBOX_OFF     	"\xf3\xb0\x84\xb1" //=[F3B084B1]
+#define MD_CHECKBOX_ON      	"\xf3\xb0\x84\xb2" //=[F3B084B2]
 
 #endif

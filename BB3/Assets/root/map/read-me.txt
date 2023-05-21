@@ -3,12 +3,14 @@ contains streets, rivers and so on. The topography is taken from "agl"
 directory.
 
 Please put all MAP files into this directory. In order to do this,
-please unzip the zip file containing the MAPs on your computer and
-transfer all MAP files individually into this directory. You can also
-unzip and transfer multiple countries. If they overlap by some MAP
-files, simply ignore/overwrite.
+download the needed country zip files ending in "XXX_map.zip" from
+https://strato.skybean.eu/map/ and put the ZIP file into this
+directory. On the next start of Strato the ZIP file will be extracted
+and afterwards deleted. You will then see the individual MAP files
+containing the map data.
 
-The result should look like this:
+The result should look simliar to this. You will see files with the
+latitude and longitude of the country, that you downloaded:
 
 map
 +-- N20E135.MAP

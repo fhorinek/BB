@@ -68,7 +68,7 @@ lv_obj_t* map_obj_init(lv_obj_t *par, map_obj_data_t *local)
         lv_style_init(&hdg_line);
         lv_style_set_line_dash_gap(&hdg_line, LV_STATE_DEFAULT, 5);
         lv_style_set_line_dash_width(&hdg_line, LV_STATE_DEFAULT, 10);
-        lv_style_set_line_color(&hdg_line, LV_STATE_DEFAULT, LV_COLOR_GRAY);
+        lv_style_set_line_color(&hdg_line, LV_STATE_DEFAULT, LV_COLOR_BLACK);
 
         static_init = true;
     }
@@ -404,11 +404,13 @@ void map_obj_glider_loop(map_obj_data_t *local, lv_point_t glider_pos)
     		lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
 			lv_obj_set_hidden(local->arrow, false);
 			lv_obj_set_hidden(local->dot, true);
+			lv_obj_move_foreground(local->arrow);
     	}
     	else
     	{
 			lv_obj_set_hidden(local->arrow, true);
 			lv_obj_set_hidden(local->dot, false);
+			lv_obj_move_foreground(local->dot);
     	}
     }
 }

@@ -176,6 +176,17 @@ void fc_init()
     fc.history.positions = (fc_pos_history_t*) ps_malloc(sizeof(fc_pos_history_t) * FC_HISTORY_SIZE);
     fc.history.timer = osTimerNew(fc_history_record_cb, osTimerPeriodic, NULL, NULL);
 
+    if (config_get_bool(&profile.audio.thermal_fade))
+    {
+        fc.esp.vario_volume = config_get_int(&profile.audio.vario_volume);
+        fc.esp.a2dp_volume = config_get_int(&profile.audio.a2dp_thermal_volume);
+    }
+    else
+    {
+        fc.esp.vario_volume = config_get_int(&profile.audio.vario_volume);
+        fc.esp.a2dp_volume = config_get_int(&profile.audio.a2dp_volume);
+    }
+
     osTimerStart(fc.history.timer, FC_HISTORY_PERIOD);
 
     fc_recorder_init();
@@ -216,6 +227,11 @@ void fc_takeoff()
         fc.flight.start_lat = INVALID_INT32;
         fc.flight.start_lon = INVALID_INT32;
         fc.flight.takeoff_distance = INVALID_UINT32;
+    }
+
+    if (config_get_bool(&profile.wifi.off_in_flight))
+    {
+        esp_set_wifi(false);
     }
 
     fc.autostart.timestamp = HAL_GetTick();
@@ -265,6 +281,11 @@ void fc_landing()
 
     fanet_set_mode(false);
     logger_stop();
+
+    if (config_get_bool(&profile.wifi.off_in_flight))
+    {
+        esp_set_wifi(true);
+    }
 
     gui_page_set_next(&profile.ui.autoset.land);
 
@@ -391,6 +412,75 @@ void fc_step()
     else
     {
         fc.fused.glide_ratio = NAN;
+    }
+
+    //vario volume fade
+    if (fc.esp.vario_volume_last_change < HAL_GetTick())
+    {
+        uint8_t vario_target = config_get_int(&profile.audio.vario_glide_volume);
+        uint8_t a2dp_target = config_get_int(&profile.audio.a2dp_volume);
+
+        bool pass = true;
+        if (config_get_bool(&profile.audio.thermal_connected))
+        {
+            if (!(fc.esp.state & ESP_STATE_BT_A2DP))
+            {
+                pass = false;
+            }
+        }
+
+        if (config_get_bool(&profile.audio.thermal_fade) && pass)
+        {
+            //Enabled & connected (id needed)
+
+            if (fc.flight.mode == flight_flight)
+            {
+                int16_t ivario = fc.fused.vario * 10;
+
+                if (ivario > config_get_int(&profile.audio.idle_max) ||
+                        ivario < config_get_int(&profile.audio.idle_min))
+                {
+                    vario_target = config_get_int(&profile.audio.vario_volume);
+                    a2dp_target = config_get_int(&profile.audio.a2dp_thermal_volume);
+                }
+            }
+        }
+        else
+        {
+            //default
+            vario_target = config_get_int(&profile.audio.vario_volume);
+            a2dp_target = config_get_int(&profile.audio.a2dp_volume);
+        }
+
+        int8_t change = config_get_int(&profile.audio.change_spd);
+
+        if (fc.esp.vario_volume != vario_target)
+        {
+            int16_t diff = vario_target - fc.esp.vario_volume;
+
+            if (diff > 0)
+                fc.esp.vario_volume += min(change, diff);
+            else
+                fc.esp.vario_volume += max(-change, diff);
+
+            esp_set_volume(PROTO_VOLUME_VARIO, fc.esp.vario_volume);
+        }
+
+        if (fc.esp.a2dp_volume != a2dp_target)
+        {
+            int16_t diff = a2dp_target - fc.esp.a2dp_volume;
+
+            if (diff > 0)
+                fc.esp.a2dp_volume += min(change, diff);
+            else
+                fc.esp.a2dp_volume += max(-change, diff);
+
+            esp_set_volume(PROTO_VOLUME_A2DP, fc.esp.a2dp_volume);
+        }
+
+        fc.esp.vario_volume_last_change = HAL_GetTick() + 200;
+
+        //DBG("VA %u A2 %u", fc.esp.vario_volume, fc.esp.a2dp_volume);
     }
 
     navigation_step();

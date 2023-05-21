@@ -16,6 +16,7 @@
 REGISTER_TASK_IL(development,
 	lv_obj_t * esp_ext_prog;
     lv_obj_t * trigger;
+    lv_obj_t * vario_fake;
 
     uint8_t slot;
 );
@@ -83,6 +84,12 @@ static bool development_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
             }
         }
 
+		if (obj == local->vario_fake)
+		{
+            fc.fused.fake = true;
+            fc.fused.vario = gui_list_slider_get_value(obj) / 10.0;
+		}
+
 	}
 
 	if (event == LV_EVENT_CLICKED)
@@ -116,6 +123,7 @@ static lv_obj_t * development_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, "Sensors", 0, NEXT_TASK, &gui_sensors);
 
+    gui_list_auto_entry(list, "STM idle sleep", 0, &config.system.enable_sleep, NULL);
     gui_list_auto_entry(list, "ESP Disable", 0, &config.debug.esp_off, NULL);
     gui_list_auto_entry(list, "ESP Watchdog", 0, &config.debug.esp_wdt, NULL);
     gui_list_auto_entry(list, "ESP enter gdbstub", 0, &config.debug.esp_gdbstub, NULL);
@@ -125,7 +133,10 @@ static lv_obj_t * development_init(lv_obj_t * par)
     gui_list_auto_entry(list, "Add help entries", 0, &config.debug.help_show_id, NULL);
     gui_list_auto_entry(list, "Debug to serial", 0, &config.debug.use_serial, NULL);
     gui_list_auto_entry(list, "Debug to USB", 0, &config.debug.use_usb, NULL);
+
     gui_list_auto_entry(list, "Vario test", 0, &config.debug.vario_test, NULL);
+    local->vario_fake = gui_list_slider_add_entry(list, "Fake vario value", 0, -10, 10, 0);
+
     gui_list_auto_entry(list, "FANET force update", 0, &config.debug.fanet_update, NULL);
     gui_list_auto_entry(list, "Show LVGL info", 0, &config.debug.lvgl_info, NULL);
 	gui_list_auto_entry(list, "Space Invaders!", 0, NEXT_TASK, &gui_spaceinvaders);

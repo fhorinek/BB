@@ -17,6 +17,8 @@ void filemanager_open(char * path, uint8_t level, gui_task_t * back, uint8_t fla
 
 //only call in filemanager callbacks, when filemanager is active task!
 void filemanager_set_title(char * title);
+char * filemanager_get_title();
+
 void filemanager_set_anim_dir(bool normal);
 uint8_t filemanager_get_current_level();
 
@@ -34,6 +36,7 @@ void filemanager_refresh();
 #define FM_CB_CANCEL        0xF5    //cancel button pressed in filemanager, If callback returns true, filemanager will go up one directory level, or return to previous gui_task_t if in the directory where filemanager was opened
 #define FM_CB_INIT          0xF6    //called befor filemanager_open listing, can be used to add help_set_base
 #define FM_CB_APPEND        0xF7    //called after filemanager_open listing, can be used to add custom menu item at the end
+#define FM_CB_CUSTOM        0xF8    //callback to create custom list item, you need to add the list item by yourself in this cb
 //numerical callbacks event are for context menu callbacks 0-first ctx item, 1-second ctx item, ...
 
 
@@ -44,7 +47,19 @@ void filemanager_refresh();
 #define FM_FLAG_SHOW_EXT    0b00010000  //do not hide file ext
 #define FM_FLAG_SORT_NAME   0b00100000  //sort by name
 #define FM_FLAG_SORT_DATE   0b01000000  //sort by date
+#define FM_FLAG_CUSTOM      0b10000000  //custom list item creating for files
 
 #define FM_FILE_MAX_COUNT   100         // the maximum number of files to show
+
+typedef struct
+{
+        uint32_t date;
+        uint16_t mode;
+        char name[REDCONF_NAME_MAX + 1];
+        uint8_t _pad[1];
+} fm_record_cache_t;
+
+extern fm_record_cache_t * fm_selected_file;
+extern lv_obj_t * fm_selected_obj;
 
 #endif /* GUI_FILEMANAGER_H_ */

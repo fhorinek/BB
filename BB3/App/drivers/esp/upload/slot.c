@@ -14,7 +14,7 @@
 #define UPLOAD_TIMEOUT            (30 * 1000)
 
 upload_slot_t *upload_slot[UPLOAD_SLOT_NUMBER] = { NULL };
-osSemaphoreId_t upload_slot_access;
+osSemaphoreId_t upload_slot_access = NULL;
 
 static void upload_slot_free(uint8_t data_id)
 {

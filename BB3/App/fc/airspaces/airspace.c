@@ -4,7 +4,7 @@
  *  Created on: Mar 14, 2022
  *      Author: horinek
  */
-// #define DEBUG_LEVEL	DBG_DEBUG
+//#define DEBUG_LEVEL	DBG_DEBUG
 
 #include "airspace.h"
 #include "fc/fc.h"
@@ -373,7 +373,7 @@ static bool airspace_parse(char * name, bool use_dialog)
                else
                     as.airspace_class = ac_undefined;
 
-                // Set standard color for the given airspace class. Maybe overriden by SP or SB later
+                // Set standard color for the given airspace class. Maybe overridden by SP or SB later
                 as.brush = airspace_class_brushes[as.airspace_class];
                 as.pen = airspace_class_brushes[as.airspace_class];
                 as.pen_width = 1;
@@ -748,8 +748,8 @@ static void airspace_force_redraw()
             gui.map.chunks[i].ready = false;
         }
     }
-
 }
+
 void airspace_unload_unlocked()
 {
     fc.airspaces.valid = false;
@@ -927,7 +927,7 @@ bool airspaces_near_find()
 		  airspace_record_t * as = &fc.airspaces.index[i];
 		  bool airspace_needed = false;
 
-	      // This is used to set a breakpoint to debug a specific airspace:
+	      // This is used to set a breakpoint to DBG a specific airspace:
 		  // if ( strcmp("Stuttgart", as->name.ptr) == 0 && as->airspace_class == ac_class_C)
 		  //	  airspace_needed = false;
 
@@ -942,14 +942,11 @@ bool airspaces_near_find()
 		  else
 		  {
 			  // we are outside. How far is it away?
-			  uint32_t distance_min;
-			  distance_min = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
-					  as->bbox.latitude1, as->bbox.longitude1,
-					  false, NULL);
-			  uint32_t distance = geo_distance(fc.gnss.latitude, fc.gnss.longitude,
-					  as->bbox.latitude2, as->bbox.longitude2,
-					  false, NULL);
-			  distance_min = min(distance_min, distance);
+              uint32_t distance_min = geo_distance(fc.gnss.latitude, fc.gnss.longitude, as->bbox.latitude1, fc.gnss.longitude, false, NULL);
+              distance_min = min(distance_min, geo_distance(fc.gnss.latitude, fc.gnss.longitude, as->bbox.latitude2, fc.gnss.longitude, false, NULL));
+              distance_min = min(distance_min, geo_distance(fc.gnss.latitude, fc.gnss.longitude, fc.gnss.latitude, as->bbox.longitude1, false, NULL));
+              distance_min = min(distance_min, geo_distance(fc.gnss.latitude, fc.gnss.longitude, fc.gnss.latitude, as->bbox.longitude2, false, NULL));
+
 			  if (distance_min < 40 * 1000 * 10)                  // 40 km
 				  airspace_needed = true;
 		  }
@@ -1063,7 +1060,7 @@ uint8_t airspace_distances(gnss_pos_t pilot, gnss_pos_t pilot_B, airspace_record
 	dx = B.x - A.x;
 	dy = B.y - A.y;
 
-	// This is used to set a breakpoint to debug a specific airspace:
+	// This is used to set a breakpoint to DBG a specific airspace:
 	// if ( strcmp("Stuttgart", as->name.ptr) == 0 && as->airspace_class == ac_class_C)
 	//	buffer[0] = 0;
 
@@ -1173,7 +1170,7 @@ void airspaces_near_compute_distances()
 			uint8_t distances_len = AIRSPACE_NEAR_DISTANCE_NUM;
 			bzero(fc.airspaces.near.asn[i].distances, sizeof(fc.airspaces.near.asn[i].distances));
 
-			// This is used to set a breakpoint to debug a specific airspace:
+			// This is used to set a breakpoint to DBG a specific airspace:
 			// if ( strcmp("Stuttgart", as->name.ptr) == 0 && as->airspace_class == ac_class_C)
 			//	distances_used = 0;
 
@@ -1187,7 +1184,7 @@ void airspaces_near_compute_distances()
 			// If the number of crossing points behind the pilot is odd, then we are inside
 			fc.airspaces.near.asn[i].inside = (num % 2 == 1);
 			    
-#if DEBUG_LEVEL == DBG_DEBUG
+#if DBG_LEVEL == DBG_DBG
 		if (distances_used > 0)
 		{
 			DBG("airspace distance \"%s\": ", as->name.ptr);
@@ -1225,6 +1222,7 @@ void airspace_step()
                 //airspaces reloaded, near airspaces are not valid
                 airspaces_near_compute_distance = true;
                 airspaces_near_find();
+                DBG("airspace recompute: cache reload");
             }
         }
     }
@@ -1247,21 +1245,24 @@ void airspace_step()
         fc.airspaces.near.used_pilot_pos.longitude = fc.gnss.longitude;
 
         airspaces_near_compute_distance = true;
+        DBG("airspace recompute: position change");
 	}
 
     uint32_t now = HAL_GetTick();
     if (now > fc.airspaces.near.last_updated + 1 * 60 * 1000)   // 1 min
     {
     	airspaces_near_compute_distance = true;
+    	DBG("airspace recompute: 1 min timeout");
     }
     else
     {
 		int16_t current_heading = (int16_t)fc.gnss.heading;
-		int16_t diff_heading = min(abs(current_heading-fc.airspaces.near.used_heading),360-abs(current_heading-fc.airspaces.near.used_heading));
+		int16_t diff_heading = (int16_t)abs(fc.airspaces.near.used_heading - fc.gnss.heading) % 360;
 		if (diff_heading > 10)
 		{
 			fc.airspaces.near.used_heading = current_heading;
 			airspaces_near_compute_distance = true;
+	        DBG("airspace recompute: heading change");
 		}
     }
 

@@ -9,7 +9,7 @@
 
 static osTimerId_t csv_timer;
 
-#define CSV_PERIOD	240
+#define CSV_PERIOD	100
 
 int32_t csv_log_file;
 static bool csv_started = false;

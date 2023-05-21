@@ -36,10 +36,13 @@ void su_xmit(safe_uart_t * su)
 	}
 }
 
-void su_write(safe_uart_t * su, uint8_t * data, uint32_t len)
+bool su_write(safe_uart_t * su, uint8_t * data, uint32_t len)
 {
-	if (!rb_write(&su->rb, len, data))
+    if (!rb_write(&su->rb, len, data))
+    {
 		WARN("TX RB full");
+		return false;
+    }
 
 	if (xPortIsInsideInterrupt())
 	{
@@ -67,6 +70,8 @@ void su_write(safe_uart_t * su, uint8_t * data, uint32_t len)
 
 		osSemaphoreRelease(su->lock);
 	}
+
+	return true;
 }
 
 void su_clear(safe_uart_t * su)

@@ -11,33 +11,101 @@
 #define DB_LINE_LEN             128
 #define DB_WORK_BUFFER_SIZE     2048
 
-static int32_t loaded_file = 0;
-static char loaded_file_path[PATH_LEN] = {0};
-
-bool db_open_read(char * path)
+typedef struct
 {
-    if (strcmp(path, loaded_file_path) != 0)
+    const char * path;
+    osMutexId_t lock;
+    int32_t fp;
+} db_handle_t;
+
+#define DB_LOCKS_SIZE    16
+db_handle_t db_handles[DB_LOCKS_SIZE] = {0};
+osMutexId_t db_handles_lock;
+
+void db_init()
+{
+    for (uint8_t i = 0; i < DB_LOCKS_SIZE; i++)
     {
-        if (loaded_file != 0)
-            red_close(loaded_file);
-
-        loaded_file = red_open(path, RED_O_RDONLY);
-        if (loaded_file < 0)
-        {
-            loaded_file = 0;
-            loaded_file_path[0] = 0;
-            return false;
-        }
-
-        strcpy(loaded_file_path, path);
+        db_handles[i].path = NULL;
+        db_handles[i].lock = osMutexNew(NULL);
     }
-
-    return true;
+    db_handles_lock = osMutexNew(NULL);
 }
 
-int32_t db_repair(int32_t fp)
+static db_handle_t * db_open(const char * path)
 {
-    red_lseek(fp, 0, RED_SEEK_SET);
+    db_handle_t * pair_free = NULL;
+
+    osMutexAcquire(db_handles_lock, WAIT_INF);
+
+    for (uint8_t i = 0; i < DB_LOCKS_SIZE; i++)
+    {
+        if (db_handles[i].path == path)
+        {
+            osMutexAcquire(db_handles[i].lock, WAIT_INF);
+            osMutexRelease(db_handles_lock);
+
+            return &db_handles[i];
+        }
+        else if (db_handles[i].path == NULL && pair_free == NULL)
+        {
+            pair_free = &db_handles[i];
+        }
+    }
+
+    pair_free->path = path;
+
+    FASSERT(pair_free != NULL);
+
+    osMutexAcquire(pair_free->lock, WAIT_INF);
+    osMutexRelease(db_handles_lock);
+
+    pair_free->fp = red_open(path, RED_O_RDWR | RED_O_CREAT);
+    if (pair_free->fp < 0)
+    {
+        pair_free->path = NULL;
+        return NULL;
+    }
+
+    return pair_free;
+}
+
+static void db_close(db_handle_t * db)
+{
+    red_close(db->fp);
+    db->path = NULL;
+}
+
+//allways close the db when using dynamicly created path
+void db_close_path(const char * path)
+{
+    db_handle_t * db = db_open(path);
+    if (db != NULL)
+    {
+        db_close(db);
+        osMutexRelease(db->lock);
+    }
+}
+
+void db_close_all()
+{
+    osMutexAcquire(db_handles_lock, WAIT_INF);
+
+    for (uint8_t i = 0; i < DB_LOCKS_SIZE; i++)
+    {
+        if (db_handles[i].path == NULL)
+            continue;
+
+        osMutexAcquire(db_handles[i].lock, WAIT_INF);
+        db_close(&db_handles[i]);
+        osMutexRelease(db_handles[i].lock);
+    }
+    osMutexRelease(db_handles_lock);
+}
+
+static void db_repair(db_handle_t * db)
+{
+    red_lseek(db->fp, 0, RED_SEEK_SET);
 
     char tmp_path[PATH_LEN];
     get_tmp_filename(tmp_path);
@@ -49,7 +117,7 @@ int32_t db_repair(int32_t fp)
 
     while(1)
     {
-        int32_t rd = red_read(fp, in_line, sizeof(in_line));
+        int32_t rd = red_read(db->fp, in_line, sizeof(in_line));
         if (rd == 0)
         {
             break;
@@ -69,28 +137,26 @@ int32_t db_repair(int32_t fp)
     }
 
     red_close(tp);
-    red_close(fp);
+    red_close(db->fp);
 
-    red_unlink(loaded_file_path);
-    red_rename(tmp_path, loaded_file_path);
+    red_unlink(db->path);
+    red_rename(tmp_path, db->path);
 
-    loaded_file = red_open(loaded_file_path, RED_O_RDONLY);
-
-    return loaded_file;
+    db->fp = red_open(db->path, RED_O_RDWR | RED_O_CREAT);
 }
 
-int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
+static int32_t db_locate(db_handle_t * db, char * key, char * buff, uint16_t buffer_size)
 {
     uint32_t pos = 0;
-    red_lseek(fp, 0, RED_SEEK_SET);
+    red_lseek(db->fp, 0, RED_SEEK_SET);
 
     char * ret;
 
-    while ((ret = red_gets(buff, buffer_size, fp)) != NULL)
+    while ((ret = red_gets(buff, buffer_size, db->fp)) != NULL)
     {
         if (ret == GETS_CORRUPTED)
         {
-            fp = db_repair(fp);
+            db_repair(db);
         }
 
         if (strstr(buff, key) == buff
@@ -99,38 +165,44 @@ int32_t db_locate(int32_t fp, char * key, char * buff, uint16_t buffer_size)
             return pos;
         }
 
-        pos = red_lseek(fp, 0, RED_SEEK_CUR);
+        pos = red_lseek(db->fp, 0, RED_SEEK_CUR);
     }
 
     return -1;
 }
 
-bool db_exists(char * path, char * key)
+bool db_exists(const char * path, char * key)
 {
     char buff[DB_LINE_LEN];
     bool ret = false;
 
-    if (db_open_read(path))
+    db_handle_t * db = db_open(path);
+    if (db != NULL)
     {
-        ret = db_locate(loaded_file, key, buff, sizeof(buff)) >= 0;
+        ret = db_locate(db, key, buff, sizeof(buff)) >= 0;
+
+        osMutexRelease(db->lock);
     }
 
     return ret;
 }
 
-bool db_query(char * path, char * key, char * value, uint16_t value_len)
+bool db_query(const char * path, char * key, char * value, uint16_t value_len)
 {
     char buff[DB_LINE_LEN];
 
     int32_t pos = -1;
 
-    if (db_open_read(path))
+    db_handle_t * db = db_open(path);
+    if (db != NULL)
     {
-        pos = db_locate(loaded_file, key, buff, sizeof(buff));
+        pos = db_locate(db, key, buff, sizeof(buff));
     }
     else
     {
-        ERR("Could not open file '%s', res = %d", path, loaded_file);
+        ERR("Could not open file '%s', res = %d", path, db->fp);
+
+        return false;
     }
 
     //line starting with key found!
@@ -139,6 +211,9 @@ bool db_query(char * path, char * key, char * value, uint16_t value_len)
         //remove /n
         buff[strlen(buff) - 1] = 0;
         strncpy(value, buff + strlen(key) + 1, value_len);
+
+        osMutexRelease(db->lock);
+
         return true;
     }
     else
@@ -146,10 +221,12 @@ bool db_query(char * path, char * key, char * value, uint16_t value_len)
         WARN("Key '%s' not found in '%s'", key, path);
     }
 
+    osMutexRelease(db->lock);
+
     return false;
 }
 
-bool db_query_def(char * path, char * key, char * value, uint16_t value_len, char * def)
+bool db_query_def(const char * path, char * key, char * value, uint16_t value_len, char * def)
 {
     bool found = db_query(path, key, value, value_len);
     if (!found)
@@ -157,7 +234,7 @@ bool db_query_def(char * path, char * key, char * value, uint16_t value_len, cha
     return found;
 }
 
-bool db_query_int(char * path, char * key, int16_t * value)
+bool db_query_int(const char * path, char * key, int16_t * value)
 {
     char buff[8];
 
@@ -169,7 +246,7 @@ bool db_query_int(char * path, char * key, int16_t * value)
     return ret;
 }
 
-bool db_query_int_def(char * path, char * key, int16_t * value, int16_t def)
+bool db_query_int_def(const char * path, char * key, int16_t * value, int16_t def)
 {
     bool found = db_query_int(path, key, value);
     if (!found)
@@ -177,15 +254,15 @@ bool db_query_int_def(char * path, char * key, int16_t * value, int16_t def)
     return found;
 }
 
-void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght)
+static void db_remove_line(db_handle_t * db, uint32_t start_pos, uint16_t lenght)
 {
     char * buff;
     char path_new[PATH_LEN];
     int32_t br, bw;
 
-    red_lseek(fp, 0, RED_SEEK_SET);
-    get_tmp_filename(path_new);
+    red_lseek(db->fp, 0, RED_SEEK_SET);
 
+    get_tmp_filename(path_new);
     int32_t new = red_open(path_new, RED_O_WRONLY | RED_O_CREAT | RED_O_TRUNC);
     ASSERT(new > 0);
 
@@ -201,7 +278,7 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
 
         if (to_read > 0)
         {
-            br = red_read(fp, buff, to_read);
+            br = red_read(db->fp, buff, to_read);
             if (br == 0) //EOF
                 break;
 
@@ -216,56 +293,49 @@ void db_remove_line(int32_t fp, char * path, uint32_t start_pos, uint16_t lenght
         {
             pos += lenght;
             start_pos = INT32_MAX;
-            red_lseek(fp, pos, RED_SEEK_SET);
+            red_lseek(db->fp, pos, RED_SEEK_SET);
         }
     }
 
     tfree(buff);
 
-    red_close(fp);
+    red_close(db->fp);
     red_close(new);
-    red_unlink(path);
-    red_rename(path_new, path);
+    red_unlink(db->path);
+    red_rename(path_new, db->path);
+
+    db->fp = red_open(db->path, RED_O_RDWR | RED_O_CREAT);
 }
 
-void db_delete(char * path, char * key)
+void db_delete(const char * path, char * key)
 {
     char buff[DB_LINE_LEN];
 
-    if (loaded_file != 0)
-    {
-        red_close(loaded_file);
-        loaded_file = 0;
-        loaded_file_path[0] = 0;
-    }
+    db_handle_t * db = db_open(path);
 
-    int32_t f = red_open(path, RED_O_RDONLY);
-
-    if (f > 0)
+    if (db != NULL)
     {
-        int32_t pos = db_locate(f, key, buff, sizeof(buff));
+        int32_t pos = db_locate(db, key, buff, sizeof(buff));
 
         if (pos >= 0)
         {
-            //remove line close the file for us
-            db_remove_line(f, path, pos, strlen(buff));
+            db_remove_line(db, pos, strlen(buff));
         }
-        else
-        {
-            red_close(f);
-        }
+
+        osMutexRelease(db->lock);
     }
 }
 
-void db_insert(char * path, char * key, char * value)
+void db_insert(const char * path, char * key, char * value)
 {
     char buff[DB_LINE_LEN];
 
-    int32_t f = red_open(path, RED_O_RDWR | RED_O_CREAT);
+    db_handle_t * db = db_open(path);
 
-    if (f > 0)
+    if (db != NULL)
     {
-        int32_t pos = db_locate(f, key, buff, sizeof(buff));
+        FASSERT(db->fp > 0);
+        int32_t pos = db_locate(db, key, buff, sizeof(buff));
 
         if (pos >= 0)
         {
@@ -275,29 +345,85 @@ void db_insert(char * path, char * key, char * value)
             if (strcmp(buff + strlen(key) + 1, value) == 0)
             {
                 //value is the same (nothing to update)
-                red_close(f);
+                osMutexRelease(db->lock);
+
                 return;
             }
             else
             {
                 //value differs, remove old record
-                //remove line also close the file
-                db_remove_line(f, path, pos, strlen(buff) + 1);
-                f = red_open(path, RED_O_WRONLY | RED_O_APPEND);
+                db_remove_line(db, pos, strlen(buff) + 1);
             }
         }
 
         //move to end
-        red_lseek(f, 0, RED_SEEK_END);
+        red_lseek(db->fp, 0, RED_SEEK_END);
         snprintf(buff, DB_LINE_LEN, "%s%c%s\n", key, DB_SEPARATOR, value);
-        red_write(f, buff, strlen(buff));
-        red_close(f);
+        red_write(db->fp, buff, strlen(buff));
+
+        osMutexRelease(db->lock);
     }
 }
 
-void db_insert_int(char * path, char * key, int16_t value)
+void db_insert_int(const char * path, char * key, int16_t value)
 {
     char buff[8];
     snprintf(buff, sizeof(buff), "%d", value);
     db_insert(path, key, buff);
+}
+
+bool db_iterate(const char * path, db_callback callback)
+{
+    db_handle_t * db = db_open(path);
+
+    if (db == NULL)
+    {
+        ERR("Could not open the file '%s'", path);
+        return false;
+    }
+
+    red_lseek(db->fp, 0, RED_SEEK_SET);
+
+    char buff[DB_LINE_LEN];
+    char * ret;
+
+    while ((ret = red_gets(buff, sizeof(buff), db->fp)) != NULL)
+    {
+        if (ret == GETS_CORRUPTED)
+        {
+            db_repair(db);
+        }
+
+        //remove \n
+        buff[strlen(buff) - 1] = '\0';
+
+        char *separator = strchr(buff, DB_SEPARATOR);
+        if (separator)
+        {
+            *separator = '\0';
+            char *key = buff;
+            char *value = separator + 1;
+
+            callback(key, value);
+        }
+        else
+        {
+            callback(buff, "");
+        }
+    }
+
+    osMutexRelease(db->lock);
+    return true;
+}
+
+void db_drop(const char * path)
+{
+    db_handle_t * db = db_open(path);
+
+    if (db != NULL)
+    {
+        db_close(db);
+        red_unlink(path);
+        osMutexRelease(db->lock);
+    }
 }

@@ -221,12 +221,12 @@ uint32_t get_tmp_filename(char * fname)
     return tmp;
 }
 
-#define COPY_WORK_BUFFER_SIZE (1024 * 4)
+#define WORK_BUFFER_SIZE (1024 * 4)
 bool copy_file(char * src, char * dst)
 {
     int32_t f_src;
     int32_t f_dst;
-    uint8_t * work_buffer = (uint8_t *) tmalloc(COPY_WORK_BUFFER_SIZE);
+    uint8_t * work_buffer = (uint8_t *) tmalloc(WORK_BUFFER_SIZE);
 
     if (work_buffer == NULL)
     {
@@ -243,7 +243,7 @@ bool copy_file(char * src, char * dst)
             int32_t br, bw;
             while(1)
             {
-                br = red_read(f_src, work_buffer, COPY_WORK_BUFFER_SIZE);
+                br = red_read(f_src, work_buffer, WORK_BUFFER_SIZE);
                 if (br <= 0)
                     break;
 
@@ -388,14 +388,24 @@ void remove_dir_rec(char * path, bool remove)
             }
             else
             {
-                red_unlink(work_path);
+                int32_t ret = red_unlink(work_path);
+                if (ret < 0)
+                {
+                    ERR("red_unlink %s ret = %d", work_path, red_errno);
+                }
             }
         }
 
         red_closedir(dir);
 
         if (remove)
-            red_unlink(path);
+        {
+            int32_t ret = red_unlink(path);
+            if (ret < 0)
+            {
+                ERR("red_unlink %s ret = %d", path, red_errno);
+            }
+        }
     }
 }
 

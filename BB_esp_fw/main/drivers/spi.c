@@ -33,7 +33,6 @@ void spi_prepare_buffer(uint32_t len)
 	spi_data_to_recieve = len;
 
     xSemaphoreGive(spi_prepare_semaphore);
-    xSemaphoreGive(spi_buffer_access);
 }
 
 uint8_t * spi_acquire_buffer_ptr(uint32_t * size_avalible)
@@ -65,14 +64,14 @@ void spi_trans_cb(spi_slave_transaction_t *trans)
 //    DBG("spi_trans_cb: Transaction done");
 }
 
-extern int64_t protocol_last_packet;
+extern int32_t protocol_last_packet;
 
 void spi_parse(uint8_t * data, uint16_t len)
 {
+	protocol_last_packet = esp_timer_get_time() / 1000;
+
 	while (len > 0)
 	{
-		protocol_last_packet = esp_timer_get_time();
-
 		proto_spi_header_t * hdr = (proto_spi_header_t *)data;
 
 		//advance buffer
@@ -115,7 +114,7 @@ void spi_task_proto(void *pvParameters)
 	{
 		xSemaphoreTake(spi_ready_semaphore, WAIT_INF);
 		protocol_send_spi_ready(spi_data_to_send);
-		DBG("spi_task_proto: spi ready (%u)", spi_data_to_send);
+		//DBG("spi_task_proto: spi ready (%u)", spi_data_to_send);
 	}
 }
 
@@ -149,8 +148,6 @@ void spi_task(void *pvParameters)
 
         //wait for the prepare request
         xSemaphoreTake(spi_prepare_semaphore, WAIT_INF);
-
-        xSemaphoreTake(spi_buffer_access, WAIT_INF);
 
         t.length = SPI_BUFFER_SIZE * 8;
         t.tx_buffer = spi_tx_buffer;

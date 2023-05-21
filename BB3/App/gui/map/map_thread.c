@@ -11,6 +11,7 @@
 
 #include "fc/fc.h"
 #include "etc/geo_calc.h"
+#include "etc/map_index.h"
 
 #define MAP_BUFFER_SIZE	(MAP_W * MAP_H * sizeof(lv_color_t))
 
@@ -46,6 +47,8 @@ void map_set_automatic_pos()
 
 void map_init()
 {
+	map_index_init();
+
 	map_set_automatic_pos();
 
 	for (uint8_t i = 0; i < MAP_CHUNKS; i++)
@@ -326,3 +329,9 @@ void thread_map_start(void *argument)
     INFO("Done");
     osThreadSuspend(thread_map);
 }
+
+void map_tiles_cache_check()
+{
+
+}
+

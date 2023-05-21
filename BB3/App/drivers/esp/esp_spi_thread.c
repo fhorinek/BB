@@ -26,13 +26,15 @@ void esp_spi_start_transfer(uint16_t size_to_read)
 {
     spi_data_to_read = size_to_read;
     osSemaphoreRelease(spi_start_semaphore);
-    spi_prepare_in_progress = false;
 }
 
 void esp_spi_prepare()
 {
     if (!spi_prepare_in_progress)
     {
+        //block access to buffer
+        osSemaphoreAcquire(spi_buffer_access, WAIT_INF);
+
         proto_spi_prepare_t data;
         data.data_lenght = spi_tx_buffer_index;
         protocol_send(PROTO_SPI_PREPARE, (uint8_t *)&data, sizeof(data));
@@ -144,13 +146,11 @@ void thread_esp_spi_start(void * argument)
     {
         osSemaphoreAcquire(spi_start_semaphore, WAIT_INF);
 
-        osSemaphoreAcquire(spi_buffer_access, WAIT_INF);
-
         uint16_t spi_data_to_send = spi_tx_buffer_index;
         if (spi_data_to_read > spi_data_to_send)
             spi_data_to_send = spi_data_to_read;
 
-        DBG("SPI bytes to transfer %u", spi_data_to_send);
+        //DBG("SPI bytes to transfer %u", spi_data_to_send);
 
         uint8_t res = HAL_SPI_TransmitReceive_DMA(esp_spi, spi_tx_buffer, spi_rx_buffer, spi_data_to_send);
         if (res != HAL_OK)
@@ -160,13 +160,14 @@ void thread_esp_spi_start(void * argument)
 
         osSemaphoreAcquire(spi_dma_done, WAIT_INF);
 
-        DBG("SPI RX data: %u", spi_data_to_read);
+        //DBG("SPI RX data: %u", spi_data_to_read);
         //DUMP(spi_rx_buffer, spi_data_to_read);
 
         //parse spi data here (new thread??)
         esp_parse_spi(spi_rx_buffer, spi_data_to_read);
 
         spi_tx_buffer_index = 0;
+        spi_prepare_in_progress = false;
         osSemaphoreRelease(spi_buffer_access);
     }
 
