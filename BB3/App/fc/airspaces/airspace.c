@@ -555,19 +555,11 @@ static bool airspace_parse(char * name, bool use_dialog)
 
                 int16_t dir = clockwise ? +5 : -5;
 
-                // If we have the following, then "48:57:47.00 N 009:33:04.00 E" will be added twice.
-                // However, the second entry is calculated using ARC which gives a slight different point
-                // and leads to errors. Therefore start one "dir" later.
-                //
-                // DP 48:57:47.00 N 009:33:04.00 E
-                // V X=48:41:19.00 N 009:12:39.00 E
-                // V D=+
-                // DB 48:57:47.00 N 009:33:04.00 E, 48:36:33.00 N 009:43:57.00 E
-                if (airspace_is_previous_point(&as, points, lon1, lat1))
-                	start += dir;
+                airspace_add_point(&as, points, lon1, lat1);
 
-                // As the last point is given in DB, we do not use arc arithmetic to compute that point.
+                // As the first and last point is given in DB, we do not use arc arithmetic to compute that point.
                 // The last point is added explicitly at the end to avoid rounding errors.
+            	start += dir;
                 end -= dir;
 
                 if (clockwise)
