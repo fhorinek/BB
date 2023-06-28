@@ -15,15 +15,8 @@ int32_t csv_log_file;
 static bool csv_started = false;
 static uint32_t csv_ticks = 0;
 
-void csv_write_line(char * line)
-{
-	uint8_t l = strlen(line);
-
-	DBG("CSV:%s", line);
-
-	ASSERT(red_write(csv_log_file, line, l) == l);
-	red_sync();
-}
+// This could also be realized as a function to save PROGMEM
+#define csv_write_line(LINE) red_write_line(csv_log_file, LINE, LINE_ENDING_CRLF)
 
 void csv_write_data()
 {
@@ -31,7 +24,7 @@ void csv_write_data()
 
 	uint32_t timestamp = (fc.gnss.fix == 0) ? fc_get_utc_time() : fc.gnss.utc_time;
 	//ms_since_start,timestamp,latitude,longtitude,ground_speed,heading,gnss_alt,baro_alt,vario,accel
-	snprintf(line, sizeof(line), "%lu,%lu,%0.7f,%0.7f,%0.1f,%0.0f,%d,%d,%0.0f,%0.3f\r\n",
+	snprintf(line, sizeof(line), "%lu,%lu,%0.7f,%0.7f,%0.1f,%0.0f,%d,%d,%0.0f,%0.3f",
 			(HAL_GetTick() - csv_ticks),
 			timestamp,
 			(float) fc.gnss.latitude / GNSS_MUL,
@@ -74,7 +67,7 @@ void csv_start_write()
 	if (csv_log_file < 0)
 		return;
 
-	sprintf(line, "ms_since_start,timestamp,latitude,longtitude,ground_speed,heading,gnss_alt,baro_alt,vario,accel\r\n");
+	sprintf(line, "ms_since_start,timestamp,latitude,longtitude,ground_speed,heading,gnss_alt,baro_alt,vario,accel");
 	csv_write_line(line);
 	csv_ticks = HAL_GetTick();
 }
@@ -82,9 +75,12 @@ void csv_start_write()
 
 void csv_tick_cb(void * arg)
 {
+	UNUSED(arg);
+
 	if (csv_started)
 	{
 		csv_write_data();
+		red_sync();
 	}
 	else {
 		if (rtc_is_valid())

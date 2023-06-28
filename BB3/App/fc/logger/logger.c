@@ -15,6 +15,7 @@
 
 #include "igc.h"
 #include "csv.h"
+#include "kml.h"
 
 #define STATS_VERSION		3
 #define STATS_TOTAL_RECORDS	10
@@ -268,6 +269,7 @@ void logger_init()
 {
     igc_init();
     csv_init();
+    kml_init();
 }
 
 void logger_start()
@@ -277,6 +279,9 @@ void logger_start()
 
     if (config_get_bool(&profile.flight.logger.csv))
         csv_start();
+
+    if (config_get_bool(&profile.flight.logger.kml))
+        kml_start();
 }
 
 /**
@@ -303,6 +308,7 @@ void logger_comment(const char *format, ...)
     while (pch != NULL)
     {
         igc_comment(pch);
+        kml_comment(pch);
         // Add additional loggers here, if available.
         pch = strtok_r(NULL, "\n", &saveptr);
     }
@@ -312,4 +318,5 @@ void logger_stop()
 {
     igc_stop();
     csv_stop();
+    kml_stop();
 }

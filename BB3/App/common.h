@@ -245,6 +245,9 @@ extern osThreadId_t SystemHandle;
 #define STRATO_HOME_SSID    "Strato"
 #define STRATO_HOME_PASS    "skybean_strato"
 
+typedef enum { LINE_ENDING_NONE, LINE_ENDING_LF, LINE_ENDING_CR, LINE_ENDING_CRLF } line_ending_types;
+void red_write_line(int32_t red_fh, char * line, line_ending_types le);
+
 #define GETS_CORRUPTED      ((char *)INT32_MIN)
 
 #define ROUND4(A)   (((A) + 3) & ~ 3)

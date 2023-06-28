@@ -642,6 +642,42 @@ char *file_gets(char *line, int len, int32_t file)
 	return line;
 }
 
+/**
+ * Write the given string into the given file and append a line ending.
+ *
+ * @param red_fh the RED file handle
+ * @param line the line to write (0-terminated)
+ * @param le the line ending to append.
+ */
+void red_write_line(int32_t red_fh, char * line, line_ending_types le)
+{
+	size_t l = strlen(line);
+	char *format;
+
+	char new_line[l + 3];
+	switch (le)
+	{
+	case LINE_ENDING_NONE:
+		format = "%s";
+		break;
+	case LINE_ENDING_CR:
+		format = "%s\r";
+		l++;
+		break;
+	case LINE_ENDING_LF:
+		format = "%s\n";
+		l++;
+		break;
+	case LINE_ENDING_CRLF:
+		format = "%s\r\n";
+		l += 2;
+		break;
+	}
+	snprintf(new_line, sizeof(new_line), format, line);
+
+	ASSERT(red_write(red_fh, new_line, l) == l);
+}
+
 uint32_t strlen_noend(char * str)
 {
 	uint32_t res = 0;
