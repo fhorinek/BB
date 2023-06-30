@@ -404,6 +404,7 @@ typedef struct
 	{
 		fc_logger_status_t igc;
 		fc_logger_status_t csv;
+		fc_logger_status_t kml;
 		uint8_t _pad[2];
 	} logger;
 

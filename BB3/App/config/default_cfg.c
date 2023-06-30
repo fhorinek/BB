@@ -332,6 +332,8 @@ flight_profile_t profile =
             entry_bool("log_igc", true),
 			//csv
 			entry_bool("log_csv", false),
+			//kml
+			entry_bool("log_kml", false),
         },
         //acc_duration
 		entry_int("acc_dura", 5, 1, 30),

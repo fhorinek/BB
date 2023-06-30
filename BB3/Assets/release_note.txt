@@ -1,4 +1,5 @@
 Added:
+* KML as flight log format
 * Download of MAP
 * Download of AGL
 * Download of airspace

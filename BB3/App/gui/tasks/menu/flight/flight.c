@@ -92,6 +92,7 @@ static lv_obj_t * flight_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, _h("Enable IGC log"), &profile.flight.logger.igc, NULL);
     gui_list_auto_entry(list, _h("Enable CSV log"), &profile.flight.logger.csv, NULL);
+    gui_list_auto_entry(list, _h("Enable KML log"), &profile.flight.logger.kml, NULL);
 
 	return list;
 }
