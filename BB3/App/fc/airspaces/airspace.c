@@ -198,9 +198,19 @@ static bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gn
 	}
 }
 
+bool airspace_is_previous_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
+{
+    return (as->number_of_points > 0
+    		&& points[as->number_of_points-1].latitude == lat && points[as->number_of_points-1].longitude == lon);
+}
+
 void airspace_add_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
 {
-    if (as->number_of_points >= AIRSPACE_MAX_POINTS)
+	// Do not enter the same point again.
+    if (airspace_is_previous_point(as, points, lon, lat))
+    	return;
+
+	if (as->number_of_points >= AIRSPACE_MAX_POINTS)
     {
         WARN("aisrpace %s, max points reached", as->name);
         return;
@@ -545,6 +555,13 @@ static bool airspace_parse(char * name, bool use_dialog)
 
                 int16_t dir = clockwise ? +5 : -5;
 
+                airspace_add_point(&as, points, lon1, lat1);
+
+                // As the first and last point is given in DB, we do not use arc arithmetic to compute that point.
+                // The last point is added explicitly at the end to avoid rounding errors.
+            	start += dir;
+                end -= dir;
+
                 if (clockwise)
                 {
                     while (start > end)
@@ -584,6 +601,7 @@ static bool airspace_parse(char * name, bool use_dialog)
 
                     angle += dir;
                 }
+            	airspace_add_point(&as, points, lon2, lat2);
             }
             //draw circle
             else if (strncmp("DC ", line, 3) == 0)
