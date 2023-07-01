@@ -25,15 +25,33 @@
 
 #include "gui/gui_list.h"
 #include "etc/format.h"
+#include "fc/fc.h"
 
 REGISTER_TASK_I(settings);
 
 static bool open_flightbook(lv_obj_t * obj, lv_event_t event)
 {
+	UNUSED(obj);
+
 	if (event == LV_EVENT_CLICKED)
 	{
 		flightbook_open(true);
 
+		//supress default handler
+		return false;
+	}
+	return true;
+}
+
+static bool stop_playback(lv_obj_t * obj, lv_event_t event)
+{
+	UNUSED(obj);
+
+	if (event == LV_EVENT_CLICKED)
+	{
+		fc_simulate_stop();
+
+        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
 		//supress default handler
 		return false;
 	}
@@ -46,6 +64,8 @@ lv_obj_t * settings_init(lv_obj_t * par)
 
 	lv_obj_t * list = gui_list_create(par, _("Strato settings"), &gui_pages, NULL);
 
+	if (fc_simulate_is_playing())
+		gui_list_auto_entry(list, _h("Stop Playback"), CUSTOM_CB, stop_playback);
 	gui_list_auto_entry(list, _h("Flightbook"), CUSTOM_CB, open_flightbook);
 	gui_list_auto_entry(list, _h("Pilot & Flight profile"), NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, _h("Vario"), NEXT_TASK, &gui_vario_settings);

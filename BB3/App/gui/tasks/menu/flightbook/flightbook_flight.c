@@ -18,6 +18,7 @@
 #include "gui/tasks/menu/flightbook/flightbook.h"
 #include "gui/tasks/menu/flightbook/flightbook_flight.h"
 #include "gui/tasks/filemanager.h"
+#include "gui/tasks/page/pages.h"
 
 #include "gui/dialog.h"
 #include "gui/gui_list.h"
@@ -28,6 +29,8 @@
 #include "etc/format.h"
 #include "etc/geo_calc.h"
 #include "etc/epoch.h"
+
+#include "drivers/gnss/gnss_thread.h"
 
 REGISTER_TASK_I(flightbook_flight,
 	char file_path[PATH_LEN];
@@ -166,6 +169,19 @@ static bool flightbook_flight_map_cb(lv_obj_t * obj, lv_event_t event, uint16_t 
 	return true;
 }
 
+static bool flightbook_flight_playback_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
+{
+    UNUSED(index);
+
+	if (event == LV_EVENT_PRESSED)
+	{
+		fc_simulate_from_igc(local->file_path);
+        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
+		return false;
+	}
+	return true;
+}
+
 static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 {
     help_set_base("Flightbook/Flight");
@@ -174,6 +190,7 @@ static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 
 	//we want to use custom callback so we can pass another parameters
 	gui_list_auto_entry(list, _h("Show on map"), CUSTOM_CB, flightbook_flight_map_cb);
+	gui_list_auto_entry(list, _h("Playback"), CUSTOM_CB, flightbook_flight_playback_cb);
 
 	return list;
 }

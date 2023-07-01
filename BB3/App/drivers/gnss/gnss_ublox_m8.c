@@ -263,16 +263,19 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
         ublox_handle_itow(ubx_nav_posllh->iTOW);
 
-		FC_ATOMIC_ACCESS
+		if (!fc_simulate_is_playing())
 		{
-			fc.gnss.itow = ubx_nav_posllh->iTOW;
-			fc.gnss.longitude = ubx_nav_posllh->lon;
-			fc.gnss.latitude = ubx_nav_posllh->lat;
-			fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
-			fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
-			fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
-			fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
-			fc.gnss.new_sample = 0xFF;
+			FC_ATOMIC_ACCESS
+			{
+				fc.gnss.itow = ubx_nav_posllh->iTOW;
+				fc.gnss.longitude = ubx_nav_posllh->lon;
+				fc.gnss.latitude = ubx_nav_posllh->lat;
+				fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
+				fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
+				fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
+				fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
+				fc.gnss.new_sample = 0xFF;
+			}
 		}
 
 		if (fc.gnss.fix > 0)
@@ -302,10 +305,13 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
 		ubx_nav_velned_t * ubx_nav_velned = (ubx_nav_velned_t *)msg_payload;
 
-		FC_ATOMIC_ACCESS
+		if (!fc_simulate_is_playing())
 		{
-			fc.gnss.ground_speed = ubx_nav_velned->gSpeed / 100.0;
-			fc.gnss.heading = ubx_nav_velned->heading / 100000;
+			FC_ATOMIC_ACCESS
+			{
+				fc.gnss.ground_speed = ubx_nav_velned->gSpeed / 100.0;
+				fc.gnss.heading = ubx_nav_velned->heading / 100000;
+			}
 		}
 
 		return true;
@@ -350,7 +356,6 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 					fc.gnss.ttf = HAL_GetTick() - ublox_start_time;
 				break;
 			}
-
 		}
 
 		return true;
