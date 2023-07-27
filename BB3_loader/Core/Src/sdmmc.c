@@ -28,7 +28,7 @@ SD_HandleTypeDef hsd1;
 
 /* SDMMC1 init function */
 
-void MX_SDMMC1_SD_Init(void)
+bool MX_SDMMC1_SD_Init(void)
 {
 
   /* USER CODE BEGIN SDMMC1_Init 0 */
@@ -46,12 +46,13 @@ void MX_SDMMC1_SD_Init(void)
   hsd1.Init.ClockDiv = 1;
   if (HAL_SD_Init(&hsd1) != HAL_OK)
   {
-    Error_Handler();
+      return false;
   }
   /* USER CODE BEGIN SDMMC1_Init 2 */
 
   /* USER CODE END SDMMC1_Init 2 */
 
+  return true;
 }
 
 void HAL_SD_MspInit(SD_HandleTypeDef* sdHandle)

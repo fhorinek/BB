@@ -44,8 +44,6 @@ uint8_t sd_read_blocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
     if (status != HAL_OK)
     {
         //WARN("Read error %08lX %u ret = %u", ReadAddr, NumOfBlocks, status);
-
-        osSemaphoreRelease(sd_semaphore);
         ret = HAL_ERROR;
     }
     else
@@ -107,7 +105,6 @@ uint8_t sd_write_blocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlock
     {
         WARN("Write error %08lX %u ret = %u", WriteAddr, NumOfBlocks, status);
 
-        osSemaphoreRelease(sd_semaphore);
         ret = HAL_ERROR;
 
         err_cnt++;

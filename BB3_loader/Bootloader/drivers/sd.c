@@ -123,19 +123,23 @@ void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
 
 
 
-void sd_init()
+bool sd_init()
 {
     tx_semaphore_create(&sd_semaphore, "SD semaphore", 0);
     tx_semaphore_create(&sd_dma_semaphore, "SD dma semaphore", 0);
 
-    MX_SDMMC1_SD_Init();
+    if (!MX_SDMMC1_SD_Init())
+        return false;
 
     HAL_SD_CardInfoTypeDef card_info;
     HAL_SD_GetCardInfo(&hsd1, &card_info);
 
     tx_semaphore_put(&sd_semaphore);
 
-    red_init();
+    if (red_init() == 0)
+        return true;
+    else
+        return false;
  }
 
 void sd_format()

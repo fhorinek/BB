@@ -10,7 +10,7 @@
 
 #include "../common.h"
 
-void sd_init();
+bool sd_init();
 bool sd_mount();
 void sd_unmount();
 

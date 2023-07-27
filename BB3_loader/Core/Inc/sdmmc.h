@@ -27,6 +27,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stdbool.h>
 
 /* USER CODE BEGIN Includes */
 
@@ -38,7 +39,7 @@ extern SD_HandleTypeDef hsd1;
 
 /* USER CODE END Private defines */
 
-void MX_SDMMC1_SD_Init(void);
+bool MX_SDMMC1_SD_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 

@@ -493,7 +493,13 @@ void app_main_entry(ULONG id)
     }
 
     PSRAM_init();
-    sd_init();
+
+    if (sd_init() == false)
+    {
+        gfx_draw_status(GFX_STATUS_ERROR, "SD card error");
+        button_confirm(BT3);
+        app_sleep();
+    }
 
     if (button_pressed(BT2) && button_pressed(BT5))
     {
