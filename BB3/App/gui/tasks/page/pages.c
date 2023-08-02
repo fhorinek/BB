@@ -26,6 +26,8 @@
 #include "shortcuts/actions.h"
 #include "shortcuts/shortcuts.h"
 #include "fc/fc.h"
+#include "etc/format.h"
+#include "drivers/rtc.h"
 
 #include <private_key.h>
 
@@ -249,6 +251,8 @@ void gui_page_set_mode(cfg_entry_t * cfg)
 
 void pages_menu_anim_cb(void * obj, lv_anim_value_t val)
 {
+    UNUSED(obj);
+
     if (local->state == PAGE_STOP)
     {
         return;
@@ -264,6 +268,8 @@ void pages_menu_anim_cb(void * obj, lv_anim_value_t val)
 
 void pages_splash_anim_cb(void * obj, lv_anim_value_t val)
 {
+    UNUSED(obj);
+
 	int16_t w, h, r;
 
 	w = lv_obj_get_width(local->mask);
@@ -287,6 +293,8 @@ void pages_splash_anim_cb(void * obj, lv_anim_value_t val)
 
 void pages_anim_menu_in_cb(lv_anim_t * a)
 {
+    UNUSED(a);
+
     if (local->state == PAGE_STOP)
     {
         return;
@@ -313,6 +321,8 @@ void pages_menu_show()
 
 void pages_anim_menu_out_cb(lv_anim_t * a)
 {
+    UNUSED(a);
+
 	local->state = MENU_IDLE;
 }
 
@@ -332,6 +342,8 @@ void pages_menu_hide()
 
 void pages_anim_splash_in_cb(lv_anim_t * a)
 {
+    UNUSED(a);
+
 	if (local->mask_param != NULL)
 	{
 		lv_objmask_remove_mask(local->mask, local->mask_param);
@@ -341,6 +353,20 @@ void pages_anim_splash_in_cb(lv_anim_t * a)
 	local->state = MENU_IDLE;
 }
 
+void pages_fanet_check()
+{
+    if (config_get_bool(&profile.fanet.enabled) && config_get_bool(&profile.fanet.flarm))
+    {
+        if (rtc_is_valid())
+        {
+            int32_t delta = ((int64_t)fc.fanet.flarm_expires - (int64_t)fc_get_utc_time()) / (24 * 3600);
+            if (delta < 0)
+            {
+                statusbar_msg_add(STATUSBAR_MSG_ERROR, _("FLARM licence expired\nUpdate firmware"));
+            }
+        }
+    }
+}
 
 void pages_splash_show()
 {
@@ -359,6 +385,8 @@ void pages_splash_show()
 	local->state = SPLASH_IN;
 
 	config_new_version_cb();
+
+	pages_fanet_check();
 }
 
 void pages_anim_splash_out_cb(lv_anim_t * a)
