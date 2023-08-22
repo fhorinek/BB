@@ -368,6 +368,8 @@ flight_profile_t profile =
 	{
         //zoom_flight
         entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
+        //zoom_thermal
+        entry_int("zoom_thermal", MAP_ZOOM_RANGE_1km, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
         //zoom_fit
         entry_bool("zoom_fit", false),
         //zoom_flight

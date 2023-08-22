@@ -177,6 +177,7 @@ typedef struct
     struct
 	{
         cfg_entry_t zoom_flight;
+        cfg_entry_t zoom_thermal;
         cfg_entry_t zoom_fit;
         cfg_entry_t blur;
         cfg_entry_t alt_range;

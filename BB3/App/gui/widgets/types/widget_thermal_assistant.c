@@ -121,11 +121,11 @@ static void TAss_update(widget_slot_t * slot)
                 lv_obj_set_hidden(local->circle[i], false);
                 int16_t rad = (fc.flight.circling_history[j] * (s / 5)) / max_val;
                 if (rad == 0)
-                    lv_obj_set_style_local_bg_color(local->circle[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
-                else if (rad > 0)
                     lv_obj_set_style_local_bg_color(local->circle[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GREEN);
-                else
+                else if (rad > 0)
                     lv_obj_set_style_local_bg_color(local->circle[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+                else
+                    lv_obj_set_style_local_bg_color(local->circle[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_GRAY);
 
                 rad = abs(rad) + MIN_DOT_SIZE;
                 lv_obj_set_size(local->circle[i], rad, rad);
