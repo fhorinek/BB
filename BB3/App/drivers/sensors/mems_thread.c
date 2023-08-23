@@ -119,7 +119,8 @@ void mems_phase1_1()    //pressure read completed
 {
     //start temperature measurement
     ms5611_StartTemperature(&ms_primary, mems_phase1_1_1);
-    fc.baro.pressure = ms5611_CompensatePressure(&ms_primary);
+    if (!fc_simulate_is_playing())
+    	fc.baro.pressure = ms5611_CompensatePressure(&ms_primary);
 }
 
 // --- aux baro --

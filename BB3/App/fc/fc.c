@@ -14,6 +14,7 @@
 
 #include "etc/epoch.h"
 #include "etc/timezone.h"
+#include "etc/geo_calc.h"
 
 #include "drivers/rtc.h"
 #include "drivers/gnss/fanet.h"
@@ -29,6 +30,8 @@
 
 #include "gui/tasks/page/pages.h"
 #include "etc/notifications.h"
+
+#include "fc/logger/igc.h"
 
 fc_t fc;
 
@@ -164,6 +167,8 @@ void fc_init()
 
     vario_profile_load(config_get_text(&profile.vario.profile));
 
+    fc.simulation.fh = 0;      // no simulation is running
+
     fc.airspaces.near.asn = NULL;
     fc.airspaces.near.size = 0;
     fc.airspaces.near.num = 0;
@@ -210,6 +215,101 @@ void fc_deinit()
 	fc_recorder_exit();
 }
 
+/**
+ * Give a filename of an IGC file to simulate GPS by a playback.
+ *
+ * @param filename the filename to playback
+ */
+void fc_simulate_from_igc(char *filename)
+{
+	fc_simulate_stop();
+
+	fc.simulation.fh = red_open(filename, RED_O_RDONLY);
+	if (fc.simulation.fh < 0)
+	{
+		fc.simulation.fh = 0;
+	}
+}
+
+bool fc_simulate_is_playing()
+{
+	return ( fc.simulation.fh != 0 );
+}
+
+// How many times should be simulation be faster than reality?
+#define FC_SIMULATE_TIMEWARP 3
+
+void fc_simulate_step()
+{
+	static flight_pos_t pos_prev;
+	static int32_t next_gps_sim = 0;   // HAL_GetTick when the next GPS should come
+
+	flight_pos_t pos;
+	int16_t heading;
+	uint32_t distance;
+
+	int32_t now = HAL_GetTick();
+	bool ret;
+
+	if ( now > next_gps_sim )
+	{
+		next_gps_sim = now + 1000;
+
+		for ( int i = 0; i < FC_SIMULATE_TIMEWARP; i++ )
+			ret = igc_read_next_pos(fc.simulation.fh, &pos);
+		if( ret )
+		{
+			FC_ATOMIC_ACCESS
+			{
+				//disp_lat=  485547480; disp_lon =  93919890;   // Hohenneuffen
+				fc.gnss.longitude = pos.lon;
+				fc.gnss.latitude = pos.lat;
+				//fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
+				fc.gnss.altitude_above_msl = pos.gnss_alt;
+				//fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
+				//fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
+
+				distance = geo_distance(pos_prev.lat, pos_prev.lon, pos.lat, pos.lon, false, &heading);
+				fc.gnss.ground_speed = (distance / 100.0) / FC_SIMULATE_TIMEWARP;   // cm to m
+				fc.gnss.heading = heading;
+
+				fc.gnss.new_sample = 0xFF;
+				fc.gnss.fix = 3;
+
+				// TEST: always circle
+				//	heading += 1;
+				//	heading %= 360;
+
+				fc.gnss.heading = heading;
+
+				fc.baro.pressure = fc_alt_to_press(pos.baro_alt, config_get_big_int(&config.vario.qnh1));
+			}
+
+			pos_prev = pos;
+		}
+		else
+		{
+			fc_simulate_stop();
+		}
+	}
+}
+
+/**
+ * Stop playback of IGC file.
+ */
+void fc_simulate_stop()
+{
+	int32_t fh_tmp;
+
+	// close previous file:
+	if ( fc.simulation.fh != 0 )
+	{
+		fh_tmp = fc.simulation.fh;
+		fc.simulation.fh = 0;
+		red_close(fh_tmp);
+	}
+}
+
 void fc_takeoff()
 {
     INFO("Take-off");
@@ -240,7 +340,8 @@ void fc_takeoff()
     fc.flight.mode = flight_flight;
 
     fanet_set_mode(false);
-    logger_start();
+    if (!fc_simulate_is_playing())
+    	logger_start();
     fc_recorder_reset();
 
     gui_page_set_next(&profile.ui.autoset.take_off);
@@ -295,6 +396,8 @@ void fc_landing()
 //run via timer every 250ms
 void fc_step()
 {
+	fc_simulate_step();
+
     if (fc.flight.mode == flight_wait_to_takeoff
             || fc.flight.mode == flight_landed)
     {
