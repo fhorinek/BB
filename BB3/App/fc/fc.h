@@ -484,6 +484,7 @@ void fc_step();
 void fc_simulate_from_igc(char *filename);
 bool fc_simulate_is_playing();
 void fc_simulate_stop();
+void fc_simulate_restart();
 
 void fc_deinit();
 

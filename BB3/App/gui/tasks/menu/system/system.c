@@ -16,6 +16,7 @@
 #include "info.h"
 #include "firmware.h"
 #include "units.h"
+#include "sim.h"
 
 #include "../settings.h"
 
@@ -59,6 +60,7 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, _h("Device info"), NEXT_TASK, &gui_info);
     gui_list_auto_entry(list, _h("Diagnostic"), NEXT_TASK, &gui_diagnostic);
+    gui_list_auto_entry(list, _h("Simulation"), NEXT_TASK, &gui_sim);
 
     gui_list_auto_entry(list, _h("Restore factory settings"), CUSTOM_CB, restore_cb);
 

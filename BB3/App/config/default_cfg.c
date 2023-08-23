@@ -369,7 +369,7 @@ flight_profile_t profile =
         //zoom_flight
         entry_int("zoom_flight", MAP_ZOOM_RANGE_2km, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
         //zoom_thermal
-        entry_int("zoom_thermal", MAP_ZOOM_RANGE_1km, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
+        entry_int("zoom_thermal", MAP_ZOOM_RANGE_250m, MAP_ZOOM_RANGE_FIRST, MAP_ZOOM_RANGE_LAST),
         //zoom_fit
         entry_bool("zoom_fit", false),
         //zoom_flight
@@ -605,5 +605,9 @@ config_t config =
         entry_text("dbg_crash_url", "https://strato.skybean.eu/metrics/crash", CRASH_REPORTING_URL_LEN, 0),
         //help_show_id
         entry_bool("dbg_help", false),
+        //sim_mul
+        entry_int("sim_mul", 1, 1, 5),
+        //sim_loop
+        entry_bool("sim_loop", false),
 	},
 };

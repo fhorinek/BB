@@ -224,10 +224,14 @@ void fc_simulate_from_igc(char *filename)
 {
 	fc_simulate_stop();
 
-	fc.simulation.fh = red_open(filename, RED_O_RDONLY);
-	if (fc.simulation.fh < 0)
+	int32_t tmp_fh = red_open(filename, RED_O_RDONLY);
+	if (tmp_fh < 0)
 	{
 		fc.simulation.fh = 0;
+	}
+	else
+	{
+	    fc.simulation.fh = tmp_fh;
 	}
 }
 
@@ -235,9 +239,6 @@ bool fc_simulate_is_playing()
 {
 	return ( fc.simulation.fh != 0 );
 }
-
-// How many times should be simulation be faster than reality?
-#define FC_SIMULATE_TIMEWARP 3
 
 void fc_simulate_step()
 {
@@ -253,10 +254,11 @@ void fc_simulate_step()
 
 	if ( now > next_gps_sim )
 	{
-		next_gps_sim = now + 1000;
+		next_gps_sim = now + (1000 / config_get_int(&config.debug.sim_mul));
 
-		for ( int i = 0; i < FC_SIMULATE_TIMEWARP; i++ )
+//		for ( int i = 0; i < config_get_int(&config.debug.sim_mul); i++ )
 			ret = igc_read_next_pos(fc.simulation.fh, &pos);
+
 		if( ret )
 		{
 			FC_ATOMIC_ACCESS
@@ -270,7 +272,7 @@ void fc_simulate_step()
 				//fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
 
 				distance = geo_distance(pos_prev.lat, pos_prev.lon, pos.lat, pos.lon, false, &heading);
-				fc.gnss.ground_speed = (distance / 100.0) / FC_SIMULATE_TIMEWARP;   // cm to m
+				fc.gnss.ground_speed = (distance / 100.0);   // cm to m
 				fc.gnss.heading = heading;
 
 				fc.gnss.new_sample = 0xFF;
@@ -289,7 +291,14 @@ void fc_simulate_step()
 		}
 		else
 		{
-			fc_simulate_stop();
+		    if (config_get_bool(&config.debug.sim_loop))
+		    {
+		        fc_simulate_restart();
+		    }
+		    else
+		    {
+		        fc_simulate_stop();
+		    }
 		}
 	}
 }
@@ -309,6 +318,15 @@ void fc_simulate_stop()
 		red_close(fh_tmp);
 	}
 }
+
+void fc_simulate_restart()
+{
+    if ( fc.simulation.fh != 0 )
+    {
+        red_lseek(fc.simulation.fh, 0, RED_SEEK_SET);
+    }
+}
+
 
 void fc_takeoff()
 {
@@ -396,7 +414,10 @@ void fc_landing()
 //run via timer every 250ms
 void fc_step()
 {
-	fc_simulate_step();
+    if (fc_simulate_is_playing())
+    {
+        fc_simulate_step();
+    }
 
     if (fc.flight.mode == flight_wait_to_takeoff
             || fc.flight.mode == flight_landed)

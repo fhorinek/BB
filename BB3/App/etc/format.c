@@ -3,6 +3,7 @@
 #include "fc/fc.h"
 #include "etc/epoch.h"
 #include "drivers/rev.h"
+#include "etc/geo_calc.h"
 
 char *month_names[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
@@ -577,4 +578,12 @@ void format_hdg_to_points(char * buff, float in)
 		strcpy(buff, "NW");
 	else
 		strcpy(buff, "N");
+}
+
+void format_zoom(char *buff, float in)
+{
+    int16_t zoom = in;
+    uint16_t zoom_p = pow(2, zoom);
+    float guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
+    format_distance_with_units2(buff, guide_m);
 }

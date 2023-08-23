@@ -247,7 +247,7 @@ void cmd_step()
 
 #define POWER_OFF_TIMEOUT   500
 
-//this function will be run from GUI thread an system thread request
+//this function will be run from GUI thread at system thread request
 void gui_set_start_page()
 {
     if (gui.task.actual != &gui_pages)

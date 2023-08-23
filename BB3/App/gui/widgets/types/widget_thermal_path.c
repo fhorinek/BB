@@ -14,7 +14,7 @@
 #define THERMAL_HISTORY_STEP (1000 / FC_HISTORY_PERIOD)
 #define THERMAL_ZOOM_THRESHOLD_GS 18.0 // GS above zoom
 
-REGISTER_WIDGET_IU
+REGISTER_WIDGET_ISUE
 (
     TTrace,
     _i("Thermal trace"),
@@ -25,6 +25,10 @@ REGISTER_WIDGET_IU
     lv_obj_t * thermals[THERMAL_DOTS_POSITIONS];
 
     lv_obj_t * arrow;
+
+    lv_obj_t * edit;
+    uint8_t action_cnt;
+    uint32_t last_action;
 );
 
 static bool static_init = false;
@@ -38,6 +42,10 @@ static void TTrace_init(lv_obj_t * base, widget_slot_t * slot)
         lv_style_set_radius(&static_dot, LV_STATE_DEFAULT, LV_RADIUS_CIRCLE);
         static_init = true;
     }
+
+    local->edit = NULL;
+    local->last_action = 0;
+    local->action_cnt = 0;
 
     widget_create_base(base, slot);
     if (!widget_flag_is_set(slot, wf_label_hide))
@@ -68,6 +76,8 @@ static void TTrace_update(widget_slot_t * slot)
     	int16_t i = THERMAL_HISTORY_STEP * 2; // skip last 2 history positions
 		int16_t t = THERMAL_DOTS_POSITIONS;
 
+        uint16_t zoom = config_get_int(&profile.map.zoom_thermal);
+
 		while (i < fc.history.size)
 		{
 			uint16_t index = (fc.history.index + FC_HISTORY_SIZE - i) % FC_HISTORY_SIZE;
@@ -86,7 +96,7 @@ static void TTrace_update(widget_slot_t * slot)
 			    float dist = (fc.wind.speed / 1000.0) * time;
 			    geo_destination(point_lat, point_lon, fc.wind.direction + 180, dist, &point_lat, &point_lon);
 			}
-			geo_to_pix_w_h(curr_lon, curr_lat, 1, point_lon, point_lat, &x, &y, slot->w, slot->h);
+			geo_to_pix_w_h(curr_lon, curr_lat, zoom, point_lon, point_lat, &x, &y, slot->w, slot->h);
 
 			lv_color_t c = LV_COLOR_SILVER;
 
@@ -132,12 +142,10 @@ static void TTrace_update(widget_slot_t * slot)
 
             lv_obj_set_size(local->thermals[t], size, size);
 
-            uint16_t m = 2; //TODO: adaptive zoom
-
 			lv_obj_set_hidden(local->thermals[t], false);
 			lv_obj_align(local->thermals[t], local->arrow, LV_ALIGN_CENTER,
-			        (x - slot->w / 2) * m,
-			        (y - slot->h / 2) * m);
+			        (x - slot->w / 2),
+			        (y - slot->h / 2));
 
 
 			if (t == 0)
@@ -154,4 +162,105 @@ static void TTrace_update(widget_slot_t * slot)
 	    lv_img_set_angle(local->arrow, fc.gnss.heading * 10);
         lv_obj_set_hidden(local->arrow, false);
 	}
+
+    if (local->edit != NULL)
+     {
+        char buff[32];
+
+        int16_t zoom = config_get_int(&profile.map.zoom_thermal);
+        uint16_t zoom_p = pow(2, zoom);
+        int32_t guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
+        format_distance_with_units2(buff, guide_m);
+
+        lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
+        lv_obj_t * label_zoom = lv_obj_get_child(base, lv_obj_get_child(base, NULL));
+        lv_label_set_text(label_zoom, buff);
+     }
 }
+
+static void TTrace_edit(widget_slot_t * slot, uint8_t action)
+{
+    if (action == WIDGET_ACTION_CLOSE)
+    {
+        if (local->edit != NULL)
+        {
+            widget_destroy_edit_overlay(local->edit);
+            local->edit = NULL;
+        }
+
+        return;
+    }
+
+    if (action == WIDGET_ACTION_LEFT || action == WIDGET_ACTION_RIGHT || action == WIDGET_ACTION_HOLD)
+    {
+        if (local->edit == NULL)
+        {
+            //create menu
+            local->edit = widget_create_edit_overlay("", _("Set Zoom Level"));
+
+            //no anim, make fully transparent
+            lv_anim_get(local->edit, NULL);
+            lv_obj_set_style_local_bg_opa(local->edit, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_TRANSP);
+
+            lv_obj_t * base = widget_edit_overlay_get_base(local->edit);
+            lv_obj_t * zoom = lv_label_create(base, NULL);
+            lv_obj_set_style_local_pad_top(zoom, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 15);
+            lv_obj_set_style_local_text_font(zoom, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, gui.styles.widget_fonts[FONT_L]);
+
+            lv_obj_t * bar = lv_obj_create(base, NULL);
+            lv_obj_set_size(bar, 120, 8);
+            lv_obj_set_style_local_bg_color(bar, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+            lv_obj_set_style_local_border_color(bar, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+            lv_obj_set_style_local_border_width(bar, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 1);
+
+            lv_obj_t * bar2 = lv_obj_create(bar, NULL);
+            lv_obj_set_size(bar2, 40, 8);
+            lv_obj_align(bar2, bar, LV_ALIGN_CENTER, 0, 0);
+
+            //update values
+            TTrace_update(slot);
+        }
+
+        if (HAL_GetTick() - local->last_action < 300)
+        {
+            if (local->action_cnt < 50)
+                local->action_cnt++;
+        }
+        else
+        {
+            local->action_cnt = 0;;
+        }
+
+        //INFO("AC %u %lu", local->action_cnt, HAL_GetTick() - local->last_action);
+
+        local->last_action = HAL_GetTick();
+
+        int8_t diff = 0;
+        if (action == WIDGET_ACTION_LEFT)
+            diff = +1;
+
+        if (action == WIDGET_ACTION_RIGHT)
+            diff = -1;
+
+        if (diff != 0)
+        {
+            diff *= 1 + (local->action_cnt / 5);
+
+            int16_t zoom = config_get_int(&profile.map.zoom_thermal);
+                        int16_t new = zoom + diff;
+            config_set_int(&profile.map.zoom_thermal, new);
+
+            widget_reset_edit_overlay_timer();
+        }
+
+    }
+}
+
+static void TTrace_stop(widget_slot_t * slot)
+{
+    if (local->edit != NULL)
+    {
+        widget_destroy_edit_overlay(local->edit);
+    }
+}
+

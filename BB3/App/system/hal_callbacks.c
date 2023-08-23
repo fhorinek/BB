@@ -21,6 +21,7 @@
 #include "drivers/gnss/gnss_ublox_m8.h"
 #include "drivers/gnss/fanet.h"
 #include "gui/gui_thread.h"
+#include "system/debug_thread.h"
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -111,19 +112,20 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
 	if (huart == gnss_uart)
 	{
-		//Frame error can be triggered by baudrate change
 		ublox_start_dma();
 	}
 	else if (huart == fanet_uart)
 	{
-		//Frame error can be triggered by baudrate change
 		fanet_start_dma();
 	}
 	else if (huart == esp_uart)
 	{
-		//Frame error can be triggered by baudrate change
 		esp_start_dma();
 	}
+    else if (huart == debug_uart)
+    {
+        debug_uart_error();
+    }
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)

@@ -190,7 +190,7 @@ static lv_obj_t * flightbook_flight_init(lv_obj_t * par)
 
 	//we want to use custom callback so we can pass another parameters
 	gui_list_auto_entry(list, _h("Show on map"), CUSTOM_CB, flightbook_flight_map_cb);
-	gui_list_auto_entry(list, _h("Playback"), CUSTOM_CB, flightbook_flight_playback_cb);
+	gui_list_auto_entry(list, _h("Simulate on device"), CUSTOM_CB, flightbook_flight_playback_cb);
 
 	return list;
 }

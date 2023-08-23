@@ -1,8 +1,9 @@
 Added:
+* IGC Playback
+* Consistant colors for thermaling
+* Thermal trace zoom level
 * KML as flight log format
-* Download of MAP
-* Download of AGL
-* Download of airspace
+* Download of MAP, AGL and airspace
 * Fade volume for A2DP when thermaling
 * Airspace side view
 * Translations

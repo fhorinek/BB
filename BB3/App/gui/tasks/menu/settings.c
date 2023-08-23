@@ -51,7 +51,7 @@ static bool stop_playback(lv_obj_t * obj, lv_event_t event)
 	{
 		fc_simulate_stop();
 
-        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
+        gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
 		//supress default handler
 		return false;
 	}
@@ -65,7 +65,8 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	lv_obj_t * list = gui_list_create(par, _("Strato settings"), &gui_pages, NULL);
 
 	if (fc_simulate_is_playing())
-		gui_list_auto_entry(list, _h("Stop Playback"), CUSTOM_CB, stop_playback);
+		gui_list_auto_entry(list, _h("Stop Simulation"), CUSTOM_CB, stop_playback);
+
 	gui_list_auto_entry(list, _h("Flightbook"), CUSTOM_CB, open_flightbook);
 	gui_list_auto_entry(list, _h("Pilot & Flight profile"), NEXT_TASK, &gui_profiles);
 	gui_list_auto_entry(list, _h("Vario"), NEXT_TASK, &gui_vario_settings);

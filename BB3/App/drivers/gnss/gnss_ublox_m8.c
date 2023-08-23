@@ -263,26 +263,26 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 
         ublox_handle_itow(ubx_nav_posllh->iTOW);
 
-		if (!fc_simulate_is_playing())
-		{
-			FC_ATOMIC_ACCESS
-			{
-				fc.gnss.itow = ubx_nav_posllh->iTOW;
-				fc.gnss.longitude = ubx_nav_posllh->lon;
-				fc.gnss.latitude = ubx_nav_posllh->lat;
-				fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
-				fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
-				fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
-				fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
-				fc.gnss.new_sample = 0xFF;
-			}
-		}
+		if (fc_simulate_is_playing())
+		    return true;
 
-		if (fc.gnss.fix > 0)
-		{
-			config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
-			config_set_big_int(&profile.ui.last_lon, fc.gnss.longitude);
-		}
+		FC_ATOMIC_ACCESS
+        {
+            fc.gnss.itow = ubx_nav_posllh->iTOW;
+            fc.gnss.longitude = ubx_nav_posllh->lon;
+            fc.gnss.latitude = ubx_nav_posllh->lat;
+            fc.gnss.altitude_above_ellipsiod = ubx_nav_posllh->height / 1000.0;
+            fc.gnss.altitude_above_msl= ubx_nav_posllh->hMSL / 1000.0;
+            fc.gnss.horizontal_accuracy = ubx_nav_posllh->hAcc / 100;
+            fc.gnss.vertical_accuracy = ubx_nav_posllh->vAcc / 100;
+            fc.gnss.new_sample = 0xFF;
+        }
+
+        if (fc.gnss.fix > 0)
+        {
+            config_set_big_int(&profile.ui.last_lat, fc.gnss.latitude);
+            config_set_big_int(&profile.ui.last_lon, fc.gnss.longitude);
+        }
 
 		return true;
 	}
@@ -334,6 +334,9 @@ bool ublox_handle_nav(uint8_t msg_id, uint8_t * msg_payload, uint16_t msg_len)
 		ubx_nav_status_t * ubx_nav_status = (ubx_nav_status_t *)msg_payload;
 
 //        ublox_handle_itow(ubx_nav_status->iTOW);
+
+		if (fc_simulate_is_playing())
+		    return true;
 
 		FC_ATOMIC_ACCESS
 		{

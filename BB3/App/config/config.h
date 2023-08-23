@@ -70,7 +70,7 @@
 #define MAP_ALT_RANGE_NORMAL    1
 #define MAP_ALT_RANGE_ALPS      2
 
-#define MAP_ZOOM_RANGE_FIRST      0
+#define MAP_ZOOM_RANGE_FIRST     0
 #define MAP_ZOOM_RANGE_250m      0
 #define MAP_ZOOM_RANGE_500m      1
 #define MAP_ZOOM_RANGE_1km       2
@@ -324,6 +324,8 @@ typedef struct
         cfg_entry_t crash_reporting;
         cfg_entry_t crash_reporting_url;
         cfg_entry_t help_show_id;
+        cfg_entry_t sim_mul;
+        cfg_entry_t sim_loop;
 	} debug;
 } config_t;
 
