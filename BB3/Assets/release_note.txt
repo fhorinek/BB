@@ -7,8 +7,12 @@ Added:
 * Fade volume for A2DP when thermaling
 * Airspace side view
 * Translations
+* A2DP will reconnect automaticaly
 
 Updated:
 * FANET licence
 * Bootloader file handling
 * Filemanager over wifi
+
+Fixed:
+* Bluetooth pairing issue

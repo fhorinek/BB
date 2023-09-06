@@ -160,6 +160,8 @@ void esp_set_bt_mode()
     strncpy(data.name, config_get_text(&config.device_name), PROTO_BT_NAME_LEN);
     strncpy(data.pin, config_get_text(&config.bluetooth.pin), PROTO_BT_PIN_LEN);
 
+    parse_mac(config_get_text(&profile.bluetooth.a2dp_autoconnect), data.a2dp_autoconnect);
+
     protocol_send(PROTO_BT_SET_MODE, (void *) &data, sizeof(data));
 }
 

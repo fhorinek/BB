@@ -467,6 +467,8 @@ flight_profile_t profile =
 		entry_select("bt_proto", tele_lk8ex1, protocol_type_select),
 		//forward_gnss
 		entry_bool("bt_fw_gnss", true),
+		//a2dp_autoconnect
+		entry_text("bt_a2dp_autoconnect", "00:00:00:00:00:00", 18, 0),
     },
 
     //wifi

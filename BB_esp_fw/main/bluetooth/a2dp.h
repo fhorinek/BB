@@ -10,7 +10,6 @@
 
 #include "common.h"
 
-void bt_a2dp_init();
-
+void bt_a2dp_init(proto_mac_t autoconnect_dev);
 
 #endif /* BLUETOOTH_A2DP_H_ */

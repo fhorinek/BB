@@ -381,9 +381,9 @@ static void ble_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
             if (param->ble_security.auth_cmpl.success)
             {
                 INFO("authentication success");
+                ble_auth_ok = true;
                 if (memcmp(param->ble_security.auth_cmpl.bd_addr, paired_mac, 6) == 0)
                 {
-                	ble_auth_ok = true;
                     memset(paired_mac, 0, 6);
                     bt_notify(param->ble_security.auth_cmpl.bd_addr, "", PROTO_BT_MODE_PAIRED);
                 }

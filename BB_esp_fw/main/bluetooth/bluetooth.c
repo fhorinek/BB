@@ -221,7 +221,7 @@ void bt_set_mode(proto_set_bt_mode_t *packet)
 
         if (packet->a2dp)
         {
-            bt_a2dp_init();
+            bt_a2dp_init(packet->a2dp_autoconnect);
         }
 
         if (packet->spp)

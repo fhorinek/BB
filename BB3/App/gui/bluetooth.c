@@ -24,6 +24,8 @@ static bool dialog_on = false;
 
 void bluetooth_pair_dialog_cb(uint8_t res, void * param)
 {
+    UNUSED(param);
+
 	__align proto_bt_pair_res_t data;
 
 	safe_memcpy(data.dev, dev_mac, sizeof(dev_mac));
@@ -71,6 +73,10 @@ void bluetooth_notify(proto_bt_notify_t * packet)
 		{
 			fc.esp.state |= ESP_STATE_BT_A2DP;
 			index = 0;
+
+			char tmp[18];
+            format_mac(tmp, packet->dev);
+            config_set_text(&profile.bluetooth.a2dp_autoconnect, tmp);
 		}
 
 		if (packet->mode & PROTO_BT_MODE_SPP)
