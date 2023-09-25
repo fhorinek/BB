@@ -148,7 +148,8 @@ void Error_Handler(void);
 #define FANET_SW            FANET_SW_GPIO_Port, FANET_SW_Pin
 #define GNSS_RST            GNSS_RST_GPIO_Port, GNSS_RST_Pin
 #define LED_TORCH           LED_TORCH_GPIO_Port, LED_TORCH_Pin
-#define NG_CDP_CLM          NG_CDP_CLM_GPIO_Port, NG_CDP_CLM_Pin
+#define NG_CDP_CLM_1        NG_CDP_CLM_1_GPIO_Port, NG_CDP_CLM_1_Pin
+#define NG_CDP_CLM_2        NG_CDP_CLM_2_GPIO_Port, NG_CDP_CLM_2_Pin
 #define USB_DATA_DFP_1A     USB_DATA_DFP_1A_GPIO_Port, USB_DATA_DFP_1A_Pin
 #define USB_DATA_DFP_3A     USB_DATA_DFP_3A_GPIO_Port, USB_DATA_DFP_3A_Pin
 #define USB_VBUS            USB_VBUS_GPIO_Port, USB_VBUS_Pin

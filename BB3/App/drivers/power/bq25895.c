@@ -27,8 +27,7 @@
 #define Charger_ICHG_val 		0b10100000
 
 #define Charger_ICHG2_Reg 		0x05  // [7:4] Precharge Current Limit: IPRECHG = 64 + VALUE[7:4] × 64 [mA] // default 128mA  [3:0] Termination Current Limit: ITERM = 64 + VALUE[3:0] × 64 [mA] // default 256mA
-#define Charger_ICHG2_val 		0x66  // Iprech = 448mA; Iterm = 448mA         § revise with new battery §
-//#define Charger_ICHG2_val 		0x31  // Iprech = 3 (DEC) = 256mA; Iterm = 1 (DEC) = 128mA         § revise with new battery §
+#define Charger_ICHG2_val 		0x86  // Iprech = 512mA; Iterm = 384mA         § revise with new battery §
 
 #define Charger_BatChV_Reg 		0x06 // for 4,2V [7:2] Charge Voltage Limit: VREG = 3840 + VALUE[7:2] × 16 [mV] // default undefined              § revise with new battery §
 #define Charger_BatChV_val 		0b01011110 // Charge to 4,208V, start Fast charge @ 3V
@@ -71,6 +70,13 @@
 #define Charger_IChrgUsb 0x13 // USB Input Current Limit in effect during Input Current Optimizer [7]VDPM_STAT; [6]IDPM_STAT
 // IDPM_LIM: = 100 + VALUE[5:0] × 50 [mA]
 
+void bq25895_boost_voltage(uint8_t val)
+{
+    val = (val & 0x0F) << 4;
+
+    system_i2c_write8(BQ_ADR, Charger_Boost_Reg, val | 0b00000011);
+
+}
 
 void bq25895_init()
 {

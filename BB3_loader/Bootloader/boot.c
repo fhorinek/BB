@@ -113,6 +113,7 @@ void app_poweroff()
 		MX_DMA_Init();
 		MX_I2C2_Init();
 		MX_TIM5_Init();
+		MX_RTC_Init();
 
 		GpioWrite(VCC_MAIN_EN, HIGH);
 
@@ -125,7 +126,12 @@ void app_poweroff()
 
 		pwr_init();
 		GpioWrite(BQ_OTG, LOW);
-		bq25895_batfet_off();
+
+		//keep bat fet on if charging
+		if (pwr.charge_port <= PWR_CHARGE_WEAK && pwr.data_port == PWR_DATA_NONE)
+		{
+		    bq25895_batfet_off();
+		}
 
 		HAL_I2C_DeInit(&hi2c2);
 
@@ -139,8 +145,25 @@ void app_poweroff()
 			HAL_SuspendTick();
 
 			//Wait for interrupt
-			// SCB->VTOR = 0x8000000;
-			HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+			if (pwr.charge_port <= PWR_CHARGE_WEAK && pwr.data_port == PWR_DATA_NONE)
+			{
+			    //not charging
+			    HAL_PWREx_EnterSTOP2Mode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+			}
+			else
+			{
+			    /* RTC interrupt init */
+			    HAL_NVIC_EnableIRQ(RTC_WKUP_IRQn);
+                HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, 5, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
+
+			    //charging
+			    HAL_PWREx_EnterSTANDBYMode(PWR_D1_DOMAIN);
+
+			    /* RTC interrupt Deinit */
+                HAL_RTCEx_DeactivateWakeUpTimer(&hrtc);
+			    HAL_NVIC_DisableIRQ(RTC_WKUP_IRQn);
+			}
 
 			// ---- SLEEPING ----
 

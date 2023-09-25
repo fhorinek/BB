@@ -391,6 +391,8 @@ void pages_splash_show()
 
 void pages_anim_splash_out_cb(lv_anim_t * a)
 {
+    UNUSED(a);
+
 	if (local->mask_param != NULL)
 	{
 		lv_objmask_remove_mask(local->mask, local->mask_param);
@@ -441,6 +443,8 @@ void pages_indicator_show()
 
 void pages_anim_page_switch_cb(lv_anim_t * a)
 {
+    UNUSED(a);
+
 	if (local->page_old != NULL)
 	{
 		widgets_deinit_page(local->page_old);
@@ -576,7 +580,7 @@ void pages_unlock_widget()
 	local->timer = HAL_GetTick() + MENU_TIMEOUT;
 }
 
-static void pages_shrt_event(shortcut_item_t * shrt, uint8_t button, lv_obj_t * label, shortcut_get_name_cb_t cb, char * title)
+static void pages_shrt_event(shortcut_item_t * shrt, uint8_t button, lv_obj_t * label, shortcut_set_name_cb_t cb, char * title)
 {
     if (shrt != NULL)
     {
@@ -608,7 +612,7 @@ static void pages_shrt_event(shortcut_item_t * shrt, uint8_t button, lv_obj_t * 
             if (local->button_cnt > ACTION_CHANGE_CNT)
             {
                 gui_switch_task(&gui_shortcuts, LV_SCR_LOAD_ANIM_MOVE_TOP);
-                shortcut_set_slot(cb, title, (char *)shrt->name);
+                shortcut_set_slot(cb, title, (char *)shrt->name, pages_get_name(local->actual_page));
             }
         }
         else
@@ -622,34 +626,42 @@ static void pages_shrt_event(shortcut_item_t * shrt, uint8_t button, lv_obj_t * 
     }
 }
 
-void pages_set_menu_left_shrt(char * new_shrt)
+void pages_set_menu_left_shrt(char * new_shrt, char * page_name)
 {
+    UNUSED(page_name);
     config_set_text(&profile.ui.shortcut_left, new_shrt);
 }
 
-void pages_set_menu_right_shrt(char * new_shrt)
+void pages_set_menu_right_shrt(char * new_shrt, char * page_name)
 {
+    UNUSED(page_name);
     config_set_text(&profile.ui.shortcut_right, new_shrt);
 }
 
-void pages_set_page_left_shrt(char * new_shrt)
+void pages_set_page_left_shrt(char * new_shrt, char * page_name)
 {
     page_layout_t page;
-    widgets_load_from_file(&page, pages_get_name(local->actual_page));
-    page.shrt_left = shortcuts_get_from_name(new_shrt);
-    widgets_save_to_file(&page, pages_get_name(local->actual_page));
+    if (widgets_load_from_file(&page, page_name))
+    {
+        page.shrt_left = shortcuts_get_from_name(new_shrt);
+        widgets_save_to_file(&page, page_name);
+    }
 }
 
-void pages_set_page_right_shrt(char * new_shrt)
+void pages_set_page_right_shrt(char * new_shrt, char * page_name)
 {
     page_layout_t page;
-    widgets_load_from_file(&page, pages_get_name(local->actual_page));
-    page.shrt_right = shortcuts_get_from_name(new_shrt);
-    widgets_save_to_file(&page, pages_get_name(local->actual_page));
+    if (widgets_load_from_file(&page, page_name))
+    {
+        page.shrt_right = shortcuts_get_from_name(new_shrt);
+        widgets_save_to_file(&page, page_name);
+    }
 }
 
 static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 {
+    UNUSED(obj);
+
     gui_set_loop_period(50);
 
     switch(event)
@@ -787,10 +799,10 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
     			break;
 
                 case(LV_KEY_ESC):
-		    pages_shrt_event(local->page->shrt_left, BUTTON_PAGE_LEFT, local->page->shrt_left_but, pages_set_page_left_shrt, _("Page left shortcut"));
+		            pages_shrt_event(local->page->shrt_left, BUTTON_PAGE_LEFT, local->page->shrt_left_but, pages_set_page_left_shrt, _("Page left shortcut"));
                 break;
                 case(LV_KEY_HOME):
-		    pages_shrt_event(local->page->shrt_right, BUTTON_PAGE_RIGHT, local->page->shrt_right_but, pages_set_page_right_shrt, _("Page right shortcut"));
+		            pages_shrt_event(local->page->shrt_right, BUTTON_PAGE_RIGHT, local->page->shrt_right_but, pages_set_page_right_shrt, _("Page right shortcut"));
                 break;
 
         		}
@@ -835,6 +847,8 @@ static void pages_event_cb(lv_obj_t * obj, lv_event_t event)
 
 void pages_switch_anim_cb(void * obj, lv_anim_value_t val)
 {
+    UNUSED(obj);
+
 	lv_obj_set_x(local->page->base, val);
 	if (local->state == PAGE_SWITCH_RIGHT)
 	{

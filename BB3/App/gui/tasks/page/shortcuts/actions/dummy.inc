@@ -9,7 +9,7 @@
 static bool shrt_add_left_action()
 {
     gui_switch_task(&gui_shortcuts, LV_SCR_LOAD_ANIM_MOVE_TOP);
-    shortcut_set_slot(pages_set_menu_left_shrt, _("Left menu shortcut"), "");
+    shortcut_set_slot(pages_set_menu_left_shrt, _("Left menu shortcut"), "", NULL);
 
     return false;
 }
@@ -24,7 +24,7 @@ static bool shrt_add_left_icon(char * icon, char * label)
 static bool shrt_add_right_action()
 {
     gui_switch_task(&gui_shortcuts, LV_SCR_LOAD_ANIM_MOVE_TOP);
-    shortcut_set_slot(pages_set_menu_right_shrt, _("Right menu shortcut"), "");
+    shortcut_set_slot(pages_set_menu_right_shrt, _("Right menu shortcut"), "", NULL);
 
     return false;
 }

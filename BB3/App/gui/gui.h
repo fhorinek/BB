@@ -73,7 +73,9 @@ typedef enum
 
 typedef enum
 {
-	BAR_ICON_BAT = 0,
+    BAR_ICON_FROM_BAT = 0,
+	BAR_ICON_BAT,
+	BAR_ICON_TO_BAT,
 	BAR_ICON_CHARGE,
 	BAR_ICON_USB,
 	BAR_ICON_GNSS,

@@ -29,6 +29,7 @@
 #include "i2c.h"
 #include "octospi.h"
 #include "rng.h"
+#include "rtc.h"
 
 #include "debug.h"
 #include "ux_port.h"
