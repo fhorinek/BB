@@ -107,6 +107,9 @@ typedef struct
         cfg_entry_t last_lat;
         cfg_entry_t shortcut_left;
         cfg_entry_t shortcut_right;
+        cfg_entry_t return_to_pages;
+        cfg_entry_t auto_power_off_enabled;
+        cfg_entry_t auto_power_off_time;
 
         struct
         {

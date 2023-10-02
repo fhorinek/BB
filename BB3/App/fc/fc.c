@@ -119,6 +119,8 @@ void fc_history_record_cb(void *arg)
 
 void fc_reset()
 {
+    gui_inactivity_reset();
+
     if (fc.fused.status != fc_dev_ready)
     {
         fc.flight.mode = flight_not_ready;
@@ -695,3 +697,4 @@ void fc_manual_alt1_change(float val)
         fc.autostart.wait_for_manual_change = true;
     }
 }
+

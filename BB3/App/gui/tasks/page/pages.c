@@ -992,7 +992,6 @@ static lv_obj_t * pages_init(lv_obj_t * par)
 
 static void pages_loop()
 {
-
 	if (local->state == MENU_SHOW && local->timer < HAL_GetTick())
 	{
 		pages_menu_hide();

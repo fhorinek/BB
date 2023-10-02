@@ -107,6 +107,7 @@ bool gui_input_cb(lv_indev_drv_t * drv, lv_indev_data_t * data)
 			{
 				last_key_index = i;
 				last_key_state = LV_INDEV_STATE_PR;
+				gui_inactivity_reset();
 				break;
 			}
 		}

@@ -1,4 +1,5 @@
 Added:
+* Auto power off
 * IGC Playback
 * Consistant colors for thermaling
 * Thermal trace zoom level

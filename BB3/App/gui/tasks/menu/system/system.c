@@ -16,6 +16,7 @@
 #include "info.h"
 #include "firmware.h"
 #include "units.h"
+#include "auto_poweroff.h"
 #include "sim.h"
 
 #include "../settings.h"
@@ -50,6 +51,7 @@ lv_obj_t * system_init(lv_obj_t * par)
 
     gui_list_auto_entry(list, _h("Time & date"), NEXT_TASK, &gui_datetime);
     gui_list_auto_entry(list, _h("Display"), NEXT_TASK, &gui_display);
+    gui_list_auto_entry(list, _h("Auto Power off"), NEXT_TASK, &gui_auto_poweroff);
     gui_list_auto_entry(list, _h("Units"), NEXT_TASK, &gui_units);
     gui_list_auto_entry(list, _h("Calibration"), NEXT_TASK, &gui_calib_menu);
 

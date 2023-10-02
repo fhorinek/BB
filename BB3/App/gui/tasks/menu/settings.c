@@ -80,10 +80,12 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, _h("Bluetooth"), NEXT_TASK, &gui_bluetooth);
 	gui_list_auto_entry(list, _h("Wi-Fi"), NEXT_TASK, &gui_wifi);
 	gui_list_auto_entry(list, _h("System"), NEXT_TASK, &gui_system);
-	gui_list_auto_entry(list, _h("Other"), NEXT_TASK, &gui_other);
 
-	if (DEVEL_ACTIVE)
+    if (DEVEL_ACTIVE)
+    {
+        gui_list_auto_entry(list, _h("Other"), NEXT_TASK, &gui_other);
 		gui_list_auto_entry(list, _h("Development"), NEXT_TASK, &gui_development);
+    }
 
 	return list;
 }
