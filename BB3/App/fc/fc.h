@@ -90,6 +90,8 @@ typedef struct
 #define NB_TOO_OLD				120
 
 
+#define NB_UPDATE_FWD           0b00000001
+
 typedef struct
 {
     int32_t latitude;
@@ -101,8 +103,12 @@ typedef struct
     uint16_t dist; //in m
     uint16_t max_dist;
 
+    uint16_t speed;
+    int16_t climb;
+
     fanet_addr_t addr;
     uint8_t flags;
+    uint8_t updated;
 
 	char name[NB_NAME_LEN];
     uint8_t heading;

@@ -1,4 +1,5 @@
 Added:
+* FANTE forward via BT
 * KML as flight log format
 * Download of MAP
 * Download of AGL

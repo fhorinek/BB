@@ -355,6 +355,8 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			nb.heading = hdg;
 			nb.flags = flags;
 			nb.alititude = alt;
+			nb.speed = spd;
+			nb.climb = climb;
 
 			neighbors_update(nb);
 

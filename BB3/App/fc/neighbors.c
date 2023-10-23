@@ -10,7 +10,8 @@ void neighbors_reset()
 {
 	for (uint8_t i = 0; i < NB_NUMBER_IN_MEMORY; i++)
 	{
-		fc.fanet.neighbor[i].flags = 0;
+        fc.fanet.neighbor[i].flags = 0;
+        fc.fanet.neighbor[i].updated = 0;
 	}
 	fc.fanet.neighbors_size = 0;
 	fc.fanet.neighbors_magic = 0;
@@ -77,6 +78,7 @@ neighbor_t * neighbors_add(fanet_addr_t addr)
 	nb->max_dist = 0;
 	nb->dist = 0;
 	nb->timestamp = HAL_GetTick() / 1000;
+	nb->updated = 0xFF;
 
 	return nb;
 }
@@ -101,7 +103,9 @@ void neighbors_update(neighbor_t new_data)
 
 	//not found add new
 	if (nb == NULL)
+	{
 		nb = neighbors_add(new_data.addr);
+	}
 
 	if (nb != NULL) {
 		nb->latitude = new_data.latitude;
@@ -115,6 +119,8 @@ void neighbors_update(neighbor_t new_data)
 
 		//notify GUI
 		neighbors_update_magic();
+
+		nb->updated = 0xFF;
 	}
 }
 
@@ -130,19 +136,26 @@ void neighbors_update_name(fanet_addr_t addr, char * name)
 		strncpy(nb->name, name, NB_NAME_LEN);
 		nb->timestamp = HAL_GetTick() / 1000;
 
+		nb->updated = 0xFF;
+
 		//notify GUI
 		neighbors_update_magic();
 	}
 }
 
 // should be atomic?
-void neighbors_remove_old() {
+void neighbors_remove_old()
+{
 	for (uint8_t i = 0; i < fc.fanet.neighbors_size; i++)
 	{
 		uint32_t last_update = (HAL_GetTick() / 1000) - fc.fanet.neighbor[i].timestamp;
-		if (last_update > NB_TOO_OLD) {
-			if (i != (fc.fanet.neighbors_size - 1)) { // not last?
-				for (uint8_t j = i; j < fc.fanet.neighbors_size; j++) {
+
+		if (last_update > NB_TOO_OLD)
+		{
+			if (i != (fc.fanet.neighbors_size - 1))
+			{ // not last?
+				for (uint8_t j = i; j < fc.fanet.neighbors_size; j++)
+				{
 					fc.fanet.neighbor[j] = fc.fanet.neighbor[j + 1];
 				}
 			}

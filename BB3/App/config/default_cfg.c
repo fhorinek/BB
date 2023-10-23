@@ -465,8 +465,10 @@ flight_profile_t profile =
 		entry_bool("bt_ble", true),
 		//protocol
 		entry_select("bt_proto", tele_lk8ex1, protocol_type_select),
-		//forward_gnss
-		entry_bool("bt_fw_gnss", true),
+        //forward_gnss
+        entry_bool("bt_fw_gnss", true),
+        //forward_fanet
+        entry_bool("bt_fw_fanet", true),
     },
 
     //wifi
