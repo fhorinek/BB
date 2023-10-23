@@ -430,6 +430,18 @@ void format_mac(char * buf, uint8_t * mac)
     buf[3 * 6 - 1] = 0;
 }
 
+void parse_mac(const char * mac_str, uint8_t * mac)
+{
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        char byte_str[3];
+        strncpy(byte_str, mac_str + i * 3, 2);
+        byte_str[2] = '\0';
+        mac[i] = (uint8_t)strtol(byte_str, NULL, 16);
+    }
+}
+
+
 void format_ip(char * buf, uint8_t * ip)
 {
     sprintf(buf, "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);

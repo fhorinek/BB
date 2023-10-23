@@ -46,6 +46,8 @@ void format_vario_units(char * units);
 void format_vario_with_units(char * buff, float in);
 
 void format_mac(char * buf, uint8_t * mac);
+void parse_mac(const char * mac_str, uint8_t * mac);
+
 void format_ip(char * buf, uint8_t * ip);
 
 void format_speed(char * val, float in);

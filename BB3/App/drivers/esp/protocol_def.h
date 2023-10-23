@@ -329,6 +329,7 @@ typedef struct {
 typedef struct {
     char name[PROTO_BT_NAME_LEN];
     char pin[PROTO_BT_PIN_LEN];
+    proto_mac_t a2dp_autoconnect;
 
     bool enabled;
     bool a2dp;
@@ -381,6 +382,7 @@ typedef struct {
     char dev_name[PROTO_BT_DEV_NAME_LEN];
     uint8_t mode;
 } proto_bt_notify_t;
+
 
 //-------------------- Bluetooth Telemetry --------------------
 

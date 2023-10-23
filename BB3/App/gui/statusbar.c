@@ -110,7 +110,9 @@ void statusbar_create()
 		statusbar_set_icon(i, I_HIDE);
 	}
 
-	lv_label_set_text(gui.statusbar.icons[BAR_ICON_BAT], LV_SYMBOL_BATTERY_EMPTY);
+    lv_label_set_text(gui.statusbar.icons[BAR_ICON_FROM_BAT], " > " LV_SYMBOL_USB);
+    lv_label_set_text(gui.statusbar.icons[BAR_ICON_BAT], LV_SYMBOL_BATTERY_EMPTY);
+    lv_label_set_text(gui.statusbar.icons[BAR_ICON_TO_BAT], "> ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_CHARGE], LV_SYMBOL_CHARGE " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_USB], LV_SYMBOL_USB " ");
 	lv_label_set_text(gui.statusbar.icons[BAR_ICON_GNSS], LV_SYMBOL_GPS " ");
@@ -365,12 +367,13 @@ void statusbar_step()
     }
 
 
-	statusbar_set_icon(BAR_ICON_USB, (pwr.data_port != PWR_DATA_NONE) ? I_SHOW : I_HIDE);
+	statusbar_set_icon(BAR_ICON_USB, (pwr.data_port == PWR_DATA_CHARGE || pwr.data_port == PWR_DATA_ACTIVE) ? I_SHOW : I_HIDE);
 	statusbar_set_icon(BAR_ICON_CHARGE, (pwr.charger.charge_port > PWR_CHARGE_WEAK) ? I_SHOW : I_HIDE);
 	if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
 	{
 		statusbar_set_icon(BAR_ICON_CHARGE, I_RED | I_FAST | I_BLINK);
-	} if (pwr.charger.charge_port == PWR_CHARGE_WEAK)
+	}
+	if (pwr.charger.charge_port == PWR_CHARGE_DONE)
 	{
 	    statusbar_set_icon(BAR_ICON_CHARGE, I_GREEN);
 	}
@@ -387,6 +390,18 @@ void statusbar_step()
         strcpy(bat_icon, LV_SYMBOL_BATTERY_3);
     else
         strcpy(bat_icon, LV_SYMBOL_BATTERY_FULL);
+
+    if (pwr.charge_from_strato)
+    {
+        statusbar_set_icon(BAR_ICON_TO_BAT, pwr.charger.charge_port > PWR_CHARGE_WEAK ? I_SHOW : I_HIDE);
+        statusbar_set_icon(BAR_ICON_FROM_BAT, I_SHOW);
+    }
+    else
+    {
+        statusbar_set_icon(BAR_ICON_TO_BAT, I_HIDE);
+        statusbar_set_icon(BAR_ICON_FROM_BAT, I_HIDE);
+    }
+
 
     if (pwr.fuel_gauge.battery_percentage > 10)
     	statusbar_set_icon(BAR_ICON_BAT, I_SHOW);

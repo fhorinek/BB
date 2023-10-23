@@ -32,6 +32,8 @@ int32_t tiles_req_fp;
 
 void map_list_cb(char * key, char * value)
 {
+    UNUSED(value);
+
     char path[PATH_LEN];
 
     snprintf(path, sizeof(path), "%s/%s.list", PATH_MAP_LISTS, key);

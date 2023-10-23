@@ -12,5 +12,6 @@
 
 void bq25895_init();
 void bq25895_step();
+void bq25895_boost_voltage(uint8_t val);
 
 #endif /* DRIVERS_BQ25895_H_ */

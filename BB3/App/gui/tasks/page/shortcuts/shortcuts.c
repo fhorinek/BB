@@ -13,13 +13,19 @@
 #include "gui/tasks/page/pages.h"
 
 REGISTER_TASK_I(shortcuts,
-    shortcut_get_name_cb_t cb;
+    shortcut_set_name_cb_t cb;
+    char page_name [PAGE_NAME_LEN + 1];
 );
 
 
-void shortcut_set_slot(shortcut_get_name_cb_t cb, char * title, char * actual)
+void shortcut_set_slot(shortcut_set_name_cb_t cb, char * title, char * actual, char * page_name)
 {
     local->cb = cb;
+    if (page_name == NULL)
+        local->page_name[0] = 0;
+    else
+        strncpy(local->page_name, page_name, PAGE_NAME_LEN);
+
     uint16_t index = 0;
     gui_list_set_title(gui.list.list, title);
     for (uint16_t i = 0; i < shortcuts_get_number(); i++)
@@ -52,7 +58,6 @@ static bool shortcuts_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
 
     if (event == LV_EVENT_PRESSED)
     {
-        lv_obj_t * obj = gui_list_get_entry(index);
         if (obj != NULL)
         {
             const char * name = gui_list_text_get_value(obj);
@@ -70,7 +75,7 @@ static bool shortcuts_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
                     snprintf(label, sizeof(label), "%s %s", icon, text);
                     if (strcmp(name, label) == 0)
                     {
-                        local->cb((char *)shortcut_actions[i].name);
+                        local->cb((char *)shortcut_actions[i].name, local->page_name);
                         gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_BOTTOM);
 
                         break;

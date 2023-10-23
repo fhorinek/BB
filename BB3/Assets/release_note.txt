@@ -1,0 +1,19 @@
+Added:
+* Auto power off
+* IGC Playback
+* Consistant colors for thermaling
+* Thermal trace zoom level
+* KML as flight log format
+* Download of MAP, AGL and airspace
+* Fade volume for A2DP when thermaling
+* Airspace side view
+* Translations
+* A2DP will reconnect automaticaly
+
+Updated:
+* FANET licence
+* Bootloader file handling
+* Filemanager over wifi
+
+Fixed:
+* Bluetooth pairing issue

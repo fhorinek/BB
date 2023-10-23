@@ -206,6 +206,7 @@ typedef enum
 typedef struct
 {
 	osSemaphoreId_t lock;
+	uint32_t inactivity_timer;
 
     struct
     {

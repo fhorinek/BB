@@ -202,8 +202,11 @@ void dialog_set_text(char * text)
 void dialog_close()
 {
 	gui_lock_acquire();
-    dialog_stop(dialog_res_none, NULL);
-    gui_lock_release();
+	if (gui.dialog.active)
+	{
+	    dialog_stop(dialog_res_none, NULL);
+	}
+	gui_lock_release();
 }
 
 

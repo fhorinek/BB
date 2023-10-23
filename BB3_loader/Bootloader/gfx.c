@@ -323,8 +323,17 @@ void gfx_draw_status(uint8_t status, const char * message)
             {
         		color = GFX_RED;
                 strcpy(icon, "6");
-                strcpy(title, "Battery empty");
-                strcpy(text, "Charge your device!");
+                if (message == NULL)
+                {
+                    strcpy(title, "Battery empty");
+                    strcpy(text, "Charge your device!");
+                }
+                else
+                {
+                    strcpy(title, message);
+                    strcpy(text, "");
+                }
+
             }
         break;
 

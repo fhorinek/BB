@@ -73,7 +73,9 @@ typedef enum
 
 typedef enum
 {
-	BAR_ICON_BAT = 0,
+    BAR_ICON_FROM_BAT = 0,
+	BAR_ICON_BAT,
+	BAR_ICON_TO_BAT,
 	BAR_ICON_CHARGE,
 	BAR_ICON_USB,
 	BAR_ICON_GNSS,
@@ -299,6 +301,8 @@ void gui_inject_function(gui_injected_function_t f);
 
 void release_note_show();
 void gui_load_language();
+
+void gui_inactivity_reset();
 
 #define GUI_QUEUE_SIZE 			2
 #define GUI_TASK_SW_ANIMATION	250

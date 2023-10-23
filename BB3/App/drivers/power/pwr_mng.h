@@ -19,14 +19,29 @@
 #define PWR_CHARGE_UNKNOWN  	5
 #define PWR_CHARGE_DONE  		6
 
-#define PWR_DATA_NONE	    	0
-#define PWR_DATA_CHARGE     	1
-#define PWR_DATA_ACTIVE     	2
-#define PWR_DATA_CHARGE_DONE	3
+#define PWR_DATA_NONE           0
+#define PWR_DATA_CHARGE         1
+#define PWR_DATA_ACTIVE         2
+#define PWR_DATA_PASS           3
+#define PWR_DATA_CHARGE_DONE    4
+
+typedef enum
+{
+    dm_client = 0,
+    dm_host_boost,
+    dm_host_pass,
+    _dm_modes_num
+} pwr_data_mode_t;
+
 
 typedef struct
 {
     uint8_t data_port;
+    pwr_data_mode_t data_usb_mode;
+    uint8_t cc_conf;
+    uint8_t boost_volt;
+    bool charge_from_strato;
+    uint16_t boost_output; //in mW
 
 	struct
 	{

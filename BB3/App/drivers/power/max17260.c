@@ -71,7 +71,8 @@ bool max17260_step()
 	if (HAL_GetTick() < next_time)
 		return false;
 
-	next_time = HAL_GetTick() + 180;
+	//if we are using strato as powerbank, we need faster meas loop to regulate output voltage
+	next_time = HAL_GetTick() + (pwr.data_usb_mode == dm_client ? 180 : 0);
 
 	if (pwr.fuel_gauge.status == fc_dev_error)
         return false;

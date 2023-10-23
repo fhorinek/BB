@@ -10,9 +10,9 @@
 
 #include "gui/gui.h"
 
-typedef void (*shortcut_get_name_cb_t)(char * name);
+typedef void (*shortcut_set_name_cb_t)(char * name, char * page_name);
 
 DECLARE_TASK(shortcuts);
-void shortcut_set_slot(shortcut_get_name_cb_t cb, char * title, char * actual);
+void shortcut_set_slot(shortcut_set_name_cb_t cb, char * title, char * actual, char * page_name);
 
 #endif /* GUI_TASKS_PAGE_SHORTCUTS_SHORTCUTS_H_ */

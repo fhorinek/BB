@@ -27,7 +27,7 @@
 #define Charger_ICHG_val 		0b10100000    // 0xA4 -> Pulse control active
 
 #define Charger_ICHG2_Reg 		0x05  // [7:4] Precharge Current Limit: IPRECHG = 64 + VALUE[7:4] × 64 [mA] // default 128mA  [3:0] Termination Current Limit: ITERM = 64 + VALUE[3:0] × 64 [mA] // default 256mA
-#define Charger_ICHG2_val 		0x23  // Iprech = 192mA; Iterm = 192mA         § revise with new battery §
+#define Charger_ICHG2_val 		0x83  // Iprech = 512mA; Iterm = 192mA         § revise with new battery §
 
 #define Charger_BatChV_Reg 		0x06 // for 4,2V [7:2] Charge Voltage Limit: VREG = 3840 + VALUE[7:2] × 16 [mV] // default undefined              § revise with new battery §
 #define Charger_BatChV_val 		0b01011110 // Charge to 4,208V, start Fast charge @ 3V

@@ -22,6 +22,7 @@
 #include "gui/tasks/menu/map.h"
 #include "gui/tasks/menu/audio/audio.h"
 #include "gui/tasks/menu/airspace/airspace.h"
+#include "gui/tasks/menu/other.h"
 
 #include "gui/gui_list.h"
 #include "etc/format.h"
@@ -80,8 +81,11 @@ lv_obj_t * settings_init(lv_obj_t * par)
 	gui_list_auto_entry(list, _h("Wi-Fi"), NEXT_TASK, &gui_wifi);
 	gui_list_auto_entry(list, _h("System"), NEXT_TASK, &gui_system);
 
-	if (DEVEL_ACTIVE)
+    if (DEVEL_ACTIVE)
+    {
+        gui_list_auto_entry(list, _h("Other"), NEXT_TASK, &gui_other);
 		gui_list_auto_entry(list, _h("Development"), NEXT_TASK, &gui_development);
+    }
 
 	return list;
 }

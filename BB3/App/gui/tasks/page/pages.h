@@ -13,6 +13,7 @@
 DECLARE_TASK(pages);
 
 void pages_splash_show();
+void pages_power_off();
 
 void pages_lock_widget();
 void pages_unlock_widget();
@@ -20,8 +21,8 @@ void pages_lock_reset();
 void gui_page_set_mode(cfg_entry_t * cfg);
 void gui_page_set_next(cfg_entry_t * cfg);
 
-void pages_set_menu_left_shrt(char * new_shrt);
-void pages_set_menu_right_shrt(char * new_shrt);
+void pages_set_menu_left_shrt(char * new_shrt, char * page_name);
+void pages_set_menu_right_shrt(char * new_shrt, char * page_name);
 
 void pages_popup(char * message);
 
