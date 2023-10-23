@@ -22,6 +22,7 @@
 
 #include "drivers/rev.h"
 #include "gui/dialog.h"
+#include "sim.h"
 
 REGISTER_TASK_I(system);
 
