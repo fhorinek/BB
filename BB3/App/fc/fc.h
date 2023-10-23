@@ -467,6 +467,11 @@ typedef struct
 
 	} map_index;
 
+	struct
+	{
+		int32_t fh;          // file handle for playback of IGC or "0" is no simulation is running
+	} simulation;
+
 } fc_t;
 
 extern fc_t fc;
@@ -481,6 +486,11 @@ void fc_takeoff();
 void fc_landing();
 void fc_reset();
 void fc_step();
+
+void fc_simulate_from_igc(char *filename);
+bool fc_simulate_is_playing();
+void fc_simulate_stop();
+void fc_simulate_restart();
 
 void fc_deinit();
 

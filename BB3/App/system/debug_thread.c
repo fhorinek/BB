@@ -68,6 +68,7 @@ static uint16_t debug_tx_buffer_lenght = 0;
 
 static char debug_rx_buffer[DEBUG_RX_BUFFER];
 static uint16_t debug_rx_read_index = 0;
+static bool debug_rx_dma = false;
 
 osSemaphoreId_t debug_data;
 osSemaphoreId_t debug_dma_done;
@@ -214,16 +215,24 @@ void debug_uart_done()
 
 uint16_t debug_get_waiting()
 {
-    uint16_t dma_index = DEBUG_RX_BUFFER - __HAL_DMA_GET_COUNTER(debug_uart->hdmarx);
-
-    //Get number of bytes waiting in buffer
-    if (debug_rx_read_index > dma_index)
+    if (debug_rx_dma)
     {
-        return DEBUG_RX_BUFFER - debug_rx_read_index + dma_index;
+        uint16_t dma_index = DEBUG_RX_BUFFER - __HAL_DMA_GET_COUNTER(debug_uart->hdmarx);
+
+        //Get number of bytes waiting in buffer
+        if (debug_rx_read_index > dma_index)
+        {
+            return DEBUG_RX_BUFFER - debug_rx_read_index + dma_index;
+        }
+        else
+        {
+            return dma_index - debug_rx_read_index;
+        }
     }
     else
     {
-        return dma_index - debug_rx_read_index;
+        debug_uart_start_dma();
+        return 0;
     }
 }
 
@@ -246,6 +255,19 @@ void debug_read_bytes(uint8_t * buff, uint16_t len)
 }
 
 
+void debug_uart_error()
+{
+    debug_rx_dma = false;
+}
+
+
+void debug_uart_start_dma()
+{
+    debug_rx_read_index = 0;
+    HAL_UART_Receive_DMA(debug_uart, (uint8_t *)debug_rx_buffer, DEBUG_RX_BUFFER);
+    debug_rx_dma = true;
+}
+
 
 void thread_debug_start(void * argument)
 {
@@ -261,7 +283,7 @@ void thread_debug_start(void * argument)
     vQueueAddToRegistry(debug_dma_done, "debug_dma_done");
     vQueueAddToRegistry(debug_new_message, "debug_new_message");
 
-    HAL_UART_Receive_DMA(debug_uart, (uint8_t *)debug_rx_buffer, DEBUG_RX_BUFFER);
+    debug_uart_start_dma();
 
     osSemaphoreRelease(debug_dma_done);
     osSemaphoreRelease(debug_data);

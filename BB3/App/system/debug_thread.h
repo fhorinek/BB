@@ -87,6 +87,8 @@ uint8_t debug_read_byte();
 void debug_read_bytes(uint8_t * buff, uint16_t len);
 
 void thread_debug_start(void *argument);
+void debug_uart_error();
+void debug_uart_start_dma();
 
 extern bool debug_thread_ready;
 

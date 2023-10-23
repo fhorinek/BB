@@ -258,6 +258,7 @@ typedef struct
 	{
         lv_obj_t * tasks;
         lv_obj_t * lv_info;
+        lv_obj_t * sim_info;
 	} dbg;
 
 	osSemaphoreId_t lock;

@@ -20,9 +20,12 @@
 #include "gui/dialog.h"
 
 #include "etc/format.h"
+#include "fc/fc.h"
 
 static bool open_flightbook_stat(lv_obj_t * obj, lv_event_t event)
 {
+    UNUSED(obj);
+
 	if (event == LV_EVENT_CLICKED)
 	{
 		//this is standard method how to pass extra parameter to task
@@ -35,6 +38,7 @@ static bool open_flightbook_stat(lv_obj_t * obj, lv_event_t event)
 	//supress default handler
 	return false;
 }
+
 
 static void flightbook_fm_remove_cb(uint8_t res, void * opt_data)
 {
@@ -69,7 +73,9 @@ bool flightbook_flights_fm_cb(uint8_t event, char * path)
     	case FM_CB_APPEND:
     	    //only in root dir
     		if (filemanager_get_current_level() == 0)
+    		{
     			gui_list_auto_entry(gui.list.list, _h("Flight statistics"), CUSTOM_CB, open_flightbook_stat);
+    		}
 		break;
 
         case FM_CB_SELECT:

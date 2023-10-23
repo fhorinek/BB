@@ -52,14 +52,6 @@ static bool map_cc_cb(lv_obj_t *obj, lv_event_t event)
     return true;
 }
 
-static void format_zoom(char *buff, float in)
-{
-    int16_t zoom = config_get_int(&profile.map.zoom_flight);
-    uint16_t zoom_p = pow(2, zoom);
-    float guide_m = (zoom_p * 111000 * 120 / MAP_DIV_CONST);
-    format_distance_with_units2(buff, guide_m);
-}
-
 static gui_list_slider_options_t scale_opt = {
         .disp_multi = 1,
         .step = 1,

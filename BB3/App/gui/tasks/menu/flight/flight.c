@@ -17,6 +17,12 @@ static gui_list_slider_options_t dura_opt = {
 	.format = format_duration,
 };
 
+static gui_list_slider_options_t scale_opt = {
+        .disp_multi = 1,
+        .step = 1,
+        .format = format_zoom,
+};
+
 static lv_obj_t * flight_init(lv_obj_t * par)
 {
     help_set_base("Flight");
@@ -88,6 +94,7 @@ static lv_obj_t * flight_init(lv_obj_t * par)
     gui_list_auto_entry(list, _h("G-meter time"), &profile.flight.acc_duration, &dura_opt);
     gui_list_auto_entry(list, _h("Circling timeout"), &profile.flight.circle_timeout, &dura_opt);
 
+    gui_list_auto_entry(list, _h("Thermal trace zoom"), &profile.map.zoom_thermal, &scale_opt);
     gui_list_auto_entry(list, _h("Use wind in trace"), &profile.flight.compensate_wind, NULL);
 
     gui_list_auto_entry(list, _h("Enable IGC log"), &profile.flight.logger.igc, NULL);

@@ -216,7 +216,6 @@ void dbg_overlay_tasks_remove()
 //no gui.lock required, run from GUI thread
 void dbg_overlay_step()
 {
-
     if (config_get_bool(&config.debug.lvgl_info))
     {
         if (gui.dbg.lv_info == NULL)
@@ -248,12 +247,39 @@ void dbg_overlay_step()
 
         }
     }
+
+    if (fc_simulate_is_playing())
+    {
+        if (gui.dbg.sim_info == NULL)
+        {
+            gui.dbg.sim_info = lv_label_create(lv_layer_sys(), NULL);
+            lv_obj_align(gui.dbg.sim_info, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+            lv_obj_set_auto_realign(gui.dbg.sim_info, true);
+            lv_obj_set_style_local_bg_color(gui.dbg.sim_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
+            lv_obj_set_style_local_text_color(gui.dbg.sim_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+            lv_obj_set_style_local_bg_opa(gui.dbg.sim_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_50);
+            lv_obj_set_style_local_pad_all(gui.dbg.sim_info, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, 1);
+
+            lv_label_set_text_fmt(gui.dbg.sim_info, "[simulation]");
+        }
+
+        lv_obj_move_foreground(gui.dbg.sim_info);
+    }
+    else
+    {
+        if (gui.dbg.sim_info != NULL)
+        {
+            lv_obj_del(gui.dbg.sim_info);
+            gui.dbg.sim_info = NULL;
+        }
+    }
 }
 
 void dbg_overlay_init()
 {
     gui.dbg.tasks = NULL;
     gui.dbg.lv_info = NULL;
+    gui.dbg.sim_info = NULL;
     overlay_task_pending = false;
 }
 
