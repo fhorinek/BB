@@ -11,7 +11,7 @@ bool fanet_msg(char * buff, uint16_t len)
 {
     static uint16_t fanet_index = 0;
 
-//    fc.fanet.neighbors_size = 2;'
+//    fc.fanet.neighbors_size = 2;
 
     uint16_t fnt_cnt = 0;
     while (fnt_cnt < fc.fanet.neighbors_size)
@@ -24,7 +24,7 @@ bool fanet_msg(char * buff, uint16_t len)
 //        if (fanet_index == 0)
 //        {
 //            nb->updated = 0xFF;
-//            strcpy(nb->name, "test_fanet");
+//            strcpy(nb->name, "sim1");
 //            nb->flags = 1;
 //            nb->addr.manufacturer_id = 0x11;
 //            nb->addr.user_id = 0x1234;
@@ -39,12 +39,12 @@ bool fanet_msg(char * buff, uint16_t len)
 //        if (fanet_index == 1)
 //        {
 //            nb->updated = 0xFF;
-//            strcpy(nb->name, "test_fanet2");
+//            strcpy(nb->name, "sim2");
 //            nb->flags = 1;
 //            nb->addr.manufacturer_id = 0x11;
 //            nb->addr.user_id = 0x1235;
-//            nb->latitude = 48.143693 * GNSS_MUL;
-//            nb->longitude = 17.08008 * GNSS_MUL;
+//            nb->latitude = 48.142693 * GNSS_MUL;
+//            nb->longitude = 17.08508 * GNSS_MUL;
 //            nb->alititude = 200;
 //            nb->climb = 2;
 //            nb->speed = 10;

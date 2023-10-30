@@ -194,7 +194,6 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 
 	//hide ctx, dialog or keyboard if active
 	ctx_hide();
-	dialog_close();
 	keyboard_hide();
 
     //reset input dev
@@ -327,6 +326,10 @@ void gui_init()
 void gui_autopoweroff_step()
 {
     static lv_obj_t * auto_pwr_off_msg = NULL;
+    static bool powering_off = false;
+
+    if (powering_off)
+        return;
 
     uint32_t delta = HAL_GetTick() - fc.inactivity_timer;
 
@@ -367,6 +370,8 @@ void gui_autopoweroff_step()
             {
                 system_poweroff();
             }
+
+            powering_off = true;
         }
     }
     else if (fc.flight.mode == flight_flight && config_get_bool(&profile.ui.return_to_pages))
@@ -375,6 +380,7 @@ void gui_autopoweroff_step()
         {
             if (gui.task.actual != &gui_pages)
             {
+                dialog_close();
                 gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
                 gui_inactivity_reset();
             }
