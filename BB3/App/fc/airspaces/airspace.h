@@ -122,6 +122,7 @@ void airspace_init_buffer();
 
 bool airspace_load(char *name, bool use_dialog);
 void airspace_unload();
+void airspace_clear_cache(char *name);
 
 void airspace_load_parallel();
 void airspace_step();

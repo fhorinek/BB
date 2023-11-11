@@ -40,6 +40,20 @@ void airspace_load_task(void * param)
     vTaskDelete(NULL);
 }
 
+void airspace_load_from_gui()
+{
+	char *filename;
+
+	filename = config_get_text(&profile.airspace.filename);
+
+	dialog_show(_("Loading airspace..."), filename, dialog_progress, NULL);
+	dialog_progress_spin();
+
+	gui_low_priority(true);
+
+    xTaskCreate((TaskFunction_t)airspace_load_task, "as_load_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+}
+
 bool airspace_fm_cb(uint8_t event, char * path)
 {
     if (event == FM_CB_SELECT)
@@ -48,13 +62,7 @@ bool airspace_fm_cb(uint8_t event, char * path)
     	filemanager_get_filename(tmp, path);
 
         config_set_text(&profile.airspace.filename, tmp);
-
-    	dialog_show(_("Loading airspace..."), tmp, dialog_progress, NULL);
-    	dialog_progress_spin();
-
-    	gui_low_priority(true);
-
-        xTaskCreate((TaskFunction_t)airspace_load_task, "as_load_task", 1024 * 2, NULL, osPriorityIdle + 1, NULL);
+        airspace_load_from_gui();
         return false;
     }
 	return true;
@@ -117,14 +125,26 @@ static void airspace_loop()
     }
 }
 
+bool airspace_cb(lv_obj_t * obj, lv_event_t event, uint16_t index)
+{
+    if (event == LV_EVENT_VALUE_CHANGED && index == 0)
+    {
+    	airspace_clear_cache(config_get_text(&profile.airspace.filename));
+        airspace_load_from_gui();
+    }
+
+    return true;
+}
+
 static lv_obj_t * airspace_init(lv_obj_t * par)
 {
     help_set_base("Airspace");
 
     local->dbg_info = NULL;
 
-	lv_obj_t * list = gui_list_create(par, _("Airspace settings"), &gui_settings, NULL);
+	lv_obj_t * list = gui_list_create(par, _("Airspace settings"), &gui_settings, airspace_cb);
 
+	gui_list_auto_entry(list, _h("Use color from file"), &profile.airspace.use_color_from_file, NULL);
 	if (strlen(config_get_text(&profile.airspace.filename)) == 0)
 	{
 		gui_list_auto_entry(list, _h("Load airspace"), CUSTOM_CB, airspace_load_cb);
