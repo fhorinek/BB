@@ -268,6 +268,7 @@ uint32_t atoi_hex32(char * buffer);
 
 int8_t complement2_7bit(uint8_t in);
 int16_t complement2_16bit(uint16_t in);
+int32_t complement2_24bit(uint32_t in);
 
 bool file_exists(char * path);
 bool file_isdir(char *path);

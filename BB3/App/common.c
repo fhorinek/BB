@@ -156,6 +156,20 @@ int16_t complement2_16bit(uint16_t in)
     return in;
 }
 
+/**
+ * Converts from 2 complement 3 byte int to int32_t
+ *
+ * As per FANET doc coordinates sent as 2 complement of 3byte integer
+ * C natively uses 2 complement representation, however has it enabled for 1,2, and 4 byte integers
+ * Performing manual conversion to account for 3 byte 2 complement
+ */
+int32_t complement2_24bit(uint32_t in) {
+#define C2_24bit_MASK 0x7FFFFF
+	if (in > C2_24bit_MASK)
+		return (in & C2_24bit_MASK) - (C2_24bit_MASK + 1);
+	return in;
+}
+
 uint64_t file_size(int32_t file)
 {
     REDSTAT stat;

@@ -1,4 +1,4 @@
-//#define DEBUG_LEVEL DBG_DEBUG
+// #define DEBUG_LEVEL DBG_DEBUG
 
 #include "fanet.h"
 
@@ -285,30 +285,35 @@ void fanet_parse_dg(char * buffer)
 	}
 }
 
+void read_lat_lon(uint8_t * data, int32_t * lat, int32_t * lon) {
+	multi_value tmp;
+	//latitude
+	//memcpy((void *)&tmp, data + 0, 3);
+	tmp.u32 = 0;
+	tmp.u8[0] = data[0];
+	tmp.u8[1] = data[1];
+	tmp.u8[2] = data[2];
+	*lat = (complement2_24bit(tmp.u32) / 93206.0) * GNSS_MUL;
+
+	//longitude
+	//memcpy((void *)&tmp, data + 3, 3);
+	tmp.u32 = 0;
+	tmp.u8[0] = data[3];
+	tmp.u8[1] = data[4];
+	tmp.u8[2] = data[5];
+	*lon = (complement2_24bit(tmp.u32) / 46603.0) * GNSS_MUL;
+}
+
 void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * data, bool broadcast, bool signature)
 {
 	switch (type)
 	{
 		case(FANET_MSG_TYPE_TRACKING):
 		{
+			int32_t lat, lon;
+			read_lat_lon(data, &lat, &lon);
+
 			multi_value tmp;
-			
-			//latitude
-//			memcpy((void *)&tmp, data + 0, 3);
-			tmp.u32 = 0;
-			tmp.u8[0] = data[0];
-			tmp.u8[1] = data[1];
-			tmp.u8[2] = data[2];
-			int32_t lat = (tmp.s32 / 93206.0) * GNSS_MUL;
-
-			//longitude
-//			memcpy((void *)&tmp, data + 3, 3);
-			tmp.u32 = 0;
-			tmp.u8[0] = data[3];
-			tmp.u8[1] = data[4];
-			tmp.u8[2] = data[5];
-			int32_t lon = (tmp.s32 / 46603.0) * GNSS_MUL;
-
 			//altitude
 			tmp.u32 = 0;
 			tmp.u8[0] = data[6];
@@ -357,6 +362,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			nb.alititude = alt;
 
 			neighbors_update(nb);
+			DBG("Fanet neighbor (%d:%d) updated: (%d,%d) at %d", source.manufacturer_id, source.user_id, lat, lon, alt);
 
 		}
 		break;
@@ -370,23 +376,8 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 
 		case(FANET_MSG_TYPE_GROUND_TRACKING):
 		{
-			multi_value tmp;
-
-			//latitude
-//			memcpy((void *)&tmp, data + 0, 3);
-			tmp.u32 = 0;
-			tmp.u8[0] = data[0];
-			tmp.u8[1] = data[1];
-			tmp.u8[2] = data[2];
-			int32_t lat = (tmp.s32 / 93206.0) * GNSS_MUL;
-
-			//longitude
-//			memcpy((void *)&tmp, data + 3, 3);
-			tmp.u32 = 0;
-			tmp.u8[0] = data[3];
-			tmp.u8[1] = data[4];
-			tmp.u8[2] = data[5];
-			int32_t lon = (tmp.s32 / 46603.0) * GNSS_MUL;
+			int32_t lat, lon;
+			read_lat_lon(data, &lat, &lon);
 
 			//flags
 			uint8_t flags = (NB_GROUND_TYPE_MASK & (data[6] >> 4)) | NB_HAVE_POS;
