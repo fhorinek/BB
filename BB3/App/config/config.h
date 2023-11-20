@@ -234,6 +234,7 @@ typedef struct
         cfg_entry_t ble;
         cfg_entry_t protocol;
         cfg_entry_t forward_gnss;
+        cfg_entry_t forward_fanet;
         cfg_entry_t a2dp_autoconnect;
     } bluetooth;
 

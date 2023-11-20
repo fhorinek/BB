@@ -13,7 +13,7 @@
 #include "lk8ex1.h"
 #include "openvario.h"
 #include "gnss.h"
-
+#include "fanet_forwarding.h"
 #include "fc/fc.h"
 
 #define PROTOCOL_PERIOD 100 //in ms - 10Hz
@@ -71,9 +71,15 @@ void telemetry_cb()
 				data.len = strlen(data.message);
 				protocol_send(PROTO_TELE_SEND, (void *)&data, sizeof(data));
 			}
-
 		}
+	}
 
+	if (config_get_bool(&profile.bluetooth.forward_fanet)) {
+		if(fanet_forwarding_msg(data.message, sizeof(data.message))) {
+			data.len = strlen(data.message);
+			INFO(">>%s<<", data.message);
+			protocol_send(PROTO_TELE_SEND, (void *)&data, sizeof(data));
+		}
 	}
 }
 

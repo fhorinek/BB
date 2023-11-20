@@ -345,7 +345,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			if (len > 10)
 			{
 				//turn rate in deg/s * 100
-				int16_t turn = complement2_7bit(data[11] & 0b01111111) * 25;
+				turn = complement2_7bit(data[11] & 0b01111111) * 25;
 				if (data[11] & 0b10000000)
 					turn *= 5;
 
@@ -360,6 +360,10 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			nb.heading = hdg;
 			nb.flags = flags;
 			nb.alititude = alt;
+
+			nb.speed = spd;
+			nb.climb_rate = climb;
+			nb.heading = hdg;
 
 			neighbors_update(nb);
 			DBG("Fanet neighbor (%d:%d) updated: (%d,%d) at %d", source.manufacturer_id, source.user_id, lat, lon, alt);

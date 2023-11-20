@@ -72,6 +72,7 @@ static lv_obj_t * bluetooth_init(lv_obj_t * par)
     gui_list_auto_entry(list, _h("Help"), CUSTOM_CB, bluetooth_help);
     gui_list_auto_entry(list, _h("Telemetry protocol"), &profile.bluetooth.protocol, NULL);
     gui_list_auto_entry(list, _h("Forward GNSS"), &profile.bluetooth.forward_gnss, NULL);
+    gui_list_auto_entry(list, _h("Forward FANET"), &profile.bluetooth.forward_fanet, NULL);
 
 	gui_list_auto_entry(list, _h("Device name"), &config.device_name, NULL);
 	gui_list_auto_entry(list, _h("PIN code"), &config.bluetooth.pin, NULL);
