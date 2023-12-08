@@ -23,6 +23,7 @@
 #include "drivers/rev.h"
 
 #include "gui/dbg_overlay.h"
+#include "fc/fc.h"
 
 gui_t gui;
 
@@ -191,8 +192,9 @@ void * gui_switch_task(gui_task_t * next, lv_scr_load_anim_t anim)
 
 	gui.input.focus = NULL;
 
-	//hide ctx
+	//hide ctx, dialog or keyboard if active
 	ctx_hide();
+	keyboard_hide();
 
     //reset input dev
     lv_indev_reset(gui.input.indev, NULL);
@@ -318,21 +320,96 @@ void gui_init()
 	lv_scr_load(screen);
 }
 
+#define AUTO_POWEROFF_NOTICE_TIMEOUT (30 * 1000)
+#define RETURN_TO_PAGES_TIMEOUT (30 * 1000)
+
+void gui_autopoweroff_step()
+{
+    static lv_obj_t * auto_pwr_off_msg = NULL;
+    static bool powering_off = false;
+
+    if (powering_off)
+        return;
+
+    uint32_t delta = HAL_GetTick() - fc.inactivity_timer;
+
+    if (fc.flight.mode != flight_flight && config_get_bool(&profile.ui.auto_power_off_enabled))
+    {
+        if (delta > (config_get_int(&profile.ui.auto_power_off_time) * 60 * 1000) - AUTO_POWEROFF_NOTICE_TIMEOUT)
+        {
+            if (auto_pwr_off_msg == NULL)
+            {
+                auto_pwr_off_msg = statusbar_msg_add(STATUSBAR_MSG_PROGRESS, _("Auto power off"));
+                statusbar_msg_update_progress(auto_pwr_off_msg, 100);
+            }
+            else
+            {
+                int32_t val = delta - (config_get_int(&profile.ui.auto_power_off_time) * 60 * 1000) + AUTO_POWEROFF_NOTICE_TIMEOUT;
+                val = max(0, val / (AUTO_POWEROFF_NOTICE_TIMEOUT / 100));
+                statusbar_msg_update_progress(auto_pwr_off_msg, 100 - val);
+            }
+        }
+        else
+        {
+            if (auto_pwr_off_msg != NULL)
+            {
+                statusbar_msg_close(auto_pwr_off_msg);
+                auto_pwr_off_msg = NULL;
+            }
+        }
+
+        if (delta > config_get_int(&profile.ui.auto_power_off_time) * 60 * 1000)
+        {
+            //off
+            if (gui.task.actual == &gui_pages)
+            {
+                statusbar_msg_close(auto_pwr_off_msg);
+                pages_power_off();
+            }
+            else
+            {
+                system_poweroff();
+            }
+
+            powering_off = true;
+        }
+    }
+    else if (fc.flight.mode == flight_flight && config_get_bool(&profile.ui.return_to_pages))
+    {
+        if (delta > RETURN_TO_PAGES_TIMEOUT)
+        {
+            if (gui.task.actual != &gui_pages)
+            {
+                dialog_close();
+                gui_switch_task(&gui_pages, LV_SCR_LOAD_ANIM_MOVE_LEFT);
+                gui_inactivity_reset();
+            }
+        }
+    }
+}
+
+void gui_inactivity_reset()
+{
+    fc.inactivity_timer = HAL_GetTick();
+}
+
+
 void gui_loop()
 {
-	static uint32_t next_update = 0;
+    static uint32_t next_update = 0;
 
-	if (next_update < HAL_GetTick())
-	{
-		next_update = HAL_GetTick() + gui.task.loop_period;
+    if (next_update < HAL_GetTick())
+    {
+        next_update = HAL_GetTick() + gui.task.loop_period;
 
-		statusbar_step();
-		dbg_overlay_step();
+        gui_autopoweroff_step();
+        statusbar_step();
+        dbg_overlay_step();
 
-		//execute task
-		if (gui.task.actual->loop != NULL)
-		{
-			gui.task.actual->loop();
-		}
-	}
+        //execute task
+        if (gui.task.actual->loop != NULL)
+        {
+            gui.task.actual->loop();
+        }
+    }
 }

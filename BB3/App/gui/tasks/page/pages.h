@@ -13,6 +13,7 @@
 DECLARE_TASK(pages);
 
 void pages_splash_show();
+void pages_power_off();
 
 void pages_lock_widget();
 void pages_unlock_widget();

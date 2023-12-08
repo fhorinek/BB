@@ -122,37 +122,7 @@ static void TAss_update(widget_slot_t * slot)
                 int16_t rad = (fc.flight.circling_history[j] * (s / 5)) / max_val;
 
                 int16_t vario = (fc.flight.circling_history[j] * 100) / VARIO_CIRCLING_HISTORY_SCALE;
-                lv_color_t c;
-
-                if (vario < -60)
-                {
-                    c = LV_COLOR_GRAY;
-                }
-                else if (vario < 0)
-                {
-                    c = LV_COLOR_SILVER;
-                }
-                else if (vario < 50)
-                {
-                    c = LV_COLOR_MAKE(0x11, 0xcc, 0x11);
-                }
-                else if (vario < 100)
-                {
-                    c = LV_COLOR_MAKE(0x00, 0xAF, 0x00);
-                }
-                else if (vario < 150)
-                {
-                    c = LV_COLOR_GREEN;
-                }
-                else if (vario < 220)
-                {
-                    c = LV_COLOR_MAKE(0xFF, 0x6F, 0x00);
-                }
-                else if (vario >= 250)
-                {
-                    c = LV_COLOR_MAKE(0xFF, 0x1A, 0x00);
-                }
-
+                lv_color_t c = get_vario_color2(vario);
 
                 lv_obj_set_style_local_bg_color(local->circle[i], LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, c);
 

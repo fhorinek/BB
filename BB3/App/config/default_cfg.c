@@ -264,6 +264,12 @@ flight_profile_t profile =
         entry_text("shrt_l", "add_left", SHORTCUT_NAME_LEN, 0),
         //shortcut_right
         entry_text("shrt_r", "add_right", SHORTCUT_NAME_LEN, 0),
+        //return_to_pages
+        entry_bool("auto_return", true),
+        //auto_power_off_enabled
+        entry_bool("auto_off", true),
+        //auto_power_off_time
+        entry_int("auto_off_time", 30, 5, 120),
 
 		//autoset
 		{

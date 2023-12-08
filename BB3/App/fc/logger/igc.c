@@ -212,7 +212,7 @@ void igc_start_write()
 	sprintf(line, "HFFTYFRTYPE:SkyBean,Strato");
 	igc_writeline(line);
 	//H F GPS RECEIVER
-	sprintf(line, "HFGPSRECEIVER:u-blox,NEO-M8Q,22cm,18000m");
+	sprintf(line, "HFGPSRECEIVER:u-blox,NEO-M8Q,72ch,50000m");
 	igc_writeline(line);
 	//H F PRS PRESS ALT SENSOR
 	sprintf(line, "HFPRSPRESSALTSENSOR:Measurement specialties,MS5611,25907m");

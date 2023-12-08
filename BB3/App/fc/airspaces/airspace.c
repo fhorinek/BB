@@ -154,12 +154,44 @@ static uint16_t airspace_alt(char * line, bool * gnd)
     return value;
 }
 
+bool airspace_is_previous_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
+{
+    return (as->number_of_points > 0
+    		&& points[as->number_of_points-1].latitude == lat && points[as->number_of_points-1].longitude == lon);
+}
+
+void airspace_add_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
+{
+	// Do not enter the same point again.
+    if (airspace_is_previous_point(as, points, lon, lat))
+    	return;
+
+	if (as->number_of_points >= AIRSPACE_MAX_POINTS)
+    {
+        WARN("aisrpace %s, max points reached", as->name);
+        return;
+    }
+
+	points[as->number_of_points].latitude = lat;
+	points[as->number_of_points].longitude = lon;
+
+	as->number_of_points++;
+}
+
 //calculate bounding box
 //write airspace
 static bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gnss_pos_t * points, int index, int data)
 {
 	if (as->number_of_points > 0)
 	{
+		// Ensure, that airspace is closed.
+		gnss_pos_t *last_point = &points[as->number_of_points-1];
+		if (points[0].latitude != last_point->latitude ||
+			points[0].longitude != last_point->longitude)
+		{
+			airspace_add_point(as, points, points[0].longitude, points[0].latitude);
+		}
+
 		as->bbox.latitude1 = -90 * GNSS_MUL;
 		as->bbox.latitude2 = +90 * GNSS_MUL;
 		as->bbox.longitude1 = +180 * GNSS_MUL;
@@ -197,31 +229,6 @@ static bool airspace_finalise(airspace_header_t * ah, airspace_record_t * as, gn
         ah->number_of_records++;;
 	}
 }
-
-bool airspace_is_previous_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
-{
-    return (as->number_of_points > 0
-    		&& points[as->number_of_points-1].latitude == lat && points[as->number_of_points-1].longitude == lon);
-}
-
-void airspace_add_point(airspace_record_t * as, gnss_pos_t * points, int32_t lon, int32_t lat)
-{
-	// Do not enter the same point again.
-    if (airspace_is_previous_point(as, points, lon, lat))
-    	return;
-
-	if (as->number_of_points >= AIRSPACE_MAX_POINTS)
-    {
-        WARN("aisrpace %s, max points reached", as->name);
-        return;
-    }
-
-	points[as->number_of_points].latitude = lat;
-	points[as->number_of_points].longitude = lon;
-
-	as->number_of_points++;
-}
-
 
 //read openair file and store binary data to cache
 static bool airspace_parse(char * name, bool use_dialog)

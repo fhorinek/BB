@@ -199,7 +199,7 @@ void pwr_step()
 
         static uint32_t overdraw_timer = 0;
 
-        if (fast_output > MAX_BOOST_DRAW || (fast_output < DEVICE_IDLE_DRAW))
+        if (fast_output > MAX_BOOST_DRAW)
         {
         	if (pwr.boost_volt > 0b0000)
         	{
@@ -222,7 +222,7 @@ void pwr_step()
         	}
 
         }
-        else if (fast_output < (MAX_BOOST_DRAW - MAX_BOOST_GAP) && (fast_output > DEVICE_IDLE_DRAW))
+        else if (fast_output < (MAX_BOOST_DRAW - MAX_BOOST_GAP))
         {
         	overdraw_timer = 0;
 

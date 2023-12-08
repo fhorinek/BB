@@ -90,6 +90,8 @@ typedef struct
 #define NB_TOO_OLD				120
 
 
+#define NB_UPDATE_FWD           0b00000001
+
 typedef struct
 {
     int32_t latitude; // degrees * GNSS_MUL
@@ -101,8 +103,12 @@ typedef struct
     uint16_t dist; // meters
     uint16_t max_dist;
 
+    uint16_t speed;
+    int16_t climb;
+
     fanet_addr_t addr;
     uint8_t flags; // NB_AIRCRAFT_TYPE_MASK | NB_IS_FLYING | NB_HAVE_POS | NB_ONLINE_TRACKING | NB_HAVE_TURNRATE
+    uint8_t updated;
 
 	char name[NB_NAME_LEN];
 
@@ -203,6 +209,7 @@ typedef enum
 typedef struct
 {
 	osSemaphoreId_t lock;
+	uint32_t inactivity_timer;
 
     struct
     {

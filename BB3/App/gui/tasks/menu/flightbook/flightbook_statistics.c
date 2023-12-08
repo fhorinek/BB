@@ -69,9 +69,9 @@ typedef enum datatype
 {
     DATATYPE_HOURS,               // Number of hours flown.
     DATATYPE_NUM,                 // Number of flights
-    DATATYPE_ODO,                 // Distance flown
+//    DATATYPE_ODO,                 // Distance flown
     DATATYPE_First = DATATYPE_HOURS,
-    DATATYPE_Last = DATATYPE_ODO
+    DATATYPE_Last = DATATYPE_NUM
 } datatype_t;
 
 #define STATS_NUM 1000   // How many flights can we process (in PSRAM)
@@ -173,6 +173,8 @@ static char help_id[] = "Statistics Display";
 
 static void flightbook_statistics_cb(lv_obj_t *obj, lv_event_t event)
 {
+    UNUSED(obj);
+
     uint32_t key = *((uint32_t*) lv_event_get_data());
 
     switch (event)
@@ -362,9 +364,9 @@ static void summarize_data()
                 case DATATYPE_HOURS:
                     value = local->stats[i].minutes / 60.0;
                 break;
-                case DATATYPE_ODO:
-                    value = local->stats[i].odo_100m / 10.0;
-                break;
+//                case DATATYPE_ODO:
+//                    value = local->stats[i].odo_100m / 10.0;
+//                break;
                 case DATATYPE_NUM:
                     value = local->stats[i].start_num;
                 break;
@@ -442,12 +444,12 @@ static void summarize_data()
     // [3] Show total
     switch (local->datatype)
     {
-        case DATATYPE_ODO:
-            strcpy(text, _("Total: "));
-            format_distance_with_units2(text + strlen(text), total * 1000);
-            strcpy(text2, _("Average per flight: "));
-            format_distance_with_units2(text2 + strlen(text2), total * 1000 / total_flights);
-        break;
+//        case DATATYPE_ODO:
+//            strcpy(text, _("Total: "));
+//            format_distance_with_units2(text + strlen(text), total * 1000);
+//            strcpy(text2, _("Average per flight: "));
+//            format_distance_with_units2(text2 + strlen(text2), total * 1000 / total_flights);
+//        break;
         case DATATYPE_HOURS:
             sprintf(text, _("Total: %.1f hours"), total);
             sprintf(text2, _("Average per flight: %.1f hours"), total / total_flights);
@@ -463,6 +465,8 @@ static void summarize_data()
 
 void flightbook_statistics_load_task(void *param)
 {
+    UNUSED(param);
+
     int i;
 
     local->data_available = false;
@@ -620,16 +624,16 @@ void flightbook_statistics_loop()
         {
             case DATATYPE_HOURS:
                 strcpy(text, _("Flights"));
-                sprintf(title_text, _("Hours %s"), period_title);
+                sprintf(title_text, _("Hours %s631"), period_title);
             break;
             case DATATYPE_NUM:
-                strcpy(text, _("Distance"));
+                strcpy(text, _("Timw"));
                 sprintf(title_text, _("Flights %s"), period_title);
             break;
-            case DATATYPE_ODO:
-                strcpy(text, _("Time"));
-                sprintf(title_text, _("Distance %s"), period_title);
-            break;
+//            case DATATYPE_ODO:
+//                strcpy(text, _("Time"));
+//                sprintf(title_text, _("Distance %s"), period_title);
+//            break;
         }
 
         lv_label_set_text_fmt(local->label_type, LV_SYMBOL_REFRESH " %s", text);
