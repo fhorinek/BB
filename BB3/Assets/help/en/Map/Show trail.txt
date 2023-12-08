@@ -1,0 +1,3 @@
+*Show trail
+
+checkbox draws the line of your flight on the map.

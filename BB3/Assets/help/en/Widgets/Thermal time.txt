@@ -1,0 +1,3 @@
+*Thermal time
+
+is a stopwatch since the circling condition was detected.

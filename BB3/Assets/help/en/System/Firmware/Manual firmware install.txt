@@ -1,0 +1,3 @@
+*Manual firmware install
+
+menu entry contains a list of available previously downloaded and installed firmwares. It can be used if you want to go back from the newests installed firmware to any older version.

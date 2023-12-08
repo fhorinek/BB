@@ -1,0 +1,5 @@
+*Widget editor
+
+Add, change or remove widget - click OPTIONS to show the action list. You can eventually show/hide widget name or units if you know its meaning without these labels.
+
+To change widget position and size - click CONFIRM on the blue highlighted widget to highlight it into a red frame. Then click LEFT or RIGHT to move the widget horizontally, followed by vertical position change. Next steps are horizontal and vertical adjustments. Follow the note at the bottom of the screen.

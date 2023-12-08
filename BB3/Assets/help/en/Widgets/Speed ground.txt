@@ -1,0 +1,3 @@
+*Ground speed
+
+is your speed relative to ground. A GNSS fix is needed for this widget. This is a MUST HAVE widget.

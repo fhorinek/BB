@@ -1,0 +1,3 @@
+*Ground type
+
+selection, what is transmitted while not in flying mode.

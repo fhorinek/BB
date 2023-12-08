@@ -17,3 +17,4 @@ Updated:
 
 Fixed:
 * Bluetooth pairing issue
+* FANET forwarding

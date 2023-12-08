@@ -363,13 +363,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			nb.speed = spd;
 			nb.climb = climb;
 
-			nb.speed = spd;
-			nb.climb_rate = climb;
-			nb.heading = hdg;
-
 			neighbors_update(nb);
-			DBG("Fanet neighbor (%d:%d) updated: (%d,%d) at %d", source.manufacturer_id, source.user_id, lat, lon, alt);
-
 		}
 		break;
 
@@ -394,6 +388,7 @@ void fanet_parse_msg(fanet_addr_t source, uint8_t type, uint8_t len, uint8_t * d
 			nb.addr = source;
 			nb.latitude = lat;
 			nb.longitude = lon;
+			nb.alititude = 0;
 			nb.flags = flags;
 			nb.heading = 0;
 

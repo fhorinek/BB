@@ -1,0 +1,6 @@
+*Vario
+
+Item description
+
+File path:
+system/assets/help/de/Settings/Vario.txt

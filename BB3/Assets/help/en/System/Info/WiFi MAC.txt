@@ -1,0 +1,3 @@
+*Wi-Fi MAC
+
+is the physical device address if Strato is connected to a local Wi-Fi network or hotspot from your phone. It can be used if a Wi-Fi network blocks unknown MAC addresses to grant connection.

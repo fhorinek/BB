@@ -1,0 +1,6 @@
+*Enable
+
+Item description
+
+File path:
+system/assets/help/de/Bluetooth/Enable.txt

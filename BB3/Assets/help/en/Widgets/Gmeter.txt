@@ -1,0 +1,3 @@
+*G-meter
+
+is an accelerometer reading that shows the current G load.

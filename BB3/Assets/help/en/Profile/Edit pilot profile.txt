@@ -1,0 +1,3 @@
+*Edit profile
+
+You can enter here your basic info visible to others via FANET.

@@ -1,0 +1,3 @@
+*Compass arrow
+
+points to the North as a classic compass. It needs to be calibrated (as magnetometer) before flight for proper function. Compass shows vario orientation, GNSS heading is therefore much more useful, as it shows the current movement relative to the ground.

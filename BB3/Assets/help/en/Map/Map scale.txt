@@ -1,0 +1,3 @@
+*Map scale
+
+slidebar sets the default scale of your map. You can zoom/unzoom the map by LEFT or RIGHT if highlighted on the page or set shortcuts to do that.

@@ -303,7 +303,7 @@ void help_show(char * id)
 
         while (true)
         {
-            char line[256];
+            char line[1024];
             char * pos = red_gets(line, sizeof(line), f);
             if (pos == NULL || pos == GETS_CORRUPTED)
                 break;

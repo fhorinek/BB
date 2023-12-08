@@ -1,0 +1,6 @@
+*Restore factory settings
+
+Sets Strato to its original factory settings
+
+File path:
+system/assets/help/en/System/Restore factory settings.txt

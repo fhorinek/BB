@@ -1,0 +1,3 @@
+*Autoset
+
+defines automatic page switching for the current home page. Every checkbox can be paired with a single page only, but the page can have more enabled checkboxes.

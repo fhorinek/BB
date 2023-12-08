@@ -1,0 +1,6 @@
+*Battery percent
+
+shows the battery status in percentage
+
+File path:
+system/assets/help/en/System/Display/Battery percent.txt

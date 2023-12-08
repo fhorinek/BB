@@ -1,0 +1,3 @@
+*Unload airspace
+
+entry unloads currently loaded airspace file. Warning - no confirmation is here, action is just performed by CONFIRM click.

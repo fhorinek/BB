@@ -1,0 +1,3 @@
+*Circling
+
+checkbox shows the current page if circling was detected. You can find circling detection condition settings in Settings > Flight > Circling timeout.

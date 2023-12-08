@@ -1,0 +1,3 @@
+*Powered on
+
+checkbox shows the current page right after startup. If no page has this checkbox enabled, vario will boot to page, where it was powered off.

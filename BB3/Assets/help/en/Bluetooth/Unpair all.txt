@@ -1,0 +1,3 @@
+*Unpair all
+
+action is used to forget all paired devices. Use only if something went wrong and Bluetooth telemetry or audio doesn't work properly.

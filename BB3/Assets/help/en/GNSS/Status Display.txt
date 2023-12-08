@@ -1,0 +1,10 @@
+*Status Display
+
+Graphic display of satellites found, fix status, vertical and horizontal altitude, time to fix
+
+Blue dots - GPS
+Red dots - Glonass
+Green - Galileo
+
+File path:
+system/assets/help/en/GNSS/Status Display.txt

@@ -57,14 +57,17 @@ bool fanet_msg(char * buff, uint16_t len)
         {
             nb->updated &= ~NB_UPDATE_FWD;
 
-            uint8_t type = (nb->flags & NB_GROUND_TYPE_MASK) + ((nb->flags & NB_IS_FLYING == 0) ? 10 : 0);
+            uint8_t type = (nb->flags & NB_AIRCRAFT_TYPE_MASK) | (((nb->flags & NB_IS_FLYING) == 0) ? 10 : 0);
+
+            int16_t alt = ((nb->flags & NB_IS_FLYING) == 0) ? -1000 : nb->alititude;
+
 
             char tmp[128];
 
-            snprintf(tmp, sizeof(tmp), "FNNGB,%02X,%04X,%s,%u,%0.5f,%0.5f,%d,%d,%d,%d",
+            snprintf(tmp, sizeof(tmp), "FNNGB,%02X,%04X,%s,%u,%0.5f,%0.5f,%d,%.1f,%.1f,%.1f",
                     nb->addr.manufacturer_id, nb->addr.user_id, nb->name,
                     type, nb->latitude / (float)GNSS_MUL, nb->longitude / (float)GNSS_MUL,
-                    nb->alititude, nb->climb, nb->speed, nb->heading);
+                    alt, nb->climb / 10.0f, nb->speed / 10.0f, nb->heading * 1.412f);
 
             snprintf(buff, len, "$%s*%02X\r\n", tmp, nmea_checksum(tmp));
 

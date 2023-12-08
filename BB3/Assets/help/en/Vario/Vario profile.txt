@@ -1,0 +1,11 @@
+*Vario profile
+
+allows you to choose between different vario sound acoustic profiles.
+
+There is a PC web server based editor for audio profile inside Strato. We don't recommend using this function on mobile phones, as it is optimized for PCs.
+- connect vario to local Wi-Fi 
+- put Network info number (IP address) to web browser on PC (chrome is recommended)
+- click on Audio profile editor and follow instructions inside
+
+You can also save/load profiles to/from files - Vario profile files are located in config > vario folder
+Vario profile files (*.cfg) can be also edited via text editor, more details are in the profile folder.

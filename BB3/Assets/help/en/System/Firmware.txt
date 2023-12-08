@@ -1,0 +1,3 @@
+*Firmware
+
+menu entry contains information and settings of current operation software. If you cannot download the new firmware via Wi-Fi, connect vario via USB cable and place the update file to the main folder. Update file can be downloaded from strato.skybean.eu web. Make sure that the file name is strato.fw (no numbers in bracket behind).

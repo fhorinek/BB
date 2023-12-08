@@ -1,0 +1,3 @@
+*GNSS altitude
+
+is the current altitude according to data acquired from the GNSS receiver. A GNSS fix is needed for this widget.

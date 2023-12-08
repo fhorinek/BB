@@ -1,0 +1,3 @@
+*FLARM expires
+
+is date until your FLARM license is valid. Update is done automatically with new firmware.

@@ -1,0 +1,3 @@
+*Wi-Fi
+
+interface is used for vario update, map, tarrain and airspace data download, or for IGC (and other log) files download or upload.

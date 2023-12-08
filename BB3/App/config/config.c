@@ -407,8 +407,6 @@ uint8_t config_profiles_cnt()
 
 
 
-
-
 void config_store_all()
 {
     char path[PATH_LEN];
@@ -428,6 +426,6 @@ void config_store_all()
 void config_restore_factory()
 {
     db_close_all();
-	remove_dir(PATH_CONFIG_DIR);
+	copy_dir(PATH_DEFAULTS_CFG_DIR, PATH_CONFIG_DIR);
 	system_reboot();
 }

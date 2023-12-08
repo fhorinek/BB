@@ -1,0 +1,3 @@
+*Vario bar
+
+is a graphical presentation of the current and average vario values.

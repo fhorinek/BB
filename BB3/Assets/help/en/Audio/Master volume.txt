@@ -1,0 +1,3 @@
+*Master volume
+
+slidebar set overall sound level.

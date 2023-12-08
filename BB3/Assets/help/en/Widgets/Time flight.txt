@@ -1,0 +1,3 @@
+*Flight time
+
+shows the duration of the current flight. Switchable widget - press and hold CONFIRM to start/stop flight manually when the widget is highlighted. BEWARE to not touch when flying - you can stop your track log.

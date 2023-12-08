@@ -1,0 +1,3 @@
+*Enable FLARM
+
+checkbox enables FLARM beacon/transmitter  in your vario, you will be seen, but you don't see other FLARM devices.

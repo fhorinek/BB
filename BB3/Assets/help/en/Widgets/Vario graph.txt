@@ -1,0 +1,3 @@
+*Vario graph
+
+is a graphical presentation of vario value history across time.

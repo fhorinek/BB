@@ -103,16 +103,13 @@ typedef struct
     uint16_t dist; // meters
     uint16_t max_dist;
 
-    uint16_t speed;
-    int16_t climb;
-
     fanet_addr_t addr;
     uint8_t flags; // NB_AIRCRAFT_TYPE_MASK | NB_IS_FLYING | NB_HAVE_POS | NB_ONLINE_TRACKING | NB_HAVE_TURNRATE
     uint8_t updated;
 
 	char name[NB_NAME_LEN];
 
-    int16_t climb_rate; // m/s * 10
+    int16_t climb; // m/s * 10
     uint16_t speed; // km/h * 10
     uint8_t heading; // degrees * 255 / 360
 

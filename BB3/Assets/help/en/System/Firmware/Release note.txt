@@ -1,0 +1,3 @@
+*Release note
+
+gives a short info about newest fw installed and new additions, fixes or issues.

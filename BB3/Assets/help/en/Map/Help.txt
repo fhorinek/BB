@@ -1,0 +1,3 @@
+*Map management
+
+contains lists of countries, click CONFIRM to select the country to be downloaded. Terrain data is needed to show altitude above ground and terrain color palette in the map. Map data is needed to show road map and obstacles.

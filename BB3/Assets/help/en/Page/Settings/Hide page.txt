@@ -1,0 +1,3 @@
+*Hide page
+
+entry hides the current page. It won't be visible, but stays in the page list. Use "Show hidden page" to restore it to the last position.

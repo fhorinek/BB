@@ -1,0 +1,3 @@
+*Network info
+
+menu contains IP (network) and MAC (physical) addresses. If you need to access files in Strato, put these numbers (IP address) into the web browser address line exactly as you see it.

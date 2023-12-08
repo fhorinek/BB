@@ -1,0 +1,3 @@
+*Daylight saving time
+
+checkbox enables the summer time. Disabled checkbox means the winter time.

@@ -1,0 +1,3 @@
+*Load airspace
+
+contains a list of downloaded files. Click CONFIRM to activate the selected country. You can download or refresh files in the Download from XContest menu entry.

@@ -1,0 +1,3 @@
+*Enable
+
+checkbox enables Bluetooth interface on your vario.

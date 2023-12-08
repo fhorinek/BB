@@ -207,8 +207,11 @@ extern osThreadId_t SystemHandle;
 #define PATH_CRASH_RAM      PATH_CRASH_DIR "/ram.txt"
 #define PATH_CRASH_BUNDLE   "crash_report"
 
-#define PATH_ASSET_DIR      PATH_SYSTEM_DIR "/assets"
-#define PATH_DEFAULTS_DIR   PATH_ASSET_DIR "/defaults"
+#define PATH_ASSET_DIR          PATH_SYSTEM_DIR "/assets"
+#define PATH_DEFAULTS_DIR       PATH_ASSET_DIR "/defaults"
+#define PATH_DEFAULTS_CFG_DIR   PATH_DEFAULTS_DIR "/config"
+
+
 #define PATH_LOGS_DIR       "logs"
 #define PATH_NEW_FW         PATH_ASSET_DIR "/NEW"
 #define PATH_BL_FW_AUTO     PATH_ASSET_DIR "/bootloader.fw"

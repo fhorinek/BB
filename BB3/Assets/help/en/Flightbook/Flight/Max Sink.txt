@@ -1,0 +1,3 @@
+*Max sink
+
+is a maximal reached sink vario value.

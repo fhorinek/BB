@@ -1,0 +1,3 @@
+*Add empty page
+
+entry creates a new blank page.

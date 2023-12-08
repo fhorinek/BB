@@ -1,0 +1,3 @@
+*Show labels
+
+checkbox enables display of other FANET pilots nearby.

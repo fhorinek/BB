@@ -1,0 +1,3 @@
+*Wind speed
+
+is the calculated rate of wind in selected units. Couple 360 turns are needed for wind speed and direction calculation. A GNSS fix is needed for this widget.

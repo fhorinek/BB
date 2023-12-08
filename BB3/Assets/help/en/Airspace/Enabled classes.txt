@@ -1,0 +1,3 @@
+*Enabled classes
+
+contains a list of checkboxes, which enable/disable airspace classes. Ignore with floor above slidebar sets altitude level, where airspaces (with floor placed) above this altitude are hidden.

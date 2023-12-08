@@ -1,0 +1,3 @@
+*Time and date
+
+is the current time and date. Toggle switch between time with date or time only.

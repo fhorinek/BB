@@ -1,0 +1,3 @@
+*Takeoff distance
+
+is the current distance to the launch place. This widget is very useful for PPG. A GNSS fix is needed for this widget.

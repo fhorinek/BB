@@ -1,0 +1,3 @@
+*Thermal gain
+
+is an altitude difference since the circling condition was detected. Can be positive, but also negative.

@@ -464,7 +464,15 @@ void map_obj_fanet_loop(map_obj_data_t *local, int32_t disp_lat, int32_t disp_lo
 
                     if (local->fanet_labels[t] != NULL)
                     {
-                        format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
+                        if (fc.fanet.neighbor[i].flags & NB_IS_FLYING)
+                        {
+                            format_altitude_with_units(buffer, fc.fanet.neighbor[i].alititude);
+                        }
+                        else
+                        {
+                            strcpy(buffer, "");
+                        }
+
                         if (strlen(fc.fanet.neighbor[i].name) > 0)
                         {
                             snprintf(label_value, sizeof(label_value), "%s\n%s", fc.fanet.neighbor[i].name, buffer);

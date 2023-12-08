@@ -1,0 +1,6 @@
+*A2DP Audio
+
+Item description
+
+File path:
+system/assets/help/de/Bluetooth/A2DP Audio.txt

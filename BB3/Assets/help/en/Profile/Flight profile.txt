@@ -1,0 +1,3 @@
+*Flight profile
+
+Click CONFIRM to select flying style or click OPTIONS to rename/duplicate/delete an existing profile or add a new one. Each pilot profile can contain several flight profiles.

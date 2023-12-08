@@ -1,0 +1,3 @@
+*Altitude change
+
+value needed for automatic launch detection.

@@ -1,0 +1,3 @@
+*Audio only in flight
+
+checkbox makes vario silent if not flying, what makes take off places more calm to others.

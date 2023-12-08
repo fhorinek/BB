@@ -1,0 +1,6 @@
+*Accelerometer gain
+
+Item description
+
+File path:
+system/assets/help/de/Vario/Accelerometer gain.txt

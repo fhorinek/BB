@@ -1,0 +1,3 @@
+*Take-off
+
+checkbox shows the current page right after startup. If no page has this checkbox enabled, vario will boot to the page, where it was powered off.

@@ -1,0 +1,3 @@
+*Show on map
+
+function should show altitude and terrain height of your flight across time, but it is not f. The same view as XContest. Press and hold LEFT or RIGHT to move on the time axis, click RETURN to exit.

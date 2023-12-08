@@ -1,0 +1,3 @@
+*Airborne type
+
+selection, what is transmitted while in flying mode.

@@ -1,0 +1,3 @@
+*Duplicate existing
+
+entry creates a copy of an existing page. Use this function if you want to change something on the current page, but you are not sure if the change will be better than the current page. Then you will have both options (pages) available, so you can test them and then decide.

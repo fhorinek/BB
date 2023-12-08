@@ -1,0 +1,3 @@
+*Bluetooth
+
+menu entry contains Bluetooth interface settings and preferencies. Stay inside this menu when pairing to your phone.

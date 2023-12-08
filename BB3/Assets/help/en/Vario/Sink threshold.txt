@@ -1,0 +1,3 @@
+*Sink threshold
+
+value defines the negative vario level, when vario sound is activated.

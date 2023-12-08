@@ -1,0 +1,3 @@
+*Airspaces
+
+contains settings and data management of airspaces.

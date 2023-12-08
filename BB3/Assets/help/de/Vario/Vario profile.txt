@@ -1,0 +1,6 @@
+*Vario profile
+
+Item description
+
+File path:
+system/assets/help/de/Vario/Vario profile.txt

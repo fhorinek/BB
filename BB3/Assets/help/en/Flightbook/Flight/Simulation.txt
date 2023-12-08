@@ -1,0 +1,3 @@
+*Simulate on device
+
+Start simulation of tracklog. While this, a red note [simulation] appears on the bottom of the screen. To stop simulation - go to settings and hit Stop simulation menu entry.

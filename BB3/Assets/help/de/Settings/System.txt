@@ -1,0 +1,6 @@
+*System
+
+Item description
+
+File path:
+system/assets/help/de/Settings/System.txt

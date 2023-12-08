@@ -1,0 +1,3 @@
+*Page animation
+
+checkbox enables fancy switching between pages. No more, no less :)

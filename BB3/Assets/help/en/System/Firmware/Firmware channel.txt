@@ -1,0 +1,3 @@
+*Firmware channel
+
+selection switches between different firmware channels. We recommend using the devel channel, as it contains the newest functions. We also recommend briefly checking basic vario functionality after update if you are comfortable with changes.

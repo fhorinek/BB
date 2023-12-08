@@ -1,101 +1,101 @@
 [
   {
     "key": "Device init",
-    "line": 407,
+    "line": 623,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L407"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L623"
   },
   {
     "key": "Device ready",
-    "line": 411,
+    "line": 627,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L411"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L627"
   },
   {
     "key": "Device error",
-    "line": 415,
+    "line": 631,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L415"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L631"
   },
   {
     "key": "Not calibrated",
-    "line": 419,
+    "line": 635,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L419"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L635"
   },
   {
     "key": "Device disabled",
-    "line": 423,
+    "line": 639,
     "plural": false,
     "fileName": "../fc/fc.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L423"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../fc/fc.c#L639"
   },
   {
     "key": "%s connected (%s)",
-    "line": 91,
+    "line": 97,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L91"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L97"
   },
   {
     "key": "%s disconnected (%s)",
-    "line": 124,
+    "line": 130,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L124"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L130"
   },
   {
     "key": "%s paired",
-    "line": 131,
+    "line": 137,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L131"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L137"
   },
   {
     "key": "Bluetooth pairing request",
-    "line": 147,
+    "line": 153,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L147"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L153"
   },
   {
     "key": "Bluetooth pairing request",
-    "line": 160,
+    "line": 166,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L160"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L166"
   },
   {
     "key": "Bluetooth pairing request",
+    "line": 171,
+    "plural": false,
+    "fileName": "../gui/bluetooth.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L171"
+  },
+  {
+    "key": "pairing failed",
+    "line": 153,
+    "plural": false,
+    "fileName": "../gui/bluetooth.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L153"
+  },
+  {
+    "key": "Type this passcode\n\n%lu\n\non the other device.",
     "line": 165,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L165"
   },
   {
-    "key": "pairing failed",
-    "line": 147,
-    "plural": false,
-    "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L147"
-  },
-  {
-    "key": "Type this passcode\n\n%lu\n\non the other device.",
-    "line": 159,
-    "plural": false,
-    "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L159"
-  },
-  {
     "key": "Confirm that passcode\n\n%lu\n\nis the same on other the device.",
-    "line": 164,
+    "line": 170,
     "plural": false,
     "fileName": "../gui/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L164"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/bluetooth.c#L170"
   },
   {
     "key": "Error",
@@ -148,10 +148,10 @@
   },
   {
     "key": "Error",
-    "line": 28,
+    "line": 29,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L28"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L29"
   },
   {
     "key": "Error",
@@ -210,6 +210,34 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/fw_notify.c#L33"
   },
   {
+    "key": "Auto power off",
+    "line": 342,
+    "plural": false,
+    "fileName": "../gui/gui.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/gui.c#L342"
+  },
+  {
+    "key": "Auto power off",
+    "line": 29,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/auto_poweroff.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/auto_poweroff.c#L29"
+  },
+  {
+    "key": "Map management",
+    "line": 23,
+    "plural": false,
+    "fileName": "../gui/map_index.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/map_index.c#L23"
+  },
+  {
+    "key": "Map management",
+    "line": 92,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L92"
+  },
+  {
     "key": "Warning",
     "line": 34,
     "plural": false,
@@ -225,10 +253,10 @@
   },
   {
     "key": "Warning",
-    "line": 37,
+    "line": 39,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L37"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L39"
   },
   {
     "key": "Warning",
@@ -330,17 +358,17 @@
   },
   {
     "key": "No GNSS",
-    "line": 249,
-    "plural": false,
-    "fileName": "../gui/statusbar.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/statusbar.c#L249"
-  },
-  {
-    "key": "Set time",
     "line": 251,
     "plural": false,
     "fileName": "../gui/statusbar.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/statusbar.c#L251"
+  },
+  {
+    "key": "Set time",
+    "line": 253,
+    "plural": false,
+    "fileName": "../gui/statusbar.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/statusbar.c#L253"
   },
   {
     "key": "Set time",
@@ -351,59 +379,66 @@
   },
   {
     "key": "Too many files to list\nShowing %u files",
-    "line": 578,
+    "line": 590,
     "plural": false,
     "fileName": "../gui/tasks/filemanager.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L578"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L590"
   },
   {
     "key": "Nothing to show",
-    "line": 584,
+    "line": 596,
     "plural": false,
     "fileName": "../gui/tasks/filemanager.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L584"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L596"
   },
   {
     "key": "Listing files",
-    "line": 594,
+    "line": 606,
     "plural": false,
     "fileName": "../gui/tasks/filemanager.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L594"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L606"
   },
   {
     "key": "Directory not found",
-    "line": 609,
+    "line": 621,
     "plural": false,
     "fileName": "../gui/tasks/filemanager.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L609"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/filemanager.c#L621"
   },
   {
     "key": "No airspace loaded.\n\nAre you using OpenAir format?",
-    "line": 28,
+    "line": 29,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L28"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L29"
   },
   {
     "key": "Loading airspace...",
-    "line": 49,
+    "line": 52,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L49"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L52"
+  },
+  {
+    "key": "Loading airspace...",
+    "line": 48,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/download.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/download.c#L48"
   },
   {
     "key": "Help",
-    "line": 91,
+    "line": 94,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L91"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L94"
   },
   {
     "key": "Help",
-    "line": 142,
+    "line": 146,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L142"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L146"
   },
   {
     "key": "Help",
@@ -421,73 +456,80 @@
   },
   {
     "key": "Help",
-    "line": 73,
+    "line": 65,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L73"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L65"
   },
   {
     "key": "Help",
-    "line": 96,
+    "line": 102,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L96"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L102"
   },
   {
     "key": "Place airspace files in OpenAir format to the airspace directory.\n\nWe recommend to use\nairspace.xcontest.org",
-    "line": 91,
+    "line": 94,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L91"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L94"
   },
   {
     "key": "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm",
-    "line": 107,
+    "line": 110,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L107"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L110"
   },
   {
     "key": "Airspace settings",
-    "line": 123,
+    "line": 126,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L123"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L126"
   },
   {
     "key": "Load airspace",
-    "line": 127,
+    "line": 130,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L127"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L130"
   },
   {
     "key": "Load airspace",
-    "line": 131,
+    "line": 134,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L131"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L134"
   },
   {
     "key": "Unload airspace",
-    "line": 133,
+    "line": 136,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L133"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L136"
   },
   {
     "key": "Debug Info",
-    "line": 137,
+    "line": 140,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L137"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L140"
+  },
+  {
+    "key": "Download from XContest",
+    "line": 143,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/airspace.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L143"
   },
   {
     "key": "Enabled classes",
-    "line": 141,
+    "line": 145,
     "plural": false,
     "fileName": "../gui/tasks/menu/airspace/airspace.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L141"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/airspace.c#L145"
   },
   {
     "key": "Enabled airspaces",
@@ -616,53 +658,158 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/display.c#L50"
   },
   {
-    "key": "Audio",
-    "line": 23,
+    "key": "Load this airspace?",
+    "line": 82,
     "plural": false,
-    "fileName": "../gui/tasks/menu/audio.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio.c#L23"
+    "fileName": "../gui/tasks/menu/airspace/download.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/download.c#L82"
   },
   {
-    "key": "Audio",
-    "line": 53,
+    "key": "Downloading airspace",
+    "line": 114,
     "plural": false,
-    "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L53"
+    "fileName": "../gui/tasks/menu/airspace/download.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/download.c#L114"
+  },
+  {
+    "key": "Download airspace",
+    "line": 154,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/airspace/download.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/airspace/download.c#L154"
+  },
+  {
+    "key": "Audio thermal fade",
+    "line": 23,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/advanced.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/advanced.c#L23"
+  },
+  {
+    "key": "Audio thermal fade",
+    "line": 47,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L47"
+  },
+  {
+    "key": "Enabled",
+    "line": 25,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/advanced.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/advanced.c#L25"
+  },
+  {
+    "key": "Enabled",
+    "line": 32,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/auto_poweroff.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/auto_poweroff.c#L32"
+  },
+  {
+    "key": "Enabled",
+    "line": 36,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/auto_poweroff.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/auto_poweroff.c#L36"
+  },
+  {
+    "key": "When connected",
+    "line": 26,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/advanced.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/advanced.c#L26"
+  },
+  {
+    "key": "Glide mode min",
+    "line": 27,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/advanced.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/advanced.c#L27"
+  },
+  {
+    "key": "Glide mode max",
+    "line": 28,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/advanced.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/advanced.c#L28"
+  },
+  {
+    "key": "Volume change speed",
+    "line": 29,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/advanced.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/advanced.c#L29"
+  },
+  {
+    "key": "Audio volume",
+    "line": 23,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L23"
   },
   {
     "key": "Master volume",
     "line": 25,
     "plural": false,
-    "fileName": "../gui/tasks/menu/audio.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio.c#L25"
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L25"
+  },
+  {
+    "key": "Vario thermal",
+    "line": 29,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L29"
+  },
+  {
+    "key": "Vario glide/idle",
+    "line": 30,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L30"
   },
   {
     "key": "Vario volume",
-    "line": 26,
+    "line": 34,
     "plural": false,
-    "fileName": "../gui/tasks/menu/audio.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio.c#L26"
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L34"
   },
   {
-    "key": "Sound volume",
-    "line": 27,
+    "key": "Bluetooth thermal",
+    "line": 39,
     "plural": false,
-    "fileName": "../gui/tasks/menu/audio.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio.c#L27"
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L39"
+  },
+  {
+    "key": "Bluetooth glide/idle",
+    "line": 40,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L40"
   },
   {
     "key": "Bluetooth volume",
-    "line": 28,
+    "line": 44,
     "plural": false,
-    "fileName": "../gui/tasks/menu/audio.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio.c#L28"
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L44"
   },
   {
     "key": "TTS alerts",
-    "line": 29,
+    "line": 49,
     "plural": false,
-    "fileName": "../gui/tasks/menu/audio.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio.c#L29"
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L49"
+  },
+  {
+    "key": "Sound volume",
+    "line": 50,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/audio/audio.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/audio/audio.c#L50"
   },
   {
     "key": "Unbind?",
@@ -694,10 +841,10 @@
   },
   {
     "key": "Bluetooth",
-    "line": 58,
+    "line": 80,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L58"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L80"
   },
   {
     "key": "Enable",
@@ -749,11 +896,18 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L74"
   },
   {
-    "key": "Device name",
-    "line": 76,
+    "key": "Forward FANET",
+    "line": 75,
     "plural": false,
     "fileName": "../gui/tasks/menu/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L76"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L75"
+  },
+  {
+    "key": "Device name",
+    "line": 77,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/bluetooth.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L77"
   },
   {
     "key": "Device name",
@@ -764,38 +918,38 @@
   },
   {
     "key": "PIN code",
-    "line": 77,
+    "line": 78,
     "plural": false,
     "fileName": "../gui/tasks/menu/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L77"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L78"
   },
   {
     "key": "Unpair all",
-    "line": 79,
+    "line": 80,
     "plural": false,
     "fileName": "../gui/tasks/menu/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L79"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L80"
   },
   {
     "key": "Now visible as",
-    "line": 90,
+    "line": 91,
     "plural": false,
     "fileName": "../gui/tasks/menu/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L90"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L91"
   },
   {
     "key": "Turn on Bluetoth",
-    "line": 95,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/bluetooth.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L95"
-  },
-  {
-    "key": "to enable pairing",
     "line": 96,
     "plural": false,
     "fileName": "../gui/tasks/menu/bluetooth.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L96"
+  },
+  {
+    "key": "to enable pairing",
+    "line": 97,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/bluetooth.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/bluetooth.c#L97"
   },
   {
     "key": "FANET neighbors",
@@ -897,45 +1051,45 @@
   },
   {
     "key": "Flight settings",
-    "line": 24,
+    "line": 30,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L24"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L30"
   },
   {
     "key": "Altitude change +/-%s",
-    "line": 32,
+    "line": 38,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L32"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L38"
   },
   {
     "key": "\n or ",
-    "line": 40,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L40"
-  },
-  {
-    "key": "Speed > %s",
     "line": 46,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L46"
   },
   {
-    "key": "Disabled",
-    "line": 51,
+    "key": "Speed > %s",
+    "line": 52,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L51"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L52"
   },
   {
     "key": "Disabled",
-    "line": 81,
+    "line": 57,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L81"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L57"
+  },
+  {
+    "key": "Disabled",
+    "line": 87,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L87"
   },
   {
     "key": "Disabled",
@@ -946,10 +1100,10 @@
   },
   {
     "key": "Automatic Take-off",
-    "line": 53,
+    "line": 59,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L53"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L59"
   },
   {
     "key": "Automatic Take-off",
@@ -960,31 +1114,31 @@
   },
   {
     "key": "Altitude within +/-%s",
-    "line": 62,
+    "line": 68,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L62"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L68"
   },
   {
     "key": "\n and ",
-    "line": 70,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L70"
-  },
-  {
-    "key": "Speed < %s",
     "line": 76,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L76"
   },
   {
-    "key": "Automatic Landing",
-    "line": 83,
+    "key": "Speed < %s",
+    "line": 82,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L83"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L82"
+  },
+  {
+    "key": "Automatic Landing",
+    "line": 89,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L89"
   },
   {
     "key": "Automatic Landing",
@@ -995,45 +1149,59 @@
   },
   {
     "key": "Glide ratio time",
-    "line": 87,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L87"
-  },
-  {
-    "key": "G-meter time",
-    "line": 88,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L88"
-  },
-  {
-    "key": "Circling timeout",
-    "line": 89,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L89"
-  },
-  {
-    "key": "Use wind in trace",
-    "line": 91,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flight/flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L91"
-  },
-  {
-    "key": "Enable IGC log",
     "line": 93,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L93"
   },
   {
-    "key": "Enable CSV log",
+    "key": "G-meter time",
     "line": 94,
     "plural": false,
     "fileName": "../gui/tasks/menu/flight/flight.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L94"
+  },
+  {
+    "key": "Circling timeout",
+    "line": 95,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L95"
+  },
+  {
+    "key": "Thermal trace zoom",
+    "line": 97,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L97"
+  },
+  {
+    "key": "Use wind in trace",
+    "line": 98,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L98"
+  },
+  {
+    "key": "Enable IGC log",
+    "line": 100,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L100"
+  },
+  {
+    "key": "Enable CSV log",
+    "line": 101,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L101"
+  },
+  {
+    "key": "Enable KML log",
+    "line": 102,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flight/flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flight/flight.c#L102"
   },
   {
     "key": "Use altitude",
@@ -1107,24 +1275,24 @@
   },
   {
     "key": "Reading...",
-    "line": 418,
+    "line": 390,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight_map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight_map.c#L418"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight_map.c#L390"
   },
   {
     "key": "Reading...",
-    "line": 507,
+    "line": 511,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L507"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L511"
   },
   {
     "key": "Date",
-    "line": 83,
+    "line": 86,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L83"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L86"
   },
   {
     "key": "Date",
@@ -1135,10 +1303,10 @@
   },
   {
     "key": "Start",
-    "line": 86,
+    "line": 89,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L86"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L89"
   },
   {
     "key": "Start",
@@ -1149,192 +1317,192 @@
   },
   {
     "key": "Landing",
-    "line": 92,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L92"
-  },
-  {
-    "key": "Landing",
-    "line": 226,
-    "plural": false,
-    "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L226"
-  },
-  {
-    "key": "Duration",
     "line": 95,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L95"
   },
   {
-    "key": "Altitude Max",
-    "line": 102,
+    "key": "Landing",
+    "line": 232,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L232"
+  },
+  {
+    "key": "Duration",
+    "line": 98,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L102"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L98"
+  },
+  {
+    "key": "Altitude Max",
+    "line": 105,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L105"
   },
   {
     "key": "Altitude Min",
-    "line": 108,
+    "line": 111,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L108"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L111"
   },
   {
     "key": "Max Raise",
-    "line": 114,
+    "line": 117,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L114"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L117"
   },
   {
     "key": "Max Sink",
-    "line": 120,
+    "line": 123,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L120"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L123"
   },
   {
     "key": "Track length",
-    "line": 126,
+    "line": 129,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L126"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L129"
   },
   {
     "key": "Analysing...",
-    "line": 145,
+    "line": 148,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L145"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L148"
   },
   {
     "key": "Show on map",
-    "line": 176,
+    "line": 192,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L176"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L192"
+  },
+  {
+    "key": "Simulate on device",
+    "line": 193,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_flight.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_flight.c#L193"
   },
   {
     "key": "Total: ",
-    "line": 446,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L446"
-  },
-  {
-    "key": "Average per flight: ",
     "line": 448,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L448"
   },
   {
-    "key": "Total: %.1f hours",
-    "line": 452,
+    "key": "Average per flight: ",
+    "line": 450,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L452"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L450"
+  },
+  {
+    "key": "Total: %.1f hours",
+    "line": 454,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L454"
   },
   {
     "key": "Average per flight: %.1f hours",
-    "line": 453,
+    "line": 455,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L453"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L455"
   },
   {
     "key": "Total: %.0f flights",
-    "line": 456,
+    "line": 458,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L456"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L458"
   },
   {
     "key": "Too Many Flights",
-    "line": 496,
+    "line": 500,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L496"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L500"
   },
   {
     "key": "You have too many flights to handle in statistics. Please remove some.",
-    "line": 496,
+    "line": 500,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L496"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L500"
   },
   {
     "key": "Year",
-    "line": 603,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L603"
-  },
-  {
-    "key": "yearly",
-    "line": 604,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L604"
-  },
-  {
-    "key": "Days",
     "line": 607,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L607"
   },
   {
-    "key": "Total",
+    "key": "yearly",
+    "line": 608,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L608"
+  },
+  {
+    "key": "Days",
     "line": 611,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L611"
   },
   {
+    "key": "Total",
+    "line": 615,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L615"
+  },
+  {
     "key": "Flights",
-    "line": 622,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L622"
-  },
-  {
-    "key": "Hours %s",
-    "line": 623,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L623"
-  },
-  {
-    "key": "Distance",
     "line": 626,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L626"
   },
   {
-    "key": "Distance",
-    "line": 15,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/system/units.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/units.c#L15"
-  },
-  {
-    "key": "Flights %s",
+    "key": "Hours %s631",
     "line": 627,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L627"
   },
   {
-    "key": "Time",
+    "key": "Timw",
     "line": 630,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L630"
+  },
+  {
+    "key": "Flights %s",
+    "line": 631,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L631"
+  },
+  {
+    "key": "Time",
+    "line": 634,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L634"
   },
   {
     "key": "Time",
@@ -1352,38 +1520,38 @@
   },
   {
     "key": "Distance %s",
-    "line": 631,
+    "line": 635,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook_statistics.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L631"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook_statistics.c#L635"
   },
   {
     "key": "Flight '%s' deleted",
-    "line": 51,
+    "line": 55,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L51"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L55"
   },
   {
     "key": "Flight statistics",
-    "line": 72,
+    "line": 77,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L72"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L77"
   },
   {
     "key": "Do you want to remove flight '%s'",
-    "line": 99,
+    "line": 105,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L99"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L105"
   },
   {
     "key": "Confirm",
-    "line": 100,
+    "line": 106,
     "plural": false,
     "fileName": "../gui/tasks/menu/flightbook/flightbook.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L100"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/flightbook/flightbook.c#L106"
   },
   {
     "key": "Confirm",
@@ -1478,17 +1646,17 @@
   },
   {
     "key": "Clearing map cache",
-    "line": 32,
+    "line": 34,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L32"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L34"
   },
   {
     "key": "Please wait",
-    "line": 32,
+    "line": 34,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L32"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L34"
   },
   {
     "key": "Please wait",
@@ -1499,38 +1667,38 @@
   },
   {
     "key": "Clear cache",
-    "line": 44,
+    "line": 46,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L44"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L46"
   },
   {
     "key": "do you want to clear map cache?",
-    "line": 44,
+    "line": 46,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L44"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L46"
   },
   {
     "key": "To acquire maps, go to \nstrato.skybean.eu/map\n\nPlace files from *_agl.zip to agl directory.\n\nPlace files from *_map.zip to map directory.\n\nWe are also working on automatic solution.",
-    "line": 73,
+    "line": 65,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L73"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L65"
   },
   {
     "key": "Map",
-    "line": 87,
+    "line": 90,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L87"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L90"
   },
   {
     "key": "Map",
-    "line": 54,
+    "line": 76,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L54"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L76"
   },
   {
     "key": "Map",
@@ -1541,52 +1709,122 @@
   },
   {
     "key": "Map scale",
-    "line": 89,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L89"
-  },
-  {
-    "key": "Zoom to fit track",
-    "line": 90,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L90"
-  },
-  {
-    "key": "Terrain type",
-    "line": 91,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L91"
-  },
-  {
-    "key": "Topo blur",
-    "line": 92,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L92"
-  },
-  {
-    "key": "Clear map cache",
-    "line": 93,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L93"
-  },
-  {
-    "key": "Show FANET on map",
-    "line": 94,
-    "plural": false,
-    "fileName": "../gui/tasks/menu/map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L94"
-  },
-  {
-    "key": "Show trail",
     "line": 95,
     "plural": false,
     "fileName": "../gui/tasks/menu/map.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L95"
+  },
+  {
+    "key": "Zoom to fit track",
+    "line": 96,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L96"
+  },
+  {
+    "key": "Terrain type",
+    "line": 97,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L97"
+  },
+  {
+    "key": "Topo blur",
+    "line": 98,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L98"
+  },
+  {
+    "key": "Clear map cache",
+    "line": 99,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L99"
+  },
+  {
+    "key": "Show FANET on map",
+    "line": 100,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L100"
+  },
+  {
+    "key": "Show trail",
+    "line": 101,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L101"
+  },
+  {
+    "key": "Select countries\nTiles: %u/%u (%u failed)",
+    "line": 114,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L114"
+  },
+  {
+    "key": "Indexing...\nTiles done: %u",
+    "line": 118,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L118"
+  },
+  {
+    "key": "Getting AGL %s\n%u%%Tiles done: %u/%u",
+    "line": 122,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L122"
+  },
+  {
+    "key": "Getting MAP %s\n%u%% Tiles done: %u/%u",
+    "line": 126,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L126"
+  },
+  {
+    "key": "Extracting AGL %s\nTiles done: %u/%u",
+    "line": 130,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L130"
+  },
+  {
+    "key": "Extracting MAP %s\nTiles done: %u/%u",
+    "line": 134,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/map.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/map.c#L134"
+  },
+  {
+    "key": "Other",
+    "line": 58,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/other.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/other.c#L58"
+  },
+  {
+    "key": "Other",
+    "line": 86,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L86"
+  },
+  {
+    "key": "Enable charging",
+    "line": 60,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/other.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/other.c#L60"
+  },
+  {
+    "key": "Charger info",
+    "line": 61,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/other.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/other.c#L61"
   },
   {
     "key": "Pilot",
@@ -1821,10 +2059,10 @@
   },
   {
     "key": "Pilot & Flight profile",
-    "line": 50,
+    "line": 72,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L50"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L72"
   },
   {
     "key": "Pilot profile",
@@ -1849,80 +2087,115 @@
   },
   {
     "key": "Strato settings",
-    "line": 47,
+    "line": 66,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L47"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L66"
+  },
+  {
+    "key": "Stop Simulation",
+    "line": 69,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L69"
   },
   {
     "key": "Flightbook",
-    "line": 49,
+    "line": 71,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L49"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L71"
   },
   {
     "key": "Vario",
-    "line": 51,
+    "line": 73,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L51"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L73"
   },
   {
     "key": "Flight",
-    "line": 52,
+    "line": 74,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L52"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L74"
+  },
+  {
+    "key": "Audio",
+    "line": 75,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/settings.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L75"
   },
   {
     "key": "Airspaces",
-    "line": 55,
+    "line": 77,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L55"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L77"
   },
   {
     "key": "FANET",
-    "line": 56,
+    "line": 78,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L56"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L78"
   },
   {
     "key": "GNSS",
-    "line": 57,
+    "line": 79,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L57"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L79"
   },
   {
     "key": "Wi-Fi",
-    "line": 59,
+    "line": 81,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L59"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L81"
   },
   {
     "key": "System",
-    "line": 60,
+    "line": 82,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L60"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L82"
   },
   {
     "key": "System",
-    "line": 48,
+    "line": 50,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L48"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L50"
   },
   {
     "key": "Development",
-    "line": 63,
+    "line": 87,
     "plural": false,
     "fileName": "../gui/tasks/menu/settings.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L63"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/settings.c#L87"
+  },
+  {
+    "key": "When idle, power off the device",
+    "line": 31,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/auto_poweroff.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/auto_poweroff.c#L31"
+  },
+  {
+    "key": "Timeout",
+    "line": 33,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/auto_poweroff.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/auto_poweroff.c#L33"
+  },
+  {
+    "key": "When flying, return to main screen after 30 seconds",
+    "line": 35,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/auto_poweroff.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/auto_poweroff.c#L35"
   },
   {
     "key": "Reset\ncalibration?",
@@ -1947,10 +2220,10 @@
   },
   {
     "key": "Calibration",
-    "line": 53,
+    "line": 56,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L53"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L56"
   },
   {
     "key": "Calibration data not valid",
@@ -2087,10 +2360,10 @@
   },
   {
     "key": "Time & date",
-    "line": 50,
+    "line": 52,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L50"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L52"
   },
   {
     "key": "Daylight saving time",
@@ -2367,10 +2640,10 @@
   },
   {
     "key": "Device info",
-    "line": 60,
+    "line": 63,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L60"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L63"
   },
   {
     "key": "Serial number",
@@ -2408,25 +2681,53 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/info.c#L109"
   },
   {
+    "key": "simulation",
+    "line": 23,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/sim.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/sim.c#L23"
+  },
+  {
+    "key": "Playback speed",
+    "line": 25,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/sim.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/sim.c#L25"
+  },
+  {
+    "key": "Loop at the end",
+    "line": 26,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/sim.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/sim.c#L26"
+  },
+  {
     "key": "Do you want to restore factory settings?",
-    "line": 37,
+    "line": 39,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L37"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L39"
   },
   {
     "key": "Display",
-    "line": 51,
+    "line": 53,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L51"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L53"
+  },
+  {
+    "key": "Auto Power off",
+    "line": 54,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/system.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L54"
   },
   {
     "key": "Units",
-    "line": 52,
+    "line": 55,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L52"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L55"
   },
   {
     "key": "Units",
@@ -2437,24 +2738,31 @@
   },
   {
     "key": "Firmware",
-    "line": 57,
+    "line": 60,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L57"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L60"
   },
   {
     "key": "Diagnostic",
-    "line": 61,
+    "line": 64,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L61"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L64"
+  },
+  {
+    "key": "Simulation",
+    "line": 65,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/system.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L65"
   },
   {
     "key": "Restore factory settings",
-    "line": 63,
+    "line": 67,
     "plural": false,
     "fileName": "../gui/tasks/menu/system/system.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L63"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/system.c#L67"
   },
   {
     "key": "Altitude",
@@ -2469,6 +2777,13 @@
     "plural": false,
     "fileName": "../gui/tasks/menu/system/units.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/units.c#L14"
+  },
+  {
+    "key": "Distance",
+    "line": 15,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/system/units.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/system/units.c#L15"
   },
   {
     "key": "Variometer",
@@ -2514,52 +2829,59 @@
   },
   {
     "key": "Vario settings",
-    "line": 69,
+    "line": 79,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L69"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L79"
   },
   {
     "key": "Audio only in flight",
-    "line": 71,
+    "line": 81,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L71"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L81"
   },
   {
     "key": "Accelerometer gain",
-    "line": 72,
+    "line": 82,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L72"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L82"
   },
   {
     "key": "Lift threshold",
-    "line": 73,
+    "line": 83,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L73"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L83"
   },
   {
     "key": "Sink threshold",
-    "line": 74,
+    "line": 84,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L74"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L84"
   },
   {
-    "key": "Average time",
-    "line": 75,
+    "key": "Digital vario smoothing",
+    "line": 85,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L75"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L85"
+  },
+  {
+    "key": "Average vario time",
+    "line": 86,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/vario.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L86"
   },
   {
     "key": "Vario profile",
-    "line": 77,
+    "line": 88,
     "plural": false,
     "fileName": "../gui/tasks/menu/vario.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L77"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/vario.c#L88"
   },
   {
     "key": "Network info",
@@ -2730,6 +3052,13 @@
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi.c#L85"
   },
   {
+    "key": "Disable in flight",
+    "line": 88,
+    "plural": false,
+    "fileName": "../gui/tasks/menu/wifi/wifi.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/menu/wifi/wifi.c#L88"
+  },
+  {
     "key": "Switch to page\n'%s' when...",
     "line": 47,
     "plural": false,
@@ -2780,10 +3109,10 @@
   },
   {
     "key": "Circling",
-    "line": 222,
+    "line": 228,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L222"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L228"
   },
   {
     "key": "Gliding",
@@ -3095,66 +3424,73 @@
   },
   {
     "key": "Take off",
-    "line": 220,
+    "line": 226,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L220"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L226"
   },
   {
     "key": "Glide",
-    "line": 224,
+    "line": 230,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L224"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L230"
   },
   {
     "key": "Power on",
-    "line": 228,
+    "line": 234,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L228"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L234"
+  },
+  {
+    "key": "FLARM licence expired\nUpdate firmware",
+    "line": 365,
+    "plural": false,
+    "fileName": "../gui/tasks/page/pages.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L365"
   },
   {
     "key": "Menu left shortcut",
-    "line": 725,
+    "line": 771,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L725"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L771"
   },
   {
     "key": "Menu right shortcut",
-    "line": 728,
+    "line": 774,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L728"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L774"
   },
   {
     "key": "Page left shortcut",
-    "line": 756,
+    "line": 802,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L756"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L802"
   },
   {
     "key": "Page right shortcut",
-    "line": 759,
+    "line": 805,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L759"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L805"
   },
   {
     "key": "Page '%s'\nnot found.",
-    "line": 841,
+    "line": 889,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L841"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L889"
   },
   {
     "key": "IGC key missing!",
-    "line": 938,
+    "line": 986,
     "plural": false,
     "fileName": "../gui/tasks/page/pages.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L938"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/tasks/page/pages.c#L986"
   },
   {
     "key": "Left menu shortcut",
@@ -3676,17 +4012,24 @@
   },
   {
     "key": "Fit to track",
-    "line": 235,
+    "line": 249,
     "plural": false,
     "fileName": "../gui/widgets/types/widget_map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_map.c#L235"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_map.c#L249"
   },
   {
     "key": "Set Zoom Level",
-    "line": 270,
+    "line": 284,
     "plural": false,
     "fileName": "../gui/widgets/types/widget_map.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_map.c#L270"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_map.c#L284"
+  },
+  {
+    "key": "Set Zoom Level",
+    "line": 199,
+    "plural": false,
+    "fileName": "../gui/widgets/types/widget_thermal_path.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_thermal_path.c#L199"
   },
   {
     "key": "Odometer",
@@ -3718,10 +4061,10 @@
   },
   {
     "key": "Not\ncircling",
-    "line": 138,
+    "line": 137,
     "plural": false,
     "fileName": "../gui/widgets/types/widget_thermal_assistant.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_thermal_assistant.c#L138"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_thermal_assistant.c#L137"
   },
   {
     "key": "Thermal - gain",
@@ -3746,10 +4089,10 @@
   },
   {
     "key": "Thermal trace",
-    "line": 44,
+    "line": 52,
     "plural": false,
     "fileName": "../gui/widgets/types/widget_thermal_path.c",
-    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_thermal_path.c#L44"
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/types/widget_thermal_path.c#L52"
   },
   {
     "key": "Thermal - time",
@@ -3911,5 +4254,19 @@
     "plural": false,
     "fileName": "../gui/widgets/widgets.c",
     "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../gui/widgets/widgets.c#L274"
+  },
+  {
+    "key": "Unzipping\n%s",
+    "line": 32,
+    "plural": false,
+    "fileName": "../system/maps_unzip.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../system/maps_unzip.c#L32"
+  },
+  {
+    "key": "ZIP %s corrupted",
+    "line": 49,
+    "plural": false,
+    "fileName": "../system/maps_unzip.c",
+    "url": "https://github.com/fhorinek/BB/tree/master/BB3/App/lv_i18n/../system/maps_unzip.c#L49"
   }
 ]

@@ -1,0 +1,3 @@
+*Use altitude
+
+checkbox to detect launch via barometric altitude change within a time interval.

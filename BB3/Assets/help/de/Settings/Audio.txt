@@ -1,0 +1,6 @@
+*Audio
+
+Item description
+
+File path:
+system/assets/help/de/Settings/Audio.txt

@@ -1,0 +1,3 @@
+*Use altitude
+
+checkbox to detect landing via barometric altitude change within a time interval.

@@ -1,0 +1,3 @@
+*FANET ID
+
+is your FANET network address/ID.

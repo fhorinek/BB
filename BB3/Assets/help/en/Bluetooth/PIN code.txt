@@ -1,0 +1,3 @@
+*PIN code
+
+is used for safe pairing. You can change it to your custom combination.

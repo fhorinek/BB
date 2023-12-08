@@ -1,0 +1,3 @@
+*Bluetooth MAC
+
+is the physical device address of Strato visible on the Bluetooth network.

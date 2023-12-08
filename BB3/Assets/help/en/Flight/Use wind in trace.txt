@@ -1,0 +1,3 @@
+*Use wind in trace
+
+checkbox enables compensation of the calculated wind in thermal trace presentation. Disable to see raw data.

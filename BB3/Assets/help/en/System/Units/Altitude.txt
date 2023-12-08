@@ -1,0 +1,3 @@
+*Altitude
+
+selection sets general units. You can then set units for every altimeter on home pages separatelly in widget settings as default or alternative units. So you can have two altimeters side by side, the first one in meters, the second in feet.

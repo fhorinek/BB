@@ -1,0 +1,3 @@
+*Enable IGC log
+
+checkbox allows vario to generate an IGC log file of the current flight (valid for FAI category 1 competition).

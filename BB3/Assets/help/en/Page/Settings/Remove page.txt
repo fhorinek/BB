@@ -1,0 +1,3 @@
+*Remove page
+
+entry deletes the current page. If you are not totally sure, rather use the "Hide page" function, as you can always restore it.

@@ -1,0 +1,3 @@
+*Pilot profile
+
+Click CONFIRM to select a user of vario or click OPTIONS to rename/duplicate/delete an existing profile or add a new one. Each pilot profile can contain several flight profiles.

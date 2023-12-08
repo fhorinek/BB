@@ -1,0 +1,3 @@
+*Status
+
+is the current status of the global navigation satellite system and its found/fixed satellites. You need at least 3 fixed satellites to achieve 2D fix (without altitude) or 4 satellites for 3D fix.

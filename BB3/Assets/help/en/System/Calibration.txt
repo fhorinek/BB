@@ -1,0 +1,3 @@
+*Calibration
+
+menu entry contains motion sensors calibration functions, which can improve accuracy. Although every piece of Strato is well calibrated at the factory, it can drift within time or geographical position (particularly compass). We recommend recalibrating sensors, if you feel that one or more functions based on motion sensors are inaccurate.

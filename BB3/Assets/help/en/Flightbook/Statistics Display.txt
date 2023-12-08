@@ -1,0 +1,3 @@
+*Statistics view
+
+shows cumulative values. Click CONFIRM to toggle hours, number of flights or flown distance. Click OPTIONS to see these data daily, monthly or per year.

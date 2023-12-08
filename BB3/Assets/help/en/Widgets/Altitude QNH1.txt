@@ -1,0 +1,3 @@
+*Altitude QNH1
+
+is the current barometric altitude related to QNH1 pressure. Click CONFIRM to highlight, then use LEFT or RIGHT to adjust. You can set default or alternative units for this altimeter.

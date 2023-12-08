@@ -1,0 +1,3 @@
+*Diagnostic
+
+menu entry is no need to use, unless you are instructed by support.

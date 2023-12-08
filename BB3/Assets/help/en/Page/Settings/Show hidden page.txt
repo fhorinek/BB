@@ -1,0 +1,3 @@
+*Show hidden page
+
+entry restores the hidden page to be visible again. Restored page position will be at the end of the page list. There are a couple more actions if you click OPTIONS on the selected hidden page.

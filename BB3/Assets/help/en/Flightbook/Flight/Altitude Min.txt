@@ -1,0 +1,3 @@
+*Min altitude
+
+is a minimal reached barometric altitude on the current flight.

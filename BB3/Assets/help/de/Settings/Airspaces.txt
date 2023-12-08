@@ -1,0 +1,6 @@
+*Airspaces
+
+Item description
+
+File path:
+system/assets/help/de/Settings/Airspaces.txt

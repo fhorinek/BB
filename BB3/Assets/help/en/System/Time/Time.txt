@@ -1,0 +1,3 @@
+*Time
+
+menu entry adjusts the current time. Click LEFT or RIGHT to set hours, click CONFIRM, then use LEFT or RIGHT to set minutes. You don't need to set the time manually, just enable Sync with GNSS checkbox, it will perform automatically.

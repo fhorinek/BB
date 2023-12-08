@@ -1,0 +1,3 @@
+*GNSS
+
+is Global Navigation Satellite System info, there is nothing to set.

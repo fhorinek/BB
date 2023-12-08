@@ -1,0 +1,3 @@
+*Use 24h time
+
+checkbox switches between 12 and 24 time format., enabled means 24.

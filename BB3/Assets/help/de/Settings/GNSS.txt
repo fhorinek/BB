@@ -1,0 +1,6 @@
+*GNSS
+
+Item description
+
+File path:
+system/assets/help/de/Settings/GNSS.txt

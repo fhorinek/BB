@@ -1,0 +1,6 @@
+*Help
+
+Older Android devices support SPP mode only, iPhones support only BLE. Modern Android devices can work with both standards, we recommend to use BLE mode
+
+File path:
+system/assets/help/en/Bluetooth/Help.txt

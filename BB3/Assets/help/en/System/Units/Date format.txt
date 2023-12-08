@@ -1,0 +1,3 @@
+*Date format
+
+selection sets general date units, where D means day, M is month and Y is year.

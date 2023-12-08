@@ -1,0 +1,3 @@
+*Clear map cache
+
+entry deletes stored map renders. Perform clear cache action if you changed terrain type.

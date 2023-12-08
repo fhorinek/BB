@@ -1,0 +1,3 @@
+*Digital vario
+
+is the current vario value. There is also a short smoothing time interval, as value change 100 times per second wouldn't be fine.

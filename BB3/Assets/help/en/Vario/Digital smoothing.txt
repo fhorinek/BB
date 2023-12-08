@@ -1,0 +1,3 @@
+*Digital vario smoothing
+
+value defines averiging time of vario widget.

@@ -1,0 +1,4 @@
+*Settings & nearby users
+
+Settings - contains FANET and FLARM networks preferencies.
+Nearby users - You can see here other nearby pilots with FANET devices, with  their basic data - network address, name, actuall distance from you, the longest distance from you and how many seconds ago was the last update of their position.

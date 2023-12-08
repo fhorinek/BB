@@ -1,0 +1,3 @@
+*Page editor
+
+allows you to change, add or remove predefined widgets, change their position or size on page. You can list between widgets by LEFT or RIGHT. Selected widget is in a blue frame.

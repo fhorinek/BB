@@ -1,0 +1,3 @@
+*Stay within
+
+value of barometric altitude needed for automatic landing detection.

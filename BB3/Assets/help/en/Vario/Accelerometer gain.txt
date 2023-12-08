@@ -1,0 +1,3 @@
+*Accelerometer gain
+
+slidebar sets how motion sensors affect overal vario reaction. Higher value makes quicker and more sensitive response.

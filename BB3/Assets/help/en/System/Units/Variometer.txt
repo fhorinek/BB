@@ -1,0 +1,3 @@
+*Variometer
+
+selection sets general vertical speed units.

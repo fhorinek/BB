@@ -1,0 +1,3 @@
+*Forward GNSS
+
+checkbox enables GNSS data transmitting to connected device. To use this data stream, you need also to enable it in your connected device. We don't recommend enabling/using a connected device that has its own GNSS or GPS receiver, as it is always better to use two independent navigation devices than a single one. If a connected device uses navigation data from vario, it is then dependent on it.

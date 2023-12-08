@@ -1,0 +1,3 @@
+*Airspace side
+
+view shows the current fly situation with displayed loaded airspaces. GNSS fix, AGL and airspace data are needed for this widget.

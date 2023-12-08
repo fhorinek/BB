@@ -229,18 +229,22 @@ void sd_init()
     red_mkdir(PATH_AIRSPACE_DIR);
 
     //config
-	red_mkdir(PATH_CONFIG_DIR);
+    if (!file_exists(PATH_CONFIG_DIR))
+    {
+        copy_dir_when_absent(PATH_DEFAULTS_CFG_DIR, PATH_CONFIG_DIR);
 
-	//config/pilots
-    red_mkdir(PATH_PILOT_DIR);
-    //config/profiles
-    red_mkdir(PATH_PROFILE_DIR);
+        //config
+        red_mkdir(PATH_CONFIG_DIR);
+        //config/pilots
+        red_mkdir(PATH_PILOT_DIR);
+        //config/profiles
+        red_mkdir(PATH_PROFILE_DIR);
+        //config/pages
+        red_mkdir(PATH_PAGES_DIR);
+        //config/vario
+        red_mkdir(PATH_VARIO_DIR);
+    }
 
-    //config/pages
-	red_mkdir(PATH_PAGES_DIR);
-
-    //config/vario
-    red_mkdir(PATH_VARIO_DIR);
 
     //system
     red_mkdir(PATH_SYSTEM_DIR);

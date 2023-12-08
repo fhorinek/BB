@@ -1,0 +1,3 @@
+*Thermal trace
+
+is horizontal graphical presentation of your vertical movement on blind map, where the color palette (gray, green, yellow and red) represents the value of lift or sink.  The large size of this widget is recommended. A GNSS fix is needed for this widget. Zoomable widget - click LEFT or RIGHT when highlighted.

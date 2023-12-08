@@ -1,0 +1,3 @@
+*Circling timeout
+
+defines the time for automatic circling condition detection used for automatic page switching.

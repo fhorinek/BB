@@ -1,0 +1,3 @@
+*Hardware revision
+
+of the device.

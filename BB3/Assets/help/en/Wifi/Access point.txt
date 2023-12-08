@@ -1,0 +1,3 @@
+*Access point
+
+checkbox enables access point in Strato for direct wireless connection if there is no other Wi-Fi network available and your phone or tablet doesn't have internet connection via mobile data. Strato creates a local Wi-Fi network named the same as Device name. Open Wi-Fi Go to Network info menu and enter Access point IP to web browser in your phone. Then select File manager to access log files in Strato.

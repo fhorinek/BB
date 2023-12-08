@@ -1,0 +1,3 @@
+*Track online
+
+checkbox permits your visibility via FANET on the OGN network.

@@ -1,0 +1,3 @@
+*Gliding
+
+checkbox shows the current page if the circling condition is not valid anymore. You can find gliding detection condition settings in Settings > Flight > Circling timeout.

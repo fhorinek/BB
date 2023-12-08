@@ -1,0 +1,3 @@
+*Max altitude
+
+is a maximal reached barometric altitude on the current flight.

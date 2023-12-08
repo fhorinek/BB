@@ -1,0 +1,3 @@
+*ETA to takeoff place
+
+is estimated time of arrival at current speed back to launch place. This widget is very useful for PPG.  A GNSS fix is needed for this widget.

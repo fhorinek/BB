@@ -1,0 +1,3 @@
+*Start
+
+of flight in selected time format (System > Units > Use 24h time checkbox).

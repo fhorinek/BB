@@ -1,0 +1,3 @@
+*GNSS Altitude
+
+selection switch between two GNSS altitude models. Use "above ellipsoid" option for raw data, or MSL for WGS84 model compensation. We recommend using the MSL option.

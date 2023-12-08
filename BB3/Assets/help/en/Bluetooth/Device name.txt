@@ -1,0 +1,3 @@
+*Device name
+
+is the name of your vario visible on Bluetooth interface. You can evenly change it to be more familiar to you for better recognition when pairing.

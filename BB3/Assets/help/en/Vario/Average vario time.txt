@@ -1,0 +1,3 @@
+*Average vario time
+
+value defines time interval for averige vario widget.

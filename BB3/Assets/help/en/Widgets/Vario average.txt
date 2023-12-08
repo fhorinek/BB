@@ -1,0 +1,3 @@
+*Average vario
+
+value is rolling average at specific time interval, which can be adjusted in the vario menu.

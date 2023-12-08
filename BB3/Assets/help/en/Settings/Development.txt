@@ -1,0 +1,3 @@
+*Development
+
+if you see this entry, it means that the development submenu is active on your vario. However there are some useful and nice functions, there is also a lot to screw. Please don't change anything unless you perfectly know what you are doing or you were instructed by support.

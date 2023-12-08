@@ -1,0 +1,3 @@
+*A2DP Audio
+
+checkbox enables Strato as a Bluetooth speaker for playing music from your phone. To enable this function, pair Strato in the phone Bluetooth menu as a wireless headset. Strato will then automatically connect to your phone once it is powered on. For correct function please adjust volume and fade settings for gliding and thermalling in the Audio menu.

@@ -1,0 +1,3 @@
+*Airspace help
+
+Enabled airspaces classes are shown in the map, but there is no airspace warning if you fly into. You can also use a web app at airspace.xcontest.org to download airspace data, using the OpenAir format.

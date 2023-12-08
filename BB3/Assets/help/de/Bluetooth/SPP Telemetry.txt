@@ -1,0 +1,6 @@
+*SPP Telemetry
+
+Item description
+
+File path:
+system/assets/help/de/Bluetooth/SPP Telemetry.txt

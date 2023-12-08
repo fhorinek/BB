@@ -1,0 +1,3 @@
+*BLE Telemetry
+
+checkbox enables Bluetooth low energy (BLE) interface. We recommend using BLE if your phone or tablet supports it. Use SPP only if BLE is not supported or doesn't work correctly. With BLE, no pairing is needed, just run the app and set connection there.

@@ -1,0 +1,3 @@
+*Vario volume
+
+slidebar sets vario sound level.

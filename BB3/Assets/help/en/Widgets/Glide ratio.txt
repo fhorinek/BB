@@ -1,0 +1,3 @@
+*Glide ratio
+
+is the distance of forward travel divided by the altitude lost in that distance. You can enable to show the average vario while lift (when glide value cannot be calculated).

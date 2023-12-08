@@ -1,0 +1,3 @@
+*Use ground speed
+
+checkbox to detect landing via ground speed value within a time interval.

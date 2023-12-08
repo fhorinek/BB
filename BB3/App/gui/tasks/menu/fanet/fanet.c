@@ -65,7 +65,6 @@ static void fanet_loop()
 			char tmp[16];
 			char text[32];
 
-			sprintf(name, "%02X:%04X", nb->addr.manufacturer_id, nb->addr.user_id);
 			if (nb->name[0] != 0)
 				sprintf(name, "%02X:%04X: %s", nb->addr.manufacturer_id, nb->addr.user_id, nb->name);
 			else
@@ -74,15 +73,26 @@ static void fanet_loop()
 			strcpy(text, "");
  			if (nb->flags & NB_HAVE_POS)
  			{
-				format_distance_with_units(tmp, (float)nb->dist);
-				strcat(text, tmp);
+ 			    if (fc.gnss.fix > 0)
+ 			    {
+                    if (nb->dist == NB_TOO_FAR)
+                    {
+                       strcat(text, ">");
+                    }
+                    format_distance_with_units(tmp, (float)nb->dist);
+                    strcat(text, tmp);
+ 			    }
+ 			    else
+ 			    {
+ 			       strcat(text, "---");
+ 			    }
  			}
 
 			if (nb->max_dist != 0)
 			{
 				if (nb->flags & NB_HAVE_POS)
 				{
-					char slash[] = " / ";
+					char slash[] = " / max ";
 					strcat(text, slash);
 				}
 				format_distance_with_units(tmp, (float)nb->max_dist);

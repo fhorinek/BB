@@ -1,0 +1,3 @@
+*Ground heading
+
+is shown in degrees, where true north is 0 (or 360), 90 is true east, 180 true south and 270 true west. GNSS heading is much more useful than compass, as it shows vario orientation, while GNSS heading shows the current movement relative to the ground. A GNSS fix is needed for this widget.

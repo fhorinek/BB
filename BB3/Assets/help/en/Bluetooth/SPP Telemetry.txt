@@ -1,0 +1,3 @@
+*SPP Telemetry
+
+checkbox enables standard Bluetooth interface. We recommend using BLE if your phone or tablet supports it. Use SPP only if BLE is not supported or doesn't work correctly. The SPP requires pairing with the device before using in system Bluetooth settings.

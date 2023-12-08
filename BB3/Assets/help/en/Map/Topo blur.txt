@@ -1,0 +1,3 @@
+*Topo blur
+
+checkbox enables map presentation enhancement on higher zooms.

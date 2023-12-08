@@ -1,0 +1,3 @@
+*Enable
+
+checkbox enables/disables WiFi interface.

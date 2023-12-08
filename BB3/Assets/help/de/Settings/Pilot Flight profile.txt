@@ -1,0 +1,6 @@
+*Pilot Flight profile
+
+Item description
+
+File path:
+system/assets/help/de/Settings/Pilot Flight profile.txt

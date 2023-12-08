@@ -1,0 +1,3 @@
+*Map
+
+settings and data management of map and terrain data. You can find AGL and map data files at strato.skybean.eu web.

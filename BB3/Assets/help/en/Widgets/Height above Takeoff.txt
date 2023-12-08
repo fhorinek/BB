@@ -1,0 +1,3 @@
+*Height above takeoff
+
+is altitude related to the launch place.

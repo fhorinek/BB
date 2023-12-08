@@ -1,0 +1,3 @@
+*Latitude
+
+is your actual GNSS latitude, which is positioned on the north - south axis.

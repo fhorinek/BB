@@ -1,0 +1,3 @@
+*Brightness
+
+slidebar adjusts the intensity of the LCD back light. Don't set this parameter too high, as it consumes a lot of battery, generally 10% is enough for normal operation.

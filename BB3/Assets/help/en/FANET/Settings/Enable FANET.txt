@@ -1,0 +1,3 @@
+*Enable FANET
+
+checkbox enables bidirectional communication with nearby FANET devices, you will be seen and you can see others.

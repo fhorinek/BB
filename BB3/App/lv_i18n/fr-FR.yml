@@ -563,3 +563,50 @@ fr-FR:
   "Do you want to unpair from all paired devices?\n": ~
   Airspace - sideview: ~
   Airspace - side: ~
+  Auto power off: ~
+  Map management: ~
+  Download from XContest: ~
+  Load this airspace?: ~
+  Downloading airspace: ~
+  Download airspace: ~
+  Audio thermal fade: ~
+  Enabled: ~
+  When connected: ~
+  Glide mode min: ~
+  Glide mode max: ~
+  Volume change speed: ~
+  Audio volume: ~
+  Vario thermal: ~
+  Vario glide/idle: ~
+  Bluetooth thermal: ~
+  Bluetooth glide/idle: ~
+  Forward FANET: ~
+  Thermal trace zoom: ~
+  Enable KML log: ~
+  Simulate on device: ~
+  Hours %s631: ~
+  Timw: ~
+  "Select countries\nTiles: %u/%u (%u failed)": ~
+  "Indexing...\nTiles done: %u": ~
+  "Getting AGL %s\n%u%%Tiles done: %u/%u": ~
+  "Getting MAP %s\n%u%% Tiles done: %u/%u": ~
+  "Extracting AGL %s\nTiles done: %u/%u": ~
+  "Extracting MAP %s\nTiles done: %u/%u": ~
+  Other: ~
+  Enable charging: ~
+  Charger info: ~
+  Stop Simulation: ~
+  'When idle, power off the device': ~
+  Timeout: ~
+  'When flying, return to main screen after 30 seconds': ~
+  simulation: ~
+  Playback speed: ~
+  Loop at the end: ~
+  Auto Power off: ~
+  Simulation: ~
+  Digital vario smoothing: ~
+  Average vario time: ~
+  Disable in flight: ~
+  "FLARM licence expired\nUpdate firmware": ~
+  "Unzipping\n%s": ~
+  ZIP %s corrupted: ~

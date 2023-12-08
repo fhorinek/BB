@@ -1,0 +1,3 @@
+*Language
+
+selection sets the operation language of vario. It also sets language of help notes.

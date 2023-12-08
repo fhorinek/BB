@@ -1,0 +1,3 @@
+*Sync with GNSS
+
+checkbox enables the automatic time and date synchronization via GNSS receiver. You have to set the current time zone, as GNSS time is always UTC.

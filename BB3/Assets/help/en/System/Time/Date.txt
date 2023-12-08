@@ -1,0 +1,3 @@
+*Date
+
+menu entry adjusts the current date. Click LEFT or RIGHT to set day, click CONFIRM, then use LEFT or RIGHT to set month and then year. You don't need to set the date manually, just enable Sync with GNSS checkbox, it will perform automatically.

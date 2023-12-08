@@ -1,0 +1,3 @@
+*Pilot & Flight profile
+
+contains personalized pilot data and flying profile manager.

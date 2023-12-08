@@ -1,0 +1,3 @@
+*Exceed speed
+
+value needed for automatic launch detection.

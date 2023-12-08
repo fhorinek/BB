@@ -1,0 +1,3 @@
+*FANET radar
+
+is a horizontal graphical presentation of nearby FANET pilots in blind map. A GNSS fix is needed for this widget.  The large size of this widget is recommended. Zoomable widget - click LEFT or RIGHT when highlighted.

@@ -1,0 +1,3 @@
+*Flight statistics
+
+contains folders in YYYY.MM format with tracklogs within one month, e.g. 2023.10 is October 2023. When inside, click CONFIRM to see the current file details or OPTIONS to view the same details or delete file.

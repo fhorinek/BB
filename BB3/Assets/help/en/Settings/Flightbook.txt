@@ -1,0 +1,3 @@
+*Flightbook
+
+contains a list of your flights in IGC, CSV and FML formats with their statistics. You can download IGC files via cable to PC (logs folder) or you can access them on PC or phone via local Wi-Fi network. Please check the WiFi menu for details on how to connect wirelessly.

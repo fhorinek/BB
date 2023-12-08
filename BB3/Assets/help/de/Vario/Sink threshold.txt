@@ -1,0 +1,6 @@
+*Sink threshold
+
+Item description
+
+File path:
+system/assets/help/de/Vario/Sink threshold.txt

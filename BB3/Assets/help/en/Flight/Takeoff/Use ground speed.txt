@@ -1,0 +1,3 @@
+*Use ground speed
+
+checkbox to detect launch via ground speed change within a time interval.

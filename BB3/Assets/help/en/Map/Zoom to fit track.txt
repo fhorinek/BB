@@ -1,0 +1,3 @@
+*Zoom to fit track
+
+checkbox enables automatic map zoom to show the whole flight.

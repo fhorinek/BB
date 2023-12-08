@@ -1,0 +1,3 @@
+*Page name
+
+is suggested to be descriptive, e.g. map, thermal or PPG, for better page identification in manager.

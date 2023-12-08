@@ -1,0 +1,6 @@
+*Bluetooth
+
+Item description
+
+File path:
+system/assets/help/de/Settings/Bluetooth.txt

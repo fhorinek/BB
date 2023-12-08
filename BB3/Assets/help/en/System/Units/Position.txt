@@ -1,0 +1,3 @@
+*Position
+
+selection switches between several latitude and longitude coordinates formats. We recommend using DD.ddddd format as it is currently the standard. Other formats are obsolete.

@@ -1,0 +1,3 @@
+*Debug info
+
+field contains some detailed information about the loaded airspace file.

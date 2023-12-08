@@ -377,6 +377,8 @@ static inline void mtp_port_active()
     pwr.data_usb_activity = HAL_GetTick();
 }
 
+extern bool development_mode;
+
 static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULONG object_handles_format_code,
         ULONG object_handles_association,
         ULONG *object_handles_array,
@@ -409,6 +411,12 @@ static UINT mtp_object_handles_get(struct UX_SLAVE_CLASS_PIMA_STRUCT *pima, ULON
                 {
                     if (info->d_name[0] == '.')
                         continue;
+
+                    if (!development_mode && object_handles_association == 0)
+                    {
+                        if (strcmp(info->d_name, SYSTEM_PATH) == 0)
+                            continue;
+                    }
 
                     object_handles_array[count + 1] = mtp_get_handle(object_handles_association, info->d_name);
                     DBG("  %08X %s", object_handles_array[count + 1], info->d_name);

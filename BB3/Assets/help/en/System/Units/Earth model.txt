@@ -1,0 +1,3 @@
+*Earth model
+
+selection switches between WGS84 and FAI sphere models important at competitions. Use WGS84 for paragliding and FAI for hang gliding. Eventually ask organizers if you are not sure.

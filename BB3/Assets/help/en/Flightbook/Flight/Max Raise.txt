@@ -1,0 +1,3 @@
+*Max raise
+
+is a maximal reached lift vario value.

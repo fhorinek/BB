@@ -1,0 +1,3 @@
+*Automatic launch
+
+detection settings used to start your flight.

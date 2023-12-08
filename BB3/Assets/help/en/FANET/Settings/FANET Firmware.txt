@@ -1,0 +1,3 @@
+*FANET Firmware
+
+is your FANET module software version.

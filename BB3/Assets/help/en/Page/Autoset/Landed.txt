@@ -1,0 +1,3 @@
+*Landed
+
+checkbox shows the current page when landing was detected. You can find landing detection condition settings in Settings > Flight > Automatic Landing.

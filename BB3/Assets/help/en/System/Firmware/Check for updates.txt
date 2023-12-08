@@ -1,0 +1,3 @@
+*Check for updates
+
+action will look at the cloud server if there is newer firmware available. This action needs Wi-Fi connection.

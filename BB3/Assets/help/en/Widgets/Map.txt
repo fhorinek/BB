@@ -1,0 +1,4 @@
+*Map
+
+consists of terrain and a road map with obstacles. GNSS fix, map and AGL data are needed for this widget.  The large size of this widget is recommended. Zoomable widget - click LEFT or RIGHT when highlighted.
+

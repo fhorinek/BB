@@ -1,0 +1,3 @@
+*Within time
+
+sets the time interval of altitude and speed change for the landing to be detected.

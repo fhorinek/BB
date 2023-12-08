@@ -1,0 +1,3 @@
+*Thermal assistant
+
+is a graphical presentation of your actual vario while circling in 8 main heading directions. Dots are lift, crosses are sink, larger symbols mean higher value. Actual or average vario value can be shown in the middle.

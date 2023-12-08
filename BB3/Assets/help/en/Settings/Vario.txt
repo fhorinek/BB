@@ -1,0 +1,3 @@
+*Vario
+
+settings and acoustics manager.

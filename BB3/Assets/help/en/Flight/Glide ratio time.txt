@@ -1,0 +1,3 @@
+*Glide ratio time
+
+is an averaging time for glide ratio calculation.

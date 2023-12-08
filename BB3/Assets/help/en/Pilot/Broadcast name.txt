@@ -1,0 +1,3 @@
+*Broadcast name
+
+checkbox permits broadcasting of your name via FANET.

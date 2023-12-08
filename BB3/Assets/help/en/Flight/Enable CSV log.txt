@@ -1,0 +1,3 @@
+*Enable CSV log
+
+checkbox allows vario to generate a CSV log file of the current flight, which contains more data at a higher sample rate than IGC log.

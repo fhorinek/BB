@@ -1,0 +1,3 @@
+*Pilot name
+
+recorded in IGC log files and broadcasted via FANET, if permitted.

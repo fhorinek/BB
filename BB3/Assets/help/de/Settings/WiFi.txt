@@ -1,0 +1,6 @@
+*WiFi
+
+Item description
+
+File path:
+system/assets/help/de/Settings/WiFi.txt

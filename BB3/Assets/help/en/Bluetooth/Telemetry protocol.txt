@@ -1,0 +1,3 @@
+*Telemetry protocol
+
+selection chooses between LK8EX1, OpenVario or No Telemetry choices. Use LK8EX1 for the XCTrack app. No telemetry choice is for GNSS and FANET only data transfer.

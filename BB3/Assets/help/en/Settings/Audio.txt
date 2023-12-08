@@ -1,0 +1,3 @@
+*Audio
+
+settings of vario and Bluetooth sounds. You can mix and fade between them in different flight situations to enjoy Bluetooth music on glide, but focus on vario in thermals.

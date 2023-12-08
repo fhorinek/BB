@@ -1,0 +1,3 @@
+*Flight
+
+logger settings and automatic page switching conditions.

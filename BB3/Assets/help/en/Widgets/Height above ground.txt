@@ -1,0 +1,4 @@
+*Height above ground
+
+called AGL, is altitude above ground. GNSS fix and AGL data are needed for this widget.
+

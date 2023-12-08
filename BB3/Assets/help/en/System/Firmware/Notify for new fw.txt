@@ -1,0 +1,3 @@
+*Notify for new FW
+
+checkbox enables automatic check for updates after Wi-Fi is connected.

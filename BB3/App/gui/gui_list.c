@@ -105,6 +105,10 @@ void gui_list_event_cb(lv_obj_t * obj, lv_event_t event)
             help_avalible = help_show_icon_if_avalible_from_title(
                     lv_i18n_get_default_text_optimized("", child->user_data));
         }
+        else
+        {
+            help_icon_hide();
+        }
     }
 
     if (event == LV_EVENT_KEY && help_avalible)

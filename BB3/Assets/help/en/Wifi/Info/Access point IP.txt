@@ -1,0 +1,3 @@
+*Access point IP
+
+is the network address if Strato creates its own Wi-Fi network in AP mode. Put these numbers exactly as they are written into the web browser address line to access files in Strato.

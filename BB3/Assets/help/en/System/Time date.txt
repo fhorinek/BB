@@ -1,0 +1,3 @@
+*Time and date
+
+menu entry contains settings of these parameters.
