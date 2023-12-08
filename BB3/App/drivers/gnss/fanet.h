@@ -29,6 +29,8 @@ uint16_t fanet_get_waiting();
 uint8_t fanet_read_byte();
 uint8_t fanet_peak_byte();
 
+void read_lat_lon(uint8_t * data, int32_t * lat, int32_t * lon);
+
 #define FANET_AIRCRAFT_TYPE_OTHER				0
 #define FANET_AIRCRAFT_TYPE_PARAGLIDER			1	//with FLARM
 #define FANET_AIRCRAFT_TYPE_HANGGLIDER			2	//with FLARM

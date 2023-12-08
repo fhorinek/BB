@@ -94,24 +94,27 @@ typedef struct
 
 typedef struct
 {
-    int32_t latitude;
-    int32_t longitude;
+    int32_t latitude; // degrees * GNSS_MUL
+    int32_t longitude; // degrees * GNSS_MUL
 
-    uint16_t alititude;
-    uint16_t timestamp;
+    uint16_t alititude; // meters
+    uint16_t timestamp; // Tick / 1000
 
-    uint16_t dist; //in m
+    uint16_t dist; // meters
     uint16_t max_dist;
 
     uint16_t speed;
     int16_t climb;
 
     fanet_addr_t addr;
-    uint8_t flags;
+    uint8_t flags; // NB_AIRCRAFT_TYPE_MASK | NB_IS_FLYING | NB_HAVE_POS | NB_ONLINE_TRACKING | NB_HAVE_TURNRATE
     uint8_t updated;
 
 	char name[NB_NAME_LEN];
-    uint8_t heading;
+
+    int16_t climb_rate; // m/s * 10
+    uint16_t speed; // km/h * 10
+    uint8_t heading; // degrees * 255 / 360
 
 } neighbor_t;
 
