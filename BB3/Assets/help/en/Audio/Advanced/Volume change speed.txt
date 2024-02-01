@@ -1,0 +1,3 @@
+*Volume change speed
+
+slidebar sets the fade rate between thermal to glide and back mode change. Higher number means faster change.

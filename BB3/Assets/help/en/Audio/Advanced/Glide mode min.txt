@@ -1,0 +1,3 @@
+*Glide mode min
+
+slidebar sets the bottom value of audio volume transition range. Higher sink value is taken as pure glide mode.

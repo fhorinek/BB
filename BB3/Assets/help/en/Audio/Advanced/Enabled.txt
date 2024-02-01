@@ -1,0 +1,3 @@
+*Enabled
+
+checkbox enables/disables different volume levels in while lift and sink. If disabled, glide (sink) volumes are hidden and valid are only thermal (lift) values as overall vario and Bluetooth volumes.

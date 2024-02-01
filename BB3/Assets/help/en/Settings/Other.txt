@@ -1,0 +1,6 @@
+*Other
+
+Item description
+
+File path:
+system/assets/help/en/Settings/Other.txt

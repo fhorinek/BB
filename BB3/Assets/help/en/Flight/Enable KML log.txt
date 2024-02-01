@@ -1,0 +1,3 @@
+*Enable KML log
+
+checkbox allows vario to generate a KML log file of the current flight used by Google.

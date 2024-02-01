@@ -1,0 +1,3 @@
+*Disable in flight
+
+checkbox turns off Wi-Fi once in fly mode to save energy. Disable this checkbox if you want to use the GNSS simulator function, as it works via Wi-Fi.

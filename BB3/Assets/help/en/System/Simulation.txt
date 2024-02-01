@@ -1,0 +1,6 @@
+*Simulation
+
+Item description
+
+File path:
+system/assets/help/en/System/Simulation.txt

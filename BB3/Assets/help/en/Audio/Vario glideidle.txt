@@ -1,0 +1,3 @@
+*Vario glide/idle
+
+slidebar sets vario sound level while gliding in term of vertical sink. This is not the same as gliding autoset condition.

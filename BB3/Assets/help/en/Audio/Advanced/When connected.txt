@@ -1,0 +1,3 @@
+*When connected
+
+checkbox enables thermal/glide mode only if Bluetooth audio (A2DP) is connected.

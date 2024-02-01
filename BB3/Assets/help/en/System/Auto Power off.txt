@@ -1,0 +1,3 @@
+*Auto Power off
+
+turns vario OFF after defined timeout while vario is not used in ground mode. This function prevents the device from discharging if you forget to turn it OFF after landing.

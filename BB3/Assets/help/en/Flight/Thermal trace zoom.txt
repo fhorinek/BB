@@ -1,0 +1,5 @@
+*Thermal trace zoom
+
+Thermal trace zoom
+
+slidebar sets the default scale of thermal trace widget. You can zoom/unzoom the map by LEFT or RIGHT if highlighted on the page or set shortcuts to do that.

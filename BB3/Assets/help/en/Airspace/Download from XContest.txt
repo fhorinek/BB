@@ -1,0 +1,3 @@
+*Download from XContest
+
+menu entry contains a list of countries. Click CONFIRM to download and then CONFIRM again to load the current file into vario, click RETURN if you don't want to load it. Perform clear map cache to update the current map view with airspaces.

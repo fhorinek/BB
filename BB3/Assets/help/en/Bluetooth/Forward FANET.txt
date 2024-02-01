@@ -1,0 +1,3 @@
+*Forward FANET
+
+checkbox enables FANET data transmitting to connected device. To use this data stream, you need also to enable it in your connected device. On XCTrack, hit configure XC map widget and enable "Display nearby pilots" in Map configuration chapter. To show nearby pilots on map, live tracking is required to be enabled. Number shown next to FANET user is her/his GNNS altitude.

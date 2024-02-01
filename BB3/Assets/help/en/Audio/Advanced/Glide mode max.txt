@@ -1,0 +1,3 @@
+*Glide mode max
+
+slidebar sets the upper value of audio volume transition range. Higher lift value is taken as pure thermal mode.

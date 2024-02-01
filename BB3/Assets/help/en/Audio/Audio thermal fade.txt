@@ -1,0 +1,3 @@
+*Audio thermal fade
+
+menu entry contains thresholds and fade rate when changing between thermalling/gliding (lift/sink) modes.

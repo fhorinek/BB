@@ -1,0 +1,3 @@
+*Vario thermal
+
+slidebar sets vario sound level while thermalling in term of vertical lift. This is not the same as circling autoset condition.

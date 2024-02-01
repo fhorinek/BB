@@ -1,0 +1,3 @@
+*Timeout
+
+slidebar sets count down value of auto power OFF function.

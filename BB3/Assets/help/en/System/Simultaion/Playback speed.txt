@@ -1,0 +1,6 @@
+*Playback speed
+
+Item description
+
+File path:
+system/assets/help/en/System/Simultaion/Playback speed.txt

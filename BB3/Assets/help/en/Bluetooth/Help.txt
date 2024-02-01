@@ -1,6 +1,4 @@
-*Help
+*Pairing
 
-Older Android devices support SPP mode only, iPhones support only BLE. Modern Android devices can work with both standards, we recommend to use BLE mode
-
-File path:
-system/assets/help/en/Bluetooth/Help.txt
+Now visible as "Strato_[number] is the Bluetooth ID of your vario transmitted while pairing. Stay in this menu when pairing to your phone, otherwise the phone won't see it. This is due to security - to avoid other nearby phones to pair with your vario while normal operation.
+We recommend to use BLE mode if your phone supports it.

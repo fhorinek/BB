@@ -1,0 +1,3 @@
+*Enabled
+
+checkbox allows to vario automatic power OFF if no operation was detected after landing during timeout.

@@ -1,3 +1,8 @@
 *Calibration
 
 menu entry contains motion sensors calibration functions, which can improve accuracy. Although every piece of Strato is well calibrated at the factory, it can drift within time or geographical position (particularly compass). We recommend recalibrating sensors, if you feel that one or more functions based on motion sensors are inaccurate.
+Calibrate sensors - action will start calibration procedure of all three 3D sensors onboard.
+Recalibrate Gyroscope - action will start the calibration procedure of the 3D gyroscope. Keep the device steady (e.g. lay on the table) after initialization.
+Recalibrate Accelerometer - action will start the calibration procedure of the 3D accelerometer. Level the device up and down in each axis, follow instructions on display.
+Recalibrate Magnetometer - action will start the calibration procedure of 3D magnetometer - compass. Rotate three times in horizontal and vertical axis, follow instructions on display.
+Reset calibration - action deletes calibration data of all 3D motion sensors. Don't do that unless necessary.
