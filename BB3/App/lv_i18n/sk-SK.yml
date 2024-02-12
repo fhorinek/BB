@@ -102,7 +102,6 @@ sk-SK:
   Do you want to remove flight profile '%s': ~
   "Reset\ncalibration?": ~
   Clear debug file: ~
-  Advanced settings: ~
   Calibration data not valid: ~
   Calibrate sensors: ~
   Recalibrate Gyroscope: ~
@@ -156,7 +155,6 @@ sk-SK:
   Do you want to restore factory settings?: ~
   Display: ~
   Units: ~
-  Advanced: ~
   Firmware: ~
   Restore factory settings: ~
   Altitude: ~
@@ -173,7 +171,6 @@ sk-SK:
   Accelerometer gain: ~
   Lift threshold: ~
   Sink threshold: ~
-  Average time: ~
   Vario profile: ~
   Network info: ~
   Client IP: ~
@@ -286,7 +283,6 @@ sk-SK:
   Days: ~
   Total: ~
   Flights: ~
-  Hours %s: ~
   Flights %s: ~
   Distance %s: ~
   Flight '%s' deleted: ~
@@ -457,7 +453,6 @@ sk-SK:
   Compass - heading: ~
   Takeoff - direction: ~
   "Do you want to unpair from all paired devices?\n": ~
-  Airspace - sideview: ~
   Airspace - side: ~
   Auto power off: ~
   Map management: ~

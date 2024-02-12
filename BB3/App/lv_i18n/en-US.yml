@@ -147,7 +147,6 @@ en-US:
   Days: ~
   Total: ~
   Flights: ~
-  Hours %s: ~
   Distance: ~
   Flights %s: ~
   Time: ~
@@ -296,7 +295,6 @@ en-US:
   Accelerometer gain: ~
   Lift threshold: ~
   Sink threshold: ~
-  Average time: ~
   Vario profile: ~
   Network info: ~
   Client IP: ~
@@ -455,7 +453,6 @@ en-US:
   Compass - heading: ~
   Takeoff - direction: ~
   "Do you want to unpair from all paired devices?\n": ~
-  Airspace - sideview: ~
   Airspace - side: ~
   Auto power off: ~
   Map management: ~
@@ -478,7 +475,6 @@ en-US:
   Thermal trace zoom: ~
   Enable KML log: ~
   Simulate on device: ~
-  Hours %s631: ~
   Timw: ~
   "Select countries\nTiles: %u/%u (%u failed)": ~
   "Indexing...\nTiles done: %u": ~
@@ -504,3 +500,4 @@ en-US:
   "FLARM licence expired\nUpdate firmware": ~
   "Unzipping\n%s": ~
   ZIP %s corrupted: ~
+  Hours %s631: ~

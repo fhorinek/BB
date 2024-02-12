@@ -102,7 +102,6 @@ pl-PL:
   Do you want to remove flight profile '%s': ~
   "Reset\ncalibration?": ~
   Clear debug file: ~
-  Advanced settings: ~
   Calibration data not valid: ~
   Calibrate sensors: ~
   Recalibrate Gyroscope: ~
@@ -156,7 +155,6 @@ pl-PL:
   Do you want to restore factory settings?: ~
   Display: Wyświetlacz
   Units: Jednostki
-  Advanced: Zaawansowane
   Firmware: ~
   Restore factory settings: Przywróć ust. fabryczne
   Altitude: Wysokość
@@ -173,7 +171,6 @@ pl-PL:
   Accelerometer gain: Uzysk akceleremetru
   Lift threshold: Próg wznoszenia
   Sink threshold: Próg opadania
-  Average time: Uśredniacz
   Vario profile: Profil wariometru
   Network info: Dane sieciowe
   Client IP: ~
@@ -295,7 +292,6 @@ pl-PL:
   Days: Dni
   Total: Razem
   Flights: Loty
-  Hours %s: Godziny %s
   Flights %s: Loty %s
   Distance %s: Dystans %s
   Flight '%s' deleted: Lot '%s' został skasowany
@@ -474,7 +470,6 @@ pl-PL:
   Compass - heading: ~
   Takeoff - direction: ~
   "Do you want to unpair from all paired devices?\n": ~
-  Airspace - sideview: ~
   Airspace - side: ~
   Auto power off: ~
   Map management: ~

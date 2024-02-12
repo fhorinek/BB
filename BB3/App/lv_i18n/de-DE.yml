@@ -128,7 +128,6 @@ de-DE:
     Kalibrierung
     zurücksetzen?
   Clear debug file: Debug-File löschen
-  Advanced settings: Erweiterte Einstellungen
   Calibration data not valid: Kalibrierungsdaten ungültig
   Calibrate sensors: Sensoren kalibrieren
   Recalibrate Gyroscope: Gyroskop rekalibrieren
@@ -192,7 +191,6 @@ de-DE:
   Do you want to restore factory settings?: Willst Du auf Firmeneinstellungen zurücksetzen?
   Display: Anzeige
   Units: Einheiten
-  Advanced: Erweitert
   Firmware: ~
   Restore factory settings: Firmeneinstellung zurücksetzen
   Altitude: Höhe
@@ -209,7 +207,6 @@ de-DE:
   Accelerometer gain: Beschleunigung Zuwachs
   Lift threshold: Steigen Grenzwert
   Sink threshold: Sinken Grenzwert
-  Average time: Durchschnittliche Zeit
   Vario profile: Vario-Profil
   Network info: Netzwerk-Info
   Client IP: ~
@@ -339,7 +336,6 @@ de-DE:
   Days: Tage
   Total: Gesamt
   Flights: Flüge
-  Hours %s: Stunden %s
   Flights %s: Flüge %s
   Distance %s: Entfern. %s
   Flight '%s' deleted: Flug '%s' gelöscht
@@ -525,86 +521,85 @@ de-DE:
   Bluetooth MAC: ~
   Diagnostic: Diagnose
   No network found: Kein Netzwerk
-  "Forget password for\n%s\nwifi network": ~
-  Forget password: ~
+  "Forget password for\n%s\nwifi network": "Passwort für Wifi\n%s\nvergessen"
+  Forget password: Passwort vergessen
   G-meter: ~
-  Height - above ground: ~
-  Altitude - graph: ~
-  Altitude - QNH1: ~
-  Altitude - QNH2: ~
-  Vario - average: ~
-  Compass - arrow: ~
+  Height - above ground: Höhe - über Grund
+  Altitude - graph: Höhenprofil
+  Altitude - QNH1: Höhe - QNH1
+  Altitude - QNH2: Höhe - QNH2
+  Vario - average: Vario-Durchschnitt
+  Compass - arrow: Kompasspfeil
   Vario - digital: ~
   FANET - radar: ~
-  Time - flight: ~
-  Glide ratio: ~
-  Altitude - GNSS: ~
-  Heading - ground arrow: ~
-  Heading - ground points: ~
-  Heading - ground: ~
-  Speed - ground: ~
-  Height - above Takeoff: ~
-  Odometer: ~
-  Thermal - gain: ~
-  Thermal - time: ~
-  Time - time and date: ~
-  Takeoff - distance: ~
-  Takeoff - time to arrive: ~
+  Time - flight: Zeit - Flug
+  Glide ratio: Gleitwert
+  Altitude - GNSS: Höhe - GNSS
+  Heading - ground arrow: Kurs - Grundpfeil
+  Heading - ground points: Kurs - Grundpunkte 
+  Heading - ground: Kurs - Grund
+  Speed - ground: Geschw - Grund
+  Height - above Takeoff: Höhe - über Takeoff
+  Odometer: Streckenmesser
+  Thermal - gain: Thermik - Gewinn
+  Thermal - time: Thermik - Zeit
+  Time - time and date: Zeit - Zeit und Datum
+  Takeoff - distance: Takeoff - Abstand
+  Takeoff - time to arrive: Takeoff - Zeit zum Ziel
   Vario - bar: ~
   Vario - graph: ~
-  Wind - direction arrow: ~
-  Wind - direction points: ~
-  Wind - speed: ~
-  Compass - points: ~
-  Compass - heading: ~
-  Takeoff - direction: ~
-  "Do you want to unpair from all paired devices?\n": ~
-  Airspace - sideview: ~
-  Airspace - side: ~
-  Auto power off: ~
-  Map management: ~
-  Download from XContest: ~
-  Load this airspace?: ~
-  Downloading airspace: ~
-  Download airspace: ~
+  Wind - direction arrow: Wind - Richtungspfeil
+  Wind - direction points: Wind - Richtungspunkte
+  Wind - speed: Wind - Geschw
+  Compass - points: Kompass - Punkte
+  Compass - heading: Kompass - Kurs
+  Takeoff - direction: Takeoff - Kurs
+  "Do you want to unpair from all paired devices?\n": "Willst du alle gekoppelten Geräte freigeben?\n"
+  Airspace - side: Luftraum - Seite
+  Auto power off: Auto Abschalten
+  Map management: Karten Management
+  Download from XContest: Download von XContest
+  Load this airspace?: Diesen Luftraum laden?
+  Downloading airspace: Lade Luftraum
+  Download airspace: Luftraum geladen
   Audio thermal fade: ~
-  Enabled: ~
-  When connected: ~
-  Glide mode min: ~
-  Glide mode max: ~
-  Volume change speed: ~
-  Audio volume: ~
-  Vario thermal: ~
-  Vario glide/idle: ~
-  Bluetooth thermal: ~
-  Bluetooth glide/idle: ~
-  Forward FANET: ~
-  Thermal trace zoom: ~
-  Enable KML log: ~
-  Simulate on device: ~
-  Hours %s631: ~
+  Enabled: Eingeschaltet
+  When connected: wenn verbunden
+  Glide mode min: Gleitmodus min
+  Glide mode max: Gleitmodus max
+  Volume change speed: Lautstärke Geschw
+  Audio volume: Lautstärke
+  Vario thermal: Vario Thermik
+  Vario glide/idle: Vario Gleiten/Halten
+  Bluetooth thermal: Bluetooth Thermik
+  Bluetooth glide/idle: Bluetooth Gleiten/Halten
+  Forward FANET: FANET weiterleiten
+  Thermal trace zoom: Thermikspur
+  Enable KML log: Einschalten KML log
+  Simulate on device: Auf Gerät simulieren
+  Hours %s631: Stunden %s631
   Timw: ~
-  "Select countries\nTiles: %u/%u (%u failed)": ~
-  "Indexing...\nTiles done: %u": ~
-  "Getting AGL %s\n%u%%Tiles done: %u/%u": ~
-  "Getting MAP %s\n%u%% Tiles done: %u/%u": ~
-  "Extracting AGL %s\nTiles done: %u/%u": ~
-  "Extracting MAP %s\nTiles done: %u/%u": ~
-  Other: ~
-  Enable charging: ~
-  Charger info: ~
-  Stop Simulation: ~
-  'When idle, power off the device': ~
+  "Select countries\nTiles: %u/%u (%u failed)": "Land wählen\nKachel: %u/%u (%u falsch)"
+  "Indexing...\nTiles done: %u": "Indexiere...\nKacheln fertig: %u"
+  "Getting AGL %s\n%u%%Tiles done: %u/%u": "Lade AGL %s\n%u%% Kacheln fertig: %u/%u"
+  "Getting MAP %s\n%u%% Tiles done: %u/%u": "Lade Karte %s\n%u%% Kacheln fertig: %u/%u"
+  "Extracting AGL %s\nTiles done: %u/%u": "Entpacke AGL %s\n%u%% Kacheln fertig: %u/%u"
+  "Extracting MAP %s\nTiles done: %u/%u": "Entpacke Karte %s\n%u%% Kacheln fertig: %u/%u"
+  Other: Anderes
+  Enable charging: Laden anschalten
+  Charger info: Laden info
+  Stop Simulation: Stoppe Simulation
+  'When idle, power off the device': 'Gerät ausschalten bei Leerlauf'
   Timeout: ~
-  'When flying, return to main screen after 30 seconds': ~
-  simulation: ~
-  Playback speed: ~
-  Loop at the end: ~
-  Auto Power off: ~
+  'When flying, return to main screen after 30 seconds': 'Beim Fliegen zum Hauptbildschirm zurück nach 30 Sekunden'
+  simulation: Simulation
+  Playback speed: Abspielgeschwindigkeit
+  Loop at the end: Am Ende neu starten
+  Auto Power off: Automatisch Abschalten
   Simulation: ~
-  Digital vario smoothing: ~
-  Average vario time: ~
-  Disable in flight: ~
-  "FLARM licence expired\nUpdate firmware": ~
-  "Unzipping\n%s": ~
-  ZIP %s corrupted: ~
+  Digital vario smoothing: Digitales Vario glätten
+  Average vario time: Durchsch. Variozeit
+  Disable in flight: Im Flug abschalten
+  "FLARM licence expired\nUpdate firmware": "FLARM Lizenz abgelaufen\nFirmware updaten"
+  "Unzipping\n%s": "Entpacke\n%s"
+  ZIP %s corrupted: ZIP %s defekt

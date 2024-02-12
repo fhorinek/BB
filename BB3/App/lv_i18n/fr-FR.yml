@@ -67,9 +67,6 @@ fr-FR:
 
     Continuer ?
      No GNSS: Aucun GNSS Set time: Régler l'heure 
-  Too many files to list\nShowing %u files": |-
-    Trop de fichiers à lister
-    Affichage de %u fichiers
   Nothing to show: Rien à montrer
   Listing files: Liste des fichiers
   Directory not found: Répertoire non trouvé
@@ -176,7 +173,6 @@ fr-FR:
   Days: Jours
   Total: ~
   Flights: Vols
-  Hours %s: Heures %s
   Distance: ~
   Flights %s: Vols %s
   Time: Heure
@@ -263,7 +259,6 @@ fr-FR:
 
     Le rapport de crash sera disponible sur votre strato via la mémoire de masse
     USB.
-  Advanced settings: Paramètres avancés
   Calibration data not valid: Les données calibration ne sont pas valides
   Calibrate sensors: Calibrer les sondes
   Recalibrate Gyroscope: Recalibrer le gyroscope
@@ -330,7 +325,6 @@ fr-FR:
   Do you want to restore factory settings?: Voulez-vous restaurer les paramètres d'usine ?
   Display: ~
   Units: Unités
-  Advanced: Avancé
   Firmware: ~
   Restore factory settings: Restaurer les paramètres d'usine
   Altitude: ~
@@ -346,7 +340,6 @@ fr-FR:
   Accelerometer gain: Gain de l'accéléromètre
   Lift threshold: Seuil de levage
   Sink threshold: Seuil de descente
-  Average time: Temps moyen
   Vario profile: Profil Vario
   Network info: Infos sur le réseau
   Client IP: IP du client
@@ -393,7 +386,6 @@ fr-FR:
   Already exists!: Existe déjà !
   new_%u: nouveau_%u
   Page '%s' created at position %u: Page '%s' créée à la position %u
-  Supprimer la page: ~
   Do you want to remove this page?: Voulez-vous supprimer cette page ?
   Page with name '%s' already exist: La page avec le nom '%s' existe déjà
   Page '%s' deleted: Page '%s' supprimée
@@ -486,7 +478,6 @@ fr-FR:
   '': ~
   No GNSS: ~
   Set time: ~
-  "Too many files to list\nShowing %u files": ~
   "Loaded %lu/%u\nData used %lu%%\nIn file %lu\nDist %0.1fkm": ~
   "You need to be in this menu to enable pairing.\n\n'%s'\n if for Audio and Telemetry (classic bluetooth), pair via phone settings.\n\n'%s LE'\n is for Telemetry (Bluetooth low energy), pair via XCTrack or other application.": ~
   "Do you want to clear calibration data for motion sensors?\nYou will need to redo the calibration for proper device functions.": ~
@@ -561,7 +552,6 @@ fr-FR:
   Compass - heading: ~
   Takeoff - direction: ~
   "Do you want to unpair from all paired devices?\n": ~
-  Airspace - sideview: ~
   Airspace - side: ~
   Auto power off: ~
   Map management: ~
@@ -610,3 +600,4 @@ fr-FR:
   "FLARM licence expired\nUpdate firmware": ~
   "Unzipping\n%s": ~
   ZIP %s corrupted: ~
+  "Too many files to list\nShowing %u files": ~
