@@ -8,6 +8,7 @@
  */
 
 #include <string.h>
+#include <strings.h>
 
 #include "lib/miniz/miniz.h"
 #include "common.h"
@@ -15,6 +16,16 @@
 #include "drivers/rtc.h"
 #include "etc/format.h"
 
+/**
+ * Unzip all files from the given ZIP file.
+ *
+ * @param target_dir the directory, where we put the extracted files to.
+ *                   this should not end with "/".
+ * @param zip_file_path the filename of the ZIP file to extract.
+ * @param gui set to true if statusbar_msg should be displayed
+ *
+ * @return true if all files are successfully extracted, false otherwise.
+ */
 bool unzip_zipfile(char *target_dir, char *zip_file_path, bool gui)
 {
 	mz_zip_archive zip;
@@ -64,7 +75,13 @@ bool unzip_zipfile(char *target_dir, char *zip_file_path, bool gui)
 	return res;
 }
 
-static void maps_unzip_dir(char *dir_path)
+/**
+ * Unzip all zip files in the given directory which have the given suffix.
+ *
+ * @param dir_path the directory in which we look for ZIP files to extract
+ * @param suffix the suffix ".zip" or "_map.zip" to find the ZIP files.
+ */
+static void maps_unzip_dir(char *dir_path, char *suffix)
 {
 	REDDIR * dir = red_opendir(dir_path);
 	if (dir != NULL)
@@ -75,7 +92,7 @@ static void maps_unzip_dir(char *dir_path)
 			if (entry == NULL)
 				break;
 
-			char *pos = strcasestr(entry->d_name, ".zip");
+			char *pos = strcasestr(entry->d_name, suffix);
 			if ( pos != NULL)
 			{
 				char file_path[PATH_LEN] = {0};
@@ -91,18 +108,24 @@ static void maps_unzip_dir(char *dir_path)
 	}
 }
 
+/**
+ * A FreeRTOS task to unzip all zip files, which are found.
+ */
 static void maps_unzip_task(void * param)
 {
 	// Wait some time to let other things done before we start
 	osDelay(10 * 1000);
 
-	maps_unzip_dir(PATH_MAP_DIR);
-	maps_unzip_dir(PATH_TOPO_DIR);
+	maps_unzip_dir(PATH_MAP_DIR, "_map.zip");
+	maps_unzip_dir(PATH_TOPO_DIR, "_agl.zip");
 
 	RedTaskUnregister();
 	vTaskDelete(NULL);
 }
 
+/**
+ * Start a new FreeRTOS task to extract alle zip files on SD.
+ */
 void maps_unzip_start_task()
 {
 	// Start in an own task, as it needs more stack and should run in the background.
